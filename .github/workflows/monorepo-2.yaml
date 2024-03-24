@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@main
       - uses: amondnet/vercel-action@v25.1.1
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
+          vercel-token: ${{ secrets.VERCL_TOKEN_MONOREPO_TEST }} # Required
           vercel-org-id: ${{ secrets.ORG_ID}} #Required
           vercel-project-id: ${{ secrets.PROJECT_ID}} #Required
           working-directory: ./packages/monorepo-2
