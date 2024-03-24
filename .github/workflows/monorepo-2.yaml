@@ -10,6 +10,8 @@ on:
   push:
     branches-ignore:
       - main
+  pull_request_target:
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
