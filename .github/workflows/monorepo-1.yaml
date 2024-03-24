@@ -21,12 +21,6 @@ jobs:
       - name: show VERCEL_TOKEN
         run: echo -n "${{ secrets.VERCEL_TOKEN }}"
 
-      # https://aaronfrancis.com/2021/the-perfect-vercel-github-actions-deployment-pipeline
-      - name: Setup Node 20
-        uses: actions/setup-node@v2
-        with:
-          node-version: '20'
-
       - uses: actions/checkout@main
       - uses: amondnet/vercel-action@v25.1.1
         with:
