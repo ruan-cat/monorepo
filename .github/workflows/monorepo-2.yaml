@@ -27,5 +27,5 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           vercel-org-id: ${{ secrets.ORG_ID}} #Required
           vercel-project-id: ${{ secrets.PROJECT_ID}} #Required
-          working-directory: ./packages/monorepo-2
+          working-directory: packages/monorepo-2
           alias-domains: monorepo-2.ruancat6312.top
