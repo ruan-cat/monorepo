@@ -17,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+      - name: show VERCEL_TOKEN
+        run: echo -n "${{ secrets.VERCEL_TOKEN }}"
+
       # https://aaronfrancis.com/2021/the-perfect-vercel-github-actions-deployment-pipeline
       - name: Setup Node 20
         uses: actions/setup-node@v2
