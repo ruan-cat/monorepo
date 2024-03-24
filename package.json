@@ -1,0 +1,27 @@
+{
+  "name": "@ruan-cat-vercel-monorepo-test/root",
+  "version": "1.0.0",
+  "description": "这是单仓架构项目的根目录。",
+  "main": "index.js",
+  "packageManager": "pnpm@8.0.0",
+  "engines": {
+    "node": ">=16.0.0",
+    "vscode": "^1.22.0",
+    "pnpm": ">=8.0.0"
+  },
+  "scripts": {
+    "dev-all": "pnpm run dev:main & pnpm run dev:docs",
+    "build-all": "pnpm run build:main-stage && pnpm run build:docs",
+    "dev:main": "pnpm -F @dfsw/main dev",
+    "dev:docs": "pnpm -F @dfsw/docs dev",
+    "build:main-stage": "pnpm -F @dfsw/main build:stage",
+    "build:main-prod": "pnpm -F @dfsw/main build:prod",
+    "build:docs": "pnpm -F @dfsw/docs build"
+  },
+  "keywords": [],
+  "author": "ruan-cat",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^2.8.4"
+  }
+}
