@@ -16,7 +16,9 @@
     "dev:docs": "pnpm -F @dfsw/docs dev",
     "build:main-stage": "pnpm -F @dfsw/main build:stage",
     "build:main-prod": "pnpm -F @dfsw/main build:prod",
-    "build:docs": "pnpm -F @dfsw/docs build"
+    "build:docs": "pnpm -F @dfsw/docs build",
+    "build:1": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-1 docs:build",
+    "build:2": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-2 docs:build"
   },
   "keywords": [],
   "author": "ruan-cat",
