@@ -4,7 +4,6 @@
 	"buildCommand": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-1 docs:build",
 	"outputDirectory": "src/.vuepress/dist",
 	"devCommand": "vuepress-vite dev docs --clean-cache",
-	"nodeVersion": "18.x",
 	"public": true,
 	"git": {
 		"deploymentEnabled": true
