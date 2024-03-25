@@ -1,4 +1,5 @@
 import { defineUserConfig } from "vuepress";
+import { viteBundler } from "@vuepress/bundler-vite";
 import theme from "./theme.js";
 
 export default defineUserConfig({
@@ -9,6 +10,11 @@ export default defineUserConfig({
   description: "vuepress-theme-hope 的文档演示",
 
   theme,
+
+  bundler: viteBundler({
+    viteOptions: {},
+    vuePluginOptions: {},
+  }),
 
   // 和 PWA 一起启用
   // shouldPrefetch: false,
