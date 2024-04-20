@@ -1,30 +1,19 @@
-# 参考资料
-# https://github.com/marketplace/actions/vercel-action
-# https://vercel.com/guides/how-can-i-use-github-actions-with-vercel
-
 name: monorepo-1
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 on:
   push:
     branches-ignore:
       - main
-  pull_request_target:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: show VERCEL_TOKEN
-        run: echo -n "${{ secrets.VERCEL_TOKEN }}"
 
       - uses: actions/checkout@main
       - uses: amondnet/vercel-action@v25.1.1
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
-          vercel-org-id: ${{ secrets.ORG_ID}} #Required
-          vercel-project-id: ${{ secrets.PROJECT_ID}} #Required
+          vercel-token: ${{ secrets.vercel_token }} # Required
+          vercel-org-id: ${{ secrets.vercel_orgId}} #Required
+          vercel-project-id: ${{ secrets.vercel_projectId}} #Required
           working-directory: ./packages/monorepo-1
           alias-domains: monorepo-1.ruancat6312.top
