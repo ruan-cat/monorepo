@@ -14,6 +14,10 @@
 
 try-to-active-vercel-monorepo-test-proj.ruancat6312.top
 
+## 4
+
+按照提示 提供根目录的部署文件
+
 ```json
 {
   "buildCommand": "vuepress build docs",
