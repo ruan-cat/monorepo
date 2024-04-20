@@ -26,6 +26,12 @@ packages/monorepo-1 vercel 的控制台移除给定的目录配置。
 
 和小爱丽丝官网保持一致，vercel 关闭 deploymentEnabled
 
+## 7
+
+monorepo-2 的一次部署？
+
+## ？
+
 ```json
 {
   "buildCommand": "vuepress build docs",
