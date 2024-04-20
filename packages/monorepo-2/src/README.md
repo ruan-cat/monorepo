@@ -2,6 +2,8 @@
 
 这是正在开发维护的项目。
 
+触发项目提交
+
 ```json
 {
 	"buildCommand": "vuepress build docs",
