@@ -1,0 +1,18 @@
+name: monorepo-4
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: amondnet/vercel-action@v25.1.1
+        with:
+          vercel-token: ${{ secrets.vercel_token }} # Required
+          vercel-org-id: ${{ secrets.vercel_orgId}} #Required
+          vercel-project-id: ${{ secrets.vercel_projectId}} #Required
+          working-directory: ./packages/monorepo-4
+          alias-domains: monorepo-4.ruancat6312.top
