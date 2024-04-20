@@ -10,6 +10,10 @@
 
 尝试先触发一次成功的 vercel 部署。 packages/monorepo-1
 
+## 3
+
+try-to-active-vercel-monorepo-test-proj.ruancat6312.top
+
 ```json
 {
   "buildCommand": "vuepress build docs",
