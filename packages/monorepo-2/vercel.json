@@ -1,11 +1,11 @@
 {
-	"framework": "vuepress",
+	"framework": null,
 	"buildCommand": "vuepress-vite build docs",
 	"installCommand": "pnpm install",
-	"outputDirectory": "src/.vuepress/dist",
+	"outputDirectory": "docs/.vuepress/dist",
 	"devCommand": "vuepress-vite dev docs --clean-cache",
 	"public": true,
 	"git": {
-		"deploymentEnabled": true
+		"deploymentEnabled": false
 	}
 }
