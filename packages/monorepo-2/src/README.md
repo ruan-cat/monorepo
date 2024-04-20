@@ -8,7 +8,7 @@
 
 ## 2
 
-尝试先触发一次成功的 vercel 部署。
+尝试先触发一次成功的 vercel 部署。 packages/monorepo-1
 
 ```json
 {
