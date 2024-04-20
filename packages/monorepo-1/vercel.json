@@ -6,6 +6,6 @@
 	"devCommand": "vuepress-vite dev docs --clean-cache",
 	"public": true,
 	"git": {
-		"deploymentEnabled": false
+		"deploymentEnabled": true
 	}
 }
