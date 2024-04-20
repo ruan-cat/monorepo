@@ -4,8 +4,10 @@
 	"installCommand": "pnpm install",
 	"outputDirectory": "src/.vuepress/dist",
 	"devCommand": "vuepress-vite dev src --clean-cache",
-	"public": true,
+	"public": false,
 	"git": {
-		"deploymentEnabled": false
+		"deploymentEnabled": {
+			"main": false
+		}
 	}
 }
