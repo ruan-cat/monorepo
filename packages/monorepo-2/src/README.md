@@ -30,6 +30,10 @@ packages/monorepo-1 vercel 的控制台移除给定的目录配置。
 
 monorepo-2 的一次部署？
 
+## 8
+
+monorepo-3 对我有影响么？
+
 ## ？
 
 ```json
