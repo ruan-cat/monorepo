@@ -18,6 +18,10 @@ try-to-active-vercel-monorepo-test-proj.ruancat6312.top
 
 按照提示 提供根目录的部署文件
 
+## 5
+
+packages/monorepo-1 vercel 的控制台移除给定的目录配置。
+
 ```json
 {
   "buildCommand": "vuepress build docs",
