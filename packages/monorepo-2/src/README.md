@@ -22,6 +22,10 @@ try-to-active-vercel-monorepo-test-proj.ruancat6312.top
 
 packages/monorepo-1 vercel 的控制台移除给定的目录配置。
 
+## 6
+
+和小爱丽丝官网保持一致，vercel 关闭 deploymentEnabled
+
 ```json
 {
   "buildCommand": "vuepress build docs",
