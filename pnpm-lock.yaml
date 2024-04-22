@@ -42,6 +42,51 @@ importers:
         specifier: 2.0.0-rc.31
         version: 2.0.0-rc.31(markdown-it@14.1.0)(vuepress@2.0.0-rc.8)
 
+  packages/monorepo-3:
+    devDependencies:
+      '@vuepress/bundler-vite':
+        specifier: 2.0.0-rc.8
+        version: 2.0.0-rc.8
+      vue:
+        specifier: ^3.4.16
+        version: 3.4.21
+      vuepress:
+        specifier: 2.0.0-rc.8
+        version: 2.0.0-rc.8(@vuepress/bundler-vite@2.0.0-rc.8)(vue@3.4.21)
+      vuepress-theme-hope:
+        specifier: 2.0.0-rc.31
+        version: 2.0.0-rc.31(markdown-it@14.1.0)(vuepress@2.0.0-rc.8)
+
+  packages/monorepo-4:
+    devDependencies:
+      '@vuepress/bundler-vite':
+        specifier: 2.0.0-rc.8
+        version: 2.0.0-rc.8
+      vue:
+        specifier: ^3.4.16
+        version: 3.4.21
+      vuepress:
+        specifier: 2.0.0-rc.8
+        version: 2.0.0-rc.8(@vuepress/bundler-vite@2.0.0-rc.8)(vue@3.4.21)
+      vuepress-theme-hope:
+        specifier: 2.0.0-rc.31
+        version: 2.0.0-rc.31(markdown-it@14.1.0)(vuepress@2.0.0-rc.8)
+
+  packages/monorepo-5:
+    devDependencies:
+      '@vuepress/bundler-vite':
+        specifier: 2.0.0-rc.8
+        version: 2.0.0-rc.8
+      vue:
+        specifier: ^3.4.16
+        version: 3.4.21
+      vuepress:
+        specifier: 2.0.0-rc.8
+        version: 2.0.0-rc.8(@vuepress/bundler-vite@2.0.0-rc.8)(vue@3.4.21)
+      vuepress-theme-hope:
+        specifier: 2.0.0-rc.31
+        version: 2.0.0-rc.31(markdown-it@14.1.0)(vuepress@2.0.0-rc.8)
+
 packages:
 
   /@babel/helper-string-parser@7.24.1:
