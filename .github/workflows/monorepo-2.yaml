@@ -8,12 +8,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-
       - uses: actions/checkout@main
       - uses: amondnet/vercel-action@v25.1.1
         with:
           vercel-token: ${{ secrets.vercel_token }} # Required
           vercel-org-id: ${{ secrets.vercel_orgId}} #Required
           vercel-project-id: ${{ secrets.vercel_projectId}} #Required
+          vercel-version: 34.1.2
           working-directory: ./packages/monorepo-2
           alias-domains: monorepo-2.ruancat6312.top
