@@ -129,4 +129,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# 项目也使用 webstorm 来打开项目 故忽略该内容
+.idea
+
 .vercel
