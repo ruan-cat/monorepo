@@ -18,7 +18,8 @@
     "build:main-prod": "pnpm -F @dfsw/main build:prod",
     "build:docs": "pnpm -F @dfsw/docs build",
     "build:1": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-1 docs:build",
-    "build:2": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-2 docs:build"
+    "build:2": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-2 docs:build",
+    "rm:node_modules": "rimraf node_modules && pnpm -r rimraf node_modules"
   },
   "keywords": [],
   "author": "ruan-cat",
