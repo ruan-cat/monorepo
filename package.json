@@ -28,5 +28,11 @@
     "markdown-it": "^14.1.0",
     "prettier": "^2.8.4",
     "rimraf": "^5.0.5"
+  },
+  "dependencies": {
+    "@vuepress/bundler-vite": "2.0.0-rc.8",
+    "vue": "3.4.16",
+    "vuepress": "2.0.0-rc.8",
+    "vuepress-theme-hope": "2.0.0-rc.31"
   }
 }
