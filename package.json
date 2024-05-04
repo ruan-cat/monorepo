@@ -1,6 +1,8 @@
 {
   "name": "@ruan-cat-vercel-monorepo-test/root",
   "version": "1.0.0",
+  "author": "ruan-cat",
+  "license": "ISC",
   "description": "这是单仓架构项目的根目录。",
   "main": "index.js",
   "private": true,
@@ -17,18 +19,18 @@
     "build:4": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-4 docs:build",
     "build:5": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-5 docs:build",
     "dev:1": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-1 docs:dev",
+    "dev:2": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-2 docs:dev",
+    "dev:3": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-3 docs:dev",
+    "dev:4": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-4 docs:dev",
+    "dev:5": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-5 docs:dev",
     "rm:node_modules": "pnpm -r rimraf node_modules && rimraf node_modules"
   },
   "keywords": [],
-  "author": "ruan-cat",
-  "license": "ISC",
   "devDependencies": {
+    "@vuepress/bundler-vite": "2.0.0-rc.8",
     "markdown-it": "^14.1.0",
     "prettier": "^2.8.4",
-    "rimraf": "^5.0.5"
-  },
-  "dependencies": {
-    "@vuepress/bundler-vite": "2.0.0-rc.8",
+    "rimraf": "^5.0.5",
     "vue": "3.4.16",
     "vuepress": "2.0.0-rc.8",
     "vuepress-theme-hope": "2.0.0-rc.31"
