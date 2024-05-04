@@ -53,6 +53,9 @@ importers:
       '@vuepress/bundler-vite':
         specifier: 2.0.0-rc.8
         version: 2.0.0-rc.8
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
       vue:
         specifier: ^3.4.16
         version: 3.4.26
@@ -68,6 +71,9 @@ importers:
       '@vuepress/bundler-vite':
         specifier: 2.0.0-rc.8
         version: 2.0.0-rc.8
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
       vue:
         specifier: ^3.4.16
         version: 3.4.26
