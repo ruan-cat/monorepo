@@ -14,9 +14,9 @@ jobs:
           vercel-token: ${{ secrets.vercel_token }} # Required
           vercel-org-id: ${{ secrets.vercel_orgId}} #Required
           vercel-project-id: ${{ secrets.vercel_projectId}} #Required
-          vercel-args: "--prod"
+          vercel-args: "--prod --cwd ./ --local-config ./packages/monorepo-5/vercel.json"
           vercel-version: 34.1.2
-          working-directory: ./packages/monorepo-5
+          # working-directory: ./packages/monorepo-5
           alias-domains: |
             monorepo-5.ruancat6312.top
             monorepo-5-with-alias.ruancat6312.top
