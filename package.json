@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "这是单仓架构项目的根目录。",
   "main": "index.js",
+  "private": true,
   "packageManager": "pnpm@8.0.0",
   "engines": {
     "node": ">=18.0.0",
@@ -10,15 +11,12 @@
     "pnpm": ">=8.0.0"
   },
   "scripts": {
-    "dev-all": "pnpm run dev:main & pnpm run dev:docs",
-    "build-all": "pnpm run build:main-stage && pnpm run build:docs",
-    "dev:main": "pnpm -F @dfsw/main dev",
-    "dev:docs": "pnpm -F @dfsw/docs dev",
-    "build:main-stage": "pnpm -F @dfsw/main build:stage",
-    "build:main-prod": "pnpm -F @dfsw/main build:prod",
-    "build:docs": "pnpm -F @dfsw/docs build",
     "build:1": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-1 docs:build",
     "build:2": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-2 docs:build",
+    "build:3": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-3 docs:build",
+    "build:4": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-4 docs:build",
+    "build:5": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-5 docs:build",
+    "dev:1": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-1 docs:dev",
     "rm:node_modules": "pnpm -r rimraf node_modules && rimraf node_modules"
   },
   "keywords": [],

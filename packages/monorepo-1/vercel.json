@@ -1,9 +1,9 @@
 {
 	"framework": null,
-	"buildCommand": "pnpm -C ./packages/monorepo-1 run docs:build",
+	"buildCommand": "pnpm run build:1",
 	"installCommand": "pnpm install",
 	"outputDirectory": "./packages/monorepo-1/src/.vuepress/dist",
-	"devCommand": "pnpm -C ./packages/monorepo-1 run docs:dev",
+	"devCommand": "pnpm run dev:1",
 	"public": false,
 	"git": {
 		"deploymentEnabled": {
