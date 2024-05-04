@@ -1,7 +1,7 @@
 {
-  "name": "@ruan-cat-vercel-monorepo-test/monorepo-1",
+  "name": "@ruan-cat-vercel-monorepo-test/monorepo-5",
   "version": "2.0.0",
-  "description": "monorepo-1",
+  "description": "monorepo-5",
   "license": "MIT",
   "type": "module",
   "scripts": {
