@@ -1,9 +1,9 @@
 {
 	"framework": null,
-	"buildCommand": "vuepress-vite build src",
+	"buildCommand": "pnpm run build:2",
 	"installCommand": "pnpm install",
-	"outputDirectory": "src/.vuepress/dist",
-	"devCommand": "vuepress-vite dev src --clean-cache",
+	"outputDirectory": "./packages/proj-2-vp2-custom-components/src/.vuepress/dist",
+	"devCommand": "pnpm run dev:2",
 	"public": false,
 	"git": {
 		"deploymentEnabled": {

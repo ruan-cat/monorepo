@@ -1,9 +1,9 @@
 {
 	"framework": null,
-	"buildCommand": "vuepress-vite build src",
+	"buildCommand": "pnpm run build:4",
 	"installCommand": "pnpm install",
-	"outputDirectory": "src/.vuepress/dist",
-	"devCommand": "vuepress-vite dev src --clean-cache",
+	"outputDirectory": "./packages/monorepo-4/src/.vuepress/dist",
+	"devCommand": "pnpm run dev:4",
 	"public": false,
 	"git": {
 		"deploymentEnabled": {
