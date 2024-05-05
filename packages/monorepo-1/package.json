@@ -10,5 +10,8 @@
     "docs:dev": "vuepress-vite dev src",
     "docs:update-package": "pnpm dlx vp-update",
     "copy-dist": "cpx \"src/.vuepress/dist/**/*\" dist"
+  },
+  "devDependencies": {
+    "@ruan-cat-vercel-monorepo-test/vuepress-preset-config": "workspace:^"
   }
 }

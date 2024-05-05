@@ -33,7 +33,11 @@ importers:
         specifier: 2.0.0-rc.38
         version: 2.0.0-rc.38(markdown-it@14.1.0)(vuepress@2.0.0-rc.9)
 
-  packages/monorepo-1: {}
+  packages/monorepo-1:
+    devDependencies:
+      '@ruan-cat-vercel-monorepo-test/vuepress-preset-config':
+        specifier: workspace:^
+        version: link:../vuepress-preset-config
 
   packages/monorepo-3: {}
 
@@ -42,6 +46,8 @@ importers:
   packages/monorepo-5: {}
 
   packages/proj-2-vp2-custom-components: {}
+
+  packages/vuepress-preset-config: {}
 
 packages:
 
