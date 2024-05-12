@@ -6,5 +6,6 @@
   "author": "ruan-cat",
   "license": "MIT",
   "type": "module",
-  "main": "./src/index.ts"
+  "main": "./src/index.ts",
+  "module": "./src/index.ts"
 }
