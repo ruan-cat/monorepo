@@ -1,0 +1,8 @@
+# https://prettier.io/docs/en/ignore.html#ignoring-files-prettierignore
+
+# 全部的json文件 都默认不忽略 都要做格式化
+!**/*.json
+
+# 全部以tsconfig开头的 尾缀为json的配置文件 都被忽略
+tsconfig*.json
+
