@@ -22,7 +22,7 @@ const defaultConfig = {
     globals,
   },
 
-  external,
+  // external,
 
   plugins: [
     typescript2({
