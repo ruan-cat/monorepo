@@ -35,7 +35,7 @@ const defaultConfig = {
 
     json(),
 
-    terser(),
+    // terser(),
 
     resolve(),
 
