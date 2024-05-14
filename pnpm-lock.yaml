@@ -63,6 +63,9 @@ importers:
       rollup-plugin-typescript2:
         specifier: ^0.36.0
         version: 0.36.0(rollup@4.17.2)(typescript@5.4.5)
+      tslib:
+        specifier: ^2.6.2
+        version: 2.6.2
 
   packages/monorepo-1:
     devDependencies:

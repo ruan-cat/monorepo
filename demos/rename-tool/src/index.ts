@@ -1,4 +1,5 @@
 import { Command } from "commander";
+import inquirer from "inquirer";
 import pkg from "../package.json";
 
 const program = new Command(pkg.name);
