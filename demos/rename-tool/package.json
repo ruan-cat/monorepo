@@ -18,6 +18,7 @@
     "inquirer": "^9.2.21"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/inquirer": "^9.0.7",

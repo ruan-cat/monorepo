@@ -3,6 +3,7 @@ import json from "@rollup/plugin-json";
 import { terser } from "rollup-plugin-terser";
 import typescript2 from "rollup-plugin-typescript2";
 import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
 
 import pkg from "./package.json" assert { type: "json" };
 const external = Object.keys(pkg.dependencies || "");
@@ -13,7 +14,7 @@ const globals = external.reduce((prev, current) => {
 }, {});
 
 const defaultConfig = {
-  input: "./src/index.ts",
+  input: "./src/index.mts",
 
   output: {
     file: "./dist/index.js",
@@ -37,6 +38,8 @@ const defaultConfig = {
     terser(),
 
     resolve(),
+
+    commonjs(),
   ],
 };
 
