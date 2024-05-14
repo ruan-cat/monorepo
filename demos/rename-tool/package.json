@@ -21,6 +21,7 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.12.11",
     "nodemon": "^3.1.0",

@@ -4,6 +4,7 @@ import { terser } from "rollup-plugin-terser";
 import typescript2 from "rollup-plugin-typescript2";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import typescript from "@rollup/plugin-typescript";
 
 import pkg from "./package.json" assert { type: "json" };
 const external = Object.keys(pkg.dependencies || "");
@@ -13,6 +14,10 @@ const globals = external.reduce((prev, current) => {
   return newPrev;
 }, {});
 
+/**
+ * @see https://jiaozitang.github.io/blog/2022/09/19/rollup rollup 插件使用教程
+ * @see https://www.cnblogs.com/JasonLong/p/14075724.html 整体综述
+ */
 const defaultConfig = {
   input: "./src/index.mts",
 
@@ -40,6 +45,12 @@ const defaultConfig = {
     resolve(),
 
     commonjs(),
+
+    typescript({
+      outDir: "dist",
+      declaration: true,
+      declarationDir: "dist",
+    }),
   ],
 };
 
