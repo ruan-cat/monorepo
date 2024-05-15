@@ -24,6 +24,28 @@ export default antfu({
   ignores: [
     "**/fixtures",
     // ...globs
-
   ],
+
+  /** 
+   * @see https://juejin.cn/post/7338074027281104936
+   */
+  formatters: {
+    /**
+     * Format CSS, LESS, SCSS files, also the `<style>` blocks in Vue
+     * By default uses Prettier
+     */
+    css: true,
+    /**
+     * Format HTML files
+     * By default uses Prettier
+     */
+    html: true,
+    /**
+     * Format Markdown files
+     * Supports Prettier and dprint
+     * By default uses Prettier
+     */
+    markdown: 'prettier'
+  }
+
 });
