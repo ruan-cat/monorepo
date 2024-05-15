@@ -33,6 +33,8 @@
     "@vuepress/bundler-vite": "2.0.0-rc.9",
     "cpx2": "^7.0.1",
     "eslint": "^9.2.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
     "markdown-it": "^14.1.0",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
