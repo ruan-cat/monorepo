@@ -28,8 +28,10 @@
   },
   "keywords": [],
   "devDependencies": {
+    "@antfu/eslint-config": "^2.18.0",
     "@vuepress/bundler-vite": "2.0.0-rc.9",
     "cpx2": "^7.0.1",
+    "eslint": "^9.2.0",
     "markdown-it": "^14.1.0",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
