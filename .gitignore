@@ -132,5 +132,8 @@ dist
 # 项目也使用 webstorm 来打开项目 故忽略该内容
 .idea
 
+# 不提供包锁文件 自动生成的文件 不应该提交到仓库中
+pnpm-lock.yaml
+
 .vercel
 
