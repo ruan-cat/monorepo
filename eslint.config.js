@@ -24,5 +24,6 @@ export default antfu({
   ignores: [
     "**/fixtures",
     // ...globs
+
   ],
 });
