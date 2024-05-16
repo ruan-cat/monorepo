@@ -71,5 +71,9 @@
     "gql",
     "graphql",
     "astro"
-  ]
+  ],
+  /** 
+    - https://www.cnblogs.com/sq800/p/17484485.html
+  */
+  "eslint.format.enable": true
 }
