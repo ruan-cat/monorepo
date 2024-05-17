@@ -26,7 +26,7 @@ export default antfu({
     // ...globs
   ],
 
-  /** 
+  /**
    * @see https://juejin.cn/post/7338074027281104936
    */
   formatters: {
@@ -45,7 +45,15 @@ export default antfu({
      * Supports Prettier and dprint
      * By default uses Prettier
      */
-    markdown: 'prettier'
-  }
+    markdown: "prettier",
+  },
+
+  javascript: {
+    /**
+     * @see https://eslint.org/docs/latest/use/configure/migration-guide#importing-plugins-and-custom-parsers
+     */
+    overrides: { "jsdoc/require-description": "error", "jsdoc/check-values": "error",
+    },
+  },
 
 });
