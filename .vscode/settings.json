@@ -75,5 +75,14 @@
   /** 
     - https://www.cnblogs.com/sq800/p/17484485.html
   */
-  "eslint.format.enable": true
+  "eslint.format.enable": true,
+
+  /**
+   * Specifies the speech language for voice accessibility.
+   * 
+   * @property {string} accessibility.voice.speechLanguage - The speech language code.
+   *   This property determines the language used for voice accessibility features.
+   *   The value should be a valid language code, such as "zh-CN" for Simplified Chinese.
+   */
+  "accessibility.voice.speechLanguage": "zh-CN"
 }
