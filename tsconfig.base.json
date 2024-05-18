@@ -28,7 +28,7 @@
     //  这几项配置的作用比较显而易见，具体可查阅文档：
     // https://www.typescriptlang.org/tsconfig#resolveJsonModule
     // https://www.typescriptlang.org/tsconfig#strict
-    "module": "ESNext",
+    "module": "NodeNext",
     "moduleResolution": "nodenext",
     "target": "ESNext",
     "allowImportingTsExtensions": true,
