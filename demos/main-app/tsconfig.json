@@ -9,6 +9,9 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
+    "rootDirs": [
+      "src",
+    ],
   },
   "include": [
     "src"
