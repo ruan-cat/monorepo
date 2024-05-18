@@ -9,7 +9,9 @@
     // https://www.typescriptlang.org/docs/handbook/project-references.html
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": true,
+    
+    // 按照ai提供的建议 这里调整为false
+    "emitDeclarationOnly": false,
     "noEmitOnError": true,
     "skipLibCheck": true,
     // 这几项配置（当然还有其他相关配置）与生成js文件、d.ts文件，sourcemap文件有关，
