@@ -29,7 +29,7 @@
     // https://www.typescriptlang.org/tsconfig#resolveJsonModule
     // https://www.typescriptlang.org/tsconfig#strict
     "module": "NodeNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "Bundler",
     "target": "ESNext",
     "allowImportingTsExtensions": true,
     // lib
