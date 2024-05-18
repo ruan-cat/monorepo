@@ -2,10 +2,11 @@
   "name": "main-app",
   "version": "1.0.0",
   "description": "Main application",
-  "main": "src/index.ts",
   "type": "module",
+  "main": "./dist/index.js",
   "scripts": {
-    "start": "node src/index.ts"
+    "build": "tsc",
+    "start": "node ./dist/index.js"
   },
   "devDependencies": {
     "add-tool": "workspace:^"
