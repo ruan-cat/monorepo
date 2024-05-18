@@ -10,6 +10,7 @@
     "declaration": true,
     "declarationMap": true,
     
+    "noEmit": false,
     // 按照ai提供的建议 这里调整为false
     "emitDeclarationOnly": false,
     "noEmitOnError": true,
@@ -33,7 +34,9 @@
     "module": "NodeNext",
     "moduleResolution": "Bundler",
     "target": "ESNext",
-    "allowImportingTsExtensions": true,
+    
+    // 根据ai建议 调整为false
+    "allowImportingTsExtensions": false,
     // lib
     "lib": [
       "DOM",
