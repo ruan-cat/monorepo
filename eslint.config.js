@@ -1,15 +1,15 @@
 // @ts-check
-import antfu from "@antfu/eslint-config"
-import gitignore from "eslint-config-flat-gitignore"
+import antfu from "@antfu/eslint-config";
+import gitignore from "eslint-config-flat-gitignore";
 import js from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
 // const eslintConfigPrettier =   require("eslint-config-prettier");
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
-import { FlatCompat } from "@eslint/eslintrc"
+import { FlatCompat } from "@eslint/eslintrc";
 
 const compat = new FlatCompat({
 	recommendedConfig: js.configs.recommended,
-})
+});
 
 export default antfu(
   {
@@ -25,11 +25,12 @@ export default antfu(
 
     // TypeScript and Vue are auto-detected, you can also explicitly enable them:
     typescript: {
-      tsconfigPath: "tsconfig.json",
+			tsconfigPath: "tsconfig.json",
     },
+
     vue: true,
 
-    javascript: {
+		javascript: {
       /**
 			 * @see https://eslint.org/docs/latest/use/configure/migration-guide#importing-plugins-and-custom-parsers
 			 */
@@ -71,11 +72,7 @@ export default antfu(
 
   // Legacy config
   ...compat.config({
-    extends: [
-      "eslint:recommended",
-			"prettier",
-      // Other extends...
-    ],
+    extends: ["eslint:recommended"],
   }),
 
 	/** https://github.com/antfu/eslint-config-flat-gitignore */
@@ -88,14 +85,30 @@ export default antfu(
   {
     rules: {
       "no-console": "off",
-      "style/semi": ["error", "never"],
+      // "style/semi": ["error", "never"],
     },
   },
 
-  // @ts-ignore
-  eslintConfigPrettier,
-  // {
-  // 	rules: eslintConfigPrettier
-  // },
+	{
+		rules: {
+			"prettier/prettier": [
+				"off",
+				{
+					usePrettierrc: true,
+        },
+			],
+		},
+	},
+
+	// {
+  //   rules: {
+	// 		indent: ["error", 2], // 用于指定代码缩进的方式
+  //     // quotes: ["error", "single"], // 用于指定字符串的引号风格，这里配置为使用单引号作为字符串的引号。
+  //     semi: ["error", "always"], // 用于指定是否需要在语句末尾添加分号，这里配置为必须始终添加分号。
+  //     "@typescript-eslint/no-explicit-any": ["off"], // 用于配置 TypeScript 中的 "any" 类型的使用规则，这里配置为关闭禁止显式使用 "any" 类型的检查。
+	// 	},
+	// },
+
   eslintPluginPrettierRecommended,
-)
+  eslintConfigPrettier,
+);

@@ -28,6 +28,7 @@
     "update-package": "pnpm dlx vp-update",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+		"prettier":"prettier --write .",
     "eslint-config-inspector:open": "pnpx @eslint/config-inspector"
   },
   "devDependencies": {
