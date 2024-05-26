@@ -13,7 +13,7 @@ program
 
 program.parse(process.argv);
 
-const handleLogin = () => {
+function handleLogin() {
   // 配置交互的用户名和密码
   const prompt = [
     {
@@ -38,4 +38,4 @@ const handleLogin = () => {
     }
     console.log("用户名或密码错误");
   });
-};
+}
