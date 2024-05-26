@@ -8,8 +8,8 @@ program
   .command("login")
   .description("模拟登录。")
   .action(() => {
-    handleLogin();
-  });
+    handleLogin()
+	});
 
 program.parse(process.argv);
 
@@ -33,9 +33,9 @@ function handleLogin() {
 
   inquirer.prompt(prompt).then(({ userName, password }) => {
     if (userName === "demo" || password === "123456") {
-      console.log("登录成功");
-      return;
+      console.log("登录成功")
+			return;
     }
-    console.log("用户名或密码错误");
-  });
+    console.log("用户名或密码错误")
+	});
 }

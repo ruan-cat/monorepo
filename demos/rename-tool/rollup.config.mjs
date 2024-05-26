@@ -9,9 +9,9 @@ import pkg from "./package.json" assert { type: "json" };
 
 const external = Object.keys(pkg.dependencies || "");
 const globals = external.reduce((prev, current) => {
-  const newPrev = prev;
-  newPrev[current] = current;
-  return newPrev;
+  const newPrev = prev
+	newPrev[current] = current
+	return newPrev
 }, {});
 
 /**
