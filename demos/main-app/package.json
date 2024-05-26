@@ -1,15 +1,15 @@
 {
-  "name": "main-app",
-  "version": "1.0.0",
-  "description": "Main application",
-  "type": "module",
-  "main": "./dist/index.js",
-  "scripts": {
-    "build": "tsc",
-    "start:js": "node ./dist/index.js",
-    "start:ts": "node src/index.ts"
-  },
-  "devDependencies": {
-    "add-tool": "workspace:^"
-  }
+	"name": "main-app",
+	"version": "1.0.0",
+	"description": "Main application",
+	"type": "module",
+	"main": "./dist/index.js",
+	"scripts": {
+		"build": "tsc",
+		"start:js": "node ./dist/index.js",
+		"start:ts": "node src/index.ts"
+	},
+	"devDependencies": {
+		"add-tool": "workspace:^"
+	}
 }

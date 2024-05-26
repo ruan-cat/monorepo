@@ -18,10 +18,10 @@ monorepo-5
 
 ```json
 {
-  "git": {
-    "deploymentEnabled": {
-      "main": false
-    }
-  }
+	"git": {
+		"deploymentEnabled": {
+			"main": false
+		}
+	}
 }
 ```

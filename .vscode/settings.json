@@ -10,7 +10,7 @@
 	// Auto fix
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "explicit",
-		"source.organizeImports": "never",
+		"source.organizeImports": "never"
 	},
 	/** 
     - https://www.cnblogs.com/sq800/p/17484485.html
@@ -78,12 +78,12 @@
 		"astro"
 	],
 	/**
-   * Specifies the speech language for voice accessibility.
-   * 
-   * @property {string} accessibility.voice.speechLanguage - The speech language code.
-   *   This property determines the language used for voice accessibility features.
-   *   The value should be a valid language code, such as "zh-CN" for Simplified Chinese.
-   */
+	 * Specifies the speech language for voice accessibility.
+	 *
+	 * @property {string} accessibility.voice.speechLanguage - The speech language code.
+	 *   This property determines the language used for voice accessibility features.
+	 *   The value should be a valid language code, such as "zh-CN" for Simplified Chinese.
+	 */
 	"accessibility.voice.speechLanguage": "zh-CN",
 	"[javascript]": {
 		"editor.defaultFormatter": "dbaeumer.vscode-eslint"

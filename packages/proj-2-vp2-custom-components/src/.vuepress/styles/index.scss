@@ -2,46 +2,46 @@
 
 // 全局设置滚动条的宽度 设置较宽的。便于选中。
 ::-webkit-scrollbar {
-  width: 40px;
+	width: 40px;
 }
 ::-webkit-scrollbar-track {
-  width: 40px;
+	width: 40px;
 }
 ::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: #555;
+	border-radius: 10px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+	background-color: #555;
 }
 
 aside {
-  background-color: rebeccapurple;
+	background-color: rebeccapurple;
 }
 
 .site-name {
-  font-style: italic;
+	font-style: italic;
 }
 
 html {
-  ::-webkit-scrollbar {
-    width: 40px;
-  }
+	::-webkit-scrollbar {
+		width: 40px;
+	}
 
-  ::-webkit-scrollbar-track {
-    width: 40px;
-  }
+	::-webkit-scrollbar-track {
+		width: 40px;
+	}
 }
 
 aside {
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
+	&::-webkit-scrollbar {
+		width: 6px;
+	}
 
-  &:hover::-webkit-scrollbar {
-    width: 14px;
-  }
+	&:hover::-webkit-scrollbar {
+		width: 14px;
+	}
 
-  &::-webkit-scrollbar-track-piece {
-    border-radius: 6px;
-    background: #0000001a;
-  }
+	&::-webkit-scrollbar-track-piece {
+		border-radius: 6px;
+		background: #0000001a;
+	}
 }

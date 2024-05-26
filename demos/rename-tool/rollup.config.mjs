@@ -9,9 +9,9 @@ import pkg from "./package.json" assert { type: "json" };
 
 const external = Object.keys(pkg.dependencies || "");
 const globals = external.reduce((prev, current) => {
-  const newPrev = prev
-	newPrev[current] = current
-	return newPrev
+	const newPrev = prev;
+	newPrev[current] = current;
+	return newPrev;
 }, {});
 
 /**
@@ -19,39 +19,39 @@ const globals = external.reduce((prev, current) => {
  * @see https://www.cnblogs.com/JasonLong/p/14075724.html 整体综述
  */
 const defaultConfig = {
-  input: "./src/index.mts",
+	input: "./src/index.mts",
 
-  output: {
-    file: "./dist/index.js",
-    format: "cjs",
-    banner: "#!/usr/bin/env node",
-    globals,
-  },
+	output: {
+		file: "./dist/index.js",
+		format: "cjs",
+		banner: "#!/usr/bin/env node",
+		globals,
+	},
 
-  // external,
+	// external,
 
-  plugins: [
-    typescript2({
-      exclude: "node_modules/**",
-      useTsconfigDeclarationDir: true,
-      // typescript: tsTypes,
-      tsconfig: "./tsconfig.json",
-    }),
+	plugins: [
+		typescript2({
+			exclude: "node_modules/**",
+			useTsconfigDeclarationDir: true,
+			// typescript: tsTypes,
+			tsconfig: "./tsconfig.json",
+		}),
 
-    json(),
+		json(),
 
-    // terser(),
+		// terser(),
 
-    resolve(),
+		resolve(),
 
-    commonjs(),
+		commonjs(),
 
-    typescript({
-      outDir: "dist",
-      declaration: true,
-      declarationDir: "dist",
-    }),
-  ],
+		typescript({
+			outDir: "dist",
+			declaration: true,
+			declarationDir: "dist",
+		}),
+	],
 };
 
 export default defaultConfig;
