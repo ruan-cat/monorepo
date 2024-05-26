@@ -1,6 +1,7 @@
 // @ts-check
 import antfu from "@antfu/eslint-config";
 import eslintConfigPrettier from "eslint-config-prettier";
+import gitignore from "eslint-config-flat-gitignore";
 
 export default antfu({
   // Enable stylistic formatting rules
@@ -14,7 +15,9 @@ export default antfu({
   },
 
   // TypeScript and Vue are auto-detected, you can also explicitly enable them:
-  typescript: true,
+  typescript: {
+    tsconfigPath: "tsconfig.json",
+  },
   vue: true,
 
   // Disable jsonc and yaml support
@@ -57,4 +60,14 @@ export default antfu({
     },
   },
 
-});
+},
+
+/** https://github.com/antfu/eslint-config-flat-gitignore */
+gitignore({
+  root: true,
+  strict: false,
+  files: [
+    ".gitignore",
+    ".eslintignore",
+  ],
+}));
