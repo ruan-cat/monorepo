@@ -84,7 +84,8 @@ export default antfu(
 	{
 		rules: {
 			"no-console": "off",
-			"style/semi": ["error", "never"],
+			// 关掉不合适的分号报错 影响了prettier的工作。
+			// "style/semi": ["error", "never"],
 		},
 	},
 

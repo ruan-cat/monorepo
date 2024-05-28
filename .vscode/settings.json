@@ -3,9 +3,11 @@
 	// Enable the ESlint flat config support
 	// (remove this if your ESLint extension above v3.0.5)
 	"eslint.experimental.useFlatConfig": true,
-	"editor.defaultFormatter": "dbaeumer.vscode-eslint",
+	// 在项目内，我们指定格式化工具默认为 prettier
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	// Disable the default formatter, use eslint instead
-	"prettier.enable": false,
+	// 与antfu不同的是，我们使用prettier作为格式化工具。
+	"prettier.enable": true,
 	"editor.formatOnSave": false,
 	// Auto fix
 	"editor.codeActionsOnSave": {
