@@ -5,14 +5,17 @@
 	"eslint.experimental.useFlatConfig": true,
 	// 在项目内，我们指定格式化工具默认为 prettier
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[javascript]": {
+		// "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
 	// Disable the default formatter, use eslint instead
 	// 与antfu不同的是，我们使用prettier作为格式化工具。
 	"prettier.enable": true,
-	"editor.formatOnSave": false,
+	"editor.formatOnSave": true,
 	// Auto fix
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "explicit",
-		"source.organizeImports": "never"
+		"source.organizeImports": "never",
 	},
 	/** 
     - https://www.cnblogs.com/sq800/p/17484485.html
@@ -87,7 +90,4 @@
 	 *   The value should be a valid language code, such as "zh-CN" for Simplified Chinese.
 	 */
 	"accessibility.voice.speechLanguage": "zh-CN",
-	"[javascript]": {
-		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
-	}
 }

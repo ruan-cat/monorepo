@@ -1,10 +1,20 @@
 // @ts-check
 import antfu from "@antfu/eslint-config";
+import gitignore from "eslint-config-flat-gitignore";
+import js from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import { FlatCompat } from "@eslint/eslintrc";
+
+const compat = new FlatCompat({
+	recommendedConfig: js.configs.recommended,
+});
 
 export default antfu(
 	{
+		// Enable stylistic formatting rules
+		// stylistic: true,
+
 		// Or customize the stylistic rules
 		stylistic: {
 			indent: 2, // 4, or 'tab'
@@ -59,18 +69,30 @@ export default antfu(
 		},
 	},
 
+	// Legacy config
+	...compat.config({
+		extends: ["eslint:recommended"],
+	}),
+
+	/** https://github.com/antfu/eslint-config-flat-gitignore */
+	gitignore({
+		root: true,
+		strict: false,
+		files: [".gitignore", ".eslintignore"],
+	}),
+
 	{
 		rules: {
 			"no-console": "off",
-			// 设置为总是警告
-			// "style/semi": ["warn", "always"],
+			// 关掉不合适的分号报错 影响了prettier的工作。
+			// "style/semi": ["error", "never"],
 		},
 	},
 
 	{
 		rules: {
 			"prettier/prettier": [
-				"error",
+				"off",
 				{
 					usePrettierrc: true,
 				},
@@ -78,6 +100,6 @@ export default antfu(
 		},
 	},
 
-	eslintConfigPrettier,
 	eslintPluginPrettierRecommended,
+	eslintConfigPrettier,
 );
