@@ -6,6 +6,18 @@
 	"author": "ruan-cat",
 	"license": "MIT",
 	"type": "module",
-	"main": "./src/index.ts",
-	"module": "./src/index.ts"
+	"scripts": {
+		"build": "vite build",
+		"test": "echo test"
+	},
+	"main": "./dist/vuepress-preset-config.umd.js",
+	"module": "./dist/vuepress-preset-config.mjs",
+	"types": "",
+	"exports": {
+		".": {
+			"require": "./dist/vuepress-preset-config.umd.js",
+			"module": "./dist/vuepress-preset-config.mjs",
+			"types": ""
+		}
+	},
 }
