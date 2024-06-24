@@ -25,21 +25,24 @@ export default defineConfig({
 		// 参考：https://cn.vitejs.dev/config/build-options.html#build-rollupoptions
 		rollupOptions: {
 			// 确保外部化处理那些你不想打包进库的依赖
-			external: [
-				/\@vuepress\/bundler-vite.*/,
-				// /vuepress.*/,
-				/vuepress-theme-hope.*/,
-				/fsevents.*/,
-				/node.*/,
-			],
+			external: ["@vuepress/bundler-vite", "vuepress", "vuepress-theme-hope"],
+			// external: [
+			// 	/\@vuepress\/bundler-vite.*/,
+			// 	//
+			// 	/vuepress.*/,
+			// 	/vuepress-theme-hope.*/,
+			// 	// /vuepress*/,
+			// 	// /vuepress-theme-hope*/,
+			// 	/fsevents.*/,
+			// 	/node.*/,
+			// ],
 
 			output: {
 				// 在 UMD 构建模式下为这些外部化的依赖提供一个全局变量。即使不设置，构建工具也会为我们自动生成。个人倾向于不设置
-				/*
-        globals: {
-          lodash: 'lodash'
-        }
-        */
+				globals: {
+					vuepress: "vuepress",
+					"vuepress-theme-hope": "vuepress-theme-hope",
+				},
 			},
 		},
 	},

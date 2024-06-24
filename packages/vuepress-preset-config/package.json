@@ -16,10 +16,13 @@
 	"exports": {
 		".": {
 			"require": "./dist/vuepress-preset-config.umd.js",
-			"module": "./dist/vuepress-preset-config.mjs",
+			"module": "./dist/vuepress-preset-config.js",
 			"types": ""
 		}
 	},
+	"files": [
+		"dist"
+	],
 	"devDependencies": {
 		"@types/node": "^20.12.11"
 	},
