@@ -17,6 +17,7 @@
 		".": {
 			"require": "./dist/vuepress-preset-config.umd.cjs",
 			"module": "./dist/vuepress-preset-config.js",
+			"import": "./dist/vuepress-preset-config.js",
 			"types": ""
 		}
 	},
