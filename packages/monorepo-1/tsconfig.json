@@ -4,11 +4,20 @@
 		"esModuleInterop": true,
 		"rootDir": "./src",
 		"types": [
-			"@ruan-cat-vercel-monorepo-test/vuepress-preset-config"
+			// "@ruan-cat-vercel-monorepo-test/vuepress-preset-config"
 		]
 	},
 	"include": [
 		"./src/**/*.ts",
 		"./src/.vuepress/**/*.ts"
 	],
+	"references": [
+		/** 
+			有疑惑 这里是模仿hope主题写的项目引用，目前可以让文件导入时，让vscode实现路径查询。
+			可以找到所引用的js文件。
+		*/
+		{
+			"path": "../vuepress-preset-config/tsconfig.json"
+		}
+	]
 }
