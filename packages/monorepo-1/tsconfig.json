@@ -3,8 +3,12 @@
 	"compilerOptions": {
 		"esModuleInterop": true,
 		"rootDir": "./src",
+		"types": [
+			"@ruan-cat-vercel-monorepo-test/vuepress-preset-config"
+		]
 	},
 	"include": [
-		"./src/**/*.ts"
-	]
+		"./src/**/*.ts",
+		"./src/.vuepress/**/*.ts"
+	],
 }
