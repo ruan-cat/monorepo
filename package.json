@@ -35,6 +35,7 @@
 		"@antfu/eslint-config": "^2.18.0",
 		"@eslint/eslintrc": "^3.1.0",
 		"@eslint/js": "^9.3.0",
+		"@types/node": "^20.12.11",
 		"@vuepress/bundler-vite": "2.0.0-rc.9",
 		"cpx2": "^7.0.1",
 		"eslint": "^9.2.0",

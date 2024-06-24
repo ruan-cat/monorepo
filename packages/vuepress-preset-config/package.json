@@ -19,5 +19,13 @@
 			"module": "./dist/vuepress-preset-config.mjs",
 			"types": ""
 		}
+	},
+	"devDependencies": {
+		"@types/node": "^20.12.11"
+	},
+	"dependencies": {
+		"@vuepress/bundler-vite": "2.0.0-rc.9",
+		"vuepress": "2.0.0-rc.9",
+		"vuepress-theme-hope": "2.0.0-rc.38"
 	}
 }
