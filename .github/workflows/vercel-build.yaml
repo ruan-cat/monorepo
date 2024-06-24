@@ -1,0 +1,52 @@
+name: 批量部署vercel项目
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出项目
+        uses: actions/checkout@main
+
+      - name: 部署monorepo-1
+        uses: amondnet/vercel-action@v25.1.1
+        with:
+          vercel-token: ${{ secrets.vercel_token }}
+          vercel-org-id: ${{ secrets.vercel_orgId}}
+          vercel-project-id: ${{ secrets.vercel_projectId}}
+          vercel-args: "--prod --cwd ./ --local-config ./packages/monorepo-1/vercel.json"
+          vercel-version: 34.1.2
+          alias-domains: monorepo-1.ruancat6312.top
+
+      - name: 部署monorepo-3
+        uses: amondnet/vercel-action@v25.1.1
+        with:
+          vercel-token: ${{ secrets.vercel_token }}
+          vercel-org-id: ${{ secrets.vercel_orgId}}
+          vercel-project-id: ${{ secrets.vercel_projectId}}
+          vercel-args: "--prod --cwd ./ --local-config ./packages/monorepo-3/vercel.json"
+          vercel-version: 34.1.2
+          alias-domains: monorepo-3.ruancat6312.top
+
+      - name: 部署monorepo-4
+        uses: amondnet/vercel-action@v25.1.1
+        with:
+          vercel-token: ${{ secrets.vercel_token }}
+          vercel-org-id: ${{ secrets.vercel_orgId}}
+          vercel-project-id: ${{ secrets.vercel_projectId}}
+          vercel-args: "--prod --cwd ./ --local-config ./packages/monorepo-4/vercel.json"
+          vercel-version: 34.1.2
+          alias-domains: monorepo-4.ruancat6312.top
+
+      - name: 部署monorepo-5
+        uses: amondnet/vercel-action@v25.1.1
+        with:
+          vercel-token: ${{ secrets.vercel_token }}
+          vercel-org-id: ${{ secrets.vercel_orgId}}
+          vercel-project-id: ${{ secrets.vercel_projectId}}
+          vercel-args: "--prod --cwd ./ --local-config ./packages/monorepo-5/vercel.json"
+          vercel-version: 34.1.2
+          alias-domains: monorepo-5.ruancat6312.top
