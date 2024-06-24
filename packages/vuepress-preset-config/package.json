@@ -19,5 +19,5 @@
 			"module": "./dist/vuepress-preset-config.mjs",
 			"types": ""
 		}
-	},
+	}
 }
