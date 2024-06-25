@@ -23,7 +23,9 @@ jobs:
         run: pnpm -v
 
       - name: 安装vercel cli工具
-        run: pnpm i -g vercel@latest
+        run: |
+          pnpm setup
+          pnpm i -g vercel@latest
 
       - name: 检查vercel cli版本
         run: vercel -v
