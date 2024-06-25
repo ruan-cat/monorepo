@@ -1,0 +1,38 @@
+name: 自主实现简单的vercel-cil部署
+env:
+  vercel-token: ${{ secrets.vercel_token }}
+  vercel-org-id: ${{ secrets.vercel_orgId}}
+  vercel-project-id: ${{ secrets.vercel_projectId}}
+
+on:
+  push:
+    branches:
+      - dev
+
+# 参考资料 https://vercel.com/guides/how-can-i-use-github-actions-with-vercel
+jobs:
+  Deploy-Production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+
+      - name: 开启 corepack
+        run: corepack enable && corepack install
+
+      - name: 检查pnpm版本
+        run: pnpm -v
+
+      - name: 安装vercel cli工具
+        run: pnpm i -g vercel@latest
+
+      - name: 检查vercel cli版本
+        run: vercel -v
+
+      # - name: Pull Vercel Environment Information
+      #   run: vercel pull --yes --environment=production --token=${{ secrets.vercel_token }}
+
+      # - name: Build Project Artifacts
+      #   run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      # - name: Deploy Project Artifacts to Vercel
+      #   run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
