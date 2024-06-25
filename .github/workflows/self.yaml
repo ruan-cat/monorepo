@@ -22,10 +22,9 @@ jobs:
       - name: 检查pnpm版本
         run: pnpm -v
 
-      - name: 安装vercel cli工具
+      - name: 用npm安装vercel cli工具
         run: |
-          pnpm setup
-          pnpm i -g vercel@latest
+          npm i -g vercel@latest
 
       - name: 检查vercel cli版本
         run: vercel -v
