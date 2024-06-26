@@ -34,7 +34,7 @@ jobs:
       - name: 连接现有的项目
         # 本地window使用
         # run: vc link --yes --cwd=./packages/monorepo-3 --project=vercel-monorepo-test-1-zn20
-        run: vc link --yes --cwd=./packages/monorepo-3
+        run: vc link --yes --cwd=./packages/monorepo-3 -t=${{ secrets.vercel_token }}
 
       # - name: 拉取vercel环境变量
       #   run: vc pull --cwd=./packages/monorepo-3 --environment=production --token=${{ secrets.vercel_token }}

@@ -2,7 +2,7 @@ name: 批量部署vercel项目
 on:
   push:
     branches:
-      - dev
+      - dev-notuse
 
 jobs:
   deploy:
