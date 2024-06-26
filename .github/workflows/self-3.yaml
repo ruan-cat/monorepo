@@ -39,12 +39,12 @@ jobs:
       # - name: 拉取vercel环境变量
       #   run: vc pull --cwd=./packages/monorepo-3 --environment=production --token=${{ secrets.vercel_token }}
       - name: vercel打包monorepo-3
-        run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json -t=${{ secrets.VERCEL_TOKEN }}
+        run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: pnpm打包monorepo-3
         run: pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-3 docs:build
 
       - name: 部署到vercel内
         run: |
-          url="$(vc deploy --yes --prebuilt --prod --cwd=./packages/monorepo-3 -t=${{ secrets.VERCEL_TOKEN }})"
-          vc alias -t=${{ secrets.VERCEL_TOKEN }} set "$url" monorepo-3.ruancat6312.top
+          url="$(vc deploy --yes --prebuilt --prod --cwd=./packages/monorepo-3 --token=${{ secrets.VERCEL_TOKEN }})"
+          vc alias --token=${{ secrets.VERCEL_TOKEN }} set "$url" monorepo-3.ruancat6312.top
