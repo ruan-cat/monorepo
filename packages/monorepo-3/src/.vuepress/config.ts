@@ -9,7 +9,8 @@ export default defineUserConfig({
 	title: "文档演示",
 	description: "vuepress-theme-hope 的文档演示",
 
-	dest: "src/.vuepress/dist/monorepo-3",
+	// dest: "src/.vuepress/dist/monorepo-3",
+	// dest: ".vercel/output/static",
 
 	theme,
 
