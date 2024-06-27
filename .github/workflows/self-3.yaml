@@ -39,7 +39,8 @@ jobs:
       # - name: 拉取vercel环境变量
       #   run: vc pull --cwd=./packages/monorepo-3 --environment=production --token=${{ secrets.vercel_token }}
       - name: vercel打包monorepo-3
-        run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json -t ${{ secrets.vercel_token }}
+        # run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json -t ${{ secrets.vercel_token }}
+        run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json
 
       - name: pnpm打包monorepo-3
         run: pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-3 docs:build
