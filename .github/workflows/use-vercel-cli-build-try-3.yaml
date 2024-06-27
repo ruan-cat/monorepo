@@ -1,6 +1,11 @@
+# 参考资料
+# https://vercel.com/guides/how-can-i-use-github-actions-with-vercel
+# https://vercel.com/guides/how-to-alias-a-preview-deployment-using-the-cli
+
 name: 基于vercel命令的部署
 env:
   vercel-token: ${{ secrets.vercel_token }}
+  # 从教程内得知 环境变量名称必须大写
   VERCEL_ORG_ID: ${{ secrets.vercel_orgId }}
   VERCEL_PROJECT_ID: ${{ secrets.vercel_projectId }}
 
@@ -25,8 +30,7 @@ jobs:
         run: pnpm i
 
       - name: 用npm安装vercel cli工具
-        run: |
-          npm i -g vercel@latest
+        run: npm i -g vercel@latest
 
       - name: 检查vercel cli版本
         run: vc -v
@@ -36,8 +40,6 @@ jobs:
         # run: vc link --yes --cwd=./packages/monorepo-3 --project=vercel-monorepo-test-1-zn20
         run: vc link --yes --cwd=./packages/monorepo-3 -t ${{ secrets.vercel_token }}
 
-      # - name: 拉取vercel环境变量
-      #   run: vc pull --cwd=./packages/monorepo-3 --environment=production --token=${{ secrets.vercel_token }}
       - name: vercel打包monorepo-3
         run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json -t ${{ secrets.vercel_token }}
         # build命令仍然需要用token来运行。
