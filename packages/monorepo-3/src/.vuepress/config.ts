@@ -10,7 +10,8 @@ export default defineUserConfig({
 	description: "vuepress-theme-hope 的文档演示",
 
 	// dest: "src/.vuepress/dist/monorepo-3",
-	dest: ".vercel/output/static",
+	// 现在有专门的命令保证打包文件移动到特定的部署文件夹
+	// dest: ".vercel/output/static",
 
 	theme,
 
