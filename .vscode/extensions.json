@@ -2,7 +2,8 @@
 	"recommendations": [
 		"dbaeumer.vscode-eslint",
 		"esbenp.prettier-vscode",
-		"Vercel.turbo-vsc"
+		// 暂时不使用该lsp插件，因为存在bug，还没有修复。
+		// "Vercel.turbo-vsc"
 	],
 	"unwantedRecommendations": []
 }
