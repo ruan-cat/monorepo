@@ -6,9 +6,14 @@
 				"^build"
 			]
 		},
+		"build:docs": {
+			"dependsOn": [
+				"^build"
+			]
+		},
 		"copy-dist": {
 			"dependsOn": [
-				"build"
+				"build:docs"
 			]
 		},
 		"docs:update-package": {

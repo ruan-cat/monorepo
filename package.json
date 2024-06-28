@@ -34,8 +34,7 @@
 		"lint:fix": "eslint . --fix",
 		"prettier": "prettier --write .",
 		"eslint-config-inspector:open": "pnpx @eslint/config-inspector",
-		"build-all-docs": "pnpm -r pnpm run docs:build",
-		"turbo:build": "turbo build",
+		"turbo:build-docs": "turbo build:docs",
 		"turbo:copy-dist": "turbo copy-dist",
 		"on-github-action-flow": "turbo copy-dist"
 	},
