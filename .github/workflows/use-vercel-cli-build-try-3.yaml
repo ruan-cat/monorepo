@@ -51,9 +51,7 @@ jobs:
       - name: 手动移动文件
         run: |
           rm -rf ./packages/monorepo-3/.vercel/output/static
-          cd ./packages/monorepo-3
-          cpx "src/.vuepress/dist/**/*" dist & cpx "dist/**/*" .vercel/output/static
-          cd ../../
+          pnpm cpx "packages/monorepo-3/src/.vuepress/dist/**/*" packages/monorepo-3/.vercel/output/static
 
       - name: 部署到vercel内
         run: |
