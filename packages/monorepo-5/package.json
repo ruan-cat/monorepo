@@ -8,6 +8,8 @@
 		"build": "vuepress-vite build src",
 		"docs:clean-dev": "vuepress-vite dev src --clean-cache",
 		"docs:dev": "vuepress-vite dev src",
-		"docs:update-package": "pnpm dlx vp-update"
+		"docs:update-package": "pnpm dlx vp-update",
+		"copy-dist": "cpx src/.vuepress/dist/**/* dist & cpx dist/**/* .vercel/output/static",
+		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel"
 	}
 }
