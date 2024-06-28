@@ -45,8 +45,8 @@ jobs:
         # build命令仍然需要用token来运行。
         # run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json
 
-      - name: pnpm打包monorepo-3
-        run: pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-3 docs:build
+      - name: turbo并发运行打包命令
+        run: pnpm run turbo:build-docs
 
       - name: 部署到vercel内
         run: |
