@@ -8,6 +8,11 @@
 		},
 		"docs:update-package": {
 			"dependsOn": []
+		},
+		"clear": {
+			"dependsOn": [
+				"^clear"
+			]
 		}
 	}
 }
