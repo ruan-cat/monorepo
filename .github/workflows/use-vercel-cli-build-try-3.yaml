@@ -46,7 +46,7 @@ jobs:
         # run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json
 
       - name: turbo并发运行打包命令
-        run: pnpm run turbo:build-docs
+        run: pnpm run turbo:build
 
       - name: 部署到vercel内
         run: |

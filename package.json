@@ -32,7 +32,7 @@
 		"prettier": "prettier --write .",
 		"eslint-config-inspector:open": "pnpx @eslint/config-inspector",
 		"build-all-docs": "pnpm -r pnpm run docs:build",
-		"turbo:build-docs": "turbo docs:build"
+		"turbo:build": "turbo build"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^2.21.1",
