@@ -8,6 +8,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "vite build",
+		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel",
 		"test": "echo test"
 	},
 	"main": "./dist/vuepress-preset-config.js",
