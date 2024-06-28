@@ -1,8 +1,4 @@
-# 参考资料
-# https://vercel.com/guides/how-can-i-use-github-actions-with-vercel
-# https://vercel.com/guides/how-to-alias-a-preview-deployment-using-the-cli
-
-name: 基于vercel命令的部署
+name: 基于turbo编排的部署
 env:
   vercel-token: ${{ secrets.vercel_token }}
   # 从教程内得知 环境变量名称必须大写
@@ -36,14 +32,10 @@ jobs:
         run: vc -v
 
       - name: 连接现有的项目
-        # 本地window使用
-        # run: vc link --yes --cwd=./packages/monorepo-3 --project=vercel-monorepo-test-1-zn20
         run: vc link --yes --cwd=./packages/monorepo-3 -t ${{ secrets.vercel_token }}
 
       - name: vercel打包monorepo-3
         run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json -t ${{ secrets.vercel_token }}
-        # build命令仍然需要用token来运行。
-        # run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json
 
       - name: turbo并发运行打包命令
         run: pnpm run turbo:build-docs
