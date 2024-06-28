@@ -25,7 +25,8 @@
 		"dev:4": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-4 docs:dev",
 		"dev:5": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-5 docs:dev",
 		"rm:node_modules": "pnpm -r rimraf node_modules && rimraf node_modules",
-		"pnpm:clear": "pnpm -r clear",
+		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel",
+		"pnpm:clear": "pnpm -r clear && pnpm run clear",
 		"turbo:clear": "turbo clear",
 		"update-package": "pnpm dlx vp-update",
 		"turbo:update-packages": "turbo docs:update-package",
@@ -34,7 +35,9 @@
 		"prettier": "prettier --write .",
 		"eslint-config-inspector:open": "pnpx @eslint/config-inspector",
 		"build-all-docs": "pnpm -r pnpm run docs:build",
-		"turbo:build": "turbo build"
+		"turbo:build": "turbo build",
+		"turbo:copy-dist": "turbo copy-dist",
+		"on-github-action-flow": "turbo copy-dist"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^2.21.1",
