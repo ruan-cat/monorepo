@@ -135,5 +135,8 @@ dist
 # 不提供包锁文件 自动生成的文件 不应该提交到仓库中
 pnpm-lock.yaml
 
-.vercel
+# 忽略turbo生成文件
+.turbo
 
+# 忽略vercel本地打包生成的文件
+.vercel
