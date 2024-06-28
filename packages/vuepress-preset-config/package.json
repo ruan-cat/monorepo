@@ -9,6 +9,7 @@
 	"scripts": {
 		"build": "vite build",
 		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel",
+		"docs:update-package": "pnpm dlx vp-update",
 		"test": "echo test"
 	},
 	"main": "./dist/vuepress-preset-config.js",
@@ -26,11 +27,11 @@
 		"dist"
 	],
 	"devDependencies": {
-		"@types/node": "^20.12.11"
+		"@types/node": "^20.14.9"
 	},
 	"dependencies": {
-		"@vuepress/bundler-vite": "2.0.0-rc.9",
-		"vuepress": "2.0.0-rc.9",
-		"vuepress-theme-hope": "2.0.0-rc.38"
+		"@vuepress/bundler-vite": "2.0.0-rc.14",
+		"vuepress": "2.0.0-rc.14",
+		"vuepress-theme-hope": "2.0.0-rc.50"
 	}
 }

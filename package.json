@@ -26,6 +26,7 @@
 		"dev:5": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-5 docs:dev",
 		"rm:node_modules": "pnpm -r rimraf node_modules && rimraf node_modules",
 		"update-package": "pnpm dlx vp-update",
+		"turbo:update-packages": "turbo docs:update-package",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"prettier": "prettier --write .",
