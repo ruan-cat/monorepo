@@ -48,10 +48,10 @@ jobs:
       - name: turbo并发运行打包命令
         run: pnpm run on-github-action-flow
 
-      - name: 手动移动文件
-        run: |
-          rm -rf ./packages/monorepo-3/.vercel/output/static
-          pnpm cpx "packages/monorepo-3/src/.vuepress/dist/**/*" packages/monorepo-3/.vercel/output/static
+      # - name: 手动移动文件
+      #   run: |
+      #     rm -rf ./packages/monorepo-3/.vercel/output/static
+      #     pnpm cpx "packages/monorepo-3/src/.vuepress/dist/**/*" packages/monorepo-3/.vercel/output/static
 
       - name: 部署到vercel内
         run: |
