@@ -23,10 +23,16 @@ env:
 
   # 项目url
   p1-url: monorepo-1.ruancat6312.top
-  p2-url: monorepo-2.ruancat6312.top m2.ruan-cat.com m2.ruancat6312.top
+
+  p2-url-1: monorepo-2.ruancat6312.top
+  p2-url-2: m2.ruan-cat.com
+  p2-url-3: m2.ruancat6312.top
+
   p3-url: monorepo-3.ruancat6312.top
   p4-url: monorepo-4.ruancat6312.top
-  p5-url: monorepo-5.ruancat6312.top monorepo5.ruan-cat.com
+
+  p5-url-1: monorepo-5.ruancat6312.top
+  p5-url-2: monorepo5.ruan-cat.com
 
 on:
   push:
@@ -83,7 +89,9 @@ jobs:
           vc alias -t ${{env.vct}} set "$url1" ${{env.p1-url}}
 
           url2="$(vc deploy --yes --prebuilt --prod --cwd=${{env.p2}} -t ${{env.vct}})"
-          vc alias -t ${{env.vct}} set "$url2" ${{env.p2-url}}
+          vc alias -t ${{env.vct}} set "$url2" ${{env.p2-url-1}}
+          vc alias -t ${{env.vct}} set "$url2" ${{env.p2-url-2}}
+          vc alias -t ${{env.vct}} set "$url2" ${{env.p2-url-3}}
 
           url3="$(vc deploy --yes --prebuilt --prod --cwd=${{env.p3}} -t ${{env.vct}})"
           vc alias -t ${{env.vct}} set "$url3" ${{env.p3-url}}
@@ -92,4 +100,5 @@ jobs:
           vc alias -t ${{env.vct}} set "$url4" ${{env.p4-url}}
 
           url5="$(vc deploy --yes --prebuilt --prod --cwd=${{env.p5}} -t ${{env.vct}})"
-          vc alias -t ${{env.vct}} set "$url5" ${{env.p5-url}}
+          vc alias -t ${{env.vct}} set "$url5" ${{env.p5-url-1}}
+          vc alias -t ${{env.vct}} set "$url5" ${{env.p5-url-2}}
