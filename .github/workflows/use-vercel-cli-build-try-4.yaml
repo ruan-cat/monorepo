@@ -23,10 +23,10 @@ env:
 
   # 项目url
   p1-url: monorepo-1.ruancat6312.top
-  p2-url: monorepo-2.ruancat6312.top
+  p2-url: monorepo-2.ruancat6312.top m2.ruan-cat.com m2.ruancat6312.top
   p3-url: monorepo-3.ruancat6312.top
   p4-url: monorepo-4.ruancat6312.top
-  p5-url: monorepo-5.ruancat6312.top
+  p5-url: monorepo-5.ruancat6312.top monorepo5.ruan-cat.com
 
 on:
   push:
