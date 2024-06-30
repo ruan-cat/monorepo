@@ -1,0 +1,83 @@
+# 参考资料
+# https://vercel.com/guides/how-can-i-use-github-actions-with-vercel
+# https://vercel.com/guides/how-to-alias-a-preview-deployment-using-the-cli
+
+name: 基于vercel命令的部署
+env:
+  # vercel的token
+  vct: ${{ secrets.vercel_token }}
+
+  # 从教程内得知 环境变量名称必须大写
+  VERCEL_ORG_ID: ${{ secrets.vercel_orgId }}
+  VERCEL_PROJECT_ID: ${{ secrets.vercel_projectId }}
+
+  # vercel项目名称
+  pjn: vercel-monorepo-test-1-zn20
+
+  # 项目路径
+  p1: ./packages/monorepo-1
+  p2: ./packages/proj-2-vp2-custom-components
+  p3: ./packages/monorepo-3
+  p4: ./packages/monorepo-4
+  p5: ./packages/monorepo-5
+
+  # 项目url
+  p1-url: monorepo-1.ruancat6312.top
+  p2-url: monorepo-2.ruancat6312.top
+  p3-url: monorepo-3.ruancat6312.top
+  p4-url: monorepo-4.ruancat6312.top
+  p5-url: monorepo-5.ruancat6312.top
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  Deploy-Production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+
+      - name: 开启 corepack
+        run: corepack enable && corepack install
+
+      - name: 检查pnpm版本
+        run: pnpm -v
+
+      - name: 安装整个项目的依赖
+        run: pnpm i
+
+      - name: 用npm安装vercel cli工具
+        run: npm i -g vercel@latest
+
+      - name: 检查vercel cli版本
+        run: vc -v
+
+      - name: 各子项目连接现有的vercel项目
+        # 本地window使用
+        # run: vc link --yes --cwd=./packages/monorepo-3 --project=vercel-monorepo-test-1-zn20
+        run: |
+          vc link --yes --cwd=${{env.p1}} --project=${{env.pjn}} -t ${{env.vct}}
+          vc link --yes --cwd=${{env.p2}} --project=${{env.pjn}} -t ${{env.vct}}
+          vc link --yes --cwd=${{env.p3}} --project=${{env.pjn}} -t ${{env.vct}}
+          vc link --yes --cwd=${{env.p4}} --project=${{env.pjn}} -t ${{env.vct}}
+          vc link --yes --cwd=${{env.p5}} --project=${{env.pjn}} -t ${{env.vct}}
+
+      - name: vercel生成特定.vercel/output/static目录
+        # build命令仍然需要用token来运行。
+        # run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json
+        run: |
+          vc build --yes --prod --cwd=${{env.p1}} -A ./vercel.null.json -t ${{env.vct}}
+          vc build --yes --prod --cwd=${{env.p2}} -A ./vercel.null.json -t ${{env.vct}}
+          vc build --yes --prod --cwd=${{env.p3}} -A ./vercel.null.json -t ${{env.vct}}
+          vc build --yes --prod --cwd=${{env.p4}} -A ./vercel.null.json -t ${{env.vct}}
+          vc build --yes --prod --cwd=${{env.p5}} -A ./vercel.null.json -t ${{env.vct}}
+
+      - name: turbo并发打包全部子项目
+        run: pnpm run on-github-action-flow
+
+      - name: 各只子项目上传文件并部署到vercel内
+        run: |
+          url="$(vc deploy --yes --prebuilt --prod --cwd=${{env.p1}} -t ${{env.vct}})"
+          vc alias -t ${{env.vct}} set "$url" ${{env.p1-url}}
