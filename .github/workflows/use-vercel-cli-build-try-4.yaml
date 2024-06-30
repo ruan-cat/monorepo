@@ -77,19 +77,32 @@ jobs:
       - name: turbo并发打包全部子项目
         run: pnpm run on-github-action-flow
 
-      - name: 各子项目上传文件并部署到vercel内
+      # - name: 各子项目上传文件并部署到vercel内
+      #   run: |
+      #     url-1="$(vc deploy --yes --prebuilt --prod --cwd=${{env.p1}} -t ${{env.vct}})"
+      #     vc alias -t ${{env.vct}} set "$url-1" ${{env.p1-url}}
+
+      - name: 1
         run: |
           url-1="$(vc deploy --yes --prebuilt --prod --cwd=${{env.p1}} -t ${{env.vct}})"
           vc alias -t ${{env.vct}} set "$url-1" ${{env.p1-url}}
 
+      - name: 2
+        run: |
           url-2="$(vc deploy --yes --prebuilt --prod --cwd=${{env.p2}} -t ${{env.vct}})"
           vc alias -t ${{env.vct}} set "$url-2" ${{env.p2-url}}
 
+      - name: 3
+        run: |
           url-3="$(vc deploy --yes --prebuilt --prod --cwd=${{env.p3}} -t ${{env.vct}})"
           vc alias -t ${{env.vct}} set "$url-3" ${{env.p3-url}}
 
+      - name: 4
+        run: |
           url-4="$(vc deploy --yes --prebuilt --prod --cwd=${{env.p4}} -t ${{env.vct}})"
           vc alias -t ${{env.vct}} set "$url-4" ${{env.p4-url}}
 
+      - name: 5
+        run: |
           url-5="$(vc deploy --yes --prebuilt --prod --cwd=${{env.p5}} -t ${{env.vct}})"
           vc alias -t ${{env.vct}} set "$url-5" ${{env.p5-url}}
