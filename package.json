@@ -14,16 +14,6 @@
 		"pnpm": ">=8"
 	},
 	"scripts": {
-		"build:1": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-1 docs:build",
-		"build:2": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-2 docs:build",
-		"build:3": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-3 docs:build",
-		"build:4": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-4 docs:build",
-		"build:5": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-5 docs:build",
-		"dev:1": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-1 docs:dev",
-		"dev:2": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-2 docs:dev",
-		"dev:3": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-3 docs:dev",
-		"dev:4": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-4 docs:dev",
-		"dev:5": "pnpm -F @ruan-cat-vercel-monorepo-test/monorepo-5 docs:dev",
 		"rm:node_modules": "pnpm -r rimraf node_modules && rimraf node_modules",
 		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel",
 		"pnpm:clear": "pnpm -r clear && pnpm run clear",
