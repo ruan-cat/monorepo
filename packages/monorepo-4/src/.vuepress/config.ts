@@ -2,6 +2,9 @@ import { defineUserConfig } from "vuepress";
 import { viteBundler } from "@vuepress/bundler-vite";
 import theme from "./theme.js";
 
+// FIXME: 生成类型声明、动态打包生成产物。 先去继续学习组件库内生成类型声明文件。
+import { defineRuanCatVuepressConfig } from "@ruan-cat-vercel-monorepo-test/vuepress-preset-config";
+
 export default defineUserConfig({
 	base: "/",
 
