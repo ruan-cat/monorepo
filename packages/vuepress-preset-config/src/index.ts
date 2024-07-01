@@ -1,9 +1,17 @@
-import { defineUserConfig } from "vuepress";
+import { merge } from "lodash-es";
+import { defineUserConfig, type UserConfig } from "vuepress";
 import { viteBundler } from "@vuepress/bundler-vite";
 
 import { hopeTheme } from "vuepress-theme-hope";
 
-const defineRuanCatVuepressPresetConfig = defineUserConfig({
+/**
+ * 默认的vuepress基础配置
+ * @description
+ * 仅提供了少数配置，这些配置都预设的最低限度配置
+ *
+ * 未来应该尽可能地减少此处的配置
+ */
+const defaultConfig: UserConfig = {
 	base: "/",
 	lang: "zh-CN",
 	title: "默认标题",
@@ -99,6 +107,22 @@ const defineRuanCatVuepressPresetConfig = defineUserConfig({
 			},
 		},
 	}),
-});
+};
 
-export { defineRuanCatVuepressPresetConfig };
+/**
+ * 创建默认的配置对象
+ * @description
+ * 用类似于简单工厂函数的方式，生成新的对象。
+ */
+function createDefaultConfig() {
+	return merge({}, defaultConfig);
+}
+
+const defineRuanCatVuepressPresetConfig = defineUserConfig(createDefaultConfig());
+
+/** 定义阮喵vuepress配置对象 */
+function defineRuanCatVuepressConfig(userConfig: UserConfig) {
+	return merge(createDefaultConfig(), userConfig);
+}
+
+export { defineRuanCatVuepressPresetConfig, defineRuanCatVuepressConfig };
