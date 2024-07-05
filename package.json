@@ -15,7 +15,7 @@
 	},
 	"scripts": {
 		"rm:node_modules": "pnpm -r rimraf node_modules && rimraf node_modules",
-		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel",
+		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel && rimraf .cache && rimraf .temp",
 		"pnpm:clear": "pnpm -r clear && pnpm run clear",
 		"turbo:clear": "turbo clear",
 		"update-package": "pnpm dlx vp-update",

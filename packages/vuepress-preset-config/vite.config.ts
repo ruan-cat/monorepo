@@ -1,6 +1,13 @@
 import { defineConfig } from "vite";
-
+import nodeResolve from "@rollup/plugin-node-resolve";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 export default defineConfig({
+	// // 其他配置...
+	// optimizeDeps: {
+	// 	// 排除特定依赖
+	// 	exclude: ["rollup-plugin-visualizer"],
+	// },
+
 	build: {
 		// 产物输出目录，默认值就是 dist。我们使用默认值，注释掉此字段。
 		// outDir: 'dist',
@@ -25,7 +32,12 @@ export default defineConfig({
 		// 参考：https://cn.vitejs.dev/config/build-options.html#build-rollupoptions
 		rollupOptions: {
 			// 确保外部化处理那些你不想打包进库的依赖
-			external: ["@vuepress/bundler-vite", "vuepress", "vuepress-theme-hope"],
+			external: [
+				"@vuepress/bundler-vite",
+				"vuepress",
+				"vuepress-theme-hope",
+				// "fs"
+			],
 			// external: [
 			// 	/\@vuepress\/bundler-vite.*/,
 			// 	//
@@ -42,8 +54,15 @@ export default defineConfig({
 				globals: {
 					vuepress: "vuepress",
 					"vuepress-theme-hope": "vuepress-theme-hope",
+					"rollup-plugin-visualizer": "rollup-plugin-visualizer",
 				},
 			},
 		},
 	},
+
+	plugins: [
+		nodeResolve(),
+		// FIXME: 为了解决 fs 问题，引入 nodePolyfills 插件 莫名其妙的类型报错
+		nodePolyfills(),
+	],
 });

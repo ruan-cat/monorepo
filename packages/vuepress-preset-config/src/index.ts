@@ -1,3 +1,6 @@
+import { URL, fileURLToPath } from "node:url";
+import path from "node:path";
+
 import { merge } from "lodash-es";
 import { type UserConfig, defineUserConfig } from "vuepress";
 import { viteBundler } from "@vuepress/bundler-vite";
@@ -5,6 +8,13 @@ import { viteBundler } from "@vuepress/bundler-vite";
 import { type PluginVisualizerOptions, visualizer } from "rollup-plugin-visualizer";
 
 import { hopeTheme } from "vuepress-theme-hope";
+
+// // 获取当前文件的路径
+// const __filename = fileURLToPath(import.meta.url);
+// // 获取当前文件所在的目录
+// const __dirname = path.dirname(__filename);
+// // 现在你可以像以前一样使用 __dirname
+// console.log(__dirname);
 
 /**
  * 默认的vuepress基础配置
