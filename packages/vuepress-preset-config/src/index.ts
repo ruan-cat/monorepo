@@ -1,6 +1,8 @@
 import { merge } from "lodash-es";
-import { defineUserConfig, type UserConfig } from "vuepress";
+import { type UserConfig, defineUserConfig } from "vuepress";
 import { viteBundler } from "@vuepress/bundler-vite";
+
+import { type PluginVisualizerOptions, visualizer } from "rollup-plugin-visualizer";
 
 import { hopeTheme } from "vuepress-theme-hope";
 
@@ -18,7 +20,15 @@ const defaultConfig: UserConfig = {
 	description: "默认预设的描述文本",
 
 	bundler: viteBundler({
-		viteOptions: {},
+		viteOptions: {
+			plugins: [
+				visualizer({
+					filename: "dist/visualizer/index.html",
+					title: "visualizer打包分析报告",
+					template: "network",
+				}),
+			],
+		},
 		vuePluginOptions: {},
 	}),
 
