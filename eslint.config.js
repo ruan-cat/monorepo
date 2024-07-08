@@ -3,6 +3,10 @@ import antfu from "@antfu/eslint-config";
 import eslintConfigPrettier from "eslint-config-prettier";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
+// TODO: md格式化？
+// import { FlatCompat } from "@eslint/eslintrc";
+// const compat = new FlatCompat();
+
 export default antfu(
 	{
 		// Or customize the stylistic rules
@@ -29,6 +33,8 @@ export default antfu(
 		// Disable jsonc and yaml support
 		jsonc: false,
 		yaml: false,
+		// TODO: md格式化？
+		// markdown: true,
 
 		// `.eslintignore` is no longer supported in Flat config, use `ignores` instead
 		ignores: [
@@ -50,14 +56,37 @@ export default antfu(
 			 * By default uses Prettier
 			 */
 			html: true,
+			// TODO: md格式化？
 			/**
 			 * Format Markdown files
 			 * Supports Prettier and dprint
 			 * By default uses Prettier
 			 */
-			markdown: "prettier",
+			markdown: true,
 		},
 	},
+
+	// TODO: md格式化？
+	// Legacy config
+	// ...compat.config({
+	// 	extends: ["plugin:@lint-md/recommend"],
+	// 	overrides: [
+	// 		{
+	// 			files: ["*.md"],
+	// 			// 0.0.x 版本为 '@lint-md/eslint-plugin/src/parser'
+	// 			parser: "@lint-md/eslint-plugin/lib/parser",
+	// 			rules: {
+	// 				// 在这里覆盖已有的 rules
+	// 				"@lint-md/recommend": [
+	// 					"error",
+	// 					{
+	// 						"space-around-alphabet": true,
+	// 					},
+	// 				],
+	// 			},
+	// 		},
+	// 	],
+	// }),
 
 	{
 		rules: {
