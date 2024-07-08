@@ -101,6 +101,7 @@ export default antfu(
 			"prettier/prettier": [
 				"error",
 				{
+					plugins: [`prettier-plugin-lint-md`],
 					usePrettierrc: true,
 					singleQuote: false,
 					printWidth: 120,
