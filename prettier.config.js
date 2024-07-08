@@ -8,6 +8,14 @@ const config = {
 	useTabs: true,
 	tabWidth: 2,
 	endOfLine: "auto",
+	overrides: [
+		{
+			files: "*.md",
+			options: {
+				parser: "markdown",
+			},
+		},
+	],
 };
 
 export default config;

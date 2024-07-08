@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, type PluginOption } from "vite";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 export default defineConfig({
@@ -36,6 +36,7 @@ export default defineConfig({
 				"@vuepress/bundler-vite",
 				"vuepress",
 				"vuepress-theme-hope",
+				/^node:.*$/,
 				// "fs"
 			],
 			// external: [
@@ -63,6 +64,6 @@ export default defineConfig({
 	plugins: [
 		nodeResolve(),
 		// FIXME: 为了解决 fs 问题，引入 nodePolyfills 插件 莫名其妙的类型报错
-		nodePolyfills(),
+		nodePolyfills({}) as PluginOption,
 	],
 });
