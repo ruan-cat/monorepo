@@ -1,7 +1,8 @@
 // @ts-check
 /** @type {import("prettier").Config} */
 const config = {
-	plugins: [`prettier-plugin-lint-md`],
+	// FIXME: 等待修复
+	plugins: ["prettier-plugin-lint-md/dist/prettier-plugin-lint-md.js"],
 	singleQuote: false,
 	printWidth: 120,
 	semi: true,
@@ -11,15 +12,8 @@ const config = {
 	endOfLine: "auto",
 	"space-around-alphabet": true,
 	"space-around-number": true,
-	// markdown格式化中文缺少空格，不是解析器的问题，是prettier 3版本的更新移除了该功能。
-	// overrides: [
-	// 	{
-	// 		files: "*.md",
-	// 		options: {
-	// 			parser: "markdown",
-	// 		},
-	// 	},
-	// ],
+	"no-empty-code-lang": false,
+	"no-empty-code": false,
 };
 
 export default config;
