@@ -1,12 +1,13 @@
+// import "./inject";
+
 import { URL, fileURLToPath } from "node:url";
 import path from "node:path";
+import { createRequire } from "node:module";
 
 import { merge } from "lodash-es";
 import { type UserConfig, defineUserConfig } from "vuepress";
 import { viteBundler } from "@vuepress/bundler-vite";
-
-import { type PluginVisualizerOptions, visualizer } from "rollup-plugin-visualizer";
-
+import visualizer from "rollup-plugin-visualizer";
 import { hopeTheme } from "vuepress-theme-hope";
 
 // // 获取当前文件的路径
@@ -15,6 +16,10 @@ import { hopeTheme } from "vuepress-theme-hope";
 // const __dirname = path.dirname(__filename);
 // // 现在你可以像以前一样使用 __dirname
 // console.log(__dirname);
+
+// globalThis.require = createRequire(import.meta.url);
+// globalThis.__filename = fileURLToPath(import.meta.url);
+// globalThis.__dirname = path.dirname(__filename);
 
 /**
  * 默认的vuepress基础配置

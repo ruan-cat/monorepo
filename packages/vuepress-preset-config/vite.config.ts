@@ -1,6 +1,12 @@
 import { defineConfig, type PluginOption } from "vite";
 import nodeResolve from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
+import commonjs from "@rollup/plugin-commonjs";
+import inject from "@rollup/plugin-inject";
+import esmShim from "@rollup/plugin-esm-shim";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
+// import nodeGlobals from "rollup-plugin-node-globals";
+
 export default defineConfig({
 	// // 其他配置...
 	// optimizeDeps: {
@@ -58,12 +64,39 @@ export default defineConfig({
 					"rollup-plugin-visualizer": "rollup-plugin-visualizer",
 				},
 			},
+
+			plugins: [],
+		},
+
+		// https://github.com/vitejs/vite/discussions/14490
+		// https://cn.vitejs.dev/config/build-options.html#build-commonjsoptions
+		commonjsOptions: {
+			requireReturnsDefault: "auto",
 		},
 	},
 
+	// esbuild:{
+	// },
+
 	plugins: [
-		nodeResolve(),
+		// inject({
+		// 	include: "./src/inject.ts",
+		// }),
+		// commonjs(),
+		// FIXME:
+		// nodeGlobals(),
+		nodeResolve({
+			// exportConditions: ["node"],
+		}),
 		// FIXME: 为了解决 fs 问题，引入 nodePolyfills 插件 莫名其妙的类型报错
-		nodePolyfills({}) as PluginOption,
+		nodePolyfills() as PluginOption,
+		esmShim(),
+		// replace({
+		// 	preventAssignment: true,
+		// 	values: {
+		// 		__dirname: "import.meta.url",
+		// 		__filename: "import.meta.url",
+		// 	},
+		// }),
 	],
 });

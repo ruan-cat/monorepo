@@ -13,4 +13,12 @@
 
 打包产物包含了`__dirname`和`__filename`，这不符合我的期望。
 
-其他依赖 vuepress-preset-config 的子包，他们的 package.json 的 type
+其他依赖 vuepress-preset-config 的子包，他们的 package.json 的 type 如下：
+
+```json
+{
+	"type": "module"
+}
+```
+
+请帮我解决此问题，打包产物能够对`__dirname`和`__filename`做兼容。
