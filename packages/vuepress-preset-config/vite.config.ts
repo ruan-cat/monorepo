@@ -1,10 +1,14 @@
 import { defineConfig, type PluginOption } from "vite";
+import { builtinModules as builtin } from "node:module";
+import { dependencies } from "./package.json";
+
 import nodeResolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import commonjs from "@rollup/plugin-commonjs";
 import inject from "@rollup/plugin-inject";
 import esmShim from "@rollup/plugin-esm-shim";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
+
 // import nodeGlobals from "rollup-plugin-node-globals";
 
 export default defineConfig({
@@ -18,16 +22,19 @@ export default defineConfig({
 		// 产物输出目录，默认值就是 dist。我们使用默认值，注释掉此字段。
 		// outDir: 'dist',
 
+		target: "es2015",
+
 		// 参考：https://cn.vitejs.dev/config/build-options.html#build-lib
 		lib: {
 			// 构建的入口文件
 			entry: "./src/index.ts",
 
-			// 产物的生成格式，默认为 ['es', 'umd']。我们使用默认值，注释掉此字段。
-			// formats: ["es", "umd"],
+			// 产物的生成格式
+			formats: ["es", "umd", "cjs"],
 
 			// 当产物为 umd、iife 格式时，该模块暴露的全局变量名称
 			name: "VuepressPresetConfig",
+
 			// 产物文件名称
 			fileName: "vuepress-preset-config",
 		},
@@ -39,10 +46,14 @@ export default defineConfig({
 		rollupOptions: {
 			// 确保外部化处理那些你不想打包进库的依赖
 			external: [
-				"@vuepress/bundler-vite",
-				"vuepress",
-				"vuepress-theme-hope",
+				...builtin,
+				...Object.keys(dependencies),
 				/^node:.*$/,
+				/^node:/,
+				// 尝试直接屏蔽全部依赖 不再考虑逐个手动声明了
+				// "@vuepress/bundler-vite",
+				// "vuepress",
+				// "vuepress-theme-hope",
 				// "fs"
 			],
 			// external: [
@@ -70,9 +81,9 @@ export default defineConfig({
 
 		// https://github.com/vitejs/vite/discussions/14490
 		// https://cn.vitejs.dev/config/build-options.html#build-commonjsoptions
-		commonjsOptions: {
-			requireReturnsDefault: "auto",
-		},
+		// commonjsOptions: {
+		// 	requireReturnsDefault: "auto",
+		// },
 	},
 
 	// esbuild:{
@@ -85,12 +96,12 @@ export default defineConfig({
 		// commonjs(),
 		// FIXME:
 		// nodeGlobals(),
-		nodeResolve({
-			// exportConditions: ["node"],
-		}),
+		// nodeResolve({
+		// 	exportConditions: ["node"],
+		// }),
 		// FIXME: 为了解决 fs 问题，引入 nodePolyfills 插件 莫名其妙的类型报错
-		nodePolyfills() as PluginOption,
-		esmShim(),
+		// nodePolyfills() as PluginOption,
+		// esmShim(),
 		// replace({
 		// 	preventAssignment: true,
 		// 	values: {
