@@ -28,7 +28,8 @@
 		"dist"
 	],
 	"devDependencies": {
-		"@types/node": "^20.14.9"
+		"@types/node": "^20.14.9",
+		"@types/rollup-plugin-visualizer": "^4.2.4"
 	},
 	"dependencies": {
 		"@vuepress/bundler-vite": "2.0.0-rc.14",
