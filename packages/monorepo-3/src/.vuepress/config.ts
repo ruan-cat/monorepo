@@ -1,7 +1,5 @@
 import { defineUserConfig } from "vuepress";
 import { viteBundler } from "@vuepress/bundler-vite";
-// import { visualizer } from "rollup-plugin-visualizer";
-// import type { PluginOption } from "vite";
 import theme from "./theme.js";
 
 export default defineUserConfig({
@@ -18,15 +16,7 @@ export default defineUserConfig({
 	theme,
 
 	bundler: viteBundler({
-		viteOptions: {
-			plugins: [
-				// visualizer({
-				// 	filename: "src/.vuepress/dist/visualizer/index.html",
-				// 	title: "visualizer打包分析报告",
-				// 	template: "network",
-				// }) as PluginOption,
-			],
-		},
+		viteOptions: {},
 		vuePluginOptions: {},
 	}),
 

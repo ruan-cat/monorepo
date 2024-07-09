@@ -1,25 +1,8 @@
-// import "./inject";
-
-import { URL, fileURLToPath } from "node:url";
-import path from "node:path";
-import { createRequire } from "node:module";
-
 import { merge } from "lodash-es";
 import { type UserConfig, defineUserConfig } from "vuepress";
 import { viteBundler } from "@vuepress/bundler-vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { hopeTheme } from "vuepress-theme-hope";
-
-// // 获取当前文件的路径
-// const __filename = fileURLToPath(import.meta.url);
-// // 获取当前文件所在的目录
-// const __dirname = path.dirname(__filename);
-// // 现在你可以像以前一样使用 __dirname
-// console.log(__dirname);
-
-// globalThis.require = createRequire(import.meta.url);
-// globalThis.__filename = fileURLToPath(import.meta.url);
-// globalThis.__dirname = path.dirname(__filename);
 
 /**
  * 默认的vuepress基础配置
@@ -39,6 +22,9 @@ const defaultConfig: UserConfig = {
 			plugins: [
 				visualizer({
 					// filename: "dist/visualizer/index.html",
+					// TODO: 未来这里需要考虑实现vuepress的路由配置，在vuepress内加上一个路由来导航。
+					// 我们本地生成了一大堆html静态页面，如何对接接洽vuepress的路由？
+					// typedoc好像有类似的实现方案。
 					filename: "src/.vuepress/dist/visualizer/index.html",
 					title: "visualizer打包分析报告",
 					template: "network",

@@ -2,16 +2,6 @@ import { defineConfig, type PluginOption } from "vite";
 import { builtinModules as builtin } from "node:module";
 import { dependencies } from "./package.json";
 
-import nodeResolve from "@rollup/plugin-node-resolve";
-import replace from "@rollup/plugin-replace";
-import commonjs from "@rollup/plugin-commonjs";
-import inject from "@rollup/plugin-inject";
-import esmShim from "@rollup/plugin-esm-shim";
-// import { nodePolyfills } from "vite-plugin-node-polyfills";
-import nodePolyfills from "rollup-plugin-polyfill-node";
-
-// import nodeGlobals from "rollup-plugin-node-globals";
-
 export default defineConfig({
 	// // 其他配置...
 	// optimizeDeps: {
@@ -31,7 +21,8 @@ export default defineConfig({
 			entry: "./src/index.ts",
 
 			// 产物的生成格式
-			formats: ["es", "umd"],
+			// formats: ["es", "umd"],
+			formats: ["es"],
 
 			// 当产物为 umd、iife 格式时，该模块暴露的全局变量名称
 			name: "VuepressPresetConfig",
@@ -49,36 +40,25 @@ export default defineConfig({
 			external: [
 				...builtin,
 				...Object.keys(dependencies),
-				/^node:.*$/,
-				/^node:/,
+				"lodash-es",
+				// /^node:.*$/,
+				// /^node:/,
 				// 尝试直接屏蔽全部依赖 不再考虑逐个手动声明了
 				// "@vuepress/bundler-vite",
 				// "vuepress",
 				// "vuepress-theme-hope",
 				// "fs",
 			],
-			// external: [
-			// 	/\@vuepress\/bundler-vite.*/,
-			// 	//
-			// 	/vuepress.*/,
-			// 	/vuepress-theme-hope.*/,
-			// 	// /vuepress*/,
-			// 	// /vuepress-theme-hope*/,
-			// 	/fsevents.*/,
-			// 	/node.*/,
-			// ],
 
 			output: {
 				// 在 UMD 构建模式下为这些外部化的依赖提供一个全局变量。即使不设置，构建工具也会为我们自动生成。个人倾向于不设置
 				globals: {
-					vuepress: "vuepress",
-					"vuepress-theme-hope": "vuepress-theme-hope",
-					"@vuepress/bundler-vite": "@vuepress/bundler-vite",
-					"rollup-plugin-visualizer": "rollup-plugin-visualizer",
+					// vuepress: "vuepress",
+					// "vuepress-theme-hope": "vuepress-theme-hope",
+					// "@vuepress/bundler-vite": "@vuepress/bundler-vite",
+					// "rollup-plugin-visualizer": "rollup-plugin-visualizer",
 				},
 			},
-
-			plugins: [],
 		},
 
 		// https://github.com/vitejs/vite/discussions/14490
@@ -87,31 +67,4 @@ export default defineConfig({
 		// 	requireReturnsDefault: "auto",
 		// },
 	},
-
-	// esbuild:{
-	// },
-
-	plugins: [
-		// inject({
-		// 	include: "./src/inject.ts",
-		// }),
-		// commonjs(),
-		// FIXME:
-		// nodeGlobals(),
-		// FIXME: 为了解决 fs 问题，引入 nodePolyfills 插件 莫名其妙的类型报错
-		// esmShim(),
-		// nodePolyfills(),
-		// nodeResolve(),
-		// nodeResolve({
-		// 	exportConditions: ["node"],
-		// }),
-		// as PluginOption,
-		// replace({
-		// 	preventAssignment: true,
-		// 	values: {
-		// 		__dirname: "import.meta.url",
-		// 		__filename: "import.meta.url",
-		// 	},
-		// }),
-	],
 });
