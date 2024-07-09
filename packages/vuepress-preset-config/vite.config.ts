@@ -7,7 +7,8 @@ import replace from "@rollup/plugin-replace";
 import commonjs from "@rollup/plugin-commonjs";
 import inject from "@rollup/plugin-inject";
 import esmShim from "@rollup/plugin-esm-shim";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
+// import { nodePolyfills } from "vite-plugin-node-polyfills";
+import nodePolyfills from "rollup-plugin-polyfill-node";
 
 // import nodeGlobals from "rollup-plugin-node-globals";
 
@@ -22,7 +23,7 @@ export default defineConfig({
 		// 产物输出目录，默认值就是 dist。我们使用默认值，注释掉此字段。
 		// outDir: 'dist',
 
-		target: "es2015",
+		// target: "es2015",
 
 		// 参考：https://cn.vitejs.dev/config/build-options.html#build-lib
 		lib: {
@@ -30,7 +31,7 @@ export default defineConfig({
 			entry: "./src/index.ts",
 
 			// 产物的生成格式
-			formats: ["es", "umd", "cjs"],
+			formats: ["es", "umd"],
 
 			// 当产物为 umd、iife 格式时，该模块暴露的全局变量名称
 			name: "VuepressPresetConfig",
@@ -54,7 +55,7 @@ export default defineConfig({
 				// "@vuepress/bundler-vite",
 				// "vuepress",
 				// "vuepress-theme-hope",
-				// "fs"
+				// "fs",
 			],
 			// external: [
 			// 	/\@vuepress\/bundler-vite.*/,
@@ -72,6 +73,7 @@ export default defineConfig({
 				globals: {
 					vuepress: "vuepress",
 					"vuepress-theme-hope": "vuepress-theme-hope",
+					"@vuepress/bundler-vite": "@vuepress/bundler-vite",
 					"rollup-plugin-visualizer": "rollup-plugin-visualizer",
 				},
 			},
@@ -96,12 +98,14 @@ export default defineConfig({
 		// commonjs(),
 		// FIXME:
 		// nodeGlobals(),
+		// FIXME: 为了解决 fs 问题，引入 nodePolyfills 插件 莫名其妙的类型报错
+		// esmShim(),
+		// nodePolyfills(),
+		// nodeResolve(),
 		// nodeResolve({
 		// 	exportConditions: ["node"],
 		// }),
-		// FIXME: 为了解决 fs 问题，引入 nodePolyfills 插件 莫名其妙的类型报错
-		// nodePolyfills() as PluginOption,
-		// esmShim(),
+		// as PluginOption,
 		// replace({
 		// 	preventAssignment: true,
 		// 	values: {

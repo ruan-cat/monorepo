@@ -7,7 +7,7 @@ import { createRequire } from "node:module";
 import { merge } from "lodash-es";
 import { type UserConfig, defineUserConfig } from "vuepress";
 import { viteBundler } from "@vuepress/bundler-vite";
-import visualizer from "rollup-plugin-visualizer";
+import { visualizer } from "rollup-plugin-visualizer";
 import { hopeTheme } from "vuepress-theme-hope";
 
 // // 获取当前文件的路径
@@ -38,7 +38,8 @@ const defaultConfig: UserConfig = {
 		viteOptions: {
 			plugins: [
 				visualizer({
-					filename: "dist/visualizer/index.html",
+					// filename: "dist/visualizer/index.html",
+					filename: "src/.vuepress/dist/visualizer/index.html",
 					title: "visualizer打包分析报告",
 					template: "network",
 				}),
