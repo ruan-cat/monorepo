@@ -26,6 +26,15 @@
 		"./package.json": "./package.json",
 		"./dist/style": {
 			"default": "./dist/style.css"
+		},
+		"./*": "./*"
+	},
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/*",
+				"./*"
+			]
 		}
 	},
 	"files": [

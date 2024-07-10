@@ -4,7 +4,15 @@
 @import "./palette.scss";
 
 // FIXME: 似乎无反应，无法被解析？
-@import "@ruan-cat-vercel-monorepo-test/vuepress-preset-config/dist/style.css";
+// @import "@ruan-cat-vercel-monorepo-test/vuepress-preset-config/dist/style.css";
+// @import "../../../../vuepress-preset-config/dist/style.css";
+// @import url(../../../../vuepress-preset-config/dist/style.css);
+@import "./style-test.css";
+// @import "./style-test.scss";
+
+// .theme-container {
+// 	background-color: rebeccapurple;
+// }
 
 // 参考资料 https://github.com/orgs/vuepress-theme-hope/discussions/3742
 // FIXME: 出错 无法运行
