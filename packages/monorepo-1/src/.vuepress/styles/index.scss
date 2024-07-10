@@ -3,6 +3,9 @@
 @import "./config.scss";
 @import "./palette.scss";
 
+// FIXME: 似乎无反应，无法被解析？
+@import "@ruan-cat-vercel-monorepo-test/vuepress-preset-config/dist/style.css";
+
 // 参考资料 https://github.com/orgs/vuepress-theme-hope/discussions/3742
 // FIXME: 出错 无法运行
 // @media (min-width: hope-config.$wide) {

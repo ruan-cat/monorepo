@@ -41,5 +41,8 @@
 			"DOM",
 			"ESNext"
 		],
+		"types": [
+			"vite/client"
+		]
 	}
 }

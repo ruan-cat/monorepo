@@ -22,6 +22,10 @@
 			"module": "./dist/vuepress-preset-config.js",
 			"import": "./dist/vuepress-preset-config.js",
 			"types": ""
+		},
+		"./package.json": "./package.json",
+		"./dist/style": {
+			"default": "./dist/style.css"
 		}
 	},
 	"files": [

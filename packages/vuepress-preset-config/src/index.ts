@@ -4,6 +4,8 @@ import { viteBundler } from "@vuepress/bundler-vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { hopeTheme } from "vuepress-theme-hope";
 
+import "./scroll-bar.scss"
+
 /**
  * 默认的vuepress基础配置
  * @description
