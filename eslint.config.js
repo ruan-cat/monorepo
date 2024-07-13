@@ -3,9 +3,6 @@ import antfu from "@antfu/eslint-config";
 import eslintConfigPrettier from "eslint-config-prettier";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
-// import { FlatCompat } from "@eslint/eslintrc";
-// const compat = new FlatCompat();
-
 export default antfu(
 	{
 		// Or customize the stylistic rules
@@ -16,8 +13,16 @@ export default antfu(
 		},
 
 		// TypeScript and Vue are auto-detected, you can also explicitly enable them:
+		/**
+		 * @see https://stackoverflow.com/questions/65137939/typescript-eslint-throws-cannot-read-file-tsconfig-json-in-every-project-i-s
+		 */
 		typescript: {
-			tsconfigPath: "tsconfig.json",
+			tsconfigPath: "./tsconfig.json",
+			parserOptions: {
+				project: "tsconfig.json",
+				sourceType: "module",
+				tsconfigRootDir: __dirname,
+			},
 		},
 
 		vue: true,
@@ -26,7 +31,10 @@ export default antfu(
 			/**
 			 * @see https://eslint.org/docs/latest/use/configure/migration-guide#importing-plugins-and-custom-parsers
 			 */
-			overrides: { "jsdoc/require-description": "error", "jsdoc/check-values": "error" },
+			overrides: {
+				"jsdoc/require-description": "error",
+				"jsdoc/check-values": "error",
+			},
 		},
 
 		// Disable jsonc and yaml support
