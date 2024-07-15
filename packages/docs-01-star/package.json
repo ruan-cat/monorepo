@@ -6,7 +6,9 @@
 	"scripts": {
 		"docs:dev": "vitepress dev docs --port 8080",
 		"build:docs": "vitepress build docs",
-		"docs:preview": "vitepress preview docs"
+		"docs:preview": "vitepress preview docs",
+		"copy-dist": "rimraf .vercel/output/static && mkdirp .vercel/output/static && cpx \"docs/.vitepress/dist/**/*\" .vercel/output/static && shx ls -R .vercel/output/static",
+		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel"
 	},
 	"keywords": [],
 	"author": "",

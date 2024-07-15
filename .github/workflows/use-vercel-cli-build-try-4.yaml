@@ -20,6 +20,7 @@ env:
   p3: ./packages/monorepo-3
   p4: ./packages/monorepo-4
   p5: ./packages/monorepo-5
+  docs01Star: ./packages/docs-01-star
 
   # 项目url
   p1-url: monorepo-1.ruancat6312.top
@@ -33,6 +34,8 @@ env:
 
   p5-url-1: monorepo-5.ruancat6312.top
   p5-url-2: monorepo5.ruan-cat.com
+
+  docs-01-star-url: docs-01-star.ruancat6312.top
 
 on:
   push:
@@ -70,6 +73,7 @@ jobs:
           vc link --yes --cwd=${{env.p3}} --project=${{env.pjn}} -t ${{env.vct}}
           vc link --yes --cwd=${{env.p4}} --project=${{env.pjn}} -t ${{env.vct}}
           vc link --yes --cwd=${{env.p5}} --project=${{env.pjn}} -t ${{env.vct}}
+          vc link --yes --cwd=${{env.docs01Star}} --project=${{env.pjn}} -t ${{env.vct}}
 
       - name: vercel生成特定.vercel/output/static目录
         # build命令仍然需要用token来运行。
@@ -80,6 +84,7 @@ jobs:
           vc build --yes --prod --cwd=${{env.p3}} -A ./vercel.null.json -t ${{env.vct}}
           vc build --yes --prod --cwd=${{env.p4}} -A ./vercel.null.json -t ${{env.vct}}
           vc build --yes --prod --cwd=${{env.p5}} -A ./vercel.null.json -t ${{env.vct}}
+          vc build --yes --prod --cwd=${{env.docs01Star}} -A ./vercel.null.json -t ${{env.vct}}
 
       - name: turbo并发打包全部子项目
         run: pnpm run on-github-action-flow
@@ -103,3 +108,6 @@ jobs:
           url5="$(vc deploy --yes --prebuilt --prod --cwd=${{env.p5}} -t ${{env.vct}})"
           vc alias -t ${{env.vct}} set "$url5" ${{env.p5-url-1}}
           vc alias -t ${{env.vct}} set "$url5" ${{env.p5-url-2}}
+
+          url01Star="$(vc deploy --yes --prebuilt --prod --cwd=${{env.docs01Star}} -t ${{env.vct}})"
+          vc alias -t ${{env.vct}} set "$url01Star" ${{env.docs-01-star-url}}
