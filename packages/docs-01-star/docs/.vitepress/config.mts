@@ -4,7 +4,12 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
 	title: "01星球-大项目建议",
 	description: "01星球-大项目建议",
+
+	lang: "zh",
+
 	themeConfig: {
+		i18nRouting: true,
+
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [
 			{ text: "Home", link: "/" },
