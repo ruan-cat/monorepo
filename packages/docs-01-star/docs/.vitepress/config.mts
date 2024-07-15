@@ -13,6 +13,16 @@ export default defineConfig({
 
 		sidebar: [
 			{
+				text: "2024-06 大项目报告",
+				link: "/report",
+			},
+
+			{
+				text: "2024-07 小项目建议",
+				link: "/suggest",
+			},
+
+			{
 				text: "Examples",
 				items: [
 					{ text: "Markdown Examples", link: "/markdown-examples" },
