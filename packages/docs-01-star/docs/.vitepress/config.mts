@@ -25,6 +25,11 @@ export default defineConfig({
 			{
 				text: "2024-07 小项目建议",
 				link: "/suggest",
+				base: "/suggest",
+				items: [
+					{ text: "组长及管理者", link: "/group-leader" },
+					{ text: "各组员", link: "/members" },
+				],
 			},
 
 			{
