@@ -90,9 +90,9 @@
 	"workbench.editorAssociations": {
 		// 该配置不合理 无效
 		// "*.svg": "hediet.vscode-drawio-text",
+		// 关联特定文件后缀 以特定插件打开
+		"*.drawio.svg": "hediet.vscode-drawio",
 		// 从vscode用户配置得知，这里配置为default即可。
 		"*.svg": "default",
-		// 关联特定文件后缀 以特定插件打开
-		"*.drawio.svg": "hediet.vscode-drawio"
 	}
 }
