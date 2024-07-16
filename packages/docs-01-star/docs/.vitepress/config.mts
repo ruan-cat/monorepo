@@ -12,8 +12,8 @@ export default defineConfig({
 
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [
-			{ text: "Home", link: "/" },
-			{ text: "Examples", link: "/markdown-examples" },
+			{ text: "首页", link: "/" },
+			{ text: "仓库地址", link: "https://github.com/RuanZhongNan/vercel-monorepo-test" },
 		],
 
 		sidebar: [
@@ -24,23 +24,20 @@ export default defineConfig({
 
 			{
 				text: "2024-07 小项目建议",
-				link: "/suggest",
+				link: "/index",
 				base: "/suggest",
 				items: [
 					{ text: "组长及管理者", link: "/group-leader" },
 					{ text: "各组员", link: "/members" },
 				],
 			},
-
-			{
-				text: "Examples",
-				items: [
-					{ text: "Markdown Examples", link: "/markdown-examples" },
-					{ text: "Runtime API Examples", link: "/api-examples" },
-				],
-			},
 		],
 
-		socialLinks: [{ icon: "github", link: "https://github.com/vuejs/vitepress" }],
+		socialLinks: [
+			{
+				icon: "github",
+				link: "https://github.com/RuanZhongNan/vercel-monorepo-test/blob/dev/packages/docs-01-star/docs/index.md",
+			},
+		],
 	},
 });
