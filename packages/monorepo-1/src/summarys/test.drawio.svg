@@ -1,38 +1,42 @@
-<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="321px" height="61px" viewBox="-0.5 -0.5 321 61" content="&lt;mxfile&gt;&lt;diagram id=&quot;bLbtAmbmZLvTsPTuS1Z3&quot; name=&quot;第 1 页&quot;&gt;xVTBcoMgFPwa7wpp2lybpu2lpxx6ZuRVmEGegxhNv74YHjGOSacznWkvylsWHrsuZnxbDy9ONOoNJZiM5XLI+FPG2MOGh+cIHCNwx/IIVE7LCBUTsNefQGCidVpCOyN6RON1MwdLtBZKP8OEc9jPaR9o5l0bUcEC2JfCLNF3Lb0iWex+wl9BVyp1LtabOFOLRCYlrRIS+wuI7zK+dYg+juphC2b0LvkS1z3fmD0fzIH1P1mwomP4Y9IGMkil0qINr0flaxOqIgwjfeTcbEhQi50ricXoGwlXAbH4WWwICWAN3h0DxYERXh/muwv6XNWZNykKAxJ1XSC1PgjT0aY2pLFYyHbYWQnjojzI7JX2sG/ESUAfMnzNhQM4D8P3PiwVpjtAAaAbUKyo7qc8FSkk6iJL6/z3nvCrnrB/9+QvTQnldMtOcxe/Kr77Ag==&lt;/diagram&gt;&lt;/mxfile&gt;">
+<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="321px" height="61px" viewBox="-0.5 -0.5 321 61" content="&lt;mxfile&gt;&lt;diagram id=&quot;bLbtAmbmZLvTsPTuS1Z3&quot; name=&quot;第 1 页&quot;&gt;vZQ9c4MwDIZ/DTuYhDRrSZMunTJ09oECvhqLMyZAf30N2ICPNpdePxgS+5Es65UEXhgX7UnSMn/BFLhH/LT1woNHyMN+q3970I1gS/wRZJKlIwpmcGbvYKB1q1kKleOoELlipQsTFAIS5TAqJTau2wW5e2tJM1iBc0L5mr6yVOVGFtnN/BlYltubg2g/WgpqnY2SKqcpNgsUPnlhLBHVuCraGHhfO1uX8dzxC+uUmASh7jmwMWmozmqDVEs1W4FC/z3mquB6F+hlpSS+TaI3mqxvNElUWMvEBCWmSVRmYLzCEfXXLY6ZLE+ABSjZaQcJnCp2dStPTQOzyW/WqBdG5ueSTS5XymsT1CMRV71OHT3K+pXQExtYrAPOllW9JNYihT62r81NzhScSzoIb/Twu+W7MM5j5CiHsyElvk+2PUehFvwyPFO5F5bo6OvnVtmvIBW0N0tqX0Mzg527beaJDuyY5otpjvyf9yC8swfk73sQ+XQf7L7TA3LYRb/Vg39sgt7O35XBtvg4h08f&lt;/diagram&gt;&lt;/mxfile&gt;">
     <defs/>
     <g>
-        <path d="M 120 30 L 193.63 30" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
-        <path d="M 198.88 30 L 191.88 33.5 L 193.63 30 L 191.88 26.5 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
-        <rect x="0" y="0" width="120" height="60" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <path d="M 120 30 L 188.03 30" fill="none" stroke="rgb(0, 0, 0)" stroke-width="4" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 195.53 30 L 185.53 35 L 188.03 30 L 185.53 25 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-width="4" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="0" y="0" width="120" height="60" fill="#a20025" stroke="#6f0000" pointer-events="all"/>
         <g transform="translate(-0.5 -0.5)">
             <switch>
                 <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
                     <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 118px; height: 1px; padding-top: 30px; margin-left: 1px;">
-                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
-                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
-                                node1
+                        <div data-drawio-colors="color: #ffffff; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(255, 255, 255); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <h1>
+                                    node1
+                                </h1>
                             </div>
                         </div>
                     </div>
                 </foreignObject>
-                <text x="60" y="34" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                <text x="60" y="34" fill="#ffffff" font-family="Helvetica" font-size="12px" text-anchor="middle">
                     node1
                 </text>
             </switch>
         </g>
-        <rect x="200" y="0" width="120" height="60" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <rect x="200" y="0" width="120" height="60" fill="#60a917" stroke="#2d7600" pointer-events="all"/>
         <g transform="translate(-0.5 -0.5)">
             <switch>
                 <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
                     <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 118px; height: 1px; padding-top: 30px; margin-left: 201px;">
-                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
-                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
-                                node2
+                        <div data-drawio-colors="color: #ffffff; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(255, 255, 255); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <h1>
+                                    node2
+                                </h1>
                             </div>
                         </div>
                     </div>
                 </foreignObject>
-                <text x="260" y="34" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                <text x="260" y="34" fill="#ffffff" font-family="Helvetica" font-size="12px" text-anchor="middle">
                     node2
                 </text>
             </switch>

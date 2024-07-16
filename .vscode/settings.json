@@ -88,11 +88,12 @@
 	 */
 	"accessibility.voice.speechLanguage": "zh-CN",
 	"workbench.editorAssociations": {
+		// FIXME: 别配置了。有bug，可能是glob语法识别顺序有误。
 		// 该配置不合理 无效
 		// "*.svg": "hediet.vscode-drawio-text",
 		// 关联特定文件后缀 以特定插件打开
-		"*.drawio.svg": "hediet.vscode-drawio",
+		// "*.drawio.svg": "hediet.vscode-drawio",
 		// 从vscode用户配置得知，这里配置为default即可。
-		"*.svg": "default",
+		// "*.svg": "default",
 	}
 }
