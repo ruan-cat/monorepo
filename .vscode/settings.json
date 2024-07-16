@@ -86,5 +86,13 @@
 	 *   This property determines the language used for voice accessibility features.
 	 *   The value should be a valid language code, such as "zh-CN" for Simplified Chinese.
 	 */
-	"accessibility.voice.speechLanguage": "zh-CN"
+	"accessibility.voice.speechLanguage": "zh-CN",
+	"workbench.editorAssociations": {
+		// 该配置不合理 无效
+		// "*.svg": "hediet.vscode-drawio-text",
+		// 从vscode用户配置得知，这里配置为default即可。
+		"*.svg": "default",
+		// 关联特定文件后缀 以特定插件打开
+		"*.drawio.svg": "hediet.vscode-drawio"
+	}
 }
