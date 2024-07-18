@@ -1,0 +1,31 @@
+name: 过一遍turbo打包行为，测试项目健壮性
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  全量turbo构建自测项目健壮性:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出分支
+        uses: actions/checkout@main
+
+      - name: 开启 corepack
+        run: corepack enable && corepack install
+
+      - name: 检查pnpm版本
+        run: pnpm -v
+
+      - name: 安装整个项目的依赖
+        run: pnpm i
+
+      - name: 用npm安装vercel cli工具
+        run: npm i -g vercel@latest
+
+      - name: 检查vercel cli版本
+        run: vc -v
+
+      - name: turbo并发打包全部子项目
+        run: pnpm run on-github-action-flow
