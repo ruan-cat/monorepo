@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  全量turbo构建自测项目健壮性:
+  tester:
     runs-on: ubuntu-latest
     steps:
       - name: 检出分支
