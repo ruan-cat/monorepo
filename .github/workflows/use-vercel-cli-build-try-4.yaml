@@ -40,7 +40,9 @@ env:
 on:
   push:
     branches:
-      - dev
+      # 避免高频率占用vercel资源，改成仅在main分支执行部署行为
+      # - dev
+      - main
 
 jobs:
   Deploy-Production:
