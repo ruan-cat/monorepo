@@ -1,0 +1,12 @@
+{
+	"name": "@ruan-cat-vercel-monorepo-test/utils",
+	"version": "0.0.1",
+	"description": "工具集合，预期是一个纯ts库，提供ts类型和ts的函数",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
+}

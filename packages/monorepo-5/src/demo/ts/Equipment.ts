@@ -27,14 +27,17 @@ type SpeedProperty = {
 	speed: number;
 };
 
+/** 属性元组 */
 type Propertys = [AttackProperty, DefenseProperty, CriticalStrikeProperty, SpeedProperty];
 
 // interface EquipmentPropertys
+/** 装备属性 联合类型 */
 type EquipmentUnionPropertys = array.TupleToUnion<Propertys>;
 
+/** 装备属性 交叉类型 */
 type EquipmenIntersectionPropertys = common.UnionToIntersection<EquipmentUnionPropertys>;
 
 // export interface EquipmentWithPropertys extends Equipment, EquipmentPropertys {}
 // propertys:
 
-export interface EquipmentWithPropertys {}
+export type EquipmentWithPropertys = Equipment & Partial<EquipmenIntersectionPropertys>;
