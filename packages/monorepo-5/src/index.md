@@ -11,11 +11,6 @@ actions:
     type: primary
 ---
 
-<!-- # actions:
-# 	- text:
-# 		link: /demo
-# 		type: primary -->
-
 ## 1
 
 monorepo-5
