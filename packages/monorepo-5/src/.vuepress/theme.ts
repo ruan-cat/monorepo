@@ -10,7 +10,10 @@ export default hopeTheme({
 		url: "https://mister-hope.com",
 	},
 
-	iconAssets: "fontawesome-with-brands",
+	iconAssets: [
+		"fontawesome-with-brands",
+		// "streamline"
+	],
 
 	logo: "https://theme-hope-assets.vuejs.press/logo.svg",
 
@@ -22,7 +25,7 @@ export default hopeTheme({
 	navbar,
 
 	// 侧边栏
-	sidebar,
+	sidebar: "structure",
 
 	// 页脚
 	footer: "默认页脚",
