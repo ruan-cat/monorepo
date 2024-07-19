@@ -1,6 +1,8 @@
 // import type { TupleToUnion } from "typescript-lodash/lib/array";
 import type { array, common } from "typescript-lodash";
 
+import { type Prettify } from "utils";
+
 /** 装备 */
 export interface Equipment {
 	/** 装备名称 */
@@ -40,4 +42,5 @@ type EquipmenIntersectionPropertys = common.UnionToIntersection<EquipmentUnionPr
 // export interface EquipmentWithPropertys extends Equipment, EquipmentPropertys {}
 // propertys:
 
-export type EquipmentWithPropertys = Equipment & Partial<EquipmenIntersectionPropertys>;
+// export type EquipmentWithPropertys = Equipment & Partial<EquipmenIntersectionPropertys>;
+export type EquipmentWithPropertys = Prettify<Equipment & Partial<EquipmenIntersectionPropertys>>;

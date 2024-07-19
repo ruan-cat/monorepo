@@ -3,6 +3,7 @@
 	"version": "0.0.1",
 	"description": "工具集合，预期是一个纯ts库，提供ts类型和ts的函数",
 	"private": true,
+	"types": "module",
 	"main": "./index",
 	"module": "./index",
 	"scripts": {

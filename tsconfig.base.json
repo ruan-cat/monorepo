@@ -43,6 +43,23 @@
 		],
 		"types": [
 			"vite/client"
-		]
+		],
+		// 路径别名设置
+		"paths": {
+			"@packages/*": [
+				"packages/*/src"
+			],
+			"@packages-docs/*": [
+				"packages/*/docs"
+			],
+			// 提供两种路径 该路径允许独立查询里面的子模块
+			"utils/*": [
+				"utils/*"
+			],
+			// 提供两种路径 该路径直接使用根目录下整合好的入口
+			"utils": [
+				"utils/"
+			],
+		}
 	}
 }
