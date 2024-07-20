@@ -31,7 +31,8 @@
 		// https://www.typescriptlang.org/tsconfig#resolveJsonModule
 		// https://www.typescriptlang.org/tsconfig#strict
 		"module": "NodeNext",
-		"moduleResolution": "Bundler",
+		// "moduleResolution": "Bundler",
+		"moduleResolution": "NodeNext",
 		"target": "ESNext",
 		"allowJs": true,
 		// 根据ai建议 调整为false
@@ -55,12 +56,13 @@
 				"./packages/*/docs"
 			],
 			// 提供两种路径 该路径允许独立查询里面的子模块
+			// FIXME: 失效，该配置无法实现查询子模块。
 			"utils/*": [
 				"./utils/*"
 			],
 			// 提供两种路径 该路径直接使用根目录下整合好的入口
 			"utils": [
-				"./utils/"
+				"./utils/index.ts"
 			],
 		}
 	}

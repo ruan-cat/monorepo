@@ -1,6 +1,7 @@
 // import type { TupleToUnion } from "typescript-lodash/lib/array";
 import type { array, common } from "typescript-lodash";
 
+// import { type Prettify } from "utils";
 import { type Prettify } from "utils";
 
 /** 装备 */

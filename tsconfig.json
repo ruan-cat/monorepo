@@ -1,10 +1,18 @@
 {
 	"extends": "./tsconfig.base.json",
+	"exclude": [
+		"**/dist",
+		"**/node_modules"
+	],
 	"include": [
+		// Change the file extension from ".js" to ".ts"
+		"./packages/**/*.ts",
 		"./packages/**/*.js",
-		// 包含全部的vuepress配置文件
-		"packages/*/**/.vuepress/**/*.ts",
-		"packages/**/src",
-		"./utils"
-	]
+		"./packages/*/**/.vuepress/**/*.ts",
+		"./packages/**/src",
+		"./utils/*.ts"
+	],
+	"compilerOptions": {
+		"outDir": "**/dist"
+	}
 }
