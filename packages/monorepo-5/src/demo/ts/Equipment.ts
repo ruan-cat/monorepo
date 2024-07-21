@@ -1,4 +1,3 @@
-// import type { TupleToUnion } from "typescript-lodash/lib/array";
 import type { array, common } from "typescript-lodash";
 
 import { type Prettify } from "utils";
@@ -32,15 +31,13 @@ type SpeedProperty = {
 /** 属性元组 */
 type Propertys = [AttackProperty, DefenseProperty, CriticalStrikeProperty, SpeedProperty];
 
-// interface EquipmentPropertys
 /** 装备属性 联合类型 */
 type EquipmentUnionPropertys = array.TupleToUnion<Propertys>;
 
 /** 装备属性 交叉类型 */
 type EquipmenIntersectionPropertys = common.UnionToIntersection<EquipmentUnionPropertys>;
+type EquipmenIntersectionPropertysP = Prettify<EquipmenIntersectionPropertys>;
 
-// export interface EquipmentWithPropertys extends Equipment, EquipmentPropertys {}
-// propertys:
-
-// export type EquipmentWithPropertys = Equipment & Partial<EquipmenIntersectionPropertys>;
-export type EquipmentWithPropertys = Prettify<Equipment & Partial<EquipmenIntersectionPropertys>>;
+/** 带有属性的装备 */
+export type EquipmentWithPropertys = Equipment & Partial<EquipmenIntersectionPropertys>;
+type EquipmentWithPropertysP = Prettify<EquipmentWithPropertys>;
