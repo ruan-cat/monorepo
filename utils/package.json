@@ -6,16 +6,17 @@
 	"type": "module",
 	"_main": "./src/index.ts",
 	"_types": "./src/index.ts",
+	"_module": "./src",
 	"main": "./src",
-	"types": "./src",
-	"module": "./src",
+	"types": "./src/index.ts",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"exports": {
 		".": {
 			"_import": "./src/index.ts",
-			"default": "./src/index.ts",
+			"_default": "./src/index.ts",
+			"import": "./src/index.ts",
 			"types": "./src/index.ts"
 		}
 	},

@@ -35,8 +35,7 @@
 		"moduleResolution": "NodeNext",
 		"target": "ESNext",
 		"allowJs": true,
-		// 根据ai建议 调整为false
-		"allowImportingTsExtensions": false,
+		"allowImportingTsExtensions": true,
 		// lib
 		"lib": [
 			"DOM",
