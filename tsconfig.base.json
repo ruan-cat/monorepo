@@ -10,7 +10,7 @@
 		"declaration": true,
 		"declarationMap": true,
 		"noEmit": false,
-		// 按照ai提供的建议 这里调整为false
+		// // 按照ai提供的建议 这里调整为false
 		"emitDeclarationOnly": false,
 		"noEmitOnError": true,
 		"skipLibCheck": true,
@@ -30,12 +30,12 @@
 		//  这几项配置的作用比较显而易见，具体可查阅文档：
 		// https://www.typescriptlang.org/tsconfig#resolveJsonModule
 		// https://www.typescriptlang.org/tsconfig#strict
-		"module": "NodeNext",
-		// "moduleResolution": "Bundler",
-		"moduleResolution": "NodeNext",
+		// "module": "NodeNext",
+		"moduleResolution": "Bundler",
+		// "moduleResolution": "NodeNext",
 		"target": "ESNext",
 		"allowJs": true,
-		"allowImportingTsExtensions": true,
+		// "allowImportingTsExtensions": true,
 		// lib
 		"lib": [
 			"DOM",
