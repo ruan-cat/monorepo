@@ -1,18 +1,16 @@
 {
-	"extends": "./tsconfig.base.json",
 	"exclude": [
 		"**/dist",
 		"**/node_modules"
 	],
-	"include": [
-		// Change the file extension from ".js" to ".ts"
-		"./packages/**/*.ts",
-		"./packages/**/*.js",
-		"./packages/*/**/.vuepress/**/*.ts",
-		"./packages/**/src",
-		"./utils/*.ts"
-	],
 	"compilerOptions": {
-		"outDir": "**/dist"
-	}
+		"outDir": "**/dist",
+		// "rootDir": "./",
+		// "baseUrl": "./"
+	},
+	"references": [
+		{
+			"path": "./tsconfig.path.json"
+		}
+	]
 }

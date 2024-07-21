@@ -15,13 +15,13 @@
 	},
 	"main": "./dist/vuepress-preset-config.js",
 	"module": "./dist/vuepress-preset-config.js",
-	"types": "",
+	"types": "./src/index.ts",
 	"exports": {
 		".": {
 			"require": "./dist/vuepress-preset-config.umd.cjs",
 			"module": "./dist/vuepress-preset-config.js",
 			"import": "./dist/vuepress-preset-config.js",
-			"types": ""
+			"types": "./src/index.ts"
 		},
 		"./package.json": "./package.json",
 		"./dist/style": {

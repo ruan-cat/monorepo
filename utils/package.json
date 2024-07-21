@@ -3,17 +3,26 @@
 	"version": "0.0.1",
 	"description": "工具集合，预期是一个纯ts库，提供ts类型和ts的函数",
 	"private": true,
-	"types": "module",
-	"main": "./index",
-	"module": "./index",
+	"type": "module",
+	"_main": "./src/index.ts",
+	"_types": "./src/index.ts",
+	"main": "./src",
+	"types": "./src",
+	"module": "./src",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"exports": {
+		".": {
+			"_import": "./src/index.ts",
+			"default": "./src/index.ts",
+			"types": "./src/index.ts"
+		}
 	},
 	"keywords": [],
 	"author": "ruan-cat",
 	"files": [
 		"src",
-		"index.ts",
 		"tsconfig.json"
 	]
 }
