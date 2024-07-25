@@ -1,10 +1,16 @@
 {
-	"extends": "./tsconfig.base.json",
-	"include": [
-		"./packages/**/*.js",
-		// 包含全部的vuepress配置文件
-		"packages/*/**/.vuepress/**/*.ts",
-		"packages/**/src",
-		"./utils"
+	"exclude": [
+		"**/dist",
+		"**/node_modules"
+	],
+	"compilerOptions": {
+		"outDir": "**/dist",
+		// "rootDir": "./",
+		// "baseUrl": "./"
+	},
+	"references": [
+		{
+			"path": "./tsconfig.path.json"
+		}
 	]
 }

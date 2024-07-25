@@ -14,7 +14,10 @@
 		"pnpm": ">=8"
 	},
 	"scripts": {
-		"rm:node_modules": "pnpm -r rimraf node_modules && rimraf node_modules",
+		"preinstall": "npx only-allow pnpm && npm run corepack:pnpm",
+		"corepack:pnpm": "corepack enable && corepack install",
+		"git:fetch": "git fetch -p",
+		"rm:node_modules": "pnpm -r rm:node_modules && rimraf node_modules",
 		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel && rimraf .cache && rimraf .temp",
 		"pnpm:clear": "pnpm -r clear && pnpm run clear",
 		"turbo:clear": "turbo clear",

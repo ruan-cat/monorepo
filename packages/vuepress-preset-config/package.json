@@ -11,17 +11,17 @@
 		"build:watch": "vite build --watch",
 		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel",
 		"docs:update-package": "pnpm dlx vp-update",
-		"test": "echo test"
+		"rm:node_modules": "rimraf node_modules"
 	},
 	"main": "./dist/vuepress-preset-config.js",
 	"module": "./dist/vuepress-preset-config.js",
-	"types": "",
+	"types": "./src/index.ts",
 	"exports": {
 		".": {
 			"require": "./dist/vuepress-preset-config.umd.cjs",
 			"module": "./dist/vuepress-preset-config.js",
 			"import": "./dist/vuepress-preset-config.js",
-			"types": ""
+			"types": "./src/index.ts"
 		},
 		"./package.json": "./package.json",
 		"./dist/style": {
