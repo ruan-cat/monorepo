@@ -1,7 +1,8 @@
-function generateCombinations(n, m) {
+function generateCombinations(n: number, m: number) {
 	const arr = Array.from({ length: n }, (_, i) => i + 1);
-	let result = [];
-	function combine(start, comb) {
+	let result: Array<number[]> = [];
+
+	function combine(start: number, comb: number[]) {
 		if (comb.length === m) {
 			result.push(comb.slice());
 			return;
@@ -12,13 +13,16 @@ function generateCombinations(n, m) {
 			comb.pop();
 		}
 	}
+
 	combine(0, []);
 	return result;
 }
+const arrres = generateCombinations(4, 3);
+console.log(arrres);
 
-function arrayMatch(arr1, arr2) {
+function arrayMatch(arr1: number[], arr2: number[]) {
 	let count = 0;
-	let seen = {};
+	let seen: Record<number, true> = {};
 	for (let i = 0; i < arr1.length; i++) {
 		seen[arr1[i]] = true;
 	}
@@ -30,18 +34,21 @@ function arrayMatch(arr1, arr2) {
 	return count;
 }
 
-function convertToFraction(decimal) {
+function convertToFraction(decimal: number) {
 	const numDecimals = decimal.toFixed(10).split(".")[1].length;
 	const denominator = Math.pow(10, numDecimals);
 	const numerator = Math.round(decimal * denominator);
-	let gcd = function (a, b) {
+
+	let gcd = function (a: number, b: number): number {
 		return b ? gcd(b, a % b) : a;
 	};
+
 	const divisor = gcd(numerator, denominator);
+
 	return `1 / ${denominator / numerator}`;
 }
 
-function luckydrawcalc(num, bet, normal, special) {
+function luckydrawcalc(num: number, bet: number, normal: number, special: number) {
 	const n = Array.from({ length: normal }, (_, i) => i + 1);
 	const s = Array.from({ length: special }, (_, i) => num - i);
 	const arr = generateCombinations(num, bet);
@@ -72,4 +79,7 @@ function luckydrawcalc(num, bet, normal, special) {
 	}
 }
 
-luckydrawcalc(36, 10, 6, 1);
+const finRes = luckydrawcalc(10, 4, 3, 1);
+// console.log(finRes);
+
+// luckydrawcalc(36, 10, 6, 1);
