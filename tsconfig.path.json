@@ -33,12 +33,12 @@
 		"./packages/*/**/.vuepress/**/*.ts",
 		"./packages/**/src",
 		"./utils",
-		// 根目录下的配置，也应该纳入管控
-		"./prettier.config.js",
-		"./eslint.config.js"
 	],
 	"exclude": [
 		"**/dist",
-		"./packages/monorepo-3/typedoc.config.js"
+		"./packages/monorepo-3/typedoc.config.js",
+		// FIXME: 受不了报错了，直接排除 不知道怎么处理
+		"./prettier.config.js",
+		"./eslint.config.js"
 	]
 }

@@ -1,8 +1,12 @@
 import { merge } from "lodash-es";
 import { type UserConfig, defineUserConfig } from "vuepress";
+// import { getDirname, path } from "vuepress/utils";
+
 import { viteBundler } from "@vuepress/bundler-vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { hopeTheme } from "vuepress-theme-hope";
+
+// const __dirname = getDirname(import.meta.url);
 
 import "./scroll-bar.scss";
 
@@ -127,6 +131,10 @@ const defaultConfig: UserConfig = {
 			debug: true,
 		},
 	),
+
+	// alias: {
+	// 	"@theme-hope/modules/outlook/components/ThemeColor": path.resolve(),
+	// },
 };
 
 /**
