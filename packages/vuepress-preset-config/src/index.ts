@@ -1,6 +1,7 @@
 import { merge } from "lodash-es";
 import { type UserConfig, defineUserConfig } from "vuepress";
 // import { getDirname, path } from "vuepress/utils";
+// import { fileURLToPath, URL } from "node:url";
 
 import { viteBundler } from "@vuepress/bundler-vite";
 import { visualizer } from "rollup-plugin-visualizer";
@@ -132,9 +133,13 @@ const defaultConfig: UserConfig = {
 		},
 	),
 
-	// alias: {
-	// 	"@theme-hope/modules/outlook/components/ThemeColor": path.resolve(),
-	// },
+	alias: {
+		// "@theme-hope/modules/navbar/components/RepoLink": new URL("./components/test.vue", import.meta.url),
+		// fileURLToPath(
+		// 	new URL("./components/test.vue", import.meta.url),
+		// ),
+		// path.resolve(__dirname, "./components/test.vue"),
+	},
 };
 
 /**

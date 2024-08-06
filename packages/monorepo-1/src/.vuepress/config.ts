@@ -1,4 +1,20 @@
 // import "@ruan-cat-vercel-monorepo-test/vuepress-preset-config/dist/style.css";
-import { defineRuanCatVuepressPresetConfig } from "@ruan-cat-vercel-monorepo-test/vuepress-preset-config";
+import {
+	defineRuanCatVuepressPresetConfig,
+	defineRuanCatVuepressConfig,
+} from "@ruan-cat-vercel-monorepo-test/vuepress-preset-config";
 
-export default defineRuanCatVuepressPresetConfig;
+import { getDirname, path } from "vuepress/utils";
+
+const __dirname = getDirname(import.meta.url);
+
+// export default defineRuanCatVuepressPresetConfig;
+export default defineRuanCatVuepressConfig({
+	alias: {
+		// "@theme-hope/modules/navbar/components/RepoLink": new URL("./components/test.vue", import.meta.url),
+		// fileURLToPath(
+		// 	new URL("./components/test.vue", import.meta.url),
+		// ),
+		"@theme-hope/modules/navbar/components/RepoLink": path.resolve(__dirname, "./components/test.vue"),
+	},
+});
