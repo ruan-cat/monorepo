@@ -4,7 +4,7 @@ import { viteBundler } from "@vuepress/bundler-vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { hopeTheme } from "vuepress-theme-hope";
 
-import "./scroll-bar.scss"
+import "./scroll-bar.scss";
 
 /**
  * 默认的vuepress基础配置
@@ -36,91 +36,97 @@ const defaultConfig: UserConfig = {
 		vuePluginOptions: {},
 	}),
 
-	theme: hopeTheme({
-		hostname: "https://www.ruan-cat.com",
-		repo: "RuanZhongNan/vercel-monorepo-test",
-		docsDir: "src",
-		footer: "内部文档，请勿外传",
+	theme: hopeTheme(
+		{
+			hostname: "https://www.ruan-cat.com",
+			repo: "RuanZhongNan/vercel-monorepo-test",
+			docsDir: "src",
+			footer: "内部文档，请勿外传",
 
-		sidebar: "structure",
+			sidebar: "structure",
 
-		hotReload: true,
+			hotReload: true,
 
-		plugins: {
-			components: {
-				components: ["Badge", "VPCard"],
-			},
+			plugins: {
+				components: {
+					components: ["Badge", "VPCard"],
+				},
 
-			mdEnhance: {
-				align: true,
-				attrs: true,
-				codetabs: true,
-				component: true,
-				demo: true,
-				figure: true,
-				imgLazyload: true,
-				imgSize: true,
-				include: true,
-				mark: true,
-				stylize: [
-					{
-						matcher: "Recommended",
-						replacer: ({ tag }) => {
-							if (tag === "em") {
-								return {
-									tag: "Badge",
-									attrs: { type: "tip" },
-									content: "Recommended",
-								};
-							}
+				mdEnhance: {
+					align: true,
+					attrs: true,
+					codetabs: true,
+					component: true,
+					demo: true,
+					figure: true,
+					imgLazyload: true,
+					imgSize: true,
+					include: true,
+					mark: true,
+					stylize: [
+						{
+							matcher: "Recommended",
+							replacer: ({ tag }) => {
+								if (tag === "em") {
+									return {
+										tag: "Badge",
+										attrs: { type: "tip" },
+										content: "Recommended",
+									};
+								}
+							},
 						},
-					},
-				],
-				sub: true,
-				sup: true,
-				tabs: true,
-				vPre: true,
+					],
+					sub: true,
+					sup: true,
+					tabs: true,
+					vPre: true,
 
-				// 在启用之前安装 chart.js
-				// chart: true,
+					// 在启用之前安装 chart.js
+					// chart: true,
 
-				// insert component easily
+					// insert component easily
 
-				// 在启用之前安装 echarts
-				// echarts: true,
+					// 在启用之前安装 echarts
+					// echarts: true,
 
-				// 在启用之前安装 flowchart.ts
-				// flowchart: true,
+					// 在启用之前安装 flowchart.ts
+					// flowchart: true,
 
-				// gfm requires mathjax-full to provide tex support
-				// gfm: true,
+					// gfm requires mathjax-full to provide tex support
+					// gfm: true,
 
-				// 在启用之前安装 katex
-				// katex: true,
+					// 在启用之前安装 katex
+					// katex: true,
 
-				// 在启用之前安装 mathjax-full
-				// mathjax: true,
+					// 在启用之前安装 mathjax-full
+					// mathjax: true,
 
-				// 在启用之前安装 mermaid
-				// mermaid: true,
+					// 在启用之前安装 mermaid
+					// mermaid: true,
 
-				// playground: {
-				//   presets: ["ts", "vue"],
-				// },
+					// playground: {
+					//   presets: ["ts", "vue"],
+					// },
 
-				// 在启用之前安装 reveal.js
-				// revealJs: {
-				//   plugins: ["highlight", "math", "search", "notes", "zoom"],
-				// },
+					// 在启用之前安装 reveal.js
+					// revealJs: {
+					//   plugins: ["highlight", "math", "search", "notes", "zoom"],
+					// },
 
-				// 在启用之前安装 @vue/repl
-				// vuePlayground: true,
+					// 在启用之前安装 @vue/repl
+					// vuePlayground: true,
 
-				// install sandpack-vue3 before enabling it
-				// sandpack: true,
+					// install sandpack-vue3 before enabling it
+					// sandpack: true,
+				},
 			},
 		},
-	}),
+		{
+			custom: true,
+			debug: true,
+		},
+	),
 };
 
 /**
