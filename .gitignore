@@ -144,3 +144,6 @@ pnpm-lock.yaml
 
 # 忽略vercel本地打包生成的文件
 .vercel
+
+# 忽略 @eslint/config-inspector 生成文档
+.eslint-config-inspector
