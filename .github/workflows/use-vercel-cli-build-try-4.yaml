@@ -71,6 +71,9 @@ jobs:
       - name: 检查vercel cli版本
         run: vc -v
 
+      - name: 在连接vercel项目之前，预构建项目目录
+        run: pnpm run -w eci:b
+
       - name: 各子项目连接现有的vercel项目
         # 本地window使用
         # run: vc link --yes --cwd=./packages/monorepo-3 --project=vercel-monorepo-test-1-zn20
