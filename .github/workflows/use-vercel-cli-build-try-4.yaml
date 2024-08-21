@@ -21,6 +21,7 @@ env:
   p4: ./packages/monorepo-4
   p5: ./packages/monorepo-5
   docs01Star: ./packages/docs-01-star
+  eci: ./.eslint-config-inspector
 
   # 项目url
   p1-url: monorepo-1.ruancat6312.top

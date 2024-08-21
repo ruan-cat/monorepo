@@ -26,11 +26,11 @@
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"prettier": "prettier --write .",
-		"eslint-config-inspector:open": "eslint-config-inspector",
-		"eslint-config-inspector:build": "eslint-config-inspector build",
+		"eci:open": "eslint-config-inspector",
+		"eci:b": "eslint-config-inspector build",
 		"turbo:build-docs": "turbo build:docs",
 		"turbo:copy-dist": "turbo copy-dist",
-		"on-github-action-flow": "turbo copy-dist"
+		"on-github-action-flow": "turbo eci:b copy-dist"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^2.21.1",
