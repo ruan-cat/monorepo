@@ -26,7 +26,8 @@
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"prettier": "prettier --write .",
-		"eslint-config-inspector:open": "pnpx @eslint/config-inspector",
+		"eslint-config-inspector:open": "eslint-config-inspector",
+		"eslint-config-inspector:build": "eslint-config-inspector build",
 		"turbo:build-docs": "turbo build:docs",
 		"turbo:copy-dist": "turbo copy-dist",
 		"on-github-action-flow": "turbo copy-dist"
