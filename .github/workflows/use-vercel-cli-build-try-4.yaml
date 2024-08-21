@@ -71,7 +71,7 @@ jobs:
       - name: 检查vercel cli版本
         run: vc -v
 
-      - name: 在连接vercel项目之前，预构建项目目录
+      - name: eci:在连接vercel项目之前，预构建项目目录
         run: pnpm run -w eci:b
 
       - name: 各子项目连接现有的vercel项目
@@ -96,10 +96,15 @@ jobs:
           vc build --yes --prod --cwd=${{env.p4}} -A ./vercel.null.json -t ${{env.vct}}
           vc build --yes --prod --cwd=${{env.p5}} -A ./vercel.null.json -t ${{env.vct}}
           vc build --yes --prod --cwd=${{env.docs01Star}} -A ./vercel.null.json -t ${{env.vct}}
-          vc build --yes --prod --cwd=${{env.eci}} -A ./vercel.null.json -t ${{env.vct}}
+
+        # eci项目的目录不是固定的目录，是动态生成的目录，所以构建vercel目录的命令应该在其构建之后
+        # vc build --yes --prod --cwd=${{env.eci}} -A ./vercel.null.json -t ${{env.vct}}
 
       - name: turbo并发打包全部子项目
         run: pnpm run on-github-action-flow
+
+      - name: eci:生成vercel静态站点目录结构
+        run: vc build --yes --prod --cwd=${{env.eci}} -A ./vercel.null.json -t ${{env.vct}}
 
       - name: 各子项目上传文件并部署到vercel内
         run: |
