@@ -38,6 +38,10 @@ env:
 
   docs-01-star-url: docs-01-star.ruancat6312.top
 
+  eci-url-longest: eslint-config-inspector.ruan-cat-vercel-monorepo-test.ruancat6312.top
+  eci-url-medium: eci.ruancat-vc-monorepo.ruancat6312.top
+  eci-url-mini: eci.rc-vc.ruancat6312.top
+
 on:
   push:
     branches:
@@ -77,6 +81,7 @@ jobs:
           vc link --yes --cwd=${{env.p4}} --project=${{env.pjn}} -t ${{env.vct}}
           vc link --yes --cwd=${{env.p5}} --project=${{env.pjn}} -t ${{env.vct}}
           vc link --yes --cwd=${{env.docs01Star}} --project=${{env.pjn}} -t ${{env.vct}}
+          vc link --yes --cwd=${{env.eci}} --project=${{env.pjn}} -t ${{env.vct}}
 
       - name: vercel生成特定.vercel/output/static目录
         # build命令仍然需要用token来运行。
@@ -88,6 +93,7 @@ jobs:
           vc build --yes --prod --cwd=${{env.p4}} -A ./vercel.null.json -t ${{env.vct}}
           vc build --yes --prod --cwd=${{env.p5}} -A ./vercel.null.json -t ${{env.vct}}
           vc build --yes --prod --cwd=${{env.docs01Star}} -A ./vercel.null.json -t ${{env.vct}}
+          vc build --yes --prod --cwd=${{env.eci}} -A ./vercel.null.json -t ${{env.vct}}
 
       - name: turbo并发打包全部子项目
         run: pnpm run on-github-action-flow
@@ -114,3 +120,8 @@ jobs:
 
           url01Star="$(vc deploy --yes --prebuilt --prod --cwd=${{env.docs01Star}} -t ${{env.vct}})"
           vc alias -t ${{env.vct}} set "$url01Star" ${{env.docs-01-star-url}}
+
+          urlEci="$(vc deploy --yes --prebuilt --prod --cwd=${{env.eci}} -t ${{env.vct}})"
+          vc alias -t ${{env.vct}} set "$urlEci" ${{env.eci-url-longest}}
+          vc alias -t ${{env.vct}} set "$urlEci" ${{env.eci-url-medium}}
+          vc alias -t ${{env.vct}} set "$urlEci" ${{env.eci-url-mini}}
