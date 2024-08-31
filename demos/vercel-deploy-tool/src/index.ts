@@ -37,16 +37,24 @@ interface Config {
 	vercelProjectId: string;
 	targetCWD: string;
 	url: string;
+	buildCommand: string[];
 }
 
-const config = {
+const config: Config = {
 	vercelProjetName: "vercel-monorepo-test-1-zn20",
 	vercelToken: "QF9Q3Hv5U8q2fKz1Jc4W8B1Y",
 	vercelOrgId: "QF9Q3Hv5U8q2fKz1Jc4W8B1Y",
 	vercelProjectId: "QF9Q3Hv5U8q2fKz1Jc4W8B1Y",
 	targetCWD: "./packages/docs-01-star",
 	url: "docs-01-star.ruancat6312.top",
+	buildCommand: [
+		"pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs",
+		"pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star copy-dist",
+	],
 };
+
+// execa`${config.buildCommand[0]}`;
+// await execa`pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs`;
 
 merge(config, {
 	vercelOrgId: process.env.VERCEL_ORG_ID,
@@ -67,8 +75,24 @@ const linkRes =
 	await execa`vc link --yes --cwd=${config.targetCWD} --project=${config.vercelProjetName} -t ${config.vercelToken}`;
 console.log(" ? linkRes  ", linkRes.stdout);
 
-const deployRes =
-	await execa`vc deploy --yes --prod --cwd=${config.targetCWD} -A ./vercel.null.json -t ${config.vercelToken}`;
-console.log(" ? deployRes  ", deployRes.stdout);
+const buildStaticRes =
+	await execa`vc build --yes --prod --cwd=${config.targetCWD} -A ./vercel.null.json -t ${config.vercelToken}`;
+console.log(" ? buildStaticRes  ", buildStaticRes.stdout);
+
+// const buildRes = await execa``;
+const buildCommands = config.buildCommand.map((buildCommand) => {
+	return async function () {
+		// return execa`${buildCommand}`;
+		console.log(" ??? in map = ", buildCommand);
+		await execa`${buildCommand}`;
+
+		return await execa`${buildCommand}`;
+	};
+});
+
+for await (const buildCommand of buildCommands) {
+	const buildCommandStdout = await buildCommand();
+	console.log(" in buildCommandStdout ", buildCommandStdout.stdout);
+}
 
 // vc build --yes --prod --cwd=${{env.docs01Star}} -A ./vercel.null.json -t ${{env.vct}}
