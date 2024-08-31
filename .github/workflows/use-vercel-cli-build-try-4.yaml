@@ -22,6 +22,7 @@ env:
   p5: ./packages/monorepo-5
   docs01Star: ./packages/docs-01-star
   eci: ./.eslint-config-inspector
+  mikutap: ./demos/gh.HFIProgramming.mikutap
 
   # 项目url
   p1-url: monorepo-1.ruancat6312.top
@@ -41,6 +42,8 @@ env:
   eci-url-longest: eslint-config-inspector.ruan-cat-vercel-monorepo-test.ruancat6312.top
   eci-url-medium: eci.ruancat-vc-monorepo.ruancat6312.top
   eci-url-mini: eci.rc-vc.ruancat6312.top
+
+  mikutap-url: mikutap.ruancat6312.top
 
 on:
   push:
@@ -85,6 +88,7 @@ jobs:
           vc link --yes --cwd=${{env.p5}} --project=${{env.pjn}} -t ${{env.vct}}
           vc link --yes --cwd=${{env.docs01Star}} --project=${{env.pjn}} -t ${{env.vct}}
           vc link --yes --cwd=${{env.eci}} --project=${{env.pjn}} -t ${{env.vct}}
+          vc link --yes --cwd=${{env.mikutap}} --project=${{env.pjn}} -t ${{env.vct}}
 
       - name: vercel生成特定.vercel/output/static目录
         # build命令仍然需要用token来运行。
@@ -96,6 +100,7 @@ jobs:
           vc build --yes --prod --cwd=${{env.p4}} -A ./vercel.null.json -t ${{env.vct}}
           vc build --yes --prod --cwd=${{env.p5}} -A ./vercel.null.json -t ${{env.vct}}
           vc build --yes --prod --cwd=${{env.docs01Star}} -A ./vercel.null.json -t ${{env.vct}}
+          vc build --yes --prod --cwd=${{env.mikutap}} -A ./vercel.null.json -t ${{env.vct}}
 
         # eci项目的目录不是固定的目录，是动态生成的目录，所以构建vercel目录的命令应该在其构建之后
         # vc build --yes --prod --cwd=${{env.eci}} -A ./vercel.null.json -t ${{env.vct}}
@@ -133,3 +138,6 @@ jobs:
           vc alias -t ${{env.vct}} set "$urlEci" ${{env.eci-url-longest}}
           vc alias -t ${{env.vct}} set "$urlEci" ${{env.eci-url-medium}}
           vc alias -t ${{env.vct}} set "$urlEci" ${{env.eci-url-mini}}
+
+          urlMikutap="$(vc deploy --yes --prebuilt --prod --cwd=${{env.mikutap}} -t ${{env.vct}})"
+          vc alias -t ${{env.vct}} set "$urlMikutap" ${{env.mikutap-url}}
