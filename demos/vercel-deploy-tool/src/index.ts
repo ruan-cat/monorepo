@@ -5,11 +5,6 @@ import { merge } from "lodash-es";
 
 export {};
 
-export function add(a: number, b: number): number {
-	return a + b;
-}
-// console.log(add(2, 3)); // Output: 5
-
 // const pkgNames = <const>["pnpm", "turbopack", "vite", "vue", "koishi", "lodash", "axios"];
 // 查询多个包的版本
 // const response = await Promise.all(
@@ -22,13 +17,11 @@ export function add(a: number, b: number): number {
 // });
 
 const currentDotenvConfig = dotenvConfig({
+	// 具体识别的路径，会自动识别根目录下面的env文件，故这里不作处理
 	//  path: "../../../.env"
 }).parsed;
 
-console.log(" 、 currentDotenvConfig ", currentDotenvConfig);
-// process.env.psql_database_url;
-
-// @dotenvx/dotenvx
+console.log(" 查看来自 @dotenvx/dotenvx 获取的环境变量： ", currentDotenvConfig);
 
 interface Config {
 	vercelProjetName: string;
@@ -45,7 +38,8 @@ const config: Config = {
 	vercelToken: "QF9Q3Hv5U8q2fKz1Jc4W8B1Y",
 	vercelOrgId: "QF9Q3Hv5U8q2fKz1Jc4W8B1Y",
 	vercelProjectId: "QF9Q3Hv5U8q2fKz1Jc4W8B1Y",
-	targetCWD: "./packages/docs-01-star",
+	// targetCWD: "./packages/docs-01-star",
+	targetCWD: "packages/docs-01-star",
 	url: "docs-01-star.ruancat6312.top",
 	buildCommand: [
 		// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs",
@@ -57,14 +51,10 @@ const config: Config = {
 
 // await execa`${config.buildCommand[0]}`;
 // await execa`pnpm run ${config.buildCommand[0]}`;
-await execa`pnpm -v && pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs`;
-
-const command = "pnpm -v";
-// const testRes = await execa`pnpm -v && ${command}`;
-// const testRes = await execa`${command}`;
-const testRes = await execa`${config.buildCommand[0]}`;
-console.log(" ? testRes  ", testRes.stdout);
-// execa No results for "&&"
+// await execa`pnpm -v && pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs`;
+// const command = "pnpm -v";
+// const testRes = await execa`${config.buildCommand[0]}`;
+// console.log(" ? testRes  ", testRes.stdout);
 
 merge(config, {
 	vercelOrgId: process.env.VERCEL_ORG_ID,
@@ -75,8 +65,6 @@ merge(config, {
 function link() {
 	return execa`vc link --yes --cwd=${config.targetCWD} --project=${config.vercelProjetName} -t ${config.vercelToken}`;
 }
-// const { stdout } = link();
-// console.log(" ? link  ", stdout);
 
 const linkRes =
 	await execa`vc link --yes --cwd=${config.targetCWD} --project=${config.vercelProjetName} -t ${config.vercelToken}`;
@@ -86,15 +74,8 @@ const buildStaticRes =
 	await execa`vc build --yes --prod --cwd=${config.targetCWD} -A ./vercel.null.json -t ${config.vercelToken}`;
 console.log(" ? buildStaticRes  ", buildStaticRes.stdout);
 
-// const buildRes = await execa``;
 const buildCommands = config.buildCommand.map((buildCommand) => {
 	return async function () {
-		// return execa`${buildCommand}`;
-		// console.log(" ??? in map = ", buildCommand);
-		// await execa`${buildCommand}`;
-		// await execa`pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs`;
-
-		// return await execa`pnpm -v && ${buildCommand}`;
 		return await execa`${buildCommand}`;
 	};
 });
@@ -103,5 +84,3 @@ for await (const buildCommand of buildCommands) {
 	const buildCommandStdout = await buildCommand();
 	console.log(" in buildCommandStdout ", buildCommandStdout.stdout);
 }
-
-// vc build --yes --prod --cwd=${{env.docs01Star}} -A ./vercel.null.json -t ${{env.vct}}
