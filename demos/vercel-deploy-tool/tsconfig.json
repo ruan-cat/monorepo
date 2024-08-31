@@ -1,19 +1,22 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "outDir": "./dist",
-    "rootDir": "src",
-    "strict": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "rootDirs": [
-      "src",
-    ],
-  },
-  "include": [
-    "src"
-  ]
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"outDir": "./dist",
+		"rootDir": "src",
+		"strict": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"moduleResolution": "node",
+		"rootDirs": [
+			"src",
+		],
+		"types": [
+			"node"
+		]
+	},
+	"include": [
+		"src"
+	]
 }
