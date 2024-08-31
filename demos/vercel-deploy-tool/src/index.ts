@@ -1,7 +1,8 @@
 // 学习一下如何使用 https://github.com/sindresorhus/execa/blob/main/readme.md
+import fs from "fs";
 import { execa } from "execa";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
-import { merge } from "lodash-es";
+import { merge, concat } from "lodash-es";
 
 export {};
 
@@ -56,6 +57,27 @@ const config: Config = {
 // const testRes = await execa`${config.buildCommand[0]}`;
 // console.log(" ? testRes  ", testRes.stdout);
 
+const vercelNullConfig = {
+	framework: null,
+	buildCommand: null,
+	installCommand: null,
+	outputDirectory: null,
+	devCommand: null,
+	public: false,
+	git: {
+		deploymentEnabled: {
+			main: false,
+		},
+	},
+};
+
+const vercelNullConfigPath = "./vercel.null.def.json";
+
+function initVercelNullConfig() {
+	fs.writeFileSync(vercelNullConfigPath, JSON.stringify(vercelNullConfig, null, 2));
+}
+initVercelNullConfig();
+
 merge(config, {
 	vercelOrgId: process.env.VERCEL_ORG_ID,
 	vercelProjectId: process.env.VERCEL_PROJECT_ID,
@@ -70,8 +92,20 @@ const linkRes =
 	await execa`vc link --yes --cwd=${config.targetCWD} --project=${config.vercelProjetName} -t ${config.vercelToken}`;
 console.log(" ? linkRes  ", linkRes.stdout);
 
-const buildStaticRes =
-	await execa`vc build --yes --prod --cwd=${config.targetCWD} -A ./vercel.null.json -t ${config.vercelToken}`;
+const baseCommandArgument = ["build", "--yes", "--prod", `--cwd=${config.targetCWD}`, `-t`, config.vercelToken];
+const nullConfigCommandArgument = [`-A`, vercelNullConfigPath];
+const vercelConfigCommandArgument = [
+	"--framework=null",
+	"--buildCommand=null",
+	"--installCommand=null",
+	"--outputDirectory=null",
+	"--devCommand=null",
+];
+
+const buildStaticRes = await execa("vc build", concat(baseCommandArgument, nullConfigCommandArgument), {
+	shell: true,
+});
+
 console.log(" ? buildStaticRes  ", buildStaticRes.stdout);
 
 const buildCommands = config.buildCommand.map((buildCommand) => {
