@@ -48,21 +48,28 @@ const config: Config = {
 	targetCWD: "./packages/docs-01-star",
 	url: "docs-01-star.ruancat6312.top",
 	buildCommand: [
-		"pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs",
-		"pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star copy-dist",
+		// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs",
+		// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star copy-dist",
+		"pnpm -C=packages/docs-01-star build:docs",
+		"pnpm -C=packages/docs-01-star copy-dist",
 	],
 };
 
-// execa`${config.buildCommand[0]}`;
-// await execa`pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs`;
+// await execa`${config.buildCommand[0]}`;
+// await execa`pnpm run ${config.buildCommand[0]}`;
+await execa`pnpm -v && pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs`;
+
+const command = "pnpm -v";
+// const testRes = await execa`pnpm -v && ${command}`;
+// const testRes = await execa`${command}`;
+const testRes = await execa`${config.buildCommand[0]}`;
+console.log(" ? testRes  ", testRes.stdout);
+// execa No results for "&&"
 
 merge(config, {
 	vercelOrgId: process.env.VERCEL_ORG_ID,
 	vercelProjectId: process.env.VERCEL_PROJECT_ID,
 	vercelToken: process.env.VERCEL_TOKEN,
-	// vercelProjetName: process.env.VERCEL_PROJECT_NAME,
-	// targetCWD: process.env.TARGET_CWD,
-	// url: process.env.URL,
 } satisfies Partial<Config>);
 
 function link() {
@@ -83,9 +90,11 @@ console.log(" ? buildStaticRes  ", buildStaticRes.stdout);
 const buildCommands = config.buildCommand.map((buildCommand) => {
 	return async function () {
 		// return execa`${buildCommand}`;
-		console.log(" ??? in map = ", buildCommand);
-		await execa`${buildCommand}`;
+		// console.log(" ??? in map = ", buildCommand);
+		// await execa`${buildCommand}`;
+		// await execa`pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs`;
 
+		// return await execa`pnpm -v && ${buildCommand}`;
 		return await execa`${buildCommand}`;
 	};
 });
