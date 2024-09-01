@@ -328,9 +328,9 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 			);
 		});
 
+		let index = 0;
 		for await (const task of allSingleDeployTargetUserCommandTasks) {
 			const _task = await task;
-			let index = 0;
 			console.log(
 				` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${deployTarget.userCommands[index]} 的运行结果为： \n  `,
 				_task.stdout,
