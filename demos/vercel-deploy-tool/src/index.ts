@@ -1,5 +1,5 @@
 // 学习一下如何使用 https://github.com/sindresorhus/execa/blob/main/readme.md
-import fs from "fs";
+import fs, { copyFileSync } from "fs";
 import { type Result, execa } from "execa";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
 import { merge, concat } from "lodash-es";
@@ -196,6 +196,11 @@ function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
 	return [`--cwd=${deployTarget.targetCWD}`];
 }
 
+/** 创建简单的异步任务 */
+function generateSimpleAsyncTask<T>(func: T) {
+	return Promise.resolve(func);
+}
+
 /** 生成link任务 */
 function generateLinkTasks(deployTarget: DeployTarget) {
 	const res = async function () {
@@ -234,8 +239,24 @@ function generateLinkTasks(deployTarget: DeployTarget) {
 		);
 	});
 
+	const res3 = Promise.resolve(
+		execa(
+			"vc link",
+			concat(
+				getYesCommandArgument(),
+				getTargetCWDCommandArgument(deployTarget),
+				getVercelProjetNameCommandArgument(),
+				getVercelTokenCommandArgument(),
+			),
+			{
+				shell: true,
+			},
+		),
+	);
+
 	// return res;
-	return res2;
+	// return res2;
+	return res3;
 }
 
 /** 生成build任务 */
