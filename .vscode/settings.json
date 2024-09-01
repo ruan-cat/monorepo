@@ -93,6 +93,6 @@
 		"*.drawio.svg": "hediet.vscode-drawio-text",
 	},
 	"code-runner.executorMap": {
-		"typescript": "dotenvx run -- pnpm vite-node $fullFileName --files"
+		"typescript": "pnpm dotenvx run -- vite-node $fullFileName --files"
 	},
 }
