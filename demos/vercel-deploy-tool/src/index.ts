@@ -338,7 +338,11 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 		}
 	};
 
-	return generateSimpleAsyncTask(singleDeployTargetSerialTask);
+	// return generateSimpleAsyncTask(singleDeployTargetSerialTask());
+	// return new Promise(async () => {
+	// 	await singleDeployTargetSerialTask;
+	// });
+	return singleDeployTargetSerialTask;
 }
 
 // TODO: 待检查是否合适有效
@@ -414,11 +418,12 @@ async function doBuildTasks() {
 
 /** 执行用户命令任务 */
 async function doUserCommandTasks() {
-	const res = await Promise.all(allUserCommandTasks);
+	const res = await Promise.all(allUserCommandTasks.map((item) => item()));
 	// 有疑惑 是不是自己生成异步任务的思路不对呢？导致这里要额外做一步？
-	res.forEach(async (item) => {
-		const itemRes = await item();
-	});
+	// const res = await Promise.all(allUserCommandTasks);
+	// res.forEach(async (item) => {
+	// 	const itemRes = await item();
+	// });
 }
 
 async function main() {
