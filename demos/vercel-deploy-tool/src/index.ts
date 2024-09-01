@@ -1,5 +1,5 @@
 // 学习一下如何使用 https://github.com/sindresorhus/execa/blob/main/readme.md
-import fs, { copyFileSync } from "fs";
+import fs from "fs";
 import { type Result, execa } from "execa";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
 import { merge, concat } from "lodash-es";
@@ -23,8 +23,12 @@ export interface DeployTarget {
 	targetCWD: string;
 	/** 生产环境的访问url */
 	url: string[];
-	/** 实际部署的构建命令 */
-	buildCommand: string[];
+	/**
+	 * 用户命令
+	 * @description
+	 * 实际部署的构建命令 通常是真实参与部署的命令
+	 */
+	userCommands: string[];
 }
 
 /** 项目配置 */
@@ -93,7 +97,7 @@ const config: Config = {
 		{
 			targetCWD: "./packages/docs-01-star",
 			url: ["docs-01-star.ruancat6312.top"],
-			buildCommand: [
+			userCommands: [
 				// FIXME: 在具体的execa中，无法使用pnpm的筛选命令。只能指定其工作目录。
 				// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs",
 				// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star copy-dist",
@@ -150,10 +154,6 @@ function generateVercelNullConfig() {
  */
 function initVercelConfig() {
 	const { VERCEL_ORG_ID, VERCEL_PROJECT_ID, VERCEL_TOKEN } = currentDotenvConfig!;
-
-	// console.log(" ? VERCEL_ORG_ID  ", VERCEL_ORG_ID);
-	// console.log(" ? VERCEL_PROJECT_ID  ", VERCEL_PROJECT_ID);
-	// console.log(" ? VERCEL_TOKEN  ", VERCEL_ORG_ID);
 
 	const res: Config = merge(config, {
 		// vercelOrgId: process.env.VERCEL_ORG_ID,
@@ -256,13 +256,42 @@ function generateLinkTasks(deployTarget: DeployTarget) {
 
 	// return res;
 	// return res2;
-	return res3;
+	return generateSimpleAsyncTask(
+		execa(
+			"vc link",
+			concat(
+				getYesCommandArgument(),
+				getTargetCWDCommandArgument(deployTarget),
+				getVercelProjetNameCommandArgument(),
+				getVercelTokenCommandArgument(),
+			),
+			{
+				shell: true,
+			},
+		),
+	);
 }
 
 /** 生成build任务 */
 function generateBuildTasks(deployTarget: DeployTarget) {
-	const res = async function () {
-		return await execa(
+	// const res = async function () {
+	// 	return await execa(
+	// 		"vc build",
+	// 		concat(
+	// 			getYesCommandArgument(),
+	// 			getProdCommandArgument(),
+	// 			getTargetCWDCommandArgument(deployTarget),
+	// 			getVercelTokenCommandArgument(),
+	// 		),
+	// 		{
+	// 			shell: true,
+	// 		},
+	// 	);
+	// };
+	// return res;
+
+	return generateSimpleAsyncTask(
+		execa(
 			"vc build",
 			concat(
 				getYesCommandArgument(),
@@ -273,10 +302,8 @@ function generateBuildTasks(deployTarget: DeployTarget) {
 			{
 				shell: true,
 			},
-		);
-	};
-
-	return res;
+		),
+	);
 }
 
 // TODO: 待检查是否合适有效
@@ -330,11 +357,19 @@ function generateAsyncTasks(deployTargets: DeployTarget[]) {
 	});
 }
 
+/** 执行link链接任务 */
 async function doLinkTasks() {
 	const res = await Promise.all(allVercelLinkTasks);
-	// console.log(" ? res  ", res);
 	res.forEach((item) => {
-		console.log(" ? item  ", item.stdout);
+		console.log(" link任务结果： ", item.stdout);
+	});
+}
+
+/** 执行build构建目录任务 */
+async function doBuildTask() {
+	const res = await Promise.all(allVercelLinkTasks);
+	res.forEach((item) => {
+		console.log(" build任务结果： ", item.stdout);
 	});
 }
 
@@ -344,6 +379,7 @@ async function main() {
 	generateAsyncTasks(deployTargets);
 
 	await doLinkTasks();
+	await doBuildTask();
 }
 
 main();
