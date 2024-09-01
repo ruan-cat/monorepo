@@ -37,8 +37,5 @@ jobs:
       - name: 检查vercel cli版本
         run: vc -v
 
-      - name: 准备全局包
-        run: pnpm i -g vite-node
-
-      - name: 查看全局包
-        run: pnpm ls -g
+      - name: 运行自写的vercel部署工具
+        run: pnpm dlx vite-node@latest ./demos/vercel-deploy-tool/src/index.ts --files
