@@ -32,10 +32,14 @@ jobs:
         run: pnpm i
 
       - name: 用npm安装vercel cli工具
-        run: npm i -g vercel@latest
+        run: npm i -g vercel@latest @dotenvx/dotenvx@latest vite-node@latest
 
       - name: 检查vercel cli版本
         run: vc -v
 
+      - name: 全局检查依赖包
+        run: npm ls -g
+
       - name: 运行自写的vercel部署工具
-        run: pnpm dlx vite-node@latest ./demos/vercel-deploy-tool/src/index.ts --files
+        run: |
+          pnpm dotenvx run -- vite-node@latest ./demos/vercel-deploy-tool/src/index.ts --files
