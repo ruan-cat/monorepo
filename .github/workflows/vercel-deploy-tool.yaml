@@ -1,0 +1,44 @@
+# 参考资料
+# https://vercel.com/guides/how-can-i-use-github-actions-with-vercel
+# https://vercel.com/guides/how-to-alias-a-preview-deployment-using-the-cli
+
+name: 自写的vercel部署工具
+# env:
+#   vct: ${{ secrets.vercel_token }}
+#   VERCEL_ORG_ID: ${{ secrets.vercel_orgId }}
+#   VERCEL_PROJECT_ID: ${{ secrets.vercel_projectId }}
+
+on:
+  push:
+    branches:
+      # 避免高频率占用vercel资源，改成仅在main分支执行部署行为
+      # - main
+      - dev
+
+jobs:
+  Deploy-Production:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出分支
+        uses: actions/checkout@v4
+
+      - name: 开启 corepack
+        run: corepack enable && corepack install
+
+      - name: 检查pnpm版本
+        run: pnpm -v
+
+      - name: 安装整个项目的依赖
+        run: pnpm i
+
+      - name: 用npm安装vercel cli工具
+        run: npm i -g vercel@latest
+
+      - name: 检查vercel cli版本
+        run: vc -v
+
+      - name: 准备全局包
+        run: pnpm i -g vite-node
+
+      - name: 查看全局包
+        run: pnpm ls -g
