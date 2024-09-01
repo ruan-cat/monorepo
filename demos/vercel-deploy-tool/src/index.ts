@@ -105,6 +105,12 @@ const config: Config = {
 				"pnpm -C=./packages/docs-01-star copy-dist",
 			],
 		},
+
+		{
+			targetCWD: "./demos/gh.HFIProgramming.mikutap",
+			url: ["mikutap.ruancat6312.top"],
+			userCommands: [],
+		},
 	],
 };
 // TODO: 在内部完成一次文件的移除，新建，复制等操作
@@ -306,6 +312,31 @@ function generateBuildTasks(deployTarget: DeployTarget) {
 	);
 }
 
+/** 生成用户命令任务 */
+function generateUserCommandTasks(deployTarget: DeployTarget) {
+	/**
+	 * 单个部署目标的全部串行任务
+	 * @description
+	 * 一个部署目标可能有多个用户命令。这些命令需要串行执行，而不是并行执行的。
+	 */
+	const singleDeployTargetSerialTask = async function () {
+		const allSingleDeployTargetUserCommandTasks = deployTarget.userCommands.map((userCommand) => {
+			return generateSimpleAsyncTask(
+				execa(`${userCommand}`, {
+					shell: true,
+				}),
+			);
+		});
+
+		for await (const task of allSingleDeployTargetUserCommandTasks) {
+			const singleDeployTargetUserCommandTaskResult = await task;
+			console.log(" in singleDeployTargetUserCommandTaskResult ", singleDeployTargetUserCommandTaskResult.stdout);
+		}
+	};
+
+	return generateSimpleAsyncTask(singleDeployTargetSerialTask);
+}
+
 // TODO: 待检查是否合适有效
 /** 生成Deploy任务 */
 function generateDeployTasks(deployTarget: DeployTarget) {
@@ -332,6 +363,7 @@ type TaskFunction = ReturnType<typeof generateLinkTasks>;
 
 const allVercelLinkTasks: TaskFunction[] = [];
 const allVercelBuildTasks: TaskFunction[] = [];
+const allUserCommandTasks: Array<ReturnType<typeof generateUserCommandTasks>> = [];
 const allVercelDeployTasks: TaskFunction[] = [];
 
 /**
@@ -352,6 +384,9 @@ function generateAsyncTasks(deployTargets: DeployTarget[]) {
 		const buildTask = generateBuildTasks(deployTarget);
 		allVercelBuildTasks.push(buildTask);
 
+		const userCommandTask = generateUserCommandTasks(deployTarget);
+		allUserCommandTasks.push(userCommandTask);
+
 		const deployTask = generateDeployTasks(deployTarget);
 		allVercelDeployTasks.push(deployTask);
 	});
@@ -366,7 +401,7 @@ async function doLinkTasks() {
 }
 
 /** 执行build构建目录任务 */
-async function doBuildTask() {
+async function doBuildTasks() {
 	const res = await Promise.all(allVercelLinkTasks);
 	res.forEach((item) => {
 		console.log(" build任务结果： ", item.stdout);
@@ -379,7 +414,7 @@ async function main() {
 	generateAsyncTasks(deployTargets);
 
 	await doLinkTasks();
-	await doBuildTask();
+	await doBuildTasks();
 }
 
 main();
