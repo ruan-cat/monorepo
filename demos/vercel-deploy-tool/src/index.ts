@@ -109,7 +109,7 @@ const config: Config = {
 		{
 			targetCWD: "./demos/gh.HFIProgramming.mikutap",
 			url: ["mikutap.ruancat6312.top"],
-			userCommands: [],
+			userCommands: ["echo 'mikutap1'", "echo 'mikutap2'", "echo 'mikutap3'"],
 		},
 	],
 };
@@ -408,6 +408,15 @@ async function doBuildTasks() {
 	});
 }
 
+/** 执行用户命令任务 */
+async function doUserCommandTasks() {
+	const res = await Promise.all(allUserCommandTasks);
+	res.forEach(async (item) => {
+		const itemRes = await item();
+		console.log(" userCommand任务结果： ", itemRes);
+	});
+}
+
 async function main() {
 	generateVercelNullConfig();
 	const { deployTargets } = initVercelConfig();
@@ -415,6 +424,7 @@ async function main() {
 
 	await doLinkTasks();
 	await doBuildTasks();
+	await doUserCommandTasks();
 }
 
 main();
