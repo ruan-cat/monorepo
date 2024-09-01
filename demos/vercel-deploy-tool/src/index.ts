@@ -89,7 +89,7 @@ const config: Config = {
 	vercelOrgId: "",
 	vercelProjectId: "",
 
-	deployTarget: [
+	deployTargets: [
 		{
 			targetCWD: "./packages/docs-01-star",
 			url: ["docs-01-star.ruancat6312.top"],
@@ -151,6 +151,10 @@ function generateVercelNullConfig() {
 function initVercelConfig() {
 	const { VERCEL_ORG_ID, VERCEL_PROJECT_ID, VERCEL_TOKEN } = currentDotenvConfig!;
 
+	// console.log(" ? VERCEL_ORG_ID  ", VERCEL_ORG_ID);
+	// console.log(" ? VERCEL_PROJECT_ID  ", VERCEL_PROJECT_ID);
+	// console.log(" ? VERCEL_TOKEN  ", VERCEL_ORG_ID);
+
 	const res: Config = merge(config, {
 		// vercelOrgId: process.env.VERCEL_ORG_ID,
 		// vercelProjectId: process.env.VERCEL_PROJECT_ID,
@@ -159,6 +163,8 @@ function initVercelConfig() {
 		vercelProjectId: VERCEL_PROJECT_ID,
 		vercelToken: VERCEL_TOKEN,
 	} satisfies Partial<Config>);
+
+	console.log(" 完成初始化本地的配置 ", res);
 
 	return res;
 }
@@ -190,10 +196,7 @@ function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
 	return [`--cwd=${deployTarget.targetCWD}`];
 }
 
-const allVercelLinkTasks = [];
-const allVercelBuildTasks = [];
-const allVercelDeployTasks = [];
-
+/** 生成link任务 */
 function generateLinkTasks(deployTarget: DeployTarget) {
 	const res = async function () {
 		return await execa(
@@ -201,7 +204,6 @@ function generateLinkTasks(deployTarget: DeployTarget) {
 			concat(
 				getYesCommandArgument(),
 				getTargetCWDCommandArgument(deployTarget),
-
 				getVercelProjetNameCommandArgument(),
 				getVercelTokenCommandArgument(),
 			),
@@ -214,6 +216,54 @@ function generateLinkTasks(deployTarget: DeployTarget) {
 	return res;
 }
 
+/** 生成build任务 */
+function generateBuildTasks(deployTarget: DeployTarget) {
+	const res = async function () {
+		return await execa(
+			"vc build",
+			concat(
+				getYesCommandArgument(),
+				getProdCommandArgument(),
+				getTargetCWDCommandArgument(deployTarget),
+				getVercelTokenCommandArgument(),
+			),
+			{
+				shell: true,
+			},
+		);
+	};
+
+	return res;
+}
+
+// TODO: 待检查是否合适有效
+/** 生成Deploy任务 */
+function generateDeployTasks(deployTarget: DeployTarget) {
+	const res = async function () {
+		return await execa(
+			"vc deploy",
+			concat(
+				getYesCommandArgument(),
+				getProdCommandArgument(),
+				getTargetCWDCommandArgument(deployTarget),
+				getVercelTokenCommandArgument(),
+			),
+			{
+				shell: true,
+			},
+		);
+	};
+
+	return res;
+}
+
+/** 任务函数类型 */
+type TaskFunction = ReturnType<typeof generateLinkTasks>;
+
+const allVercelLinkTasks: TaskFunction[] = [];
+const allVercelBuildTasks: TaskFunction[] = [];
+const allVercelDeployTasks: TaskFunction[] = [];
+
 /**
  * 生成异步任务
  * @description
@@ -225,42 +275,56 @@ function generateLinkTasks(deployTarget: DeployTarget) {
  * 按照大阶段并行的方式执行
  */
 function generateAsyncTasks(deployTargets: DeployTarget[]) {
-	// TODO:
-	deployTargets.forEach((deployTarget, indx, arr) => {});
+	deployTargets.forEach((deployTarget, indx, arr) => {
+		const linkTask = generateLinkTasks(deployTarget);
+		allVercelLinkTasks.push(linkTask);
+
+		const buildTask = generateBuildTasks(deployTarget);
+		allVercelBuildTasks.push(buildTask);
+
+		const deployTask = generateDeployTasks(deployTarget);
+		allVercelDeployTasks.push(deployTask);
+	});
 }
 
-generateVercelNullConfig();
-const { deployTargets } = initVercelConfig();
-
-const linkRes =
-	await execa`vc link --yes --cwd=${config.targetCWD} --project=${config.vercelProjetName} -t ${config.vercelToken}`;
-console.log(" ? linkRes  ", linkRes.stdout);
-
-const baseCommandArgument = ["--yes", "--prod", `--cwd=${config.targetCWD}`, `-t`, config.vercelToken];
-const nullConfigCommandArgument = [`-A=${vercelNullConfigPath}`];
-const vercelConfigCommandArgument = [
-	"--framework=null",
-	"--buildCommand=null",
-	"--installCommand=null",
-	"--outputDirectory=null",
-	"--devCommand=null",
-];
-
-const buildStaticRes = await execa("vc build", concat(baseCommandArgument, nullConfigCommandArgument), {
-	shell: true,
-});
-
-console.log(" ? buildStaticRes  ", buildStaticRes.stdout);
-
-const buildCommands = config.buildCommand.map((buildCommand) => {
-	return async function () {
-		return await execa`${buildCommand}`;
-	};
-});
-
-for await (const buildCommand of buildCommands) {
-	const buildCommandStdout = await buildCommand();
-	console.log(" in buildCommandStdout ", buildCommandStdout.stdout);
+async function doLinkTasks() {
+	const res = await Promise.all(allVercelLinkTasks);
+	// console.log(" ? res  ", res);
+	res.forEach((item) => {
+		console.log(" ? item  ", item());
+	});
 }
+
+async function main() {
+	generateVercelNullConfig();
+	const { deployTargets } = initVercelConfig();
+	generateAsyncTasks(deployTargets);
+
+	await doLinkTasks();
+}
+
+main();
+
+// const linkRes =
+// 	await execa`vc link --yes --cwd=${config.targetCWD} --project=${config.vercelProjetName} -t ${config.vercelToken}`;
+// console.log(" ? linkRes  ", linkRes.stdout);
+
+// const baseCommandArgument = ["--yes", "--prod", `--cwd=${config.targetCWD}`, `-t`, config.vercelToken];
+// const nullConfigCommandArgument = [`-A=${vercelNullConfigPath}`];
+// const buildStaticRes = await execa("vc build", concat(baseCommandArgument, nullConfigCommandArgument), {
+// 	shell: true,
+// });
+// console.log(" ? buildStaticRes  ", buildStaticRes.stdout);
+
+// TODO: 等待封装
+// const buildCommands = config.buildCommand.map((buildCommand) => {
+// 	return async function () {
+// 		return await execa`${buildCommand}`;
+// 	};
+// });
+// for await (const buildCommand of buildCommands) {
+// 	const buildCommandStdout = await buildCommand();
+// 	console.log(" in buildCommandStdout ", buildCommandStdout.stdout);
+// }
 
 // TODO: 实现 deploy 命令；
