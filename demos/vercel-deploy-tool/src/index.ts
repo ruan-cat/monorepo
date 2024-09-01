@@ -329,8 +329,11 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 		});
 
 		for await (const task of allSingleDeployTargetUserCommandTasks) {
-			const singleDeployTargetUserCommandTaskResult = await task;
-			console.log(" in singleDeployTargetUserCommandTaskResult ", singleDeployTargetUserCommandTaskResult.stdout);
+			let index = 0;
+			console.log(
+				` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${deployTarget.userCommands[index]} 的运行结果为： \n  `,
+				task.stdout,
+			);
 		}
 	};
 
@@ -411,10 +414,11 @@ async function doBuildTasks() {
 /** 执行用户命令任务 */
 async function doUserCommandTasks() {
 	const res = await Promise.all(allUserCommandTasks);
-	res.forEach(async (item) => {
-		const itemRes = await item();
-		console.log(" userCommand任务结果： ", itemRes);
-	});
+	// 不需要查看整体的结果 只需要知道各个最小细粒度的任务执行情况即可。
+	// res.forEach(async (item) => {
+	// 	const itemRes = await item();
+	// 	console.log(" userCommand任务结果： ", itemRes);
+	// });
 }
 
 async function main() {
