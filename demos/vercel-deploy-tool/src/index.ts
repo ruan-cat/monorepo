@@ -159,15 +159,14 @@ function generateVercelNullConfig() {
  * 初始化环境变量
  */
 function initVercelConfig() {
-	const { VERCEL_ORG_ID, VERCEL_PROJECT_ID, VERCEL_TOKEN } = currentDotenvConfig!;
+	const vercelOrgId = currentDotenvConfig!.VERCEL_ORG_ID ?? process.env.VERCEL_ORG_ID;
+	const vercelProjectId = currentDotenvConfig!.VERCEL_PROJECT_ID ?? process.env.VERCEL_PROJECT_ID;
+	const vercelToken = currentDotenvConfig!.VERCEL_TOKEN ?? process.env.VERCEL_TOKEN;
 
 	const res: Config = merge(config, {
-		// vercelOrgId: process.env.VERCEL_ORG_ID,
-		// vercelProjectId: process.env.VERCEL_PROJECT_ID,
-		// vercelToken: process.env.VERCEL_TOKEN,
-		vercelOrgId: VERCEL_ORG_ID,
-		vercelProjectId: VERCEL_PROJECT_ID,
-		vercelToken: VERCEL_TOKEN,
+		vercelOrgId,
+		vercelProjectId,
+		vercelToken,
 	} satisfies Partial<Config>);
 
 	console.log(" 完成初始化本地的配置 ", res);
