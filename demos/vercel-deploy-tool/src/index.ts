@@ -46,7 +46,7 @@ export interface Config {
 	 *
 	 * 考虑monorepo的情况
 	 */
-	deployTarget: DeployTarget[];
+	deployTargets: DeployTarget[];
 }
 
 // 拓展返回值
@@ -103,6 +103,7 @@ const config: Config = {
 		},
 	],
 };
+// TODO: 在内部完成一次文件的移除，新建，复制等操作
 // ('rimraf .vercel/output/static && mkdirp .vercel/output/static && cpx "docs/.vitepress/dist/**/*" .vercel/output/static && shx ls -R .vercel/output/static');
 
 /**
@@ -113,6 +114,8 @@ const config: Config = {
  * 用于驱动vercel构建简单的目录结构，不需要额外的配置
  *
  * 该配置会被写入到 `vercel.null.def.json` 文件中
+ *
+ * @see https://github.com/amondnet/vercel-action#method-1---via-vercel-interface
  */
 const vercelNullConfig = <const>{
 	framework: null,
@@ -146,33 +149,95 @@ function generateVercelNullConfig() {
  * 初始化环境变量
  */
 function initVercelConfig() {
-	const {} = currentDotenvConfig;
+	const { VERCEL_ORG_ID, VERCEL_PROJECT_ID, VERCEL_TOKEN } = currentDotenvConfig!;
 
 	const res: Config = merge(config, {
 		// vercelOrgId: process.env.VERCEL_ORG_ID,
 		// vercelProjectId: process.env.VERCEL_PROJECT_ID,
 		// vercelToken: process.env.VERCEL_TOKEN,
-		vercelOrgId: process.env.VERCEL_ORG_ID,
-		vercelProjectId: process.env.VERCEL_PROJECT_ID,
-		vercelToken: process.env.VERCEL_TOKEN,
+		vercelOrgId: VERCEL_ORG_ID,
+		vercelProjectId: VERCEL_PROJECT_ID,
+		vercelToken: VERCEL_TOKEN,
 	} satisfies Partial<Config>);
 
 	return res;
 }
 
-generateVercelNullConfig();
-initVercelConfig();
-
-function link() {
-	return execa`vc link --yes --cwd=${config.targetCWD} --project=${config.vercelProjetName} -t ${config.vercelToken}`;
+function getYesCommandArgument() {
+	return ["--yes"];
 }
+
+function getProdCommandArgument() {
+	return ["--prod"];
+}
+
+function getPrebuiltCommandArgument() {
+	return ["--prebuilt"];
+}
+
+/** 以命令参数数组的形式，获得项目名称 */
+function getVercelProjetNameCommandArgument() {
+	return [`--project=${config.vercelProjetName}`];
+}
+
+/** 以命令参数数组的形式，获得项目token */
+function getVercelTokenCommandArgument() {
+	return [`--token=${config.vercelToken}`];
+}
+
+/** 以命令参数数组的形式，获得工作目录 */
+function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
+	return [`--cwd=${deployTarget.targetCWD}`];
+}
+
+const allVercelLinkTasks = [];
+const allVercelBuildTasks = [];
+const allVercelDeployTasks = [];
+
+function generateLinkTasks(deployTarget: DeployTarget) {
+	const res = async function () {
+		return await execa(
+			"vc link",
+			concat(
+				getYesCommandArgument(),
+				getTargetCWDCommandArgument(deployTarget),
+
+				getVercelProjetNameCommandArgument(),
+				getVercelTokenCommandArgument(),
+			),
+			{
+				shell: true,
+			},
+		);
+	};
+
+	return res;
+}
+
+/**
+ * 生成异步任务
+ * @description
+ * 这里将多个子任务组合成一个大任务
+ * 用同一个类型的任务 整合成一个任务
+ *
+ * 比如link、build、deploy，全部整合到一个任务中
+ *
+ * 按照大阶段并行的方式执行
+ */
+function generateAsyncTasks(deployTargets: DeployTarget[]) {
+	// TODO:
+	deployTargets.forEach((deployTarget, indx, arr) => {});
+}
+
+generateVercelNullConfig();
+const { deployTargets } = initVercelConfig();
 
 const linkRes =
 	await execa`vc link --yes --cwd=${config.targetCWD} --project=${config.vercelProjetName} -t ${config.vercelToken}`;
 console.log(" ? linkRes  ", linkRes.stdout);
 
-const baseCommandArgument = ["build", "--yes", "--prod", `--cwd=${config.targetCWD}`, `-t`, config.vercelToken];
-const nullConfigCommandArgument = [`-A`, vercelNullConfigPath];
+const baseCommandArgument = ["--yes", "--prod", `--cwd=${config.targetCWD}`, `-t`, config.vercelToken];
+const nullConfigCommandArgument = [`-A=${vercelNullConfigPath}`];
 const vercelConfigCommandArgument = [
 	"--framework=null",
 	"--buildCommand=null",
