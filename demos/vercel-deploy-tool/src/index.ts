@@ -415,11 +415,10 @@ async function doBuildTasks() {
 /** 执行用户命令任务 */
 async function doUserCommandTasks() {
 	const res = await Promise.all(allUserCommandTasks);
-	// 不需要查看整体的结果 只需要知道各个最小细粒度的任务执行情况即可。
-	// res.forEach(async (item) => {
-	// 	const itemRes = await item();
-	// 	console.log(" userCommand任务结果： ", itemRes);
-	// });
+	// 有疑惑 是不是自己生成异步任务的思路不对呢？导致这里要额外做一步？
+	res.forEach(async (item) => {
+		const itemRes = await item();
+	});
 }
 
 async function main() {
