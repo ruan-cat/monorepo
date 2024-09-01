@@ -1,6 +1,6 @@
 // 学习一下如何使用 https://github.com/sindresorhus/execa/blob/main/readme.md
 import fs from "fs";
-import { execa } from "execa";
+import { type Result, execa } from "execa";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
 import { merge, concat } from "lodash-es";
 
@@ -213,7 +213,29 @@ function generateLinkTasks(deployTarget: DeployTarget) {
 		);
 	};
 
-	return res;
+	const res2 = new Promise<
+		Result<{
+			shell: true;
+		}>
+	>((resolve) => {
+		resolve(
+			execa(
+				"vc link",
+				concat(
+					getYesCommandArgument(),
+					getTargetCWDCommandArgument(deployTarget),
+					getVercelProjetNameCommandArgument(),
+					getVercelTokenCommandArgument(),
+				),
+				{
+					shell: true,
+				},
+			),
+		);
+	});
+
+	// return res;
+	return res2;
 }
 
 /** 生成build任务 */
@@ -291,7 +313,7 @@ async function doLinkTasks() {
 	const res = await Promise.all(allVercelLinkTasks);
 	// console.log(" ? res  ", res);
 	res.forEach((item) => {
-		console.log(" ? item  ", item());
+		console.log(" ? item  ", item.stdout);
 	});
 }
 
