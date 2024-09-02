@@ -17,18 +17,67 @@ export {};
 // 	console.log(" res.stdout ", res.stdout);
 // });
 
-/** 部署目标的具体项目配置 */
-export interface DeployTarget {
+/**
+ * @description
+ * 从 drizzle-kit 学的
+ */
+type Verify<T, U extends T> = U;
+
+const deployTargetTypes = <const>["static", "userCommands"];
+
+type DeployTargetType = (typeof deployTargetTypes)[number];
+
+/** 配置基类 */
+export type Base = {
+	/** 部署目标分类 */
+	type: DeployTargetType;
+
 	/** 目标的工作目录 */
 	targetCWD: string;
+
 	/** 生产环境的访问url */
 	url: string[];
+};
+
+/** 带有用户命令的配置 */
+
+export interface WithUserCommands extends Base {
+	type: Verify<DeployTargetType, "userCommands">;
+
 	/**
 	 * 用户命令
 	 * @description
 	 * 实际部署的构建命令 通常是真实参与部署的命令
 	 */
 	userCommands: string[];
+
+	/** 部署输出路径 */
+	outputDirectory: string;
+}
+
+/** 部署目标的具体项目配置 */
+export type DeployTarget = Base | WithUserCommands;
+
+/** 项目配置 */
+export interface Config {
+	/** 项目名称 */
+	vercelProjetName: string;
+
+	/** 用户token */
+	vercelToken: string;
+	/** 用户组织id */
+	vercelOrgId: string;
+	/** 用户项目id */
+	vercelProjectId: string;
+
+	/**
+	 * 部署目标
+	 * @description
+	 * 考虑到可能要部署一揽子的项目，所以这里使用数组
+	 *
+	 * 考虑monorepo的情况
+	 */
+	deployTargets: DeployTarget[];
 }
 
 /** 项目配置 */
@@ -95,8 +144,10 @@ const config: Config = {
 
 	deployTargets: [
 		{
+			type: "userCommands",
 			targetCWD: "./packages/docs-01-star",
 			url: ["docs-01-star.ruancat6312.top"],
+			outputDirectory: "",
 			userCommands: [
 				// FIXME: 在具体的execa中，无法使用pnpm的筛选命令。只能指定其工作目录。
 				// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs",
@@ -107,9 +158,10 @@ const config: Config = {
 		},
 
 		{
+			type: "static",
 			targetCWD: "./demos/gh.HFIProgramming.mikutap",
 			url: ["mikutap.ruancat6312.top"],
-			userCommands: ["echo 'mikutap1'", "echo 'mikutap2'", "echo 'mikutap3'"],
+			// userCommands: ["echo 'mikutap1'", "echo 'mikutap2'", "echo 'mikutap3'"],
 		},
 	],
 };
