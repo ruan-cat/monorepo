@@ -2,7 +2,7 @@
 import fs from "fs";
 import { type Result, execa } from "execa";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
-import { merge, concat } from "lodash-es";
+import { merge, concat, extend } from "lodash-es";
 
 export {};
 
@@ -172,34 +172,38 @@ function initVercelConfig() {
 	return res;
 }
 
-function getYesCommandArgument() {
-	return ["--yes"];
+function getYesCommandArgument(): ["--yes"] {
+	return <const>["--yes"];
 }
 
-function getProdCommandArgument() {
-	return ["--prod"];
+function getProdCommandArgument(): ["--prod"] {
+	return <const>["--prod"];
 }
 
-function getPrebuiltCommandArgument() {
-	return ["--prebuilt"];
+function getPrebuiltCommandArgument(): ["--prebuilt"] {
+	return <const>["--prebuilt"];
 }
 
 /** 以命令参数数组的形式，获得项目名称 */
-function getVercelProjetNameCommandArgument() {
+function getVercelProjetNameCommandArgument(): [`--project=${string}`] {
 	return [`--project=${config.vercelProjetName}`];
 }
 
 /** 以命令参数数组的形式，获得项目token */
-function getVercelTokenCommandArgument() {
+function getVercelTokenCommandArgument(): [`--token=${string}`] {
 	return [`--token=${config.vercelToken}`];
 }
 
 /** 以命令参数数组的形式，获得工作目录 */
-function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
+function getTargetCWDCommandArgument(deployTarget: DeployTarget): [`--cwd=${string}`] {
 	return [`--cwd=${deployTarget.targetCWD}`];
 }
 
-/** 创建简单的异步任务 */
+/**
+ * 创建简单的异步任务
+ * @description
+ * 有疑惑 T extends (...args: any[]) => any 不知道什么实现函数的泛型约束，算了。
+ */
 function generateSimpleAsyncTask<T>(func: T) {
 	return Promise.resolve(func);
 }
@@ -267,10 +271,6 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 		}
 	};
 
-	// return generateSimpleAsyncTask(singleDeployTargetSerialTask());
-	// return new Promise(async () => {
-	// 	await singleDeployTargetSerialTask;
-	// });
 	return singleDeployTargetSerialTask;
 }
 
@@ -370,27 +370,5 @@ async function main() {
 }
 
 main();
-
-// const linkRes =
-// 	await execa`vc link --yes --cwd=${config.targetCWD} --project=${config.vercelProjetName} -t ${config.vercelToken}`;
-// console.log(" ? linkRes  ", linkRes.stdout);
-
-// const baseCommandArgument = ["--yes", "--prod", `--cwd=${config.targetCWD}`, `-t`, config.vercelToken];
-// const nullConfigCommandArgument = [`-A=${vercelNullConfigPath}`];
-// const buildStaticRes = await execa("vc build", concat(baseCommandArgument, nullConfigCommandArgument), {
-// 	shell: true,
-// });
-// console.log(" ? buildStaticRes  ", buildStaticRes.stdout);
-
-// TODO: 等待封装
-// const buildCommands = config.buildCommand.map((buildCommand) => {
-// 	return async function () {
-// 		return await execa`${buildCommand}`;
-// 	};
-// });
-// for await (const buildCommand of buildCommands) {
-// 	const buildCommandStdout = await buildCommand();
-// 	console.log(" in buildCommandStdout ", buildCommandStdout.stdout);
-// }
 
 // TODO: 实现 deploy 命令；
