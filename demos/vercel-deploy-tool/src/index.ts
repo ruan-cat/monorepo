@@ -6,17 +6,6 @@ import { merge, concat, extend } from "lodash-es";
 
 export {};
 
-// const pkgNames = <const>["pnpm", "turbopack", "vite", "vue", "koishi", "lodash", "axios"];
-// 查询多个包的版本
-// const response = await Promise.all(
-// 	pkgNames.map((name) => {
-// 		return execa`pnpm v ${name}`;
-// 	}),
-// );
-// response.forEach((res) => {
-// 	console.log(" res.stdout ", res.stdout);
-// });
-
 /**
  * @description
  * 从 drizzle-kit 学的
@@ -224,6 +213,14 @@ function initVercelConfig() {
 	return res;
 }
 
+function isDeployTargetsBase(target: DeployTarget): target is Base {
+	return target.type === "static";
+}
+
+function isDeployTargetsWithUserCommands(target: DeployTarget): target is WithUserCommands {
+	return target.type === "userCommands";
+}
+
 function getYesCommandArgument(): ["--yes"] {
 	return <const>["--yes"];
 }
@@ -304,22 +301,24 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 	 * 一个部署目标可能有多个用户命令。这些命令需要串行执行，而不是并行执行的。
 	 */
 	const singleDeployTargetSerialTask = async function () {
-		const allSingleDeployTargetUserCommandTasks = deployTarget.userCommands.map((userCommand) => {
-			return generateSimpleAsyncTask(
-				execa(`${userCommand}`, {
-					shell: true,
-				}),
-			);
-		});
+		if (isDeployTargetsWithUserCommands(deployTarget)) {
+			const allSingleDeployTargetUserCommandTasks = deployTarget.userCommands.map((userCommand) => {
+				return generateSimpleAsyncTask(
+					execa(`${userCommand}`, {
+						shell: true,
+					}),
+				);
+			});
 
-		let index = 0;
-		for await (const task of allSingleDeployTargetUserCommandTasks) {
-			const _task = await task;
-			console.log(
-				` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${deployTarget.userCommands[index]} 的运行结果为： \n  `,
-				_task.stdout,
-			);
-			index++;
+			let index = 0;
+			for await (const task of allSingleDeployTargetUserCommandTasks) {
+				const _task = await task;
+				console.log(
+					` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${deployTarget.userCommands[index]} 的运行结果为： \n  `,
+					_task.stdout,
+				);
+				index++;
+			}
 		}
 	};
 
