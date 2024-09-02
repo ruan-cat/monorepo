@@ -113,8 +113,6 @@ const config: Config = {
 		},
 	],
 };
-// TODO: 在内部完成一次文件的移除，新建，复制等操作
-// ('rimraf .vercel/output/static && mkdirp .vercel/output/static && cpx "docs/.vitepress/dist/**/*" .vercel/output/static && shx ls -R .vercel/output/static');
 
 /**
  * vercel 的空配置
@@ -208,59 +206,6 @@ function generateSimpleAsyncTask<T>(func: T) {
 
 /** 生成link任务 */
 function generateLinkTasks(deployTarget: DeployTarget) {
-	const res = async function () {
-		return await execa(
-			"vc link",
-			concat(
-				getYesCommandArgument(),
-				getTargetCWDCommandArgument(deployTarget),
-				getVercelProjetNameCommandArgument(),
-				getVercelTokenCommandArgument(),
-			),
-			{
-				shell: true,
-			},
-		);
-	};
-
-	const res2 = new Promise<
-		Result<{
-			shell: true;
-		}>
-	>((resolve) => {
-		resolve(
-			execa(
-				"vc link",
-				concat(
-					getYesCommandArgument(),
-					getTargetCWDCommandArgument(deployTarget),
-					getVercelProjetNameCommandArgument(),
-					getVercelTokenCommandArgument(),
-				),
-				{
-					shell: true,
-				},
-			),
-		);
-	});
-
-	const res3 = Promise.resolve(
-		execa(
-			"vc link",
-			concat(
-				getYesCommandArgument(),
-				getTargetCWDCommandArgument(deployTarget),
-				getVercelProjetNameCommandArgument(),
-				getVercelTokenCommandArgument(),
-			),
-			{
-				shell: true,
-			},
-		),
-	);
-
-	// return res;
-	// return res2;
 	return generateSimpleAsyncTask(
 		execa(
 			"vc link",
@@ -279,22 +224,6 @@ function generateLinkTasks(deployTarget: DeployTarget) {
 
 /** 生成build任务 */
 function generateBuildTasks(deployTarget: DeployTarget) {
-	// const res = async function () {
-	// 	return await execa(
-	// 		"vc build",
-	// 		concat(
-	// 			getYesCommandArgument(),
-	// 			getProdCommandArgument(),
-	// 			getTargetCWDCommandArgument(deployTarget),
-	// 			getVercelTokenCommandArgument(),
-	// 		),
-	// 		{
-	// 			shell: true,
-	// 		},
-	// 	);
-	// };
-	// return res;
-
 	return generateSimpleAsyncTask(
 		execa(
 			"vc build",
@@ -425,6 +354,10 @@ async function doUserCommandTasks() {
 	// 	const itemRes = await item();
 	// });
 }
+
+// copy-dist
+// TODO: 在内部完成一次文件的移除，新建，复制等操作
+// ('rimraf .vercel/output/static && mkdirp .vercel/output/static && cpx "docs/.vitepress/dist/**/*" .vercel/output/static && shx ls -R .vercel/output/static');
 
 async function main() {
 	generateVercelNullConfig();
