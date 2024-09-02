@@ -140,24 +140,33 @@ const config: Config = {
 				// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs",
 				// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star copy-dist",
 				"pnpm -C=./packages/docs-01-star build:docs",
-				"pnpm -C=./packages/docs-01-star copy-dist",
+				// TODO: 测试给定的零散命令，能否完成多个子任务的运行？
+				// "pnpm -C=./packages/docs-01-star copy-dist",
+				"pnpm -C=./packages/docs-01-star echo '准备开始多任务运行了'",
+				"pnpm -C=./packages/docs-01-star rimraf .vercel/output/static",
+				"pnpm -C=./packages/docs-01-star mkdirp .vercel/output/static",
+				'pnpm -C=./packages/docs-01-star cpx "docs/.vitepress/dist/**/*" .vercel/output/static',
+				"pnpm -C=./packages/docs-01-star shx ls -R .vercel/output/static",
 			],
 		},
 
-		{
-			type: "userCommands",
-			targetCWD: "./packages/monorepo-5",
-			outputDirectory: "src/.vuepress/dist/**/*",
-			url: ["monorepo-5.ruancat6312.top", "monorepo5.ruan-cat.com"],
-			userCommands: ["pnpm -C=./packages/monorepo-5 build:docs"],
-		},
+		// ('rimraf .vercel/output/static && mkdirp .vercel/output/static && cpx "docs/.vitepress/dist/**/*" .vercel/output/static && shx ls -R .vercel/output/static');
 
-		{
-			type: "static",
-			targetCWD: "./demos/gh.HFIProgramming.mikutap",
-			url: ["mikutap.ruancat6312.top"],
-			// userCommands: ["echo 'mikutap1'", "echo 'mikutap2'", "echo 'mikutap3'"],
-		},
+		// {
+		// 	type: "userCommands",
+		// 	targetCWD: "./packages/monorepo-5",
+		// 	outputDirectory: "src/.vuepress/dist/**/*",
+		// 	url: ["monorepo-5.ruancat6312.top", "monorepo5.ruan-cat.com"],
+		// 	userCommands: ["pnpm -C=./packages/monorepo-5 build:docs"],
+		// },
+
+		// {
+		// 	type: "static",
+		// 	targetCWD: "./demos/gh.HFIProgramming.mikutap",
+		// 	url: ["mikutap.ruancat6312.top"],
+		// 	// 测试类型约束是否到位。
+		// 	// userCommands: ["echo 'mikutap1'", "echo 'mikutap2'", "echo 'mikutap3'"],
+		// },
 	],
 };
 
