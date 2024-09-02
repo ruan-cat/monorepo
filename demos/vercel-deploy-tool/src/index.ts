@@ -1,10 +1,8 @@
 // 学习一下如何使用 https://github.com/sindresorhus/execa/blob/main/readme.md
 import fs from "fs";
-import { type Result, execa } from "execa";
+import { execa } from "execa";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
 import { merge, concat, extend } from "lodash-es";
-
-export {};
 
 /**
  * @description
@@ -301,6 +299,7 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 	 * 一个部署目标可能有多个用户命令。这些命令需要串行执行，而不是并行执行的。
 	 */
 	const singleDeployTargetSerialTask = async function () {
+		// FIXME: 另外一个类型守卫写法，无法实现有意义的泛型约束 被推断为nerver了。
 		if (isDeployTargetsWithUserCommands(deployTarget)) {
 			const allSingleDeployTargetUserCommandTasks = deployTarget.userCommands.map((userCommand) => {
 				return generateSimpleAsyncTask(
