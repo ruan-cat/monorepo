@@ -145,6 +145,14 @@ const config: Config = {
 		},
 
 		{
+			type: "userCommands",
+			targetCWD: "./packages/monorepo-5",
+			outputDirectory: "src/.vuepress/dist/**/*",
+			url: ["monorepo-5.ruancat6312.top", "monorepo5.ruan-cat.com"],
+			userCommands: ["pnpm -C=./packages/monorepo-5 build:docs"],
+		},
+
+		{
 			type: "static",
 			targetCWD: "./demos/gh.HFIProgramming.mikutap",
 			url: ["mikutap.ruancat6312.top"],
@@ -408,6 +416,27 @@ async function doUserCommandTasks() {
 // copy-dist
 // TODO: 在内部完成一次文件的移除，新建，复制等操作
 // ('rimraf .vercel/output/static && mkdirp .vercel/output/static && cpx "docs/.vitepress/dist/**/*" .vercel/output/static && shx ls -R .vercel/output/static');
+
+/**
+ * 执行移动目录的任务
+ * @description
+ * 旨在于封装这样的命令：
+ *
+ * ```bash
+ * # 删除目录
+ * rimraf .vercel/output/static
+ *
+ * # 新建目录
+ * mkdirp .vercel/output/static
+ *
+ * # 复制目录到目标
+ * cpx \"docs/.vitepress/dist/**\/*\" .vercel/output/static
+ *
+ * # 输出目录
+ * shx ls -R .vercel/output/static
+ * ```
+ */
+async function doCopyDistTasks(params: type) {}
 
 async function main() {
 	generateVercelNullConfig();
