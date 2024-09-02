@@ -191,7 +191,10 @@ const vercelNullConfig = <const>{
  * @description
  * 生成空配置文件。这样用户在其他项目内，就不需要自己提供vercel配置文件了。
  */
-const vercelNullConfigPath = "./vercel.null.def.json";
+const vercelNullConfigPath = <const>"./vercel.null.def.json";
+
+/** vercel文件api指定要求的文件目录 */
+const vercelOutputStatic = <const>".vercel/output/static";
 
 /** 初始化vercel的空配置文件 */
 function generateVercelNullConfig() {
@@ -436,7 +439,7 @@ async function doUserCommandTasks() {
  * shx ls -R .vercel/output/static
  * ```
  */
-async function doCopyDistTasks(params: type) {}
+async function doCopyDistTasks(deployTarget: DeployTarget) {}
 
 async function main() {
 	generateVercelNullConfig();
