@@ -411,14 +411,9 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 		/** 对于单个部署目标的全部要执行的命令 */
 		const allTasksForSingleDeployTarget = concat(userCommands, copyDistTasks);
 
-		let index = 0;
 		for await (const task of allTasksForSingleDeployTarget) {
-			const taskRes = await task();
-			console.log(
-				` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${deployTarget.userCommands[index]} 的运行结果为： \n  `,
-				taskRes.stdout,
-			);
-			index++;
+			const { stdout, command } = await task();
+			console.log(` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${command} 的运行结果为： \n  `, stdout);
 		}
 	};
 
