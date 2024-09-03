@@ -243,31 +243,31 @@ function isDeployTargetsWithUserCommands(target: DeployTarget): target is WithUs
 	return target.type === "userCommands";
 }
 
-function getYesCommandArgument(): ["--yes"] {
+function getYesCommandArgument() {
 	return <const>["--yes"];
 }
 
-function getProdCommandArgument(): ["--prod"] {
+function getProdCommandArgument() {
 	return <const>["--prod"];
 }
 
-function getPrebuiltCommandArgument(): ["--prebuilt"] {
+function getPrebuiltCommandArgument() {
 	return <const>["--prebuilt"];
 }
 
 /** 以命令参数数组的形式，获得项目名称 */
-function getVercelProjetNameCommandArgument(): [`--project=${string}`] {
-	return [`--project=${config.vercelProjetName}`];
+function getVercelProjetNameCommandArgument() {
+	return <const>[`--project=${config.vercelProjetName}`];
 }
 
 /** 以命令参数数组的形式，获得项目token */
-function getVercelTokenCommandArgument(): [`--token=${string}`] {
-	return [`--token=${config.vercelToken}`];
+function getVercelTokenCommandArgument() {
+	return <const>[`--token=${config.vercelToken}`];
 }
 
 /** 以命令参数数组的形式，获得工作目录 */
-function getTargetCWDCommandArgument(deployTarget: DeployTarget): [`--cwd=${string}`] {
-	return [`--cwd=${deployTarget.targetCWD}`];
+function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
+	return <const>[`--cwd=${deployTarget.targetCWD}`];
 }
 
 /**
@@ -319,6 +319,71 @@ function generateBuildTasks(deployTarget: DeployTarget) {
 	);
 }
 
+/**
+ * 针对单个部署目标，生成一系列移动目录的任务
+ * @description
+ * 旨在于封装类似于这样的命令：
+ *
+ * ```bash
+ * # 删除目录
+ * rimraf .vercel/output/static
+ *
+ * # 新建目录
+ * mkdirp .vercel/output/static
+ *
+ * # 复制目录到目标
+ * cpx \"docs/.vitepress/dist/**\/*\" .vercel/output/static
+ *
+ * # 输出目录
+ * shx ls -R .vercel/output/static
+ * ```
+ */
+async function generateCopyDistTasks(deployTarget: WithUserCommands) {
+	function delDirectoryCmd() {
+		return <const>`rimraf ${vercelOutputStatic}`;
+	}
+
+	function createDirectoryCmd() {
+		return <const>`mkdirp ${vercelOutputStatic}`;
+	}
+
+	function copyDirectoryFileCmd() {
+		return <const>`cpx "${deployTarget.outputDirectory}" ${vercelOutputStatic}`;
+	}
+
+	function printDirectoryFileCmd() {
+		return <const>`shx ls -R ${vercelOutputStatic}`;
+	}
+
+	function cmdPrefix() {
+		return <const>`pnpm -C=${deployTarget.targetCWD}`;
+	}
+
+	// function cmdTemple(cmdFunc: (...args: any) => string) {
+	// 	return <const>`${cmdPrefix()} ${cmdFunc()}`;
+	// }
+	function cmdTemple<T extends (...args: any) => string, R extends ReturnType<T>>(
+		cmdFunc: T,
+	): `${ReturnType<typeof cmdPrefix>} ${R}` {
+		return `${cmdPrefix()} ${<R>cmdFunc()}`;
+	}
+
+	const delCmd = cmdTemple(delDirectoryCmd);
+	const createCmd = cmdTemple(createDirectoryCmd);
+	const copyFileCmd = cmdTemple(copyDirectoryFileCmd);
+	const printFileCmd = cmdTemple(printDirectoryFileCmd);
+
+	const copyDistTasks = (<const>[delCmd, createCmd, copyFileCmd, printFileCmd]).map((cmd) => {
+		return generateSimpleAsyncTask(() => {
+			return execa(cmd, {
+				shell: true,
+			});
+		});
+	});
+
+	return copyDistTasks;
+}
+
 /** 生成用户命令任务 */
 function generateUserCommandTasks(deployTarget: DeployTarget) {
 	/**
@@ -328,24 +393,28 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 	 */
 	const singleDeployTargetSerialTask = async function () {
 		// FIXME: 另外一个类型守卫写法，无法实现有意义的泛型约束 被推断为nerver了。
-		if (isDeployTargetsWithUserCommands(deployTarget)) {
-			const allSingleDeployTargetUserCommandTasks = deployTarget.userCommands.map((userCommand) => {
-				return generateSimpleAsyncTask(() =>
-					execa(`${userCommand}`, {
-						shell: true,
-					}),
-				);
-			});
 
-			let index = 0;
-			for await (const task of allSingleDeployTargetUserCommandTasks) {
-				const taskRes = await task();
-				console.log(
-					` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${deployTarget.userCommands[index]} 的运行结果为： \n  `,
-					taskRes.stdout,
-				);
-				index++;
-			}
+		if (!isDeployTargetsWithUserCommands(deployTarget)) {
+			console.log(" 当前目标不属于需要执行一系列用户自定义命令。 ");
+			return;
+		}
+
+		const allSingleDeployTargetUserCommandTasks = deployTarget.userCommands.map((userCommand) => {
+			return generateSimpleAsyncTask(() =>
+				execa(`${userCommand}`, {
+					shell: true,
+				}),
+			);
+		});
+
+		let index = 0;
+		for await (const task of allSingleDeployTargetUserCommandTasks) {
+			const taskRes = await task();
+			console.log(
+				` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${deployTarget.userCommands[index]} 的运行结果为： \n  `,
+				taskRes.stdout,
+			);
+			index++;
 		}
 	};
 
@@ -432,31 +501,6 @@ async function doUserCommandTasks() {
 	// 	const itemRes = await item();
 	// });
 }
-
-// copy-dist
-// TODO: 在内部完成一次文件的移除，新建，复制等操作
-// ('rimraf .vercel/output/static && mkdirp .vercel/output/static && cpx "docs/.vitepress/dist/**/*" .vercel/output/static && shx ls -R .vercel/output/static');
-
-/**
- * 执行移动目录的任务
- * @description
- * 旨在于封装这样的命令：
- *
- * ```bash
- * # 删除目录
- * rimraf .vercel/output/static
- *
- * # 新建目录
- * mkdirp .vercel/output/static
- *
- * # 复制目录到目标
- * cpx \"docs/.vitepress/dist/**\/*\" .vercel/output/static
- *
- * # 输出目录
- * shx ls -R .vercel/output/static
- * ```
- */
-async function doCopyDistTasks(deployTarget: DeployTarget) {}
 
 async function main() {
 	generateVercelNullConfig();
