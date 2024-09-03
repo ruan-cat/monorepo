@@ -271,13 +271,15 @@ function getTargetCWDCommandArgument(deployTarget: DeployTarget): [`--cwd=${stri
  * @description
  * 有疑惑 T extends (...args: any[]) => any 不知道什么实现函数的泛型约束，算了。
  */
-function generateSimpleAsyncTask<T>(func: T) {
-	return Promise.resolve(func);
+function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
+	return new Promise<ReturnType<T>>((resolve, reject) => {
+		resolve(func());
+	});
 }
 
 /** 生成link任务 */
 function generateLinkTasks(deployTarget: DeployTarget) {
-	return generateSimpleAsyncTask(
+	return generateSimpleAsyncTask(() =>
 		execa(
 			"vc link",
 			concat(
@@ -295,7 +297,7 @@ function generateLinkTasks(deployTarget: DeployTarget) {
 
 /** 生成build任务 */
 function generateBuildTasks(deployTarget: DeployTarget) {
-	return generateSimpleAsyncTask(
+	return generateSimpleAsyncTask(() =>
 		execa(
 			"vc build",
 			concat(
@@ -322,7 +324,7 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 		// FIXME: 另外一个类型守卫写法，无法实现有意义的泛型约束 被推断为nerver了。
 		if (isDeployTargetsWithUserCommands(deployTarget)) {
 			const allSingleDeployTargetUserCommandTasks = deployTarget.userCommands.map((userCommand) => {
-				return generateSimpleAsyncTask(
+				return generateSimpleAsyncTask(() =>
 					execa(`${userCommand}`, {
 						shell: true,
 					}),
