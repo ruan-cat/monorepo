@@ -2,7 +2,7 @@
 import fs from "fs";
 import { execa } from "execa";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
-import { merge, concat, extend } from "lodash-es";
+import { merge, concat } from "lodash-es";
 
 /**
  * @description
@@ -140,12 +140,13 @@ const config: Config = {
 				// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs",
 				// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star copy-dist",
 				"pnpm -C=./packages/docs-01-star build:docs",
-				// TODO: 测试给定的零散命令，能否完成多个子任务的运行？
+				// TODO: 测试给定的零散命令，能否完成多个子任务的运行？ 测试通过
 				// "pnpm -C=./packages/docs-01-star copy-dist",
-				"pnpm -C=./packages/docs-01-star rimraf .vercel/output/static",
-				"pnpm -C=./packages/docs-01-star mkdirp .vercel/output/static",
-				'pnpm -C=./packages/docs-01-star cpx "docs/.vitepress/dist/**/*" .vercel/output/static',
-				"pnpm -C=./packages/docs-01-star shx ls -R .vercel/output/static",
+				// TODO: 测试零散任务，是否可以被分装的命令执行完毕？
+				// "pnpm -C=./packages/docs-01-star rimraf .vercel/output/static",
+				// "pnpm -C=./packages/docs-01-star mkdirp .vercel/output/static",
+				// 'pnpm -C=./packages/docs-01-star cpx "docs/.vitepress/dist/**/*" .vercel/output/static',
+				// "pnpm -C=./packages/docs-01-star shx ls -R .vercel/output/static",
 			],
 		},
 
