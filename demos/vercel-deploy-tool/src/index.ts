@@ -270,11 +270,7 @@ function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
 	return <const>[`--cwd=${deployTarget.targetCWD}`];
 }
 
-/**
- * 创建简单的异步任务
- * @description
- * 有疑惑 T extends (...args: any[]) => any 不知道什么实现函数的泛型约束，算了。
- */
+/** 创建简单的异步任务 */
 function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
 	return function () {
 		return new Promise<ReturnType<T>>((resolve, reject) => {
@@ -338,7 +334,7 @@ function generateBuildTasks(deployTarget: DeployTarget) {
  * shx ls -R .vercel/output/static
  * ```
  */
-async function generateCopyDistTasks(deployTarget: WithUserCommands) {
+function generateCopyDistTasks(deployTarget: WithUserCommands) {
 	function delDirectoryCmd() {
 		return <const>`rimraf ${vercelOutputStatic}`;
 	}
@@ -399,7 +395,8 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 			return;
 		}
 
-		const allSingleDeployTargetUserCommandTasks = deployTarget.userCommands.map((userCommand) => {
+		/** 用户命令 */
+		const userCommands = deployTarget.userCommands.map((userCommand) => {
 			return generateSimpleAsyncTask(() =>
 				execa(`${userCommand}`, {
 					shell: true,
@@ -407,8 +404,14 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 			);
 		});
 
+		/** 全部复制移动文件的命令 */
+		const copyDistTasks = generateCopyDistTasks(deployTarget);
+
+		/** 对于单个部署目标的全部要执行的命令 */
+		const allTasksForSingleDeployTarget = concat(userCommands, copyDistTasks);
+
 		let index = 0;
-		for await (const task of allSingleDeployTargetUserCommandTasks) {
+		for await (const task of allTasksForSingleDeployTarget) {
 			const taskRes = await task();
 			console.log(
 				` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${deployTarget.userCommands[index]} 的运行结果为： \n  `,
