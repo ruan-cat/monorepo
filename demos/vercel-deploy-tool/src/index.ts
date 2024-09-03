@@ -134,7 +134,7 @@ const config: Config = {
 			type: "userCommands",
 			targetCWD: "./packages/docs-01-star",
 			url: ["docs-01-star.ruancat6312.top"],
-			outputDirectory: "",
+			outputDirectory: "docs/.vitepress/dist/**/*",
 			userCommands: [
 				// FIXME: 在具体的execa中，无法使用pnpm的筛选命令。只能指定其工作目录。
 				// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs",
@@ -142,7 +142,6 @@ const config: Config = {
 				"pnpm -C=./packages/docs-01-star build:docs",
 				// TODO: 测试给定的零散命令，能否完成多个子任务的运行？
 				// "pnpm -C=./packages/docs-01-star copy-dist",
-				"pnpm -C=./packages/docs-01-star echo '准备开始多任务运行了'",
 				"pnpm -C=./packages/docs-01-star rimraf .vercel/output/static",
 				"pnpm -C=./packages/docs-01-star mkdirp .vercel/output/static",
 				'pnpm -C=./packages/docs-01-star cpx "docs/.vitepress/dist/**/*" .vercel/output/static',
