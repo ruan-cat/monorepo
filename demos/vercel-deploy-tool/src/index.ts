@@ -272,9 +272,11 @@ function getTargetCWDCommandArgument(deployTarget: DeployTarget): [`--cwd=${stri
  * 有疑惑 T extends (...args: any[]) => any 不知道什么实现函数的泛型约束，算了。
  */
 function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
-	return new Promise<ReturnType<T>>((resolve, reject) => {
-		resolve(func());
-	});
+	return function () {
+		return new Promise<ReturnType<T>>((resolve, reject) => {
+			resolve(func());
+		});
+	};
 }
 
 /** 生成link任务 */
@@ -333,10 +335,10 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 
 			let index = 0;
 			for await (const task of allSingleDeployTargetUserCommandTasks) {
-				const _task = await task;
+				const taskRes = await task();
 				console.log(
 					` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${deployTarget.userCommands[index]} 的运行结果为： \n  `,
-					_task.stdout,
+					taskRes.stdout,
 				);
 				index++;
 			}
@@ -403,7 +405,7 @@ function generateAsyncTasks(deployTargets: DeployTarget[]) {
 
 /** 执行link链接任务 */
 async function doLinkTasks() {
-	const res = await Promise.all(allVercelLinkTasks);
+	const res = await Promise.all(allVercelLinkTasks.map((item) => item()));
 	res.forEach((item) => {
 		console.log(" link任务结果： ", item.stdout);
 	});
@@ -411,7 +413,7 @@ async function doLinkTasks() {
 
 /** 执行build构建目录任务 */
 async function doBuildTasks() {
-	const res = await Promise.all(allVercelLinkTasks);
+	const res = await Promise.all(allVercelLinkTasks.map((item) => item()));
 	res.forEach((item) => {
 		console.log(" build任务结果： ", item.stdout);
 	});
