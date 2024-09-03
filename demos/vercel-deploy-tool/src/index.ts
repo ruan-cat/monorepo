@@ -26,6 +26,13 @@ export type Base = {
 	url: string[];
 };
 
+/**
+ * 带有 `pnpm -C` 筛选前缀的用户命令
+ * @example pnpm -C=./packages/docs-01-star build:docs
+ */
+// type UserCommandsWithPnpmPath<T extends string> = `pnpm -C=${T} ${string}`;
+type UserCommandsWithPnpmPath<T extends WithUserCommands["targetCWD"]> = `pnpm -C=${T} ${string}`;
+
 /** 带有用户命令的配置 */
 
 export interface WithUserCommands extends Base {
@@ -36,9 +43,16 @@ export interface WithUserCommands extends Base {
 	 * @description
 	 * 实际部署的构建命令 通常是真实参与部署的命令
 	 */
-	userCommands: string[];
+	// userCommands: Array<UserCommandsWithPnpmPath<WithUserCommands["outputDirectory"]> | string>;
+	userCommands: UserCommandsWithPnpmPath<WithUserCommands["targetCWD"]>[];
 
-	/** 部署输出路径 */
+	/**
+	 * 部署输出路径
+	 * @description
+	 * 这里要填写满足 cpx 库能够识别glob语法的路径
+	 * @example docs/.vitepress/dist/**\/*
+	 * @example src/.vuepress/dist/**\/*
+	 */
 	outputDirectory: string;
 }
 
