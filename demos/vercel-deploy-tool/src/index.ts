@@ -552,6 +552,10 @@ async function doTasks(params: {
 	params?.pre?.();
 
 	(await Promise.all(params.taskFunctions.map((item) => item()))).forEach((item) => {
+		if (isNil(item)) {
+			return;
+		}
+
 		const { stdout = null, command = null } = <Awaited<GenerateExecaReturn>>item;
 		if (isNil(stdout) || isNil(command)) {
 			return;
