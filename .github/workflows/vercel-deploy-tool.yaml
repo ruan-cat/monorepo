@@ -13,7 +13,7 @@ on:
     branches:
       # 避免高频率占用vercel资源，改成仅在main分支执行部署行为
       # - main
-      - dev
+      - dev-pause
 
 jobs:
   Deploy-Production:
