@@ -516,38 +516,49 @@ function generateMainStepTasks(deployTargets: DeployTarget[]) {
 	return allStep;
 }
 
-/** 执行命令 */
+/**
+ * 执行命令
+ * @description
+ * 默认并发地执行一个阶段的全部并列的命令
+ */
 async function doTasks(params: { taskFunctions: TaskFunction[]; func: (...args: any) => any }) {
 	await Promise.all(params.taskFunctions.map((item) => item()));
+	// 执行完命令后 执行一个函数。一般默认为打印完成信息
+	params.func();
 }
 
 /** 执行link链接任务 */
-async function doLinkTasks() {
-	await Promise.all(allVercelLinkTasks.map((item) => item()));
-	console.log(" 完成link任务 ");
+async function doLinkTasks(allStep: AllStep) {
+	await doTasks({
+		taskFunctions: allStep.linkStep,
+		func: () => console.log(" 完成link任务 "),
+	});
 }
 
 /** 执行build构建目录任务 */
-async function doBuildTasks() {
-	const res = await Promise.all(allVercelLinkTasks.map((item) => item()));
-	res.forEach((item) => {
-		console.log(" build任务结果： ", item.stdout);
+async function doBuildTasks(allStep: AllStep) {
+	await doTasks({
+		taskFunctions: allStep.buildStep,
+		func: () => console.log(" 完成build任务 "),
 	});
 }
 
 /** 执行用户命令任务 */
-async function doUserCommandTasks() {
-	await Promise.all(allUserCommandTasks.map((item) => item()));
+async function doUserCommandTasks(allStep: AllStep) {
+	await doTasks({
+		taskFunctions: allStep.userCommandStep,
+		func: () => console.log(" 完成用户命令任务 "),
+	});
 }
 
 async function main() {
 	await generateVercelNullConfig();
 	const { deployTargets } = initVercelConfig();
-	generateMainSetpTasks(deployTargets);
+	const allStep = generateMainStepTasks(deployTargets);
 
-	await doLinkTasks();
-	await doBuildTasks();
-	await doUserCommandTasks();
+	await doLinkTasks(allStep);
+	await doBuildTasks(allStep);
+	await doUserCommandTasks(allStep);
 }
 
 main();
