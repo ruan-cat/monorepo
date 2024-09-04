@@ -3,6 +3,7 @@ import fs from "fs";
 import { execa } from "execa";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
 import { merge, concat } from "lodash-es";
+import { url } from "inspector";
 
 /**
  * @description
@@ -469,6 +470,32 @@ function generateDeployTask(deployTarget: DeployTarget) {
 			getVercelTokenCommandArgument(),
 		),
 	});
+}
+
+/**
+ * 生成部署阶段的任务
+ * @description
+ * 部署阶段分为前后两个步骤
+ *
+ * 1. 将文件上传到vercel内
+ * 2. 将返回的url设置别名
+ */
+function generateDeployStepTask(deployTarget: DeployTarget) {
+	async function main() {
+		const deploy = generateDeployTask(deployTarget);
+
+		const { stdout: vercelUrl } = await deploy();
+
+		const aliasTasks = deployTarget.url.map((userUrl) => {
+			return generateAliasTask(vercelUrl, userUrl);
+		});
+
+		(await Promise.all(aliasTasks.map((item) => item()))).forEach(({ stdout, command }) => {
+			console.log(` 命令 ${command} 的结果为： \n`, stdout);
+		});
+	}
+
+	return generateSimpleAsyncTask(main);
 }
 
 /** 任务函数类型 */
