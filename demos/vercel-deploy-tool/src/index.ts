@@ -290,6 +290,16 @@ function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
 }
 
 /**
+ * 生成简单的 execa 函数
+ * @description
+ * 对 execa 做简单的包装
+ */
+function generateExeca(execaSimpleParams: { command: string; parameters: string[] }) {
+	const { command, parameters } = execaSimpleParams;
+	return generateSimpleAsyncTask(() => execa(command, parameters, { shell: true }));
+}
+
+/**
  * 生成link任务
  * @description
  * 旨在于封装类似于这样的命令：
@@ -297,20 +307,15 @@ function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
  * vc link --yes --cwd=${{env.p1}} --project=${{env.pjn}} -t ${{env.vct}}
  */
 function generateLinkTask(deployTarget: DeployTarget) {
-	return generateSimpleAsyncTask(() =>
-		execa(
-			"vc link",
-			concat(
-				getYesCommandArgument(),
-				getTargetCWDCommandArgument(deployTarget),
-				getVercelProjetNameCommandArgument(),
-				getVercelTokenCommandArgument(),
-			),
-			{
-				shell: true,
-			},
+	return generateExeca({
+		command: "vc link",
+		parameters: concat(
+			getYesCommandArgument(),
+			getTargetCWDCommandArgument(deployTarget),
+			getVercelProjetNameCommandArgument(),
+			getVercelTokenCommandArgument(),
 		),
-	);
+	});
 }
 
 /**
@@ -321,21 +326,16 @@ function generateLinkTask(deployTarget: DeployTarget) {
  * vc build --yes --prod --cwd=${{env.p1}} -A ./vercel.null.json -t ${{env.vct}}
  */
 function generateBuildTask(deployTarget: DeployTarget) {
-	return generateSimpleAsyncTask(() =>
-		execa(
-			"vc build",
-			concat(
-				getYesCommandArgument(),
-				getProdCommandArgument(),
-				getTargetCWDCommandArgument(deployTarget),
-				getVercelLocalConfigCommandArgument(),
-				getVercelTokenCommandArgument(),
-			),
-			{
-				shell: true,
-			},
+	return generateExeca({
+		command: "vc build",
+		parameters: concat(
+			getYesCommandArgument(),
+			getProdCommandArgument(),
+			getTargetCWDCommandArgument(deployTarget),
+			getVercelLocalConfigCommandArgument(),
+			getVercelTokenCommandArgument(),
 		),
-	);
+	});
 }
 
 /**
@@ -389,11 +389,10 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 	const copyFileCmd = cmdTemple(copyDirectoryFileCmd);
 	const printFileCmd = cmdTemple(printDirectoryFileCmd);
 
-	const copyDistTasks = (<const>[delCmd, createCmd, copyFileCmd, printFileCmd]).map((cmd) => {
-		return generateSimpleAsyncTask(() => {
-			return execa(cmd, {
-				shell: true,
-			});
+	const copyDistTasks = (<const>[delCmd, createCmd, copyFileCmd, printFileCmd]).map((command) => {
+		return generateExeca({
+			command,
+			parameters: [],
 		});
 	});
 
@@ -416,12 +415,11 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 		}
 
 		/** 用户命令 */
-		const userCommands = deployTarget.userCommands.map((userCommand) => {
-			return generateSimpleAsyncTask(() =>
-				execa(`${userCommand}`, {
-					shell: true,
-				}),
-			);
+		const userCommands = deployTarget.userCommands.map((command) => {
+			return generateExeca({
+				command,
+				parameters: [],
+			});
 		});
 
 		/** 全部复制移动文件的命令 */
@@ -447,11 +445,10 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
  * vc alias set "$url1" ${{env.p1-url}} -t ${{env.vct}}
  */
 function generateAliasTask(vercelUrl: string, userUrl: string) {
-	return generateSimpleAsyncTask(() =>
-		execa(`vc alias set ${vercelUrl} ${userUrl}`, getVercelTokenCommandArgument(), {
-			shell: true,
-		}),
-	);
+	return generateExeca({
+		command: `vc alias set ${vercelUrl} ${userUrl}`,
+		parameters: concat(getVercelTokenCommandArgument()),
+	});
 }
 
 /**
@@ -462,21 +459,16 @@ function generateAliasTask(vercelUrl: string, userUrl: string) {
  * vc deploy --yes --prebuilt --prod --cwd=${{env.p1}} -t ${{env.vct}}
  */
 function generateDeployTask(deployTarget: DeployTarget) {
-	return generateSimpleAsyncTask(() =>
-		execa(
-			"vc deploy",
-			concat(
-				getYesCommandArgument(),
-				getPrebuiltCommandArgument(),
-				getProdCommandArgument(),
-				getTargetCWDCommandArgument(deployTarget),
-				getVercelTokenCommandArgument(),
-			),
-			{
-				shell: true,
-			},
+	return generateExeca({
+		command: "vc deploy",
+		parameters: concat(
+			getYesCommandArgument(),
+			getPrebuiltCommandArgument(),
+			getProdCommandArgument(),
+			getTargetCWDCommandArgument(deployTarget),
+			getVercelTokenCommandArgument(),
 		),
-	);
+	});
 }
 
 /** 任务函数类型 */
