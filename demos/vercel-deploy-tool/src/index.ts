@@ -438,7 +438,21 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 	return singleDeployTargetSerialTask;
 }
 
-// TODO: 待检查是否合适有效
+/**
+ * 生成alias任务
+ * @description
+ * 旨在于封装类似于这样的命令：
+ *
+ * vc alias set "$url1" ${{env.p1-url}} -t ${{env.vct}}
+ */
+function generateAliasTasks(vercelUrl: string, userUrl: string) {
+	return generateSimpleAsyncTask(() =>
+		execa(`vc alias set ${vercelUrl} ${userUrl}`, getVercelTokenCommandArgument(), {
+			shell: true,
+		}),
+	);
+}
+
 /**
  * 生成Deploy任务
  * @description
