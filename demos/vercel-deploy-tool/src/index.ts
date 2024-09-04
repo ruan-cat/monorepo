@@ -44,6 +44,7 @@ export interface WithUserCommands extends Base {
 	 * 实际部署的构建命令 通常是真实参与部署的命令
 	 *
 	 * FIXME: 在具体的execa中，无法使用pnpm的筛选命令。只能指定其工作目录。
+	 * TODO: 实现对 targetCWD 的读取，并实现类型声明。
 	 *
 	 * pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs
 	 *
