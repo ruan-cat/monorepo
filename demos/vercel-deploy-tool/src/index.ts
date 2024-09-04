@@ -296,7 +296,7 @@ function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
  *
  * vc link --yes --cwd=${{env.p1}} --project=${{env.pjn}} -t ${{env.vct}}
  */
-function generateLinkTasks(deployTarget: DeployTarget) {
+function generateLinkTask(deployTarget: DeployTarget) {
 	return generateSimpleAsyncTask(() =>
 		execa(
 			"vc link",
@@ -320,7 +320,7 @@ function generateLinkTasks(deployTarget: DeployTarget) {
  *
  * vc build --yes --prod --cwd=${{env.p1}} -A ./vercel.null.json -t ${{env.vct}}
  */
-function generateBuildTasks(deployTarget: DeployTarget) {
+function generateBuildTask(deployTarget: DeployTarget) {
 	return generateSimpleAsyncTask(() =>
 		execa(
 			"vc build",
@@ -446,7 +446,7 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
  *
  * vc alias set "$url1" ${{env.p1-url}} -t ${{env.vct}}
  */
-function generateAliasTasks(vercelUrl: string, userUrl: string) {
+function generateAliasTask(vercelUrl: string, userUrl: string) {
 	return generateSimpleAsyncTask(() =>
 		execa(`vc alias set ${vercelUrl} ${userUrl}`, getVercelTokenCommandArgument(), {
 			shell: true,
@@ -461,7 +461,7 @@ function generateAliasTasks(vercelUrl: string, userUrl: string) {
  *
  * vc deploy --yes --prebuilt --prod --cwd=${{env.p1}} -t ${{env.vct}}
  */
-function generateDeployTasks(deployTarget: DeployTarget) {
+function generateDeployTask(deployTarget: DeployTarget) {
 	return generateSimpleAsyncTask(() =>
 		execa(
 			"vc deploy",
@@ -480,7 +480,7 @@ function generateDeployTasks(deployTarget: DeployTarget) {
 }
 
 /** 任务函数类型 */
-type TaskFunction = ReturnType<typeof generateLinkTasks>;
+type TaskFunction = ReturnType<typeof generateLinkTask>;
 
 // TODO: 重构，改成 xx阶段的函数群
 const allVercelLinkTasks: TaskFunction[] = [];
@@ -489,27 +489,28 @@ const allUserCommandTasks: Array<ReturnType<typeof generateUserCommandTasks>> = 
 const allVercelDeployTasks: TaskFunction[] = [];
 
 /**
- * 生成异步任务
+ * 生成各个主要阶段异步任务对象
  * @description
- * 这里将多个子任务组合成一个大任务
- * 用同一个类型的任务 整合成一个任务
+ * 识别配置提供的全部部署对象 根据各个大阶段生成并行任务
+ *
+ * 将多个子任务组合成一个大任务 用同一个类型的任务 整合成一个任务
  *
  * 比如link、build、deploy，全部整合到一个任务中
  *
  * 按照大阶段并行的方式执行
  */
-function generateAsyncTasks(deployTargets: DeployTarget[]) {
+function generateMainSetpTasks(deployTargets: DeployTarget[]) {
 	deployTargets.forEach((deployTarget, indx, arr) => {
-		const linkTask = generateLinkTasks(deployTarget);
+		const linkTask = generateLinkTask(deployTarget);
 		allVercelLinkTasks.push(linkTask);
 
-		const buildTask = generateBuildTasks(deployTarget);
+		const buildTask = generateBuildTask(deployTarget);
 		allVercelBuildTasks.push(buildTask);
 
 		const userCommandTask = generateUserCommandTasks(deployTarget);
 		allUserCommandTasks.push(userCommandTask);
 
-		const deployTask = generateDeployTasks(deployTarget);
+		const deployTask = generateDeployTask(deployTarget);
 		allVercelDeployTasks.push(deployTask);
 	});
 }
@@ -538,7 +539,7 @@ async function doUserCommandTasks() {
 async function main() {
 	await generateVercelNullConfig();
 	const { deployTargets } = initVercelConfig();
-	generateAsyncTasks(deployTargets);
+	generateMainSetpTasks(deployTargets);
 
 	await doLinkTasks();
 	await doBuildTasks();
