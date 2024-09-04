@@ -269,6 +269,11 @@ function getVercelTokenCommandArgument() {
 	return <const>[`--token=${config.vercelToken}`];
 }
 
+/** 以命令参数数组的形式，获得项目vercel的本地配置 */
+function getVercelLocalConfigCommandArgument() {
+	return <const>[`--local-config=${vercelNullConfigPath}`];
+}
+
 /** 以命令参数数组的形式，获得工作目录 */
 function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
 	return <const>[`--cwd=${deployTarget.targetCWD}`];
@@ -283,7 +288,13 @@ function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
 	};
 }
 
-/** 生成link任务 */
+/**
+ * 生成link任务
+ * @description
+ * 旨在于封装类似于这样的命令：
+ *
+ * vc link --yes --cwd=${{env.p1}} --project=${{env.pjn}} -t ${{env.vct}}
+ */
 function generateLinkTasks(deployTarget: DeployTarget) {
 	return generateSimpleAsyncTask(() =>
 		execa(
@@ -301,7 +312,13 @@ function generateLinkTasks(deployTarget: DeployTarget) {
 	);
 }
 
-/** 生成build任务 */
+/**
+ * 生成build任务
+ * @description
+ * 旨在于封装类似于这样的命令：
+ *
+ * vc build --yes --prod --cwd=${{env.p1}} -A ./vercel.null.json -t ${{env.vct}}
+ */
 function generateBuildTasks(deployTarget: DeployTarget) {
 	return generateSimpleAsyncTask(() =>
 		execa(
@@ -310,6 +327,7 @@ function generateBuildTasks(deployTarget: DeployTarget) {
 				getYesCommandArgument(),
 				getProdCommandArgument(),
 				getTargetCWDCommandArgument(deployTarget),
+				getVercelLocalConfigCommandArgument(),
 				getVercelTokenCommandArgument(),
 			),
 			{
@@ -421,30 +439,20 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 }
 
 // TODO: 待检查是否合适有效
-/** 生成Deploy任务 */
+/**
+ * 生成Deploy任务
+ * @description
+ * 旨在于封装类似于这样的命令：
+ *
+ * vc deploy --yes --prebuilt --prod --cwd=${{env.p1}} -t ${{env.vct}}
+ */
 function generateDeployTasks(deployTarget: DeployTarget) {
-	// vc deploy --yes --prebuilt --prod --cwd=${{env.p1}} -t ${{env.vct}}
-
-	// return generateSimpleAsyncTask(() =>
-	// 	execa(
-	// 		"vc build",
-	// 		concat(
-	// 			getYesCommandArgument(),
-	// 			getProdCommandArgument(),
-	// 			getTargetCWDCommandArgument(deployTarget),
-	// 			getVercelTokenCommandArgument(),
-	// 		),
-	// 		{
-	// 			shell: true,
-	// 		},
-	// 	),
-	// );
-
-	const res = async function () {
-		return await execa(
+	return generateSimpleAsyncTask(() =>
+		execa(
 			"vc deploy",
 			concat(
 				getYesCommandArgument(),
+				getPrebuiltCommandArgument(),
 				getProdCommandArgument(),
 				getTargetCWDCommandArgument(deployTarget),
 				getVercelTokenCommandArgument(),
@@ -452,10 +460,8 @@ function generateDeployTasks(deployTarget: DeployTarget) {
 			{
 				shell: true,
 			},
-		);
-	};
-
-	return res;
+		),
+	);
 }
 
 /** 任务函数类型 */
