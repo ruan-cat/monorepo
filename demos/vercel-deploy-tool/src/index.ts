@@ -406,7 +406,7 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 	 * @description
 	 * 一个部署目标可能有多个用户命令。这些命令需要串行执行，而不是并行执行的。
 	 */
-	const singleDeployTargetSerialTask = async function () {
+	async function singleDeployTargetSerialTask() {
 		// FIXME: 另外一个类型守卫写法，无法实现有意义的泛型约束 被推断为nerver了。
 
 		if (!isDeployTargetsWithUserCommands(deployTarget)) {
@@ -432,9 +432,9 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 			const { stdout, command } = await task();
 			console.log(` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${command} 的运行结果为： \n  `, stdout);
 		}
-	};
+	}
 
-	return singleDeployTargetSerialTask;
+	return generateSimpleAsyncTask(singleDeployTargetSerialTask);
 }
 
 /**
@@ -471,14 +471,21 @@ function generateDeployTask(deployTarget: DeployTarget) {
 	});
 }
 
+// type TaskFunction = ReturnType<typeof generateExeca>;
+// type TaskFunction<T extends (...args: any) => any> = ReturnType<typeof generateSimpleAsyncTask<T>>;
 /** 任务函数类型 */
-type TaskFunction = ReturnType<typeof generateLinkTask>;
+type TaskFunction = () => Promise<unknown>;
 
 // TODO: 重构，改成 xx阶段的函数群
 const allVercelLinkTasks: TaskFunction[] = [];
 const allVercelBuildTasks: TaskFunction[] = [];
 const allUserCommandTasks: Array<ReturnType<typeof generateUserCommandTasks>> = [];
 const allVercelDeployTasks: TaskFunction[] = [];
+
+const steps = <const>["linkStep", "buildStep", "userCommandStep", "deployStep"];
+type Step = (typeof steps)[number];
+
+type AllStep = Record<Step, TaskFunction[]>;
 
 /**
  * 生成各个主要阶段异步任务对象
@@ -491,28 +498,33 @@ const allVercelDeployTasks: TaskFunction[] = [];
  *
  * 按照大阶段并行的方式执行
  */
-function generateMainSetpTasks(deployTargets: DeployTarget[]) {
+function generateMainStepTasks(deployTargets: DeployTarget[]) {
+	const allStep: AllStep = {
+		linkStep: [],
+		buildStep: [],
+		userCommandStep: [],
+		deployStep: [],
+	};
+
 	deployTargets.forEach((deployTarget, indx, arr) => {
-		const linkTask = generateLinkTask(deployTarget);
-		allVercelLinkTasks.push(linkTask);
-
-		const buildTask = generateBuildTask(deployTarget);
-		allVercelBuildTasks.push(buildTask);
-
-		const userCommandTask = generateUserCommandTasks(deployTarget);
-		allUserCommandTasks.push(userCommandTask);
-
-		const deployTask = generateDeployTask(deployTarget);
-		allVercelDeployTasks.push(deployTask);
+		allStep.linkStep.push(generateLinkTask(deployTarget));
+		allStep.buildStep.push(generateBuildTask(deployTarget));
+		allStep.userCommandStep.push(generateUserCommandTasks(deployTarget));
+		allStep.deployStep.push(generateDeployTask(deployTarget));
 	});
+
+	return allStep;
+}
+
+/** 执行命令 */
+async function doTasks(params: { taskFunctions: TaskFunction[]; func: (...args: any) => any }) {
+	await Promise.all(params.taskFunctions.map((item) => item()));
 }
 
 /** 执行link链接任务 */
 async function doLinkTasks() {
-	const res = await Promise.all(allVercelLinkTasks.map((item) => item()));
-	res.forEach((item) => {
-		console.log(" link任务结果： ", item.stdout);
-	});
+	await Promise.all(allVercelLinkTasks.map((item) => item()));
+	console.log(" 完成link任务 ");
 }
 
 /** 执行build构建目录任务 */
