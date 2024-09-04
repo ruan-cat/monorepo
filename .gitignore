@@ -147,3 +147,6 @@ pnpm-lock.yaml
 
 # 忽略 @eslint/config-inspector 生成文档
 .eslint-config-inspector
+
+# 忽略自动生成vercel部署配置文件
+vercel.null.def.json
