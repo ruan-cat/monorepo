@@ -481,6 +481,7 @@ function generateDeployTasks(deployTarget: DeployTarget) {
 /** 任务函数类型 */
 type TaskFunction = ReturnType<typeof generateLinkTasks>;
 
+// TODO: 重构，改成 xx阶段的函数群
 const allVercelLinkTasks: TaskFunction[] = [];
 const allVercelBuildTasks: TaskFunction[] = [];
 const allUserCommandTasks: Array<ReturnType<typeof generateUserCommandTasks>> = [];
@@ -544,5 +545,3 @@ async function main() {
 }
 
 main();
-
-// TODO: 实现 deploy 命令；
