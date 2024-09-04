@@ -214,7 +214,7 @@ const vercelNullConfigPath = <const>"./vercel.null.def.json";
 const vercelOutputStatic = <const>".vercel/output/static";
 
 /** 初始化vercel的空配置文件 */
-function generateVercelNullConfig() {
+async function generateVercelNullConfig() {
 	fs.writeFileSync(vercelNullConfigPath, JSON.stringify(vercelNullConfig, null, 2));
 }
 
@@ -534,7 +534,7 @@ async function doUserCommandTasks() {
 }
 
 async function main() {
-	generateVercelNullConfig();
+	await generateVercelNullConfig();
 	const { deployTargets } = initVercelConfig();
 	generateAsyncTasks(deployTargets);
 
