@@ -529,7 +529,7 @@ function generateMainStepTasks(deployTargets: DeployTarget[]) {
 		allStep.linkStep.push(generateLinkTask(deployTarget));
 		allStep.buildStep.push(generateBuildTask(deployTarget));
 		allStep.userCommandStep.push(generateUserCommandTasks(deployTarget));
-		allStep.deployStep.push(generateDeployTask(deployTarget));
+		allStep.deployStep.push(generateDeployStepTask(deployTarget));
 	});
 
 	return allStep;
@@ -586,8 +586,7 @@ async function main() {
 	await doLinkTasks(allStep);
 	await doBuildTasks(allStep);
 	await doUserCommandTasks(allStep);
-	// TODO: 最开始测试
-	// await doDeployTasks(allStep);
+	await doDeployTasks(allStep);
 }
 
 main();
