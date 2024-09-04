@@ -2,7 +2,7 @@
 import fs from "fs";
 import { execa } from "execa";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
-import { merge, concat } from "lodash-es";
+import { merge, concat, isUndefined } from "lodash-es";
 import { url } from "inspector";
 
 /**
@@ -498,8 +498,12 @@ function generateDeployStepTask(deployTarget: DeployTarget) {
 	return generateSimpleAsyncTask(main);
 }
 
+type GenerateExeca = ReturnType<typeof generateExeca>;
+
+type GenerateExecaReturn = ReturnType<GenerateExeca>;
+
 /** 任务函数类型 */
-type TaskFunction = () => Promise<unknown>;
+type TaskFunction<T extends unknown | GenerateExecaReturn = unknown> = () => Promise<T>;
 
 const steps = <const>["linkStep", "buildStep", "userCommandStep", "deployStep"];
 type Step = (typeof steps)[number];
@@ -540,17 +544,30 @@ function generateMainStepTasks(deployTargets: DeployTarget[]) {
  * @description
  * 默认并发地执行一个阶段的全部并列的命令
  */
-async function doTasks(params: { taskFunctions: TaskFunction[]; func: (...args: any) => any }) {
-	await Promise.all(params.taskFunctions.map((item) => item()));
-	// 执行完命令后 执行一个函数。一般默认为打印完成信息
-	params.func();
+async function doTasks(params: {
+	taskFunctions: TaskFunction[];
+	pre?: (...args: any) => any;
+	post?: (...args: any) => any;
+}) {
+	params?.pre?.();
+
+	(await Promise.all(params.taskFunctions.map((item) => item()))).forEach((item) => {
+		const { stdout, command } = <Awaited<GenerateExecaReturn>>item;
+		if (isUndefined(stdout) || isUndefined(command)) {
+			return;
+		}
+		console.log(` 命令 ${command} 的结果为 \n`, stdout);
+	});
+
+	params?.post?.();
 }
 
 /** 执行link链接任务 */
 async function doLinkTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.linkStep,
-		func: () => console.log(" 完成link任务 "),
+		pre: () => console.log(" 开始link任务 "),
+		post: () => console.log(" 完成link任务 "),
 	});
 }
 
@@ -558,7 +575,8 @@ async function doLinkTasks(allStep: AllStep) {
 async function doBuildTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.buildStep,
-		func: () => console.log(" 完成build任务 "),
+		pre: () => console.log(" 开始build任务 "),
+		post: () => console.log(" 完成build任务 "),
 	});
 }
 
@@ -566,7 +584,8 @@ async function doBuildTasks(allStep: AllStep) {
 async function doUserCommandTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.userCommandStep,
-		func: () => console.log(" 完成用户命令任务 "),
+		pre: () => console.log(" 开始用户命令任务 "),
+		post: () => console.log(" 完成用户命令任务 "),
 	});
 }
 
@@ -574,7 +593,8 @@ async function doUserCommandTasks(allStep: AllStep) {
 async function doDeployTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.deployStep,
-		func: () => console.log(" 完成部署任务 "),
+		pre: () => console.log(" 开始部署任务 "),
+		post: () => console.log(" 完成部署任务 "),
 	});
 }
 
