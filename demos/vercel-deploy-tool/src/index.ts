@@ -2,7 +2,7 @@
 import fs from "fs";
 import { execa } from "execa";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
-import { merge, concat, isUndefined } from "lodash-es";
+import { merge, concat, isNil } from "lodash-es";
 import { url } from "inspector";
 
 /**
@@ -552,8 +552,8 @@ async function doTasks(params: {
 	params?.pre?.();
 
 	(await Promise.all(params.taskFunctions.map((item) => item()))).forEach((item) => {
-		const { stdout, command } = <Awaited<GenerateExecaReturn>>item;
-		if (isUndefined(stdout) || isUndefined(command)) {
+		const { stdout = null, command = null } = <Awaited<GenerateExecaReturn>>item;
+		if (isNil(stdout) || isNil(command)) {
 			return;
 		}
 		console.log(` 命令 ${command} 的结果为 \n`, stdout);
