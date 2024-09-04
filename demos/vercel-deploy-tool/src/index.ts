@@ -485,6 +485,7 @@ function generateDeployStepTask(deployTarget: DeployTarget) {
 		const deploy = generateDeployTask(deployTarget);
 
 		const { stdout: vercelUrl } = await deploy();
+		console.log(` 完成部署任务 检查生成的url为： \n`, vercelUrl);
 
 		const aliasTasks = deployTarget.url.map((userUrl) => {
 			return generateAliasTask(vercelUrl, userUrl);
