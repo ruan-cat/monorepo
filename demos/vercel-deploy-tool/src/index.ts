@@ -471,16 +471,8 @@ function generateDeployTask(deployTarget: DeployTarget) {
 	});
 }
 
-// type TaskFunction = ReturnType<typeof generateExeca>;
-// type TaskFunction<T extends (...args: any) => any> = ReturnType<typeof generateSimpleAsyncTask<T>>;
 /** 任务函数类型 */
 type TaskFunction = () => Promise<unknown>;
-
-// TODO: 重构，改成 xx阶段的函数群
-const allVercelLinkTasks: TaskFunction[] = [];
-const allVercelBuildTasks: TaskFunction[] = [];
-const allUserCommandTasks: Array<ReturnType<typeof generateUserCommandTasks>> = [];
-const allVercelDeployTasks: TaskFunction[] = [];
 
 const steps = <const>["linkStep", "buildStep", "userCommandStep", "deployStep"];
 type Step = (typeof steps)[number];
@@ -551,6 +543,14 @@ async function doUserCommandTasks(allStep: AllStep) {
 	});
 }
 
+/** 执行部署任务 */
+async function doDeployTasks(allStep: AllStep) {
+	await doTasks({
+		taskFunctions: allStep.deployStep,
+		func: () => console.log(" 完成部署任务 "),
+	});
+}
+
 async function main() {
 	await generateVercelNullConfig();
 	const { deployTargets } = initVercelConfig();
@@ -559,6 +559,8 @@ async function main() {
 	await doLinkTasks(allStep);
 	await doBuildTasks(allStep);
 	await doUserCommandTasks(allStep);
+	// TODO: 最开始测试
+	// await doDeployTasks(allStep);
 }
 
 main();
