@@ -42,6 +42,14 @@ export interface WithUserCommands extends Base {
 	 * 用户命令
 	 * @description
 	 * 实际部署的构建命令 通常是真实参与部署的命令
+	 *
+	 * FIXME: 在具体的execa中，无法使用pnpm的筛选命令。只能指定其工作目录。
+	 *
+	 * pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs
+	 *
+	 * @example pnpm -C=./packages/docs-01-star build:docs
+	 * @example pnpm -C=./packages/monorepo-5 build:docs
+	 *
 	 */
 	// userCommands: Array<UserCommandsWithPnpmPath<WithUserCommands["outputDirectory"]> | string>;
 	userCommands: UserCommandsWithPnpmPath<WithUserCommands["targetCWD"]>[];
@@ -149,34 +157,15 @@ const config: Config = {
 			targetCWD: "./packages/docs-01-star",
 			url: ["docs-01-star.ruancat6312.top"],
 			outputDirectory: "docs/.vitepress/dist/**/*",
-			userCommands: [
-				// FIXME: 在具体的execa中，无法使用pnpm的筛选命令。只能指定其工作目录。
-				// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs",
-				// "pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star copy-dist",
-				"pnpm -C=./packages/docs-01-star build:docs",
-				// TODO: 测试给定的零散命令，能否完成多个子任务的运行？ 测试通过
-				// "pnpm -C=./packages/docs-01-star copy-dist",
-				// TODO: 测试零散任务，是否可以被分装的命令执行完毕？
-				// "pnpm -C=./packages/docs-01-star rimraf .vercel/output/static",
-				// "pnpm -C=./packages/docs-01-star mkdirp .vercel/output/static",
-				// 'pnpm -C=./packages/docs-01-star cpx "docs/.vitepress/dist/**/*" .vercel/output/static',
-				// "pnpm -C=./packages/docs-01-star shx ls -R .vercel/output/static",
-			],
+			userCommands: ["pnpm -C=./packages/docs-01-star build:docs"],
 		},
-
-		// ('rimraf .vercel/output/static && mkdirp .vercel/output/static && cpx "docs/.vitepress/dist/**/*" .vercel/output/static && shx ls -R .vercel/output/static');
 
 		{
 			type: "userCommands",
 			targetCWD: "./packages/monorepo-5",
 			outputDirectory: "src/.vuepress/dist/**/*",
 			url: ["monorepo-5.ruancat6312.top", "monorepo5.ruan-cat.com"],
-			userCommands: [
-				"echo 'mikutap1'",
-				"pnpm -C=./packages/monorepo-5 build:docs",
-				"echo 'mikutap2'",
-				"echo 'mikutap3'",
-			],
+			userCommands: ["pnpm -C=./packages/monorepo-5 build:docs"],
 		},
 
 		{
@@ -370,9 +359,6 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 		return <const>`pnpm -C=${deployTarget.targetCWD}`;
 	}
 
-	// function cmdTemple(cmdFunc: (...args: any) => string) {
-	// 	return <const>`${cmdPrefix()} ${cmdFunc()}`;
-	// }
 	function cmdTemple<T extends (...args: any) => string, R extends ReturnType<T>>(
 		cmdFunc: T,
 	): `${ReturnType<typeof cmdPrefix>} ${R}` {
@@ -437,6 +423,23 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 // TODO: 待检查是否合适有效
 /** 生成Deploy任务 */
 function generateDeployTasks(deployTarget: DeployTarget) {
+	// vc deploy --yes --prebuilt --prod --cwd=${{env.p1}} -t ${{env.vct}}
+
+	// return generateSimpleAsyncTask(() =>
+	// 	execa(
+	// 		"vc build",
+	// 		concat(
+	// 			getYesCommandArgument(),
+	// 			getProdCommandArgument(),
+	// 			getTargetCWDCommandArgument(deployTarget),
+	// 			getVercelTokenCommandArgument(),
+	// 		),
+	// 		{
+	// 			shell: true,
+	// 		},
+	// 	),
+	// );
+
 	const res = async function () {
 		return await execa(
 			"vc deploy",
@@ -507,12 +510,7 @@ async function doBuildTasks() {
 
 /** 执行用户命令任务 */
 async function doUserCommandTasks() {
-	const res = await Promise.all(allUserCommandTasks.map((item) => item()));
-	// 有疑惑 是不是自己生成异步任务的思路不对呢？导致这里要额外做一步？
-	// const res = await Promise.all(allUserCommandTasks);
-	// res.forEach(async (item) => {
-	// 	const itemRes = await item();
-	// });
+	await Promise.all(allUserCommandTasks.map((item) => item()));
 }
 
 async function main() {
