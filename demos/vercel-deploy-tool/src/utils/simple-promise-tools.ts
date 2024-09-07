@@ -26,12 +26,11 @@ export const initFlag = <const>"initFlag";
  */
 export function runPromiseByQueue<T>(promises: ((...args: any) => Promise<T>)[]) {
 	promises.reduce(
-		function (previousPromise, nextPromise, currentIndex) {
-			return previousPromise.then((response) => {
-				console.log("\n");
-				console.log(` reduce串行函数 currentIndex= ${currentIndex} res =`, response);
-				return nextPromise(response);
-			});
+		async function (previousPromise, nextPromise, currentIndex) {
+			const response = await previousPromise;
+			console.log("\n");
+			console.log(` reduce串行函数 currentIndex= ${currentIndex} res =`, response);
+			return await nextPromise(response);
 		},
 		Promise.resolve(initFlag) as Promise<any>,
 	);
@@ -58,25 +57,4 @@ export const testPromises = [
 		console.log(" 查看上一个函数返回过来的参数： ", params);
 		return 3;
 	}),
-
-	// generateSimpleAsyncTask(() =>
-	// 	wait({
-	// 		time: 500,
-	// 		cb(params) {
-	// 			console.log(" 这里是 2 号函数 ");
-	// 			console.log(" 查看上一个函数返回过来的参数： ", params);
-	// 			return 2;
-	// 		},
-	// 	}),
-	// ),
-	// generateSimpleAsyncTask(() =>
-	// 	wait({
-	// 		time: 500,
-	// 		cb(params) {
-	// 			console.log(" 这里是 3 号函数 ");
-	// 			console.log(" 查看上一个函数返回过来的参数： ", params);
-	// 			return 3;
-	// 		},
-	// 	}),
-	// ),
 ];
