@@ -1,3 +1,12 @@
+export function wait<T extends (...args: any) => unknown>(params: { time: number; cb?: T }) {
+	const { cb = () => {} } = params;
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(cb());
+		}, params.time);
+	});
+}
+
 /**
  * 以队列串行的形式 运行异步函数
  * @see https://github.com/ascoders/weekly/blob/master/前沿技术/77.精读《用%20Reduce%20实现%20Promise%20串行执行》.md
@@ -13,13 +22,4 @@ export function runPromiseByQueue<T>(promises: ((...args: any) => Promise<T>)[])
 			return new Promise<T>(() => {});
 		},
 	);
-}
-
-export function wait<T extends (...args: any) => unknown>(params: { time: number; cb?: T }) {
-	const { cb = () => {} } = params;
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			resolve(cb());
-		}, params.time);
-	});
 }
