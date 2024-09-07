@@ -4,19 +4,21 @@
 		"target": "ESNext",
 		"module": "ESNext",
 		"outDir": "./dist",
-		"rootDir": "src",
 		"strict": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
 		"moduleResolution": "node",
+		"rootDir": ".",
 		"rootDirs": [
 			"src",
+			"tests"
 		],
 		"types": [
 			"node"
 		]
 	},
 	"include": [
-		"src"
+		"src/**/*.ts",
+		"tests/**/*.test.ts"
 	]
 }
