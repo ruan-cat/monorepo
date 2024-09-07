@@ -1,5 +1,5 @@
 {
-	"name": "vercel-deploy-tool",
+	"name": "@ruancat/vercel-deploy-tool",
 	"version": "1.0.0",
 	"description": "阮喵喵打算做一个简单的包，用于实现部署。目前先考虑vercel平台。",
 	"type": "module",
@@ -15,6 +15,8 @@
 		"execa": "^9.3.1"
 	},
 	"devDependencies": {
-		"@types/node": "^22.5.1"
+		"@types/node": "^22.5.1",
+		"@vitest/ui": "^2.0.5",
+		"vitest": "^2.0.5"
 	}
 }
