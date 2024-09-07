@@ -17,21 +17,25 @@
 		"types": [
 			"node"
 		],
+		"baseUrl": ".",
+		"rootDir": ".",
 		"paths": {
 			"@/*": [
-				"./src/*"
+				"src/*"
 			],
 			"src/*": [
-				"./src/*"
+				"src/*"
 			],
 			"tests/*": [
-				"./tests/*"
+				"tests/*"
 			]
 		}
 	},
 	"include": [
-		"src/**/*.ts",
-		"tests/**/*.test.ts",
-		"tests/**/*.ts"
+		// "src/**/*.ts",
+		// "tests/**/*.test.ts",
+		// "tests/**/*.ts"
+		"src",
+		"tests"
 	]
 }
