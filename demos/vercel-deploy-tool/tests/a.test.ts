@@ -55,21 +55,4 @@ function createPromise(time: number, id: unknown) {
 }
 // runPromiseByQueue([createPromise(1000, 1), createPromise(500, 2), createPromise(500, 3)]);
 
-// export function wait<T extends (...args: any) => unknown>(params: { time: number; cb?: T }) {
-// 	const { cb = () => {} } = params;
-// 	return new Promise((resolve) => {
-// 		setTimeout(() => {
-// 			resolve(cb());
-// 		}, params.time);
-// 	});
-// }
-/** 创建简单的异步任务 */
-export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
-	return function () {
-		return new Promise<ReturnType<T>>((resolve, reject) => {
-			resolve(func());
-		});
-	};
-}
-
 runPromiseByQueue(testPromises);
