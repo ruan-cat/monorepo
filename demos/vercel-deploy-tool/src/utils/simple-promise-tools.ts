@@ -14,3 +14,12 @@ export function runPromiseByQueue<T>(promises: ((...args: any) => Promise<T>)[])
 		},
 	);
 }
+
+export function wait<T extends (...args: any) => unknown>(params: { time: number; cb?: T }) {
+	const { cb = () => {} } = params;
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(cb());
+		}, params.time);
+	});
+}
