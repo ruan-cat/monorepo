@@ -1,5 +1,5 @@
 // // import { runPromiseByQueue, wait } from "@/utils/simple-promise-tools";
-// import { runPromiseByQueue, wait } from "../src/utils/simple-promise-tools";
+import { runPromiseByQueue, wait } from "../src/utils/simple-promise-tools";
 
 // const promises = [
 // 	function () {
@@ -35,11 +35,6 @@
 
 // runPromiseByQueue(promises);
 
-type PromiseCreator<T> = () => Promise<T>;
-function runPromiseByQueue<T>(myPromises: PromiseCreator<T>[]) {
-	myPromises.reduce((previousPromise, nextPromise) => previousPromise.then(() => nextPromise()), Promise.resolve());
-}
-
 const createPromise = (time, id) => () =>
 	new Promise((solve) =>
 		setTimeout(() => {
@@ -48,4 +43,14 @@ const createPromise = (time, id) => () =>
 		}, time),
 	);
 
-runPromiseByQueue([createPromise(1000, 1), createPromise(500, 2), createPromise(500, 3)]);
+export function wait<T extends (...args: any) => unknown>(params: { time: number; cb?: T }) {
+	const { cb = () => {} } = params;
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(cb());
+		}, params.time);
+	});
+}
+
+// runPromiseByQueue([createPromise(1000, 1), createPromise(500, 2), createPromise(500, 3)]);
+runPromiseByQueue([]);

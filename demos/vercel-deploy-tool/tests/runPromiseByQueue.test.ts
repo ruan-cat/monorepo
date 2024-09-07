@@ -1,27 +1,36 @@
 import { expect, test } from "vitest";
-import { runPromiseByQueue, wait } from "@/utils/simple-promise-tools";
+// FIXME: 处理别名识别失败的错误 无法识别并执行
+// import { runPromiseByQueue, wait } from "@/utils/simple-promise-tools";
+import { runPromiseByQueue, wait, generateSimpleAsyncTask } from "../src/utils/simple-promise-tools";
 
 const promises = [
-	function () {
-		return wait({
-			time: 1000,
-			cb: () => 1,
-		});
-	},
-
-	function () {
-		return wait({
-			time: 2000,
-			cb: () => 1,
-		});
-	},
-
-	function () {
-		return wait({
+	generateSimpleAsyncTask(() =>
+		wait({
 			time: 500,
-			cb: () => 1,
-		});
-	},
+			cb() {
+				console.log(" 1 ");
+				return 1;
+			},
+		}),
+	),
+	generateSimpleAsyncTask(() =>
+		wait({
+			time: 500,
+			cb() {
+				console.log(" 1 ");
+				return 1;
+			},
+		}),
+	),
+	generateSimpleAsyncTask(() =>
+		wait({
+			time: 500,
+			cb() {
+				console.log(" 1 ");
+				return 1;
+			},
+		}),
+	),
 ];
 
 test("执行异步函数", () => {
