@@ -1,5 +1,5 @@
 // // import { runPromiseByQueue, wait } from "@/utils/simple-promise-tools";
-import { runPromiseByQueue, wait } from "../src/utils/simple-promise-tools";
+import { runPromiseByQueue, wait, testPromises } from "../src/utils/simple-promise-tools";
 
 // const promises = [
 // 	function () {
@@ -35,22 +35,41 @@ import { runPromiseByQueue, wait } from "../src/utils/simple-promise-tools";
 
 // runPromiseByQueue(promises);
 
-const createPromise = (time, id) => () =>
-	new Promise((solve) =>
-		setTimeout(() => {
-			console.log("promise", id);
-			solve();
-		}, time),
-	);
+// const createPromise = (time, id) => () =>
+// 	new Promise((solve) =>
+// 		setTimeout(() => {
+// 			console.log("promise", id);
+// 			solve();
+// 		}, time),
+// 	);
 
-export function wait<T extends (...args: any) => unknown>(params: { time: number; cb?: T }) {
-	const { cb = () => {} } = params;
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			resolve(cb());
-		}, params.time);
-	});
+function createPromise(time: number, id: unknown) {
+	return function () {
+		return new Promise<void>((resolve) => {
+			setTimeout(() => {
+				console.log("promise", id);
+				resolve();
+			}, time);
+		});
+	};
+}
+// runPromiseByQueue([createPromise(1000, 1), createPromise(500, 2), createPromise(500, 3)]);
+
+// export function wait<T extends (...args: any) => unknown>(params: { time: number; cb?: T }) {
+// 	const { cb = () => {} } = params;
+// 	return new Promise((resolve) => {
+// 		setTimeout(() => {
+// 			resolve(cb());
+// 		}, params.time);
+// 	});
+// }
+/** 创建简单的异步任务 */
+export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
+	return function () {
+		return new Promise<ReturnType<T>>((resolve, reject) => {
+			resolve(func());
+		});
+	};
 }
 
-// runPromiseByQueue([createPromise(1000, 1), createPromise(500, 2), createPromise(500, 3)]);
-runPromiseByQueue([]);
+runPromiseByQueue(testPromises);

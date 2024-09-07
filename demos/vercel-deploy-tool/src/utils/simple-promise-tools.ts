@@ -22,6 +22,39 @@ export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T
  */
 export function runPromiseByQueue<T>(promises: ((...args: any) => Promise<T>)[]) {
 	promises.reduce(function (previousPromise, nextPromise) {
-		return previousPromise.then(() => nextPromise());
+		return previousPromise.then(() => {
+			console.log(" ?  ");
+			return nextPromise();
+		});
 	}, Promise.resolve() as Promise<any>);
 }
+
+export const testPromises = [
+	generateSimpleAsyncTask(() =>
+		wait({
+			time: 500,
+			cb() {
+				console.log(" 1 ");
+				return 1;
+			},
+		}),
+	),
+	generateSimpleAsyncTask(() =>
+		wait({
+			time: 500,
+			cb() {
+				console.log(" 2 ");
+				return 1;
+			},
+		}),
+	),
+	generateSimpleAsyncTask(() =>
+		wait({
+			time: 500,
+			cb() {
+				console.log(" 3 ");
+				return 1;
+			},
+		}),
+	),
+];
