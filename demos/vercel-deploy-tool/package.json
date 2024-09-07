@@ -7,7 +7,7 @@
 	"scripts": {
 		"build": "tsc",
 		"start": "node ./dist/index.js",
-		"test": "vitest --ui --watch"
+		"test": "vitest --ui --watch --outDir=./.vitest-reporter-html"
 	},
 	"keywords": [],
 	"author": "",
