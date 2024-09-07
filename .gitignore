@@ -150,3 +150,6 @@ pnpm-lock.yaml
 
 # 忽略自动生成vercel部署配置文件
 vercel.null.def.json
+
+# 忽略掉自己配置的 vitest 报告文件 忽略掉其生成的缓存文件
+.vitest-reporter-html
