@@ -8,17 +8,30 @@
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
 		"moduleResolution": "node",
-		"rootDir": ".",
-		"rootDirs": [
-			"src",
-			"tests"
-		],
+		// "rootDir": "./",
+		// 不能这样配置 导致路径识别错乱
+		// "rootDirs": [
+		// 	"src",
+		// 	"tests"
+		// ],
 		"types": [
 			"node"
-		]
+		],
+		"paths": {
+			"@/*": [
+				"./src/*"
+			],
+			"src/*": [
+				"./src/*"
+			],
+			"tests/*": [
+				"./tests/*"
+			]
+		}
 	},
 	"include": [
 		"src/**/*.ts",
-		"tests/**/*.test.ts"
+		"tests/**/*.test.ts",
+		"tests/**/*.ts"
 	]
 }

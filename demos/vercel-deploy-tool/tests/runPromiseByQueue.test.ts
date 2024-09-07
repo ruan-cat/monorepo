@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { runPromiseByQueue, wait } from "./utils/simple-promise-tools";
+import { runPromiseByQueue, wait } from "@/utils/simple-promise-tools";
 
 const promises = [
 	function () {
