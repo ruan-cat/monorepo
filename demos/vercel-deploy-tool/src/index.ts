@@ -703,8 +703,9 @@ async function mainV2() {
 								return vercelUrl;
 							}),
 
-							(vercelUrlFormLast: string) =>
-								async function (vercelUrl: string = vercelUrlFormLast) {
+							// 别名任务
+							async function (vercelUrlFormLast: string) {
+								async function doA(vercelUrl: string = vercelUrlFormLast) {
 									consola.log(` 检查后续的几个子任务，是否收到了 vercelUrl ？ \n`, vercelUrl);
 									// 并行别名任务
 									await executePromiseTasks({
@@ -721,7 +722,10 @@ async function mainV2() {
 											});
 										}),
 									});
-								},
+								}
+
+								return await doA();
+							},
 						],
 					};
 				}),
