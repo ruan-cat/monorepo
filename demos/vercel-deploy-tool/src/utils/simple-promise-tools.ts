@@ -1,3 +1,5 @@
+import { consola } from "consola";
+
 export function wait(time: number) {
 	return new Promise<void>((resolve) => {
 		setTimeout(() => {
@@ -9,10 +11,10 @@ export function wait(time: number) {
 /** 创建简单的异步任务 */
 export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
 	return function (...args: any) {
-		console.log(" 这里是新创建的异步函数 检查参数： ", ...args);
+		consola.log(" 这里是新创建的异步函数 检查参数： ", ...args);
 
 		return new Promise<ReturnType<T>>((resolve, reject) => {
-			console.log(" 内部promise 检查参数： ", ...args);
+			consola.log(" 内部promise 检查参数： ", ...args);
 			resolve(func(...args));
 		});
 	};
@@ -28,8 +30,8 @@ export function runPromiseByQueue<T>(promises: ((...args: any) => Promise<T>)[])
 	promises.reduce(
 		async function (previousPromise, nextPromise, currentIndex) {
 			const response = await previousPromise;
-			console.log("\n");
-			console.log(` reduce串行函数 currentIndex= ${currentIndex} res =`, response);
+			consola.log("\n");
+			consola.log(` reduce串行函数 currentIndex= ${currentIndex} res =`, response);
 			return await nextPromise(response);
 		},
 		Promise.resolve(initFlag) as Promise<any>,
@@ -39,22 +41,22 @@ export function runPromiseByQueue<T>(promises: ((...args: any) => Promise<T>)[])
 export const testPromises = [
 	generateSimpleAsyncTask(async function (params) {
 		await wait(400);
-		console.log(" 这里是 1 号函数 ");
-		console.log(" 查看上一个函数返回过来的参数： ", params);
+		consola.log(" 这里是 1 号函数 ");
+		consola.log(" 查看上一个函数返回过来的参数： ", params);
 		return 1;
 	}),
 
 	generateSimpleAsyncTask(async function (params) {
 		await wait(500);
-		console.log(" 这里是 2 号函数 ");
-		console.log(" 查看上一个函数返回过来的参数： ", params);
+		consola.log(" 这里是 2 号函数 ");
+		consola.log(" 查看上一个函数返回过来的参数： ", params);
 		return 2;
 	}),
 
 	generateSimpleAsyncTask(async function (params) {
 		await wait(500);
-		console.log(" 这里是 3 号函数 ");
-		console.log(" 查看上一个函数返回过来的参数： ", params);
+		consola.log(" 这里是 3 号函数 ");
+		consola.log(" 查看上一个函数返回过来的参数： ", params);
 		return 3;
 	}),
 ];
