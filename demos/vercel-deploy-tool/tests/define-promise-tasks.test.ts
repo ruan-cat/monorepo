@@ -2,7 +2,7 @@ import { consola } from "consola";
 import { uniqueId } from "lodash-es";
 
 import { definePromiseTasks, executePromiseTasks } from "../src/utils/define-promise-tasks";
-import { generateSimpleAsyncTask, wait } from "../src/utils/simple-promise-tools";
+import { generateSimpleAsyncTask, wait, testPromises } from "../src/utils/simple-promise-tools";
 
 function generateArray<T>(params: { length: number; content: T }) {
 	return Array(params.length)
@@ -154,4 +154,9 @@ const promiseTasksConfig2 = definePromiseTasks({
 	},
 });
 
-executePromiseTasks(promiseTasksConfig2);
+const promiseTasksConfig3 = definePromiseTasks({
+	type: "queue",
+	tasks: testPromises,
+});
+
+executePromiseTasks(promiseTasksConfig3);
