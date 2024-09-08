@@ -370,9 +370,14 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 	const printFileCmd = cmdTemple(printDirectoryFileCmd);
 
 	const copyDistTasks = (<const>[delCmd, createCmd, copyFileCmd, printFileCmd]).map((command) => {
-		return generateExeca({
-			command,
-			parameters: [],
+		return generateSimpleAsyncTask(async function () {
+			const commandFunction = generateExeca({
+				command,
+				parameters: [],
+			});
+			const { code, stdout } = await commandFunction();
+			consola.info(` 执行了命令： `, code);
+			consola.box(stdout);
 		});
 	});
 
@@ -690,46 +695,42 @@ async function mainV2() {
 			},
 
 			// 全部的部署任务
-			{
-				type: "parallel",
-				tasks: deployTargets.map((deployTarget) => {
-					return {
-						type: "queue",
-
-						// 串行执行部署任务和别名任务
-						tasks: [
-							// 部署任务
-							generateSimpleAsyncTask(async () => {
-								const deploy = generateDeployTask(deployTarget);
-								consola.start(` 开始部署任务 `);
-								const { stdout: vercelUrl } = await deploy();
-								consola.success(` 完成部署任务 检查生成的url为： \n`, vercelUrl);
-								return vercelUrl;
-							}),
-
-							// 别名任务
-							generateSimpleAsyncTask(async function (vercelUrlFormLast: string) {
-								consola.log(` 准备生成别名任务，检查上一个任务是否传递了生成的URL `, vercelUrlFormLast);
-
-								const aliasTasks = deployTarget.url.map((userUrl) => {
-									return generateSimpleAsyncTask(async (vercelUrl: string = vercelUrlFormLast) => {
-										const alias = generateAliasTask(vercelUrl, userUrl);
-										consola.start(` 开始别名任务 `);
-										const { stdout, command } = await alias();
-										consola.success(` 执行了： ${command} `);
-										consola.success(` 完成别名任务 检查生成的url为： \n`, stdout);
-									});
-								});
-
-								return await executePromiseTasks({
-									type: "parallel",
-									tasks: aliasTasks,
-								});
-							}),
-						],
-					};
-				}),
-			},
+			// {
+			// 	type: "parallel",
+			// 	tasks: deployTargets.map((deployTarget) => {
+			// 		return {
+			// 			type: "queue",
+			// 			// 串行执行部署任务和别名任务
+			// 			tasks: [
+			// 				// 部署任务
+			// 				generateSimpleAsyncTask(async () => {
+			// 					const deploy = generateDeployTask(deployTarget);
+			// 					consola.start(` 开始部署任务 `);
+			// 					const { stdout: vercelUrl } = await deploy();
+			// 					consola.success(` 完成部署任务 检查生成的url为： \n`, vercelUrl);
+			// 					return vercelUrl;
+			// 				}),
+			// 				// 别名任务
+			// 				generateSimpleAsyncTask(async function (vercelUrlFormLast: string) {
+			// 					consola.log(` 准备生成别名任务，检查上一个任务是否传递了生成的URL `, vercelUrlFormLast);
+			// 					const aliasTasks = deployTarget.url.map((userUrl) => {
+			// 						return generateSimpleAsyncTask(async (vercelUrl: string = vercelUrlFormLast) => {
+			// 							const alias = generateAliasTask(vercelUrl, userUrl);
+			// 							consola.start(` 开始别名任务 `);
+			// 							const { stdout, command } = await alias();
+			// 							consola.success(` 执行了： ${command} `);
+			// 							consola.success(` 完成别名任务 检查生成的url为： \n`, stdout);
+			// 						});
+			// 					});
+			// 					return await executePromiseTasks({
+			// 						type: "parallel",
+			// 						tasks: aliasTasks,
+			// 					});
+			// 				}),
+			// 			],
+			// 		};
+			// 	}),
+			// },
 		],
 	});
 
