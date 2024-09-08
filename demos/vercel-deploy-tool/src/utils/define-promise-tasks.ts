@@ -70,11 +70,11 @@ export function definePromiseTasks(config: TasksConfig) {
  */
 function getPromises(tasks: Task[]): ((...args: any) => Promise<any>)[] {
 	return tasks.map((task) => {
-		return async function () {
+		return async function (...args: any) {
 			if (isSimpleAsyncTask(task)) {
-				await task();
+				return await task(...args);
 			} else {
-				await executePromiseTasks(task);
+				return await executePromiseTasks(task);
 			}
 		};
 	});
