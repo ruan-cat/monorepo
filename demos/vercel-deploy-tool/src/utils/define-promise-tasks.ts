@@ -1,4 +1,9 @@
-import { type SimpleAsyncTask, type SimpleAsyncTaskWithType } from "./simple-promise-tools";
+import {
+	type SimpleAsyncTask,
+	type SimpleAsyncTaskWithType,
+	runPromiseByConcurrency,
+	runPromiseByQueue,
+} from "./simple-promise-tools";
 
 export const taskTypes = <const>["single", "parallel", "queue"];
 
@@ -65,4 +70,39 @@ export function definePromiseTasks(config: TasksConfig) {
 /**
  * 执行异步函数对象
  */
-export async function executePromiseTasks(config: TasksConfig) {}
+export async function executePromiseTasks(config: TasksConfig) {
+	if (isSingleTasks(config)) {
+		if (isSimpleAsyncTask(config.tasks)) {
+			await config.tasks();
+			return;
+		}
+		await executePromiseTasks(config.tasks);
+		return;
+	}
+
+	if (isParallelTasks(config)) {
+		await runPromiseByConcurrency(
+			config.tasks.map((task) => async () => {
+				if (isSimpleAsyncTask(task)) {
+					await task();
+				} else {
+					await executePromiseTasks(task);
+				}
+			}),
+		);
+		return;
+	}
+
+	if (isQueueTasks(config)) {
+		await runPromiseByQueue(
+			config.tasks.map((task) => async () => {
+				if (isSimpleAsyncTask(task)) {
+					await task();
+				} else {
+					await executePromiseTasks(task);
+				}
+			}),
+		);
+		return;
+	}
+}
