@@ -114,9 +114,11 @@ export async function executePromiseTasks(config: TasksConfig): Promise<any> {
 			if (isSimpleAsyncTask(task)) {
 				// console.log(` 串行任务遇到单独的异步函数 `);
 
-				res = await task();
+				res = await task(res);
+				console.log(` 串行任务 单独 res `, res);
 			} else {
 				res = await executePromiseTasks(task);
+				console.log(` 串行任务 配置 res `, res);
 			}
 		}
 

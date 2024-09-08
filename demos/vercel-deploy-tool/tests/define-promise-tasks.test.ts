@@ -206,8 +206,8 @@ const promiseTasksConfig4 = definePromiseTasks({
 							tasks: [
 								generateSimpleAsyncTask(async () => {
 									console.log(` 开始构建 `);
-									await wait(5000);
-									console.log(` 完成5秒的构建 `);
+									await wait(1000);
+									console.log(` 完成1秒的构建 `);
 									return 1;
 								}),
 
@@ -270,7 +270,7 @@ const promiseTasksConfig4 = definePromiseTasks({
 								const aliasTasks = generateArray({
 									length: 4,
 									content: generateSimpleAsyncTask(async (vercelUrl: string = vercelUrlFormLast) => {
-										console.log(` 别名任务得到参数 `, vercelUrl);
+										console.log(` 别名任务得到参数 `, vercelUrlFormLast);
 										await wait(500);
 										console.log(` 链接成功 `);
 									}),
@@ -284,32 +284,6 @@ const promiseTasksConfig4 = definePromiseTasks({
 						],
 					};
 				}),
-
-			// [
-			// 	{
-			// 		type: "queue",
-			// 		tasks: [
-			// 			// 部署生成url
-			// 			generateSimpleAsyncTask(async () => {
-			// 				await wait(1000);
-			// 				console.log(` 部署成功 `);
-			// 				return "https://notes.ruan-cat.com";
-			// 			}),
-
-			// 			// 生成多个别名任务
-			// 			{
-			// 				type: "parallel",
-			// 				tasks: generateArray({
-			// 					length: 4,
-			// 					content: generateSimpleAsyncTask(async () => {
-			// 						await wait(500);
-			// 						console.log(` 链接成功 `);
-			// 					}),
-			// 				}),
-			// 			},
-			// 		],
-			// 	},
-			// ],
 		},
 	],
 });
