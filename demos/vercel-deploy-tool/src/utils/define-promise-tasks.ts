@@ -24,13 +24,11 @@ export interface SingleTasks extends BaseTask {
 
 export interface ParallelTasks extends BaseTask {
 	type: "parallel";
-	/** 任务列表 */
 	tasks: Task[];
 }
 
 export interface QueueTasks extends BaseTask {
 	type: "queue";
-	/** 任务列表 */
 	tasks: Task[];
 }
 
@@ -67,6 +65,18 @@ export function definePromiseTasks(config: TasksConfig) {
 	return config;
 }
 
+function getPromises(tasks: Task[]): ((...args: any) => Promise<any>)[] {
+	return tasks.map((task) => {
+		return async function () {
+			if (isSimpleAsyncTask(task)) {
+				await task();
+			} else {
+				await executePromiseTasks(task);
+			}
+		};
+	});
+}
+
 /**
  * 执行异步函数对象
  */
@@ -81,28 +91,12 @@ export async function executePromiseTasks(config: TasksConfig) {
 	}
 
 	if (isParallelTasks(config)) {
-		await runPromiseByConcurrency(
-			config.tasks.map((task) => async () => {
-				if (isSimpleAsyncTask(task)) {
-					await task();
-				} else {
-					await executePromiseTasks(task);
-				}
-			}),
-		);
+		await runPromiseByConcurrency(getPromises(config.tasks));
 		return;
 	}
 
 	if (isQueueTasks(config)) {
-		await runPromiseByQueue(
-			config.tasks.map((task) => async () => {
-				if (isSimpleAsyncTask(task)) {
-					await task();
-				} else {
-					await executePromiseTasks(task);
-				}
-			}),
-		);
+		await runPromiseByQueue(getPromises(config.tasks));
 		return;
 	}
 }
