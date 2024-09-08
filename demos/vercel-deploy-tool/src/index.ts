@@ -708,9 +708,11 @@ async function mainV2() {
 							}),
 
 							// 别名任务
-							generateSimpleAsyncTask(async function () {
+							generateSimpleAsyncTask(async function (vercelUrlFormLast: string) {
+								consola.log(` 准备生成别名任务，检查上一个任务是否传递了生成的URL `, vercelUrlFormLast);
+
 								const aliasTasks = deployTarget.url.map((userUrl) => {
-									return generateSimpleAsyncTask(async (vercelUrl: string) => {
+									return generateSimpleAsyncTask(async (vercelUrl: string = vercelUrlFormLast) => {
 										const alias = generateAliasTask(vercelUrl, userUrl);
 										consola.start(` 开始别名任务 `);
 										const { stdout, command } = await alias();
