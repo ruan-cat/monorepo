@@ -1,6 +1,7 @@
 import {
 	type SimpleAsyncTask,
 	type SimpleAsyncTaskWithType,
+	generateSimpleAsyncTask,
 	runPromiseByConcurrency,
 	runPromiseByQueue,
 } from "./simple-promise-tools";
@@ -84,7 +85,7 @@ function getPromises(tasks: Task[]): ((...args: any) => Promise<any>)[] {
 /**
  * 执行异步函数对象
  */
-export async function executePromiseTasks(config: TasksConfig) {
+export async function executePromiseTasks(config: TasksConfig): Promise<any> {
 	if (isSingleTasks(config)) {
 		if (isSimpleAsyncTask(config.tasks)) {
 			return await config.tasks();
@@ -94,10 +95,31 @@ export async function executePromiseTasks(config: TasksConfig) {
 	}
 
 	if (isParallelTasks(config)) {
-		return await runPromiseByConcurrency(getPromises(config.tasks));
+		// return await runPromiseByConcurrency(getPromises(config.tasks));
+
+		return await Promise.all(
+			config.tasks.map((task) => {
+				if (isSimpleAsyncTask(task)) {
+					return task;
+				}
+
+				return generateSimpleAsyncTask(() => executePromiseTasks(task));
+			}),
+		);
 	}
 
 	if (isQueueTasks(config)) {
-		return await runPromiseByQueue(getPromises(config.tasks));
+		// return await runPromiseByQueue(getPromises(config.tasks));
+
+		let res: Awaited<any>;
+		for await (const task of config.tasks) {
+			if (isSimpleAsyncTask(task)) {
+				res = await task();
+			} else {
+				res = await executePromiseTasks(task);
+			}
+		}
+
+		return res;
 	}
 }

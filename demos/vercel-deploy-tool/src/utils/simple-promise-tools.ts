@@ -91,4 +91,4 @@ export const testPromises = [
 ];
 
 // 测试队列函数的传参能力 发现这里是可以实现传参的
-runPromiseByQueue(testPromises);
+// runPromiseByQueue(testPromises);
