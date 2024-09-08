@@ -270,16 +270,20 @@ const promiseTasksConfig4 = definePromiseTasks({
 								const aliasTasks = generateArray({
 									length: 4,
 									content: generateSimpleAsyncTask(async (vercelUrl: string = vercelUrlFormLast) => {
-										console.log(` 别名任务得到参数 `, vercelUrlFormLast);
+										console.log(` 别名任务得到参数 `, vercelUrl);
 										await wait(500);
 										console.log(` 链接成功 `);
 									}),
 								});
 
-								return {
+								// return {
+								// 	type: "parallel",
+								// 	tasks: aliasTasks,
+								// };
+								return await executePromiseTasks({
 									type: "parallel",
 									tasks: aliasTasks,
-								};
+								});
 							}),
 						],
 					};
