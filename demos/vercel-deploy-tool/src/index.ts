@@ -5,6 +5,8 @@ import { config as dotenvConfig } from "@dotenvx/dotenvx";
 import { merge, concat, isNil } from "lodash-es";
 import { consola } from "consola";
 
+import { generateSimpleAsyncTask, runPromiseByQueue } from "./utils/simple-promise-tools";
+
 /**
  * @description
  * 从 drizzle-kit 学的
@@ -281,14 +283,15 @@ function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
 	return <const>[`--cwd=${deployTarget.targetCWD}`];
 }
 
-/** 创建简单的异步任务 */
-function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
-	return function () {
-		return new Promise<ReturnType<T>>((resolve, reject) => {
-			resolve(func());
-		});
-	};
-}
+// 不再使用 未来看情况删除了。
+// /** 创建简单的异步任务 */
+// function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
+// 	return function () {
+// 		return new Promise<ReturnType<T>>((resolve, reject) => {
+// 			resolve(func());
+// 		});
+// 	};
+// }
 
 /**
  * 生成简单的 execa 函数

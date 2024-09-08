@@ -1,4 +1,5 @@
 import { consola } from "consola";
+import exp from "constants";
 
 export function wait(time: number) {
 	return new Promise<void>((resolve) => {
@@ -23,7 +24,7 @@ export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T
 export const initFlag = <const>"initFlag";
 
 /**
- * 以队列串行的形式 运行异步函数
+ * 以队列串行的形式 串行运行异步函数
  * @see https://github.com/ascoders/weekly/blob/master/前沿技术/77.精读《用%20Reduce%20实现%20Promise%20串行执行》.md
  */
 export function runPromiseByQueue<T>(promises: ((...args: any) => Promise<T>)[]) {
@@ -36,6 +37,13 @@ export function runPromiseByQueue<T>(promises: ((...args: any) => Promise<T>)[])
 		},
 		Promise.resolve(initFlag) as Promise<any>,
 	);
+}
+
+/**
+ * 以并行的形式 并发运行异步函数
+ */
+export async function runPromiseByConcurrency<T>(promises: ((...args: any) => Promise<T>)[]) {
+	await Promise.all(promises.map((promise) => promise()));
 }
 
 export const testPromises = [
