@@ -1,5 +1,4 @@
 import { consola } from "consola";
-import exp from "constants";
 
 export function wait(time: number) {
 	return new Promise<void>((resolve) => {
@@ -20,6 +19,9 @@ export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T
 		});
 	};
 }
+
+export type SimpleAsyncTask = ReturnType<typeof generateSimpleAsyncTask>;
+export type SimpleAsyncTaskWithType = <T = any>(...args: any) => Promise<T>;
 
 export const initFlag = <const>"initFlag";
 
