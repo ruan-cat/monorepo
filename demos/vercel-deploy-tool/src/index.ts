@@ -651,7 +651,7 @@ async function mainV2() {
 
 			// 全部的用户命令任务
 			{
-				type: "parallel",
+				type: "queue",
 				tasks: deployTargets.map((deployTarget) => {
 					if (!isDeployTargetsWithUserCommands(deployTarget)) {
 						return generateSimpleAsyncTask(() => {
