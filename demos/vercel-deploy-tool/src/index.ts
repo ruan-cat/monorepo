@@ -727,14 +727,14 @@ async function mainV2() {
 									});
 								});
 
-								return {
-									type: "parallel",
-									tasks: aliasTasks,
-								};
-								// return await executePromiseTasks({
+								// return {
 								// 	type: "parallel",
 								// 	tasks: aliasTasks,
-								// });
+								// };
+								return await executePromiseTasks({
+									type: "parallel",
+									tasks: aliasTasks,
+								});
 							}),
 						],
 					};
