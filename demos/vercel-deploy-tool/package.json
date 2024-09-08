@@ -7,6 +7,7 @@
 	"scripts": {
 		"build": "tsc",
 		"start": "node ./dist/index.js",
+		"run": "vite-node ./src/index.ts --files",
 		"test": "vitest --ui --watch"
 	},
 	"keywords": [],
@@ -14,7 +15,8 @@
 	"license": "ISC",
 	"dependencies": {
 		"consola": "^3.2.3",
-		"execa": "^9.3.1"
+		"execa": "^9.3.1",
+		"vercel": "^34.2.7"
 	},
 	"devDependencies": {
 		"@types/node": "^22.5.1",
