@@ -1,4 +1,5 @@
 import { consola } from "consola";
+import { uniqueId } from "lodash-es";
 
 export function wait(time: number) {
 	return new Promise<void>((resolve) => {
@@ -8,9 +9,14 @@ export function wait(time: number) {
 	});
 }
 
+const getCounter = () => uniqueId();
+
 /** 创建简单的异步任务 */
 export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
+	const taskId = getCounter();
+
 	return function (...args: any) {
+		consola.info(` 这是第 ${taskId} 个异步任务 `);
 		consola.start(" 这里是新创建的异步函数 检查参数： ", ...args);
 
 		return new Promise<ReturnType<T>>((resolve, reject) => {
@@ -21,6 +27,8 @@ export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T
 }
 
 export type SimpleAsyncTask = ReturnType<typeof generateSimpleAsyncTask>;
+
+/** @deprecated */
 export type SimpleAsyncTaskWithType = <T = any>(...args: any) => Promise<T>;
 
 export const initFlag = <const>"initFlag";
@@ -33,7 +41,7 @@ export async function runPromiseByQueue<T>(promises: ((...args: any) => Promise<
 	promises.reduce(
 		async function (previousPromise, nextPromise, currentIndex) {
 			const response = await previousPromise;
-			consola.log("\n");
+			// consola.log("\n");
 			consola.log(` reduce串行函数 currentIndex= ${currentIndex} res =`, response);
 			return await nextPromise(response);
 		},

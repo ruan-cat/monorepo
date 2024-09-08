@@ -65,6 +65,9 @@ export function definePromiseTasks(config: TasksConfig) {
 	return config;
 }
 
+/**
+ * @private 一个工具函数 用于生成异步函数数组
+ */
 function getPromises(tasks: Task[]): ((...args: any) => Promise<any>)[] {
 	return tasks.map((task) => {
 		return async function () {

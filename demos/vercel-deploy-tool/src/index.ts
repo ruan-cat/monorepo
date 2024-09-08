@@ -6,6 +6,7 @@ import { merge, concat, isNil } from "lodash-es";
 import { consola } from "consola";
 
 import { generateSimpleAsyncTask, runPromiseByQueue } from "./utils/simple-promise-tools";
+import { definePromiseTasks, executePromiseTasks } from "./utils/define-promise-tasks";
 
 /**
  * @description
@@ -70,28 +71,6 @@ export interface WithUserCommands extends Base {
 
 /** 部署目标的具体项目配置 */
 export type DeployTarget = Base | WithUserCommands;
-
-/** 项目配置 */
-export interface Config {
-	/** 项目名称 */
-	vercelProjetName: string;
-
-	/** 用户token */
-	vercelToken: string;
-	/** 用户组织id */
-	vercelOrgId: string;
-	/** 用户项目id */
-	vercelProjectId: string;
-
-	/**
-	 * 部署目标
-	 * @description
-	 * 考虑到可能要部署一揽子的项目，所以这里使用数组
-	 *
-	 * 考虑monorepo的情况
-	 */
-	deployTargets: DeployTarget[];
-}
 
 /** 项目配置 */
 export interface Config {
