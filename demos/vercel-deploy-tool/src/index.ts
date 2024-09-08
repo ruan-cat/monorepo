@@ -262,16 +262,6 @@ function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
 	return <const>[`--cwd=${deployTarget.targetCWD}`];
 }
 
-// 不再使用 未来看情况删除了。
-// /** 创建简单的异步任务 */
-// function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
-// 	return function () {
-// 		return new Promise<ReturnType<T>>((resolve, reject) => {
-// 			resolve(func());
-// 		});
-// 	};
-// }
-
 /**
  * 生成简单的 execa 函数
  * @description
@@ -382,7 +372,11 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 	return copyDistTasks;
 }
 
-/** 生成用户命令任务 */
+/**
+ * 生成用户命令任务
+ * @deprecated
+ * 不要再手动地组织异步函数的执行顺序了 该函数被优化删除
+ */
 function generateUserCommandTasks(deployTarget: DeployTarget) {
 	/**
 	 * 单个部署目标的全部串行任务
@@ -461,6 +455,9 @@ function generateDeployTask(deployTarget: DeployTarget) {
  *
  * 1. 将文件上传到vercel内
  * 2. 将返回的url设置别名
+ *
+ * @deprecated
+ * 不要再手动地组织异步函数的执行顺序了 该函数被优化删除
  */
 function generateDeployStepTask(deployTarget: DeployTarget) {
 	async function main() {
@@ -503,6 +500,8 @@ type AllStep = Record<Step, TaskFunction[]>;
  * 比如link、build、deploy，全部整合到一个任务中
  *
  * 按照大阶段并行的方式执行
+ *
+ * @deprecated 不考虑人为地框定异步任务的执行阶段 不限定死异步任务阶段
  */
 function generateMainStepTasks(deployTargets: DeployTarget[]) {
 	const allStep: AllStep = {
@@ -526,6 +525,7 @@ function generateMainStepTasks(deployTargets: DeployTarget[]) {
  * 执行命令
  * @description
  * 默认并发地执行一个阶段的全部并列的命令
+ * @deprecated 有专门的函数代替了
  */
 async function doTasks(params: {
 	taskFunctions: TaskFunction[];
@@ -549,7 +549,7 @@ async function doTasks(params: {
 	params?.post?.();
 }
 
-/** 执行link链接任务 */
+/** 执行link链接任务 @deprecated */
 async function doLinkTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.linkStep,
@@ -558,7 +558,7 @@ async function doLinkTasks(allStep: AllStep) {
 	});
 }
 
-/** 执行build构建目录任务 */
+/** 执行build构建目录任务 @deprecated */
 async function doBuildTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.buildStep,
@@ -567,7 +567,7 @@ async function doBuildTasks(allStep: AllStep) {
 	});
 }
 
-/** 执行用户命令任务 */
+/** 执行用户命令任务 @deprecated */
 async function doUserCommandTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.userCommandStep,
@@ -576,7 +576,7 @@ async function doUserCommandTasks(allStep: AllStep) {
 	});
 }
 
-/** 执行部署任务 */
+/** 执行部署任务 @deprecated */
 async function doDeployTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.deployStep,
@@ -585,7 +585,8 @@ async function doDeployTasks(allStep: AllStep) {
 	});
 }
 
-async function main() {
+/** @deprecated */
+async function mainV1() {
 	await generateVercelNullConfig();
 	const { deployTargets } = initVercelConfig();
 	const allStep = generateMainStepTasks(deployTargets);
@@ -596,4 +597,4 @@ async function main() {
 	await doDeployTasks(allStep);
 }
 
-main();
+// mainV1();
