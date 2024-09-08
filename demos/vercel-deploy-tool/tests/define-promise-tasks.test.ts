@@ -159,4 +159,120 @@ const promiseTasksConfig3 = definePromiseTasks({
 	tasks: testPromises,
 });
 
+const promiseTasksConfig4 = definePromiseTasks({
+	type: "queue",
+	tasks: [
+		// 链接任务
+		{
+			type: "parallel",
+			tasks: generateArray({
+				length: 1,
+				content: generateSimpleAsyncTask(link),
+			}),
+		},
+
+		// 打包任务
+		{
+			type: "parallel",
+			tasks: generateArray({
+				length: 1,
+				content: generateSimpleAsyncTask(async () => {
+					await wait(5000);
+					console.log(` 完成了 5 秒的打包任务 `);
+				}),
+			}),
+		},
+
+		// 用户任务
+		{
+			type: "parallel",
+			tasks: [
+				{
+					type: "queue",
+					tasks: [
+						generateSimpleAsyncTask(() => {
+							consola.warn(" 当前目标不属于需要执行一系列用户自定义命令。 ");
+						}),
+					],
+				},
+
+				{
+					type: "queue",
+					tasks: [
+						// 用户命令
+						{
+							type: "queue",
+							tasks: [
+								generateSimpleAsyncTask(async () => {
+									console.log(` 用户命令1 `);
+									await wait(100);
+									return 1;
+								}),
+
+								generateSimpleAsyncTask(async () => {
+									console.log(` 用户命令1 `);
+									await wait(100);
+									return 2;
+								}),
+							],
+						},
+
+						// 移动任务
+						{
+							type: "queue",
+							tasks: [
+								generateSimpleAsyncTask(async () => {
+									console.log(` 删除 `);
+									await wait(50);
+								}),
+								generateSimpleAsyncTask(async () => {
+									console.log(` 新建 `);
+									await wait(50);
+								}),
+								generateSimpleAsyncTask(async () => {
+									console.log(` 移动 `);
+									await wait(50);
+								}),
+								generateSimpleAsyncTask(async () => {
+									console.log(` 打印 `);
+									await wait(50);
+								}),
+							],
+						},
+					],
+				},
+			],
+		},
+
+		// 部署任务
+		{
+			type: "parallel",
+			tasks: [
+				{
+					type: "queue",
+					tasks: [
+						// 部署生成url
+						generateSimpleAsyncTask(async () => {
+							await wait(1000);
+							return "https://notes.ruan-cat.com";
+						}),
+
+						// 生成多个别名任务
+						{
+							type: "parallel",
+							tasks: generateArray({
+								length: 4,
+								content: generateSimpleAsyncTask(async () => {
+									await wait(500);
+									console.log(` 链接成功 `);
+								}),
+							}),
+						},
+					],
+				},
+			],
+		},
+	],
+});
+
 executePromiseTasks(promiseTasksConfig3);
