@@ -653,40 +653,6 @@ async function mainV2() {
 			{
 				type: "parallel",
 				tasks: deployTargets.map((deployTarget) => {
-					// if (!isDeployTargetsWithUserCommands(deployTarget)) {
-					// 	return generateSimpleAsyncTask(() => {
-					// 		consola.warn(" 当前目标不属于需要执行一系列用户自定义命令。 ");
-					// 	});
-					// }
-					// // 用户命令
-					// const userCommands: Task[] = deployTarget.userCommands.map((command) => {
-					// 	return generateSimpleAsyncTask(async () => {
-					// 		consola.start(` 开始用户命令任务 `);
-					// 		const userCommand = generateExeca({
-					// 			command,
-					// 			parameters: [],
-					// 		});
-					// 		const { code, stdout } = await userCommand();
-					// 		consola.success(` 完成用户命令任务 ${code} `);
-					// 		consola.box(stdout);
-					// 	});
-					// });
-					// /** 全部复制移动文件的命令 */
-					// const copyDistTasks = generateCopyDistTasks(deployTarget);
-					// /** 对于单个部署目标的全部要执行的命令 */
-					// const allTasksForSingleDeployTarget = concat(userCommands, copyDistTasks);
-					// const queueTasks: QueueTasks = {
-					// 	type: "queue",
-					// 	tasks: allTasksForSingleDeployTarget,
-					// };
-					// /**
-					//  * 执行一群串行任务
-					//  *
-					//  * 1. 串行执行用户命令
-					//  * 2. 串行执行复制移动文件
-					//  */
-					// return queueTasks;
-
 					return {
 						type: "queue",
 						tasks: [
