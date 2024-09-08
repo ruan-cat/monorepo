@@ -703,25 +703,25 @@ async function mainV2() {
 								return vercelUrl;
 							}),
 
-							generateSimpleAsyncTask(async (vercelUrl) => {
-								consola.log(` 检查后续的几个子任务，是否收到了 vercelUrl ？ \n`, vercelUrl);
+							(vercelUrlFormLast: string) =>
+								async function (vercelUrl: string = vercelUrlFormLast) {
+									consola.log(` 检查后续的几个子任务，是否收到了 vercelUrl ？ \n`, vercelUrl);
+									// 并行别名任务
+									await executePromiseTasks({
+										type: "parallel",
+										tasks: deployTarget.url.map((userUrl) => {
+											return generateSimpleAsyncTask(async (vercelUrl) => {
+												consola.log(` 检查收到的 vercelUrl `, vercelUrl);
 
-								// 并行别名任务
-								await executePromiseTasks({
-									type: "parallel",
-									tasks: deployTarget.url.map((userUrl) => {
-										return generateSimpleAsyncTask(async (vercelUrl) => {
-											consola.log(` 检查收到的 vercelUrl `, vercelUrl);
-
-											const alias = generateAliasTask(vercelUrl, userUrl);
-											consola.start(` 开始别名任务 `);
-											const { stdout, command } = await alias();
-											consola.success(` 执行了： ${command} `);
-											consola.success(` 完成别名任务 检查生成的url为： \n`, stdout);
-										});
-									}),
-								});
-							}),
+												const alias = generateAliasTask(vercelUrl, userUrl);
+												consola.start(` 开始别名任务 `);
+												const { stdout, command } = await alias();
+												consola.success(` 执行了： ${command} `);
+												consola.success(` 完成别名任务 检查生成的url为： \n`, stdout);
+											});
+										}),
+									});
+								},
 						],
 					};
 				}),
