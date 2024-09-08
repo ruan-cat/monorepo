@@ -210,7 +210,7 @@ const promiseTasksConfig4 = definePromiseTasks({
 								}),
 
 								generateSimpleAsyncTask(async () => {
-									console.log(` 用户命令1 `);
+									console.log(` 用户命令2 `);
 									await wait(100);
 									return 2;
 								}),
@@ -247,32 +247,67 @@ const promiseTasksConfig4 = definePromiseTasks({
 		// 部署任务
 		{
 			type: "parallel",
-			tasks: [
-				{
-					type: "queue",
-					tasks: [
-						// 部署生成url
-						generateSimpleAsyncTask(async () => {
-							await wait(1000);
-							return "https://notes.ruan-cat.com";
-						}),
-
-						// 生成多个别名任务
-						{
-							type: "parallel",
-							tasks: generateArray({
-								length: 4,
-								content: generateSimpleAsyncTask(async () => {
-									await wait(500);
-									console.log(` 链接成功 `);
-								}),
+			tasks: Array(1)
+				.fill(1)
+				.map((item) => {
+					return {
+						type: "queue",
+						tasks: [
+							// 部署生成url
+							generateSimpleAsyncTask(async () => {
+								await wait(1000);
+								console.log(` 部署成功 `);
+								return "https://notes.ruan-cat.com";
 							}),
-						},
-					],
-				},
-			],
+
+							generateSimpleAsyncTask(async (vercelUrlFormLast: string) => {
+								consola.log(` 准备生成别名任务，检查上一个任务是否传递了生成的URL `, vercelUrlFormLast);
+
+								const aliasTasks = generateArray({
+									length: 4,
+									content: generateSimpleAsyncTask(async (vercelUrl: string = vercelUrlFormLast) => {
+										console.log(` 别名任务得到参数 `, vercelUrl);
+										await wait(500);
+										console.log(` 链接成功 `);
+									}),
+								});
+
+								return {
+									type: "parallel",
+									tasks: aliasTasks,
+								};
+							}),
+						],
+					};
+				}),
+
+			// [
+			// 	{
+			// 		type: "queue",
+			// 		tasks: [
+			// 			// 部署生成url
+			// 			generateSimpleAsyncTask(async () => {
+			// 				await wait(1000);
+			// 				console.log(` 部署成功 `);
+			// 				return "https://notes.ruan-cat.com";
+			// 			}),
+
+			// 			// 生成多个别名任务
+			// 			{
+			// 				type: "parallel",
+			// 				tasks: generateArray({
+			// 					length: 4,
+			// 					content: generateSimpleAsyncTask(async () => {
+			// 						await wait(500);
+			// 						console.log(` 链接成功 `);
+			// 					}),
+			// 				}),
+			// 			},
+			// 		],
+			// 	},
+			// ],
 		},
 	],
 });
 
-executePromiseTasks(promiseTasksConfig3);
+await executePromiseTasks(promiseTasksConfig4);

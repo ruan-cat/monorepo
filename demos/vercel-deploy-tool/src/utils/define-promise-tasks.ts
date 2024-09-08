@@ -95,25 +95,25 @@ export async function executePromiseTasks(config: TasksConfig): Promise<any> {
 	}
 
 	if (isParallelTasks(config)) {
-		// return await runPromiseByConcurrency(getPromises(config.tasks));
-
 		return await Promise.all(
 			config.tasks.map((task) => {
 				if (isSimpleAsyncTask(task)) {
-					return task;
+					// console.log(` 并行任务遇到单独的异步函数 `);
+					return task();
 				}
 
-				return generateSimpleAsyncTask(() => executePromiseTasks(task));
+				// console.log(` 并行任务遇到嵌套结构 `);
+				return executePromiseTasks(task);
 			}),
 		);
 	}
 
 	if (isQueueTasks(config)) {
-		// return await runPromiseByQueue(getPromises(config.tasks));
-
 		let res: Awaited<any>;
 		for await (const task of config.tasks) {
 			if (isSimpleAsyncTask(task)) {
+				// console.log(` 串行任务遇到单独的异步函数 `);
+
 				res = await task();
 			} else {
 				res = await executePromiseTasks(task);
