@@ -33,6 +33,26 @@ export type TasksConfig = SingleTasks | ParallelTasks | QueueTasks;
 
 export type PromiseTasksConfig = TasksConfig;
 
+function isSingleTasks(config: TasksConfig): config is SingleTasks {
+	return config.type === "single";
+}
+
+function isParallelTasks(config: TasksConfig): config is ParallelTasks {
+	return config.type === "parallel";
+}
+
+function isQueueTasks(config: TasksConfig): config is QueueTasks {
+	return config.type === "queue";
+}
+
+function isSimpleAsyncTask(config: Task): config is SimpleAsyncTask {
+	return typeof config === "function";
+}
+
+function isTasksConfig(config: Task): config is TasksConfig {
+	return typeof config === "object";
+}
+
 /**
  * 定义异步任务对象
  * @description
@@ -41,3 +61,8 @@ export type PromiseTasksConfig = TasksConfig;
 export function definePromiseTasks(config: TasksConfig) {
 	return config;
 }
+
+/**
+ * 执行异步函数对象
+ */
+export async function executePromiseTasks(config: TasksConfig) {}
