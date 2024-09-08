@@ -6,7 +6,14 @@ import { merge, concat, isNil } from "lodash-es";
 import { consola } from "consola";
 
 import { generateSimpleAsyncTask, runPromiseByQueue } from "./utils/simple-promise-tools";
-import { definePromiseTasks, executePromiseTasks } from "./utils/define-promise-tasks";
+import {
+	definePromiseTasks,
+	executePromiseTasks,
+	type BaseTask,
+	type ParallelTasks,
+	type QueueTasks,
+	type Task,
+} from "./utils/define-promise-tasks";
 
 /**
  * @description
@@ -595,6 +602,128 @@ async function mainV1() {
 	await doBuildTasks(allStep);
 	await doUserCommandTasks(allStep);
 	await doDeployTasks(allStep);
+}
+
+/**
+ * 使用异步函数定义工具的方式
+ * @version 2
+ */
+async function mainV2() {
+	await generateVercelNullConfig();
+	const { deployTargets } = initVercelConfig();
+
+	const promiseTasks = definePromiseTasks({
+		type: "queue",
+
+		tasks: [
+			// 全部的link链接任务
+			{
+				type: "parallel",
+				tasks: deployTargets.map((deployTarget) => {
+					return generateSimpleAsyncTask(async () => {
+						const link = generateLinkTask(deployTarget);
+						consola.start(` 开始link任务 `);
+						await link();
+						consola.success(` 完成link任务 `);
+					});
+				}),
+			},
+
+			// 全部的build构建任务
+			{
+				type: "parallel",
+				tasks: deployTargets.map((deployTarget) => {
+					return generateSimpleAsyncTask(async () => {
+						const build = generateBuildTask(deployTarget);
+						consola.start(` 开始build任务 `);
+						await build();
+						consola.success(` 完成build任务 `);
+					});
+				}),
+			},
+
+			// 全部的用户命令任务
+			{
+				type: "parallel",
+				tasks: deployTargets.map((deployTarget) => {
+					if (!isDeployTargetsWithUserCommands(deployTarget)) {
+						return generateSimpleAsyncTask(() => {
+							consola.warn(" 当前目标不属于需要执行一系列用户自定义命令。 ");
+						});
+					}
+
+					// 用户命令
+					const userCommands: Task[] = deployTarget.userCommands.map((command) => {
+						return generateSimpleAsyncTask(() => {
+							consola.start(` 开始用户命令任务 `);
+							generateExeca({
+								command,
+								parameters: [],
+							});
+							consola.success(` 完成用户命令任务 `);
+						});
+					});
+
+					/** 全部复制移动文件的命令 */
+					const copyDistTasks = generateCopyDistTasks(deployTarget);
+
+					/** 对于单个部署目标的全部要执行的命令 */
+					const allTasksForSingleDeployTarget = concat(userCommands, copyDistTasks);
+
+					const queueTasks: QueueTasks = {
+						type: "queue",
+						tasks: allTasksForSingleDeployTarget,
+					};
+
+					/**
+					 * 执行一群串行任务
+					 *
+					 * 1. 串行执行用户命令
+					 * 2. 串行执行复制移动文件
+					 */
+					return queueTasks;
+				}),
+			},
+
+			// 全部的部署任务
+			{
+				type: "parallel",
+				tasks: deployTargets.map((deployTarget) => {
+					return {
+						type: "queue",
+
+						// 串行执行部署任务和别名任务
+						tasks: [
+							// 部署任务
+							generateSimpleAsyncTask(async () => {
+								const deploy = generateDeployTask(deployTarget);
+								consola.start(` 开始部署任务 `);
+								const { stdout: vercelUrl } = await deploy();
+								consola.success(` 完成部署任务 检查生成的url为： \n`, vercelUrl);
+								return vercelUrl;
+							}),
+
+							// 并行别名任务
+							{
+								type: "parallel",
+								tasks: deployTarget.url.map((userUrl) => {
+									return generateSimpleAsyncTask(async (vercelUrl) => {
+										const alias = generateAliasTask(vercelUrl, userUrl);
+										consola.start(` 开始别名任务 `);
+										const { stdout, command } = await alias();
+										consola.success(` 完成别名任务 检查生成的url为： \n`, stdout);
+									});
+								}),
+							},
+						],
+					};
+				}),
+			},
+		],
+	});
+
+	await executePromiseTasks(promiseTasks);
+	//
 }
 
 // mainV1();

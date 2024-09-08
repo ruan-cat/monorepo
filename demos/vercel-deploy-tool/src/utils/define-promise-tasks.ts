@@ -15,7 +15,7 @@ export interface BaseTask {
 }
 
 // type Task = SimpleAsyncTaskWithType | TasksConfig;
-type Task = SimpleAsyncTask | TasksConfig;
+export type Task = SimpleAsyncTask | TasksConfig;
 
 export interface SingleTasks extends BaseTask {
 	type: "single";
