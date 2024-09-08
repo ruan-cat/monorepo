@@ -177,8 +177,9 @@ const promiseTasksConfig4 = definePromiseTasks({
 			tasks: generateArray({
 				length: 1,
 				content: generateSimpleAsyncTask(async () => {
-					await wait(5000);
-					console.log(` 完成了 5 秒的打包任务 `);
+					console.log(` 开始build `);
+					await wait(100);
+					console.log(` 完成build `);
 				}),
 			}),
 		},
@@ -204,14 +205,16 @@ const promiseTasksConfig4 = definePromiseTasks({
 							type: "queue",
 							tasks: [
 								generateSimpleAsyncTask(async () => {
-									console.log(` 用户命令1 `);
-									await wait(100);
+									console.log(` 开始构建 `);
+									await wait(5000);
+									console.log(` 完成5秒的构建 `);
 									return 1;
 								}),
 
 								generateSimpleAsyncTask(async () => {
-									console.log(` 用户命令2 `);
+									console.log(` 开始用户命令2 `);
 									await wait(100);
+									console.log(` 完成用户命令2 `);
 									return 2;
 								}),
 							],
@@ -255,6 +258,7 @@ const promiseTasksConfig4 = definePromiseTasks({
 						tasks: [
 							// 部署生成url
 							generateSimpleAsyncTask(async () => {
+								console.log(` 开始部署 `);
 								await wait(1000);
 								console.log(` 部署成功 `);
 								return "https://notes.ruan-cat.com";
