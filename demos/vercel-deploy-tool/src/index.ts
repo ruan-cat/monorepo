@@ -708,9 +708,12 @@ async function mainV2() {
 								type: "parallel",
 								tasks: deployTarget.url.map((userUrl) => {
 									return generateSimpleAsyncTask(async (vercelUrl) => {
+										consola.log(` 检查收到的 vercelUrl `, vercelUrl);
+
 										const alias = generateAliasTask(vercelUrl, userUrl);
 										consola.start(` 开始别名任务 `);
 										const { stdout, command } = await alias();
+										consola.success(` 执行了： ${command} `);
 										consola.success(` 完成别名任务 检查生成的url为： \n`, stdout);
 									});
 								}),
@@ -723,7 +726,6 @@ async function mainV2() {
 	});
 
 	await executePromiseTasks(promiseTasks);
-	//
 }
 
 // mainV1();
