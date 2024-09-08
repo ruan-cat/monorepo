@@ -11,10 +11,10 @@ export function wait(time: number) {
 /** 创建简单的异步任务 */
 export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
 	return function (...args: any) {
-		consola.log(" 这里是新创建的异步函数 检查参数： ", ...args);
+		consola.start(" 这里是新创建的异步函数 检查参数： ", ...args);
 
 		return new Promise<ReturnType<T>>((resolve, reject) => {
-			consola.log(" 内部promise 检查参数： ", ...args);
+			consola.start(" 内部promise 检查参数： ", ...args);
 			resolve(func(...args));
 		});
 	};

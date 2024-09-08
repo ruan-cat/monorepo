@@ -3,36 +3,6 @@ import { expect, test } from "vitest";
 // import { runPromiseByQueue, wait } from "@/utils/simple-promise-tools";
 import { runPromiseByQueue, wait, generateSimpleAsyncTask, testPromises } from "../src/utils/simple-promise-tools";
 
-const promises = [
-	generateSimpleAsyncTask(() =>
-		wait({
-			time: 500,
-			cb() {
-				console.log(" 1 ");
-				return 1;
-			},
-		}),
-	),
-	generateSimpleAsyncTask(() =>
-		wait({
-			time: 500,
-			cb() {
-				console.log(" 2 ");
-				return 1;
-			},
-		}),
-	),
-	generateSimpleAsyncTask(() =>
-		wait({
-			time: 500,
-			cb() {
-				console.log(" 3 ");
-				return 1;
-			},
-		}),
-	),
-];
-
 runPromiseByQueue(testPromises);
 
 test("执行异步函数", () => {
