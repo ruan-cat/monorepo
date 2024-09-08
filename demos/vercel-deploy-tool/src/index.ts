@@ -636,8 +636,10 @@ async function mainV2() {
 					return generateSimpleAsyncTask(async () => {
 						const build = generateBuildTask(deployTarget);
 						consola.start(` 开始build任务 `);
-						await build();
+						const { code, stdout } = await build();
 						consola.success(` 完成build任务 `);
+						consola.info(` 完成命令 ${code} `);
+						consola.box(stdout);
 					});
 				}),
 			},
@@ -654,13 +656,15 @@ async function mainV2() {
 
 					// 用户命令
 					const userCommands: Task[] = deployTarget.userCommands.map((command) => {
-						return generateSimpleAsyncTask(() => {
+						return generateSimpleAsyncTask(async () => {
 							consola.start(` 开始用户命令任务 `);
-							generateExeca({
+							const userCommand = generateExeca({
 								command,
 								parameters: [],
 							});
-							consola.success(` 完成用户命令任务 `);
+							const { code, stdout } = await userCommand();
+							consola.success(` 完成用户命令任务 ${code} `);
+							consola.box(stdout);
 						});
 					});
 
