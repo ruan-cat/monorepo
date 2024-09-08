@@ -3,7 +3,7 @@ import fs from "fs";
 import { execa } from "execa";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
 import { merge, concat, isNil } from "lodash-es";
-import { url } from "inspector";
+import { consola } from "consola";
 
 /**
  * @description
@@ -144,7 +144,7 @@ const currentDotenvConfig = dotenvConfig({
 	//  path: "../../../.env"
 }).parsed;
 
-console.log(" 查看来自 @dotenvx/dotenvx 获取的环境变量： ", currentDotenvConfig);
+consola.info(" 查看来自 @dotenvx/dotenvx 获取的环境变量： ", currentDotenvConfig);
 
 /** 项目内的vercel配置 */
 const config: Config = {
@@ -236,7 +236,7 @@ function initVercelConfig() {
 		vercelToken,
 	} satisfies Partial<Config>);
 
-	console.log(" 完成初始化本地的配置 ", res);
+	consola.success(" 完成初始化本地的配置 ", res);
 
 	return res;
 }
@@ -411,7 +411,7 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 		// FIXME: 另外一个类型守卫写法，无法实现有意义的泛型约束 被推断为nerver了。
 
 		if (!isDeployTargetsWithUserCommands(deployTarget)) {
-			console.log(" 当前目标不属于需要执行一系列用户自定义命令。 ");
+			consola.warn(" 当前目标不属于需要执行一系列用户自定义命令。 ");
 			return;
 		}
 
@@ -431,7 +431,7 @@ function generateUserCommandTasks(deployTarget: DeployTarget) {
 
 		for await (const task of allTasksForSingleDeployTarget) {
 			const { stdout, command } = await task();
-			console.log(` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${command} 的运行结果为： \n  `, stdout);
+			consola.info(` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${command} 的运行结果为： \n  `, stdout);
 		}
 	}
 
@@ -485,14 +485,14 @@ function generateDeployStepTask(deployTarget: DeployTarget) {
 		const deploy = generateDeployTask(deployTarget);
 
 		const { stdout: vercelUrl } = await deploy();
-		console.log(` 完成部署任务 检查生成的url为： \n`, vercelUrl);
+		consola.success(` 完成部署任务 检查生成的url为： \n`, vercelUrl);
 
 		const aliasTasks = deployTarget.url.map((userUrl) => {
 			return generateAliasTask(vercelUrl, userUrl);
 		});
 
 		(await Promise.all(aliasTasks.map((item) => item()))).forEach(({ stdout, command }) => {
-			console.log(` 命令 ${command} 的结果为： \n`, stdout);
+			consola.log(` 命令 ${command} 的结果为： \n`, stdout);
 		});
 	}
 
@@ -561,7 +561,7 @@ async function doTasks(params: {
 		if (isNil(stdout) || isNil(command)) {
 			return;
 		}
-		console.log(` 命令 ${command} 的结果为 \n`, stdout);
+		consola.info(` 命令 ${command} 的结果为 \n`, stdout);
 	});
 
 	params?.post?.();
@@ -571,8 +571,8 @@ async function doTasks(params: {
 async function doLinkTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.linkStep,
-		pre: () => console.log(" 开始link任务 "),
-		post: () => console.log(" 完成link任务 "),
+		pre: () => consola.start(" 开始link任务 "),
+		post: () => consola.success(" 完成link任务 "),
 	});
 }
 
@@ -580,8 +580,8 @@ async function doLinkTasks(allStep: AllStep) {
 async function doBuildTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.buildStep,
-		pre: () => console.log(" 开始build任务 "),
-		post: () => console.log(" 完成build任务 "),
+		pre: () => consola.start(" 开始build任务 "),
+		post: () => consola.success(" 完成build任务 "),
 	});
 }
 
@@ -589,8 +589,8 @@ async function doBuildTasks(allStep: AllStep) {
 async function doUserCommandTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.userCommandStep,
-		pre: () => console.log(" 开始用户命令任务 "),
-		post: () => console.log(" 完成用户命令任务 "),
+		pre: () => consola.start(" 开始用户命令任务 "),
+		post: () => consola.success(" 完成用户命令任务 "),
 	});
 }
 
@@ -598,8 +598,8 @@ async function doUserCommandTasks(allStep: AllStep) {
 async function doDeployTasks(allStep: AllStep) {
 	await doTasks({
 		taskFunctions: allStep.deployStep,
-		pre: () => console.log(" 开始部署任务 "),
-		post: () => console.log(" 完成部署任务 "),
+		pre: () => consola.start(" 开始部署任务 "),
+		post: () => consola.success(" 完成部署任务 "),
 	});
 }
 
