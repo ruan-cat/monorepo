@@ -16,11 +16,11 @@ export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T
 	const taskId = getCounter();
 
 	return function (...args: any) {
-		consola.info(` 这是第 ${taskId} 个异步任务 `);
-		consola.start(" 这里是新创建的异步函数 检查参数： ", ...args);
+		// consola.info(` 这是第 ${taskId} 个异步任务 `);
+		// consola.start(" 这里是新创建的异步函数 检查参数： ", ...args);
 
 		return new Promise<ReturnType<T>>((resolve, reject) => {
-			consola.start(" 内部promise 检查参数： ", ...args);
+			// consola.start(" 内部promise 检查参数： ", ...args);
 			resolve(func(...args));
 		});
 	};
@@ -41,8 +41,7 @@ export async function runPromiseByQueue<T>(promises: ((...args: any) => Promise<
 	promises.reduce(
 		async function (previousPromise, nextPromise, currentIndex) {
 			const response = await previousPromise;
-			// consola.log("\n");
-			consola.log(` reduce串行函数 currentIndex= ${currentIndex} res =`, response);
+			// consola.log(` reduce串行函数 currentIndex= ${currentIndex} res =`, response);
 			return await nextPromise(response);
 		},
 		Promise.resolve(initFlag) as Promise<any>,
