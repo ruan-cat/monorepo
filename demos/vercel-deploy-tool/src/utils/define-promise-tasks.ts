@@ -86,20 +86,16 @@ function getPromises(tasks: Task[]): ((...args: any) => Promise<any>)[] {
 export async function executePromiseTasks(config: TasksConfig) {
 	if (isSingleTasks(config)) {
 		if (isSimpleAsyncTask(config.tasks)) {
-			await config.tasks();
-			return;
+			return await config.tasks();
 		}
-		await executePromiseTasks(config.tasks);
-		return;
+		return await executePromiseTasks(config.tasks);
 	}
 
 	if (isParallelTasks(config)) {
-		await runPromiseByConcurrency(getPromises(config.tasks));
-		return;
+		return await runPromiseByConcurrency(getPromises(config.tasks));
 	}
 
 	if (isQueueTasks(config)) {
-		await runPromiseByQueue(getPromises(config.tasks));
-		return;
+		return await runPromiseByQueue(getPromises(config.tasks));
 	}
 }
