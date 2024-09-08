@@ -67,6 +67,7 @@ export function definePromiseTasks(config: TasksConfig) {
 
 /**
  * @private 一个工具函数 用于生成异步函数数组
+ * @deprecated 在处理串行任务时 疑似有故障
  */
 function getPromises(tasks: Task[]): ((...args: any) => Promise<any>)[] {
 	return tasks.map((task) => {

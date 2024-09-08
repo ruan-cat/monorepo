@@ -36,8 +36,9 @@ export const initFlag = <const>"initFlag";
 /**
  * 以队列串行的形式 串行运行异步函数
  * @see https://github.com/ascoders/weekly/blob/master/前沿技术/77.精读《用%20Reduce%20实现%20Promise%20串行执行》.md
+ * @version 1
  */
-export async function runPromiseByQueue<T>(promises: ((...args: any) => Promise<T>)[]) {
+async function runPromiseByQueueV1<T>(promises: ((...args: any) => Promise<T>)[]) {
 	promises.reduce(
 		async function (previousPromise, nextPromise, currentIndex) {
 			const response = await previousPromise;
@@ -46,6 +47,17 @@ export async function runPromiseByQueue<T>(promises: ((...args: any) => Promise<
 		},
 		Promise.resolve(initFlag) as Promise<any>,
 	);
+}
+
+/**
+ * 以队列串行的形式 串行运行异步函数
+ * @version 2
+ */
+export async function runPromiseByQueue<T>(promises: ((...args: any) => Promise<T>)[]) {
+	let response: typeof initFlag | Awaited<T> = initFlag;
+	for await (const promise of promises) {
+		response = await promise(response);
+	}
 }
 
 /**
@@ -79,4 +91,4 @@ export const testPromises = [
 ];
 
 // 测试队列函数的传参能力 发现这里是可以实现传参的
-// runPromiseByQueue(testPromises);
+runPromiseByQueue(testPromises);
