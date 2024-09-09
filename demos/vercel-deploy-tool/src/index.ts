@@ -385,48 +385,6 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 }
 
 /**
- * 生成用户命令任务
- * @deprecated
- * 不要再手动地组织异步函数的执行顺序了 该函数被优化删除
- */
-function generateUserCommandTasks(deployTarget: DeployTarget) {
-	/**
-	 * 单个部署目标的全部串行任务
-	 * @description
-	 * 一个部署目标可能有多个用户命令。这些命令需要串行执行，而不是并行执行的。
-	 */
-	async function singleDeployTargetSerialTask() {
-		// FIXME: 另外一个类型守卫写法，无法实现有意义的泛型约束 被推断为nerver了。
-
-		if (!isDeployTargetsWithUserCommands(deployTarget)) {
-			consola.warn(" 当前目标不属于需要执行一系列用户自定义命令。 ");
-			return;
-		}
-
-		/** 用户命令 */
-		const userCommands = deployTarget.userCommands.map((command) => {
-			return generateExeca({
-				command,
-				parameters: [],
-			});
-		});
-
-		/** 全部复制移动文件的命令 */
-		const copyDistTasks = generateCopyDistTasks(deployTarget);
-
-		/** 对于单个部署目标的全部要执行的命令 */
-		const allTasksForSingleDeployTarget = concat(userCommands, copyDistTasks);
-
-		for await (const task of allTasksForSingleDeployTarget) {
-			const { stdout, command } = await task();
-			consola.info(` 在目录为 ${deployTarget.targetCWD} 的任务中，子任务 ${command} 的运行结果为： \n  `, stdout);
-		}
-	}
-
-	return generateSimpleAsyncTask(singleDeployTargetSerialTask);
-}
-
-/**
  * 生成alias任务
  * @description
  * 旨在于封装类似于这样的命令：
@@ -461,159 +419,10 @@ function generateDeployTask(deployTarget: DeployTarget) {
 }
 
 /**
- * 生成部署阶段的任务
- * @description
- * 部署阶段分为前后两个步骤
- *
- * 1. 将文件上传到vercel内
- * 2. 将返回的url设置别名
- *
- * @deprecated
- * 不要再手动地组织异步函数的执行顺序了 该函数被优化删除
- */
-function generateDeployStepTask(deployTarget: DeployTarget) {
-	async function main() {
-		const deploy = generateDeployTask(deployTarget);
-
-		const { stdout: vercelUrl } = await deploy();
-		consola.success(` 完成部署任务 检查生成的url为： \n`, vercelUrl);
-
-		const aliasTasks = deployTarget.url.map((userUrl) => {
-			return generateAliasTask(vercelUrl, userUrl);
-		});
-
-		(await Promise.all(aliasTasks.map((item) => item()))).forEach(({ stdout, command }) => {
-			consola.log(` 命令 ${command} 的结果为： \n`, stdout);
-		});
-	}
-
-	return generateSimpleAsyncTask(main);
-}
-
-type GenerateExeca = ReturnType<typeof generateExeca>;
-
-type GenerateExecaReturn = ReturnType<GenerateExeca>;
-
-/** 任务函数类型 */
-type TaskFunction<T extends unknown | GenerateExecaReturn = unknown> = () => Promise<T>;
-
-const steps = <const>["linkStep", "buildStep", "userCommandStep", "deployStep"];
-type Step = (typeof steps)[number];
-
-type AllStep = Record<Step, TaskFunction[]>;
-
-/**
- * 生成各个主要阶段异步任务对象
- * @description
- * 识别配置提供的全部部署对象 根据各个大阶段生成并行任务
- *
- * 将多个子任务组合成一个大任务 用同一个类型的任务 整合成一个任务
- *
- * 比如link、build、deploy，全部整合到一个任务中
- *
- * 按照大阶段并行的方式执行
- *
- * @deprecated 不考虑人为地框定异步任务的执行阶段 不限定死异步任务阶段
- */
-function generateMainStepTasks(deployTargets: DeployTarget[]) {
-	const allStep: AllStep = {
-		linkStep: [],
-		buildStep: [],
-		userCommandStep: [],
-		deployStep: [],
-	};
-
-	deployTargets.forEach((deployTarget, indx, arr) => {
-		allStep.linkStep.push(generateLinkTask(deployTarget));
-		allStep.buildStep.push(generateBuildTask(deployTarget));
-		allStep.userCommandStep.push(generateUserCommandTasks(deployTarget));
-		allStep.deployStep.push(generateDeployStepTask(deployTarget));
-	});
-
-	return allStep;
-}
-
-/**
- * 执行命令
- * @description
- * 默认并发地执行一个阶段的全部并列的命令
- * @deprecated 有专门的函数代替了
- */
-async function doTasks(params: {
-	taskFunctions: TaskFunction[];
-	pre?: (...args: any) => any;
-	post?: (...args: any) => any;
-}) {
-	params?.pre?.();
-
-	(await Promise.all(params.taskFunctions.map((item) => item()))).forEach((item) => {
-		if (isNil(item)) {
-			return;
-		}
-
-		const { stdout = null, command = null } = <Awaited<GenerateExecaReturn>>item;
-		if (isNil(stdout) || isNil(command)) {
-			return;
-		}
-		consola.info(` 命令 ${command} 的结果为 \n`, stdout);
-	});
-
-	params?.post?.();
-}
-
-/** 执行link链接任务 @deprecated */
-async function doLinkTasks(allStep: AllStep) {
-	await doTasks({
-		taskFunctions: allStep.linkStep,
-		pre: () => consola.start(" 开始link任务 "),
-		post: () => consola.success(" 完成link任务 "),
-	});
-}
-
-/** 执行build构建目录任务 @deprecated */
-async function doBuildTasks(allStep: AllStep) {
-	await doTasks({
-		taskFunctions: allStep.buildStep,
-		pre: () => consola.start(" 开始build任务 "),
-		post: () => consola.success(" 完成build任务 "),
-	});
-}
-
-/** 执行用户命令任务 @deprecated */
-async function doUserCommandTasks(allStep: AllStep) {
-	await doTasks({
-		taskFunctions: allStep.userCommandStep,
-		pre: () => consola.start(" 开始用户命令任务 "),
-		post: () => consola.success(" 完成用户命令任务 "),
-	});
-}
-
-/** 执行部署任务 @deprecated */
-async function doDeployTasks(allStep: AllStep) {
-	await doTasks({
-		taskFunctions: allStep.deployStep,
-		pre: () => consola.start(" 开始部署任务 "),
-		post: () => consola.success(" 完成部署任务 "),
-	});
-}
-
-/** @deprecated */
-async function mainV1() {
-	await generateVercelNullConfig();
-	const { deployTargets } = initVercelConfig();
-	const allStep = generateMainStepTasks(deployTargets);
-
-	await doLinkTasks(allStep);
-	await doBuildTasks(allStep);
-	await doUserCommandTasks(allStep);
-	await doDeployTasks(allStep);
-}
-
-/**
  * 使用异步函数定义工具的方式
  * @version 2
  */
-async function mainV2() {
+async function main() {
 	await generateVercelNullConfig();
 	const { deployTargets } = initVercelConfig();
 
@@ -726,29 +535,6 @@ async function mainV2() {
 									});
 								}),
 							},
-
-							// 别名任务
-							// generateSimpleAsyncTask(async function (vercelUrlFormLast: string) {
-							// 	consola.log(` 准备生成别名任务，检查上一个任务是否传递了生成的URL `, vercelUrlFormLast);
-							// 	const aliasTasks = deployTarget.url.map((userUrl) => {
-							// 		return generateSimpleAsyncTask(async (vercelUrl: string = vercelUrlFormLast) => {
-							// 			const alias = generateAliasTask(vercelUrl, userUrl);
-							// 			consola.start(` 开始别名任务 `);
-							// 			const { stdout, command } = await alias();
-							// 			consola.success(` 执行了： ${command} `);
-							// 			consola.success(` 完成别名任务 可用的别名地址为 \n`);
-							// 			consola.box(userUrl);
-							// 		});
-							// 	});
-							// 	// return {
-							// 	// 	type: "parallel",
-							// 	// 	tasks: aliasTasks,
-							// 	// };
-							// 	return await executePromiseTasks({
-							// 		type: "parallel",
-							// 		tasks: aliasTasks,
-							// 	});
-							// }),
 						],
 					};
 				}),
@@ -759,5 +545,4 @@ async function mainV2() {
 	await executePromiseTasks(promiseTasks);
 }
 
-// mainV1();
-mainV2();
+main();
