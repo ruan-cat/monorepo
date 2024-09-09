@@ -1,3 +1,5 @@
+import { resolve } from "pathe";
+import { loadConfig } from "c12";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
 import { consola } from "consola";
 import { merge } from "lodash-es";
@@ -113,35 +115,72 @@ declare module "@dotenvx/dotenvx" {
 	}
 }
 
+/** 初始化的当前的环境变量 */
 function initCurrentDotenvConfig() {
 	const res = dotenvConfig({
 		// 具体识别的路径，会自动识别根目录下面的env文件，故这里不作处理
 		//  path: "../../../.env"
 	}).parsed;
-	consola.info(" 查看来自 @dotenvx/dotenvx 获取的环境变量： ", res);
+
+	consola.info(" 查看来自 @dotenvx/dotenvx 获取的环境变量： ");
+	consola.box(res);
+
 	return res;
 }
 
-/** 当前的环境变量 */
-export const currentDotenvConfig = initCurrentDotenvConfig();
+/** 默认配置 */
+const defConfig = <Config>{
+	vercelProjetName: "",
+	vercelToken: "",
+	vercelOrgId: "",
+	vercelProjectId: "",
+	deployTargets: [],
+};
+
+/** 配置文件的文件名称 */
+export const configFileName = <const>"vercel-deploy-tool";
+
+/**
+ * 加载用户配置
+ * @description
+ * 从约定俗成的配置处，获得用户配置文件
+ */
+async function loadUserConfig() {
+	const { config } = await loadConfig<Config>({
+		cwd: resolve("."),
+		name: configFileName,
+		dotenv: true,
+		defaults: defConfig,
+	});
+
+	consola.success(" 完成加载用户配置 ");
+	consola.box(config);
+}
 
 /**
  * 初始化配置
  * @description
  * 初始化环境变量
  */
-export function initVercelConfig() {
+export async function initVercelConfig() {
+	/** 当前的环境变量 */
+	const currentDotenvConfig = initCurrentDotenvConfig();
+
+	/** 用户配置 */
+	const userConfig = await loadUserConfig();
+
 	const vercelOrgId = currentDotenvConfig!.VERCEL_ORG_ID ?? process.env.VERCEL_ORG_ID;
 	const vercelProjectId = currentDotenvConfig!.VERCEL_PROJECT_ID ?? process.env.VERCEL_PROJECT_ID;
 	const vercelToken = currentDotenvConfig!.VERCEL_TOKEN ?? process.env.VERCEL_TOKEN;
 
-	const res: Config = merge(config, {
+	const res: Config = merge(config, userConfig, {
 		vercelOrgId,
 		vercelProjectId,
 		vercelToken,
 	} satisfies Partial<Config>);
 
-	consola.success(" 完成初始化本地的配置 ", res);
+	consola.success(" 完成初始化项目配置 ");
+	consola.box(res);
 
 	return res;
 }
@@ -179,3 +218,8 @@ export const config: Config = {
 		// },
 	],
 };
+
+/** 项目内的vercel配置 */
+export function getConfig() {
+	return config;
+}

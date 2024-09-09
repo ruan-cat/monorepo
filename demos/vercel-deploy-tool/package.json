@@ -12,7 +12,8 @@
 			"__require": "./dist/index.cjs",
 			"types": "./src/index.ts",
 			"import": "./src/index.ts"
-		}
+		},
+		"./*": "./src/*"
 	},
 	"scripts": {
 		"build": "tsc",
