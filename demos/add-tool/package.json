@@ -1,5 +1,5 @@
 {
-	"name": "add-tool",
+	"name": "@ruan-cat/add-tool",
 	"version": "1.0.0",
 	"description": "",
 	"type": "module",
@@ -10,5 +10,8 @@
 	},
 	"keywords": [],
 	"author": "",
-	"license": "ISC"
+	"license": "ISC",
+	"devDependencies": {
+		"@ruan-cat/vercel-deploy-tool": "workspace:^"
+	}
 }

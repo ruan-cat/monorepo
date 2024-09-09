@@ -10,6 +10,6 @@
 		"start:ts": "node src/index.ts"
 	},
 	"devDependencies": {
-		"add-tool": "workspace:^"
+		"@ruan-cat/add-tool": "workspace:^"
 	}
 }

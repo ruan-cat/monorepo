@@ -1,5 +1,5 @@
 {
-	"name": "@ruancat/vercel-deploy-tool",
+	"name": "@ruan-cat/vercel-deploy-tool",
 	"version": "1.0.0",
 	"description": "阮喵喵打算做一个简单的包，用于实现部署。目前先考虑vercel平台。",
 	"type": "module",
