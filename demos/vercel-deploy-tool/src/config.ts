@@ -155,6 +155,8 @@ async function loadUserConfig() {
 
 	consola.success(" 完成加载用户配置 ");
 	consola.box(config);
+
+	return config;
 }
 
 /**
@@ -173,7 +175,7 @@ export async function initVercelConfig() {
 	const vercelProjectId = currentDotenvConfig!.VERCEL_PROJECT_ID ?? process.env.VERCEL_PROJECT_ID;
 	const vercelToken = currentDotenvConfig!.VERCEL_TOKEN ?? process.env.VERCEL_TOKEN;
 
-	const res: Config = merge(config, userConfig, {
+	const res: Config = merge(userConfig, {
 		vercelOrgId,
 		vercelProjectId,
 		vercelToken,

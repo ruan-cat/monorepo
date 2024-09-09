@@ -2,6 +2,13 @@
 	"name": "@ruan-cat/vercel-deploy-tool",
 	"version": "1.0.0",
 	"description": "阮喵喵打算做一个简单的包，用于实现部署。目前先考虑vercel平台。",
+	"scripts": {
+		"—build-not-use-for-now": "tsc",
+		"start": "node ./dist/index.js",
+		"run": "vite-node ./src/index.ts --files",
+		"test:config": "vite-node ./tests/config.test.ts --files",
+		"test:vitest": "vitest --ui --watch"
+	},
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./src/index.ts",
@@ -14,13 +21,6 @@
 			"import": "./src/index.ts"
 		},
 		"./*": "./src/*"
-	},
-	"scripts": {
-		"—build-not-use-for-now": "tsc",
-		"start": "node ./dist/index.js",
-		"run": "vite-node ./src/index.ts --files",
-		"test:config": "vite-node ./tests/config.test.ts --files",
-		"test:vitest": "vitest --ui --watch"
 	},
 	"keywords": [],
 	"author": "",
