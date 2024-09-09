@@ -85,13 +85,22 @@ function getPromises(tasks: Task[]): ((...args: any) => Promise<any>)[] {
 /**
  * 执行异步函数对象
  */
-export async function executePromiseTasks(config: TasksConfig): Promise<any> {
+export async function executePromiseTasks(
+	config: TasksConfig,
+	/**
+	 * 上一次递归执行时提供的参数
+	 * @description
+	 * 考虑到递归函数 这里提供了一个参数 用于传递上一次递归执行的结果
+	 */
+	lastParams: any = null,
+): Promise<any> {
 	if (isSingleTasks(config)) {
 		if (isSimpleAsyncTask(config.tasks)) {
-			return await config.tasks();
+			// 实际执行的 tasks 往往是无参函数 这里为了保险，故主动传递参数
+			return await config.tasks(lastParams);
 		}
 
-		return await executePromiseTasks(config.tasks);
+		return await executePromiseTasks(config.tasks, lastParams);
 	}
 
 	if (isParallelTasks(config)) {
@@ -99,11 +108,11 @@ export async function executePromiseTasks(config: TasksConfig): Promise<any> {
 			config.tasks.map((task) => {
 				if (isSimpleAsyncTask(task)) {
 					// console.log(` 并行任务遇到单独的异步函数 `);
-					return task();
+					return task(lastParams);
 				}
 
 				// console.log(` 并行任务遇到嵌套结构 `);
-				return executePromiseTasks(task);
+				return executePromiseTasks(task, lastParams);
 			}),
 		);
 	}
@@ -114,10 +123,12 @@ export async function executePromiseTasks(config: TasksConfig): Promise<any> {
 			if (isSimpleAsyncTask(task)) {
 				// console.log(` 串行任务遇到单独的异步函数 `);
 
-				res = await task(res);
+				res = await task(lastParams);
+				lastParams = res;
 				console.log(` 串行任务 单独 res `, res);
 			} else {
-				res = await executePromiseTasks(task);
+				res = await executePromiseTasks(task, lastParams);
+				lastParams = res;
 				console.log(` 串行任务 配置 res `, res);
 			}
 		}
