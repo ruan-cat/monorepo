@@ -179,7 +179,7 @@ const config: Config = {
  *
  * @see https://github.com/amondnet/vercel-action#method-1---via-vercel-interface
  */
-const vercelNullConfig = <const>{
+export const vercelNullConfig = <const>{
 	framework: null,
 	buildCommand: null,
 	installCommand: null,
