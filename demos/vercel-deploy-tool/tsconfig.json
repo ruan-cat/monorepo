@@ -14,9 +14,6 @@
 		// 	"src",
 		// 	"tests"
 		// ],
-		"types": [
-			"node"
-		],
 		"baseUrl": ".",
 		"rootDir": ".",
 		"paths": {
