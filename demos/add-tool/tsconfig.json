@@ -8,9 +8,10 @@
 	"include": [
 		"src"
 	],
-	"references": [
-		{
-			"path": "../../demos/vercel-deploy-tool/tsconfig.json"
-		}
-	]
+	// 经过测试 在typescript的monorepo中，子项目之间不需要项目引用，也能识别其类型声明
+	// "references": [
+	// 	{
+	// 		"path": "../../demos/vercel-deploy-tool/tsconfig.json"
+	// 	}
+	// ]
 }

@@ -1,24 +1,11 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "outDir": "./dist",
-    "rootDir": "src",
-    "strict": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "rootDirs": [
-      "src",
-    ],
-  },
-  "include": [
-    "src"
-  ],
-  "references": [
-    {
-      "path": "../add-tool"
-    }
-  ]
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"baseUrl": ".",
+		"rootDir": ".",
+	},
+	"include": [
+		"src"
+	],
 }

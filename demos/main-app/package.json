@@ -5,8 +5,8 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"scripts": {
-		"build": "tsc",
-		"start:js": "node ./dist/index.js",
+		"build": "tsc --build",
+		"start:js": "node ./dist/src/index.js",
 		"start:ts": "node src/index.ts"
 	},
 	"devDependencies": {
