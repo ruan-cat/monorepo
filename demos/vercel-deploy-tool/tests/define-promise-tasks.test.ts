@@ -294,9 +294,57 @@ const depolyTask_1: Task = {
 		}),
 };
 
+/** 部署任务 */
+const depolyTask_2: Task = {
+	type: "parallel",
+	tasks: Array(2)
+		.fill(1)
+		.map((item, indx) => {
+			return {
+				type: "queue",
+				tasks: [
+					// 部署生成url
+					generateSimpleAsyncTask(async () => {
+						console.log(` 开始部署 `);
+						await wait(1000);
+						console.log(` 部署成功 `);
+						return `https://notes-${indx + 1}.ruan-cat.com`;
+					}),
+
+					generateSimpleAsyncTask(async (vercelUrlFormLast: string) => {
+						consola.log(` 准备生成别名任务，检查上一个任务是否传递了生成的URL `, vercelUrlFormLast);
+
+						const aliasTasks = generateArray({
+							length: 2,
+							content: generateSimpleAsyncTask(async (vercelUrl: string = vercelUrlFormLast) => {
+								console.log(` notes-${indx + 1} 别名任务得到参数 `, vercelUrl);
+								await wait(500);
+								console.log(` 链接成功 `);
+							}),
+						});
+
+						// return {
+						// 	type: "parallel",
+						// 	tasks: aliasTasks,
+						// };
+						return await executePromiseTasks({
+							type: "parallel",
+							tasks: aliasTasks,
+						});
+					}),
+				],
+			};
+		}),
+};
+
 const promiseTasksConfig4 = definePromiseTasks({
 	type: "queue",
 	tasks: [linkTask, buildTask, userTask, depolyTask_1],
 });
 
-await executePromiseTasks(promiseTasksConfig4);
+const promiseTasksConfig5 = definePromiseTasks({
+	type: "queue",
+	tasks: [depolyTask_2],
+});
+
+await executePromiseTasks(promiseTasksConfig5);
