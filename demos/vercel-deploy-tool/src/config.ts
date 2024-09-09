@@ -68,7 +68,7 @@ export interface WithUserCommands extends Base {
 /** 部署目标的具体项目配置 */
 export type DeployTarget = Base | WithUserCommands;
 
-/** 项目配置 */
+/** vercel部署工具的配置 */
 export interface Config {
 	/** 项目名称 */
 	vercelProjetName: string;
@@ -182,44 +182,12 @@ export async function initVercelConfig() {
 	consola.success(" 完成初始化项目配置 ");
 	// 显示效果没有那么好看
 	consola.box(res);
-	// console.log(res);
 
 	return res;
 }
 
 /** 项目内的vercel配置 */
-export const config: Config = {
-	vercelProjetName: "vercel-monorepo-test-1-zn20",
-	vercelToken: "",
-	vercelOrgId: "",
-	vercelProjectId: "",
-
-	deployTargets: [
-		{
-			type: "userCommands",
-			targetCWD: "./packages/docs-01-star",
-			url: ["docs-01-star.ruancat6312.top"],
-			outputDirectory: "docs/.vitepress/dist/**/*",
-			userCommands: ["pnpm -C=./packages/docs-01-star build:docs"],
-		},
-
-		// {
-		// 	type: "userCommands",
-		// 	targetCWD: "./packages/monorepo-5",
-		// 	outputDirectory: "src/.vuepress/dist/**/*",
-		// 	url: ["monorepo-5.ruancat6312.top", "monorepo5.ruan-cat.com"],
-		// 	userCommands: ["pnpm -C=./packages/monorepo-5 build:docs"],
-		// },
-
-		// {
-		// 	type: "static",
-		// 	targetCWD: "./demos/gh.HFIProgramming.mikutap",
-		// 	url: ["mikutap.ruancat6312.top"],
-		// 	// 测试类型约束是否到位。
-		// 	// userCommands: ["echo 'mikutap1'", "echo 'mikutap2'", "echo 'mikutap3'"],
-		// },
-	],
-};
+export const config = await initVercelConfig();
 
 /** 项目内的vercel配置 */
 export function getConfig() {

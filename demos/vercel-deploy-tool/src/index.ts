@@ -4,7 +4,15 @@ import { execa } from "execa";
 import { concat } from "lodash-es";
 import { consola } from "consola";
 
-import { initVercelConfig, config, type Config, type Base, type DeployTarget, type WithUserCommands } from "./config";
+import {
+	initVercelConfig,
+	config,
+	getConfig,
+	type Config,
+	type Base,
+	type DeployTarget,
+	type WithUserCommands,
+} from "./config";
 import { generateSimpleAsyncTask } from "./utils/simple-promise-tools";
 import {
 	definePromiseTasks,
@@ -250,7 +258,7 @@ function generateDeployTask(deployTarget: DeployTarget) {
  */
 async function main() {
 	await generateVercelNullConfig();
-	const { deployTargets } = initVercelConfig();
+	const { deployTargets } = getConfig();
 
 	const promiseTasks = definePromiseTasks({
 		type: "queue",

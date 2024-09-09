@@ -16,7 +16,7 @@
 		"./*": "./src/*"
 	},
 	"scripts": {
-		"build": "tsc",
+		"—build-not-use-for-now": "tsc",
 		"start": "node ./dist/index.js",
 		"run": "vite-node ./src/index.ts --files",
 		"test:config": "vite-node ./tests/config.test.ts --files",
