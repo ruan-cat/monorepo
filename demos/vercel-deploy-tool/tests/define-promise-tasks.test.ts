@@ -1,7 +1,14 @@
 import { consola } from "consola";
 import { uniqueId } from "lodash-es";
 
-import { definePromiseTasks, executePromiseTasks } from "../src/utils/define-promise-tasks";
+import {
+	definePromiseTasks,
+	executePromiseTasks,
+	type BaseTask,
+	type ParallelTasks,
+	type QueueTasks,
+	type Task,
+} from "../src/utils/define-promise-tasks";
 import { generateSimpleAsyncTask, wait, testPromises } from "../src/utils/simple-promise-tools";
 
 function generateArray<T>(params: { length: number; content: T }) {
@@ -159,137 +166,137 @@ const promiseTasksConfig3 = definePromiseTasks({
 	tasks: testPromises,
 });
 
-const promiseTasksConfig4 = definePromiseTasks({
-	type: "queue",
+/** 链接任务 */
+const linkTask: Task = {
+	type: "parallel",
+	tasks: generateArray({
+		length: 1,
+		content: generateSimpleAsyncTask(link),
+	}),
+};
+
+/** 打包任务 */
+const buildTask: Task = {
+	type: "parallel",
+	tasks: generateArray({
+		length: 1,
+		content: generateSimpleAsyncTask(async () => {
+			console.log(` 开始build `);
+			await wait(100);
+			console.log(` 完成build `);
+		}),
+	}),
+};
+
+/** 用户任务 */
+const userTask: Task = {
+	type: "parallel",
 	tasks: [
-		// 链接任务
 		{
-			type: "parallel",
-			tasks: generateArray({
-				length: 1,
-				content: generateSimpleAsyncTask(link),
-			}),
-		},
-
-		// 打包任务
-		{
-			type: "parallel",
-			tasks: generateArray({
-				length: 1,
-				content: generateSimpleAsyncTask(async () => {
-					console.log(` 开始build `);
-					await wait(100);
-					console.log(` 完成build `);
-				}),
-			}),
-		},
-
-		// 用户任务
-		{
-			type: "parallel",
+			type: "queue",
 			tasks: [
+				generateSimpleAsyncTask(() => {
+					consola.warn(" 当前目标不属于需要执行一系列用户自定义命令。 ");
+				}),
+			],
+		},
+
+		{
+			type: "queue",
+			tasks: [
+				// 用户命令
 				{
 					type: "queue",
 					tasks: [
-						generateSimpleAsyncTask(() => {
-							consola.warn(" 当前目标不属于需要执行一系列用户自定义命令。 ");
+						generateSimpleAsyncTask(async () => {
+							console.log(` 开始构建 `);
+							await wait(1000);
+							console.log(` 完成1秒的构建 `);
+							return 1;
+						}),
+
+						generateSimpleAsyncTask(async () => {
+							console.log(` 开始用户命令2 `);
+							await wait(100);
+							console.log(` 完成用户命令2 `);
+							return 2;
 						}),
 					],
 				},
 
+				// 移动任务
 				{
 					type: "queue",
 					tasks: [
-						// 用户命令
-						{
-							type: "queue",
-							tasks: [
-								generateSimpleAsyncTask(async () => {
-									console.log(` 开始构建 `);
-									await wait(1000);
-									console.log(` 完成1秒的构建 `);
-									return 1;
-								}),
-
-								generateSimpleAsyncTask(async () => {
-									console.log(` 开始用户命令2 `);
-									await wait(100);
-									console.log(` 完成用户命令2 `);
-									return 2;
-								}),
-							],
-						},
-
-						// 移动任务
-						{
-							type: "queue",
-							tasks: [
-								generateSimpleAsyncTask(async () => {
-									console.log(` 删除 `);
-									await wait(50);
-								}),
-								generateSimpleAsyncTask(async () => {
-									console.log(` 新建 `);
-									await wait(50);
-								}),
-								generateSimpleAsyncTask(async () => {
-									console.log(` 移动 `);
-									await wait(50);
-								}),
-								generateSimpleAsyncTask(async () => {
-									console.log(` 打印 `);
-									await wait(50);
-								}),
-							],
-						},
+						generateSimpleAsyncTask(async () => {
+							console.log(` 删除 `);
+							await wait(50);
+						}),
+						generateSimpleAsyncTask(async () => {
+							console.log(` 新建 `);
+							await wait(50);
+						}),
+						generateSimpleAsyncTask(async () => {
+							console.log(` 移动 `);
+							await wait(50);
+						}),
+						generateSimpleAsyncTask(async () => {
+							console.log(` 打印 `);
+							await wait(50);
+						}),
 					],
 				},
 			],
 		},
-
-		// 部署任务
-		{
-			type: "parallel",
-			tasks: Array(1)
-				.fill(1)
-				.map((item) => {
-					return {
-						type: "queue",
-						tasks: [
-							// 部署生成url
-							generateSimpleAsyncTask(async () => {
-								console.log(` 开始部署 `);
-								await wait(1000);
-								console.log(` 部署成功 `);
-								return "https://notes.ruan-cat.com";
-							}),
-
-							generateSimpleAsyncTask(async (vercelUrlFormLast: string) => {
-								consola.log(` 准备生成别名任务，检查上一个任务是否传递了生成的URL `, vercelUrlFormLast);
-
-								const aliasTasks = generateArray({
-									length: 4,
-									content: generateSimpleAsyncTask(async (vercelUrl: string = vercelUrlFormLast) => {
-										console.log(` 别名任务得到参数 `, vercelUrl);
-										await wait(500);
-										console.log(` 链接成功 `);
-									}),
-								});
-
-								// return {
-								// 	type: "parallel",
-								// 	tasks: aliasTasks,
-								// };
-								return await executePromiseTasks({
-									type: "parallel",
-									tasks: aliasTasks,
-								});
-							}),
-						],
-					};
-				}),
-		},
 	],
+};
+
+/** 部署任务 */
+const depolyTask_1: Task = {
+	type: "parallel",
+	tasks: Array(1)
+		.fill(1)
+		.map((item) => {
+			return {
+				type: "queue",
+				tasks: [
+					// 部署生成url
+					generateSimpleAsyncTask(async () => {
+						console.log(` 开始部署 `);
+						await wait(1000);
+						console.log(` 部署成功 `);
+						return "https://notes.ruan-cat.com";
+					}),
+
+					generateSimpleAsyncTask(async (vercelUrlFormLast: string) => {
+						consola.log(` 准备生成别名任务，检查上一个任务是否传递了生成的URL `, vercelUrlFormLast);
+
+						const aliasTasks = generateArray({
+							length: 4,
+							content: generateSimpleAsyncTask(async (vercelUrl: string = vercelUrlFormLast) => {
+								console.log(` 别名任务得到参数 `, vercelUrl);
+								await wait(500);
+								console.log(` 链接成功 `);
+							}),
+						});
+
+						// return {
+						// 	type: "parallel",
+						// 	tasks: aliasTasks,
+						// };
+						return await executePromiseTasks({
+							type: "parallel",
+							tasks: aliasTasks,
+						});
+					}),
+				],
+			};
+		}),
+};
+
+const promiseTasksConfig4 = definePromiseTasks({
+	type: "queue",
+	tasks: [linkTask, buildTask, userTask, depolyTask_1],
 });
 
 await executePromiseTasks(promiseTasksConfig4);
