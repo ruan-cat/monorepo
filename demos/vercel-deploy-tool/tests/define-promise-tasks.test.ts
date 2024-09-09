@@ -297,7 +297,7 @@ const depolyTask_1: Task = {
 /** 部署任务 */
 const depolyTask_2: Task = {
 	type: "parallel",
-	tasks: Array(2)
+	tasks: Array(3)
 		.fill(1)
 		.map((item, indx) => {
 			return {
@@ -316,7 +316,7 @@ const depolyTask_2: Task = {
 
 						const aliasTasks = generateArray({
 							length: 2,
-							content: generateSimpleAsyncTask(async (vercelUrl: string = vercelUrlFormLast) => {
+							content: generateSimpleAsyncTask(async (vercelUrl: string) => {
 								console.log(` notes-${indx + 1} 别名任务得到参数 `, vercelUrl);
 								await wait(500);
 								console.log(` 链接成功 `);
@@ -327,10 +327,13 @@ const depolyTask_2: Task = {
 						// 	type: "parallel",
 						// 	tasks: aliasTasks,
 						// };
-						return await executePromiseTasks({
-							type: "parallel",
-							tasks: aliasTasks,
-						});
+						return await executePromiseTasks(
+							{
+								type: "parallel",
+								tasks: aliasTasks,
+							},
+							vercelUrlFormLast,
+						);
 					}),
 				],
 			};
