@@ -365,7 +365,7 @@ async function main() {
 										const { stdout, command } = await alias();
 										consola.success(` 执行了： ${command} `);
 										consola.success(` 完成别名任务 可用的别名地址为 \n`);
-										consola.box(userUrl);
+										consola.box(`htts://${userUrl}`);
 									});
 								}),
 							},
