@@ -19,7 +19,8 @@
 		"build": "tsc",
 		"start": "node ./dist/index.js",
 		"run": "vite-node ./src/index.ts --files",
-		"test": "vitest --ui --watch"
+		"test:config": "vite-node ./tests/config.test.ts --files",
+		"test:vitest": "vitest --ui --watch"
 	},
 	"keywords": [],
 	"author": "",

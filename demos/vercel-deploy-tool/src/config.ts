@@ -180,7 +180,9 @@ export async function initVercelConfig() {
 	} satisfies Partial<Config>);
 
 	consola.success(" 完成初始化项目配置 ");
+	// 显示效果没有那么好看
 	consola.box(res);
+	// console.log(res);
 
 	return res;
 }
