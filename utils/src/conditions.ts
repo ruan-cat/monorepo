@@ -1,4 +1,4 @@
-type Conditions = Array<(...args: unknown[]) => boolean>;
+export type Conditions = Array<(...args: unknown[]) => boolean>;
 
 /**
  * 是否每一个条件函数都满足？
