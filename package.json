@@ -32,6 +32,7 @@
 		"turbo:copy-dist": "turbo copy-dist",
 		"on-github-action-flow": "turbo eci:b copy-dist",
 		"changeset:init": "changeset init",
+		"changeset:add": "changeset add",
 		"changeset:version": "changeset version",
 		"changeset:publish": "changeset publish",
 		"test:vercel-tool": "vite-node ./demos/vercel-deploy-tool/src/index.ts --files"
