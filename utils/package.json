@@ -1,5 +1,5 @@
 {
-	"name": "@ruan-cat-vercel-monorepo-test/utils",
+	"name": "@ruan-cat/utils",
 	"version": "0.0.1",
 	"description": "工具集合，预期是一个纯ts库，提供ts类型和ts的函数",
 	"private": true,
@@ -18,10 +18,14 @@
 			"_default": "./src/index.ts",
 			"import": "./src/index.ts",
 			"types": "./src/index.ts"
-		}
+		},
+		"./*": "./src/*"
 	},
 	"keywords": [],
 	"author": "ruan-cat",
+	"publishConfig": {
+		"access": "public"
+	},
 	"files": [
 		"src",
 		"tsconfig.json"
