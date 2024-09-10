@@ -7,7 +7,7 @@
 	"_main": "./src/index.ts",
 	"_types": "./src/index.ts",
 	"_module": "./src",
-	"main": "./src",
+	"main": "./src/index.ts",
 	"types": "./src/index.ts",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -24,7 +24,9 @@
 	"keywords": [],
 	"author": "ruan-cat",
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
 	},
 	"files": [
 		"src",
