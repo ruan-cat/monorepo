@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/utils",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"description": "工具集合，预期是一个纯ts库，提供ts类型和ts的函数",
 	"private": true,
 	"type": "module",
