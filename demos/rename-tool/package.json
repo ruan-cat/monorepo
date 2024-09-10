@@ -1,5 +1,6 @@
 {
 	"name": "rename-tool",
+	"private": true,
 	"version": "0.0.1",
 	"description": "",
 	"main": "",

@@ -5,6 +5,7 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./src/index.ts",
+	"private": true,
 	"exports": {
 		".": {
 			"__types": "./dist/index.d.ts",

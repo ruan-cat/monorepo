@@ -1,5 +1,6 @@
 {
 	"name": "@ruan-cat-vercel-monorepo-test/docs-01-star",
+	"private": true,
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",

@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat-vercel-monorepo-test/vuepress-preset-config",
-	"private": false,
+	"private": true,
 	"version": "0.1.0",
 	"description": "用于给大多数的vuepress项目提供一个预设的配置文件",
 	"author": "ruan-cat",

@@ -1,5 +1,6 @@
 {
 	"name": "@ruan-cat-vercel-monorepo-test/monorepo-3",
+	"private": true,
 	"version": "2.0.0",
 	"description": "monorepo-3",
 	"license": "MIT",

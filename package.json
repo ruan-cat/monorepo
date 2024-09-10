@@ -1,11 +1,11 @@
 {
 	"name": "@ruan-cat-vercel-monorepo-test/root",
+	"private": true,
 	"version": "1.0.0",
 	"author": "ruan-cat",
 	"license": "ISC",
 	"description": "这是单仓架构项目的根目录。",
 	"main": "index.js",
-	"private": true,
 	"type": "module",
 	"packageManager": "pnpm@9.5.0",
 	"engines": {

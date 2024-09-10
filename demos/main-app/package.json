@@ -1,5 +1,6 @@
 {
 	"name": "main-app",
+	"private": true,
 	"version": "1.0.0",
 	"description": "Main application",
 	"type": "module",
