@@ -11,8 +11,9 @@
 	"scripts": {
 		"typedoc": "typedoc",
 		"clean:type": "rimraf ./dist",
-		"generate:type": "vue-tsc -p=tsconfig.src.json --composite=false --declaration=true --emitDeclarationOnly=true",
-		"get-type": "pnpm clean:type && pnpm generate:type"
+		"generate:type-1": "vue-tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
+		"generate:type-2": "tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
+		"get-type": "pnpm clean:type && pnpm generate:type-1"
 	},
 	"exports": {
 		".": {
