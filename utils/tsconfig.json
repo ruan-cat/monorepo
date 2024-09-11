@@ -1,12 +1,22 @@
 {
 	"compilerOptions": {
 		"declaration": true,
+		"allowImportingTsExtensions": true,
 		"emitDeclarationOnly": true,
 		"outDir": "types",
-		"checkJs": true
+		"checkJs": true,
+		"module": "nodenext",
+		"target": "ESNext",
+		"moduleResolution": "NodeNext",
+		"types": [
+			"typedoc",
+			"typedoc-plugin-markdown"
+		]
 	},
 	"include": [
-		"typedoc.config.cjs"
+		"src/**/*.ts",
 	],
-	"exclude": []
+	"exclude": [
+		"typedoc.config.cjs"
+	]
 }

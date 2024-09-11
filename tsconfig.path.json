@@ -19,11 +19,6 @@
 			// "utils/*": [
 			// 	"./utils/src"
 			// ],
-			// 提供两种路径 该路径直接使用根目录下整合好的入口
-			"utils": [
-				"./utils/src/index.ts"
-				// "./utils/src/*"
-			],
 		}
 	},
 	"include": [

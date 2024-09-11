@@ -4,7 +4,7 @@ module.exports = {
 	// 指定项目的入口点
 	entryPoints: ["./src/index.ts"],
 	// 指定输出目录
-	out: "docs",
+	out: ".typedoc",
 	// 使用 Markdown 插件
 	plugin: ["typedoc-plugin-markdown"],
 	// 排除不需要生成文档的目录
