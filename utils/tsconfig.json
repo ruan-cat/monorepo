@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"outDir": "types",
+		"checkJs": true
+	},
+	"include": [
+		"typedoc.config.cjs"
+	],
+	"exclude": []
+}
