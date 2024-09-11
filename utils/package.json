@@ -13,7 +13,8 @@
 		"clean:type": "rimraf ./dist",
 		"generate:type-1": "vue-tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
 		"generate:type-2": "tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
-		"get-type": "pnpm clean:type && pnpm generate:type-1"
+		"generate:type-3": "vue-tsc -p tsconfig.types.json",
+		"get-type": "pnpm clean:type && pnpm generate:type-3"
 	},
 	"exports": {
 		".": {
