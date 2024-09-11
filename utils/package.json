@@ -9,7 +9,10 @@
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
 	"scripts": {
-		"typedoc": "typedoc"
+		"typedoc": "typedoc",
+		"clean:type": "rimraf ./dist",
+		"generate.types": "vue-tsc -p=tsconfig.src.json --composite=false --declaration=true --emitDeclarationOnly=true",
+		"get-type": "pnpm clean:type && pnpm generate.types"
 	},
 	"exports": {
 		".": {

@@ -1,13 +1,30 @@
 {
 	"compilerOptions": {
+		"composite": true,
+		// 项目的根目录
+		"rootDir": ".",
+		// 项目基础目录
+		"baseUrl": ".",
 		"declaration": true,
 		"allowImportingTsExtensions": true,
 		"emitDeclarationOnly": true,
-		"outDir": "types",
+		// tsc 编译产物输出目录
+		"outDir": "dist",
 		"checkJs": true,
 		"module": "nodenext",
 		"target": "ESNext",
+		// 模块解析策略
 		"moduleResolution": "NodeNext",
+		// 是否生成辅助 debug 的 .map.js 文件。 
+		"sourceMap": false,
+		// 产物不消除注释
+		"removeComments": false,
+		// 严格模式类型检查，建议开启
+		"strict": true,
+		// 允许引入 .json 模块
+		"resolveJsonModule": true,
+		// 检查类型时是否跳过类型声明文件，一般在上游依赖存在类型问题时置为 true。
+		"skipLibCheck": true,
 		"types": [
 			"typedoc",
 			"typedoc-plugin-markdown"
