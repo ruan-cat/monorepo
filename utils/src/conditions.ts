@@ -1,4 +1,7 @@
-export type Conditions = Array<(...args: unknown[]) => boolean>;
+export type Condition = (...args: unknown[]) => boolean;
+
+/** @deprecated 没必要 */
+export type Conditions = Condition[];
 
 /**
  * 是否每一个条件函数都满足？
@@ -14,10 +17,10 @@ export type Conditions = Array<(...args: unknown[]) => boolean>;
  * conditions.every((condition) => condition())
  * ```
  */
-export function isConditionsEvery(conditions: Conditions) {
+export function isConditionsEvery(conditions: Condition[]) {
 	return conditions.every((condition) => condition());
 }
 
-export function isConditionsSome(conditions: Conditions) {
+export function isConditionsSome(conditions: Condition[]) {
 	return conditions.some((condition) => condition());
 }

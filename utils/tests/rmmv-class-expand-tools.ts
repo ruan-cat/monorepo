@@ -1,9 +1,20 @@
+import { isConditionsEvery } from "../src/index.ts";
+
 interface RmmvClass {
+	// abstract
 	initialize: (...args: any[]) => void;
 }
 
 type FunctionKeys<T> = {
 	[K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
+}[keyof T];
+
+type UndefineAbleFunction = undefined | ((...args: any[]) => any);
+
+type IsUndefineAbleFunction<T> = T extends UndefineAbleFunction ? true : false;
+
+type UndefineAbleFunctionKeys<T> = {
+	[K in keyof T]: T[K] extends IsUndefineAbleFunction<T> ? K : never;
 }[keyof T];
 
 function SimpleBaseClass() {
@@ -30,24 +41,60 @@ interface SimpleBaseClass extends RmmvClass {
 	handleData: () => void;
 }
 
-const SimpleExpandClass = {
+function ExpandClass1() {
+	// @ts-ignore
+	this.initialize.apply(this, arguments);
+}
+ExpandClass1.prototype = Object.create(SimpleBaseClass.prototype);
+ExpandClass1.prototype.constructor = ExpandClass1;
+ExpandClass1.prototype.initialize = function () {
+	SimpleBaseClass.prototype.initialize.call(this);
+	this.expandClass1_value = "expandClass1_value";
+};
+ExpandClass1.prototype.showValue = function () {
+	console.log(` expandClass1_value `, this.expandClass1_value);
+};
+ExpandClass1.prototype.isExpandClass1 = function () {
+	return true;
+};
+
+interface ExpandClass1 extends SimpleBaseClass {
+	initialize: (...args: any[]) => void;
+	expandClass1_value: string;
+	showValue(): void;
+	isExpandClass1(): true;
+}
+
+/** 属性提示工具 */
+type AttributePromptTool<SourceCode extends RmmvClass, UserCode> = Partial<SourceCode> & UserCode;
+
+type UserCodeClassAttributeType = {
+	counter: number;
+	sayFuck: () => void;
+	isUserCodeClass(): true;
+};
+
+const userCodeClass: AttributePromptTool<ExpandClass1, UserCodeClassAttributeType> = {
 	counter: 1,
 
 	initialize(counter: number) {
 		this.counter = counter;
 	},
 
-	// getValue() {
-	// 	return this._value;
-	// },
-
 	handleData() {
 		this.counter++;
 	},
+
+	sayFuck() {
+		console.log(` SimpleExpandClass fuck `);
+	},
+
+	isUserCodeClass() {
+		return true;
+	},
 };
 
-// 获取 SimpleExpandClass 的全部函数名
-// type SimpleExpandClassFunctionKeys = FunctionKeys<typeof SimpleExpandClass>;
+type UserCodeClass = typeof userCodeClass;
 
 /**
  * 默认处理策略
@@ -85,11 +132,15 @@ type HandleStrategy = (typeof handleStrategy)[number];
  */
 type defaultHandleStrategy_FuncationName = FunctionKeys<RmmvClass>;
 
-/** 没有初始化函数的全部函数名 */
-type FunctionKeysWithoutInitialize<T> = Exclude<FunctionKeys<T>, defaultHandleStrategy_FuncationName>;
+/** 没有初始化函数的，函数可能不存在的（包含父类函数名的）全部函数名 */
+type FunctionKeys_NoInit_UndefineAble<T> = Exclude<UndefineAbleFunctionKeys<T>, defaultHandleStrategy_FuncationName>;
 
-/** 全部有意义函数的 处理策略配置 */
-type HandleStrategyConfig<T> = Record<FunctionKeysWithoutInitialize<T>, HandleStrategy>;
+/**
+ * 全部有意义函数的 处理策略配置
+ * @description
+ * 只有可能去覆盖，拓展的函数名，才值得去配置
+ */
+type HandleStrategyConfig<T> = Record<FunctionKeys_NoInit_UndefineAble<T>, HandleStrategy>;
 
 /** rmmv类拓展工具函数配置 */
 type RmmvClassExpandTools<SourceCode extends RmmvClass, UserCode> = {
@@ -111,6 +162,27 @@ type RmmvClassExpandTools<SourceCode extends RmmvClass, UserCode> = {
 function rmmvClassExpandTools<SourceCode extends RmmvClass, UserCode = any>(
 	params: RmmvClassExpandTools<SourceCode, UserCode>,
 ) {
+	const { source, userCode, config } = params;
+	const handleStrategyConfig = config;
+	const userCodeKeys = Object.keys(userCode as object) as FunctionKeys_NoInit_UndefineAble<UserCode>[];
+
+	function getHandleStrategy(key: FunctionKeys_NoInit_UndefineAble<UserCode>): HandleStrategy {
+		return handleStrategyConfig?.[key] ?? defaultHandleStrategy;
+	}
+
+	// TODO: 遍历userCode的全部键名，根据不同的情况，做出处理
+
+	// userCodeKeys.forEach((key) => {
+	// 	const handleStrategy = getHandleStrategy(key);
+	// 	if (
+	// 		isConditionsEvery([
+	// 			() => handleStrategy === "source-first",
+	// 			// () => Object.getOwnPropertyNames
+	// 		])
+	// 	) {
+	// 	}
+	// });
+
 	// const { source, userCode, config } = params;
 	// const handleStrategyConfig = {
 	// 	...config,
@@ -141,9 +213,10 @@ function rmmvClassExpandTools<SourceCode extends RmmvClass, UserCode = any>(
 }
 
 rmmvClassExpandTools({
-	source: SimpleBaseClass as unknown as SimpleBaseClass,
-	userCode: SimpleExpandClass,
+	source: ExpandClass1 as unknown as ExpandClass1,
+	userCode: userCodeClass,
 	config: {
-		handleData: "userCode-first",
+		// initialize: "userCode-cover-source",
+		// handleData: "userCode-first",
 	},
 });
