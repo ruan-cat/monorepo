@@ -130,7 +130,7 @@ type HandleStrategy = (typeof handleStrategy)[number];
  * @description
  * 初始化函数默认使用固定的处理策略。
  */
-type defaultHandleStrategy_FuncationName = FunctionKeys<RmmvClass>;
+export type defaultHandleStrategy_FuncationName = FunctionKeys<RmmvClass>;
 
 /** 没有初始化函数的，函数可能不存在的（包含父类函数名的）全部函数名 */
 type FunctionKeys_NoInit_UndefineAble<T> = Exclude<UndefineAbleFunctionKeys<T>, defaultHandleStrategy_FuncationName>;
