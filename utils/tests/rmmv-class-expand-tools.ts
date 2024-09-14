@@ -220,14 +220,3 @@ rmmvClassExpandTools({
 		// handleData: "userCode-first",
 	},
 });
-
-type test = {
-	a: 1;
-	b: number;
-	c?: string;
-	init?: undefined | (() => void);
-	isBase?: undefined | (() => boolean);
-	isE1?: undefined | (() => boolean);
-	fuck: () => string;
-	isFuck: () => true;
-};
