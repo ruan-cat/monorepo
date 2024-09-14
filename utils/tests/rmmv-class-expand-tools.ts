@@ -1,21 +1,20 @@
-import { isConditionsEvery } from "../src/index.ts";
+import type { OptionalKeysOf } from "type-fest";
+import { isConditionsEvery, type Prettify } from "../src/index.ts";
 
 interface RmmvClass {
 	// abstract
 	initialize: (...args: any[]) => void;
 }
 
-type FunctionKeys<T> = {
+export type FunctionKeys<T> = {
 	[K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
 }[keyof T];
 
-type UndefineAbleFunction = undefined | ((...args: any[]) => any);
-
-type IsUndefineAbleFunction<T> = T extends UndefineAbleFunction ? true : false;
-
-type UndefineAbleFunctionKeys<T> = {
-	[K in keyof T]: T[K] extends IsUndefineAbleFunction<T> ? K : never;
-}[keyof T];
+// type UndefineAbleFunction = undefined | ((...args: any[]) => any);
+// type IsUndefineAbleFunction<T> = T extends UndefineAbleFunction ? true : false;
+// type UndefineAbleFunctionKeys<T> = {
+// 	[K in keyof T]: T[K] extends IsUndefineAbleFunction<T> ? K : never;
+// }[keyof T];
 
 function SimpleBaseClass() {
 	// @ts-ignore
@@ -34,11 +33,16 @@ SimpleBaseClass.prototype.handleData = function () {
 	this._value++;
 };
 
+SimpleBaseClass.prototype.IamSimpleBaseClass = function () {
+	console.log(` 我是IamSimpleBaseClass `);
+};
+
 interface SimpleBaseClass extends RmmvClass {
 	initialize: (...args: any[]) => void;
 	_value: number;
 	getValue: () => number;
 	handleData: () => void;
+	IamSimpleBaseClass: () => void;
 }
 
 function ExpandClass1() {
@@ -74,7 +78,9 @@ type UserCodeClassAttributeType = {
 	isUserCodeClass(): true;
 };
 
-const userCodeClass: AttributePromptTool<ExpandClass1, UserCodeClassAttributeType> = {
+type UserCodeClassPrompt = AttributePromptTool<ExpandClass1, UserCodeClassAttributeType>;
+
+const userCodeClass: UserCodeClassPrompt = {
 	counter: 1,
 
 	initialize(counter: number) {
@@ -94,7 +100,7 @@ const userCodeClass: AttributePromptTool<ExpandClass1, UserCodeClassAttributeTyp
 	},
 };
 
-type UserCodeClass = typeof userCodeClass;
+// type UserCodeClass = UserCodeClassPrompt;
 
 /**
  * 默认处理策略
@@ -132,18 +138,33 @@ type HandleStrategy = (typeof handleStrategy)[number];
  */
 export type defaultHandleStrategy_FuncationName = FunctionKeys<RmmvClass>;
 
-/** 没有初始化函数的，函数可能不存在的（包含父类函数名的）全部函数名 */
-type FunctionKeys_NoInit_UndefineAble<T> = Exclude<UndefineAbleFunctionKeys<T>, defaultHandleStrategy_FuncationName>;
+// type FunctionKeys_noInit<T>  =
+
+/** 全部可选字段组成的对象 且该对象的全部字段必填 */
+type AllOptionalFieldObj<T extends object> = Required<Pick<T, OptionalKeysOf<T>>>;
+
+/** 给一个对象排除 init 字段 */
+type NoInit<T> = Omit<T, defaultHandleStrategy_FuncationName>;
+
+type AllOptionalFieldObj_noInit<T extends object> = NoInit<AllOptionalFieldObj<T>>;
+
+/** 处理策略配置的 全部有意义的配置键名 */
+type HandleStrategyConfigKeys<T extends object> = FunctionKeys<AllOptionalFieldObj_noInit<T>>;
 
 /**
  * 全部有意义函数的 处理策略配置
  * @description
  * 只有可能去覆盖，拓展的函数名，才值得去配置
  */
-type HandleStrategyConfig<T> = Record<FunctionKeys_NoInit_UndefineAble<T>, HandleStrategy>;
+type HandleStrategyConfig<T extends object> = Record<HandleStrategyConfigKeys<T>, HandleStrategy>;
+
+// 通过测试
+// type a1 = Prettify<UserCodeClassPrompt>;
+// type a1 = Prettify<UserCodeClass>;
+// type a2 = Prettify<HandleStrategyConfig<a1>>;
 
 /** rmmv类拓展工具函数配置 */
-type RmmvClassExpandTools<SourceCode extends RmmvClass, UserCode> = {
+type RmmvClassExpandTools<SourceCode extends RmmvClass, UserCode extends object> = {
 	/** 源码 一般是被拓展的类，往往是rmmv的源码类 */
 	source: SourceCode;
 
@@ -159,7 +180,7 @@ type RmmvClassExpandTools<SourceCode extends RmmvClass, UserCode> = {
 };
 
 /** rmmv类拓展工具函数 */
-function rmmvClassExpandTools<SourceCode extends RmmvClass, UserCode = any>(
+function rmmvClassExpandTools<SourceCode extends RmmvClass, UserCode extends object = any>(
 	params: RmmvClassExpandTools<SourceCode, UserCode>,
 ) {
 	const { source, userCode, config } = params;
