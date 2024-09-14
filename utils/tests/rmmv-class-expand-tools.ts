@@ -1,5 +1,6 @@
 import type { OptionalKeysOf } from "type-fest";
 import { isConditionsEvery, type Prettify } from "../src/index.ts";
+import { forIn, hasIn } from "lodash-es";
 
 interface RmmvClass {
 	// abstract
@@ -69,9 +70,6 @@ interface ExpandClass1 extends SimpleBaseClass {
 	isExpandClass1(): true;
 }
 
-/**
- * 属性提示工具
- */
 // type AttributePromptTool<SourceCode extends RmmvClass, UserCode> = Partial<SourceCode> & UserCode;
 // type AttributePromptTool<SourceCode extends RmmvClass> = Partial<SourceCode> & {
 // 	[k: string]: any;
@@ -80,7 +78,20 @@ interface ExpandClass1 extends SimpleBaseClass {
 // 	[k: string]: any;
 // };
 type WithThisType<T> = ThisType<T> & T;
-type AttributePromptTool<SourceCode extends RmmvClass, UserCode> = WithThisType<Partial<SourceCode> & UserCode>;
+
+/**
+ * 属性提示工具
+ * @description
+ * 对继承的类进行属性提示
+ *
+ * 对自己新增的属性和函数做属性提示
+ *
+ * 对全部涉及到的函数，其this全部做判定
+ */
+type AttributePromptTool<SourceCode extends RmmvClass, UserCode> = ThisType<SourceCode & UserCode> &
+	Partial<SourceCode> &
+	UserCode;
+// WithThisType<Partial<SourceCode> & UserCode>;
 // & {
 // 	[k: string]: any;
 // };
@@ -182,7 +193,7 @@ type HandleStrategyConfig<T extends object> = Record<HandleStrategyConfigKeys<T>
 // type a2 = Prettify<HandleStrategyConfig<a1>>;
 
 /** rmmv类拓展工具函数配置 */
-type RmmvClassExpandTools<SourceCode extends RmmvClass, UserCode extends object> = {
+type RmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvClass, UserCode extends object> = {
 	/** 源码 一般是被拓展的类，往往是rmmv的源码类 */
 	source: SourceCode;
 
@@ -198,7 +209,7 @@ type RmmvClassExpandTools<SourceCode extends RmmvClass, UserCode extends object>
 };
 
 /** rmmv类拓展工具函数 */
-function rmmvClassExpandTools<SourceCode extends RmmvClass, UserCode extends object = any>(
+function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvClass, UserCode extends object = any>(
 	params: RmmvClassExpandTools<SourceCode, UserCode>,
 ) {
 	const { source, userCode, config } = params;
@@ -210,6 +221,31 @@ function rmmvClassExpandTools<SourceCode extends RmmvClass, UserCode extends obj
 	// }
 
 	// TODO: 遍历userCode的全部键名，根据不同的情况，做出处理
+
+	/** 源对象的原型链 */
+	const sourcePrototype = source.prototype;
+
+	/** 属性是否在源对象的原型链内？ */
+	function isInSourcePrototype(key: string) {
+		return hasIn(sourcePrototype, key);
+	}
+
+	// 可以遍历原型
+	forIn(sourcePrototype, function (value, key, object) {
+		console.log(`in source value, key, object  `, value, key);
+		// Object.hasOwn
+		// 遍历原型链上的属性
+		if (isInSourcePrototype(key)) {
+			console.log(` 有这个变量 `, key, object[key]);
+		}
+	});
+
+	forIn(userCode, function (value, key, object) {
+		console.log(` value, key, object  `, value, key);
+		// 实现判断与处理
+		// if(   ){
+		// }
+	});
 
 	// userCodeKeys.forEach((key) => {
 	// 	const handleStrategy = getHandleStrategy(key);
@@ -252,7 +288,8 @@ function rmmvClassExpandTools<SourceCode extends RmmvClass, UserCode extends obj
 }
 
 rmmvClassExpandTools({
-	source: ExpandClass1 as unknown as ExpandClass1,
+	// source: ExpandClass1 as unknown as ExpandClass1,
+	source: ExpandClass1 as unknown as new (...args: any[]) => RmmvClass,
 	userCode: userCodeClass,
 	config: {
 		// initialize: "userCode-cover-source",
