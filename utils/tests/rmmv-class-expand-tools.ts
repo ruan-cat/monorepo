@@ -69,19 +69,37 @@ interface ExpandClass1 extends SimpleBaseClass {
 	isExpandClass1(): true;
 }
 
-/** 属性提示工具 */
-type AttributePromptTool<SourceCode extends RmmvClass, UserCode> = Partial<SourceCode> & UserCode;
+/**
+ * 属性提示工具
+ */
+// type AttributePromptTool<SourceCode extends RmmvClass, UserCode> = Partial<SourceCode> & UserCode;
+// type AttributePromptTool<SourceCode extends RmmvClass> = Partial<SourceCode> & {
+// 	[k: string]: any;
+// };
+// type AttributePromptTool<SourceCode extends RmmvClass> = ThisType<Partial<SourceCode>> & {
+// 	[k: string]: any;
+// };
+type WithThisType<T> = ThisType<T> & T;
+type AttributePromptTool<SourceCode extends RmmvClass, UserCode> = WithThisType<Partial<SourceCode> & UserCode>;
+// & {
+// 	[k: string]: any;
+// };
 
 type UserCodeClassAttributeType = {
 	counter: number;
+	drillCalendar: string[];
 	sayFuck: () => void;
 	isUserCodeClass(): true;
+	getDrillCalendar(): string[];
 };
 
 type UserCodeClassPrompt = AttributePromptTool<ExpandClass1, UserCodeClassAttributeType>;
 
+type a1 = Prettify<UserCodeClassPrompt>;
+
 const userCodeClass: UserCodeClassPrompt = {
 	counter: 1,
+	drillCalendar: ["上午写插件", "中午玩黑神话", "晚上玩魔兽", "午夜看萝莉番剧"],
 
 	initialize(counter: number) {
 		this.counter = counter;
@@ -98,9 +116,11 @@ const userCodeClass: UserCodeClassPrompt = {
 	isUserCodeClass() {
 		return true;
 	},
-};
 
-// type UserCodeClass = UserCodeClassPrompt;
+	getDrillCalendar() {
+		return this.drillCalendar;
+	},
+};
 
 /**
  * 默认处理策略
@@ -137,8 +157,6 @@ type HandleStrategy = (typeof handleStrategy)[number];
  * 初始化函数默认使用固定的处理策略。
  */
 export type defaultHandleStrategy_FuncationName = FunctionKeys<RmmvClass>;
-
-// type FunctionKeys_noInit<T>  =
 
 /** 全部可选字段组成的对象 且该对象的全部字段必填 */
 type AllOptionalFieldObj<T extends object> = Required<Pick<T, OptionalKeysOf<T>>>;
@@ -185,11 +203,11 @@ function rmmvClassExpandTools<SourceCode extends RmmvClass, UserCode extends obj
 ) {
 	const { source, userCode, config } = params;
 	const handleStrategyConfig = config;
-	const userCodeKeys = Object.keys(userCode as object) as FunctionKeys_NoInit_UndefineAble<UserCode>[];
+	// const userCodeKeys = Object.keys(userCode as object) as FunctionKeys_NoInit_UndefineAble<UserCode>[];
 
-	function getHandleStrategy(key: FunctionKeys_NoInit_UndefineAble<UserCode>): HandleStrategy {
-		return handleStrategyConfig?.[key] ?? defaultHandleStrategy;
-	}
+	// function getHandleStrategy(key: FunctionKeys_NoInit_UndefineAble<UserCode>): HandleStrategy {
+	// 	return handleStrategyConfig?.[key] ?? defaultHandleStrategy;
+	// }
 
 	// TODO: 遍历userCode的全部键名，根据不同的情况，做出处理
 

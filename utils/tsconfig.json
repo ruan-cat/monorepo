@@ -25,6 +25,8 @@
 		"resolveJsonModule": true,
 		// 检查类型时是否跳过类型声明文件，一般在上游依赖存在类型问题时置为 true。
 		"skipLibCheck": true,
+		// 需要使用 ThisType 工具
+		"noImplicitThis": true,
 		"types": [
 			"typedoc",
 			"typedoc-plugin-markdown"
