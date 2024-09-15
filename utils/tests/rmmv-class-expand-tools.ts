@@ -1,6 +1,6 @@
 import type { OptionalKeysOf } from "type-fest";
 import { isConditionsEvery, type Prettify } from "../src/index.ts";
-import { forIn, hasIn } from "lodash-es";
+import { forIn, hasIn, isFunction } from "lodash-es";
 
 interface RmmvClass {
 	// abstract
@@ -70,15 +70,6 @@ interface ExpandClass1 extends SimpleBaseClass {
 	isExpandClass1(): true;
 }
 
-// type AttributePromptTool<SourceCode extends RmmvClass, UserCode> = Partial<SourceCode> & UserCode;
-// type AttributePromptTool<SourceCode extends RmmvClass> = Partial<SourceCode> & {
-// 	[k: string]: any;
-// };
-// type AttributePromptTool<SourceCode extends RmmvClass> = ThisType<Partial<SourceCode>> & {
-// 	[k: string]: any;
-// };
-type WithThisType<T> = ThisType<T> & T;
-
 /**
  * 属性提示工具
  * @description
@@ -91,10 +82,6 @@ type WithThisType<T> = ThisType<T> & T;
 type AttributePromptTool<SourceCode extends RmmvClass, UserCode> = ThisType<SourceCode & UserCode> &
 	Partial<SourceCode> &
 	UserCode;
-// WithThisType<Partial<SourceCode> & UserCode>;
-// & {
-// 	[k: string]: any;
-// };
 
 type UserCodeClassAttributeType = {
 	counter: number;
@@ -131,6 +118,11 @@ const userCodeClass: UserCodeClassPrompt = {
 	getDrillCalendar() {
 		return this.drillCalendar;
 	},
+
+	IamSimpleBaseClass() {
+		console.log(` 这里是 userCodeClass ，覆写了 IamSimpleBaseClass 函数 `);
+		return true;
+	},
 };
 
 /**
@@ -161,6 +153,18 @@ const handleStrategy = <const>[
  * 用户代码相对于rmmv源码的处理策略
  */
 type HandleStrategy = (typeof handleStrategy)[number];
+
+function isSourceFirst(handleStrategy: HandleStrategy): handleStrategy is "source-first" {
+	return handleStrategy === "source-first";
+}
+
+function isUserCodeCoverSource(handleStrategy: HandleStrategy): handleStrategy is "userCode-cover-source" {
+	return handleStrategy === "userCode-cover-source";
+}
+
+function isUserCodeFirst(handleStrategy: HandleStrategy): handleStrategy is "userCode-first" {
+	return handleStrategy === "userCode-first";
+}
 
 /**
  * 被默认执行默认处理策略的函数名
@@ -214,13 +218,10 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 ) {
 	const { source, userCode, config } = params;
 	const handleStrategyConfig = config;
-	// const userCodeKeys = Object.keys(userCode as object) as FunctionKeys_NoInit_UndefineAble<UserCode>[];
 
-	// function getHandleStrategy(key: FunctionKeys_NoInit_UndefineAble<UserCode>): HandleStrategy {
-	// 	return handleStrategyConfig?.[key] ?? defaultHandleStrategy;
-	// }
-
-	// TODO: 遍历userCode的全部键名，根据不同的情况，做出处理
+	function getHandleStrategy(key: HandleStrategyConfigKeys<UserCode>): HandleStrategy {
+		return handleStrategyConfig?.[key] ?? defaultHandleStrategy;
+	}
 
 	/** 源对象的原型链 */
 	const sourcePrototype = source.prototype;
@@ -228,6 +229,11 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 	/** 属性是否在源对象的原型链内？ */
 	function isInSourcePrototype(key: string) {
 		return hasIn(sourcePrototype, key);
+	}
+
+	/** 是不是初始化函数的名称？ */
+	function isInitialize(key: string): key is defaultHandleStrategy_FuncationName {
+		return key === "initialize";
 	}
 
 	// 可以遍历原型
@@ -240,11 +246,44 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 		}
 	});
 
-	forIn(userCode, function (value, key, object) {
+	forIn(userCode, function (value, key, object: Record<string, any>) {
 		console.log(` value, key, object  `, value, key);
 		// 实现判断与处理
-		// if(   ){
-		// }
+
+		// 是不是函数？
+		// () => isFunction(object[key]),
+		// 继承对象有没有这个属性？
+		if (isInSourcePrototype(key)) {
+			if (isFunction(object[key])) {
+				const handleStrategy = getHandleStrategy(key as HandleStrategyConfigKeys<UserCode>);
+
+				if (isUserCodeCoverSource(handleStrategy)) {
+					sourcePrototype[key] = value;
+				}
+
+				if (isUserCodeFirst(handleStrategy)) {
+					sourcePrototype[key] = function () {
+						value.apply(this, arguments);
+						sourcePrototype[key].apply(this, arguments);
+					};
+				}
+
+				if (isSourceFirst(handleStrategy) || isInitialize(key)) {
+					sourcePrototype[key] = function () {
+						sourcePrototype[key].apply(this, arguments);
+						value.apply(this, arguments);
+					};
+				}
+			}
+		} else {
+			if (isFunction(object[key])) {
+				/**
+				 * 继承对象没有这个属性时 说明是新的函数
+				 * 直接添加到原型链上
+				 */
+				sourcePrototype[key] = value;
+			}
+		}
 	});
 
 	// userCodeKeys.forEach((key) => {
