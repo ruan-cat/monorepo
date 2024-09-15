@@ -11,12 +11,6 @@ export type FunctionKeys<T> = {
 	[K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
 }[keyof T];
 
-// type UndefineAbleFunction = undefined | ((...args: any[]) => any);
-// type IsUndefineAbleFunction<T> = T extends UndefineAbleFunction ? true : false;
-// type UndefineAbleFunctionKeys<T> = {
-// 	[K in keyof T]: T[K] extends IsUndefineAbleFunction<T> ? K : never;
-// }[keyof T];
-
 function SimpleBaseClass() {
 	// @ts-ignore
 	this.initialize.apply(this, arguments);
@@ -46,9 +40,9 @@ interface SimpleBaseClass extends RmmvClass {
 	IamSimpleBaseClass: () => void;
 }
 
-function ExpandClass1() {
+function ExpandClass1(this: ExpandClass1, ...args: any[]) {
 	// @ts-ignore
-	this.initialize.apply(this, arguments);
+	this.initialize.apply(this, args);
 }
 ExpandClass1.prototype = Object.create(SimpleBaseClass.prototype);
 ExpandClass1.prototype.constructor = ExpandClass1;
@@ -191,11 +185,6 @@ type HandleStrategyConfigKeys<T extends object> = FunctionKeys<AllOptionalFieldO
  */
 type HandleStrategyConfig<T extends object> = Record<HandleStrategyConfigKeys<T>, HandleStrategy>;
 
-// 通过测试
-// type a1 = Prettify<UserCodeClassPrompt>;
-// type a1 = Prettify<UserCodeClass>;
-// type a2 = Prettify<HandleStrategyConfig<a1>>;
-
 /** rmmv类拓展工具函数配置 */
 type RmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvClass, UserCode extends object> = {
 	/** 源码 一般是被拓展的类，往往是rmmv的源码类 */
@@ -236,22 +225,9 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 		return key === "initialize";
 	}
 
-	// 可以遍历原型
-	forIn(sourcePrototype, function (value, key, object) {
-		console.log(`in source value, key, object  `, value, key);
-		// Object.hasOwn
-		// 遍历原型链上的属性
-		if (isInSourcePrototype(key)) {
-			console.log(` 有这个变量 `, key, object[key]);
-		}
-	});
-
 	forIn(userCode, function (value, key, object: Record<string, any>) {
 		console.log(` value, key, object  `, value, key);
-		// 实现判断与处理
 
-		// 是不是函数？
-		// () => isFunction(object[key]),
 		// 继承对象有没有这个属性？
 		if (isInSourcePrototype(key)) {
 			if (isFunction(object[key])) {
@@ -285,49 +261,9 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 			}
 		}
 	});
-
-	// userCodeKeys.forEach((key) => {
-	// 	const handleStrategy = getHandleStrategy(key);
-	// 	if (
-	// 		isConditionsEvery([
-	// 			() => handleStrategy === "source-first",
-	// 			// () => Object.getOwnPropertyNames
-	// 		])
-	// 	) {
-	// 	}
-	// });
-
-	// const { source, userCode, config } = params;
-	// const handleStrategyConfig = {
-	// 	...config,
-	// };
-	// const userCodeKeys = Object.keys(userCode) as FunctionKeysWithoutInitialize<UserCode>[];
-	// for (const key of userCodeKeys) {
-	// 	const handleData = handleStrategyConfig[key] ?? defaultHandleStrategy;
-	// 	const sourceFunction = source[key];
-	// 	const userCodeFunction = userCode[key];
-	// 	switch (handleData) {
-	// 		case "userCode-cover-source":
-	// 			source[key] = userCodeFunction;
-	// 			break;
-	// 		case "userCode-first":
-	// 			source[key] = function () {
-	// 				userCodeFunction.apply(this, arguments);
-	// 				sourceFunction.apply(this, arguments);
-	// 			};
-	// 			break;
-	// 		default:
-	// 			source[key] = function () {
-	// 				sourceFunction.apply(this, arguments);
-	// 				userCodeFunction.apply(this, arguments);
-	// 			};
-	// 			break;
-	// 	}
-	// }
 }
 
 rmmvClassExpandTools({
-	// source: ExpandClass1 as unknown as ExpandClass1,
 	source: ExpandClass1 as unknown as new (...args: any[]) => RmmvClass,
 	userCode: userCodeClass,
 	config: {
@@ -335,3 +271,5 @@ rmmvClassExpandTools({
 		// handleData: "userCode-first",
 	},
 });
+
+const expandClass1 = new (ExpandClass1 as unknown as new (...args: any[]) => ExpandClass1)();
