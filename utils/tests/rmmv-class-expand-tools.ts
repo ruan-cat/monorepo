@@ -93,8 +93,6 @@ type UserCodeClassAttributeType = {
 
 type UserCodeClassPrompt = AttributePromptTool<ExpandClass1, UserCodeClassAttributeType>;
 
-type a1 = Prettify<UserCodeClassPrompt>;
-
 const userCodeClass: UserCodeClassPrompt = {
 	counter: 1,
 	drillCalendar: ["上午写插件", "中午玩黑神话", "晚上玩魔兽", "午夜看萝莉番剧"],
@@ -209,6 +207,11 @@ type RmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvClass, 
 
 const functionAlias = new Map<string, Function>();
 
+/** 生成函数别名id */
+function generateFunctionAliasId(key: string) {
+	return uniqueId(`FunctionAliasId_${key}_`);
+}
+
 /**
  * rmmv类拓展工具函数
  * @description
@@ -259,8 +262,9 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 				// 2 初始化函数默认使用固定的处理策略
 				// 3 默认处理策略
 				if (isInitialize(key) || isSourceFirst(handleStrategy)) {
-					const functionAliasId = uniqueId(key);
+					const functionAliasId = generateFunctionAliasId(key);
 					functionAlias.set(functionAliasId, sourcePrototype[key]);
+
 					sourcePrototype[key] = function () {
 						console.log(` 进入到二次封装的函数 函数id =  `, functionAliasId);
 						// 先回调rmmv源码
@@ -271,8 +275,9 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 
 				// 4 先执行用户代码 再回调rmmv源码
 				if (isUserCodeFirst(handleStrategy)) {
-					const functionAliasId = uniqueId(key);
+					const functionAliasId = generateFunctionAliasId(key);
 					functionAlias.set(functionAliasId, sourcePrototype[key]);
+
 					sourcePrototype[key] = function () {
 						console.log(` 进入到二次封装的函数 函数id =  `, functionAliasId);
 						// 先执行用户代码
@@ -305,3 +310,6 @@ rmmvClassExpandTools({
 const expandClass1 = new ExpandClass1();
 
 expandClass1.IamSimpleBaseClass();
+
+// TODO: 对原来就有的对象 做类型拓展 拓展其属性
+expandClass1.getDrillCalendar();
