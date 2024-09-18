@@ -32,7 +32,12 @@
 		"types": [
 			"typedoc",
 			"typedoc-plugin-markdown",
-		]
+		],
+		"paths": {
+			"@/*": [
+				"./src/*"
+			]
+		}
 	},
 	"include": [
 		"./src/**/*.ts",
