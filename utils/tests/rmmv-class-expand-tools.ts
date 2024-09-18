@@ -40,10 +40,10 @@ interface SimpleBaseClass extends RmmvClass {
 	IamSimpleBaseClass: () => void;
 }
 
-function ExpandClass1(this: ExpandClass1, ...args: any[]) {
-	// @ts-ignore
+const ExpandClass1 = function ExpandClass1(this: ExpandClass1, ...args: any[]) {
 	this.initialize.apply(this, args);
-}
+} as unknown as new (...args: any[]) => ExpandClass1;
+
 ExpandClass1.prototype = Object.create(SimpleBaseClass.prototype);
 ExpandClass1.prototype.constructor = ExpandClass1;
 ExpandClass1.prototype.initialize = function () {
@@ -201,7 +201,17 @@ type RmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvClass, 
 	config?: Partial<HandleStrategyConfig<UserCode>>;
 };
 
-/** rmmv类拓展工具函数 */
+/**
+ * rmmv类拓展工具函数
+ * @description
+ * 预期处理5种情况
+ *
+ * - 1. 用户代码覆盖掉rmmv源码
+ * - 2. 默认处理策略
+ * - 3. 先执行用户代码 再回调rmmv源码
+ * - 4. 初始化函数默认使用固定的处理策略
+ * - 5. 继承对象没有这个属性时 说明是新的函数 直接添加到原型链上
+ */
 function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvClass, UserCode extends object = any>(
 	params: RmmvClassExpandTools<SourceCode, UserCode>,
 ) {
@@ -233,10 +243,12 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 			if (isFunction(object[key])) {
 				const handleStrategy = getHandleStrategy(key as HandleStrategyConfigKeys<UserCode>);
 
+				// 1 用户代码覆盖掉rmmv源码
 				if (isUserCodeCoverSource(handleStrategy)) {
 					sourcePrototype[key] = value;
 				}
 
+				// 2 默认处理策略
 				if (isUserCodeFirst(handleStrategy)) {
 					sourcePrototype[key] = function () {
 						value.apply(this, arguments);
@@ -244,6 +256,8 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 					};
 				}
 
+				// 3 先执行用户代码 再回调rmmv源码
+				// 4 初始化函数默认使用固定的处理策略
 				if (isSourceFirst(handleStrategy) || isInitialize(key)) {
 					sourcePrototype[key] = function () {
 						sourcePrototype[key].apply(this, arguments);
@@ -254,7 +268,7 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 		} else {
 			if (isFunction(object[key])) {
 				/**
-				 * 继承对象没有这个属性时 说明是新的函数
+				 * 5 继承对象没有这个属性时 说明是新的函数
 				 * 直接添加到原型链上
 				 */
 				sourcePrototype[key] = value;
@@ -264,7 +278,7 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 }
 
 rmmvClassExpandTools({
-	source: ExpandClass1 as unknown as new (...args: any[]) => RmmvClass,
+	source: ExpandClass1,
 	userCode: userCodeClass,
 	config: {
 		// initialize: "userCode-cover-source",
@@ -272,4 +286,4 @@ rmmvClassExpandTools({
 	},
 });
 
-const expandClass1 = new (ExpandClass1 as unknown as new (...args: any[]) => ExpandClass1)();
+const expandClass1 = new ExpandClass1();
