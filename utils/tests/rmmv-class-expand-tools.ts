@@ -1,6 +1,6 @@
 import type { OptionalKeysOf } from "type-fest";
 import { isConditionsEvery, type Prettify } from "../src/index.ts";
-import { forIn, hasIn, isFunction } from "lodash-es";
+import { forIn, hasIn, isFunction, uniqueId } from "lodash-es";
 
 export declare abstract class RmmvClass {
 	initialize: (...args: any[]) => void;
@@ -40,9 +40,6 @@ declare class SimpleBaseClass extends RmmvClass {
 	IamSimpleBaseClass: () => void;
 }
 
-// const ExpandClass1 = function ExpandClass1(this: ExpandClass1, ...args: any[]) {
-// 	this.initialize.apply(this, args);
-// } as unknown as new (...args: any[]) => ExpandClass1;
 function ExpandClass1(this: ExpandClass1, ...args: any[]) {
 	this.initialize.apply(this, args);
 }
@@ -60,12 +57,16 @@ ExpandClass1.prototype.showValue = function () {
 ExpandClass1.prototype.isExpandClass1 = function () {
 	return true;
 };
+ExpandClass1.prototype.IamSimpleExpandClass1 = function () {
+	console.log(` 我是 ExpandClass1  `);
+};
 
 declare class ExpandClass1 extends SimpleBaseClass {
 	expandClass1_value: string;
 	constructor(...args: any[]);
 	initialize: (...args: any[]) => void;
 	showValue(): void;
+	IamSimpleExpandClass1(): void;
 	isExpandClass1(): true;
 }
 
@@ -206,6 +207,8 @@ type RmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvClass, 
 	config?: Partial<HandleStrategyConfig<UserCode>>;
 };
 
+const functionAlias = new Map<string, Function>();
+
 /**
  * rmmv类拓展工具函数
  * @description
@@ -253,20 +256,28 @@ function rmmvClassExpandTools<SourceCode extends new (...args: any[]) => RmmvCla
 					sourcePrototype[key] = value;
 				}
 
-				// 2 默认处理策略
-				if (isUserCodeFirst(handleStrategy)) {
+				// 2 初始化函数默认使用固定的处理策略
+				// 3 默认处理策略
+				if (isInitialize(key) || isSourceFirst(handleStrategy)) {
+					const functionAliasId = uniqueId(key);
+					functionAlias.set(functionAliasId, sourcePrototype[key]);
 					sourcePrototype[key] = function () {
+						console.log(` 进入到二次封装的函数 函数id =  `, functionAliasId);
+						// 先回调rmmv源码
+						functionAlias.get(functionAliasId)!.apply(this, arguments);
 						value.apply(this, arguments);
-						sourcePrototype[key].apply(this, arguments);
 					};
 				}
 
-				// 3 先执行用户代码 再回调rmmv源码
-				// 4 初始化函数默认使用固定的处理策略
-				if (isSourceFirst(handleStrategy) || isInitialize(key)) {
+				// 4 先执行用户代码 再回调rmmv源码
+				if (isUserCodeFirst(handleStrategy)) {
+					const functionAliasId = uniqueId(key);
+					functionAlias.set(functionAliasId, sourcePrototype[key]);
 					sourcePrototype[key] = function () {
-						sourcePrototype[key].apply(this, arguments);
+						console.log(` 进入到二次封装的函数 函数id =  `, functionAliasId);
+						// 先执行用户代码
 						value.apply(this, arguments);
+						functionAlias.get(functionAliasId)!.apply(this, arguments);
 					};
 				}
 			}
@@ -292,3 +303,5 @@ rmmvClassExpandTools({
 });
 
 const expandClass1 = new ExpandClass1();
+
+expandClass1.IamSimpleBaseClass();
