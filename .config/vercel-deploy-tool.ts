@@ -5,6 +5,8 @@ export default <Config>{
 	vercelOrgId: "",
 	vercelProjectId: "",
 
+	afterBuildTasks: ["pnpm run turbo build:docs"],
+
 	deployTargets: [
 		{
 			type: "userCommands",
