@@ -14,7 +14,10 @@ export default <Config>{
 			targetCWD: "./packages/docs-01-star",
 			url: ["docs-01-star.ruancat6312.top"],
 			outputDirectory: "docs/.vitepress/dist/**/*",
-			userCommands: ["pnpm -C=./packages/docs-01-star build:docs"],
+			userCommands: [
+				// "pnpm -C=./packages/docs-01-star build:docs"
+				"pnpm -C='./' turbo build:docs",
+			],
 		},
 
 		// 1号项目
@@ -23,7 +26,10 @@ export default <Config>{
 			targetCWD: "./packages/monorepo-1",
 			outputDirectory: "src/.vuepress/dist/**/*",
 			url: ["monorepo-1.ruancat6312.top"],
-			userCommands: ["pnpm -C=./packages/monorepo-1 build:docs"],
+			userCommands: [
+				// "pnpm -C=./packages/monorepo-1 build:docs"
+				"pnpm -C='./' turbo build:docs",
+			],
 		},
 
 		// 2号项目
@@ -32,35 +38,38 @@ export default <Config>{
 			targetCWD: "./packages/proj-2-vp2-custom-components",
 			outputDirectory: "src/.vuepress/dist/**/*",
 			url: ["monorepo-2.ruancat6312.top", "m2.ruan-cat.com", "m2.ruancat6312.top"],
-			userCommands: ["pnpm -C=./packages/proj-2-vp2-custom-components build:docs"],
+			userCommands: [
+				// "pnpm -C=./packages/proj-2-vp2-custom-components build:docs"
+				"pnpm -C='./' turbo build:docs",
+			],
 		},
 
-		// 3号项目
-		{
-			type: "userCommands",
-			targetCWD: "./packages/monorepo-3",
-			outputDirectory: "src/.vuepress/dist/**/*",
-			url: ["monorepo-3.ruancat6312.top"],
-			userCommands: ["pnpm -C=./packages/monorepo-3 build:docs"],
-		},
+		// 3号项目 通过测试
+		// {
+		// 	type: "userCommands",
+		// 	targetCWD: "./packages/monorepo-3",
+		// 	outputDirectory: "src/.vuepress/dist/**/*",
+		// 	url: ["monorepo-3.ruancat6312.top"],
+		// 	userCommands: ["pnpm -C=./packages/monorepo-3 build:docs"],
+		// },
 
-		// 4号项目
-		{
-			type: "userCommands",
-			targetCWD: "./packages/monorepo-4",
-			outputDirectory: "src/.vuepress/dist/**/*",
-			url: ["monorepo-4.ruancat6312.top"],
-			userCommands: ["pnpm -C=./packages/monorepo-4 build:docs"],
-		},
+		// 4号项目 通过测试
+		// {
+		// 	type: "userCommands",
+		// 	targetCWD: "./packages/monorepo-4",
+		// 	outputDirectory: "src/.vuepress/dist/**/*",
+		// 	url: ["monorepo-4.ruancat6312.top"],
+		// 	userCommands: ["pnpm -C=./packages/monorepo-4 build:docs"],
+		// },
 
-		// 5号项目
-		{
-			type: "userCommands",
-			targetCWD: "./packages/monorepo-5",
-			outputDirectory: "src/.vuepress/dist/**/*",
-			url: ["monorepo-5.ruancat6312.top", "monorepo5.ruan-cat.com"],
-			userCommands: ["pnpm -C=./packages/monorepo-5 build:docs"],
-		},
+		// 5号项目 通过测试
+		// {
+		// 	type: "userCommands",
+		// 	targetCWD: "./packages/monorepo-5",
+		// 	outputDirectory: "src/.vuepress/dist/**/*",
+		// 	url: ["monorepo-5.ruancat6312.top", "monorepo5.ruan-cat.com"],
+		// 	userCommands: ["pnpm -C=./packages/monorepo-5 build:docs"],
+		// },
 
 		// mikutap项目
 		{
