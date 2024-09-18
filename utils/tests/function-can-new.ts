@@ -1,3 +1,6 @@
+/**
+ * 用es5函数的方式，声明类，实现new关键字的效果
+ */
 interface CanNewSimple {
 	a: number;
 	init: (...args: any[]) => void;
