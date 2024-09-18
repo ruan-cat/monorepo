@@ -5,7 +5,7 @@ export default <Config>{
 	vercelOrgId: "",
 	vercelProjectId: "",
 
-	afterBuildTasks: ["pnpm run turbo build:docs"],
+	afterBuildTasks: ["pnpm turbo build:docs"],
 
 	deployTargets: [
 		// 01星球建议笔记
