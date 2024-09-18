@@ -11,6 +11,8 @@
 		// tsc 编译产物输出目录
 		"outDir": "dist",
 		"checkJs": true,
+		// 项目包含了js
+		"allowJs": true,
 		"module": "nodenext",
 		"target": "ESNext",
 		// 模块解析策略
@@ -29,12 +31,16 @@
 		"noImplicitThis": true,
 		"types": [
 			"typedoc",
-			"typedoc-plugin-markdown"
+			"typedoc-plugin-markdown",
 		]
 	},
 	"include": [
 		"./src/**/*.ts",
-		"./tests/**/*.ts"
+		"./tests/**/*.ts",
+		"./src/**/*.js",
+		"./tests/**/*.js",
+		// 尝试手动提供一个全局的类型声明。
+		"./tests/with-types/types/CanNewTypeByClass.d.ts",
 	],
 	"exclude": [
 		"typedoc.config.cjs"
