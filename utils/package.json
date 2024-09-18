@@ -1,7 +1,7 @@
 {
 	"name": "@ruan-cat/utils",
 	"version": "1.0.1",
-	"description": "工具集合，预期是一个纯ts库，提供ts类型和ts的函数",
+	"description": "阮喵喵工具集合。一个纯typescript库。",
 	"type": "module",
 	"_main": "./src/index.ts",
 	"_types": "./src/index.ts",

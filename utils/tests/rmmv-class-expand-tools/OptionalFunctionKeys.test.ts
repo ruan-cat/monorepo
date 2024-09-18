@@ -1,5 +1,5 @@
-import { type Prettify } from "../src/index.ts";
-import { type defaultHandleStrategy_FuncationName, type FunctionKeys } from "./rmmv-class-expand-tools.ts";
+import { type Prettify } from "../../src/index.ts";
+import { type defaultHandleStrategy_FuncationName, type FunctionKeys } from "../rmmv-class-expand-tools.test.ts";
 import type { PartialPick, OptionalKeys } from "type-plus";
 import type { OptionalKeysOf } from "type-fest";
 
