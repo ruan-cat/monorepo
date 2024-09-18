@@ -75,10 +75,15 @@ export interface Config {
 
 	/** 用户token */
 	vercelToken: string;
+
 	/** 用户组织id */
 	vercelOrgId: string;
+
 	/** 用户项目id */
 	vercelProjectId: string;
+
+	/** 在build命令阶段后 执行的用户命令 */
+	afterBuildTasks?: string[];
 
 	/**
 	 * 部署目标

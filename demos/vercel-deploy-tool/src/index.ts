@@ -1,8 +1,9 @@
 // 学习一下如何使用 https://github.com/sindresorhus/execa/blob/main/readme.md
 import fs from "node:fs";
 import { execa } from "execa";
-import { concat } from "lodash-es";
+import { concat, isEmpty, isUndefined } from "lodash-es";
 import { consola } from "consola";
+import { isConditionsSome } from "@ruan-cat/utils";
 
 import {
 	initVercelConfig,
@@ -253,12 +254,46 @@ function generateDeployTask(deployTarget: DeployTarget) {
 }
 
 /**
+ * 生成 afterBuildTasks 阶段的任务配置
+ * @description
+ * 这里返回的是具体的 Task 任务配置 不是异步函数
+ */
+function generateAfterBuildTasksConfig(config: Config): Task {
+	const afterBuildTasks = config.afterBuildTasks;
+
+	if (isConditionsSome([() => isUndefined(afterBuildTasks), () => isEmpty(afterBuildTasks)])) {
+		return {
+			type: "single",
+			tasks: generateSimpleAsyncTask(() => consola.warn(` 当前没有有意义的 afterBuildTasks 任务配置 `)),
+		};
+	} else {
+		return {
+			type: "queue",
+			tasks: afterBuildTasks!.map((command) => {
+				return generateSimpleAsyncTask(async () => {
+					const userCommand = generateExeca({
+						command,
+						parameters: [],
+					});
+					consola.start(` 开始用户 afterBuildTasks 命令任务 `);
+					const { code, stdout } = await userCommand();
+					consola.success(` 完成用户 afterBuildTasks 命令任务 ${code} `);
+					consola.box(stdout);
+				});
+			}),
+		};
+	}
+}
+
+/**
  * 使用异步函数定义工具的方式
  * @version 2
  */
 async function main() {
 	await generateVercelNullConfig();
-	const { deployTargets } = getConfig();
+
+	const config = getConfig();
+	const { deployTargets } = config;
 
 	const promiseTasks = definePromiseTasks({
 		type: "queue",
@@ -291,6 +326,9 @@ async function main() {
 					});
 				}),
 			},
+
+			// afterBuildTasks 在build命令阶段后 执行的用户命令
+			generateAfterBuildTasksConfig(config),
 
 			// 全部的用户命令任务
 			{
