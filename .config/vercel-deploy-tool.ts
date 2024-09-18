@@ -7,6 +7,8 @@ export default <Config>{
 
 	afterBuildTasks: ["pnpm turbo build:docs"],
 
+	// FIXME: execa运行的turbo命令，不会使用cache缓存，导致了重复构建。
+	// TODO: 拓展一个命令 isCopyDist 配置。 如果不提供用户命令，但是有移动文件配置，那么就执行文件移动命令。
 	deployTargets: [
 		// 01星球建议笔记
 		{
@@ -17,7 +19,7 @@ export default <Config>{
 			userCommands: [
 				// "pnpm -C=./packages/docs-01-star build:docs"
 				// "pnpm -C='./' turbo build:docs",
-				"pnpm turbo build:docs",
+				// "pnpm turbo build:docs",
 			],
 		},
 
@@ -30,7 +32,7 @@ export default <Config>{
 			userCommands: [
 				// "pnpm -C=./packages/monorepo-1 build:docs"
 				// "pnpm -C='./' turbo build:docs",
-				"pnpm turbo build:docs",
+				// "pnpm turbo build:docs",
 			],
 		},
 
@@ -43,7 +45,7 @@ export default <Config>{
 			userCommands: [
 				// "pnpm -C=./packages/proj-2-vp2-custom-components build:docs"
 				// "pnpm -C='./' turbo build:docs",
-				"pnpm turbo build:docs",
+				// "pnpm turbo build:docs",
 			],
 		},
 
