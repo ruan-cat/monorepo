@@ -50,6 +50,8 @@
 		"@vuepress/bundler-vite": "2.0.0-rc.14",
 		"cpx2": "^7.0.1",
 		"cross-env": "^7.0.3",
+		"esbuild": "^0.23.1",
+		"esbuild-register": "^3.6.0",
 		"eslint": "^9.5.0",
 		"eslint-config-flat-gitignore": "^0.1.5",
 		"eslint-config-prettier": "^9.1.0",
