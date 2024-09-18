@@ -98,5 +98,8 @@
 		// "typescript": "pnpm dotenvx run -- vue-tsc $fullFileName --noEmit --allowImportingTsExtensions"
 		// https://nodejs.org/en/learn/typescript/run#registering-tsx-via-node
 		"typescript": "pnpm dotenvx run -- node --import=tsx $fullFileName"
+		// https://github.com/egoist/esbuild-register
+		// "typescript": "pnpm dotenvx run -- node --loader=esbuild-register/loader -r esbuild-register $fullFileName"
+		// "typescript": "pnpm dotenvx run -- node --require esbuild-register $fullFileName"
 	},
 }
