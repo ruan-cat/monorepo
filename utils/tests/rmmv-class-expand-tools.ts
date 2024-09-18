@@ -2,8 +2,7 @@ import type { OptionalKeysOf } from "type-fest";
 import { isConditionsEvery, type Prettify } from "../src/index.ts";
 import { forIn, hasIn, isFunction } from "lodash-es";
 
-interface RmmvClass {
-	// abstract
+export declare abstract class RmmvClass {
 	initialize: (...args: any[]) => void;
 }
 
@@ -32,18 +31,23 @@ SimpleBaseClass.prototype.IamSimpleBaseClass = function () {
 	console.log(` 我是IamSimpleBaseClass `);
 };
 
-interface SimpleBaseClass extends RmmvClass {
-	initialize: (...args: any[]) => void;
+declare class SimpleBaseClass extends RmmvClass {
 	_value: number;
+	constructor(...args: any[]);
+	initialize: (...args: any[]) => void;
 	getValue: () => number;
 	handleData: () => void;
 	IamSimpleBaseClass: () => void;
 }
 
-const ExpandClass1 = function ExpandClass1(this: ExpandClass1, ...args: any[]) {
+// const ExpandClass1 = function ExpandClass1(this: ExpandClass1, ...args: any[]) {
+// 	this.initialize.apply(this, args);
+// } as unknown as new (...args: any[]) => ExpandClass1;
+function ExpandClass1(this: ExpandClass1, ...args: any[]) {
 	this.initialize.apply(this, args);
-} as unknown as new (...args: any[]) => ExpandClass1;
+}
 
+// @ts-ignore
 ExpandClass1.prototype = Object.create(SimpleBaseClass.prototype);
 ExpandClass1.prototype.constructor = ExpandClass1;
 ExpandClass1.prototype.initialize = function () {
@@ -57,9 +61,10 @@ ExpandClass1.prototype.isExpandClass1 = function () {
 	return true;
 };
 
-interface ExpandClass1 extends SimpleBaseClass {
-	initialize: (...args: any[]) => void;
+declare class ExpandClass1 extends SimpleBaseClass {
 	expandClass1_value: string;
+	constructor(...args: any[]);
+	initialize: (...args: any[]) => void;
 	showValue(): void;
 	isExpandClass1(): true;
 }
