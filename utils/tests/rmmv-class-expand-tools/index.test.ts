@@ -1,4 +1,4 @@
-import { type RmmvClass, type AttributePromptTool, rmmvClassExpandTools } from "@/index.ts";
+import { type RmmvClass, type AttributePromptTool, rmmvClassExpandTools } from "../../src/index.ts";
 
 function SimpleBaseClass() {
 	// @ts-ignore

@@ -1,6 +1,14 @@
 {
+	// FIXME: 尝试实现该文件的导入 在运行单独的typescript文件时，能够读取路径别名
 	"compilerOptions": {
 		"baseUrl": "./utils",
+		"rootDir": "./utils",
+		"rootDirs": [
+			"./utils"
+		],
+		"typeRoots": [
+			"./utils"
+		],
 		"paths": {
 			"@/*": [
 				"./src/*"
