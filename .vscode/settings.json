@@ -93,6 +93,8 @@
 		"*.drawio.svg": "hediet.vscode-drawio-text",
 	},
 	"code-runner.executorMap": {
-		"typescript": "pnpm dotenvx run -- vite-node $fullFileName --files -p tsconfig.vite-node.json"
+		"typescript": "pnpm dotenvx run -- vite-node $fullFileName --files -p ./tsconfig.vite-node.json"
+		// "typescript": "pnpm dotenvx run -- vue-tsc $fullFileName -p ./tsconfig.vite-node.json"
+		// "typescript": "pnpm dotenvx run -- vue-tsc $fullFileName --noEmit --allowImportingTsExtensions"
 	},
 }

@@ -1,6 +1,4 @@
-import type { OptionalKeysOf } from "type-fest";
 import { type RmmvClass, type AttributePromptTool, rmmvClassExpandTools } from "@/index.ts";
-import { forIn, hasIn, isFunction, uniqueId } from "lodash-es";
 
 function SimpleBaseClass() {
 	// @ts-ignore

@@ -1,5 +1,4 @@
 import type { OptionalKeysOf } from "type-fest";
-import { isConditionsEvery, type Prettify } from "../src/index.ts";
 import { forIn, hasIn, isFunction, uniqueId } from "lodash-es";
 
 /**
