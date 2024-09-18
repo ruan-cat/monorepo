@@ -16,7 +16,8 @@ export default <Config>{
 			outputDirectory: "docs/.vitepress/dist/**/*",
 			userCommands: [
 				// "pnpm -C=./packages/docs-01-star build:docs"
-				"pnpm -C='./' turbo build:docs",
+				// "pnpm -C='./' turbo build:docs",
+				"pnpm turbo build:docs",
 			],
 		},
 
@@ -28,7 +29,8 @@ export default <Config>{
 			url: ["monorepo-1.ruancat6312.top"],
 			userCommands: [
 				// "pnpm -C=./packages/monorepo-1 build:docs"
-				"pnpm -C='./' turbo build:docs",
+				// "pnpm -C='./' turbo build:docs",
+				"pnpm turbo build:docs",
 			],
 		},
 
@@ -40,7 +42,8 @@ export default <Config>{
 			url: ["monorepo-2.ruancat6312.top", "m2.ruan-cat.com", "m2.ruancat6312.top"],
 			userCommands: [
 				// "pnpm -C=./packages/proj-2-vp2-custom-components build:docs"
-				"pnpm -C='./' turbo build:docs",
+				// "pnpm -C='./' turbo build:docs",
+				"pnpm turbo build:docs",
 			],
 		},
 
