@@ -395,7 +395,7 @@ async function main() {
 
 							// 并发的别名任务
 							{
-								type: "queue",
+								type: "parallel",
 								tasks: deployTarget.url.map((userUrl) => {
 									return generateSimpleAsyncTask(async (vercelUrl: string) => {
 										const alias = generateAliasTask(vercelUrl, userUrl);
