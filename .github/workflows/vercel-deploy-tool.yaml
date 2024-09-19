@@ -13,8 +13,8 @@ on:
     branches:
       # 避免高频率占用vercel资源，改成仅在main分支执行部署行为
       # - main
-      # - dev-pause
-      - dev
+      - dev-pause
+      # - dev
 
 jobs:
   Deploy-Production:
@@ -38,23 +38,11 @@ jobs:
           node-version: 22.6.0
           cache: pnpm
 
-      # - name: 开启 corepack
-      #   run: corepack enable && corepack install
-
-      - name: 检查pnpm版本
-        run: pnpm -v
-
-      - name: 检查node版本
-        run: node -v
-
-      - name: 安装整个项目的依赖
-        run: pnpm i
-
-      # - name: 用npm安装vercel cli工具
-      #   run: npm i -g vercel@latest @dotenvx/dotenvx@latest vite-node@latest
-
-      - name: 检查vercel cli版本
-        run: vc -v
+      - name: 检查版本
+        run: |
+          node -v
+          pnpm -v
+          vc -v
 
       - name: pnpm全局检查依赖包
         run: pnpm ls -g

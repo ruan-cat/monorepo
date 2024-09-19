@@ -10,22 +10,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 检出分支
-        uses: actions/checkout@main
+        uses: actions/checkout@4
 
-      - name: 开启 corepack
-        run: corepack enable && corepack install
+      - name: 安装pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: |
+            - recursive: true
+            - args: [--global, "vercel", "@dotenvx/dotenvx", "tsx"]
 
-      - name: 检查pnpm版本
-        run: pnpm -v
+      - name: 安装node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.6.0
+          cache: pnpm
 
-      - name: 安装整个项目的依赖
-        run: pnpm i
+      - name: 检查版本
+        run: |
+          node -v
+          pnpm -v
+          vc -v
 
-      - name: 用npm安装vercel cli工具
-        run: npm i -g vercel@latest
-
-      - name: 检查vercel cli版本
-        run: vc -v
+      - name: pnpm全局检查依赖包
+        run: pnpm ls -g
 
       - name: turbo并发打包全部子项目
         run: pnpm run on-github-action-flow
