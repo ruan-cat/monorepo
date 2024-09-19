@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.0.6
+
+### Patch Changes
+
+- pnpm dlx 子命令安装依赖。
+
 ## 0.0.5
 
 ### Patch Changes

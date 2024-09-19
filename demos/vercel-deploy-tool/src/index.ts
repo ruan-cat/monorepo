@@ -207,19 +207,19 @@ function generateBuildTask(deployTarget: DeployTarget) {
  */
 function generateCopyDistTasks(deployTarget: WithUserCommands) {
 	function delDirectoryCmd() {
-		return <const>`rimraf ${vercelOutputStatic}`;
+		return <const>`pnpm dlx rimraf ${vercelOutputStatic}`;
 	}
 
 	function createDirectoryCmd() {
-		return <const>`mkdirp ${vercelOutputStatic}`;
+		return <const>`pnpm dlx mkdirp ${vercelOutputStatic}`;
 	}
 
 	function copyDirectoryFileCmd() {
-		return <const>`cpx "${deployTarget.outputDirectory}" ${vercelOutputStatic}`;
+		return <const>`pnpm dlx cpx "${deployTarget.outputDirectory}" ${vercelOutputStatic}`;
 	}
 
 	function printDirectoryFileCmd() {
-		return <const>`shx ls -R ${vercelOutputStatic}`;
+		return <const>`pnpm dlx shx ls -R ${vercelOutputStatic}`;
 	}
 
 	function cmdPrefix() {
