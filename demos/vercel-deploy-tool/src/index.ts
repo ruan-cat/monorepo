@@ -92,10 +92,12 @@ function isNeedCopyDist(target: DeployTarget) {
 			() => isCopyDist,
 
 			// 只要用户提供了非空输出目录 就认为需要移动文件
-			() => !isEmpty(target.outputDirectory),
+			// 输出目录是必填项 不做判断
+			// () => !isEmpty(target.outputDirectory),
 
 			// 只要用户提供了非空命令 就认为用户提供了有意义的build构建命令 就默认移动文件
-			() => !isEmpty(target.userCommands),
+			// 用户不填写命令时 也可能需要移动文件 故这里不做判断
+			// () => !isEmpty(target.userCommands),
 		]);
 	} else {
 		// 不是带有用户命令的部署目标 那么就不需要移动文件
@@ -436,7 +438,7 @@ async function main() {
 										const { stdout, command } = await alias();
 										consola.success(` 执行了： ${command} `);
 										consola.success(` 完成别名任务 可用的别名地址为 \n`);
-										consola.box(`htts://${userUrl}`);
+										consola.box(`https://${userUrl}`);
 									});
 								}),
 							},
