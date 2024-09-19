@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 检出分支
-        uses: actions/checkout@4
+        uses: actions/checkout@v4
 
       - name: 安装pnpm
         uses: pnpm/action-setup@v4
