@@ -5,8 +5,6 @@ import { concat, isEmpty, isUndefined } from "lodash-es";
 import { consola } from "consola";
 import { isConditionsEvery, isConditionsSome } from "@ruan-cat/utils";
 
-// import {} from "@ruan-cat/vercel-deploy-tool";
-
 import {
 	initVercelConfig,
 	config,
@@ -246,7 +244,7 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 				parameters: [],
 			});
 			const { code, stdout } = await commandFunction();
-			consola.info(` 执行了命令： `, code);
+			consola.info(` 执行了命令： `, command);
 			consola.box(stdout);
 		});
 	});

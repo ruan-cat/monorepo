@@ -1,5 +1,11 @@
 # @ruan-cat/utils
 
+## 1.0.3
+
+### Patch Changes
+
+- 更新路径别名。
+
 ## 1.0.2
 
 ### Patch Changes

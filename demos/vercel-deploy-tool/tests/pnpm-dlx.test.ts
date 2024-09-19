@@ -23,8 +23,8 @@ const copyDistTasks = (<const>[
 			parameters: [],
 		});
 		const { code, stdout } = await commandFunction();
-		consola.info(` 执行了命令： `, code);
-		consola.box(stdout);
+		console.info(` 执行了命令： `, command);
+		console.log(stdout);
 	});
 });
 

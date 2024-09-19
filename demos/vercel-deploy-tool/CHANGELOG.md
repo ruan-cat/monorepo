@@ -1,5 +1,19 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.0.8
+
+### Patch Changes
+
+- 修复输出命令为 undefined 的错误。
+
+## 0.0.7
+
+### Patch Changes
+
+- 更新路径别名。
+- Updated dependencies
+  - @ruan-cat/utils@1.0.3
+
 ## 0.0.6
 
 ### Patch Changes
