@@ -3,7 +3,7 @@ import fs from "node:fs";
 import { execa } from "execa";
 import { concat, isEmpty, isUndefined } from "lodash-es";
 import { consola } from "consola";
-import { isConditionsSome } from "@ruan-cat/utils";
+import { isConditionsEvery, isConditionsSome } from "@ruan-cat/utils";
 
 import {
 	initVercelConfig,
@@ -15,6 +15,7 @@ import {
 	type WithUserCommands,
 } from "./config";
 import { generateSimpleAsyncTask } from "./utils/simple-promise-tools";
+
 import {
 	definePromiseTasks,
 	executePromiseTasks,
@@ -70,6 +71,36 @@ function isDeployTargetsBase(target: DeployTarget): target is Base {
 
 function isDeployTargetsWithUserCommands(target: DeployTarget): target is WithUserCommands {
 	return target.type === "userCommands";
+}
+
+/** 获得 isCopyDist 配置 */
+function getIsCopyDist(target: WithUserCommands) {
+	return target?.isCopyDist ?? true;
+}
+
+/** 是否需要移动文件？ */
+function isNeedCopyDist(target: DeployTarget) {
+	if (isDeployTargetsWithUserCommands(target)) {
+		const isCopyDist = getIsCopyDist(target);
+
+		/**
+		 * 每个条件都满足时 就需要移动文件
+		 * 默认总是认为要移动文件
+		 */
+		return isConditionsEvery([
+			// 如果被用户显性设置为false，不需要移动，那么就直接退出 不移动文件
+			() => isCopyDist,
+
+			// 只要用户提供了非空输出目录 就认为需要移动文件
+			() => !isEmpty(target.outputDirectory),
+
+			// 只要用户提供了非空命令 就认为用户提供了有意义的build构建命令 就默认移动文件
+			() => !isEmpty(target.userCommands),
+		]);
+	} else {
+		// 不是带有用户命令的部署目标 那么就不需要移动文件
+		return false;
+	}
 }
 
 function getYesCommandArgument() {
@@ -337,7 +368,7 @@ async function main() {
 					return {
 						type: "queue",
 						tasks: [
-							// 用户命令
+							// 用户命令任务
 							// 如果没有用户命令
 							!isDeployTargetsWithUserCommands(deployTarget)
 								? generateSimpleAsyncTask(() => {
@@ -360,16 +391,18 @@ async function main() {
 										}),
 									},
 
-							// 复制移动文件
-							// 如果没有用户命令
-							!isDeployTargetsWithUserCommands(deployTarget)
-								? generateSimpleAsyncTask(() => {
-										consola.warn(" 不需要移动文件 ");
-									})
-								: {
+							// 复制移动文件任务
+							// 是否需要移动文件？
+							isNeedCopyDist(deployTarget) &&
+							// 这一行判断其实是冗余的 仅用于满足下面的类型检查
+							isDeployTargetsWithUserCommands(deployTarget)
+								? {
 										type: "queue",
 										tasks: generateCopyDistTasks(deployTarget),
-									},
+									}
+								: generateSimpleAsyncTask(() => {
+										consola.warn(" 不需要移动文件 ");
+									}),
 						],
 					};
 				}),

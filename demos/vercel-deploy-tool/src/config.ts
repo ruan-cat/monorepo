@@ -63,6 +63,17 @@ export interface WithUserCommands extends Base {
 	 * @example src/.vuepress/dist/**\/*
 	 */
 	outputDirectory: string;
+
+	/**
+	 * 是否移动打包目录至特定的vercel部署目录？
+	 * @description
+	 * 执行完用户命令后，一般会执行文件移动命令，以便于部署
+	 *
+	 * 该配置用于控制是否执行文件移动命令
+	 *
+	 * @default true
+	 */
+	isCopyDist?: boolean;
 }
 
 /** 部署目标的具体项目配置 */
