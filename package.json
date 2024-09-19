@@ -35,8 +35,7 @@
 		"changeset:add": "changeset add",
 		"changeset:version": "changeset version",
 		"changeset:publish": "changeset publish",
-		"test-1:vercel-tool": "vite-node ./demos/vercel-deploy-tool/src/index.ts --files",
-		"test-2:vercel-tool": "node --import=tsx ./demos/vercel-deploy-tool/src/index.ts"
+		"test:vercel-tool": "node --import=tsx ./demos/vercel-deploy-tool/src/index.ts"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^2.21.1",
