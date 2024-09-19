@@ -11,30 +11,30 @@ export default <Config>{
 	// TODO: 拓展一个命令 isCopyDist 配置。 如果不提供用户命令，但是有移动文件配置，那么就执行文件移动命令。
 	deployTargets: [
 		// 01星球建议笔记
-		{
-			type: "userCommands",
-			targetCWD: "./packages/docs-01-star",
-			url: ["docs-01-star.ruancat6312.top"],
-			outputDirectory: "docs/.vitepress/dist/**/*",
-			userCommands: [
-				// "pnpm -C=./packages/docs-01-star build:docs"
-				// "pnpm -C='./' turbo build:docs",
-				// "pnpm turbo build:docs",
-			],
-		},
+		// {
+		// 	type: "userCommands",
+		// 	targetCWD: "./packages/docs-01-star",
+		// 	url: ["docs-01-star.ruancat6312.top"],
+		// 	outputDirectory: "docs/.vitepress/dist/**/*",
+		// 	userCommands: [
+		// 		// "pnpm -C=./packages/docs-01-star build:docs"
+		// 		// "pnpm -C='./' turbo build:docs",
+		// 		// "pnpm turbo build:docs",
+		// 	],
+		// },
 
 		// 1号项目
-		{
-			type: "userCommands",
-			targetCWD: "./packages/monorepo-1",
-			outputDirectory: "src/.vuepress/dist/**/*",
-			url: ["monorepo-1.ruancat6312.top"],
-			userCommands: [
-				// "pnpm -C=./packages/monorepo-1 build:docs"
-				// "pnpm -C='./' turbo build:docs",
-				// "pnpm turbo build:docs",
-			],
-		},
+		// {
+		// 	type: "userCommands",
+		// 	targetCWD: "./packages/monorepo-1",
+		// 	outputDirectory: "src/.vuepress/dist/**/*",
+		// 	url: ["monorepo-1.ruancat6312.top"],
+		// 	userCommands: [
+		// 		// "pnpm -C=./packages/monorepo-1 build:docs"
+		// 		// "pnpm -C='./' turbo build:docs",
+		// 		// "pnpm turbo build:docs",
+		// 	],
+		// },
 
 		// 2号项目
 		{
