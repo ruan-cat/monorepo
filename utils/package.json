@@ -11,16 +11,15 @@
 		"generate:type-1": "vue-tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
 		"generate:type-2": "tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
 		"generate:type-3": "vue-tsc -p tsconfig.types.json",
-		"get-type": "pnpm clean:type && pnpm generate:type-3"
+		"get-type": "pnpm clean:type && pnpm generate:type-3",
+		"rm:node_modules": "rimraf node_modules"
 	},
 	"exports": {
 		".": {
 			"import": "./src/index.ts",
-			"types": "./src/index.ts",
-			"_import": "./src/index.ts",
-			"_default": "./src/index.ts"
+			"types": "./src/index.ts"
 		},
-		"./*": "./src/*"
+		"./src/*": "./src/*"
 	},
 	"keywords": [],
 	"author": "ruan-cat",

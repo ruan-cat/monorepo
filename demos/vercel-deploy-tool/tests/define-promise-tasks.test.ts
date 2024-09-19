@@ -8,8 +8,12 @@ import {
 	type ParallelTasks,
 	type QueueTasks,
 	type Task,
-} from "../src/utils/define-promise-tasks";
-import { generateSimpleAsyncTask, wait, testPromises } from "../src/utils/simple-promise-tools";
+} from "@ruan-cat/vercel-deploy-tool/src/utils/define-promise-tasks.ts";
+import {
+	generateSimpleAsyncTask,
+	wait,
+	testPromises,
+} from "@ruan-cat/vercel-deploy-tool/src/utils/simple-promise-tools.ts";
 
 function generateArray<T>(params: { length: number; content: T }) {
 	return Array(params.length)

@@ -1,4 +1,8 @@
-import { type RmmvClass, type AttributePromptTool, rmmvClassExpandTools } from "@ruan-cat/utils";
+import {
+	type RmmvClass,
+	type AttributePromptTool,
+	rmmvClassExpandTools,
+} from "@ruan-cat/utils/src/rmmv-class-expand-tools.ts";
 
 function SimpleBaseClass() {
 	// @ts-ignore

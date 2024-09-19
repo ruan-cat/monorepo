@@ -1,5 +1,5 @@
 // // import { runPromiseByQueue, wait } from "@/utils/simple-promise-tools";
-import { runPromiseByQueue, wait, testPromises } from "../src/utils/simple-promise-tools";
+import { runPromiseByQueue, wait, testPromises } from "@ruan-cat/vercel-deploy-tool/src/utils/simple-promise-tools.ts";
 
 // const promises = [
 // 	function () {

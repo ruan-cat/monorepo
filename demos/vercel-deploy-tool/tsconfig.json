@@ -29,10 +29,10 @@
 		}
 	},
 	"include": [
-		// "src/**/*.ts",
-		// "tests/**/*.test.ts",
-		// "tests/**/*.ts"
-		"src",
-		"tests"
+		"./src/**/*.ts",
+		"./tests/**/*.test.ts",
+		"./tests/**/*.ts"
+		// "src",
+		// "tests"
 	]
 }

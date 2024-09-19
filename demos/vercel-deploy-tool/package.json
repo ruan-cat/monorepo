@@ -10,17 +10,15 @@
 		"start": "node ./dist/index.js",
 		"run": "vite-node ./src/index.ts --files",
 		"test:config": "vite-node ./tests/config.test.ts --files",
-		"test:vitest": "vitest --ui --watch"
+		"test:vitest": "vitest --ui --watch",
+		"rm:node_modules": "rimraf node_modules"
 	},
 	"exports": {
 		".": {
 			"import": "./src/index.ts",
-			"types": "./src/index.ts",
-			"__types": "./dist/index.d.ts",
-			"__import": "./dist/index.mjs",
-			"__require": "./dist/index.cjs"
+			"types": "./src/index.ts"
 		},
-		"./*": "./src/*"
+		"./src/*": "./src/*"
 	},
 	"keywords": [
 		"vercel"
