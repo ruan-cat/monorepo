@@ -20,7 +20,7 @@ export type Base = {
 	type: DeployTargetType;
 
 	/** 目标的工作目录 */
-	targetCWD: string;
+	targetCWD: `./${string}`;
 
 	/** 生产环境的访问url */
 	url: string[];
