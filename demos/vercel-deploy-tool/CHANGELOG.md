@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.0.5
+
+### Patch Changes
+
+- 补充子依赖包。
+
 ## 0.0.4
 
 ### Patch Changes
