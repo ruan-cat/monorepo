@@ -3,9 +3,6 @@
 	"version": "1.0.2",
 	"description": "阮喵喵工具集合。一个纯typescript库。",
 	"type": "module",
-	"_main": "./src/index.ts",
-	"_types": "./src/index.ts",
-	"_module": "./src",
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
 	"scripts": {
@@ -18,15 +15,16 @@
 	},
 	"exports": {
 		".": {
-			"_import": "./src/index.ts",
-			"_default": "./src/index.ts",
 			"import": "./src/index.ts",
-			"types": "./src/index.ts"
+			"types": "./src/index.ts",
+			"_import": "./src/index.ts",
+			"_default": "./src/index.ts"
 		},
 		"./*": "./src/*"
 	},
 	"keywords": [],
 	"author": "ruan-cat",
+	"license": "MIT",
 	"publishConfig": {
 		"access": "public",
 		"registry": "https://registry.npmjs.org/",
