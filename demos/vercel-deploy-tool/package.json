@@ -37,6 +37,7 @@
 		"tsconfig.json"
 	],
 	"dependencies": {
+		"@ruan-cat/utils": "workspace:^",
 		"c12": "^1.11.2",
 		"consola": "^3.2.3",
 		"execa": "^9.3.1",
