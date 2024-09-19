@@ -28,7 +28,8 @@ jobs:
         with:
           version: 9
           run_install: |
-            - args: [--global, vercel@latest, @dotenvx/dotenvx@latest, tsx@latest]
+            - recursive: true
+            - args: [--global, "vercel", "@dotenvx/dotenvx", "tsx"]
 
       - name: 安装node
         uses: actions/setup-node@v4
