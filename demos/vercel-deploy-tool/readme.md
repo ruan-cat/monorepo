@@ -104,16 +104,16 @@ pnpm i -D tsx
 ```yaml
 name: 自写的vercel部署工具
 env:
-	# 必须密文提供token
+  # 必须密文提供token
   VERCEL_TOKEN: ${{ secrets.vercel_token }}
-	# 可以明文提供组织id和项目id
+  # 可以明文提供组织id和项目id
   # VERCEL_ORG_ID: ${{ secrets.vercel_orgId }}
   # VERCEL_PROJECT_ID: ${{ secrets.vercel_projectId }}
 
 on:
   push:
     branches:
-			# 可以自选分支 为了避免过快耗尽vercel额度，建议只在main分支内触发部署
+      # 可以自选分支 为了避免过快耗尽vercel额度，建议只在main分支内触发部署
       - main
 
 jobs:
@@ -128,7 +128,7 @@ jobs:
         with:
           # 若项目提供了packageManager配置 这里可以不提供该配置
           # version: 9
-					# 必须安装 vercel @dotenvx/dotenvx tsx 这三个全局包
+          # 必须安装 vercel @dotenvx/dotenvx tsx 这三个全局包
           run_install: |
             - recursive: true
             - args: [--global, "vercel", "@dotenvx/dotenvx", "tsx"]
@@ -149,9 +149,9 @@ jobs:
         run: pnpm ls -g
 
       - name: 运行自写的vercel部署工具
-				# 读取环境变量
+        # 读取环境变量
         # https://dotenvx.com/docs/cis/github-actions#install-dotenvx
-				# pnpm run your-command
+        # pnpm run your-command
         run: |
           curl -sfS https://dotenvx.sh/install.sh | sh
           pnpm dotenvx run -- pnpm run deploy-vercel
