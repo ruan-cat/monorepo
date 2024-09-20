@@ -22,6 +22,30 @@ pnpm i -D @ruan-cat/vercel-deploy-tool@latest
 
 ## 使用教程
 
+### 增加 .gitignore 配置
+
+本工具会在根目录内默认生成一个全空配置的 vercel.null.def.json 文件，这个文件应该被忽略。
+
+后续的使用会不可避免的使用 vercel 的 api，会在你的项目内生成一个或多个.vercel 文件夹，故.vercel 文件夹也应该被忽略。
+
+```bash
+# 忽略vercel本地打包生成的文件
+.vercel
+# 忽略自动生成vercel部署配置文件
+vercel.null.def.json
+```
+
+如果你使用环境变量文件，推荐你加上 dotenv 推荐的环境变量文件忽略。
+
+```bash
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+```
+
 ### 获取 vercel 提供的 id
 
 用 [`vc link`](https://vercel.com/guides/how-can-i-use-github-actions-with-vercel) 命令获取 vercelOrgId 和 vercelProjectId。
