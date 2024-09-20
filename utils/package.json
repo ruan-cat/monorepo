@@ -1,11 +1,19 @@
 {
 	"name": "@ruan-cat/utils",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "阮喵喵工具集合。一个纯typescript库。",
 	"type": "module",
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
-	"homepage": "https://theme-hope.vuejs.press/",
+	"homepage": "https://github.com/RuanZhongNan/vercel-monorepo-test/tree/main/utils",
+	"bugs": {
+		"url": "https://github.com/RuanZhongNan/vercel-monorepo-test/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/RuanZhongNan/vercel-monorepo-test.git",
+		"directory": "utils"
+	},
 	"scripts": {
 		"typedoc": "typedoc",
 		"clean:type": "rimraf ./dist",
@@ -23,7 +31,11 @@
 		"./src/*": "./src/*"
 	},
 	"keywords": [],
-	"author": "ruan-cat",
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/RuanZhongNan"
+	},
 	"license": "MIT",
 	"publishConfig": {
 		"access": "public",

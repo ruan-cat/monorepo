@@ -1,11 +1,19 @@
 {
 	"name": "@ruan-cat/vercel-deploy-tool",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"description": "阮喵喵自用的vercel部署工具，用于实现复杂项目的部署。",
 	"type": "module",
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
-	"homepage": "https://theme-hope.vuejs.press/",
+	"homepage": "https://github.com/RuanZhongNan/vercel-monorepo-test/tree/main/demos/vercel-deploy-tool",
+	"bugs": {
+		"url": "https://github.com/RuanZhongNan/vercel-monorepo-test/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/RuanZhongNan/vercel-monorepo-test.git",
+		"directory": "demos/vercel-deploy-tool"
+	},
 	"scripts": {
 		"—build-not-use-for-now": "tsc",
 		"start": "node ./dist/index.js",
@@ -24,7 +32,11 @@
 	"keywords": [
 		"vercel"
 	],
-	"author": "ruan-cat",
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/RuanZhongNan"
+	},
 	"license": "MIT",
 	"publishConfig": {
 		"access": "public",

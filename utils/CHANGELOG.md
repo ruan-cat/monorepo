@@ -1,5 +1,11 @@
 # @ruan-cat/utils
 
+## 1.0.4
+
+### Patch Changes
+
+- 提供包索引，提供 readme 文档。
+
 ## 1.0.3
 
 ### Patch Changes
