@@ -97,7 +97,65 @@ import "@ruan-cat/vercel-deploy-tool/src/index.ts";
 pnpm i -D tsx
 ```
 
-运行 `pnpm run deploy-vercel` 命令就能部署项目到了。
+运行 `pnpm run deploy-vercel` 命令就能部署项目到 vercel 了。
+
+### 配置 github action（可选）
+
+```yaml
+name: 自写的vercel部署工具
+env:
+	# 必须密文提供token
+  VERCEL_TOKEN: ${{ secrets.vercel_token }}
+	# 可以明文提供组织id和项目id
+  # VERCEL_ORG_ID: ${{ secrets.vercel_orgId }}
+  # VERCEL_PROJECT_ID: ${{ secrets.vercel_projectId }}
+
+on:
+  push:
+    branches:
+			# 可以自选分支 为了避免过快耗尽vercel额度，建议只在main分支内触发部署
+      - main
+
+jobs:
+  Deploy-Production:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出分支
+        uses: actions/checkout@v4
+
+      - name: 安装pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          # 若项目提供了packageManager配置 这里可以不提供该配置
+          # version: 9
+					# 必须安装 vercel @dotenvx/dotenvx tsx 这三个全局包
+          run_install: |
+            - recursive: true
+            - args: [--global, "vercel", "@dotenvx/dotenvx", "tsx"]
+
+      - name: 安装node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.6.0
+          cache: pnpm
+
+      - name: 检查版本
+        run: |
+          node -v
+          pnpm -v
+          vc -v
+
+      - name: pnpm全局检查依赖包
+        run: pnpm ls -g
+
+      - name: 运行自写的vercel部署工具
+				# 读取环境变量
+        # https://dotenvx.com/docs/cis/github-actions#install-dotenvx
+				# pnpm run your-command
+        run: |
+          curl -sfS https://dotenvx.sh/install.sh | sh
+          pnpm dotenvx run -- pnpm run deploy-vercel
+```
 
 ## 路线图
 
