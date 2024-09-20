@@ -17,7 +17,7 @@ pnpm i -D @ruan-cat/vercel-deploy-tool@latest
 
 ## 环境要求
 
-- node >=22.6.0
+- node >=20.15.1
 - pnpm >=9
 
 ## 使用教程
@@ -160,7 +160,7 @@ jobs:
       - name: 安装node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.6.0
+          node-version: 20.15.1
           cache: pnpm
 
       - name: 检查版本
