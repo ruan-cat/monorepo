@@ -2,3 +2,6 @@ packages:
   - "packages/*"
   - "demos/*"
   - "utils"
+
+catalog:
+  typescript: 5.4.5
