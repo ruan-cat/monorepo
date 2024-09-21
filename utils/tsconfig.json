@@ -48,6 +48,6 @@
 		"./tests/with-types/types/CanNewTypeByClass.d.ts",
 	],
 	"exclude": [
-		"typedoc.config.cjs"
+		"notuse-typedoc.config.cjs"
 	]
 }
