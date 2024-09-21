@@ -17,7 +17,7 @@
 		"preinstall": "npx only-allow pnpm && npm run corepack:pnpm",
 		"corepack:pnpm": "corepack enable && corepack install",
 		"git:fetch": "git fetch -p",
-		"rm:node_modules": "pnpm -r rm:node_modules && rimraf node_modules",
+		"rm:node_modules": "pnpm -r rm:node_modules && rimraf node_modules pnpm-lock.yaml",
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"pnpm:clear": "pnpm -r clear && pnpm run clear",
 		"turbo:clear": "turbo clear",
