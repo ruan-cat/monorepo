@@ -130,7 +130,8 @@ const defaultConfig: UserConfig = {
 		},
 		{
 			custom: true,
-			debug: true,
+			// 关闭掉调试模式 不需要过多的提示内容
+			debug: false,
 		},
 	),
 
