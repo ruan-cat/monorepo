@@ -15,6 +15,7 @@
 		"directory": "utils"
 	},
 	"scripts": {
+		"copy-readme": "cpx readme.md docs",
 		"typedoc": "typedoc",
 		"docs:clean-dev": "vuepress-vite dev docs --clean-cache",
 		"docs:dev": "vuepress-vite dev docs",

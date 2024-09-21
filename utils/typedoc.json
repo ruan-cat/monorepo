@@ -10,7 +10,7 @@
 		"typedoc-plugin-markdown"
 	],
 	// 指定输出目录
-	"out": "./docs/typedoc-md",
+	"out": "./docs/",
 	// 排除不需要生成文档的目录
 	"exclude": [
 		"node_modules",
@@ -23,7 +23,9 @@
 	"excludeExternals": true,
 	"excludePrivate": true,
 	"excludeProtected": true,
-	"readme": "readme.md",
+	// 不需要专门移动readme文件
+	"readme": "none",
+	// "readme": "readme.md",
 	"hidePageHeader": true,
 	"enumMembersFormat": "table",
 	"parametersFormat": "table",
