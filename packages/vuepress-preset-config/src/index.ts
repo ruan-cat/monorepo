@@ -63,9 +63,10 @@ const defaultConfig: UserConfig = {
 					codetabs: true,
 					component: true,
 					demo: true,
-					figure: true,
-					imgLazyload: true,
-					imgSize: true,
+					// TODO: 根据 rc53 的更新记录，做迁移调整
+					// figure: true,
+					// imgLazyload: true,
+					// imgSize: true,
 					include: true,
 					mark: true,
 					stylize: [

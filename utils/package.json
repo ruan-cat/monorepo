@@ -49,6 +49,6 @@
 	"devDependencies": {
 		"typedoc": "^0.26.7",
 		"typedoc-plugin-markdown": "^4.2.7",
-		"typescript": "^5.4.5"
+		"typescript": "5.4.5"
 	}
 }
