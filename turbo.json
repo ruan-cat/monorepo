@@ -11,11 +11,6 @@
 				"^build"
 			]
 		},
-		"copy-dist": {
-			"dependsOn": [
-				"build:docs"
-			]
-		},
 		"docs:update-package": {
 			"dependsOn": []
 		},
