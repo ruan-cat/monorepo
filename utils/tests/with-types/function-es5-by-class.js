@@ -5,6 +5,7 @@
 
 // this: CanNewTypeByClass,
 function CanNewTypeByClass() {
+	// @ts-ignore
 	this.init.apply(this, arguments);
 }
 
@@ -15,6 +16,7 @@ CanNewTypeByClass.prototype.init = function () {
 };
 
 CanNewTypeByClass.prototype.showValue = function () {
+	// @ts-ignore
 	this.a++;
 	console.log(` a =  `, this.a);
 };

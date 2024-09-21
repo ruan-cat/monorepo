@@ -18,6 +18,7 @@ class ConcreteComponent extends Component {
 
 // 装饰角色
 abstract class Decorator extends Component {
+	// @ts-ignore
 	private component: Component = null;
 	constructor(component: Component) {
 		super();
