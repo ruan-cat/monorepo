@@ -10,7 +10,7 @@
 		"typedoc-plugin-markdown"
 	],
 	// 指定输出目录
-	"out": ".typedoc",
+	"out": "./docs/typedoc-md",
 	// 排除不需要生成文档的目录
 	"exclude": [
 		"node_modules",

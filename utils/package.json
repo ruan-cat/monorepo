@@ -16,6 +16,9 @@
 	},
 	"scripts": {
 		"typedoc": "typedoc",
+		"docs:clean-dev": "vuepress-vite dev docs --clean-cache",
+		"docs:dev": "vuepress-vite dev docs",
+		"build:docs": "vuepress-vite build docs",
 		"clean:type": "rimraf ./dist",
 		"generate:type-1": "vue-tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
 		"generate:type-2": "tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
@@ -47,6 +50,7 @@
 		"tsconfig.json"
 	],
 	"devDependencies": {
+		"@ruan-cat/vuepress-preset-config": "workspace:^",
 		"typedoc": "^0.26.7",
 		"typedoc-plugin-markdown": "^4.2.7",
 		"typescript": "5.4.5"
