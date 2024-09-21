@@ -153,11 +153,14 @@ function createDefaultConfig() {
 	return merge({}, defaultConfig);
 }
 
-const defineRuanCatVuepressPresetConfig = defineUserConfig(createDefaultConfig());
+/** 阮喵喵的默认 VuepressPresetConfig 配置对象 */
+export const ruanCatVuepressPresetConfig = defineUserConfig(createDefaultConfig());
 
-/** 定义阮喵vuepress配置对象 */
-function defineRuanCatVuepressConfig(userConfig: UserConfig) {
+/**
+ * 定义阮喵vuepress配置对象
+ * @description
+ * 传入参数 在阮喵喵配置的前提下 拓展配置
+ */
+export function defineRuanCatVuepressConfig(userConfig: UserConfig) {
 	return merge(createDefaultConfig(), userConfig);
 }
-
-export { defineRuanCatVuepressPresetConfig, defineRuanCatVuepressConfig };
