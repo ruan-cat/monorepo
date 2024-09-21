@@ -1,8 +1,5 @@
-// import "@ruan-cat-vercel-monorepo-test/vuepress-preset-config/dist/style.css";
-import {
-	defineRuanCatVuepressPresetConfig,
-	defineRuanCatVuepressConfig,
-} from "@ruan-cat-vercel-monorepo-test/vuepress-preset-config";
+// import "@ruan-cat/vuepress-preset-config/dist/style.css";
+import { defineRuanCatVuepressPresetConfig, defineRuanCatVuepressConfig } from "@ruan-cat/vuepress-preset-config";
 
 import { getDirname, path } from "vuepress/utils";
 

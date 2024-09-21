@@ -15,6 +15,6 @@
 		"rm:node_modules": "rimraf node_modules"
 	},
 	"devDependencies": {
-		"@ruan-cat-vercel-monorepo-test/vuepress-preset-config": "workspace:^"
+		"@ruan-cat/vuepress-preset-config": "workspace:^"
 	}
 }
