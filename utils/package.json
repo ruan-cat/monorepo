@@ -20,7 +20,7 @@
 		"docs:dev-main": "vuepress-vite dev docs",
 		"docs:dev": "turbo docs:dev",
 		"build:docs-main": "vuepress-vite build docs",
-		"build:docs": "turbo build:docs",
+		"build:docs": "turbo do-build-docs",
 		"clean:type": "rimraf dist",
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"generate:type-1": "vue-tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",

@@ -30,7 +30,7 @@
 				"generate-md"
 			]
 		},
-		"build:docs": {
+		"do-build-docs": {
 			"dependsOn": [
 				"build:docs-main"
 			]
