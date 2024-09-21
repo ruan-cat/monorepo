@@ -9,7 +9,7 @@
 	"scripts": {
 		"build": "vite build",
 		"build:watch": "vite build --watch",
-		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel",
+		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"docs:update-package": "pnpm dlx vp-update",
 		"rm:node_modules": "rimraf node_modules"
 	},
@@ -27,7 +27,7 @@
 		"./dist/style": {
 			"default": "./dist/style.css"
 		},
-		"./*": "./*"
+		"./src/*": "./src/*"
 	},
 	"typesVersions": {
 		"*": {

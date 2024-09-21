@@ -9,7 +9,7 @@
 	"type": "module",
 	"packageManager": "pnpm@9.5.0",
 	"engines": {
-		"node": ">=22.6.0",
+		"node": ">=20.15.1",
 		"vscode": "^1.22.0",
 		"pnpm": ">=9"
 	},
@@ -18,7 +18,7 @@
 		"corepack:pnpm": "corepack enable && corepack install",
 		"git:fetch": "git fetch -p",
 		"rm:node_modules": "pnpm -r rm:node_modules && rimraf node_modules",
-		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel && rimraf .cache && rimraf .temp",
+		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"pnpm:clear": "pnpm -r clear && pnpm run clear",
 		"turbo:clear": "turbo clear",
 		"update-package": "pnpm dlx vp-update",
