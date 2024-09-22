@@ -9,8 +9,6 @@ import { hopeTheme } from "vuepress-theme-hope";
 
 // const __dirname = getDirname(import.meta.url);
 
-import "./scroll-bar.scss";
-
 /**
  * 默认的vuepress基础配置
  * @description
