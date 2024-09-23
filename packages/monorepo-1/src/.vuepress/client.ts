@@ -1,1 +1,1 @@
-import "@ruan-cat/vuepress-preset-config/src/scss/index.scss";
+import "@ruan-cat/vuepress-preset-config/src/styles/common/index.scss";
