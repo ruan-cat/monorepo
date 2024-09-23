@@ -18,6 +18,14 @@ $border-radius-large: 1rem;
 // 间距 和 标识线 用小爱丽丝的颜色
 @include tools.setSidebarIndicatrix(drillVariables.$drill-dark-color);
 
+:root {
+	// --vp-c-accent: var(drillVariables.$drill-main-color);
+	// --vp-c-accent: drillVariables.$drill-main-color;
+	--vp-c-accent: #{drillVariables.$drill-main-color};
+	--bg-color: #{drillVariables.$alice-blue};
+	// --vp-c-accent: $drill-main-color;
+}
+
 hr {
 	border-top: none;
 	border-top: 2px dotted var(--border-color);
