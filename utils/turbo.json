@@ -6,12 +6,16 @@
 		"copy-readme": {
 			"cache": false
 		},
+		"copy-changelog": {
+			"cache": false
+		},
 		"typedoc": {
 			"cache": false
 		},
 		"generate-md": {
 			"dependsOn": [
 				"copy-readme",
+				"copy-changelog",
 				"typedoc"
 			]
 		},

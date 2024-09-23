@@ -16,7 +16,9 @@
 	},
 	"scripts": {
 		"copy-readme": "cpx readme.md docs",
+		"copy-changelog": "cpx CHANGELOG.md docs",
 		"typedoc": "typedoc",
+		"prettier-docs-(invalid)": "prettier docs/**/*.md --write",
 		"docs:dev-main": "vuepress-vite dev docs",
 		"docs:dev": "turbo docs:dev",
 		"build:docs-main": "vuepress-vite build docs",
