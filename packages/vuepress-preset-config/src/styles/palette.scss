@@ -1,3 +1,5 @@
-// 需要使用时就导入
+// 在具体的项目内 需要使用时就导入 这一行仅仅是一个使用案例
 // @import "./drill-style/hope-use-palette.scss";
+
+// 在本配置包内 默认的变量群使用common的
 @import "./common/hope-use-palette.scss";

@@ -1,6 +1,10 @@
 // 标准的 样式配置
 
+// 导入工具
 @use "../tools/tools.scss" as tools;
+
+// 导入变量 考虑到此文件可能会在客户端ts配置内，被独立导入 故此处需要手动导入样式
+@import "./hope-use-palette.scss";
 
 // 强制重设根提供的侧边栏配置
 @include tools.clearScrollbar(":root");
@@ -13,7 +17,8 @@ $gray: rgba(0, 0, 0, 0.05);
 $grayDark: rgba(0, 0, 0, 0.25);
 
 // 设置全体的滚动条样式
-@include tools.setScrollbar(rgba($theme-color, 1), $gray);
+// @include tools.setScrollbar(rgba($theme-color, 1), $gray);
+@include tools.setScrollbar(var(--vp-c-accent-bg), $gray);
 
 // 侧边栏清空冗余的配置
 @include tools.clearScrollbar(".vp-sidebar");
