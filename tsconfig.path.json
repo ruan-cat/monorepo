@@ -11,9 +11,6 @@
 			"@packages-docs/*": [
 				"./packages/*/docs"
 			],
-			"@ruan-cat/vuepress-preset-config": [
-				"./packages/vuepress-preset-config/src"
-			],
 			// 提供两种路径 该路径允许独立查询里面的子模块
 			// FIXME: 失效，该配置无法实现查询子模块。
 			// "utils/*": [
