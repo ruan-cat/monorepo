@@ -1,1 +1,6 @@
-// @import "@ruan-cat/vuepress-preset-config/src/scss/index";
+@use "@sass-palette/hope-config";
+
+@import "config";
+@import "palette";
+
+// @import "@ruan-cat/vuepress-preset-config/src/styles/common/index.scss";
