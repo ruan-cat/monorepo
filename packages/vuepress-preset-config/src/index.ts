@@ -58,13 +58,14 @@ const defaultConfig: UserConfig = {
 				mdEnhance: {
 					align: true,
 					attrs: true,
-					codetabs: true,
 					component: true,
 					demo: true,
 					// TODO: 根据 rc53 的更新记录，做迁移调整
 					// figure: true,
 					// imgLazyload: true,
 					// imgSize: true,
+					// TODO: 根据 rc56 的更新记录，做迁移调整
+					// codetabs: true,
 					include: true,
 					mark: true,
 					stylize: [
@@ -83,8 +84,9 @@ const defaultConfig: UserConfig = {
 					],
 					sub: true,
 					sup: true,
-					tabs: true,
 					vPre: true,
+					// TODO: 根据 rc56 的更新记录，做迁移调整
+					// tabs: true,
 
 					// 在启用之前安装 chart.js
 					// chart: true,
