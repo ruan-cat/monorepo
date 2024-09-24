@@ -2,9 +2,19 @@
 	"name": "@ruan-cat/vuepress-preset-config",
 	"version": "0.1.1",
 	"description": "用于给大多数的vuepress项目提供一个预设的配置文件。",
-	"author": "ruan-cat",
-	"license": "MIT",
 	"type": "module",
+	"main": "./dist/vuepress-preset-config.js",
+	"module": "./dist/vuepress-preset-config.js",
+	"types": "./src/index.ts",
+	"homepage": "https://github.com/RuanZhongNan/vercel-monorepo-test/tree/main/packages/vuepress-preset-config",
+	"bugs": {
+		"url": "https://github.com/RuanZhongNan/vercel-monorepo-test/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/RuanZhongNan/vercel-monorepo-test.git",
+		"directory": "packages/vuepress-preset-config"
+	},
 	"scripts": {
 		"build": "vite build",
 		"build:watch": "vite build --watch",
@@ -12,9 +22,6 @@
 		"docs:update-package": "pnpm dlx vp-update",
 		"rm:node_modules": "rimraf node_modules"
 	},
-	"main": "./dist/vuepress-preset-config.js",
-	"module": "./dist/vuepress-preset-config.js",
-	"types": "./src/index.ts",
 	"exports": {
 		".": {
 			"require": "./dist/vuepress-preset-config.umd.cjs",
@@ -25,6 +32,20 @@
 		"./package.json": "./package.json",
 		"./dist/style.css": "./dist/style.css",
 		"./src/*": "./src/*"
+	},
+	"keywords": [
+		"vuepress"
+	],
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/RuanZhongNan"
+	},
+	"license": "MIT",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
 	},
 	"typesVersions": {
 		"*": {
