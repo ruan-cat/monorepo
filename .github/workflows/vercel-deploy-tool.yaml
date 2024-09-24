@@ -12,8 +12,8 @@ on:
   push:
     branches:
       # 避免高频率占用vercel资源，改成仅在main分支执行部署行为
-      # - main
-      - dev-pause
+      - main
+      # - dev-pause
       # - dev
 
 jobs:
