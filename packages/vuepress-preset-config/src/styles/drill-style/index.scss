@@ -3,6 +3,9 @@
 @use "../tools/tools.scss" as tools;
 @use "./variables.scss" as drillVariables;
 
+@import "./hope-use-config.scss";
+@import "./hope-use-palette.scss";
+
 // 爱丽丝样式 对基础版本的样式做拓展与覆盖
 @import "../common/index.scss";
 
@@ -26,8 +29,11 @@ $border-radius-large: 1rem;
 	// --vp-c-accent: $drill-main-color;
 	// --bg-color: #{drillVariables.$alice-blue};
 	// 有效
-	// --vp-c-accent: #{drillVariables.$drill-main-color};
-	// --vp-c-bg: #{drillVariables.$alice-blue};
+	--vp-c-accent: #{$vp-c-accent};
+	--vp-c-bg: #{$vp-c-bg};
+	--vp-c-bg-soft: rgba($vp-c-bg, 0.9);
+	--vp-c-bg-elv-soft: rgba($vp-c-bg, 0.9);
+	// --vp-c-bg-elv-soft
 }
 
 hr {
