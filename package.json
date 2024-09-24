@@ -32,6 +32,7 @@
 		"eci:b": "eslint-config-inspector build",
 		"turbo:build-docs": "turbo build:docs",
 		"on-github-action-flow": "turbo eci:b build:docs",
+		"npm:login": "pnpm login --registry=https://registry.npmjs.org/",
 		"changeset:init": "changeset init",
 		"changeset:add": "changeset add",
 		"changeset:version": "changeset version",
