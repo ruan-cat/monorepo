@@ -1,52 +1,52 @@
 {
-  "name": "@ruan-cat/vuepress-preset-config",
-  "private": true,
-  "version": "0.1.0",
-  "description": "用于给大多数的vuepress项目提供一个预设的配置文件",
-  "author": "ruan-cat",
-  "license": "MIT",
-  "type": "module",
-  "scripts": {
-    "build": "vite build",
-    "build:watch": "vite build --watch",
-    "clear": "rimraf dist .turbo .vercel .cache .temp",
-    "docs:update-package": "pnpm dlx vp-update",
-    "rm:node_modules": "rimraf node_modules"
-  },
-  "main": "./dist/vuepress-preset-config.js",
-  "module": "./dist/vuepress-preset-config.js",
-  "types": "./src/index.ts",
-  "exports": {
-    ".": {
-      "require": "./dist/vuepress-preset-config.umd.cjs",
-      "module": "./dist/vuepress-preset-config.js",
-      "import": "./dist/vuepress-preset-config.js",
-      "types": "./src/index.ts"
-    },
-    "./package.json": "./package.json",
-    "./dist/style.css": "./dist/style.css",
-    "./src/*": "./src/*"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/*",
-        "./*"
-      ]
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "devDependencies": {
-    "@types/node": "^20.16.5",
-    "@types/rollup-plugin-visualizer": "^4.2.4",
-    "sass-embedded": "^1.79.3"
-  },
-  "dependencies": {
-    "@vuepress/bundler-vite": "2.0.0-rc.15",
-    "rollup-plugin-visualizer": "^5.12.0",
-    "vuepress": "2.0.0-rc.15",
-    "vuepress-theme-hope": "2.0.0-rc.54"
-  }
+	"name": "@ruan-cat/vuepress-preset-config",
+	"private": true,
+	"version": "0.1.0",
+	"description": "用于给大多数的vuepress项目提供一个预设的配置文件",
+	"author": "ruan-cat",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"build": "vite build",
+		"build:watch": "vite build --watch",
+		"clear": "rimraf dist .turbo .vercel .cache .temp",
+		"docs:update-package": "pnpm dlx vp-update",
+		"rm:node_modules": "rimraf node_modules"
+	},
+	"main": "./dist/vuepress-preset-config.js",
+	"module": "./dist/vuepress-preset-config.js",
+	"types": "./src/index.ts",
+	"exports": {
+		".": {
+			"require": "./dist/vuepress-preset-config.umd.cjs",
+			"module": "./dist/vuepress-preset-config.js",
+			"import": "./dist/vuepress-preset-config.js",
+			"types": "./src/index.ts"
+		},
+		"./package.json": "./package.json",
+		"./dist/style.css": "./dist/style.css",
+		"./src/*": "./src/*"
+	},
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/*",
+				"./*"
+			]
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"devDependencies": {
+		"@types/node": "^20.16.6",
+		"@types/rollup-plugin-visualizer": "^4.2.4",
+		"sass-embedded": "^1.79.3"
+	},
+	"dependencies": {
+		"@vuepress/bundler-vite": "2.0.0-rc.15",
+		"rollup-plugin-visualizer": "^5.12.0",
+		"vuepress": "2.0.0-rc.15",
+		"vuepress-theme-hope": "2.0.0-rc.56"
+	}
 }
