@@ -7,6 +7,7 @@ import { viteBundler } from "@vuepress/bundler-vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { hopeTheme } from "vuepress-theme-hope";
 
+export { hopeTheme } from "vuepress-theme-hope";
 // const __dirname = getDirname(import.meta.url);
 
 /**
@@ -25,15 +26,16 @@ const defaultConfig: UserConfig = {
 	bundler: viteBundler({
 		viteOptions: {
 			plugins: [
-				visualizer({
-					// filename: "dist/visualizer/index.html",
-					// TODO: 未来这里需要考虑实现vuepress的路由配置，在vuepress内加上一个路由来导航。
-					// 我们本地生成了一大堆html静态页面，如何对接接洽vuepress的路由？
-					// typedoc好像有类似的实现方案。
-					filename: "src/.vuepress/dist/visualizer/index.html",
-					title: "visualizer打包分析报告",
-					template: "network",
-				}),
+				// TODO: 不提供 没必要输出打包报告
+				// visualizer({
+				// 	// filename: "dist/visualizer/index.html",
+				// 	// TODO: 未来这里需要考虑实现vuepress的路由配置，在vuepress内加上一个路由来导航。
+				// 	// 我们本地生成了一大堆html静态页面，如何对接接洽vuepress的路由？
+				// 	// typedoc好像有类似的实现方案。
+				// 	filename: "src/.vuepress/dist/visualizer/index.html",
+				// 	title: "visualizer打包分析报告",
+				// 	template: "network",
+				// }),
 			],
 		},
 		vuePluginOptions: {},
@@ -128,6 +130,7 @@ const defaultConfig: UserConfig = {
 				},
 			},
 		},
+
 		{
 			custom: true,
 			// 关闭掉调试模式 不需要过多的提示内容

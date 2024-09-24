@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.4
+
+### Patch Changes
+
+- 不提供打包报告配置。
+
 ## 0.1.3
 
 ### Patch Changes
