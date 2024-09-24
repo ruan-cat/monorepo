@@ -21,6 +21,16 @@
 			"dependsOn": [
 				"^clear"
 			]
+		},
+		"//#changeset:publish": {
+			"dependsOn": [
+				"^build"
+			]
+		},
+		"//#do-publish": {
+			"dependsOn": [
+				"//#changeset:publish"
+			]
 		}
 	}
 }

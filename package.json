@@ -37,6 +37,7 @@
 		"changeset:add": "changeset add",
 		"changeset:version": "changeset version",
 		"changeset:publish": "changeset publish",
+		"turbo:publish": "turbo do-publish",
 		"test:vercel-tool": "node --import=tsx ./demos/vercel-deploy-tool/src/index.ts"
 	},
 	"devDependencies": {
@@ -88,6 +89,6 @@
 	"dependencies": {
 		"@dotenvx/dotenvx": "^1.14.1",
 		"consola": "^3.2.3",
-		"lodash-es": "^4.17.21"
+		"lodash-es": "catalog:"
 	}
 }

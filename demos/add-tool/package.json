@@ -24,6 +24,6 @@
 	"license": "ISC",
 	"devDependencies": {
 		"@ruan-cat/vercel-deploy-tool": "workspace:^",
-		"@types/lodash-es": "^4.17.12"
+		"lodash-es": "catalog:"
 	}
 }
