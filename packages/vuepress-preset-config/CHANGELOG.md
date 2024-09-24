@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.3
+
+### Patch Changes
+
+- 补发 src 。
+
 ## 0.1.2
 
 ### Patch Changes
