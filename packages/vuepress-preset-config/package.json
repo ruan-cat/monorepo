@@ -4,7 +4,6 @@
 	"description": "用于给大多数的vuepress项目提供一个预设的配置文件。",
 	"type": "module",
 	"main": "./dist/vuepress-preset-config.js",
-	"module": "./dist/vuepress-preset-config.js",
 	"types": "./src/index.ts",
 	"homepage": "https://github.com/RuanZhongNan/vercel-monorepo-test/tree/main/packages/vuepress-preset-config",
 	"bugs": {
@@ -24,13 +23,9 @@
 	},
 	"exports": {
 		".": {
-			"require": "./dist/vuepress-preset-config.umd.cjs",
-			"module": "./dist/vuepress-preset-config.js",
 			"import": "./dist/vuepress-preset-config.js",
 			"types": "./src/index.ts"
 		},
-		"./package.json": "./package.json",
-		"./dist/style.css": "./dist/style.css",
 		"./src/*": "./src/*"
 	},
 	"keywords": [
