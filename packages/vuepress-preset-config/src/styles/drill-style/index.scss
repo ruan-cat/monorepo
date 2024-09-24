@@ -6,6 +6,8 @@
 // 爱丽丝样式 对基础版本的样式做拓展与覆盖
 @import "../common/index.scss";
 
+// $theme-color: drillVariables.$drill-main-color;
+
 // 圆角-小
 $border-radius-mini: 0.5rem;
 
@@ -21,9 +23,11 @@ $border-radius-large: 1rem;
 :root {
 	// --vp-c-accent: var(drillVariables.$drill-main-color);
 	// --vp-c-accent: drillVariables.$drill-main-color;
-	--vp-c-accent: #{drillVariables.$drill-main-color};
-	--bg-color: #{drillVariables.$alice-blue};
 	// --vp-c-accent: $drill-main-color;
+	// --bg-color: #{drillVariables.$alice-blue};
+	// 有效
+	// --vp-c-accent: #{drillVariables.$drill-main-color};
+	// --vp-c-bg: #{drillVariables.$alice-blue};
 }
 
 hr {
