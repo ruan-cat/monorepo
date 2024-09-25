@@ -21,6 +21,7 @@
 		},
 		"docs:dev-main": {
 			"dependsOn": [
+				"build",
 				"generate-md"
 			]
 		},
@@ -31,6 +32,7 @@
 		},
 		"build:docs-main": {
 			"dependsOn": [
+				"build",
 				"generate-md"
 			]
 		},

@@ -10,6 +10,18 @@ import { hopeTheme } from "vuepress-theme-hope";
 export { hopeTheme } from "vuepress-theme-hope";
 // const __dirname = getDirname(import.meta.url);
 
+function getYaer() {
+	return new Date().getFullYear();
+}
+
+/** 作者对外称呼 */
+export const authorName = <const>"阮喵喵";
+
+/** 页脚模板函数 */
+export function footerTmpl() {
+	return <const>`MIT Licensed | Copyright © ${getYaer()}-present ${authorName}`;
+}
+
 /**
  * 默认的vuepress基础配置
  * @description
@@ -50,7 +62,18 @@ const defaultConfig: UserConfig = {
 
 			sidebar: "structure",
 
+			// 不使用全屏
+			fullscreen: false,
+			// 不使用暗黑模式
+			darkmode: "disable",
+
+			// 开发模式下是否启动热更新，显示所有更改并重新渲染
 			hotReload: true,
+
+			author: {
+				name: authorName,
+				url: "https://github.com/RuanZhongNan",
+			},
 
 			plugins: {
 				components: {
@@ -127,6 +150,11 @@ const defaultConfig: UserConfig = {
 
 					// install sandpack-vue3 before enabling it
 					// sandpack: true,
+				},
+
+				searchPro: {
+					indexContent: true,
+					autoSuggestions: true,
 				},
 			},
 		},
