@@ -239,6 +239,7 @@ aside#toc {
 			width: 1rem;
 			clip-path: ellipse(100% 50% at 0% 50%);
 			background-color: drillVariables.$alice-yellow;
+			inset-inline-start: 0;
 		}
 
 		.vp-toc-item {

@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.7
+
+### Patch Changes
+
+- 🐞 fix: 修复了右侧侧边栏指示标签的移动位置。位置对齐了。
+
 ## 0.1.6
 
 ### Patch Changes
