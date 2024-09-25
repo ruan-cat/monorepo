@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/vuepress-preset-config",
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"description": "用于给大多数的vuepress项目提供一个预设的配置文件。",
 	"type": "module",
 	"main": "./dist/vuepress-preset-config.js",
@@ -65,6 +65,7 @@
 		"vuepress": "2.0.0-rc.15",
 		"vuepress-plugin-search-pro": "2.0.0-rc.54",
 		"vuepress-theme-hope": "2.0.0-rc.56",
-		"sass-embedded": "^1.79.3"
+		"sass-embedded": "^1.79.3",
+		"vue": "^3.5.8"
 	}
 }

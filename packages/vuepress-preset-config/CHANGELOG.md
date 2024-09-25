@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.9
+
+### Patch Changes
+
+- 🔧 build: 将 vue 作为项目的依赖
+
 ## 0.1.8
 
 ### Patch Changes
