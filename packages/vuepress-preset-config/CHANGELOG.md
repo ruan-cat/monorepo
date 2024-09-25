@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.6
+
+### Patch Changes
+
+- 调整小爱丽丝风格的面包屑导航栏，不使用箭头了。
+
 ## 0.1.5
 
 ### Patch Changes
