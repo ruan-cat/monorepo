@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.8
+
+### Patch Changes
+
+- ✨ feat: 调整 sass-embedded 为 dependencies
+
 ## 0.1.7
 
 ### Patch Changes
