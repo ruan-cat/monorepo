@@ -36,93 +36,84 @@ hr {
 	border-top: 2px dotted var(--border-color);
 }
 
+// 不提供箭头了 太难看了
 // 顶部导航栏
-.vp-breadcrumb ol {
-	display: flex;
-	flex-direction: row;
-
-	li {
-		display: inline-flex;
-		flex-direction: row;
-
-		$size: 1rem;
-		$height: 2.5 * $size;
-		line-height: $height;
-		height: $height;
-		$padding: $size;
-
-		// 箭头
-		@mixin arrow($color) {
-			&::before {
-				content: "";
-				display: inline-block;
-				width: 20px;
-				height: 100%;
-				background-color: $color;
-
-				bottom: 0 !important;
-				margin-inline-end: 0 !important;
-				clip-path: polygon(100% 0, 100% 100%, 0 100%, 100% 50%, 0 0);
-			}
-
-			&::after {
-				content: "";
-				display: inline-block;
-				width: 20px;
-				height: 100%;
-				background-color: $color;
-				clip-path: polygon(100% 50%, 0 0, 0 100%);
-			}
-		}
-
-		a.route-link {
-			display: flex;
-			color: drillVariables.$drill-black;
-			// 清除全部间距
-			padding: 0 0;
-			padding-right: 0;
-			height: 100%;
-			width: 100%;
-
-			span {
-				display: inline-block;
-				padding-left: 0.5rem;
-			}
-		}
-
-		// 全部
-		&:nth-child(n) .route-link {
-			@include arrow(drillVariables.$drill-main-color);
-			span {
-				background-color: drillVariables.$drill-main-color;
-			}
-		}
-
-		// 不提供根据次序实现的颜色差异。
-		// &:nth-child(3n + 1) .route-link {
-		// 	@include arrow($drill-yellow);
-		// 	span {
-		// 		background-color: $drill-yellow;
-		// 	}
-		// }
-		// &:nth-child(3n + 2) .route-link {
-		// 	@include arrow($drill-main-color);
-		// 	span {
-		// 		background-color: $drill-main-color;
-		// 	}
-		// }
-		// &:nth-child(3n + 3) .route-link {
-		// 	@include arrow($drill-main-color);
-		// 	span {
-		// 		background-color: $drill-main-color;
-		// 	}
-		// }
-
-		&:last-child a {
-			// padding-inline-end: $padding;
-		}
-	}
-}
+// .vp-breadcrumb ol {
+// 	display: flex;
+// 	flex-direction: row;
+// 	li {
+// 		display: inline-flex;
+// 		flex-direction: row;
+// 		$size: 1rem;
+// 		$height: 2.5 * $size;
+// 		line-height: $height;
+// 		height: $height;
+// 		$padding: $size;
+// 		// 箭头
+// 		@mixin arrow($color) {
+// 			&::before {
+// 				content: "";
+// 				display: inline-block;
+// 				width: 20px;
+// 				height: 100%;
+// 				background-color: $color;
+// 				bottom: 0 !important;
+// 				margin-inline-end: 0 !important;
+// 				clip-path: polygon(100% 0, 100% 100%, 0 100%, 100% 50%, 0 0);
+// 			}
+// 			&::after {
+// 				content: "";
+// 				display: inline-block;
+// 				width: 20px;
+// 				height: 100%;
+// 				background-color: $color;
+// 				clip-path: polygon(100% 50%, 0 0, 0 100%);
+// 			}
+// 		}
+// 		a.route-link {
+// 			display: flex;
+// 			color: drillVariables.$drill-black;
+// 			// 清除全部间距
+// 			padding: 0 0;
+// 			padding-right: 0;
+// 			height: 100%;
+// 			width: 100%;
+// 			span {
+// 				display: inline-block;
+// 				padding-left: 0.5rem;
+// 			}
+// 		}
+// 		// 全部
+// 		&:nth-child(n) .route-link {
+// 			@include arrow(drillVariables.$drill-main-color);
+// 			span {
+// 				background-color: drillVariables.$drill-main-color;
+// 			}
+// 		}
+// 		// 不提供根据次序实现的颜色差异。
+// 		// &:nth-child(3n + 1) .route-link {
+// 		// 	@include arrow($drill-yellow);
+// 		// 	span {
+// 		// 		background-color: $drill-yellow;
+// 		// 	}
+// 		// }
+// 		// &:nth-child(3n + 2) .route-link {
+// 		// 	@include arrow($drill-main-color);
+// 		// 	span {
+// 		// 		background-color: $drill-main-color;
+// 		// 	}
+// 		// }
+// 		// &:nth-child(3n + 3) .route-link {
+// 		// 	@include arrow($drill-main-color);
+// 		// 	span {
+// 		// 		background-color: $drill-main-color;
+// 		// 	}
+// 		// }
+// 		&:last-child a {
+// 			// padding-inline-end: $padding;
+// 		}
+// 	}
+// }
 
 .vp-breadcrumb {
 	padding-inline: 0;
