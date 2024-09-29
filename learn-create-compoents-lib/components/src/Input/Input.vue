@@ -41,5 +41,12 @@ defineExpose({
 });
 </script>
 
-<!-- 有疑惑 不清楚这样写的语法对不对 -->
+<!--
+  有疑惑 不清楚这样写的语法对不对 
+	经过打包测试 该样式确实可以参与打包的
+-->
 <style scoped lang="scss" src="./style/index.scss"></style>
+
+<!-- <style scoped lang="scss">
+@import "./style/index.scss";
+</style> -->

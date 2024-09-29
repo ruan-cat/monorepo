@@ -42,7 +42,7 @@ export default defineConfig(() => {
 			},
 			lib: {
 				// 指定入口文件
-				entry: "src/index.ts",
+				entry: "./src/index.ts",
 				// 模块名
 				name: "GIE_COMPONENTS",
 			},
