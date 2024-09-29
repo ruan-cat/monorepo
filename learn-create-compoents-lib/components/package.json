@@ -4,6 +4,11 @@
 	"description": "练习了2年半的高性能组件库",
 	"scripts": {},
 	"devDependencies": {
+		"gulp": "^5.0.0",
+		"gulp-autoprefixer": "^9.0.0",
+		"gulp-sass": "^5.1.0",
+		"sass": "^1.79.4",
+		"shelljs": "^0.8.5",
 		"vite-plugin-dts": "^4.2.2"
 	}
 }
