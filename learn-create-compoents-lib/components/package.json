@@ -2,8 +2,24 @@
 	"name": "@giegie/components",
 	"version": "0.0.1",
 	"description": "练习了2年半的高性能组件库",
-	"scripts": {},
+	"main": "lib",
+	"module": "es",
+	"type": "module",
+	"types": "types/index.d.ts",
+	"files": [
+		"es",
+		"lib",
+		"types",
+		"global.d.ts"
+	],
+	"scripts": {
+		"build": "gulp -f build/gulpfile.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
 	"devDependencies": {
+		"@types/gulp": "^4.0.17",
 		"@vitejs/plugin-vue": "^5.1.2",
 		"gulp": "^5.0.0",
 		"gulp-autoprefixer": "^9.0.0",
