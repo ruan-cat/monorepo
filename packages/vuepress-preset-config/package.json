@@ -61,11 +61,12 @@
 	},
 	"dependencies": {
 		"@vuepress/bundler-vite": "2.0.0-rc.15",
+		"@vuepress/plugin-redirect": "2.0.0-rc.8",
 		"rollup-plugin-visualizer": "^5.12.0",
+		"sass-embedded": "^1.79.3",
+		"vue": "^3.5.8",
 		"vuepress": "2.0.0-rc.15",
 		"vuepress-plugin-search-pro": "2.0.0-rc.54",
-		"vuepress-theme-hope": "2.0.0-rc.56",
-		"sass-embedded": "^1.79.3",
-		"vue": "^3.5.8"
+		"vuepress-theme-hope": "2.0.0-rc.56"
 	}
 }
