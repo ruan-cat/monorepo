@@ -2,6 +2,7 @@ packages:
   - "packages/*"
   - "demos/*"
   - "utils"
+  - "learn-create-compoents-lib/*"
 
 catalog:
   typescript: 5.4.5
