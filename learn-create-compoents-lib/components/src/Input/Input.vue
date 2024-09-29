@@ -7,6 +7,7 @@
 		<input v-model="state" ref="inputRef" class="gie-input__control" type="text" :disabled="props.disabled" />
 	</div>
 </template>
+
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { InputEmits, InputProps } from "./Input";
@@ -39,3 +40,6 @@ defineExpose({
 	focus,
 });
 </script>
+
+<!-- 有疑惑 不清楚这样写的语法对不对 -->
+<style scoped lang="scss" src="./style/index.scss"></style>
