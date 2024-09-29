@@ -13,7 +13,8 @@
 		"global.d.ts"
 	],
 	"scripts": {
-		"build": "gulp -f build/gulpfile.js"
+		"build": "gulp -f build/gulpfile.js",
+		"rm:node_modules": "rimraf node_modules"
 	},
 	"keywords": [],
 	"author": "",

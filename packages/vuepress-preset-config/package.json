@@ -61,7 +61,6 @@
 	},
 	"dependencies": {
 		"@vuepress/bundler-vite": "2.0.0-rc.15",
-		"@vuepress/plugin-redirect": "2.0.0-rc.8",
 		"rollup-plugin-visualizer": "^5.12.0",
 		"sass-embedded": "^1.79.3",
 		"vue": "^3.5.8",

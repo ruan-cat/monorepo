@@ -8,14 +8,15 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "vue-tsc -b && vite build",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"rm:node_modules": "rimraf node_modules"
 	},
 	"dependencies": {
 		"vue": "^3.4.37"
 	},
 	"devDependencies": {
 		"@vitejs/plugin-vue": "^5.1.2",
-		"typescript": "^5.5.3",
+		"typescript": "catalog:",
 		"vite": "^5.4.1",
 		"vite-plugin-dts": "^4.2.2",
 		"vue-tsc": "^2.0.29"
