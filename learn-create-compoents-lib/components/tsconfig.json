@@ -2,7 +2,9 @@
 	// "extends": "../../tsconfig.json",
 	// 在我们这个项目内，其目录结构有变化，换成别的。
 	// 换成vite项目自主新建的tsconfig.json
-	"extends": "../tsconfig.json",
+	// "extends": "../tsconfig.json",
+	// 使用来自测试应用项目提供的类型声明配置
+	"extends": "../test-app/tsconfig.json",
 	"include": [
 		"src",
 		"global.d.ts"

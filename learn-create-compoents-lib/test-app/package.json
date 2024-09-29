@@ -1,7 +1,7 @@
 {
-	"name": "@ruan-cat-learn/lccl-roots",
+	"name": "@ruan-cat-learn/lccl-app",
 	"private": true,
-	"description": "学习制作组件库 learn-create-compoents-lib",
+	"description": "学习制作组件库 learn-create-compoents-lib 相对根目录 测试应用",
 	"homepage": "https://juejin.cn/post/7288597387798904866",
 	"version": "0.0.0",
 	"type": "module",
@@ -17,6 +17,7 @@
 		"@vitejs/plugin-vue": "^5.1.2",
 		"typescript": "^5.5.3",
 		"vite": "^5.4.1",
+		"vite-plugin-dts": "^4.2.2",
 		"vue-tsc": "^2.0.29"
 	}
 }
