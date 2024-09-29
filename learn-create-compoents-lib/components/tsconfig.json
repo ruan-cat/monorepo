@@ -1,0 +1,13 @@
+{
+	// "extends": "../../tsconfig.json",
+	// 在我们这个项目内，其目录结构有变化，换成别的。
+	// 换成vite项目自主新建的tsconfig.json
+	"extends": "../tsconfig.json",
+	"include": [
+		"src"
+	],
+	"compilerOptions": {
+		"moduleResolution": "node",
+		"baseUrl": "."
+	}
+}
