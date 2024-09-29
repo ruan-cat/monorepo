@@ -14,3 +14,16 @@ export const withInstall = <T, E extends Record<string, any>>(main: T, extra?: E
 	}
 	return main as SFCWithInstall<T> & E;
 };
+
+/**
+ * makeInstaller 实际上也是一个vue插件，他将组件插件循环进行安装，也是从element-plus复制的😂。
+ */
+export const makeInstaller = (components: Plugin[] = []) => {
+	const install = (app: App) => {
+		console.log(components);
+		components.forEach((c) => app.use(c));
+	};
+	return {
+		install,
+	};
+};
