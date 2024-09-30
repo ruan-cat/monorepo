@@ -8,6 +8,16 @@ import dts from "vite-plugin-dts";
 export default defineConfig(() => {
 	return {
 		build: {
+			// 为了方便学习，查看构建产物，将此置为 false，不要混淆产物代码
+			minify: false,
+
+			lib: {
+				// 指定入口文件
+				entry: "./src/index.ts",
+				// 模块名
+				name: "GIE_COMPONENTS",
+			},
+
 			rollupOptions: {
 				// 将vue模块排除在打包文件之外，使用用这个组件库的项目的vue模块
 				external: ["vue"],
@@ -40,13 +50,8 @@ export default defineConfig(() => {
 					},
 				],
 			},
-			lib: {
-				// 指定入口文件
-				entry: "./src/index.ts",
-				// 模块名
-				name: "GIE_COMPONENTS",
-			},
 		},
+
 		plugins: [
 			vue(),
 			dts({
