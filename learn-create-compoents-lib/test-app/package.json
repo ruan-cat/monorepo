@@ -12,6 +12,7 @@
 		"rm:node_modules": "rimraf node_modules"
 	},
 	"dependencies": {
+		"@giegie/components": "workspace:^",
 		"vue": "^3.4.37"
 	},
 	"devDependencies": {
