@@ -20,7 +20,8 @@
 		"./types": "./types/index.d.ts",
 		"./lib/*": "./lib/*",
 		"./es/*": "./es/*",
-		"./src/*": "./src/*"
+		"./src/*": "./src/*",
+		"./global.d.ts": "./global.d.ts"
 	},
 	"scripts": {
 		"build": "gulp -f build/gulpfile.js",

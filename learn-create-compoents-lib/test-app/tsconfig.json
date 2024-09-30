@@ -9,11 +9,6 @@
 		}
 	],
 	"compilerOptions": {
-		"types": [
-			// "@giegie/components/global.d.ts"
-			// "@giegie/components"
-			"./components.d.ts",
-			"./auto-imports.d.ts"
-		]
+		"types": []
 	}
 }
