@@ -2,16 +2,26 @@
 	"name": "@giegie/components",
 	"version": "0.0.1",
 	"description": "练习了2年半的高性能组件库",
-	"main": "lib",
-	"module": "es",
+	"main": "./lib/index.js",
+	"module": "./es/index.js",
 	"type": "module",
-	"types": "types/index.d.ts",
+	"types": "./types/index.d.ts",
 	"files": [
 		"es",
 		"lib",
 		"types",
 		"global.d.ts"
 	],
+	"exports": {
+		".": {
+			"import": "./es/index.js",
+			"types": "./types/index.d.ts"
+		},
+		"./types": "./types/index.d.ts",
+		"./lib": "./lib/index.js",
+		"./es": "./es/index.js",
+		"./src/*": "./src/*"
+	},
 	"scripts": {
 		"build": "gulp -f build/gulpfile.js",
 		"build:vite": "vite build",

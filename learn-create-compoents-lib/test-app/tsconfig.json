@@ -10,7 +10,8 @@
 	],
 	"compilerOptions": {
 		"types": [
-			"@giegie/components/global"
+			// "@giegie/components/global.d.ts"
+			// "@giegie/components"
 		]
 	}
 }

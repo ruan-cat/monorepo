@@ -6,8 +6,9 @@
 	// 使用来自测试应用项目提供的类型声明配置
 	"extends": "../test-app/tsconfig.json",
 	"include": [
-		"src",
-		"global.d.ts"
+		"./src/**/*",
+		"./types/index.d.ts"
+		// "global.d.ts"
 	],
 	"compilerOptions": {
 		"moduleResolution": "node",
