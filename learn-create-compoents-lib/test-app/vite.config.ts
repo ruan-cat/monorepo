@@ -6,6 +6,8 @@ import AutoImport from "unplugin-auto-import/vite";
 // FIXME: 处理类型声明问题 这是一个纯js文件
 import { GieResolver } from "@giegie/resolver";
 
+// console.log(" GieResolver ", GieResolver);
+
 // https://vitejs.dev/config/
 export default defineConfig({
 	server: {
@@ -15,6 +17,7 @@ export default defineConfig({
 		vue(),
 
 		Components({
+			dts: true,
 			resolvers: [GieResolver()],
 		}),
 

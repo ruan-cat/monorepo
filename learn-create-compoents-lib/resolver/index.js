@@ -10,6 +10,8 @@ function GieResolver() {
 	return {
 		type: "component",
 		resolve: (name) => {
+			console.log(" in name ", name);
+
 			if (name.startsWith("Gie")) {
 				const partialName = name.slice(3);
 				return {

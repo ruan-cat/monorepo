@@ -133,6 +133,10 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# 忽略常见的vue类型声明文件
+auto-imports.d.ts
+components.d.ts
+
 # 项目也使用 webstorm 来打开项目 故忽略该内容
 .idea
 
