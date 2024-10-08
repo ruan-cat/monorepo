@@ -74,6 +74,15 @@ export default defineConfig(() => {
 		plugins: [
 			vue(),
 
+			dts({
+				// 输出目录
+				outDir: ["types"],
+				// 将动态引入转换为静态（例如：`import('vue').DefineComponent` 转换为 `import { DefineComponent } from 'vue'`）
+				staticImport: true,
+				// 将所有的类型合并到一个文件中
+				rollupTypes: true,
+			}),
+
 			autoImport([
 				// 自动生成
 				{
@@ -109,20 +118,21 @@ export default defineConfig(() => {
 						},
 					],
 					// 组件名命名规则支持字符串模板和函数
-					name: "RuanCat_{{name}}",
+					// name: "RuanCat_{{name}}",
+					name: "Gie_{{name}}",
 				},
 			]),
 
-			// Components({
-			// 	// 忽略掉'unplugin-vue-components'的组件引入
-			// 	// dirs: [],
-			// 	include: [],
-			// 	// ui库解析器
-			// 	resolvers: [resolver([0])], //应用vite-plugin-autogeneration-import-file插件的第0组规则进行组件引入
-			// 	//禁止生成component.d.ts
-			// 	dts: false,
-			// 	// dts: true,
-			// }),
+			Components({
+				// 忽略掉'unplugin-vue-components'的组件引入
+				dirs: [],
+				// include: [],
+				// ui库解析器
+				resolvers: [resolver([0])], //应用vite-plugin-autogeneration-import-file插件的第0组规则进行组件引入
+				//禁止生成component.d.ts
+				dts: false,
+				// dts: true,
+			}),
 
 			// 尝试在这里自己生成类型声明文件，生成 GlobalComponents 接口的内容。
 			// 失败 unplugin-vue-components/vite 提供的自动生成类型，不能深度地配置
@@ -158,15 +168,6 @@ export default defineConfig(() => {
 			// }),
 			// AutoImport({
 			// 	resolvers: [GieResolver()],
-			// }),
-
-			// dts({
-			// 	// 输出目录
-			// 	outDir: ["types"],
-			// 	// 将动态引入转换为静态（例如：`import('vue').DefineComponent` 转换为 `import { DefineComponent } from 'vue'`）
-			// 	staticImport: true,
-			// 	// 将所有的类型合并到一个文件中
-			// 	rollupTypes: true,
 			// }),
 		],
 	} as UserConfig;
