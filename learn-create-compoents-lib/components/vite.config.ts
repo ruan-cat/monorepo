@@ -3,7 +3,7 @@ import { uniqueId } from "lodash-es";
 
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import fs from "node:fs";
+import * as fs from "node:fs";
 
 import { defineConfig } from "vite";
 import type { UserConfig } from "vite";
@@ -128,47 +128,11 @@ export default defineConfig(() => {
 				dirs: [],
 				// include: [],
 				// ui库解析器
-				resolvers: [resolver([0])], //应用vite-plugin-autogeneration-import-file插件的第0组规则进行组件引入
+				// 应用vite-plugin-autogeneration-import-file插件的第0组规则进行组件引入
+				resolvers: [resolver([0])],
 				//禁止生成component.d.ts
 				dts: false,
-				// dts: true,
 			}),
-
-			// 尝试在这里自己生成类型声明文件，生成 GlobalComponents 接口的内容。
-			// 失败 unplugin-vue-components/vite 提供的自动生成类型，不能深度地配置
-			// Components({
-			// 	// dts: true,
-			// 	// dirs: ["src"],
-			// 	// resolvers: [
-			// 	// 	{
-			// 	// 		type: "component",
-			// 	// 		resolve(name) {
-			// 	// 			console.log(" in name ", name);
-			// 	// 			return {
-			// 	// 				name: `${name}_${uniqueId("aaa")}`,
-			// 	// 				from: `@giegie/components`,
-			// 	// 				sideEffects: `@giegie/components/es/${name}/style/index.css`,
-			// 	// 			};
-			// 	// 			// if (name.startsWith("Gie")) {
-			// 	// 			// 	const partialName = name.slice(3);
-			// 	// 			// 	return {
-			// 	// 			// 		name: "Gie" + partialName,
-			// 	// 			// 		from: `@giegie/components`,
-			// 	// 			// 		sideEffects: `@giegie/components/es/${partialName}/style/index.css`,
-			// 	// 			// 	};
-			// 	// 			// }
-			// 	// 		},
-			// 	// 	},
-			// 	// ],
-			// }),
-
-			// 尝试自己生成类型声明文件，生成 GlobalComponents 接口的内容。
-			// Components({
-			// 	resolvers: [GieResolver()],
-			// }),
-			// AutoImport({
-			// 	resolvers: [GieResolver()],
-			// }),
 		],
 	} as UserConfig;
 });

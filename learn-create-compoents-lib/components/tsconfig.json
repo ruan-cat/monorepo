@@ -7,11 +7,13 @@
 	// "extends": "../test-app/tsconfig.json",
 	"include": [
 		"./src/**/*",
-		"./types/index.d.ts"
-		// "global.d.ts"
+		"./types/index.d.ts",
+		"vite.config.ts"
 	],
 	"compilerOptions": {
-		"moduleResolution": "node",
+		// "moduleResolution": "node",
+		"moduleResolution": "NodeNext",
+		"module": "NodeNext",
 		"baseUrl": "."
 	}
 }
