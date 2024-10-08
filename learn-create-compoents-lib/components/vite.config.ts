@@ -83,15 +83,15 @@ export default defineConfig(() => {
 						// "**/index.{vue,ts}"
 						// "**/*.{vue,ts}",
 						// "./src/**/*.vue",
-						// "**/*.vue",
+						"**/*.vue",
 						// "./src/Input/Input.vue",
 						// "**/index.{ts}",
-						"*.{vue,ts}",
-						"**/index.{vue,ts}",
+						// "*.{vue,ts}",
+						// "**/index.{vue,ts}",
 					],
-					dir: pathResolve("./src/Input"), //监听的文件夹
-					toFile: pathResolve("./types/components.d.ts"), //生成的文件
-					template: fs.readFileSync(pathResolve("./template/components.d.ts"), "utf-8"), //文件生成模板
+					dir: pathResolve("src"), //监听的文件夹
+					toFile: pathResolve("types/components.d.ts"), //生成的文件
+					template: fs.readFileSync(pathResolve("template/components.d.ts"), "utf-8"), //文件生成模板
 					codeTemplates: [
 						//代码模板
 						{
