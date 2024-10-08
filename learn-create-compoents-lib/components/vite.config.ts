@@ -19,7 +19,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 function pathResolve(dir: string) {
 	const resPath = resolve(__dirname, ".", dir);
-	console.log(" in tool pathResolve => ", resPath);
+	// console.log(" in tool pathResolve => ", resPath);
 	return resPath;
 }
 
@@ -89,11 +89,16 @@ export default defineConfig(() => {
 						// "*.{vue,ts}",
 						// "**/index.{vue,ts}",
 					],
-					dir: pathResolve("src"), //监听的文件夹
-					toFile: pathResolve("types/components.d.ts"), //生成的文件
-					template: fs.readFileSync(pathResolve("template/components.d.ts"), "utf-8"), //文件生成模板
+					// 监听的文件夹
+					dir: pathResolve("src"),
+					// 生成的文件
+					// FIXME: 当不包含文件路径时，就出现错误 如果没有预先准备好文件夹，就会生成失败。
+					// toFile: pathResolve("types/components.d.ts"),
+					toFile: pathResolve("components.d.ts"),
+					// 文件生成模板
+					template: fs.readFileSync(pathResolve("template/components.template.d.ts"), "utf-8"),
 					codeTemplates: [
-						//代码模板
+						// 代码模板
 						{
 							key: "//code",
 							template: '{{name}}: typeof import("{{path}}")["default"];\n    ',
@@ -103,7 +108,8 @@ export default defineConfig(() => {
 							template: 'type {{name}}Instance = InstanceType<typeof import("{{path}}")["default"]>;\n  ',
 						},
 					],
-					name: "RuanCat_{{name}}", //组件名命名规则支持字符串模板和函数
+					// 组件名命名规则支持字符串模板和函数
+					name: "RuanCat_{{name}}",
 				},
 			]),
 
