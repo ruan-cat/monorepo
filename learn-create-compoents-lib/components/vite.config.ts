@@ -84,10 +84,12 @@ export default defineConfig(() => {
 						// "**/*.{vue,ts}",
 						// "./src/**/*.vue",
 						// "**/*.vue",
-						"./src/Input/Input.vue",
-						"**/index.{ts}",
+						// "./src/Input/Input.vue",
+						// "**/index.{ts}",
+						"*.{vue,ts}",
+						"**/index.{vue,ts}",
 					],
-					dir: pathResolve("./src"), //监听的文件夹
+					dir: pathResolve("./src/Input"), //监听的文件夹
 					toFile: pathResolve("./types/components.d.ts"), //生成的文件
 					template: fs.readFileSync(pathResolve("./template/components.d.ts"), "utf-8"), //文件生成模板
 					codeTemplates: [
@@ -105,15 +107,16 @@ export default defineConfig(() => {
 				},
 			]),
 
-			Components({
-				// 忽略掉'unplugin-vue-components'的组件引入
-				dirs: [],
-				// ui库解析器
-				resolvers: [resolver([0])], //应用vite-plugin-autogeneration-import-file插件的第0组规则进行组件引入
-				//禁止生成component.d.ts
-				dts: false,
-				// dts: true,
-			}),
+			// Components({
+			// 	// 忽略掉'unplugin-vue-components'的组件引入
+			// 	// dirs: [],
+			// 	include: [],
+			// 	// ui库解析器
+			// 	resolvers: [resolver([0])], //应用vite-plugin-autogeneration-import-file插件的第0组规则进行组件引入
+			// 	//禁止生成component.d.ts
+			// 	dts: false,
+			// 	// dts: true,
+			// }),
 
 			// 尝试在这里自己生成类型声明文件，生成 GlobalComponents 接口的内容。
 			// 失败 unplugin-vue-components/vite 提供的自动生成类型，不能深度地配置

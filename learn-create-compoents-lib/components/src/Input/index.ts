@@ -13,10 +13,10 @@
 
 import { withInstall } from "../utils/install";
 
-import Input from "./Input.vue";
+import Input from "./index.vue";
 
 export const GieInput = withInstall(Input);
 export default GieInput;
 
-export * from "./Input.vue";
+export * from "./index.vue";
 export * from "./Input";

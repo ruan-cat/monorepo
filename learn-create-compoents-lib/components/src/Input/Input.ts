@@ -9,7 +9,7 @@
  * 如在element-plus中，就会使用formRef.validate 来校验表单，
  * instance里就有暴露方法的类型签名。
  */
-import Input from "./Input.vue";
+import Input from "./index.vue";
 
 /**
  * 定义props类型
