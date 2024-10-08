@@ -41,6 +41,7 @@
 		"sass": "^1.79.4",
 		"shelljs": "^0.8.5",
 		"unplugin-vue-components": "^0.27.4",
+		"vite-plugin-autogeneration-import-file": "^3.0.0",
 		"vite-plugin-dts": "^4.2.2"
 	}
 }
