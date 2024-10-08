@@ -10,7 +10,8 @@
 		"es",
 		"lib",
 		"types",
-		"global.d.ts"
+		"global.d.ts",
+		"components.d.ts"
 	],
 	"exports": {
 		".": {
@@ -21,7 +22,8 @@
 		"./lib/*": "./lib/*",
 		"./es/*": "./es/*",
 		"./src/*": "./src/*",
-		"./global.d.ts": "./global.d.ts"
+		"./global.d.ts": "./global.d.ts",
+		"./components.d.ts": "./gcomponents.d.ts"
 	},
 	"scripts": {
 		"build": "gulp -f build/gulpfile.js",
