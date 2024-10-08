@@ -23,7 +23,7 @@
 		"./es/*": "./es/*",
 		"./src/*": "./src/*",
 		"./global.d.ts": "./global.d.ts",
-		"./components.d.ts": "./gcomponents.d.ts"
+		"./components.d.ts": "./components.d.ts"
 	},
 	"scripts": {
 		"build": "gulp -f build/gulpfile.js",

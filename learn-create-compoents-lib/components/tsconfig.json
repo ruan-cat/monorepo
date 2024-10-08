@@ -8,12 +8,9 @@
 	"include": [
 		"./src/**/*",
 		"./types/index.d.ts",
-		"vite.config.ts"
 	],
 	"compilerOptions": {
-		// "moduleResolution": "node",
-		"moduleResolution": "NodeNext",
-		"module": "NodeNext",
+		"moduleResolution": "node",
 		"baseUrl": "."
 	}
 }
