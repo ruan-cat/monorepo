@@ -5,6 +5,7 @@ import type { UserConfig } from "vite";
 import Components from "unplugin-vue-components/vite";
 import vue from "@vitejs/plugin-vue";
 import dts from "vite-plugin-dts";
+import { GieResolver } from "@giegie/resolver";
 
 export default defineConfig(() => {
 	return {
@@ -57,11 +58,18 @@ export default defineConfig(() => {
 			vue(),
 
 			// 尝试在这里自己生成类型声明文件，生成 GlobalComponents 接口的内容。
+			// Components({
+			// 	dts: true,
+			// 	dirs: ["src"],
+			// }),
+
+			// 尝试自己生成类型声明文件，生成 GlobalComponents 接口的内容。
 			Components({
-				dts: true,
-				dirs: ["src"],
-				globs: ["src/*.{vue}"],
+				resolvers: [GieResolver()],
 			}),
+			// AutoImport({
+			// 	resolvers: [GieResolver()],
+			// }),
 
 			dts({
 				// 输出目录

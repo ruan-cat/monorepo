@@ -32,6 +32,7 @@
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
+		"@giegie/resolver": "workspace:^",
 		"@types/gulp": "^4.0.17",
 		"@vitejs/plugin-vue": "^5.1.2",
 		"gulp": "^5.0.0",
