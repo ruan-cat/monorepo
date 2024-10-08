@@ -55,6 +55,14 @@ export default defineConfig(() => {
 
 		plugins: [
 			vue(),
+
+			// 尝试在这里自己生成类型声明文件，生成 GlobalComponents 接口的内容。
+			Components({
+				dts: true,
+				dirs: ["src"],
+				globs: ["src/*.{vue}"],
+			}),
+
 			dts({
 				// 输出目录
 				outDir: ["types"],
