@@ -2,6 +2,7 @@
 
 import { defineConfig } from "vite";
 import type { UserConfig } from "vite";
+import Components from "unplugin-vue-components/vite";
 import vue from "@vitejs/plugin-vue";
 import dts from "vite-plugin-dts";
 

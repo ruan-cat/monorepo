@@ -22,6 +22,7 @@
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
 		"types": [
+			"@giegie/components",
 			// 主动导入该内容 确实可以实现类型声明 可以让vue组件内对应用的组件提供类型声明
 			// "@giegie/components/global.d.ts",
 			// TODO: 让下面的类型文件 实现组件的识别与扫描。
