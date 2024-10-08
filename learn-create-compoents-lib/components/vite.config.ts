@@ -72,8 +72,14 @@ export default defineConfig(() => {
 				// 自动生成
 				{
 					// auto import components
-					pattern: ["*.{vue,ts}", "**/index.{vue,ts}"], //监听的文件规则当前规则为 监听文件夹下的后缀为vue/ts子文件和 文件名为index.vue和index.ts的子孙文件
-					dir: pathResolve("src/components"), //监听的文件夹
+					//  //监听的文件规则当前规则为 监听文件夹下的后缀为vue/ts子文件和 文件名为index.vue和index.ts的子孙文件
+					pattern: [
+						// "*.{vue,ts}",
+						// "**/index.{vue,ts}"
+						"**/*.{vue,ts}",
+					],
+					// dir: pathResolve("src/components"), //监听的文件夹
+					dir: pathResolve("src"), //监听的文件夹
 					toFile: pathResolve("types/components.d.ts"), //生成的文件
 					template: fs.readFileSync(pathResolve("./template/components.d.ts"), "utf-8"), //文件生成模板
 					codeTemplates: [
