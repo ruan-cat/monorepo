@@ -5,7 +5,7 @@ import { type UserConfig, defineUserConfig } from "vuepress";
 
 import { viteBundler } from "@vuepress/bundler-vite";
 import { visualizer } from "rollup-plugin-visualizer";
-import { hopeTheme } from "vuepress-theme-hope";
+import { type ThemeOptions, hopeTheme } from "vuepress-theme-hope";
 
 export { hopeTheme } from "vuepress-theme-hope";
 // const __dirname = getDirname(import.meta.url);
@@ -22,6 +22,112 @@ export function footerTmpl() {
 	return <const>`MIT Licensed | Copyright © ${getYaer()}-present ${authorName}`;
 }
 
+/** 阮喵喵的 hope 主题配置 */
+export const ruancatHopeThemeConfig: ThemeOptions = {
+	hostname: "https://www.ruan-cat.com",
+	repo: "RuanZhongNan/vercel-monorepo-test",
+	docsDir: "src",
+	footer: "内部文档，请勿外传",
+
+	sidebar: "structure",
+
+	// 不使用全屏
+	fullscreen: false,
+	// 不使用暗黑模式
+	darkmode: "disable",
+
+	// 开发模式下是否启动热更新，显示所有更改并重新渲染
+	hotReload: true,
+
+	author: {
+		name: authorName,
+		url: "https://github.com/RuanZhongNan",
+	},
+
+	plugins: {
+		components: {
+			components: ["Badge", "VPCard"],
+		},
+
+		mdEnhance: {
+			align: true,
+			attrs: true,
+			component: true,
+			demo: true,
+			// TODO: 根据 rc53 的更新记录，做迁移调整
+			// figure: true,
+			// imgLazyload: true,
+			// imgSize: true,
+			// TODO: 根据 rc56 的更新记录，做迁移调整
+			// codetabs: true,
+			include: true,
+			mark: true,
+			stylize: [
+				{
+					matcher: "Recommended",
+					replacer: ({ tag }) => {
+						if (tag === "em") {
+							return {
+								tag: "Badge",
+								attrs: { type: "tip" },
+								content: "Recommended",
+							};
+						}
+					},
+				},
+			],
+			sub: true,
+			sup: true,
+			vPre: true,
+			// TODO: 根据 rc56 的更新记录，做迁移调整
+			// tabs: true,
+
+			// 在启用之前安装 chart.js
+			// chart: true,
+
+			// insert component easily
+
+			// 在启用之前安装 echarts
+			// echarts: true,
+
+			// 在启用之前安装 flowchart.ts
+			// flowchart: true,
+
+			// gfm requires mathjax-full to provide tex support
+			// gfm: true,
+
+			// 在启用之前安装 katex
+			// katex: true,
+
+			// 在启用之前安装 mathjax-full
+			// mathjax: true,
+
+			// 在启用之前安装 mermaid
+			// mermaid: true,
+
+			// playground: {
+			//   presets: ["ts", "vue"],
+			// },
+
+			// 在启用之前安装 reveal.js
+			// revealJs: {
+			//   plugins: ["highlight", "math", "search", "notes", "zoom"],
+			// },
+
+			// 在启用之前安装 @vue/repl
+			// vuePlayground: true,
+
+			// install sandpack-vue3 before enabling it
+			// sandpack: true,
+		},
+
+		searchPro: {
+			indexContent: true,
+			autoSuggestions: true,
+		},
+	},
+};
+
 /**
  * 默认的vuepress基础配置
  * @description
@@ -34,6 +140,13 @@ const defaultConfig: UserConfig = {
 	lang: "zh-CN",
 	title: "默认标题",
 	description: "默认预设的描述文本",
+
+	// 提供基础的md标题识别配置 识别标题到5级
+	markdown: {
+		headers: {
+			level: [2, 3, 4, 5],
+		},
+	},
 
 	bundler: viteBundler({
 		viteOptions: {
@@ -54,110 +167,7 @@ const defaultConfig: UserConfig = {
 	}),
 
 	theme: hopeTheme(
-		{
-			hostname: "https://www.ruan-cat.com",
-			repo: "RuanZhongNan/vercel-monorepo-test",
-			docsDir: "src",
-			footer: "内部文档，请勿外传",
-
-			sidebar: "structure",
-
-			// 不使用全屏
-			fullscreen: false,
-			// 不使用暗黑模式
-			darkmode: "disable",
-
-			// 开发模式下是否启动热更新，显示所有更改并重新渲染
-			hotReload: true,
-
-			author: {
-				name: authorName,
-				url: "https://github.com/RuanZhongNan",
-			},
-
-			plugins: {
-				components: {
-					components: ["Badge", "VPCard"],
-				},
-
-				mdEnhance: {
-					align: true,
-					attrs: true,
-					component: true,
-					demo: true,
-					// TODO: 根据 rc53 的更新记录，做迁移调整
-					// figure: true,
-					// imgLazyload: true,
-					// imgSize: true,
-					// TODO: 根据 rc56 的更新记录，做迁移调整
-					// codetabs: true,
-					include: true,
-					mark: true,
-					stylize: [
-						{
-							matcher: "Recommended",
-							replacer: ({ tag }) => {
-								if (tag === "em") {
-									return {
-										tag: "Badge",
-										attrs: { type: "tip" },
-										content: "Recommended",
-									};
-								}
-							},
-						},
-					],
-					sub: true,
-					sup: true,
-					vPre: true,
-					// TODO: 根据 rc56 的更新记录，做迁移调整
-					// tabs: true,
-
-					// 在启用之前安装 chart.js
-					// chart: true,
-
-					// insert component easily
-
-					// 在启用之前安装 echarts
-					// echarts: true,
-
-					// 在启用之前安装 flowchart.ts
-					// flowchart: true,
-
-					// gfm requires mathjax-full to provide tex support
-					// gfm: true,
-
-					// 在启用之前安装 katex
-					// katex: true,
-
-					// 在启用之前安装 mathjax-full
-					// mathjax: true,
-
-					// 在启用之前安装 mermaid
-					// mermaid: true,
-
-					// playground: {
-					//   presets: ["ts", "vue"],
-					// },
-
-					// 在启用之前安装 reveal.js
-					// revealJs: {
-					//   plugins: ["highlight", "math", "search", "notes", "zoom"],
-					// },
-
-					// 在启用之前安装 @vue/repl
-					// vuePlayground: true,
-
-					// install sandpack-vue3 before enabling it
-					// sandpack: true,
-				},
-
-				searchPro: {
-					indexContent: true,
-					autoSuggestions: true,
-				},
-			},
-		},
+		ruancatHopeThemeConfig,
 
 		{
 			custom: true,
