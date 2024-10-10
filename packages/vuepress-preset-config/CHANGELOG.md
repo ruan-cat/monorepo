@@ -1,5 +1,12 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.10
+
+### Patch Changes
+
+- 提供基础的 md 配置，提供能够识别的 md 层级。
+- 提供 ruancatHopeThemeConfig 作为 hope 主题的默认配置对象，允许在用户端自主组合使用。
+
 ## 0.1.9
 
 ### Patch Changes
