@@ -1,24 +1,24 @@
 {
-  "name": "@ruan-cat-vercel-monorepo-test/monorepo-3",
-  "private": true,
-  "version": "2.0.0",
-  "description": "monorepo-3",
-  "license": "MIT",
-  "type": "module",
-  "scripts": {
-    "build:docs": "vuepress-vite build src",
-    "docs:clean-dev": "vuepress-vite dev src --clean-cache",
-    "docs:dev": "vuepress-vite dev src",
-    "docs:update-package": "pnpm dlx vp-update",
-    "clear": "rimraf dist .turbo .vercel .cache .temp",
-    "rm:node_modules": "rimraf node_modules"
-  },
-  "devDependencies": {
-    "typedoc": "^0.26.7",
-    "typedoc-plugin-markdown": "^4.2.8",
-    "typedoc-vitepress-theme": "^1.0.1"
-  },
-  "peerDependencies": {
-    "typescript": "catalog:"
-  }
+	"name": "@ruan-cat-vercel-monorepo-test/monorepo-3",
+	"private": true,
+	"version": "2.0.0",
+	"description": "monorepo-3",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"build:docs": "vuepress-vite build src",
+		"docs:clean-dev": "vuepress-vite dev src --clean-cache",
+		"docs:dev": "vuepress-vite dev src",
+		"docs:update-package": "pnpm dlx vp-update",
+		"clear": "rimraf dist .turbo .vercel .cache .temp",
+		"rm:node_modules": "rimraf node_modules"
+	},
+	"devDependencies": {
+		"typedoc": "^0.26.7",
+		"typedoc-plugin-markdown": "^4.2.8",
+		"typedoc-vitepress-theme": "^1.0.1"
+	},
+	"peerDependencies": {
+		"typescript": "catalog:"
+	}
 }

@@ -90,7 +90,7 @@
 	// 文件打开的默认行为
 	"workbench.editorAssociations": {
 		// 正常可用
-		"*.drawio.svg": "hediet.vscode-drawio-text",
+		"*.drawio.svg": "hediet.vscode-drawio-text"
 	},
 	"pnpmCatalogLens.enabled": true,
 	"code-runner.executorMap": {
@@ -102,5 +102,5 @@
 		// https://github.com/egoist/esbuild-register
 		// "typescript": "pnpm dotenvx run -- node --loader=esbuild-register/loader -r esbuild-register $fullFileName"
 		// "typescript": "pnpm dotenvx run -- node --require esbuild-register $fullFileName"
-	},
+	}
 }

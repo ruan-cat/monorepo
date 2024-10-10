@@ -1,15 +1,15 @@
 {
-  "name": "@ruan-cat-vercel-monorepo-test/monorepo-2",
-  "private": true,
-  "version": "2.0.0",
-  "description": "A project of vuepress-theme-hope",
-  "license": "MIT",
-  "type": "module",
-  "scripts": {
-    "build:docs": "vuepress-vite build src",
-    "docs:clean-dev": "vuepress-vite dev src --clean-cache",
-    "docs:dev": "vuepress-vite dev src",
-    "docs:update-package": "pnpm dlx vp-update",
-    "clear": "rimraf dist && rimraf .turbo && rimraf .vercel"
-  }
+	"name": "@ruan-cat-vercel-monorepo-test/monorepo-2",
+	"private": true,
+	"version": "2.0.0",
+	"description": "A project of vuepress-theme-hope",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"build:docs": "vuepress-vite build src",
+		"docs:clean-dev": "vuepress-vite dev src --clean-cache",
+		"docs:dev": "vuepress-vite dev src",
+		"docs:update-package": "pnpm dlx vp-update",
+		"clear": "rimraf dist && rimraf .turbo && rimraf .vercel"
+	}
 }
