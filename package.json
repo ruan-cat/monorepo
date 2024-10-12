@@ -16,6 +16,7 @@
 	"scripts": {
 		"preinstall": "npx only-allow pnpm && npm run corepack:pnpm",
 		"corepack:pnpm": "corepack enable && corepack install",
+		"commit": "git-cz",
 		"git:fetch": "git fetch -p",
 		"git:dev-2-main": "git rebase dev main",
 		"git:main-2-dev": "git rebase main dev",
