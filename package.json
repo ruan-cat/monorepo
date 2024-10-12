@@ -95,5 +95,10 @@
 		"@dotenvx/dotenvx": "^1.17.0",
 		"consola": "^3.2.3",
 		"lodash-es": "catalog:"
+	},
+	"config": {
+		"commitizen": {
+			"path": "./node_modules/cz-conventional-changelog"
+		}
 	}
 }
