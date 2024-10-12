@@ -57,9 +57,13 @@
 		"@types/node": "^20.16.11",
 		"@vuepress/bundler-vite": "2.0.0-rc.18",
 		"commitizen": "^4.3.1",
+		"commitlint-config-cz": "^0.13.3",
 		"cpx2": "^7.0.2",
 		"cross-env": "^7.0.3",
 		"cz-conventional-changelog": "^3.3.0",
+		"cz-customizable": "^7.2.1",
+		"cz-git": "^1.10.1",
+		"czg": "^1.10.1",
 		"esbuild": "^0.23.1",
 		"esbuild-register": "^3.6.0",
 		"eslint": "^9.12.0",
@@ -98,7 +102,8 @@
 	},
 	"config": {
 		"commitizen": {
-			"path": "./node_modules/cz-conventional-changelog"
+			"notuse_path_": "./node_modules/cz-conventional-changelog",
+			"path": "./node_modules/cz-customizable"
 		}
 	}
 }
