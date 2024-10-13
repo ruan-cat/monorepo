@@ -1,6 +1,6 @@
 // https://cz-git.qbb.sh/zh/config/#中英文对照模板
 // .commitlintrc.js
-/** @type {import('cz-git').UserConfig} */
+/** @type {import("cz-git").UserConfig} */
 module.exports = {
 	rules: {
 		// @see: https://commitlint.js.org/#/reference-rules
@@ -20,17 +20,34 @@ module.exports = {
 			confirmCommit: "是否提交或修改commit ?",
 		},
 		types: [
-			{ value: "feat", name: "feat:     新增功能 | A new feature" },
+			{ value: "✨ feat", name: "✨ feat:     新增功能 | A new feature" },
 			{ value: "fix", name: "fix:      修复缺陷 | A bug fix" },
-			{ value: "docs", name: "docs:     文档更新 | Documentation only changes" },
-			{ value: "🌈 style", name: "style:    代码格式 | Changes that do not affect the meaning of the code" },
-			{ value: "refactor", name: "refactor: 代码重构 | A code change that neither fixes a bug nor adds a feature" },
+			{ value: "📃 docs", name: "📃 docs:     文档更新 | Documentation only changes" },
+			{ value: "🌈 style", name: "🌈 style:    代码格式 | Changes that do not affect the meaning of the code" },
+			{
+				value: "🦄 refactor",
+				name: "🦄 refactor: 代码重构 | A code change that neither fixes a bug nor adds a feature",
+			},
 			{ value: "perf", name: "perf:     性能提升 | A code change that improves performance" },
 			{ value: "test", name: "test:     测试相关 | Adding missing tests or correcting existing tests" },
 			{ value: "build", name: "build:    构建相关 | Changes that affect the build system or external dependencies" },
 			{ value: "ci", name: "ci:       持续集成 | Changes to our CI configuration files and scripts" },
 			{ value: "revert", name: "revert:   回退代码 | Revert to a commit" },
 			{ value: "chore", name: "chore:    其他修改 | Other changes that do not modify src or test files" },
+
+			{
+				value: "🤔 save-file",
+				name: "🤔 save-file:    保存文件 | 文件保存类型。仅仅是为了保存文件。有时候会需要紧急提交，并快速切换分支。此时就需要提交代码。并保存文件。",
+			},
+			{ value: "⚙️ config", name: "⚙️ config:    更新配置 | 配置更新。通用性的配置更新。" },
+			{ value: "✋ main-pull-update", name: "✋ main-pull-update:    主分支拉取更新 | 主分支拉取更新。" },
+			{ value: "🗑 del", name: "🗑 del:    删除垃圾 | 删除无意义的东西，注释，文件，代码段等。" },
+			// {
+			// 	key: "MarkProgress",
+			// 	label: "mark-progress",
+			// 	detail: "标记进度。",
+			// 	icon: "⏩",
+			// },
 		],
 		useEmoji: true,
 		emojiAlign: "center",
