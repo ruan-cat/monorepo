@@ -76,6 +76,7 @@
 		"execa": "^9.4.0",
 		"markdown-it": "^14.1.0",
 		"mkdirp": "^3.0.1",
+		"pkg-types": "^1.2.1",
 		"prettier": "^3.3.3",
 		"prettier-plugin-lint-md": "^1.0.1",
 		"rimraf": "^5.0.10",
