@@ -1,4 +1,14 @@
 // https://cz-git.qbb.sh/zh/config/#中英文对照模板
+
+/**
+ * TODO: 实现索引全部的包名和包描述
+ * @see https://cz-git.qbb.sh/zh/recipes/#
+ */
+const fs = require("node:fs");
+const path = require("node:path");
+const packages = fs.readdirSync(path.resolve(__dirname, "packages"));
+console.log(" in c  ", packages);
+
 // .commitlintrc.js
 /** @type {import("cz-git").UserConfig} */
 module.exports = {
@@ -7,6 +17,7 @@ module.exports = {
 	},
 	prompt: {
 		alias: { fd: "docs: fix typos" },
+
 		messages: {
 			type: "选择你要提交的类型 :",
 			scope: "选择一个提交范围（可选）:",
@@ -30,6 +41,10 @@ module.exports = {
 			"utils|工具包",
 			"demo|测试项目",
 		],
+
+		// https://cz-git.qbb.sh/zh/recipes/#多选模式
+		enableMultipleScopes: true,
+		scopeEnumSeparator: ",",
 
 		allowCustomScopes: true,
 		allowEmptyScopes: true,
