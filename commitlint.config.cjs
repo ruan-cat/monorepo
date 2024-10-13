@@ -19,6 +19,24 @@ module.exports = {
 			footer: "列举关联issue (可选) 例如: #31, #I3244 :\n",
 			confirmCommit: "是否提交或修改commit ?",
 		},
+
+		/**
+		 * 基于monorepo内项目，决定提交范围域
+		 */
+		scopes: [
+			"root|根目录",
+			"vuepress-preset-config|vp2预设配置",
+			"vercel-deploy-tool|vc部署工具",
+			"utils|工具包",
+			"demo|测试项目",
+		],
+
+		allowCustomScopes: true,
+		allowEmptyScopes: true,
+		customScopesAlign: "bottom",
+		customScopesAlias: "custom",
+		emptyScopesAlias: "empty",
+
 		types: [
 			{ value: "✨ feat", name: "✨ feat:     新增功能 | A new feature" },
 			{ value: "🐞 fix", name: "🐞 fix:      修复缺陷 | A bug fix" },
@@ -51,12 +69,7 @@ module.exports = {
 		useAI: false,
 		aiNumber: 1,
 		themeColorCode: "",
-		scopes: ["root"],
-		allowCustomScopes: true,
-		allowEmptyScopes: true,
-		customScopesAlign: "bottom",
-		customScopesAlias: "custom",
-		emptyScopesAlias: "empty",
+
 		upperCaseSubject: false,
 		markBreakingChangeMode: false,
 		allowBreakingChanges: ["feat", "fix"],
