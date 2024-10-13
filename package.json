@@ -102,8 +102,7 @@
 	},
 	"config": {
 		"commitizen": {
-			"notuse_path_": "./node_modules/cz-conventional-changelog",
-			"path": "./node_modules/cz-customizable"
+			"path": "./node_modules/cz-git"
 		}
 	}
 }
