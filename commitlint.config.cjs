@@ -1,13 +1,87 @@
-// https://cz-git.qbb.sh/zh/config/#中英文对照模板
+/**
+ * @description
+ * 这个配置文件不能使用ts格式 ts不被支持
+ *
+ * @see https://cz-git.qbb.sh/zh/config/#中英文对照模板
+ */
 
 /**
  * TODO: 实现索引全部的包名和包描述
  * @see https://cz-git.qbb.sh/zh/recipes/#
  */
-const fs = require("node:fs");
-const path = require("node:path");
+const fs = require("fs");
+const path = require("path");
+const glob = require("glob");
+const yaml = require("js-yaml");
+
 const packages = fs.readdirSync(path.resolve(__dirname, "packages"));
-console.log(" in c  ", packages);
+// console.log(" in c  ", packages);
+
+/**
+ * 根据 pnpm-workspace.yaml 配置的monorepo有意义的包名，获取包名和包描述
+ * @description
+ * 根据 pnpm-workspace.yaml 配置的monorepo有意义的包名，获取包名和包描述
+ *
+ * @return { Array<{name: string, description: string}>}
+ */
+function getPackagesNameAndDescription() {
+	// 读取 pnpm-workspace.yaml 文件 文件路径
+	const workspaceConfigPath = path.join(__dirname, "pnpm-workspace.yaml");
+	// 文件
+	const workspaceFile = fs.readFileSync(workspaceConfigPath, "utf8");
+	// 配置
+	const workspaceConfig = yaml.load(workspaceFile);
+
+	console.log("workspaceConfig :>> ", workspaceConfig);
+
+	// 获取 packages 配置
+	const pkgPatterns = workspaceConfig.packages;
+	console.log("pkgPatterns :>> ", pkgPatterns);
+
+	// // 存储匹配的 package.json 文件路径
+	// let pkgPaths = [];
+	// // 根据每个模式匹配相应的目录
+	// pkgPatterns.forEach((pattern) => {
+	// 	const matchedPath = path.join(__dirname, pattern, "package.json").replace(/\\/g, "/");
+	// 	console.log("matchedPath :>> ", matchedPath);
+	// 	const matchedPaths = glob.sync(matchedPath, {
+	// 		ignore: "**/node_modules/**",
+	// 	});
+	// 	pkgPaths = pkgPaths.concat(matchedPaths);
+	// });
+	// // 输出匹配的 package.json 文件路径
+	// console.log(pkgPaths);
+
+	const packagesInfo = pkgPatterns.forEach((pkgPattern) => {
+		const matchedPath = path.join(__dirname, pkgPattern, "package.json").replace(/\\/g, "/");
+		console.log("matchedPath :>> ", matchedPath);
+		const matchedPaths = glob.sync(matchedPath, {
+			ignore: "**/node_modules/**",
+		});
+	});
+
+	// const packagesInfo = workspaceConfig.packages.flatMap((pkgPattern) => {
+	// 	// console.log("pkgPattern :>> ", pkgPattern);
+	// 	const pkgPaths = glob.sync(path.join(__dirname, pkgPattern, "**/package.json"));
+	// 	console.log("pkgPaths :>> ", pkgPaths);
+	// 	return pkgPaths.map((pkgJsonPath) => {
+	// 		console.log("pkgJsonPath :>> ", pkgJsonPath);
+	// 		if (fs.existsSync(pkgJsonPath)) {
+	// 			const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
+	// 			return {
+	// 				name: pkgJson.name,
+	// 				description: pkgJson.description || "没查询到description",
+	// 			};
+	// 		}
+	// 		return null;
+	// 	});
+	// });
+
+	// return packagesInfo.filter(Boolean);
+}
+
+getPackagesNameAndDescription();
+// console.log(" in c  ", );
 
 // .commitlintrc.js
 /** @type {import("cz-git").UserConfig} */

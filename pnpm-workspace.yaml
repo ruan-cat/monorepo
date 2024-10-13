@@ -1,8 +1,10 @@
+# 写星号配置 是为了让其他工具可以读取该配置，实现匹配
+# 一定要写成两个星号，否则会被 pnpm 识别为注释
 packages:
-  - "packages/*"
-  - "demos/*"
+  - "packages/**"
+  - "demos/**"
   - "utils"
-  - "learn-create-compoents-lib/*"
+  - "learn-create-compoents-lib/**"
 
 catalog:
   typescript: 5.4.5
