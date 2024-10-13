@@ -1,3 +1,4 @@
+// 有疑惑
 "use strict";
 module.exports = {
 	types: [
