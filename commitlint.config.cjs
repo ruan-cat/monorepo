@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @description
  * 这个配置文件不能使用ts格式 ts不被支持
@@ -14,28 +15,51 @@ const path = require("path");
 const glob = require("glob");
 const yaml = require("js-yaml");
 
-const packages = fs.readdirSync(path.resolve(__dirname, "packages"));
-// console.log(" in c  ", packages);
+const defScopes = [
+	"root|根目录",
+	"vuepress-preset-config|vp2预设配置",
+	"vercel-deploy-tool|vc部署工具",
+	"utils|工具包",
+	"demo|测试项目",
+];
 
 /**
  * 根据 pnpm-workspace.yaml 配置的monorepo有意义的包名，获取包名和包描述
  * @description
  * 根据 pnpm-workspace.yaml 配置的monorepo有意义的包名，获取包名和包描述
  *
- * @return { Array<{name: string, description: string}>}
+ * Array<{name: string, description: string}>
+ * @return { Promise<import("cz-git").ScopesType> }
  */
-function getPackagesNameAndDescription() {
+async function getPackagesNameAndDescription() {
+	const lodash = await import("lodash-es");
+
+	console.log("lodash :>> ", lodash);
+
 	// 读取 pnpm-workspace.yaml 文件 文件路径
 	const workspaceConfigPath = path.join(__dirname, "pnpm-workspace.yaml");
+
 	// 文件
 	const workspaceFile = fs.readFileSync(workspaceConfigPath, "utf8");
-	// 配置
+
+	/**
+	 * pnpm-workspace.yaml 的配置
+	 * @type { import("./types/pnpm-workspace.yaml.shim.ts").PnpmWorkspace }
+	 */
 	const workspaceConfig = yaml.load(workspaceFile);
 
 	console.log("workspaceConfig :>> ", workspaceConfig);
 
-	// 获取 packages 配置
+	/**
+	 * packages配置 包的匹配语法
+	 */
 	const pkgPatterns = workspaceConfig.packages;
+
+	// 如果没查询到packages配置，返回默认的scopes
+	if (lodash.isUndefined(pkgPatterns)) {
+		return defScopes;
+	}
+
 	console.log("pkgPatterns :>> ", pkgPatterns);
 
 	// // 存储匹配的 package.json 文件路径
@@ -52,36 +76,54 @@ function getPackagesNameAndDescription() {
 	// // 输出匹配的 package.json 文件路径
 	// console.log(pkgPaths);
 
-	const packagesInfo = pkgPatterns.forEach((pkgPattern) => {
+	/**
+	 * 全部的 package.json 文件路径
+	 * @type { string[] }
+	 */
+	const pkgPaths = [];
+
+	// 根据每个模式匹配相应的目录
+	pkgPatterns.forEach((pkgPattern) => {
 		const matchedPath = path.join(__dirname, pkgPattern, "package.json").replace(/\\/g, "/");
 		console.log("matchedPath :>> ", matchedPath);
 		const matchedPaths = glob.sync(matchedPath, {
 			ignore: "**/node_modules/**",
 		});
+
+		// 找到包路径，就按照顺序逐个填充准备
+		pkgPaths.concat(matchedPaths);
 	});
 
-	// const packagesInfo = workspaceConfig.packages.flatMap((pkgPattern) => {
-	// 	// console.log("pkgPattern :>> ", pkgPattern);
-	// 	const pkgPaths = glob.sync(path.join(__dirname, pkgPattern, "**/package.json"));
-	// 	console.log("pkgPaths :>> ", pkgPaths);
-	// 	return pkgPaths.map((pkgJsonPath) => {
-	// 		console.log("pkgJsonPath :>> ", pkgJsonPath);
-	// 		if (fs.existsSync(pkgJsonPath)) {
-	// 			const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
-	// 			return {
-	// 				name: pkgJson.name,
-	// 				description: pkgJson.description || "没查询到description",
-	// 			};
-	// 		}
-	// 		return null;
-	// 	});
-	// });
+	/**
+	 * @returns { import("cz-git").ScopesType }
+	 */
+	const czGitScopesType = pkgPaths.map(function (pkgJsonPath) {
+		// 如果确实存在该文件，就处理。否则不管了。
+		if (fs.existsSync(pkgJsonPath)) {
+			/**
+			 * 包配置文件数据
+			 * @type { import("pkg-types").PackageJson }
+			 */
+			const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
+			return {
+				// TODO: 对包名称做加工
+				// 包名称 肯定是有包名的
+				name: pkgJson?.name ?? "bug：极端情况，这个包没有配置name名称",
+				// 包描述 可能没有
+				description: pkgJson?.description ?? "没查询到description",
+			};
+		}
 
-	// return packagesInfo.filter(Boolean);
+		return {
+			name: "警告，没找到包名，请查看这个包路径是不是故障了：",
+			description: "pkgJsonPath",
+		};
+	});
+
+	return czGitScopesType;
 }
 
 getPackagesNameAndDescription();
-// console.log(" in c  ", );
 
 // .commitlintrc.js
 /** @type {import("cz-git").UserConfig} */

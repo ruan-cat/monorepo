@@ -25,6 +25,10 @@
 		"./packages/*/**/.vuepress/**/*.ts",
 		"./packages/**/src",
 		"./utils",
+		// 使用项目内提供的垫片类型
+		"./types/**/*.ts",
+		// 为配置文件提供来自其他地方准备的类型
+		"./commitlint.config.cjs"
 	],
 	"exclude": [
 		"**/dist",
