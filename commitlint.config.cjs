@@ -43,7 +43,6 @@ function pathChange(path) {
  * @return { import("cz-git").ScopesType }
  */
 function getPackagesNameAndDescription() {
-
 	// 读取 pnpm-workspace.yaml 文件 文件路径
 	const workspaceConfigPath = path.join(__dirname, "pnpm-workspace.yaml");
 
@@ -104,22 +103,22 @@ function getPackagesNameAndDescription() {
 				// 包名称 肯定是有包名的
 				name: pkgJson?.name ?? "bug：极端情况，这个包没有配置name名称",
 				// 包描述 可能没有
-				description: pkgJson?.description ?? "没查询到description",
+				value: pkgJson?.description ?? "没查询到description",
 			};
 		}
 
 		return {
 			name: "警告，没找到包名，请查看这个包路径是不是故障了：",
-			description: "pkgJsonPath",
+			value: "pkgJsonPath",
 		};
 	});
 
 	return czGitScopesType;
 }
 
+/** @type { import("cz-git").ScopesType } */
 let scopes = defScopes;
 scopes = getPackagesNameAndDescription();
-console.log(" in  scopes ", scopes);
 
 // .commitlintrc.js
 /** @type {import("cz-git").UserConfig} */
