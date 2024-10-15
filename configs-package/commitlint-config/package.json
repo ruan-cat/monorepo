@@ -1,0 +1,66 @@
+{
+	"name": "@ruan-cat/commitlint-config",
+	"version": "0.0.0",
+	"description": "阮喵喵的 commitlint.config.cjs 配置。",
+	"type": "module",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"homepage": "https://github.com/ruan-cat/vercel-monorepo-test/tree/dev/configs-package/commitlint-config",
+	"bugs": {
+		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ruan-cat/vercel-monorepo-test.git",
+		"directory": "configs-package/commitlint-config"
+	},
+	"scripts": {
+		"copy-readme": "cpx readme.md docs",
+		"copy-changelog": "cpx CHANGELOG.md docs",
+		"typedoc": "typedoc",
+		"prettier-docs-(invalid)": "prettier docs/**/*.md --write",
+		"docs:dev-main": "vuepress-vite dev docs",
+		"docs:dev": "turbo docs:dev",
+		"build:docs-main": "vuepress-vite build docs",
+		"build:docs": "turbo do-build-docs",
+		"clean:type": "rimraf dist",
+		"clear": "rimraf dist .turbo .vercel .cache .temp",
+		"generate:type-1": "vue-tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
+		"generate:type-2": "tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
+		"generate:type-3": "vue-tsc -p tsconfig.types.json",
+		"get-type": "pnpm clean:type && pnpm generate:type-3",
+		"rm:node_modules": "rimraf node_modules"
+	},
+	"exports": {
+		".": {
+			"import": "./src/index.ts",
+			"types": "./src/index.ts"
+		},
+		"./src/*": "./src/*"
+	},
+	"keywords": [],
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/RuanZhongNan"
+	},
+	"license": "MIT",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
+	},
+	"files": [
+		"src",
+		"tsconfig.json"
+	],
+	"devDependencies": {
+		"@ruan-cat/vuepress-preset-config": "workspace:^",
+		"typedoc": "^0.26.7",
+		"typedoc-plugin-markdown": "^4.2.7",
+		"typescript": "catalog:"
+	},
+	"peerDependencies": {
+		"typescript": "catalog:"
+	}
+}
