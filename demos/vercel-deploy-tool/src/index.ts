@@ -244,8 +244,8 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 				parameters: [],
 			});
 			const { code, stdout } = await commandFunction();
-			consola.info(` 执行了命令： `, command);
-			consola.box(stdout);
+			consola.info(` 执行了命令 🐓： `, command);
+			// consola.box(stdout);
 		});
 	});
 
@@ -311,7 +311,7 @@ function generateAfterBuildTasksConfig(config: Config): Task {
 					consola.start(` 开始用户 afterBuildTasks 命令任务 `);
 					const { code, stdout } = await userCommand();
 					consola.success(` 完成用户 afterBuildTasks 命令任务 ${code} `);
-					consola.box(stdout);
+					// consola.box(stdout);
 				});
 			}),
 		};
@@ -355,7 +355,7 @@ async function main() {
 						const { code, stdout } = await build();
 						consola.success(` 完成build任务 `);
 						consola.info(` 完成命令 ${code} `);
-						consola.box(stdout);
+						// consola.box(stdout);
 					});
 				}),
 			},
@@ -388,7 +388,7 @@ async function main() {
 												consola.start(` 开始用户命令任务 `);
 												const { code, stdout } = await userCommand();
 												consola.success(` 完成用户命令任务 ${code} `);
-												consola.box(stdout);
+												// consola.box(stdout);
 											});
 										}),
 									},

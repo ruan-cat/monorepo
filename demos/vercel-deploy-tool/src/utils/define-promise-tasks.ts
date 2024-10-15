@@ -125,11 +125,11 @@ export async function executePromiseTasks(
 
 				res = await task(lastParams);
 				lastParams = res;
-				console.log(` 串行任务 单独 res `, res);
+				// console.log(` 串行任务 单独 res `, res);
 			} else {
 				res = await executePromiseTasks(task, lastParams);
 				lastParams = res;
-				console.log(` 串行任务 配置 res `, res);
+				// console.log(` 串行任务 配置 res `, res);
 			}
 		}
 
