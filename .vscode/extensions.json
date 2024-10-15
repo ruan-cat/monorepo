@@ -7,7 +7,8 @@
 		// svg流程图绘制插件 https://blog.mo7.cc/tools/vscode/vscode_Draw.html
 		"jock.svg",
 		"eightHundreds.vscode-mindmap",
-		"hediet.vscode-drawio"
+		"hediet.vscode-drawio",
+		"Spades.vs-picgo"
 	],
 	"unwantedRecommendations": []
 }

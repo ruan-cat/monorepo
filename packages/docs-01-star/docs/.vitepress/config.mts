@@ -31,6 +31,16 @@ export default defineConfig({
 					{ text: "各组员", link: "/members" },
 				],
 			},
+
+			{
+				text: "oa项目",
+				link: "/index",
+				base: "/09oa",
+				items: [
+					{ text: "项目首页", link: "/home" },
+					{ text: "个人设置", link: "/settings" },
+				],
+			},
 		],
 
 		socialLinks: [

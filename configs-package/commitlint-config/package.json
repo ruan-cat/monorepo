@@ -1,7 +1,7 @@
 {
 	"name": "@ruan-cat/commitlint-config",
 	"version": "0.0.0",
-	"description": "阮喵喵的 commitlint.config.cjs 配置。",
+	"description": "阮喵喵的 commitlint.config.cjs 配置。现在（2024-10-15）先暂停，以后再封装完成。",
 	"type": "module",
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
