@@ -21,7 +21,7 @@ features:
 
   - title: 本项目地址
     details: 基于VuePress Theme Hope框架搭建的文档网站
-    link: "https://github.com/RuanZhongNan/java-pilot-base-doc"
+    link: "https://github.com/ruan-cat/java-pilot-base-doc"
 
   - title: 全是萌新
     details: 在学了在学了

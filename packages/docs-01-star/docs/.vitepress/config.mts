@@ -13,7 +13,7 @@ export default defineConfig({
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [
 			{ text: "首页", link: "/" },
-			{ text: "仓库地址", link: "https://github.com/RuanZhongNan/vercel-monorepo-test" },
+			{ text: "仓库地址", link: "https://github.com/ruan-cat/vercel-monorepo-test" },
 		],
 
 		sidebar: [
@@ -36,7 +36,7 @@ export default defineConfig({
 		socialLinks: [
 			{
 				icon: "github",
-				link: "https://github.com/RuanZhongNan/vercel-monorepo-test/blob/dev/packages/docs-01-star/docs/index.md",
+				link: "https://github.com/ruan-cat/vercel-monorepo-test/blob/dev/packages/docs-01-star/docs/index.md",
 			},
 		],
 	},

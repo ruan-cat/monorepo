@@ -5,13 +5,13 @@
 	"type": "module",
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
-	"homepage": "https://github.com/RuanZhongNan/vercel-monorepo-test/tree/main/utils",
+	"homepage": "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/utils",
 	"bugs": {
-		"url": "https://github.com/RuanZhongNan/vercel-monorepo-test/issues"
+		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/RuanZhongNan/vercel-monorepo-test.git",
+		"url": "git+https://github.com/ruan-cat/vercel-monorepo-test.git",
 		"directory": "utils"
 	},
 	"scripts": {
@@ -42,7 +42,7 @@
 	"author": {
 		"name": "ruan-cat",
 		"email": "1219043956@qq.com",
-		"url": "https://github.com/RuanZhongNan"
+		"url": "https://github.com/ruan-cat"
 	},
 	"license": "MIT",
 	"publishConfig": {

@@ -25,7 +25,7 @@ export function footerTmpl() {
 /** 阮喵喵的 hope 主题配置 */
 export const ruancatHopeThemeConfig: ThemeOptions = {
 	hostname: "https://www.ruan-cat.com",
-	repo: "RuanZhongNan/vercel-monorepo-test",
+	repo: "ruan-cat/vercel-monorepo-test",
 	docsDir: "src",
 	footer: "内部文档，请勿外传",
 
@@ -41,7 +41,7 @@ export const ruancatHopeThemeConfig: ThemeOptions = {
 
 	author: {
 		name: authorName,
-		url: "https://github.com/RuanZhongNan",
+		url: "https://github.com/ruan-cat",
 	},
 
 	plugins: {
