@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.0.11
+
+### Patch Changes
+
+- 优化控制台输出。
+
 ## 0.0.10
 
 ### Patch Changes
