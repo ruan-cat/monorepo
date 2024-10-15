@@ -201,6 +201,7 @@ module.exports = {
 				name: "🔧 build:    构建相关 | Changes that affect the build system or external dependencies",
 			},
 			{ value: "🐎 ci", name: "🐎 ci:       持续集成 | Changes to our CI configuration files and scripts" },
+			{ value: "🎉 init", name: "🎉 init:     初始化 | 项目初始化。" },
 			{ value: "↩ revert", name: "↩ revert:   回退代码 | Revert to a commit" },
 			{ value: "🐳 chore", name: "🐳 chore:    其他修改 | Other changes that do not modify src or test files" },
 			{
