@@ -5,7 +5,8 @@ export default <Config>{
 	vercelOrgId: "",
 	vercelProjectId: "",
 
-	afterBuildTasks: ["pnpm turbo build:docs"],
+	// FIXME: 莫名其妙报错。不清楚为什么。
+	// afterBuildTasks: ["pnpm turbo build:docs"],
 
 	// FIXME: execa运行的turbo命令，不会使用cache缓存，导致了重复构建。
 	deployTargets: [
