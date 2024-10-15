@@ -4,12 +4,9 @@
  * 这个配置文件不能使用ts格式 ts不被支持
  *
  * @see https://cz-git.qbb.sh/zh/config/#中英文对照模板
- */
-
-/**
- * TODO: 实现索引全部的包名和包描述
  * @see https://cz-git.qbb.sh/zh/recipes/#
  */
+
 const fs = require("fs");
 const path = require("path");
 const glob = require("glob");
@@ -31,6 +28,38 @@ const defScopes = [
  */
 function pathChange(path) {
 	return path.replace(/\\/g, "/");
+}
+
+/**
+ * 创建标签名称
+ * @param { import("pkg-types").PackageJson } packageJson package.json数据
+ * @returns { string }
+ */
+function createLabelName(packageJson) {
+	const { name, description } = packageJson;
+	const noneDesc = `该依赖包没有描述。`;
+	const desc = lodash.isUndefined(description) ? noneDesc : description;
+	return `${name ?? "bug：极端情况，这个包没有配置name名称"}    >>|>>    ${desc}`;
+}
+
+/**
+ * 创建包范围取值
+ * @param { import("pkg-types").PackageJson } packageJson package.json数据
+ * @returns { string }
+ */
+function createPackagescopes(packageJson) {
+	const { name } = packageJson;
+	const names = name?.split("/");
+	/**
+	 * 含有业务名称的包名
+	 * @description
+	 * 如果拆分的数组长度大于1 说明包是具有前缀的。取用后面的名称。
+	 *
+	 * 否则包名就是单纯的字符串，直接取用即可。
+	 */
+	// @ts-ignore 默认 name 名称总是存在的 不做undefined校验
+	const packageNameWithBusiness = names?.length > 1 ? names?.[1] : names?.[0];
+	return `${packageNameWithBusiness}`;
 }
 
 /**
@@ -99,11 +128,10 @@ function getPackagesNameAndDescription() {
 			 */
 			const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
 			return {
-				// TODO: 对包名称做加工
-				// 包名称 肯定是有包名的
-				name: pkgJson?.name ?? "bug：极端情况，这个包没有配置name名称",
-				// 包描述 可能没有
-				value: pkgJson?.description ?? "没查询到description",
+				// 标签名称 对外展示的标签名称
+				name: createLabelName(pkgJson),
+				// 取值
+				value: createPackagescopes(pkgJson),
 			};
 		}
 
@@ -145,7 +173,7 @@ module.exports = {
 		/**
 		 * 基于monorepo内项目，决定提交范围域
 		 */
-		scopes: scopes,
+		scopes,
 
 		// https://cz-git.qbb.sh/zh/recipes/#多选模式
 		enableMultipleScopes: true,
