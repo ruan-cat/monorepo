@@ -10,17 +10,17 @@ export default <Config>{
 	// FIXME: execa运行的turbo命令，不会使用cache缓存，导致了重复构建。
 	deployTargets: [
 		// 01星球建议笔记
-		// {
-		// 	type: "userCommands",
-		// 	targetCWD: "./packages/docs-01-star",
-		// 	url: ["docs-01-star.ruancat6312.top"],
-		// 	outputDirectory: "docs/.vitepress/dist/**/*",
-		// 	userCommands: [
-		// 		// "pnpm -C=./packages/docs-01-star build:docs"
-		// 		// "pnpm -C='./' turbo build:docs",
-		// 		// "pnpm turbo build:docs",
-		// 	],
-		// },
+		{
+			type: "userCommands",
+			targetCWD: "./packages/docs-01-star",
+			url: ["docs-01-star.ruancat6312.top"],
+			outputDirectory: "docs/.vitepress/dist/**/*",
+			userCommands: [
+				"pnpm -C=./packages/docs-01-star build:docs",
+				// "pnpm -C='./' turbo build:docs",
+				// "pnpm turbo build:docs",
+			],
+		},
 		// 1号项目
 		// {
 		// 	type: "userCommands",
