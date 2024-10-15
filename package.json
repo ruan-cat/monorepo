@@ -13,6 +13,11 @@
 		"vscode": "^1.22.0",
 		"pnpm": ">=9.5.0"
 	},
+	"config": {
+		"commitizen": {
+			"path": "node_modules/cz-git"
+		}
+	},
 	"scripts": {
 		"preinstall": "npx only-allow pnpm && npm run corepack:pnpm",
 		"corepack:pnpm": "corepack enable && corepack install",
@@ -100,10 +105,5 @@
 		"@dotenvx/dotenvx": "^1.17.0",
 		"consola": "^3.2.3",
 		"lodash-es": "catalog:"
-	},
-	"config": {
-		"commitizen": {
-			"path": "node_modules/cz-git"
-		}
 	}
 }
