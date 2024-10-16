@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.1.0
+
+### Minor Changes
+
+- ✨ feat(utils): 为 unplugin-vue-router 编写 getRouteName 函数，以便于实现自定义的路由名称；
+
 ## 1.0.5
 
 ### Patch Changes
