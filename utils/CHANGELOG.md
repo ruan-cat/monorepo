@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.1.1
+
+### Patch Changes
+
+- 对外导出 unplugin-vue-router 的插件；集中导出。
+
 ## 1.1.0
 
 ### Minor Changes
