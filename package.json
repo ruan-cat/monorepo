@@ -44,7 +44,7 @@
 		"changeset:version": "changeset version",
 		"changeset:publish": "changeset publish",
 		"turbo:publish": "turbo do-publish",
-		"test:vercel-tool": "node --import=tsx ./demos/vercel-deploy-tool/src/index.ts"
+		"deploy-vercel": "node --import=tsx ./demos/vercel-deploy-tool/src/index.ts"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^2.27.3",
