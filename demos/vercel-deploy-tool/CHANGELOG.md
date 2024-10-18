@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.1.0
+
+### Minor Changes
+
+- 优化文件移动的算法，加快执行效率。
+
 ## 0.0.13
 
 ### Patch Changes
