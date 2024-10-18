@@ -5,7 +5,7 @@ export default <Config>{
 	vercelOrgId: "",
 	vercelProjectId: "",
 
-	afterBuildTasks: ["pnpm turbo build:docs"],
+	// afterBuildTasks: ["pnpm turbo build:docs"],
 
 	// FIXME: execa运行的turbo命令，不会使用cache缓存，导致了重复构建。
 	deployTargets: [
@@ -16,7 +16,7 @@ export default <Config>{
 			url: ["docs-01-star.ruancat6312.top"],
 			outputDirectory: "docs/.vitepress/dist/**/*",
 			userCommands: [
-				"pnpm -C=./packages/docs-01-star build:docs",
+				// "pnpm -C=./packages/docs-01-star build:docs",
 				// "pnpm -C='./' turbo build:docs",
 				// "pnpm turbo build:docs",
 			],

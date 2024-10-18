@@ -1,9 +1,14 @@
 // 学习一下如何使用 https://github.com/sindresorhus/execa/blob/main/readme.md
 import fs from "node:fs";
+import { dirname, resolve } from "node:path";
 import { execa } from "execa";
 import { concat, isEmpty, isUndefined } from "lodash-es";
 import { consola } from "consola";
 import { isConditionsEvery, isConditionsSome } from "@ruan-cat/utils";
+import gulp from "gulp";
+import { deleteAsync } from "del";
+import { mkdirpSync } from "mkdirp";
+import cpy from "cpy";
 
 import {
 	initVercelConfig,
@@ -204,8 +209,14 @@ function generateBuildTask(deployTarget: DeployTarget) {
  * # 输出目录
  * shx ls -R .vercel/output/static
  * ```
+ *
+ * @version 1
+ * @deprecated
+ * 不再使用该方式
+ *
+ * 不打算在用户侧的项目内，使用 `pnpm dlx ???` 这样的命令来完成依赖安装。这样效率太低了。
  */
-function generateCopyDistTasks(deployTarget: WithUserCommands) {
+function generateCopyDistTasks_v1(deployTarget: WithUserCommands) {
 	function delDirectoryCmd() {
 		return <const>`pnpm dlx rimraf ${vercelOutputStatic}`;
 	}
@@ -250,6 +261,62 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 	});
 
 	return copyDistTasks;
+}
+
+/**
+ * 针对单个部署目标，生成一系列移动目录的任务
+ * @description
+ * 生成以下任务
+ *
+ * - 删除目录
+ * - 新建目录
+ * - 复制粘贴
+ */
+function generateCopyDistTasks(deployTarget: WithUserCommands) {
+	const targetCWD = deployTarget.targetCWD;
+	const outputDirectory = deployTarget.outputDirectory;
+
+	/**
+	 * 路径拼接工具
+	 * @private
+	 * 仅考虑为内部使用 不是通用工具
+	 *
+	 * 本函数仅仅拼接部分路径
+	 */
+	function joinPath<T extends string>(dir: T) {
+		const resPath = resolve(targetCWD, dir);
+		// console.log(" in joinPath => ", resPath);
+		return <`${string}${typeof targetCWD}/${T}`>resPath;
+	}
+
+	const pathVercelOutputStatic = joinPath(vercelOutputStatic);
+	const pathOutputDirectory = joinPath(outputDirectory);
+
+	async function delVercelOutputStatic() {
+		consola.start(` 开始删除文件任务 `);
+		await deleteAsync(pathVercelOutputStatic);
+		consola.success(` 删除该路径的文件： ${pathVercelOutputStatic} `);
+	}
+
+	async function createVercelOutputStatic() {
+		consola.start(` 开始创建文件夹任务 `);
+		await mkdirpSync(pathVercelOutputStatic);
+		consola.success(` 创建的新目录为： ${pathVercelOutputStatic} `);
+	}
+
+	async function cpyDistToVercelOutputStatic() {
+		consola.start(` 开始文件复制任务 `);
+		consola.info(` 从 ${pathOutputDirectory} 开始 `);
+		consola.info(` 复制到 ${pathVercelOutputStatic} 内`);
+		await cpy(pathOutputDirectory, pathVercelOutputStatic);
+		consola.success(` 完成文件复制任务 `);
+	}
+
+	const resTasks = [delVercelOutputStatic, createVercelOutputStatic, cpyDistToVercelOutputStatic].map((asyncFn) => {
+		return generateSimpleAsyncTask(asyncFn);
+	});
+
+	return resTasks;
 }
 
 /**
