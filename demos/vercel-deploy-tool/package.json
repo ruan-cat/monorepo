@@ -63,6 +63,7 @@
 		"vercel": "^34.2.7"
 	},
 	"devDependencies": {
+		"@types/cpx": "^1.5.5",
 		"@types/gulp": "^4.0.17",
 		"@types/lodash-es": "^4.17.12",
 		"@types/node": "^22.5.1",
