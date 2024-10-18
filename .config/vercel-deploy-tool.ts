@@ -86,7 +86,7 @@ export default <Config>{
 			targetCWD: "./utils",
 			outputDirectory: "docs/.vuepress/dist/**/*",
 			url: ["utils.ruancat6312.top", "utils.ruan-cat.com"],
-			userCommands: [],
+			userCommands: ["pnpm -C=./utils build:docs"],
 		},
 	],
 };
