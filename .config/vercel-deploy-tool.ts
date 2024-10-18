@@ -17,7 +17,7 @@ export default <Config>{
 			// outputDirectory: "docs/.vitepress/dist/**/*",
 			outputDirectory: "docs/.vitepress/dist",
 			userCommands: [
-				// "pnpm -C=./packages/docs-01-star build:docs",
+				"pnpm -C=./packages/docs-01-star build:docs",
 				// "pnpm -C='./' turbo build:docs",
 				// "pnpm turbo build:docs",
 			],
