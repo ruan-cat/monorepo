@@ -1,0 +1,26 @@
+{
+	// 打包成js的配置
+	// https://segmentfault.com/a/1190000044599569
+	"extends": [
+		// "./tsconfig.json"
+	],
+	"compilerOptions": {
+		// 项目的根目录
+		"rootDir": ".",
+		// 项目基础目录
+		"baseUrl": "./src",
+		// tsc 编译产物输出目录
+		"outDir": "dist",
+		"target": "ES2015",
+		"module": "commonjs",
+		// 模块解析策略
+		// "moduleResolution": "ESNext",
+		"composite": false,
+		"declaration": true,
+		"noEmit": false,
+		"emitDeclarationOnly": false,
+		"declarationMap": true,
+		"allowJs": true,
+		// "allowImportingTsExtensions": true
+	},
+}

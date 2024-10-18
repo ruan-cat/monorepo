@@ -29,6 +29,7 @@
 		"generate:type-2": "tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
 		"generate:type-3": "vue-tsc -p tsconfig.types.json",
 		"get-type": "pnpm clean:type && pnpm generate:type-3",
+		"build:-try-1": "pnpm clean:type && vue-tsc -p tsconfig.build.json",
 		"rm:node_modules": "rimraf node_modules"
 	},
 	"exports": {
