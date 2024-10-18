@@ -6,34 +6,34 @@ export default <Config>{
 	vercelProjectId: "",
 
 	// FIXME: 莫名其妙报错。不清楚为什么。
-	// afterBuildTasks: ["pnpm turbo build:docs"],
+	afterBuildTasks: ["pnpm turbo build:docs"],
 
 	// FIXME: execa运行的turbo命令，不会使用cache缓存，导致了重复构建。
 	deployTargets: [
 		// 01星球建议笔记
-		{
-			type: "userCommands",
-			targetCWD: "./packages/docs-01-star",
-			url: ["docs-01-star.ruancat6312.top"],
-			outputDirectory: "docs/.vitepress/dist/**/*",
-			userCommands: [
-				"pnpm -C=./packages/docs-01-star build:docs",
-				// "pnpm -C='./' turbo build:docs",
-				// "pnpm turbo build:docs",
-			],
-		},
-		// 1号项目
 		// {
 		// 	type: "userCommands",
-		// 	targetCWD: "./packages/monorepo-1",
-		// 	outputDirectory: "src/.vuepress/dist/**/*",
-		// 	url: ["monorepo-1.ruancat6312.top"],
+		// 	targetCWD: "./packages/docs-01-star",
+		// 	url: ["docs-01-star.ruancat6312.top"],
+		// 	outputDirectory: "docs/.vitepress/dist/**/*",
 		// 	userCommands: [
-		// 		// "pnpm -C=./packages/monorepo-1 build:docs"
+		// 		"pnpm -C=./packages/docs-01-star build:docs",
 		// 		// "pnpm -C='./' turbo build:docs",
 		// 		// "pnpm turbo build:docs",
 		// 	],
 		// },
+		// 1号项目
+		{
+			type: "userCommands",
+			targetCWD: "./packages/monorepo-1",
+			outputDirectory: "src/.vuepress/dist/**/*",
+			url: ["monorepo-1.ruancat6312.top"],
+			userCommands: [
+				// "pnpm -C=./packages/monorepo-1 build:docs"
+				// "pnpm -C='./' turbo build:docs",
+				// "pnpm turbo build:docs",
+			],
+		},
 		// 2号项目 通过测试 多域名可以实现部署
 		// {
 		// 	type: "userCommands",
@@ -86,7 +86,9 @@ export default <Config>{
 			targetCWD: "./utils",
 			outputDirectory: "docs/.vuepress/dist/**/*",
 			url: ["utils.ruancat6312.top", "utils.ruan-cat.com"],
-			userCommands: ["pnpm -C=./utils build:docs"],
+			userCommands: [
+				// "pnpm -C=./utils build:docs"
+			],
 		},
 	],
 };
