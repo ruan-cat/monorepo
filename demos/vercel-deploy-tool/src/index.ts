@@ -6,7 +6,6 @@ import { execa } from "execa";
 import { concat, isEmpty, isUndefined } from "lodash-es";
 import { consola } from "consola";
 import { isConditionsEvery, isConditionsSome } from "@ruan-cat/utils";
-import gulp from "gulp";
 import { deleteAsync } from "del";
 import { mkdirpSync } from "mkdirp";
 import cpy from "cpy";
@@ -310,8 +309,9 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 		consola.start(` 开始文件复制任务 `);
 		consola.info(` 从 ${pathOutputDirectory} 开始 `);
 		consola.info(` 复制到 ${pathVercelOutputStatic} 内`);
-		// await cp(pathOutputDirectory, pathVercelOutputStatic, { recursive: true });
+		// 该写法无误 在liunx github工作流环境下，能完成文件复制。
 		await cpy(pathOutputDirectory, pathVercelOutputStatic);
+		// await cp(pathOutputDirectory, pathVercelOutputStatic, { recursive: true });
 		// await cpx.copy(pathOutputDirectory, pathVercelOutputStatic);
 		consola.success(` 完成文件复制任务 `);
 	}
