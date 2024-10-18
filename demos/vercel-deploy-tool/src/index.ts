@@ -310,9 +310,9 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 		consola.start(` 开始文件复制任务 `);
 		consola.info(` 从 ${pathOutputDirectory} 开始 `);
 		consola.info(` 复制到 ${pathVercelOutputStatic} 内`);
-		// await cp(pathOutputDirectory, pathVercelOutputStatic, { recursive: true });
+		await cp(pathOutputDirectory, pathVercelOutputStatic, { recursive: true });
 		// await cpy(pathOutputDirectory, pathVercelOutputStatic);
-		await cpx.copy(pathOutputDirectory, pathVercelOutputStatic);
+		// await cpx.copy(pathOutputDirectory, pathVercelOutputStatic);
 		consola.success(` 完成文件复制任务 `);
 	}
 
