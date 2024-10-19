@@ -10,7 +10,6 @@ export type Prettify<T> = {
 
 /**
  * 转换成 NumberLike 类型
- * @author f1-阮喵喵
  * @description
  * ### *设计理由*
  * 期望让一个数值类型的联合类型 变成`NumberLike`形式的类型
