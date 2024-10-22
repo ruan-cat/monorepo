@@ -8,6 +8,13 @@
 			"dependsOn": [
 				"@ruan-cat-test/vite-plugin-autogeneration-import-file#build"
 			]
+		},
+		"rm:types": {},
+		"do-predev": {
+			"dependsOn": [
+				"rm:types",
+				"do-plugin-build"
+			]
 		}
 	}
 }

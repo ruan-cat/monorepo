@@ -8,8 +8,9 @@
 		"dev": "vite",
 		"build": " vite build",
 		"preview": "vite preview",
-		"predev": "turbo do-plugin-build",
+		"predev": "turbo do-predev",
 		"rm:node_modules": "rimraf node_modules",
+		"rm:types": "node --import=tsx ./scripts/del-types.ts",
 		"clean": "rimraf dist .turbo"
 	},
 	"dependencies": {

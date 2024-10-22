@@ -19,7 +19,8 @@
 	"scripts": {
 		"test": "pnpm run build",
 		"clean": "rimraf dist .turbo",
-		"build": "pnpm run clean && microbundle --target node -f esm,cjs",
+		"clean:dist": "rimraf dist",
+		"build": "pnpm run clean:dist && microbundle --target node -f esm,cjs",
 		"rm:node_modules": "rimraf node_modules"
 	},
 	"dependencies": {
