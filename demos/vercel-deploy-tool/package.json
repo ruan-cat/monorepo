@@ -59,7 +59,7 @@
 		"lodash-es": "catalog:",
 		"mkdirp": "^3.0.1",
 		"pathe": "^1.1.2",
-		"rimraf": "^5.0.7",
+		"rimraf": "^6.0.1",
 		"shx": "^0.3.4",
 		"vercel": "^34.2.7"
 	},
