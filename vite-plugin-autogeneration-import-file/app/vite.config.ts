@@ -96,9 +96,7 @@ declare module '@vue/runtime-core' {
 		Components({
 			dirs: [],
 			dts: false,
-			resolvers: [
-				// resolver([0, 2], [3])
-			],
+			resolvers: [resolver([0, 2], [3])],
 		}),
 	],
 });
