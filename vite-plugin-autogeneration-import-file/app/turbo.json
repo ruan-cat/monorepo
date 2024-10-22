@@ -9,7 +9,9 @@
 				"@ruan-cat-test/vite-plugin-autogeneration-import-file#build"
 			]
 		},
-		"rm:types": {},
+		"rm:types": {
+			"cache": false
+		},
 		"do-predev": {
 			"dependsOn": [
 				"rm:types",

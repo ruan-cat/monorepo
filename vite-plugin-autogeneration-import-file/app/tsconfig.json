@@ -21,10 +21,7 @@
 		"src/**/*.d.ts",
 		"src/**/*.tsx",
 		"src/**/*.vue",
-		"myComponents.d.ts",
-		"myDirective.d.ts",
-		"components1.d.ts",
-		"types/vite-env.d.ts"
+		"./types"
 	],
 	"references": [
 		{
