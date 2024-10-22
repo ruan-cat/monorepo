@@ -20,7 +20,8 @@
 		"&& cd ./test && npm run dev": "待迁移",
 		"test": "pnpm run build",
 		"clean": "rimraf dist",
-		"build": "pnpm run clean && microbundle --target node -f esm,cjs"
+		"build": "pnpm run clean && microbundle --target node -f esm,cjs",
+		"rm:node_modules": "rimraf node_modules"
 	},
 	"dependencies": {
 		"fast-glob": "^3.2.11",
