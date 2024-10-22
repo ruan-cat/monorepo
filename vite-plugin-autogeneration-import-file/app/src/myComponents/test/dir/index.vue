@@ -1,1 +1,3 @@
-<template>test dir</template>
+<template>
+	<h2>test-dir</h2>
+</template>

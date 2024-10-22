@@ -9,18 +9,40 @@ interface codeTemplate {
 	template: string; //模板 codeTemplate.template里的{{name}}会被替换为name
 	value?: string; //根据模板自动生成，不可传入
 }
-type dirOptions = {
-	dir: string; //遍历路径
-	toFile: string; //写入目标文件地址
-	pattern: fg.Pattern | fg.Pattern[]; //匹配规则 参考 fast-glob
-	options?: fg.Options; //fast-glob 匹配参数
-	name?: string | ((fileName: string) => string); //名称 当为字符串时里面的{{name}}会被替换为格式化后的驼峰名称,
-	nameFunction?: (name: string) => string; //自定义名称函数
-	codeTemplates?: codeTemplate[]; //代码模板
-	template?: string; //文件模板 会递归循环codeTemplates把template里的codeTemplate.key替换为对应的codeTemplate.value
-}[];
 
-//path转驼峰变量名并剔除最后的index/Index
+type DirOption = {
+	/** 遍历路径 */
+	dir: string;
+
+	/** 写入目标文件地址 */
+	toFile: string;
+
+	/** 匹配规则 参考 fast-glob */
+	pattern: fg.Pattern | fg.Pattern[];
+
+	/** fast-glob 匹配参数 */
+	options?: fg.Options;
+
+	/** 名称 当为字符串时里面的{{name}}会被替换为格式化后的驼峰名称, */
+	name?: string | ((fileName: string) => string);
+
+	/** 自定义名称函数 */
+	nameFunction?: (name: string) => string;
+
+	/** 代码模板 */
+	codeTemplates?: codeTemplate[];
+
+	/**
+	 * 文件模板
+	 * @description
+	 * 会递归循环codeTemplates把template里的codeTemplate.key替换为对应的codeTemplate.value
+	 */
+	template?: string;
+};
+
+type DirOptions = DirOption[];
+
+/** path转驼峰变量名并剔除最后的index/Index */
 export const getName = function (
 	fileName: string,
 	nameTemplate: string | ((name: string) => string) = "{{name}}",
@@ -45,7 +67,7 @@ export const getName = function (
 	return fileNameArr.join("");
 };
 
-//获取导入文件绝对地址
+/** 获取导入文件绝对地址 */
 export const getFileImportPath = function (dir: string, fileName: string): string {
 	fileName = path.resolve(dir, fileName);
 	if (fileName.endsWith(".ts")) {
@@ -54,7 +76,7 @@ export const getFileImportPath = function (dir: string, fileName: string): strin
 	return fileName;
 };
 
-//获取导入文件代码
+/** 获取导入文件代码 */
 export const getCode = function (
 	dir: string,
 	fileName: string,
@@ -113,32 +135,39 @@ export const createPlugin = () => {
 			getCode(dir, fileName, toFile, name, codeTemplates).forEach((item) => {
 				str = str.replace(item.key, item.value + item.key);
 			});
+
 			loadFiles[optionIndex].push({
 				fileName,
 				name: getName(fileName, name),
 				dir,
 			});
 		});
+
+		console.log(" 完成 loadFiles 准备 \n ", loadFiles);
+
 		str && fs.writeFileSync(toFile, str);
 		console.log(`mk ${toFile} success\n`);
 	};
 
-	//可由unplugin-vue-components使用
+	// 可由unplugin-vue-components使用
 	function resolver(componentInclude: number[], directiveInclude: number[] = []): any[] {
 		let result = [];
 		if (componentInclude.length) {
 			result.push({
 				type: "component",
 				resolve: async (componentName: string) => {
+					// console.log(" 看看外面已经被扫描到的组件名称有哪些？ ", componentName);
 					for (const index of componentInclude) {
 						let componentInfo = loadFiles[index].find(({ name }) => name == componentName);
 						if (componentInfo) {
+							// console.log(" 那些文件被注册了？ \n ", componentName, componentInfo);
 							return normalizePath(path.resolve(componentInfo.dir, componentInfo.fileName));
 						}
 					}
 				},
 			});
 		}
+
 		if (directiveInclude.length) {
 			result.push({
 				type: "directive",
@@ -154,28 +183,30 @@ export const createPlugin = () => {
 				},
 			});
 		}
+
 		return result;
 	}
 
-	function loadPathsPlugin(dirOptions: dirOptions) {
+	function loadPathsPlugin(dirOptions: DirOptions) {
 		return {
 			name: "load-path-ts",
+
 			configureServer() {
 				//服务器启动时被调用
-				dirOptions.forEach((item, index) => {
+				dirOptions.forEach((dirOption, index) => {
 					isServer = true;
-					fs.watch(item.dir, { recursive: true }, function (eventType: fs.WatchEventType, fileName: string) {
+					fs.watch(dirOption.dir, { recursive: true }, function (eventType: fs.WatchEventType, fileName: string) {
 						fileName = normalizePath(fileName);
 						if (eventType === "rename") {
-							let str = <string>readFileSync(item.toFile, "utf8") || "";
-							let filePath = path.resolve(item.dir, fileName);
+							let str = <string>readFileSync(dirOption.toFile, "utf8") || "";
+							let filePath = path.resolve(dirOption.dir, fileName);
 							if (fs.existsSync(filePath)) {
 								//存在
 								let stat = fs.lstatSync(filePath);
 								let changeFiles: string[] = [];
 								let prefix = "";
 								if (stat.isFile()) {
-									if (micromatch.isMatch(fileName, item.pattern)) {
+									if (micromatch.isMatch(fileName, dirOption.pattern)) {
 										changeFiles = [fileName];
 									}
 								} else if (tmpRemovePaths.length && fs.existsSync(path.resolve(filePath, tmpRemovePaths[0]))) {
@@ -184,20 +215,26 @@ export const createPlugin = () => {
 									prefix = fileName + "/";
 								}
 								changeFiles.forEach((fileName) => {
-									const code = getCode(item.dir, prefix + fileName, item.toFile, item.name, item.codeTemplates);
+									const code = getCode(
+										dirOption.dir,
+										prefix + fileName,
+										dirOption.toFile,
+										dirOption.name,
+										dirOption.codeTemplates,
+									);
 									code.forEach((codeItem) => {
 										str = str.replace(codeItem.key, codeItem.value + codeItem.key);
 									});
 									loadFiles[index].push({
 										fileName: prefix + fileName,
-										name: getName(prefix + fileName, item.name),
-										dir: item.dir,
+										name: getName(prefix + fileName, dirOption.name),
+										dir: dirOption.dir,
 									});
 								});
 								if (changeFiles.length) {
-									toFileContents.set(item.toFile, str);
-									fs.writeFileSync(item.toFile, str);
-									console.log(item.toFile + " add code");
+									toFileContents.set(dirOption.toFile, str);
+									fs.writeFileSync(dirOption.toFile, str);
+									console.log(dirOption.toFile + " add code");
 								}
 								tmpRemovePaths = [];
 							} else {
@@ -206,7 +243,13 @@ export const createPlugin = () => {
 								let delNumber = 0;
 								loadFiles[index].slice(0).forEach((val, k) => {
 									if (val.fileName.startsWith(fileName + "/") || val.fileName == fileName) {
-										const code = getCode(item.dir, val.fileName, item.toFile, item.name, item.codeTemplates);
+										const code = getCode(
+											dirOption.dir,
+											val.fileName,
+											dirOption.toFile,
+											dirOption.name,
+											dirOption.codeTemplates,
+										);
 										code.forEach((codeItem) => {
 											str = str.replace(codeItem.value, "");
 										});
@@ -216,46 +259,48 @@ export const createPlugin = () => {
 									}
 								});
 								if (changeFiles.length) {
-									toFileContents.set(item.toFile, str);
-									fs.writeFileSync(item.toFile, str);
+									toFileContents.set(dirOption.toFile, str);
+									fs.writeFileSync(dirOption.toFile, str);
 									if (changeFiles[0] !== fileName) {
 										//代表是文件夹改变
 										tmpRemovePaths = changeFiles.map((name) => name.slice(fileName.length + 1));
 									} else {
 										tmpRemovePaths = [];
 									}
-									console.log(item.toFile + " remove code");
+									console.log(dirOption.toFile + " remove code");
 								}
 							}
 						}
 					});
 				});
 			},
+
 			async buildStart() {
 				let proArr: Promise<unknown>[] = [];
-				dirOptions.forEach((item, index) => {
+				dirOptions.forEach((dirOption, index) => {
 					loadFiles[index] = [];
 					proArr.push(
 						loadPath(
 							index,
-							item.dir,
-							item.toFile,
-							item.pattern,
-							item.options || {},
-							item.name,
-							item.template,
-							item.codeTemplates,
+							dirOption.dir,
+							dirOption.toFile,
+							dirOption.pattern,
+							dirOption.options || {},
+							dirOption.name,
+							dirOption.template,
+							dirOption.codeTemplates,
 						),
 					);
 				});
+
 				await Promise.allSettled(proArr);
 				if (isServer) {
-					dirOptions.forEach((item) => {
-						toFileContents.set(item.toFile, readFileSync(item.toFile, "utf8") as string);
-						fs.watch(item.toFile, {}, function (eventType: fs.WatchEventType, fileName: string) {
-							const content = toFileContents.get(item.toFile);
-							if (content !== undefined && content !== readFileSync(item.toFile, "utf8")) {
-								fs.writeFileSync(item.toFile, content);
+					dirOptions.forEach((dirOption) => {
+						toFileContents.set(dirOption.toFile, readFileSync(dirOption.toFile, "utf8") as string);
+						fs.watch(dirOption.toFile, {}, function (eventType: fs.WatchEventType, fileName: string) {
+							const content = toFileContents.get(dirOption.toFile);
+							if (content !== undefined && content !== readFileSync(dirOption.toFile, "utf8")) {
+								fs.writeFileSync(dirOption.toFile, content);
 							}
 						});
 					});
@@ -263,5 +308,6 @@ export const createPlugin = () => {
 			},
 		};
 	}
+
 	return { autoImport: loadPathsPlugin, resolver };
 };

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import test from "./resovleComponents/resolve.vue";
+import TestResolve from "./resovleComponents/resolve.vue";
 </script>
 
 <template>
@@ -14,9 +14,11 @@ import test from "./resovleComponents/resolve.vue";
 			<img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
 		</a>
 	</div>
-	<HelloWorld msg="Vite + Vue" />
-	<test></test>
-	<test-dir></test-dir>
+
+	<!-- 已经被注册成功 -->
+	<TestResolve></TestResolve>
+	<ComponentHelloWorld msg="看看自定义的 ComponentHelloWorld 显示？"></ComponentHelloWorld>
+	<MyComponentTestDir></MyComponentTestDir>
 </template>
 
 <style scoped>
