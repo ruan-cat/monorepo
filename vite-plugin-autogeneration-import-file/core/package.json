@@ -1,0 +1,37 @@
+{
+	"name": "@ruan-cat-test/vite-plugin-autogeneration-import-file",
+	"private": true,
+	"version": "0.0.0",
+	"license": "MIT",
+	"description": "自动生成类型。工作区内的测试包。",
+	"type": "module",
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		"import": "./dist/index.js",
+		"require": "./dist/index.cjs",
+		"default": "./dist/index.cjs"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"&& cd ./test && npm run dev": "待迁移",
+		"test": "pnpm run build",
+		"clean": "rimraf dist",
+		"build": "pnpm run clean && microbundle --target node -f esm,cjs"
+	},
+	"dependencies": {
+		"fast-glob": "^3.2.11",
+		"micromatch": "^4.0.5"
+	},
+	"devDependencies": {
+		"@types/micromatch": "^4.0.2",
+		"microbundle": "^0.15.0",
+		"rimraf": "^3.0.2"
+	},
+	"peerDependencies": {
+		"vite": ">2.0.2"
+	}
+}
