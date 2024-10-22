@@ -10,6 +10,7 @@ export default defineConfig({
 		vue(),
 
 		autoImport([
+			// components
 			{
 				pattern: ["**/{index.vue,index.ts,index.js}", "*.{vue,ts,js}"],
 				dir: "./src/components",
@@ -26,16 +27,18 @@ declare module '@vue/runtime-core' {
 				codeTemplates: [{ key: "//import code", template: '{{name}}: typeof import("{{path}}")["default"]\n    ' }],
 			},
 
-			{
-				pattern: ["**/*.{ts,js}", "*.{ts,js}"],
-				dir: "./src/store/modules",
-				toFile: "./src/store/module.ts",
-				name: (name) => {
-					name = getName(name);
-					return name[0].toUpperCase() + name.slice(1) + "Store";
-				},
-			},
+			// module
+			// {
+			// 	pattern: ["**/*.{ts,js}", "*.{ts,js}"],
+			// 	dir: "./src/store/modules",
+			// 	toFile: "./src/store/module.ts",
+			// 	name: (name) => {
+			// 		name = getName(name);
+			// 		return name[0].toUpperCase() + name.slice(1) + "Store";
+			// 	},
+			// },
 
+			// myComponents
 			{
 				pattern: ["**/{index.vue,index.ts,index.js}", "*.{vue,ts,js}"],
 				dir: "./src/myComponents",
@@ -52,6 +55,7 @@ declare module '@vue/runtime-core' {
 				codeTemplates: [{ key: "//import code", template: '{{name}}: typeof import("{{path}}")["default"]\n    ' }],
 			},
 
+			// myDirective
 			{
 				pattern: ["**/{index.vue,index.ts,index.js}", "*.{vue,ts,js}"],
 				dir: "./src/myDirective",
@@ -69,6 +73,8 @@ declare module '@vue/runtime-core' {
 			},
 		]),
 
+		// FIXME: 莫名其妙地称类型不匹配 需要修复
+		// @ts-ignore
 		Components({
 			dirs: [],
 			dts: false,

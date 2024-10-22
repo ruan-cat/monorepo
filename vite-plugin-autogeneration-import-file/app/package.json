@@ -3,12 +3,13 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
+	"description": " `vite-plugin-autogeneration-import-file` 的测试应用。 ",
 	"scripts": {
 		"dev": "vite",
 		"build": " vite build",
 		"preview": "vite preview",
-		"rm:node_modules": "rimraf node_modules",
-		"vite-plugin-autogeneration-import-file": "file:../.."
+		"predev": "turbo do-plugin-build",
+		"rm:node_modules": "rimraf node_modules"
 	},
 	"dependencies": {
 		"vue": "^3.5.12"
