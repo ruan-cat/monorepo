@@ -1,49 +1,46 @@
-import { sync as globSync } from "glob";
-import yaml from "js-yaml";
-import lodash from "lodash";
-
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as fs from "node:fs";
 
+import { sync as globSync } from "glob";
+import yaml from "js-yaml";
+import { isUndefined } from "lodash-es";
+
+import { type PackageJson } from "pkg-types";
+import { type PnpmWorkspace } from "../types/pnpm-workspace.yaml.shim.ts";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const defScopes = [
-	"root|根目录",
-	"vuepress-preset-config|vp2预设配置",
-	"vercel-deploy-tool|vc部署工具",
-	"utils|工具包",
-	"demo|测试项目",
-];
+/** 工作区文件的目录配置类型 */
+interface Folder {
+	name: string;
+	path: string;
+}
 
 /**
  * 路径转换工具
- * @param { string } path 路径
- * @returns { string } 改造后的路径
  */
-function pathChange(path) {
+function pathChange(path: string) {
 	return path.replace(/\\/g, "/");
 }
 
 /**
  * 创建标签名称
- * @param { import("pkg-types").PackageJson } packageJson package.json数据
- * @returns { string }
+ * @deprecated
  */
-function createLabelName(packageJson) {
+function createLabelName(packageJson: PackageJson) {
 	const { name, description } = packageJson;
 	const noneDesc = `该依赖包没有描述。`;
-	const desc = lodash.isUndefined(description) ? noneDesc : description;
+	const desc = isUndefined(description) ? noneDesc : description;
 	return `${name ?? "bug：极端情况，这个包没有配置name名称"}    >>|>>    ${desc}`;
 }
 
 /**
  * 创建包范围取值
- * @param { import("pkg-types").PackageJson } packageJson package.json数据
- * @returns { string }
+ * @deprecated
  */
-function createPackagescopes(packageJson) {
+function createPackagescopes(packageJson: PackageJson) {
 	const { name } = packageJson;
 	const names = name?.split("/");
 	/**
@@ -59,47 +56,40 @@ function createPackagescopes(packageJson) {
 }
 
 /**
- * 根据 pnpm-workspace.yaml 配置的monorepo有意义的包名，获取包名和包描述
+ * 根据 pnpm-workspace.yaml 生成工作区配置数组
  * @description
- * 根据 pnpm-workspace.yaml 配置的monorepo有意义的包名，获取包名和包描述
- *
- * Array<{name: string, description: string}>
- * Promise<import("cz-git").ScopesType>
- * @return { import("cz-git").ScopesType }
  */
-function getPackagesNameAndDescription() {
+function getFolders() {
+	// TODO: 待优化 这里的路径读取还是不够智能 有写死的情况
 	// 读取 pnpm-workspace.yaml 文件 文件路径
-	const workspaceConfigPath = join(__dirname, "../pnpm-workspace.yaml");
+	const workspaceConfigPath = join(__dirname, "..", "pnpm-workspace.yaml");
 
 	// 文件
 	const workspaceFile = fs.readFileSync(workspaceConfigPath, "utf8");
 
 	/**
 	 * pnpm-workspace.yaml 的配置
-	 * @type { import("./types/pnpm-workspace.yaml.shim.ts").PnpmWorkspace }
 	 */
-	// @ts-ignore 忽略unknown的警告
-	const workspaceConfig = yaml.load(workspaceFile);
+	const workspaceConfig = <PnpmWorkspace>yaml.load(workspaceFile);
 
 	/**
 	 * packages配置 包的匹配语法
 	 */
 	const pkgPatterns = workspaceConfig.packages;
 
-	// 如果没查询到packages配置，返回默认的scopes
-	if (lodash.isUndefined(pkgPatterns)) {
-		return defScopes;
-	}
+	// console.log(" ？ pkgPatterns ", pkgPatterns);
 
 	/**
 	 * 全部的 package.json 文件路径
-	 * @type { string[] }
 	 */
-	let pkgPaths = [];
+	let pkgPaths: string[] = [];
 
 	// 根据每个模式匹配相应的目录
-	pkgPatterns.map((pkgPattern) => {
-		const matchedPath = pathChange(join(__dirname, pkgPattern, "package.json"));
+	pkgPatterns!.map((pkgPattern) => {
+		// TODO: 待优化 这里的路径读取还是不够智能 有写死的情况
+		const matchedPath = pathChange(join(__dirname, "..", pkgPattern, "package.json"));
+
+		// console.log(" 检查拼接出来的路径： ", matchedPath);
 
 		const matchedPaths = globSync(matchedPath, {
 			ignore: "**/node_modules/**",
@@ -110,41 +100,95 @@ function getPackagesNameAndDescription() {
 		return matchedPaths;
 	});
 
-	console.log("pkgPaths :>> ", pkgPaths);
+	// console.log("pkgPaths :>> ", pkgPaths);
 
 	/**
-	 * @returns { import("cz-git").ScopesType }
+	 * 目前项目的根目录
+	 * @description
+	 * 绝对路径
 	 */
-	const czGitScopesType = pkgPaths.map(function (pkgJsonPath) {
-		// 如果确实存在该文件，就处理。否则不管了。
-		if (fs.existsSync(pkgJsonPath)) {
-			/**
-			 * 包配置文件数据
-			 * @type { import("pkg-types").PackageJson }
-			 */
-			const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
-			return {
-				// 标签名称 对外展示的标签名称
-				name: createLabelName(pkgJson),
-				// 取值
-				value: createPackagescopes(pkgJson),
-			};
-		}
+	const workspaceRoot = pathChange(process.cwd());
 
-		return {
-			name: "警告，没找到包名，请查看这个包路径是不是故障了：",
-			value: "pkgJsonPath",
+	const folders: Folder[] = pkgPaths.map(function (pkgJsonPath) {
+		/**
+		 * 包配置文件数据
+		 */
+		const pkgJson = <PackageJson>JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
+
+		/** 包名 且不可能为空包名 */
+		const pkgJsonName = <string>pkgJson.name;
+
+		// console.log(" ? 变换后的路径 ", pathChange(pkgJsonPath));
+
+		// 输入
+		// E:/store/gitHub-desktop/vercel-monorepo-test
+		// E:/store/gitHub-desktop/vercel-monorepo-test/packages/vuepress-preset-config/package.json
+		// 输出
+		// ./packages/vuepress-preset-config
+
+		/** 相对路径 */
+		const relativePath = pathChange(pkgJsonPath).replace(`${workspaceRoot}/`, "");
+
+		/** 没有 package.json 的相对路径 */
+		const relativePathWithNoPkgJson = relativePath.replace(/\/package\.json$/, "");
+
+		/** 最终用于工作区配置的路径 */
+		const pathForCodeWorkspace = `./${relativePathWithNoPkgJson}`;
+
+		// console.log(" ? pathForCodeWorkspace ", pathForCodeWorkspace);
+
+		return <Folder>{
+			name: pkgJsonName,
+			path: pathForCodeWorkspace,
 		};
+
+		// 如果确实存在该文件，就处理。否则不管了。
+		// 我们不判断文件是否存在了，这些路径都是存在文件的，
+		// if (fs.existsSync(pkgJsonPath)) {
+		// 	return {
+		// 		name: createLabelName(pkgJson),
+		// 		value: createPackagescopes(pkgJson),
+		// 	};
+		// }
 	});
 
-	return czGitScopesType;
+	return folders;
 }
 
-/** @type { import("cz-git").ScopesType } */
-let scopes = defScopes;
-scopes = getPackagesNameAndDescription();
+/**
+ * 默认的工作区文件夹配置
+ * @description
+ * 默认要把根目录准备好 要能够访问到根目录
+ */
+const defFolders: Folder[] = [
+	{
+		name: "root",
+		path: "./",
+	},
+];
 
-// console.log(" scopes ", scopes);
+const folders = [...defFolders, ...getFolders()];
+
+const codeWorkspaceContent = {
+	folders,
+};
+
+const defCodeWorkspaceFilename = <const>"vscode";
+
+/**
+ * 生成 vscode.code-workspace 文件
+ */
+function generateCodeWorkspace(filename: string = defCodeWorkspaceFilename) {
+	const postfix = <const>".code-workspace";
+	const fullName = <const>`${filename}${postfix}`;
+
+	// TODO: 待优化 这里的路径读取还是不够智能 有写死的情况
+	const codeWorkspacePath = join(__dirname, "..", fullName);
+	fs.writeFileSync(codeWorkspacePath, JSON.stringify(codeWorkspaceContent, null, 2));
+}
+
+// 我们的工作区名称为 vercel-monorepo-test
+generateCodeWorkspace("vercel-monorepo-test");
 
 const example = {
 	folders: [
