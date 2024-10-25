@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"module": "NodeNext",
+		"noImplicitAny": true,
+		"removeComments": true,
+		"preserveConstEnums": true,
+		"sourceMap": true,
+		"types": [
+			"node"
+		],
+		"moduleResolution": "NodeNext",
+		"allowSyntheticDefaultImports": true,
+	},
+	"include": [
+		"src/*.ts",
+		"test/*.ts"
+	],
+}

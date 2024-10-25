@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/utils",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"description": "阮喵喵工具集合。一个纯typescript库。",
 	"type": "module",
 	"main": "./src/index.ts",

@@ -1,0 +1,22 @@
+{
+	"extends": [
+		"//"
+	],
+	"tasks": {
+		"do-plugin-build": {
+			"cache": false,
+			"dependsOn": [
+				"@ruan-cat-test/vite-plugin-autogeneration-import-file#build"
+			]
+		},
+		"rm:types": {
+			"cache": false
+		},
+		"do-predev": {
+			"dependsOn": [
+				"rm:types",
+				"do-plugin-build"
+			]
+		}
+	}
+}

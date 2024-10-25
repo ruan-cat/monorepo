@@ -7,6 +7,8 @@ packages:
   - "demos/*"
   - "utils"
   - "learn-create-compoents-lib/*"
+  # 在monorepo环境下，测试该依赖包是否存在内部bug？实在不行就自己发包。
+  - "vite-plugin-autogeneration-import-file/*"
   # 配置系列的依赖包 为了实现便捷快速的配置分发
   - "configs-package/*"
 
