@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.2.0
+
+### Minor Changes
+
+- 提供了针对 pnpm 工作区文件的类型声明。
+
 ## 1.1.1
 
 ### Patch Changes
