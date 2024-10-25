@@ -1,13 +1,13 @@
+// TODO: 等待封装成一个独立的子包 实现跨项目的复用
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as fs from "node:fs";
 
-import { sync as globSync } from "glob";
+import { sync } from "glob";
 import yaml from "js-yaml";
-import { isUndefined } from "lodash-es";
 
 import { type PackageJson } from "pkg-types";
-import { type PnpmWorkspace } from "../types/pnpm-workspace.yaml.shim.ts";
+import { type PnpmWorkspace } from "@ruan-cat/utils/src/types/pnpm-workspace.yaml.shim.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,36 +23,6 @@ interface Folder {
  */
 function pathChange(path: string) {
 	return path.replace(/\\/g, "/");
-}
-
-/**
- * 创建标签名称
- * @deprecated
- */
-function createLabelName(packageJson: PackageJson) {
-	const { name, description } = packageJson;
-	const noneDesc = `该依赖包没有描述。`;
-	const desc = isUndefined(description) ? noneDesc : description;
-	return `${name ?? "bug：极端情况，这个包没有配置name名称"}    >>|>>    ${desc}`;
-}
-
-/**
- * 创建包范围取值
- * @deprecated
- */
-function createPackagescopes(packageJson: PackageJson) {
-	const { name } = packageJson;
-	const names = name?.split("/");
-	/**
-	 * 含有业务名称的包名
-	 * @description
-	 * 如果拆分的数组长度大于1 说明包是具有前缀的。取用后面的名称。
-	 *
-	 * 否则包名就是单纯的字符串，直接取用即可。
-	 */
-	// @ts-ignore 默认 name 名称总是存在的 不做undefined校验
-	const packageNameWithBusiness = names?.length > 1 ? names?.[1] : names?.[0];
-	return `${packageNameWithBusiness}`;
 }
 
 /**
@@ -91,7 +61,7 @@ function getFolders() {
 
 		// console.log(" 检查拼接出来的路径： ", matchedPath);
 
-		const matchedPaths = globSync(matchedPath, {
+		const matchedPaths = sync(matchedPath, {
 			ignore: "**/node_modules/**",
 		});
 
@@ -189,24 +159,3 @@ function generateCodeWorkspace(filename: string = defCodeWorkspaceFilename) {
 
 // 我们的工作区名称为 vercel-monorepo-test
 generateCodeWorkspace("vercel-monorepo-test");
-
-const example = {
-	folders: [
-		{
-			name: "root",
-			path: "../",
-		},
-		{
-			name: "@ruan-cat-vercel-monorepo-test/monorepo-3",
-			path: "../packages/monorepo-3",
-		},
-		{
-			name: "@ruan-cat/utils",
-			path: "../utils",
-		},
-		{
-			name: "@ruan-cat-test/vite-plugin-autogeneration-import-file-test-app-1",
-			path: "../vite-plugin-autogeneration-import-file/app",
-		},
-	],
-};

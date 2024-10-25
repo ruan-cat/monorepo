@@ -80,7 +80,7 @@ function getPackagesNameAndDescription() {
 
 	/**
 	 * pnpm-workspace.yaml 的配置
-	 * @type { import("./types/pnpm-workspace.yaml.shim.ts").PnpmWorkspace }
+	 * @type { import("@ruan-cat/utils/src/types/pnpm-workspace.yaml.shim.ts").PnpmWorkspace }
 	 */
 	// @ts-ignore 忽略unknown的警告
 	const workspaceConfig = yaml.load(workspaceFile);
