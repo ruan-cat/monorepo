@@ -1,7 +1,8 @@
 {
 	"exclude": [
 		"**/dist",
-		"**/node_modules"
+		"**/node_modules",
+		"./scripts",
 	],
 	"compilerOptions": {
 		"outDir": "**/dist",
@@ -12,5 +13,5 @@
 		{
 			"path": "./tsconfig.path.json"
 		}
-	]
+	],
 }

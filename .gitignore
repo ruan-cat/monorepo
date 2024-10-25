@@ -156,3 +156,6 @@ vercel.null.def.json
 
 # 忽略掉自己配置的 vitest 报告文件 忽略掉其生成的缓存文件
 .vitest-reporter-html
+
+# 我们自动生成工作区文件 所以不提交到仓库内
+*.code-workspace
