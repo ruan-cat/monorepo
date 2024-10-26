@@ -62,6 +62,7 @@ export default defineConfig({
 							{ text: "类型声明文件", link: "/types" },
 							{ text: "git忽略配置", link: "/gitignore" },
 							{ text: "vscode配置", link: "/vscode-config" },
+							{ text: "vite配置", link: "/vite" },
 						],
 					},
 
