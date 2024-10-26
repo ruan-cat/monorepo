@@ -157,5 +157,5 @@ function generateCodeWorkspace(filename: string = defCodeWorkspaceFilename) {
 	fs.writeFileSync(codeWorkspacePath, JSON.stringify(codeWorkspaceContent, null, 2));
 }
 
-// 我们的工作区名称为 vercel-monorepo-test
-generateCodeWorkspace("vercel-monorepo-test");
+// 我们的工作区名称为 monorepo单仓
+generateCodeWorkspace("monorepo单仓");
