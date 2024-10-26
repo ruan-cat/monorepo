@@ -47,6 +47,26 @@ function pathResolve(dir: string) {
 
 :::
 
+## 路径别名
+
+对常见的文件夹做路径别名设置，避免导入文件时过于冗长：
+
+::: details 路径别名
+
+<<< ./vite/resolve.ts
+
+:::
+
+与此同时，tsconfig.json 也要同步地做出改动：
+
+在我们项目内，负责客户端的是 tsconfig.app.json 文件。
+
+::: details tsconfig.app.json
+
+<<< ./vite/examlpe-tsconfig.json
+
+:::
+
 ## 插件
 
 vite 插件配置是麻烦且复杂的。上限很高，完全取决于你自己对此的投入。
