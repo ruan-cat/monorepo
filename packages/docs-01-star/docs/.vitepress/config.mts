@@ -2,8 +2,8 @@ import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-	title: "01星球-大项目建议",
-	description: "01星球-大项目建议",
+	title: "阮喵喵的01星球笔记",
+	description: "阮喵喵在01星球内的一些公用文档",
 
 	lang: "zh",
 
@@ -13,32 +13,45 @@ export default defineConfig({
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [
 			{ text: "首页", link: "/" },
-			{ text: "仓库地址", link: "https://github.com/ruan-cat/vercel-monorepo-test" },
+			{ text: "仓库地址", link: "https://github.com/ruan-cat/vercel-monorepo-test/tree/dev/packages/docs-01-star" },
 		],
 
+		outline: {
+			label: "本页目录",
+			level: "deep",
+		},
+
 		sidebar: [
+			// 警告 暂不提供
+			// {
+			// 	text: "2024-06 大项目报告",
+			// 	link: "/report",
+			// },
+			// 警告 暂不提供
+			// {
+			// 	text: "2024-07 小项目建议",
+			// 	link: "/index",
+			// 	base: "/suggest",
+			// 	items: [
+			// 		{ text: "组长及管理者", link: "/group-leader" },
+			// 		{ text: "各组员", link: "/members" },
+			// 	],
+			// },
 			{
-				text: "2024-06 大项目报告",
-				link: "/report",
-			},
-
-			{
-				text: "2024-07 小项目建议",
-				link: "/index",
-				base: "/suggest",
-				items: [
-					{ text: "组长及管理者", link: "/group-leader" },
-					{ text: "各组员", link: "/members" },
-				],
-			},
-
-			{
-				text: "oa项目",
+				text: "2024-09 大项目-oa项目",
 				link: "/index",
 				base: "/09oa",
 				items: [
-					{ text: "项目首页", link: "/home" },
-					{ text: "个人设置", link: "/settings" },
+					// 警告 暂不提供
+					// { text: "项目首页", link: "/home" },
+					// { text: "个人设置", link: "/settings" },
+
+					{
+						text: "前端项目架构",
+						base: "/09oa/frontend-architecture",
+						link: "/index",
+						items: [{ text: "package.json", link: "/package-json" }],
+					},
 				],
 			},
 		],
