@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { toast as vueSonnerToast } from "vue-sonner";
+import { toast as vue3Toastify } from "vue3-toastify";
 
 defineProps<{ msg: string }>();
 
@@ -17,10 +18,23 @@ function showVueSonnerToast() {
 		duration: Infinity,
 	});
 }
+
+function showVue3Toastify() {
+	const resolvePromise = new Promise((resolve) => setTimeout(resolve, 1000));
+
+	/**
+	 * 注意到该库的自定义按钮 并不方便。暂时留着不使用。
+	 */
+	vue3Toastify.promise(resolvePromise, {
+		pending: "Promise is pending",
+		success: "Promise resolved 👌",
+		error: "Promise rejected 🤯",
+	});
+}
 </script>
 
 <template>
-	<h1 @click="showVueSonnerToast">{{ msg }}</h1>
+	<h1 @click="showVue3Toastify">{{ msg }}</h1>
 
 	<div class="card">
 		<button type="button" @click="count++">count is {{ count }}</button>
