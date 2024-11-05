@@ -1,13 +1,26 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { toast as vueSonnerToast } from "vue-sonner";
 
 defineProps<{ msg: string }>();
 
 const count = ref(0);
+
+function showVueSonnerToast() {
+	vueSonnerToast.warning("你已取消刚才的新建栏目", {
+		duration: Infinity,
+	});
+	vueSonnerToast.warning("你已取消刚才的新建栏目", {
+		duration: Infinity,
+	});
+	vueSonnerToast.warning("你已取消刚才的新建栏目", {
+		duration: Infinity,
+	});
+}
 </script>
 
 <template>
-	<h1>{{ msg }}</h1>
+	<h1 @click="showVueSonnerToast">{{ msg }}</h1>
 
 	<div class="card">
 		<button type="button" @click="count++">count is {{ count }}</button>

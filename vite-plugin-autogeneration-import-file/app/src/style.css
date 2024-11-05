@@ -1,3 +1,17 @@
+
+/* 
+	增加此内容，测试该样式对vue-sonner库的样式影响
+	测试不出来。毫无影响。通知消息组件仍旧是糊在一起的。
+*/
+/* *,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+} */
+
+
 :root {
 	font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
 	font-size: 16px;
