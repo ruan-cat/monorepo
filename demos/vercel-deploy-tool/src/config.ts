@@ -3,6 +3,7 @@ import { loadConfig } from "c12";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
 import { consola } from "consola";
 import { merge } from "lodash-es";
+import { program } from "commander";
 
 /**
  * @description
@@ -139,12 +140,31 @@ declare module "@dotenvx/dotenvx" {
 	}
 }
 
+program
+	.name("vercel-deploy-tool")
+	// 环境变量的地址
+	.option("--env-path <path>", "环境变量的地址")
+	.parse();
+const options = program.opts();
+
+consola.info(" 查看命令行提供的参数 ", options);
+
 /** 初始化的当前的环境变量 */
 function initCurrentDotenvConfig() {
-	const res = dotenvConfig({
-		// 具体识别的路径，会自动识别根目录下面的env文件，故这里不作处理
-		//  path: "../../../.env"
-	}).parsed;
+	// 如果存在环境变量路径 就使用并读取
+	const dotenvConfigParams = options?.envPath
+		? {
+				path: options?.envPath,
+			}
+		: {};
+
+	const res = dotenvConfig(
+		dotenvConfigParams,
+		// 	{
+		// 	// 具体识别的路径，会自动识别根目录下面的env文件，故这里不作处理
+		// 	 path: "../../../.env"
+		// }
+	).parsed;
 
 	consola.info(" 查看来自 @dotenvx/dotenvx 获取的环境变量： ");
 	consola.box(res);

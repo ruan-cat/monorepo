@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/vercel-deploy-tool",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "阮喵喵自用的vercel部署工具，用于实现复杂项目的部署。",
 	"type": "module",
 	"main": "./src/index.ts",
@@ -17,8 +17,8 @@
 	"scripts": {
 		"—build-not-use-for-now": "tsc",
 		"start": "node ./dist/index.js",
-		"run": "vite-node ./src/index.ts --files",
-		"test:config": "vite-node ./tests/config.test.ts --files",
+		"run": "node --import=tsx ./src/index.ts --env-path=.env.test",
+		"test:config": "node --import=tsx ./tests/config.test.ts --env-path=.env.test",
 		"test:vitest": "vitest --ui --watch",
 		"rm:node_modules": "rimraf node_modules"
 	},
@@ -51,6 +51,7 @@
 		"@dotenvx/dotenvx": "^1.11.5",
 		"@ruan-cat/utils": "workspace:^",
 		"c12": "^1.11.2",
+		"commander": "^12.0.0",
 		"consola": "^3.2.3",
 		"cpx": "^1.5.0",
 		"cpy": "^11.1.0",

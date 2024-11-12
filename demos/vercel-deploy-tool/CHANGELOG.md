@@ -1,10 +1,24 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.3.0
+
+### Minor Changes
+
+- 增加了 --env-path 环境变量地址配置。使用命令行运行项目时，可以手动传递环境变量的值。传递命令行的值即可。
+
+举例如下：
+
+```bash
+node --import=tsx ./tests/config.test.ts --env-path=.env.test
+```
+
+传递 --env-path 变量，并提供地址即可。
+
 ## 0.2.0
 
 ### Minor Changes
 
-- 提供 vercelJsonPath 配置。
+- 提供 vercelJsonPath 配置。允许用户上传自定义的 vercel.json 文件。
 
 ## 0.1.1
 
