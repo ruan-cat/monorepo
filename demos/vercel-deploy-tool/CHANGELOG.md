@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.2.0
+
+### Minor Changes
+
+- 提供 vercelJsonPath 配置。
+
 ## 0.1.1
 
 ### Patch Changes
