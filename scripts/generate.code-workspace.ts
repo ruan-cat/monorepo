@@ -152,8 +152,7 @@ function generateCodeWorkspace(filename: string = defCodeWorkspaceFilename) {
 	const postfix = <const>".code-workspace";
 	const fullName = <const>`${filename}${postfix}`;
 
-	// TODO: 待优化 这里的路径读取还是不够智能 有写死的情况
-	const codeWorkspacePath = join(__dirname, "..", fullName);
+	const codeWorkspacePath = join(process.cwd(), fullName);
 	fs.writeFileSync(codeWorkspacePath, JSON.stringify(codeWorkspaceContent, null, 2));
 }
 
