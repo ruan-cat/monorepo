@@ -133,9 +133,15 @@ function getVercelTokenCommandArgument() {
 	return <const>[`--token=${config.vercelToken}`];
 }
 
-/** 以命令参数数组的形式，获得项目vercel的本地配置 */
+/**
+ * 以命令参数数组的形式，获得项目vercel的本地配置
+ * @description
+ * 如果用户自己提供了vercel的本地配置 那么就使用用户的。
+ *
+ * 否则就使用自己生成的文件。
+ */
 function getVercelLocalConfigCommandArgument() {
-	return <const>[`--local-config=${vercelNullConfigPath}`];
+	return <const>[`--local-config=${config?.vercelJsonPath ?? vercelNullConfigPath}`];
 }
 
 /** 以命令参数数组的形式，获得工作目录 */

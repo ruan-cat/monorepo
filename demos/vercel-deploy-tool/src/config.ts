@@ -92,6 +92,15 @@ export interface Config {
 	/** 用户项目id */
 	vercelProjectId: string;
 
+	/**
+	 * 用户提供的 vercel.json 配置文件
+	 * @description
+	 * 有时候 用户需要提供自己的一套配置文件
+	 *
+	 * 这里提供配置路径
+	 */
+	vercelJsonPath?: string;
+
 	/** 在build命令阶段后 执行的用户命令 */
 	afterBuildTasks?: string[];
 
