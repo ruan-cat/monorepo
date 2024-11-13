@@ -12,6 +12,9 @@ hero:
     - theme: brand
       text: 学习09oa项目的前端架构
       link: /09oa/frontend-architecture
+    - theme: brand
+      text: 阅读09oa项目的总结
+      link: /09oa/summary
     - theme: alt
       text: 在github内查看
       link: https://github.com/ruan-cat/vercel-monorepo-test/tree/dev/packages/docs-01-star

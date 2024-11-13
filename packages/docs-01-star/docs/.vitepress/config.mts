@@ -37,9 +37,9 @@ export default defineConfig({
 			// 		{ text: "各组员", link: "/members" },
 			// 	],
 			// },
+
 			{
 				text: "2024-09 大项目-oa项目",
-				// link: "/09oa/index",
 				link: "/index",
 				base: "/09oa",
 				items: [
@@ -50,10 +50,8 @@ export default defineConfig({
 					{
 						text: "前端项目架构",
 						base: "/09oa/frontend-architecture",
-						// link: "/09oa/frontend-architecture/index",
 						link: "/index",
 						items: [
-							// { text: "package.json", link: "/09oa/frontend-architecture/package-json" },
 							{ text: "package.json", link: "/package-json" },
 							{ text: "生产环境依赖", link: "/dependencies" },
 							{ text: "开发环境依赖", link: "/devDependencies" },
@@ -78,6 +76,8 @@ export default defineConfig({
 							{ text: "简易网络代理", link: "/watt-toolkit" },
 						],
 					},
+
+					{ text: "阶段性总结", link: "/summary" },
 				],
 			},
 		],
