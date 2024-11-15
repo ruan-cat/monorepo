@@ -1,0 +1,67 @@
+{
+	"name": "@ruan-cat/generate-code-workspace",
+	"version": "0.0.0",
+	"description": "根据 pnpm-workspace.yaml 配置，生成vscode的code-workspace工作区文件。",
+	"type": "module",
+	"main": "./dist/vuepress-preset-config.js",
+	"types": "./src/index.ts",
+	"homepage": "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/generate-code-workspace/readme.md",
+	"bugs": {
+		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ruan-cat/vercel-monorepo-test.git",
+		"directory": "packages/generate-code-workspace"
+	},
+	"scripts": {
+		"clear": "rimraf dist .turbo .vercel .cache .temp",
+		"rm:node_modules": "rimraf node_modules"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/vuepress-preset-config.js",
+			"types": "./src/index.ts"
+		},
+		"./src/*": "./src/*"
+	},
+	"keywords": [
+		"vuepress"
+	],
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	},
+	"license": "MIT",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
+	},
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/*",
+				"./*"
+			]
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"devDependencies": {
+		"@types/node": "^20.16.11",
+		"@types/rollup-plugin-visualizer": "^4.2.4"
+	},
+	"dependencies": {
+		"@vuepress/bundler-vite": "2.0.0-rc.18",
+		"rollup-plugin-visualizer": "^5.12.0",
+		"sass-embedded": "^1.79.4",
+		"vue": "^3.5.11",
+		"vuepress": "2.0.0-rc.18",
+		"vuepress-plugin-search-pro": "2.0.0-rc.57",
+		"vuepress-theme-hope": "2.0.0-rc.58"
+	}
+}
