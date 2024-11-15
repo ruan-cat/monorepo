@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"description": "根据 pnpm-workspace.yaml 配置，生成vscode的code-workspace工作区文件。",
 	"type": "module",
-	"main": "./dist/vuepress-preset-config.js",
+	"main": "./src/index.ts",
 	"types": "./src/index.ts",
 	"homepage": "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/generate-code-workspace/readme.md",
 	"bugs": {
@@ -20,7 +20,7 @@
 	},
 	"exports": {
 		".": {
-			"import": "./dist/vuepress-preset-config.js",
+			"import": "./src/index.ts",
 			"types": "./src/index.ts"
 		},
 		"./src/*": "./src/*"
@@ -51,17 +51,12 @@
 		"dist",
 		"src"
 	],
-	"devDependencies": {
-		"@types/node": "^20.16.11",
-		"@types/rollup-plugin-visualizer": "^4.2.4"
-	},
 	"dependencies": {
-		"@vuepress/bundler-vite": "2.0.0-rc.18",
-		"rollup-plugin-visualizer": "^5.12.0",
-		"sass-embedded": "^1.79.4",
-		"vue": "^3.5.11",
-		"vuepress": "2.0.0-rc.18",
-		"vuepress-plugin-search-pro": "2.0.0-rc.57",
-		"vuepress-theme-hope": "2.0.0-rc.58"
+		"glob": "^11.0.0",
+		"lodash-es": "^4.17.21",
+		"yaml": "^2.6.0"
+	},
+	"devDependencies": {
+		"pkg-types": "^1.2.1"
 	}
 }
