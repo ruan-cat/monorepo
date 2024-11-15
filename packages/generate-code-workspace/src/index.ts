@@ -1,14 +1,26 @@
-// TODO: 正在封装
-
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as fs from "node:fs";
 
+import { consola } from "consola";
+import { merge, isNil } from "lodash-es";
+import { program } from "commander";
 import { sync } from "glob";
 import yaml from "js-yaml";
 
 import { type PackageJson } from "pkg-types";
-import { type PnpmWorkspace } from "@ruan-cat/utils/src/types/pnpm-workspace.yaml.shim.ts";
+import { type PnpmWorkspace } from "./types/pnpm-workspace.yaml.shim";
+
+const defCodeWorkspaceFilename = <const>"vscode";
+
+program
+	.name("generate-code-workspace")
+	// 生成文件的名称
+	.option("--name <string>", `生成文件的名称。不提供则默认为 ${defCodeWorkspaceFilename}`)
+	.parse();
+const options = program.opts();
+
+consola.info(" 查看命令行提供的参数 ", options);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -31,9 +43,8 @@ function pathChange(path: string) {
  * @description
  */
 function getFolders() {
-	// TODO: 待优化 这里的路径读取还是不够智能 有写死的情况
 	// 读取 pnpm-workspace.yaml 文件 文件路径
-	const workspaceConfigPath = join(__dirname, "..", "pnpm-workspace.yaml");
+	const workspaceConfigPath = join(process.cwd(), "pnpm-workspace.yaml");
 
 	// 文件
 	const workspaceFile = fs.readFileSync(workspaceConfigPath, "utf8");
@@ -57,10 +68,9 @@ function getFolders() {
 
 	// 根据每个模式匹配相应的目录
 	pkgPatterns!.map((pkgPattern) => {
-		// TODO: 待优化 这里的路径读取还是不够智能 有写死的情况
-		const matchedPath = pathChange(join(__dirname, "..", pkgPattern, "package.json"));
+		const matchedPath = pathChange(join(process.cwd(), pkgPattern, "package.json"));
 
-		// console.log(" 检查拼接出来的路径： ", matchedPath);
+		console.log(" 检查拼接出来的路径： ", matchedPath);
 
 		const matchedPaths = sync(matchedPath, {
 			ignore: "**/node_modules/**",
@@ -90,7 +100,6 @@ function getFolders() {
 		const pkgJsonName = <string>pkgJson.name;
 
 		// console.log(" ? 变换后的路径 ", pathChange(pkgJsonPath));
-
 		// 输入
 		// E:/store/gitHub-desktop/vercel-monorepo-test
 		// E:/store/gitHub-desktop/vercel-monorepo-test/packages/vuepress-preset-config/package.json
@@ -144,12 +153,10 @@ const codeWorkspaceContent = {
 	folders,
 };
 
-const defCodeWorkspaceFilename = <const>"vscode";
-
 /**
  * 生成 vscode.code-workspace 文件
  */
-function generateCodeWorkspace(filename: string = defCodeWorkspaceFilename) {
+export function generateCodeWorkspace(filename: string = defCodeWorkspaceFilename) {
 	const postfix = <const>".code-workspace";
 	const fullName = <const>`${filename}${postfix}`;
 
@@ -157,5 +164,8 @@ function generateCodeWorkspace(filename: string = defCodeWorkspaceFilename) {
 	fs.writeFileSync(codeWorkspacePath, JSON.stringify(codeWorkspaceContent, null, 2));
 }
 
-// 我们的工作区名称为 monorepo单仓
-generateCodeWorkspace("monorepo单仓");
+// 如果传递了有意义的命令行参数
+if (!isNil(options.name)) {
+	// 那就执行本函数 认定该函数以命令行的方式传参使用 并假定外面以全量的方式导入本库
+	generateCodeWorkspace(options.name);
+}
