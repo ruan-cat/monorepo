@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/generate-code-workspace",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"description": "根据 pnpm-workspace.yaml 配置，生成vscode的code-workspace工作区文件。",
 	"type": "module",
 	"main": "./src/index.ts",
@@ -26,7 +26,8 @@
 		"./src/*": "./src/*"
 	},
 	"keywords": [
-		"vuepress"
+		"code-workspace",
+		"vscode"
 	],
 	"author": {
 		"name": "ruan-cat",
@@ -49,12 +50,15 @@
 	},
 	"files": [
 		"dist",
-		"src"
+		"src",
+		"CHANGELOG.md",
+		"readme.md"
 	],
 	"dependencies": {
-		"commander": "^12.0.0",
+		"commander": "^12.1.0",
 		"consola": "^3.2.3",
 		"glob": "^11.0.0",
+		"jsonc-parser": "^3.3.1",
 		"lodash-es": "^4.17.21",
 		"yaml": "^2.6.0"
 	},

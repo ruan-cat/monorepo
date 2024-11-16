@@ -7,6 +7,7 @@ import { merge, isNil } from "lodash-es";
 import { program } from "commander";
 import { sync } from "glob";
 import yaml from "js-yaml";
+import { parse as parseJSONC } from "jsonc-parser";
 
 import { type PackageJson } from "pkg-types";
 import { type PnpmWorkspace } from "./types/pnpm-workspace.yaml.shim";
@@ -36,6 +37,26 @@ interface Folder {
  */
 function pathChange(path: string) {
 	return path.replace(/\\/g, "/");
+}
+
+/**
+ * 获取 vscode 的配置
+ * @description
+ * 读取 .vscode/settings.json 文件
+ *
+ * 如果不存在则返回 false
+ */
+function getVscodeSettings() {
+	const vscodeSettingsPath = join(process.cwd(), ".vscode/settings.json");
+	if (fs.existsSync(vscodeSettingsPath)) {
+		const vscodeSettings = fs.readFileSync(vscodeSettingsPath, "utf8");
+		const res = parseJSONC(vscodeSettings);
+		// console.log("????", res);
+		return res;
+	} else {
+		consola.warn(`${vscodeSettingsPath} does not exist.`);
+		return false;
+	}
 }
 
 /**
@@ -69,9 +90,7 @@ function getFolders() {
 	// 根据每个模式匹配相应的目录
 	pkgPatterns!.map((pkgPattern) => {
 		const matchedPath = pathChange(join(process.cwd(), pkgPattern, "package.json"));
-
-		console.log(" 检查拼接出来的路径： ", matchedPath);
-
+		// console.log(" 检查拼接出来的路径： ", matchedPath);
 		const matchedPaths = sync(matchedPath, {
 			ignore: "**/node_modules/**",
 		});
@@ -151,6 +170,7 @@ const folders = [...defFolders, ...getFolders()];
 
 const codeWorkspaceContent = {
 	folders,
+	settings: getVscodeSettings() || {},
 };
 
 /**
