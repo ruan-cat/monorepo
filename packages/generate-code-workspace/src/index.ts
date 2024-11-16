@@ -60,6 +60,13 @@ function getVscodeSettings() {
 }
 
 /**
+ * 根据名称，做字母排序
+ */
+function sortFolder(folders: Folder[]) {
+	return folders.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
  * 根据 pnpm-workspace.yaml 生成工作区配置数组
  * @description
  */
@@ -150,6 +157,9 @@ function getFolders() {
 		// 	};
 		// }
 	});
+
+	// 获得完目录后，随后对目录做排序
+	sortFolder(folders);
 
 	return folders;
 }

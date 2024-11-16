@@ -1,5 +1,11 @@
 # @ruan-cat/generate-code-workspace
 
+## 0.2.0
+
+### Minor Changes
+
+- 对匹配出来的全部包名，做字母排序。现在生成出来的工作区目录，会先经过一次排序。其中 root 根目录不参与排序。
+
 ## 0.1.0
 
 ### Minor Changes
