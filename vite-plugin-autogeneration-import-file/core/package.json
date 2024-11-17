@@ -1,5 +1,5 @@
 {
-	"name": "@ruan-cat-test/vite-plugin-autogeneration-import-file",
+	"name": "@vite-plugin-autogeneration-import-file/code",
 	"private": true,
 	"version": "0.0.0",
 	"license": "MIT",

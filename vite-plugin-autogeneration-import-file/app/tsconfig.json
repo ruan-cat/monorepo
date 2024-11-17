@@ -14,18 +14,58 @@
 			"ESNext",
 			"DOM"
 		],
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"baseUrl": ".",
+		"paths": {
+			"@/*": [
+				"src/*"
+			],
+			"components/*": [
+				"src/components/*"
+			],
+			"types/*": [
+				"src/types/*"
+			],
+			"views/*": [
+				"src/views/*"
+			],
+			"api/*": [
+				"src/apis/*"
+			],
+			"stores/*": [
+				"src/stores/*"
+			],
+			"routers/*": [
+				"src/routers/*"
+			],
+			"utils/*": [
+				"src/utils/*"
+			],
+			"tools/*": [
+				"src/tools/*"
+			],
+			"models/*": [
+				"src/models/*"
+			],
+		},
 	},
 	"include": [
 		"src/**/*.ts",
 		"src/**/*.d.ts",
 		"src/**/*.tsx",
 		"src/**/*.vue",
+		"src/**/*.md",
 		"./types"
 	],
 	"references": [
 		{
 			"path": "./tsconfig.node.json"
 		}
-	]
+	],
+	// https://vitepress.dev/guide/using-vue#vs-code-intellisense-support
+	"vueCompilerOptions": {
+		"vitePressExtensions": [
+			".md"
+		],
+	},
 }

@@ -2,6 +2,8 @@
 import { Toaster, toast } from "vue-sonner";
 
 import TestResolve from "./resovleComponents/resolve.vue";
+
+import indexMd from "./docs/index.md";
 </script>
 
 <template>
@@ -42,6 +44,8 @@ import TestResolve from "./resovleComponents/resolve.vue";
 			:gap="30"
 			:dir="'auto'"
 		></Toaster>
+
+		<indexMd></indexMd>
 	</section>
 </template>
 

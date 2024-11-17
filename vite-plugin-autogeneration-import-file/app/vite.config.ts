@@ -6,7 +6,8 @@ import { upperFirst } from "lodash-es";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
-import { getName, createPlugin } from "@ruan-cat-test/vite-plugin-autogeneration-import-file";
+import Markdown from "unplugin-vue-markdown/vite";
+import { getName, createPlugin } from "@vite-plugin-autogeneration-import-file/code";
 
 const { autoImport, resolver } = createPlugin();
 
@@ -61,7 +62,11 @@ export default defineConfig({
 	},
 
 	plugins: [
-		vue(),
+		vue({
+			include: [/\.vue$/, /\.md$/],
+		}),
+
+		Markdown({}),
 
 		autoImport([
 			// components
@@ -119,6 +124,25 @@ export default defineConfig({
 			dirs: [],
 			dts: false,
 			resolvers: [resolver([0, 2], [3])],
+
+			// https://github.com/unplugin/unplugin-vue-markdown#work-with-unplugin-vue-components
+			extensions: ["vue", "md"],
+			include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
 		}),
 	],
+
+	resolve: {
+		alias: {
+			"@": fileURLToPath(new URL("./src", import.meta.url)),
+			components: fileURLToPath(new URL("./src/components", import.meta.url)),
+			types: fileURLToPath(new URL("./src/types", import.meta.url)),
+			views: fileURLToPath(new URL("./src/views", import.meta.url)),
+			api: fileURLToPath(new URL("./src/apis", import.meta.url)),
+			stores: fileURLToPath(new URL("./src/stores", import.meta.url)),
+			router: fileURLToPath(new URL("./src/router", import.meta.url)),
+			utils: fileURLToPath(new URL("./src/utils", import.meta.url)),
+			tools: fileURLToPath(new URL("./src/tools", import.meta.url)),
+			models: fileURLToPath(new URL("./src/models", import.meta.url)),
+		},
+	},
 });

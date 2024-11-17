@@ -6,7 +6,7 @@
 		"do-plugin-build": {
 			"cache": false,
 			"dependsOn": [
-				"@ruan-cat-test/vite-plugin-autogeneration-import-file#build"
+				"@vite-plugin-autogeneration-import-file/code#build"
 			]
 		},
 		"rm:types": {

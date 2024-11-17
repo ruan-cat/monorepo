@@ -1,5 +1,5 @@
 {
-	"name": "@ruan-cat-test/vite-plugin-autogeneration-import-file-test-app-1",
+	"name": "@vite-plugin-autogeneration-import-file/app-1",
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
@@ -14,12 +14,13 @@
 		"clean": "rimraf dist .turbo"
 	},
 	"dependencies": {
+		"unplugin-vue-markdown": "^0.26.2",
 		"vue": "^3.5.12",
 		"vue-sonner": "^1.2.4",
 		"vue3-toastify": "^0.2.4"
 	},
 	"devDependencies": {
-		"@ruan-cat-test/vite-plugin-autogeneration-import-file": "workspace:^",
+		"@vite-plugin-autogeneration-import-file/code": "workspace:^",
 		"@vitejs/plugin-vue": "^5.1.4",
 		"typescript": "catalog:",
 		"unplugin-vue-components": "^0.27.4",
