@@ -1,11 +1,11 @@
 {
-	"name": "@ruan-cat/add-tool",
+	"name": "@test/add-tool",
+	"private": true,
 	"version": "1.0.0",
 	"description": "",
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./src/index.ts",
-	"private": true,
 	"exports": {
 		".": {
 			"__types": "./dist/index.d.ts",

@@ -24,6 +24,7 @@
 		"./packages/**/*.js",
 		"./packages/*/**/.vuepress/**/*.ts",
 		"./packages/**/src",
+		"./tests/**/src",
 		"./utils",
 		// 使用项目内提供的垫片类型
 		"./types/**/*.ts",
@@ -32,7 +33,7 @@
 	],
 	"exclude": [
 		"**/dist",
-		"./packages/monorepo-3/typedoc.config.js",
+		"tests/monorepo-3/typedoc.config.js",
 		// FIXME: 受不了报错了，直接排除 不知道怎么处理
 		"./prettier.config.js",
 		"./eslint.config.js"

@@ -1,5 +1,5 @@
 {
-	"name": "@ruan-cat-vercel-monorepo-test/monorepo-2",
+	"name": "@test/monorepo-2",
 	"private": true,
 	"version": "2.0.0",
 	"description": "A project of vuepress-theme-hope",

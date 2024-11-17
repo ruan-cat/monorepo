@@ -1,4 +1,4 @@
-import { add } from "@ruan-cat/add-tool";
+import { add } from "../../../tests/add-tool/src";
 
 // Example usage of the add-tool functionality
 const result = add(2, 3);
