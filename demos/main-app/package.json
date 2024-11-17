@@ -1,5 +1,5 @@
 {
-	"name": "main-app",
+	"name": "@demos/main-app",
 	"private": true,
 	"version": "1.0.0",
 	"description": "Main application",
@@ -11,6 +11,6 @@
 		"start:ts": "node src/index.ts"
 	},
 	"devDependencies": {
-		"@ruan-cat/add-tool": "workspace:^"
+		"@test/add-tool": "workspace:^"
 	}
 }
