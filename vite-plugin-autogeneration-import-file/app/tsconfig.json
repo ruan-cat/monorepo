@@ -62,7 +62,10 @@
 			"path": "./tsconfig.node.json"
 		}
 	],
-	// https://vitepress.dev/guide/using-vue#vs-code-intellisense-support
+	/**
+		让volar对md提供基础的类型支持
+		- https://vitepress.dev/guide/using-vue#vs-code-intellisense-support
+	*/
 	"vueCompilerOptions": {
 		"vitePressExtensions": [
 			".md"

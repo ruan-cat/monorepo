@@ -98,9 +98,9 @@
 		"typescript": "pnpm dotenvx run -- node --import=tsx $fullFileName"
 	},
 	/** 
-		尝试让volar对md也提供基础的类型支持
-		https://github.com/vuejs/language-tools/tree/master/extensions/vscode#configs
-		https://vitepress.dev/guide/using-vue#vs-code-intellisense-support
+		让volar对md提供基础的类型支持
+		- https://github.com/vuejs/language-tools/tree/master/extensions/vscode#configs
+		- https://vitepress.dev/guide/using-vue#vs-code-intellisense-support
 	*/
 	"vue.server.includeLanguages": [
 		"vue",
