@@ -1,5 +1,6 @@
 {
 	"name": "@giegie/resolver",
+	"private": true,
 	"version": "0.0.1",
 	"description": "组件库自动导入插件",
 	"main": "./index.js",

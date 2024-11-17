@@ -1,5 +1,6 @@
 {
 	"name": "@giegie/components",
+	"private": true,
 	"version": "0.0.1",
 	"description": "练习了2年半的高性能组件库",
 	"main": "./lib/index.js",
