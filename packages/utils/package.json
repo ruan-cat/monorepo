@@ -5,7 +5,7 @@
 	"type": "module",
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
-	"homepage": "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/utils",
+	"homepage": "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/utils",
 	"bugs": {
 		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
 	},
