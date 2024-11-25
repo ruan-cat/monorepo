@@ -11,7 +11,10 @@
 	},
 	"references": [
 		{
-			"path": "./tsconfig.path.json"
-		}
+			"path": "./tsconfig.md.json",
+		},
+		{
+			"path": "./tsconfig.path.json",
+		},
 	],
 }

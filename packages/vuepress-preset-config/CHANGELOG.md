@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.12
+
+### Patch Changes
+
+- 拓展 css 匹配的范围。补全漏掉的样式。让部分侧边栏标题补全了序号。
+
 ## 0.1.11
 
 ### Patch Changes

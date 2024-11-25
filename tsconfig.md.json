@@ -1,0 +1,24 @@
+{
+	// 为全部的md文件提供识别配置
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"baseUrl": "./"
+	},
+	"include": [
+		// 匹配本项目内全部的md文件
+		"**/*.md"
+	],
+	"exclude": [],
+	/**
+		让volar对md提供基础的类型支持
+		- https://vitepress.dev/guide/using-vue#vs-code-intellisense-support
+
+		在我们这个monorepo内，包含了很多文件 故此处对全体的md文件做配置
+		声明全部md文件至此vue编译选项
+	*/
+	"vueCompilerOptions": {
+		"vitePressExtensions": [
+			".md"
+		],
+	},
+}
