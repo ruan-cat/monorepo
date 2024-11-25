@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.13
+
+### Patch Changes
+
+- 升级依赖。
+
 ## 0.1.12
 
 ### Patch Changes
