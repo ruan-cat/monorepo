@@ -14,5 +14,5 @@ packages:
   - "configs-package/*"
 
 catalog:
-  typescript: 5.4.5
+  typescript: 5.7.2
   lodash-es: 4.17.21
