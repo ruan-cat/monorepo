@@ -48,7 +48,7 @@
 		"precode-workspace:create": "pnpm run code-workspace:del",
 		"code-workspace:create": "node --import=tsx ./scripts/generate.code-workspace.ts",
 		"turbo:do-create-code-workspace": "turbo do-create-code-workspace",
-		"deploy-vercel": "node --import=tsx ./demos/vercel-deploy-tool/src/index.ts"
+		"deploy-vercel": "node --import=tsx ./scripts/vercel-deploy-tool.ts"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^2.27.3",
