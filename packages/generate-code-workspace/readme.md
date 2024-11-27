@@ -2,6 +2,14 @@
 
 本库用于生成工作区文件。
 
+## 安装
+
+```bash
+pnpm i -D @ruan-cat/generate-code-workspace
+```
+
+本库应当作为开发环境依赖。
+
 ## 使用方式
 
 ### 函数用法
