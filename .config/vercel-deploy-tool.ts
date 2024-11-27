@@ -12,11 +12,11 @@ export default <Config>{
 		// 01星球建议笔记
 		{
 			type: "userCommands",
-			targetCWD: "./packages/docs-01-star",
+			targetCWD: "./docs/docs-01-star",
 			url: ["docs-01-star.ruancat6312.top"],
 			outputDirectory: "docs/.vitepress/dist/**/*",
 			userCommands: [
-				"pnpm -C=./packages/docs-01-star build:docs",
+				"pnpm -C=./docs/docs-01-star build:docs",
 				// "pnpm -C='./' turbo build:docs",
 				// "pnpm turbo build:docs",
 			],
@@ -78,10 +78,10 @@ export default <Config>{
 		// 工具包文档项目
 		{
 			type: "userCommands",
-			targetCWD: "./utils",
+			targetCWD: "./packages/utils",
 			outputDirectory: "docs/.vuepress/dist/**/*",
 			url: ["utils.ruancat6312.top", "utils.ruan-cat.com"],
-			userCommands: ["pnpm -C=./utils build:docs"],
+			userCommands: ["pnpm -C=./packages/utils build:docs"],
 		},
 	],
 };
