@@ -49,6 +49,11 @@ export const vercelNullConfig = <const>{
 	outputDirectory: null,
 	devCommand: null,
 	public: false,
+	/**
+	 * 部署后提供干净的链接
+	 * @see https://vercel.com/docs/projects/project-configuration#cleanurls
+	 */
+	cleanUrls: true,
 	git: {
 		deploymentEnabled: {
 			main: false,
