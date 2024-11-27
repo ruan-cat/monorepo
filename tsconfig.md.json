@@ -2,7 +2,9 @@
 	// 为全部的md文件提供识别配置
 	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
-		"baseUrl": "./"
+		"baseUrl": "./",
+		// 本文件被其他的 tsconfig.json 组合 ，用于提供md配置，避免其他包的md文件报错。
+		"composite": true
 	},
 	"include": [
 		// 匹配本项目内全部的md文件
