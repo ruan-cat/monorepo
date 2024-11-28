@@ -52,6 +52,13 @@ export const vercelNullConfig = <const>{
 	/**
 	 * 部署后提供干净的链接
 	 * @see https://vercel.com/docs/projects/project-configuration#cleanurls
+	 *
+	 * @description
+	 * 暂无效果
+	 *
+	 * 目前在 build-output-api 中，实现cleanUrls需要手动地写入配置文件
+	 *
+	 * 成本较大，目前不做投入。
 	 */
 	cleanUrls: true,
 	git: {
