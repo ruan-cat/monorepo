@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.3.0
+
+### Minor Changes
+
+- 提供异步任务的工具函数。
+
 ## 1.2.0
 
 ### Minor Changes
