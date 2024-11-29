@@ -17,7 +17,7 @@
 	"scripts": {
 		"copy-readme": "cpx readme.md docs",
 		"copy-changelog": "cpx CHANGELOG.md docs",
-		"typedoc": "typedoc --options typedoc.config.cjs",
+		"typedoc": "typedoc --options typedoc.config.mjs",
 		"prettier-docs-(invalid)": "prettier docs/**/*.md --write",
 		"docs:dev-main": "vuepress-vite dev docs",
 		"docs:dev": "turbo docs:dev",
