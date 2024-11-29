@@ -7,8 +7,8 @@
 	"type": "module",
 	"scripts": {
 		"build:docs": "vuepress-vite build src",
-		"vp-hope:dev": "vuepress-vite dev src/docs --clean-cache -c src/configs/vuepress-hope/.vuepress/config.ts",
-		"vp-hope:build": "vuepress-vite build src/docs -c src/configs/vuepress-hope/.vuepress/config.ts",
+		"vp-hope:dev": "vuepress-vite dev docs --clean-cache -c src/configs/vp-hope/config.ts",
+		"vp-hope:build": "vuepress-vite build docs -c src/configs/vp-hope/config.ts",
 		"docs:update-package": "pnpm dlx vp-update",
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"rm:node_modules": "rimraf node_modules"
