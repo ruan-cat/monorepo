@@ -7,8 +7,8 @@
 	"type": "module",
 	"scripts": {
 		"build:docs": "vuepress-vite build src",
-		"docs:clean-dev": "vuepress-vite dev src --clean-cache",
-		"docs:dev": "vuepress-vite dev src",
+		"vp-hope:dev": "vuepress-vite dev src/docs --clean-cache",
+		"vp-hope:build": "vuepress-vite build src/docs",
 		"docs:update-package": "pnpm dlx vp-update",
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"rm:node_modules": "rimraf node_modules"

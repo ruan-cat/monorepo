@@ -8,6 +8,7 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { type ThemeOptions, hopeTheme } from "vuepress-theme-hope";
 
 export { hopeTheme } from "vuepress-theme-hope";
+export type { ThemeOptions } from "vuepress-theme-hope";
 // const __dirname = getDirname(import.meta.url);
 
 function getYaer() {
