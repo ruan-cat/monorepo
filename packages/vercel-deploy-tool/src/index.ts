@@ -20,7 +20,7 @@ import {
 	type DeployTarget,
 	type WithUserCommands,
 } from "./config";
-import { generateSimpleAsyncTask } from "./utils/simple-promise-tools";
+import { generateSimpleAsyncTask } from "@ruan-cat/utils/src/simple-promise-tools";
 
 import {
 	definePromiseTasks,
@@ -29,7 +29,7 @@ import {
 	type ParallelTasks,
 	type QueueTasks,
 	type Task,
-} from "./utils/define-promise-tasks";
+} from "@ruan-cat/utils/src/define-promise-tasks";
 
 /**
  * vercel 的空配置

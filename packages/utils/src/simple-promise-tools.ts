@@ -1,19 +1,9 @@
-import { consola } from "consola";
-import { uniqueId } from "lodash-es";
-
-export function wait(time: number) {
-	return new Promise<void>((resolve) => {
-		setTimeout(() => {
-			resolve();
-		}, time);
-	});
-}
-
-const getCounter = () => uniqueId();
+// import { uniqueId } from "lodash-es";
+// const getCounter = () => uniqueId();
 
 /** 创建简单的异步任务 */
 export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T) {
-	const taskId = getCounter();
+	// const taskId = getCounter();
 
 	return function (...args: any) {
 		// consola.info(` 这是第 ${taskId} 个异步任务 `);
@@ -27,9 +17,6 @@ export function generateSimpleAsyncTask<T extends (...args: any) => any>(func: T
 }
 
 export type SimpleAsyncTask = ReturnType<typeof generateSimpleAsyncTask>;
-
-/** @deprecated */
-export type SimpleAsyncTaskWithType = <T = any>(...args: any) => Promise<T>;
 
 export const initFlag = <const>"initFlag";
 
@@ -66,29 +53,3 @@ export async function runPromiseByQueue<T>(promises: ((...args: any) => Promise<
 export async function runPromiseByConcurrency<T>(promises: ((...args: any) => Promise<T>)[]) {
 	await Promise.all(promises.map((promise) => promise()));
 }
-
-export const testPromises = [
-	generateSimpleAsyncTask(async function (params) {
-		await wait(400);
-		consola.log(" 这里是 1 号函数 ");
-		consola.log(" 查看上一个函数返回过来的参数： ", params);
-		return 1;
-	}),
-
-	generateSimpleAsyncTask(async function (params) {
-		await wait(500);
-		consola.log(" 这里是 2 号函数 ");
-		consola.log(" 查看上一个函数返回过来的参数： ", params);
-		return 2;
-	}),
-
-	generateSimpleAsyncTask(async function (params) {
-		await wait(500);
-		consola.log(" 这里是 3 号函数 ");
-		consola.log(" 查看上一个函数返回过来的参数： ", params);
-		return 3;
-	}),
-];
-
-// 测试队列函数的传参能力 发现这里是可以实现传参的
-// runPromiseByQueue(testPromises);

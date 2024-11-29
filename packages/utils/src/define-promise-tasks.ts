@@ -1,10 +1,4 @@
-import {
-	type SimpleAsyncTask,
-	type SimpleAsyncTaskWithType,
-	generateSimpleAsyncTask,
-	runPromiseByConcurrency,
-	runPromiseByQueue,
-} from "./simple-promise-tools";
+import { type SimpleAsyncTask } from "./simple-promise-tools.ts";
 
 export const taskTypes = <const>["single", "parallel", "queue"];
 
@@ -15,7 +9,6 @@ export interface BaseTask {
 	type: TaskType;
 }
 
-// type Task = SimpleAsyncTaskWithType | TasksConfig;
 export type Task = SimpleAsyncTask | TasksConfig;
 
 export interface SingleTasks extends BaseTask {

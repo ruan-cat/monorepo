@@ -36,8 +36,8 @@
 	"include": [
 		"./src/**/*.ts",
 		"./tests/**/*.test.ts",
-		"./tests/**/*.ts"
-		// "src",
+		"./tests/**/*.ts",
+		"../utils/src/define-promise-tasks.ts" // "src",
 		// "tests"
 	]
 }
