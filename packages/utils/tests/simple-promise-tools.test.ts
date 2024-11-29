@@ -1,3 +1,4 @@
+import { expect, test } from "vitest";
 import { consola } from "consola";
 import { sleep } from "@antfu/utils";
 
@@ -35,5 +36,7 @@ const testPromises = [
 	}),
 ];
 
-// 测试队列函数的传参能力 发现这里是可以实现传参的
-runPromiseByQueue(testPromises);
+test("队列串行运行任务", () => {
+	// 测试队列函数的传参能力 发现这里是可以实现传参的
+	runPromiseByQueue(testPromises);
+});
