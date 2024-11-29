@@ -6,6 +6,7 @@ export default defineConfig({
 	description: "阮喵喵在01星球内的一些公用文档",
 
 	lang: "zh",
+	srcDir: "../docs",
 
 	themeConfig: {
 		i18nRouting: true,

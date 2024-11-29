@@ -37,7 +37,7 @@
 		"./src/**/*.ts",
 		"./tests/**/*.test.ts",
 		"./tests/**/*.ts",
-		"../utils/src/define-promise-tasks.ts" // "src",
+		// "src",
 		// "tests"
 	]
 }

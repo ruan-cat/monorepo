@@ -7,6 +7,10 @@ import { defineRuanCatVuepressConfig } from "@ruan-cat/vuepress-preset-config";
  */
 const currPath = "src/configs/vp-hope";
 
+/**
+ * @see https://vuejs.press/zh/reference/config.html#通用配置项
+ */
+
 export default defineRuanCatVuepressConfig({
 	title: "monorepo-1",
 	base: "/vp-hope/",

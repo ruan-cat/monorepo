@@ -5,9 +5,9 @@
 	"description": "01星球的建议文档",
 	"main": "index.js",
 	"scripts": {
-		"docs:dev": "vitepress dev docs --port 8080",
-		"build:docs": "vitepress build docs",
-		"docs:preview": "vitepress preview docs",
+		"docs:dev": "vitepress dev config --port 8080",
+		"build:docs": "vitepress build config",
+		"docs:preview": "vitepress preview config",
 		"clear": "rimraf dist .turbo .vercel .cache .temp cache",
 		"rm:node_modules": "rimraf node_modules"
 	},
