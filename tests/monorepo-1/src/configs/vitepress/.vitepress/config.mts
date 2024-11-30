@@ -8,7 +8,8 @@ export default defineConfig({
 
 	base: "/vitepress/",
 	srcDir: "../../../docs",
-	outDir: "../../../.vercel/output/static/vitepress",
+	outDir: "../../../dist/vitepress",
+	cacheDir: "../../../.cache/vitepress",
 
 	themeConfig: {
 		i18nRouting: true,
