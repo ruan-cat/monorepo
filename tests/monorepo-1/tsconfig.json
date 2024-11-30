@@ -6,6 +6,8 @@
 		}
 	],
 	"compilerOptions": {
+		"module": "NodeNext",
+		"moduleResolution": "nodenext",
 		"paths": {
 			// 警告 目前该配置无意义 无效
 			"@/*": [
