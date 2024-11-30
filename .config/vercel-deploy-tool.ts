@@ -14,7 +14,7 @@ export default <Config>{
 			type: "userCommands",
 			targetCWD: "./docs/docs-01-star",
 			url: ["docs-01-star.ruancat6312.top"],
-			outputDirectory: "docs/.vitepress/dist/**/*",
+			outputDirectory: "config/.vitepress/dist/**/*",
 			userCommands: [
 				"pnpm -C=./docs/docs-01-star build:docs",
 				// "pnpm -C='./' turbo build:docs",
