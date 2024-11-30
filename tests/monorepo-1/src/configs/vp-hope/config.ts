@@ -12,7 +12,7 @@ const currPath = "src/configs/vp-hope";
  */
 
 export default defineRuanCatVuepressConfig({
-	title: "monorepo-1",
+	title: "monorepo-1-vp-hope主题",
 	base: "/vp-hope/",
 	// dest: `${currPath}/dist`,
 	dest: `.vercel/output/static/vp-hope`,

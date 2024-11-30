@@ -6,9 +6,13 @@
 		"vp-hope:build": {
 			"cache": false
 		},
+		"vitepress:build": {
+			"cache": false
+		},
 		"do-multi-build": {
 			"dependsOn": [
-				"vp-hope:build"
+				"vp-hope:build",
+				"vitepress:build"
 			]
 		}
 	}
