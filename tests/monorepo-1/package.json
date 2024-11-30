@@ -7,8 +7,8 @@
 	"type": "module",
 	"scripts": {
 		"build:docs": "turbo do-multi-build",
-		"vp-hope:dev": "vuepress-vite dev ./docs/vp-hope --clean-cache -c src/configs/vp-hope/config.ts",
-		"vp-hope:build": "vuepress-vite build ./docs/vp-hope -c src/configs/vp-hope/config.ts",
+		"vp-hope:dev": "vuepress-vite dev ./.docs/vp-hope --clean-cache -c src/configs/vp-hope/config.ts --open",
+		"vp-hope:build": "vuepress-vite build ./.docs/vp-hope -c src/configs/vp-hope/config.ts",
 		"vip:dev": "vitepress dev src/configs/vip --port 8080 --open",
 		"vip:build": "vitepress build src/configs/vip",
 		"vip-carbon:dev": "vitepress dev src/configs/vip-carbon --port 8080 --open",

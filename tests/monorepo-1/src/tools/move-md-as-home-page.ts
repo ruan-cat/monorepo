@@ -6,7 +6,7 @@ import {
 	// 复制目录
 	cpSync,
 	// 删除目录
-	rmdirSync,
+	rmSync,
 } from "node:fs";
 import { resolve } from "node:path";
 import cpy from "cpy";
@@ -60,7 +60,7 @@ export function moveMdAsHomePage(params: Params) {
 
 	if (existsSync(targetDocsPath)) {
 		// 删除目录
-		rmdirSync(targetDocsPath, { recursive: true });
+		rmSync(targetDocsPath, { recursive: true });
 	}
 
 	cpSync(docsSourcePath, targetDocsPath, { recursive: true });
