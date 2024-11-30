@@ -46,7 +46,7 @@ export function moveMdAsHomePage(params: Params) {
 	const docsSourcePath = resolve(process.cwd(), params.docsSourcePath);
 	const targetDocsPath = resolve(process.cwd(), params.targetDocsPath);
 
-	const docsSourceHomePageMdPath = resolve(process.cwd(), params.docsSourcePath, indexMdName);
+	const targetDocsHomePageMdPath = resolve(process.cwd(), params.targetDocsPath, indexMdName);
 
 	if (!existsSync(homePageMdPath)) {
 		consola.error(`未发现期望的 ${homePageMdPath} 首页文件，无法移动文件。 首页文件只识别 ${indexMdName} 名称。 `);
@@ -66,6 +66,6 @@ export function moveMdAsHomePage(params: Params) {
 	cpSync(docsSourcePath, targetDocsPath, { recursive: true });
 	consola.success(`文档源路径已复制到 ${targetDocsPath}`);
 
-	copyFileSync(homePageMdPath, docsSourceHomePageMdPath);
-	consola.success(`首页文件已复制到 ${docsSourceHomePageMdPath}`);
+	copyFileSync(homePageMdPath, targetDocsHomePageMdPath);
+	consola.success(`首页文件已复制到 ${targetDocsHomePageMdPath}`);
 }
