@@ -1,5 +1,11 @@
+import { fileURLToPath, URL } from "node:url";
+
 import { defineConfig } from "vitepress";
 import { generateSidebar } from "vitepress-sidebar";
+
+import { moveMdAsHomePage } from "../../../tools/move-md-as-home-page.ts";
+
+moveMdAsHomePage("./src/configs/vip/.vitepress/index.md", "./docs");
 
 const name = "vip";
 
@@ -13,6 +19,15 @@ export default defineConfig({
 	srcDir: "../../../docs",
 	outDir: `../../../dist/${name}`,
 	cacheDir: `../../../.cache/${name}`,
+
+	vite: {
+		resolve: {
+			alias: {
+				// 警告 目前该配置无意义 无效
+				"@": fileURLToPath(new URL("./src", import.meta.url)),
+			},
+		},
+	},
 
 	themeConfig: {
 		i18nRouting: true,

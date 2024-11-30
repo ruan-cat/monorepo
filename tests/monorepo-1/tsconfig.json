@@ -1,0 +1,21 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"references": [
+		{
+			"path": "../../tsconfig.md.json"
+		}
+	],
+	"compilerOptions": {
+		"paths": {
+			// 警告 目前该配置无意义 无效
+			"@/*": [
+				"./src/*"
+			]
+		}
+	},
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/.vitepress/**/*.ts",
+		"./src/**/.vitepress/**/*.mts",
+	]
+}
