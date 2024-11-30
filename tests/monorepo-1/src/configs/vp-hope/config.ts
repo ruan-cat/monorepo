@@ -1,5 +1,15 @@
 import { defineRuanCatVuepressConfig } from "@ruan-cat/vuepress-preset-config";
 
+import { moveMdAsHomePage } from "../../tools/move-md-as-home-page.ts";
+
+const name = "vp-hope";
+
+moveMdAsHomePage({
+	homePageMdPath: `./src/configs/${name}/index.md`,
+	docsSourcePath: "./docs",
+	targetDocsPath: `./.docs/${name}`,
+});
+
 /**
  * 路径
  * @description
@@ -10,8 +20,6 @@ const currPath = "src/configs/vp-hope";
 /**
  * @see https://vuejs.press/zh/reference/config.html#通用配置项
  */
-
-const name = "vp-hope";
 
 export default defineRuanCatVuepressConfig({
 	title: "monorepo-1-vp-hope主题",

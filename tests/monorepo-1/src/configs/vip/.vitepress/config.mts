@@ -5,9 +5,13 @@ import { generateSidebar } from "vitepress-sidebar";
 
 import { moveMdAsHomePage } from "../../../tools/move-md-as-home-page.ts";
 
-moveMdAsHomePage("./src/configs/vip/.vitepress/index.md", "./docs");
-
 const name = "vip";
+
+moveMdAsHomePage({
+	homePageMdPath: `./src/configs/${name}/.vitepress/index.md`,
+	docsSourcePath: "./docs",
+	targetDocsPath: `./.docs/${name}`,
+});
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -16,7 +20,7 @@ export default defineConfig({
 	lang: "zh",
 
 	base: `/${name}/`,
-	srcDir: "../../../docs",
+	srcDir: `../../../.docs/${name}`,
 	outDir: `../../../dist/${name}`,
 	cacheDir: `../../../.cache/${name}`,
 
