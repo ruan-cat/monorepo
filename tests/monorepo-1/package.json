@@ -14,7 +14,7 @@
 		"vip-carbon:dev": "vitepress dev src/configs/vip-carbon --port 8080 --open",
 		"vip-carbon:build": "vitepress build src/configs/vip-carbon",
 		"docs:update-package": "pnpm dlx vp-update",
-		"clear": "rimraf dist .turbo .vercel .cache .temp",
+		"clear": "rimraf dist .turbo .vercel .cache .temp .docs",
 		"rm:node_modules": "rimraf node_modules"
 	},
 	"devDependencies": {

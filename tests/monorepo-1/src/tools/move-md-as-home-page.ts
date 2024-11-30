@@ -1,4 +1,13 @@
-import { existsSync, copyFileSync, cpSync } from "node:fs";
+import {
+	// 文件是否存在
+	existsSync,
+	// 复制文件
+	copyFileSync,
+	// 复制目录
+	cpSync,
+	// 删除目录
+	rmdirSync,
+} from "node:fs";
 import { resolve } from "node:path";
 import cpy from "cpy";
 import consola from "consola";
@@ -8,6 +17,8 @@ interface Params {
 	 * 被复制粘贴的md文件路径
 	 * @description
 	 * 作为首页的md文件
+	 *
+	 * 包括文件名称全称。 index.md
 	 */
 	homePageMdPath: string;
 
@@ -28,13 +39,17 @@ interface Params {
 	targetDocsPath: string;
 }
 
+const indexMdName = <const>`index.md`;
+
 export function moveMdAsHomePage(params: Params) {
 	const homePageMdPath = resolve(process.cwd(), params.homePageMdPath);
-	const targetDocsPath = resolve(process.cwd(), params.targetDocsPath);
 	const docsSourcePath = resolve(process.cwd(), params.docsSourcePath);
+	const targetDocsPath = resolve(process.cwd(), params.targetDocsPath);
+
+	const docsSourceHomePageMdPath = resolve(process.cwd(), params.docsSourcePath, indexMdName);
 
 	if (!existsSync(homePageMdPath)) {
-		consola.error(`未发现期望的 ${homePageMdPath} 首页文件，无法移动文件。 首页文件只识别 index.md 名称。 `);
+		consola.error(`未发现期望的 ${homePageMdPath} 首页文件，无法移动文件。 首页文件只识别 ${indexMdName} 名称。 `);
 		return;
 	}
 
@@ -43,9 +58,14 @@ export function moveMdAsHomePage(params: Params) {
 		return;
 	}
 
+	if (existsSync(targetDocsPath)) {
+		// 删除目录
+		rmdirSync(targetDocsPath, { recursive: true });
+	}
+
 	cpSync(docsSourcePath, targetDocsPath, { recursive: true });
 	consola.success(`文档源路径已复制到 ${targetDocsPath}`);
 
-	copyFileSync(homePageMdPath, targetDocsPath);
-	consola.success(`首页文件已复制到 ${targetDocsPath}`);
+	copyFileSync(homePageMdPath, docsSourceHomePageMdPath);
+	consola.success(`首页文件已复制到 ${docsSourceHomePageMdPath}`);
 }
