@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"build:docs": "vuepress-vite build src",
+		"build:docs": "turbo do-multi-build",
 		"vp-hope:dev": "vuepress-vite dev docs --clean-cache -c src/configs/vp-hope/config.ts",
 		"vp-hope:build": "vuepress-vite build docs -c src/configs/vp-hope/config.ts",
 		"docs:update-package": "pnpm dlx vp-update",

@@ -1,0 +1,15 @@
+{
+	"extends": [
+		"//"
+	],
+	"tasks": {
+		"vp-hope:build": {
+			"cache": false
+		},
+		"do-multi-build": {
+			"dependsOn": [
+				"vp-hope:build"
+			]
+		}
+	}
+}

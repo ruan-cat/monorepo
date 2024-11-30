@@ -10,25 +10,28 @@ export default <Config>{
 	// FIXME: execa运行的turbo命令，不会使用cache缓存，导致了重复构建。
 	deployTargets: [
 		// 01星球建议笔记
-		{
-			type: "userCommands",
-			targetCWD: "./docs/docs-01-star",
-			url: ["docs-01-star.ruancat6312.top"],
-			outputDirectory: "config/.vitepress/dist/**/*",
-			userCommands: [
-				"pnpm -C=./docs/docs-01-star build:docs",
-				// "pnpm -C='./' turbo build:docs",
-				// "pnpm turbo build:docs",
-			],
-		},
-		// 1号项目
 		// {
 		// 	type: "userCommands",
-		// 	targetCWD: "./packages/monorepo-1",
-		// 	outputDirectory: "src/.vuepress/dist/**/*",
-		// 	url: ["monorepo-1.ruancat6312.top"],
-		// 	userCommands: ["pnpm -C=./packages/monorepo-1 build:docs"],
+		// 	targetCWD: "./docs/docs-01-star",
+		// 	url: ["docs-01-star.ruancat6312.top"],
+		// 	outputDirectory: "config/.vitepress/dist/**/*",
+		// 	userCommands: [
+		// 		"pnpm -C=./docs/docs-01-star build:docs",
+		// 		// "pnpm -C='./' turbo build:docs",
+		// 		// "pnpm turbo build:docs",
+		// 	],
 		// },
+
+		// 1号项目
+		{
+			type: "userCommands",
+			targetCWD: "./tests/monorepo-1",
+			isCopyDist: false,
+			outputDirectory: "src/.vuepress/dist/**/*",
+			url: ["monorepo-1.ruancat6312.top"],
+			userCommands: ["pnpm -C=./tests/monorepo-1 build:docs"],
+		},
+
 		// 2号项目 通过测试 多域名可以实现部署
 		// {
 		// 	type: "userCommands",
@@ -76,12 +79,12 @@ export default <Config>{
 		// },
 
 		// 工具包文档项目
-		{
-			type: "userCommands",
-			targetCWD: "./packages/utils",
-			outputDirectory: "docs/.vuepress/dist/**/*",
-			url: ["utils.ruancat6312.top", "utils.ruan-cat.com"],
-			userCommands: ["pnpm -C=./packages/utils build:docs"],
-		},
+		// {
+		// 	type: "userCommands",
+		// 	targetCWD: "./packages/utils",
+		// 	outputDirectory: "docs/.vuepress/dist/**/*",
+		// 	url: ["utils.ruancat6312.top", "utils.ruan-cat.com"],
+		// 	userCommands: ["pnpm -C=./packages/utils build:docs"],
+		// },
 	],
 };
