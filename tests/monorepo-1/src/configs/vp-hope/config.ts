@@ -11,11 +11,13 @@ const currPath = "src/configs/vp-hope";
  * @see https://vuejs.press/zh/reference/config.html#通用配置项
  */
 
+const name = "vp-hope";
+
 export default defineRuanCatVuepressConfig({
 	title: "monorepo-1-vp-hope主题",
-	base: "/vp-hope/",
-	dest: `dist/vp-hope`,
-	cache: `.cache/vp-hope`,
-	temp: `.temp/vp-hope`,
+	base: `/${name}/`,
+	dest: `dist/${name}`,
+	cache: `.cache/${name}`,
+	temp: `.temp/${name}`,
 	public: `${currPath}/public`,
 });
