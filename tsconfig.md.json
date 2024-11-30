@@ -8,7 +8,8 @@
 	},
 	"include": [
 		// 匹配本项目内全部的md文件
-		"**/*.md"
+		"**/*.md",
+		"./tests/**/.vitepress/*.md",
 	],
 	"exclude": [],
 	/**
