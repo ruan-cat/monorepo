@@ -18,7 +18,6 @@ import fs, {
 import { concat, isEmpty, isUndefined } from "lodash-es";
 import { consola } from "consola";
 import { isConditionsEvery, isConditionsSome } from "@ruan-cat/utils";
-import { deleteAsync } from "del";
 import { mkdirpSync } from "mkdirp";
 
 import {
@@ -327,7 +326,7 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 
 	async function delVercelOutputStatic() {
 		consola.start(` 开始删除文件任务 `);
-		await deleteAsync(pathVercelOutputStatic);
+		rmSync(pathVercelOutputStatic, { recursive: true });
 		consola.success(` 删除该路径的文件： ${pathVercelOutputStatic} `);
 	}
 
