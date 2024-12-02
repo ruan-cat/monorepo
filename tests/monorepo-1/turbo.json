@@ -4,7 +4,10 @@
 	],
 	"tasks": {
 		"vp-hope:build": {
-			"cache": false
+			"cache": false,
+			"dependsOn": [
+				"@ruan-cat/vuepress-preset-config#build"
+			]
 		},
 		"vip:build": {
 			"cache": false
