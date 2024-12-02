@@ -1,8 +1,20 @@
 // 学习一下如何使用 https://github.com/sindresorhus/execa/blob/main/readme.md
-import fs from "node:fs";
 import { dirname, resolve } from "node:path";
 import { cp } from "node:fs/promises";
-import { execa } from "execa";
+import { spawnSync } from "node:child_process";
+import fs, {
+	// 文件是否存在
+	existsSync,
+	// 复制文件
+	copyFileSync,
+	// 复制目录
+	cpSync,
+	// 删除目录
+	rmSync,
+	// 新建文件夹
+	mkdir,
+} from "node:fs";
+
 import { concat, isEmpty, isUndefined } from "lodash-es";
 import { consola } from "consola";
 import { isConditionsEvery, isConditionsSome } from "@ruan-cat/utils";
@@ -162,13 +174,16 @@ function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
 }
 
 /**
- * 生成简单的 execa 函数
+ * 生成简单的执行命令函数
  * @description
  * 对 execa 做简单的包装
+ *
+ * 封装 spawnSync 函数
+ * @version 2
  */
 function generateExeca(execaSimpleParams: { command: string; parameters: string[] }) {
 	const { command, parameters } = execaSimpleParams;
-	return generateSimpleAsyncTask(() => execa(command, parameters, { shell: true }));
+	return generateSimpleAsyncTask(() => spawnSync(command, parameters, { shell: true }));
 }
 
 /**
@@ -273,7 +288,7 @@ function generateCopyDistTasks_v1(deployTarget: WithUserCommands) {
 				command,
 				parameters: [],
 			});
-			const { code, stdout } = await commandFunction();
+			const { stdout } = await commandFunction();
 			consola.info(` 执行了命令 🐓： `, command);
 			// consola.box(stdout);
 		});
@@ -398,8 +413,9 @@ function generateAfterBuildTasksConfig(config: Config): Task {
 						parameters: [],
 					});
 					consola.start(` 开始用户 afterBuildTasks 命令任务 `);
-					const { code, stdout } = await userCommand();
-					consola.success(` 完成用户 afterBuildTasks 命令任务 ${code} `);
+					const { stdout } = await userCommand();
+					// consola.success(` 完成用户 afterBuildTasks 命令任务 ${code} `);
+					consola.success(` 完成用户 afterBuildTasks 命令任务 `);
 					// consola.box(stdout);
 				});
 			}),
@@ -441,9 +457,9 @@ async function main() {
 					return generateSimpleAsyncTask(async () => {
 						const build = generateBuildTask(deployTarget);
 						consola.start(` 开始build任务 `);
-						const { code, stdout } = await build();
+						const { stdout } = await build();
 						consola.success(` 完成build任务 `);
-						consola.info(` 完成命令 ${code} `);
+						// consola.info(` 完成命令 ${code} `);
 						// consola.box(stdout);
 					});
 				}),
@@ -475,8 +491,9 @@ async function main() {
 													parameters: [],
 												});
 												consola.start(` 开始用户命令任务 `);
-												const { code, stdout } = await userCommand();
-												consola.success(` 完成用户命令任务 ${code} `);
+												const { stdout } = await userCommand();
+												// consola.success(` 完成用户命令任务 ${code} `);
+												consola.success(` 完成用户命令任务 `);
 												// consola.box(stdout);
 											});
 										}),
@@ -511,7 +528,8 @@ async function main() {
 							generateSimpleAsyncTask(async () => {
 								const deploy = generateDeployTask(deployTarget);
 								consola.start(` 开始部署任务 `);
-								const { stdout: vercelUrl } = await deploy();
+								const { stdout } = await deploy();
+								const vercelUrl = stdout.toString();
 								consola.success(` 完成部署任务 检查生成的url为 \n `);
 								consola.box(vercelUrl);
 								return vercelUrl;
@@ -524,8 +542,8 @@ async function main() {
 									return generateSimpleAsyncTask(async (vercelUrl: string) => {
 										const alias = generateAliasTask(vercelUrl, userUrl);
 										consola.start(` 开始别名任务 `);
-										const { stdout, command } = await alias();
-										consola.success(` 执行了： ${command} `);
+										const { stdout } = await alias();
+										// consola.success(` 执行了： ${command} `);
 										consola.success(` 完成别名任务 可用的别名地址为 \n`);
 										consola.box(`https://${userUrl}`);
 									});
