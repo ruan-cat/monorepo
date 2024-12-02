@@ -1,6 +1,5 @@
 // 学习一下如何使用 https://github.com/sindresorhus/execa/blob/main/readme.md
 import { dirname, resolve } from "node:path";
-import { cp } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import fs, {
 	// 文件是否存在
@@ -17,29 +16,18 @@ import fs, {
 
 import { concat, isEmpty, isUndefined } from "lodash-es";
 import { consola } from "consola";
-import { isConditionsEvery, isConditionsSome } from "@ruan-cat/utils";
-import { mkdirpSync } from "mkdirp";
 
 import {
-	initVercelConfig,
-	config,
-	getConfig,
-	type Config,
-	type Base,
-	type DeployTarget,
-	type WithUserCommands,
-} from "./config";
-import { generateSimpleAsyncTask } from "@ruan-cat/utils/src/simple-promise-tools";
-
-import {
+	isConditionsEvery,
+	isConditionsSome,
+	generateSimpleAsyncTask,
 	definePromiseTasks,
 	executePromiseTasks,
-	type BaseTask,
-	type ParallelTasks,
-	type QueueTasks,
-	type Task,
-} from "@ruan-cat/utils/src/define-promise-tasks";
-import { cwd } from "node:process";
+} from "@ruan-cat/utils";
+import type { Task } from "@ruan-cat/utils";
+
+import { config, getConfig } from "./config";
+import type { Config, Base, DeployTarget, WithUserCommands } from "./config";
 
 /**
  * vercel 的空配置
@@ -332,7 +320,7 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 
 	async function createVercelOutputStatic() {
 		consola.start(` 开始创建文件夹任务 `);
-		await mkdirpSync(pathVercelOutputStatic);
+		mkdir(pathVercelOutputStatic, () => {});
 		consola.success(` 创建的新目录为： ${pathVercelOutputStatic} `);
 	}
 

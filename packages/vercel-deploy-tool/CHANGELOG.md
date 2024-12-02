@@ -1,5 +1,31 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.4.0
+
+### Minor Changes
+
+- 优化了 outputDirectory 的填写，不需要填写匹配语法了。
+
+  之前的写法是：
+
+  ```json
+  {
+  	"outputDirectory": "dist/**/*"
+  }
+  ```
+
+  现在的写法是：
+
+  ```json
+  {
+  	"outputDirectory": "dist"
+  }
+  ```
+
+  不需要写额外的 glob 匹配语法了。
+
+- 优化了包体积。
+
 ## 0.3.1
 
 ### Patch Changes
