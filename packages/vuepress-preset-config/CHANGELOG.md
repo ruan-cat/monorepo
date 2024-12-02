@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.14
+
+### Patch Changes
+
+- 处理搜索栏 bug。处理生产环境无法搜索的 bug。并使用 @vuepress/plugin-slimsearch 插件处理。
+
 ## 0.1.13
 
 ### Patch Changes

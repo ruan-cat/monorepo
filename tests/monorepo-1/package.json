@@ -20,7 +20,6 @@
 	"devDependencies": {
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
 		"consola": "^3.2.3",
-		"cpy": "^11.1.0",
 		"vitepress": "^1.3.0",
 		"vitepress-carbon": "^1.5.0",
 		"vitepress-sidebar": "^1.29.0"

@@ -9,7 +9,6 @@ import {
 	rmSync,
 } from "node:fs";
 import { resolve } from "node:path";
-import cpy from "cpy";
 import consola from "consola";
 
 interface Params {

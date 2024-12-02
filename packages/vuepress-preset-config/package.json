@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/vuepress-preset-config",
-	"version": "0.1.13",
+	"version": "0.1.14",
 	"description": "用于给大多数的vuepress项目提供一个预设的配置文件。",
 	"type": "module",
 	"main": "./dist/vuepress-preset-config.js",
@@ -61,6 +61,7 @@
 	},
 	"dependencies": {
 		"@vuepress/bundler-vite": "2.0.0-rc.18",
+		"@vuepress/plugin-slimsearch": "2.0.0-rc.61",
 		"rollup-plugin-visualizer": "^5.12.0",
 		"sass-embedded": "^1.81.0",
 		"vue": "^3.5.13",

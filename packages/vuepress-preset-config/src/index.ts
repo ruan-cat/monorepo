@@ -11,6 +11,8 @@ export { hopeTheme } from "vuepress-theme-hope";
 export type { ThemeOptions } from "vuepress-theme-hope";
 // const __dirname = getDirname(import.meta.url);
 
+import { slimsearchPlugin } from "@vuepress/plugin-slimsearch";
+
 function getYaer() {
 	return new Date().getFullYear();
 }
@@ -122,10 +124,11 @@ export const ruancatHopeThemeConfig: ThemeOptions = {
 			// sandpack: true,
 		},
 
-		searchPro: {
-			indexContent: true,
-			autoSuggestions: true,
-		},
+		// 该配置无效
+		// searchPro: {
+		// 	indexContent: true,
+		// 	autoSuggestions: true,
+		// },
 	},
 };
 
@@ -184,6 +187,13 @@ const defaultConfig: UserConfig = {
 		// ),
 		// path.resolve(__dirname, "./components/test.vue"),
 	},
+
+	plugins: [
+		slimsearchPlugin({
+			indexContent: true,
+			autoSuggestions: true,
+		}),
+	],
 };
 
 /**
