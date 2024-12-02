@@ -14,9 +14,9 @@
 		},
 		"do-multi-build": {
 			"dependsOn": [
-				"vp-hope:build",
-				"vip:build",
-				"vip-carbon:build"
+				// "vp-hope:build",
+				"vip:build"
+				// "vip-carbon:build"
 			]
 		}
 	}

@@ -20,8 +20,6 @@ import { consola } from "consola";
 import { isConditionsEvery, isConditionsSome } from "@ruan-cat/utils";
 import { deleteAsync } from "del";
 import { mkdirpSync } from "mkdirp";
-import cpy from "cpy";
-import cpx from "cpx";
 
 import {
 	initVercelConfig,
@@ -42,6 +40,7 @@ import {
 	type QueueTasks,
 	type Task,
 } from "@ruan-cat/utils/src/define-promise-tasks";
+import { cwd } from "node:process";
 
 /**
  * vercel 的空配置
@@ -318,7 +317,7 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 	 * 本函数仅仅拼接部分路径
 	 */
 	function joinPath<T extends string>(dir: T) {
-		const resPath = resolve(targetCWD, dir);
+		const resPath = resolve(process.cwd(), targetCWD, dir);
 		// console.log(" in joinPath => ", resPath);
 		return <`${string}${typeof targetCWD}/${T}`>resPath;
 	}
@@ -342,10 +341,7 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
 		consola.start(` 开始文件复制任务 `);
 		consola.info(` 从 ${pathOutputDirectory} 开始 `);
 		consola.info(` 复制到 ${pathVercelOutputStatic} 内`);
-		// 该写法无误 在liunx github工作流环境下，能完成文件复制。
-		await cpy(pathOutputDirectory, pathVercelOutputStatic);
-		// await cp(pathOutputDirectory, pathVercelOutputStatic, { recursive: true });
-		// await cpx.copy(pathOutputDirectory, pathVercelOutputStatic);
+		cpSync(pathOutputDirectory, pathVercelOutputStatic, { recursive: true });
 		consola.success(` 完成文件复制任务 `);
 	}
 

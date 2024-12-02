@@ -26,7 +26,8 @@ export default <Config>{
 		{
 			type: "userCommands",
 			targetCWD: "./tests/monorepo-1",
-			outputDirectory: "dist/**/*",
+			// outputDirectory: "dist/**/*",
+			outputDirectory: "dist",
 			url: ["monorepo-1.ruancat6312.top"],
 			userCommands: ["pnpm -C=./tests/monorepo-1 build:docs"],
 		},

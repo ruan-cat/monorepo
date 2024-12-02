@@ -57,10 +57,17 @@ export interface WithUserCommands extends Base {
 
 	/**
 	 * 部署输出路径
+	 *
+	 * @version 1
 	 * @description
 	 * 这里要填写满足 cpx 库能够识别glob语法的路径
 	 * @example docs/.vitepress/dist/**\/*
 	 * @example src/.vuepress/dist/**\/*
+	 *
+	 * @version 2
+	 * @description
+	 * 填写打包目录的路径即可。不包含glob语法。
+	 * @example docs/.vitepress/dist
 	 */
 	outputDirectory: string;
 
