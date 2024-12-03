@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.4.2
+
+### Patch Changes
+
+- 输出部署信息。
+
 ## 0.4.1
 
 ### Patch Changes

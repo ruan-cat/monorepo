@@ -474,7 +474,9 @@ async function main() {
 													parameters: [],
 												});
 												consola.start(` 开始用户命令任务 `);
-												const { stdout } = await userCommand();
+												const child = await userCommand();
+												process.stdout.write(child.stdout);
+												process.stderr.write(child.stderr);
 												// consola.success(` 完成用户命令任务 ${code} `);
 												consola.success(` 完成用户命令任务 `);
 												// consola.box(stdout);
@@ -511,17 +513,23 @@ async function main() {
 							generateSimpleAsyncTask(async () => {
 								const deploy = generateDeployTask(deployTarget);
 								consola.start(` 开始部署任务 `);
-								const { stdout, error } = await deploy();
+								const { stdout, error, stderr } = await deploy();
 
 								if (error) {
-									consola.error(" 部署失败了 ");
+									consola.error(" 部署失败了 \n");
 									consola.error(error);
+									process.stderr.write(stderr);
 									return;
 								}
 
 								const vercelUrl = stdout.toString();
 								consola.success(` 完成部署任务 检查生成的url为 \n `);
 								consola.box(vercelUrl);
+
+								consola.success(` 部署任务输出如下： \n`);
+								process.stdout.write(stdout);
+								console.log(`\n`);
+
 								return vercelUrl;
 							}),
 
