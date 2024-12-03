@@ -16,6 +16,7 @@ import fs, {
 
 import { concat, isEmpty, isUndefined } from "lodash-es";
 import { consola } from "consola";
+import gradient from "gradient-string";
 
 import {
 	isConditionsEvery,
@@ -169,6 +170,12 @@ function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
  */
 function generateExeca(execaSimpleParams: { command: string; parameters: string[] }) {
 	const { command, parameters } = execaSimpleParams;
+
+	if (config?.isShowCommand) {
+		const coloredCommand = gradient(["rgb(0, 153, 247)", "rgb(241, 23, 18)"])(`${command} ${parameters.join(" ")}`);
+		consola.info(` 当前运行的命令为： ${coloredCommand} \n`);
+	}
+
 	return generateSimpleAsyncTask(() => spawnSync(command, parameters, { shell: true }));
 }
 

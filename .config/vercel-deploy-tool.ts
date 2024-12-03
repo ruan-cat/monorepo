@@ -5,6 +5,7 @@ export default <Config>{
 	vercelOrgId: "",
 	vercelProjectId: "",
 
+	isShowCommand: true,
 	// afterBuildTasks: ["pnpm turbo build:docs"],
 
 	// FIXME: execa运行的turbo命令，不会使用cache缓存，导致了重复构建。

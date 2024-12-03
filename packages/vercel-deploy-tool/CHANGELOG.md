@@ -1,5 +1,12 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.5.0
+
+### Minor Changes
+
+- 增加 isShowCommand 命令。控制是否显示出目前正在运行的命令。
+- 显示的命令为渐变彩色。使用和 turborepo 相同的渐变色。rgb(0, 153, 247) 到 rgb(241, 23, 18)。
+
 ## 0.4.2
 
 ### Patch Changes
