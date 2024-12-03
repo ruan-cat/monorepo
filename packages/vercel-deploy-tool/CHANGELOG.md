@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.4.1
+
+### Patch Changes
+
+- 输出部署任务的错误日志。
+
 ## 0.4.0
 
 ### Minor Changes

@@ -511,7 +511,14 @@ async function main() {
 							generateSimpleAsyncTask(async () => {
 								const deploy = generateDeployTask(deployTarget);
 								consola.start(` 开始部署任务 `);
-								const { stdout } = await deploy();
+								const { stdout, error } = await deploy();
+
+								if (error) {
+									consola.error(" 部署失败了 ");
+									consola.error(error);
+									return;
+								}
+
 								const vercelUrl = stdout.toString();
 								consola.success(` 完成部署任务 检查生成的url为 \n `);
 								consola.box(vercelUrl);
