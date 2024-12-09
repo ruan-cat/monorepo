@@ -30,6 +30,7 @@
 		"generate:type-3": "vue-tsc -p tsconfig.types.json",
 		"get-type": "pnpm clean:type && pnpm generate:type-3",
 		"build:-try-1": "pnpm clean:type && vue-tsc -p tsconfig.build.json",
+		"build:tsup": "tsup",
 		"rm:node_modules": "rimraf node_modules"
 	},
 	"exports": {
@@ -58,6 +59,7 @@
 	"devDependencies": {
 		"@antfu/utils": "^0.7.10",
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
+		"tsup": "^8.3.5",
 		"typedoc": "^0.27.0",
 		"typedoc-plugin-markdown": "^4.3.0",
 		"typescript": "catalog:",
