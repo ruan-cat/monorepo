@@ -1,5 +1,11 @@
 # @ruan-cat/domains 阮喵喵的域名集合
 
+## 0.1.2
+
+### Patch Changes
+
+- 增加笔记项目域名。发包增加 readme 文件。
+
 ## 0.1.1
 
 ### Patch Changes
