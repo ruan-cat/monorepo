@@ -23,9 +23,7 @@
 			]
 		},
 		"//#changeset:publish": {
-			"dependsOn": [
-				"^build"
-			]
+			"cache": false
 		},
 		"//#do-publish": {
 			"dependsOn": [

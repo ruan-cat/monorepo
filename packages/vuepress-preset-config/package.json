@@ -19,8 +19,7 @@
 		"build:watch": "vite build --watch",
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"docs:update-package": "pnpm dlx vp-update",
-		"rm:node_modules": "rimraf node_modules",
-		"publish": "pnpm build"
+		"rm:node_modules": "rimraf node_modules"
 	},
 	"exports": {
 		".": {

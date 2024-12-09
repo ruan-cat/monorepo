@@ -1,0 +1,58 @@
+{
+	"name": "@ruan-cat/domains",
+	"version": "0.1.1",
+	"description": "为 ruancat6312.top 和 ruan-cat.com 两个域名，提供预设好的常量。旨在于管理全部的域名，便于查询和使用。",
+	"type": "module",
+	"main": "./main.ts",
+	"types": "main.ts",
+	"homepage": "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/domains",
+	"bugs": {
+		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ruan-cat/vercel-monorepo-test.git",
+		"directory": "packages/domains"
+	},
+	"scripts": {
+		"clear": "rimraf dist .turbo .vercel .cache .temp",
+		"build": "tsup",
+		"rm:node_modules": "rimraf node_modules"
+	},
+	"exports": {
+		".": {
+			"import": "./main.ts",
+			"types": "./main.ts"
+		},
+		"./dist/*": "./dist/*"
+	},
+	"keywords": [],
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	},
+	"license": "MIT",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
+	},
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/*",
+				"./*"
+			]
+		}
+	},
+	"files": [
+		"dist",
+		"main.ts",
+		"CHANGELOG.md",
+		"tsconfig.json"
+	],
+	"devDependencies": {
+		"tsup": "^8.3.5"
+	}
+}

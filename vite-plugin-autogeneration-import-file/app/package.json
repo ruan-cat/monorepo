@@ -6,7 +6,7 @@
 	"description": " `vite-plugin-autogeneration-import-file` 的测试应用。 ",
 	"scripts": {
 		"dev": "vite",
-		"build": " vite build",
+		"notuse-build": " vite build",
 		"preview": "vite preview",
 		"predev": "turbo do-predev",
 		"rm:node_modules": "rimraf node_modules",
