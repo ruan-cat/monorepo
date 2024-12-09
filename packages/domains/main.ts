@@ -22,9 +22,13 @@ export type Domains = Record<(typeof projectNames)[number], string[]>;
  */
 export const domains = <const>{
 	/** 大项目 09OA项目 */
-	"09oa": ["09oa.ruancat6312.top"],
-	"09oa-docs": [],
-	utils: [],
+	"09oa": ["01s-09oa.ruancat6312.top"],
+
+	/** 01星球文档 */
+	"01s-doc": ["docs-01-star.ruancat6312.top"],
+
+	/** 工具包项目 */
+	utils: ["utils.ruancat6312.top", "utils.ruan-cat.com"],
 
 	/** 笔记项目 */
 	notes: [
@@ -40,5 +44,13 @@ export const domains = <const>{
 		"rpgmv-dev-notes.ruancat6312.top",
 		"rpgmv-dev-notes.ruan-cat.com",
 		"mv.ruan-cat.com",
+	],
+
+	/** 钻头文档 */
+	"drill-doc": [
+		"small-alice-web.ruancat6312.top",
+		"small-alice-web.ruan-cat.com",
+		"drill.ruancat6312.top",
+		"drill.ruan-cat.com",
 	],
 };
