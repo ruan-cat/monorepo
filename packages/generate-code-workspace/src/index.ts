@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import * as fs from "node:fs";
 
 import { consola } from "consola";
-import { merge, isNil } from "lodash-es";
+import { isNil } from "lodash-es";
 import { program } from "commander";
 import { sync } from "glob";
 import yaml from "js-yaml";
@@ -124,13 +124,6 @@ function getFolders() {
 
 		/** 包名 且不可能为空包名 */
 		const pkgJsonName = <string>pkgJson.name;
-
-		// console.log(" ? 变换后的路径 ", pathChange(pkgJsonPath));
-		// 输入
-		// E:/store/gitHub-desktop/vercel-monorepo-test
-		// E:/store/gitHub-desktop/vercel-monorepo-test/packages/vuepress-preset-config/package.json
-		// 输出
-		// ./packages/vuepress-preset-config
 
 		/** 相对路径 */
 		const relativePath = pathChange(pkgJsonPath).replace(`${workspaceRoot}/`, "");
