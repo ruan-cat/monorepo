@@ -1,5 +1,11 @@
 # @ruan-cat/generate-code-workspace
 
+## 0.2.1
+
+### Patch Changes
+
+- 重新发包。检查其他项目的生成工具是否失效。
+
 ## 0.2.0
 
 ### Minor Changes
