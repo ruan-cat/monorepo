@@ -1,0 +1,112 @@
+@use "sass:math";
+
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+html,
+body {
+	min-width: 660px;
+	min-height: 660px;
+	width: 100%;
+	height: 100%;
+}
+
+$centerWidthAndHeight: 660px;
+$leftAndRightWidth: calc((100% - $centerWidthAndHeight) / 2);
+// $centerWidth: 100% - $leftAndRightWidth * 2;
+// $pieceWidthAndHeight:math.div(100%,1);
+$pieceWidthAndHeight: 60px;
+
+.none {
+	display: none !important;
+}
+#container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	text-align: center;
+	user-select: none;
+
+	h1 {
+		user-select: none;
+	}
+
+	&_left,
+	&_right {
+		min-width: 100px;
+		width: $leftAndRightWidth;
+		height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background-color: #c6ba8a;
+	}
+	// 这里的样式共用
+	#black_piece {
+		width: $pieceWidthAndHeight;
+		height: $pieceWidthAndHeight;
+		background-image: url("../public/imgs/blackPiece.png");
+		background-size: 100% 100%;
+		border-radius: 50%;
+		user-select: all;
+	}
+
+	#black_piece:hover {
+		border: 2px double white;
+	}
+
+	#white_piece {
+		width: $pieceWidthAndHeight;
+		height: $pieceWidthAndHeight;
+		background-image: url("../public/imgs/whitePiece.png");
+		background-size: 100% 100%;
+		border-radius: 50%;
+		user-select: all;
+	}
+
+	#white_piece:hover {
+		border: 2px double black;
+	}
+
+	&_center {
+		width: $centerWidthAndHeight;
+		height: 100%;
+		background-image: url("../public/imgs/background.png");
+		background-repeat: no-repeat;
+		background-size: cover;
+
+		#title {
+			background-color: #c6ba8a;
+			// opacity: .9;
+			height: calc(100% - $centerWidthAndHeight);
+		}
+
+		#game {
+			// user-select: all;
+			width: $centerWidthAndHeight;
+			height: $centerWidthAndHeight;
+			position: relative;
+			display: flex;
+			flex-wrap: wrap;
+		}
+	}
+
+	#restart {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background-color: rgba(133, 132, 132, 0.5);
+		button {
+			width: 25%;
+			height: 20%;
+			background: url("../../public/imgs/restart.png");
+			background-size: 100% 100%;
+		}
+	}
+}

@@ -2,14 +2,10 @@
 	"$schema": "https://turbo.build/schema.json",
 	"tasks": {
 		"build": {
-			"dependsOn": [
-				"^build"
-			]
+			"dependsOn": ["^build"]
 		},
 		"build:docs": {
-			"dependsOn": [
-				"^build"
-			]
+			"dependsOn": ["^build"]
 		},
 		"docs:update-package": {
 			"dependsOn": []
@@ -18,32 +14,24 @@
 			"dependsOn": []
 		},
 		"clear": {
-			"dependsOn": [
-				"^clear"
-			]
+			"dependsOn": ["^clear"]
 		},
 		"//#changeset:publish": {
 			"cache": false
 		},
 		"//#do-publish": {
-			"dependsOn": [
-				"//#changeset:publish"
-			]
+			"dependsOn": ["//#changeset:publish"]
 		},
 		"//#code-workspace:del": {
 			"cache": false
 		},
 		"//#code-workspace:create": {
 			"cache": false,
-			"dependsOn": [
-				"//#code-workspace:del"
-			]
+			"dependsOn": ["//#code-workspace:del"]
 		},
 		"//#do-create-code-workspace": {
 			"cache": false,
-			"dependsOn": [
-				"//#code-workspace:create"
-			]
+			"dependsOn": ["//#code-workspace:create"]
 		}
 	}
 }

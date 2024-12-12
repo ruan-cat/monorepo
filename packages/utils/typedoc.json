@@ -3,19 +3,12 @@
 	"$schema": "https://typedoc-plugin-markdown.org/schema.json",
 	"name": "本地化示例",
 	// 指定项目的入口点
-	"entryPoints": [
-		"./src/index.ts"
-	],
-	"plugin": [
-		"typedoc-plugin-markdown"
-	],
+	"entryPoints": ["./src/index.ts"],
+	"plugin": ["typedoc-plugin-markdown"],
 	// 指定输出目录
 	"out": "./docs/typedoc-md",
 	// 排除不需要生成文档的目录
-	"exclude": [
-		"node_modules",
-		"libs"
-	],
+	"exclude": ["node_modules", "libs"],
 	// 指定 TypeScript 配置文件
 	"tsconfig": "./tsconfig.json",
 	"gitRevision": "main",

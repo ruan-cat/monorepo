@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/vite.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Typescript五子棋</title>
+	</head>
+
+	<body>
+		<div id="container">
+			<div id="container_left">
+				<h1>黑子</h1>
+				<button id="black_piece"></button>
+			</div>
+			<div id="container_center">
+				<div id="title">五子棋对决（等待白棋落子）</div>
+				<div id="game"></div>
+			</div>
+			<div id="container_right">
+				<h1>白子</h1>
+				<button id="white_piece"></button>
+			</div>
+			<div id="restart" class="none">
+				<button></button>
+			</div>
+		</div>
+		<script type="module" src="./src/main.ts"></script>
+	</body>
+</html>

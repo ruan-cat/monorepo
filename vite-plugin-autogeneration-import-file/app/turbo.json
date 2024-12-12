@@ -1,22 +1,15 @@
 {
-	"extends": [
-		"//"
-	],
+	"extends": ["//"],
 	"tasks": {
 		"do-plugin-build": {
 			"cache": false,
-			"dependsOn": [
-				"@vite-plugin-autogeneration-import-file/code#build"
-			]
+			"dependsOn": ["@vite-plugin-autogeneration-import-file/code#build"]
 		},
 		"rm:types": {
 			"cache": false
 		},
 		"do-predev": {
-			"dependsOn": [
-				"rm:types",
-				"do-plugin-build"
-			]
+			"dependsOn": ["rm:types", "do-plugin-build"]
 		}
 	}
 }
