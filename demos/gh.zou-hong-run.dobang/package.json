@@ -5,12 +5,14 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc && vite build",
-		"preview": "vite preview"
+		"build": "vite build",
+		"preview": "vite preview",
+		"clear": "rimraf dist .turbo .vercel .cache .temp",
+		"rm:node_modules": "rimraf node_modules pnpm-lock.yaml"
 	},
 	"devDependencies": {
-		"sass": "^1.64.2",
-		"typescript": "^5.0.2",
-		"vite": "^4.4.5"
+		"sass": "^1.82.0",
+		"typescript": "^5.7.2",
+		"vite": "^6.0.3"
 	}
 }

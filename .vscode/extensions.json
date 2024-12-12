@@ -8,7 +8,12 @@
 		"jock.svg",
 		"eightHundreds.vscode-mindmap",
 		"hediet.vscode-drawio",
-		"Spades.vs-picgo"
+		"Spades.vs-picgo",
+		// 从 vitesse-nuxt 仓库得到的推荐配置
+		"antfu.iconify",
+		"antfu.unocss",
+		"antfu.goto-alias",
+		"csstools.postcss",
 	],
 	"unwantedRecommendations": []
 }

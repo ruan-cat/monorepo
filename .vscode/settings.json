@@ -102,5 +102,11 @@
 		- https://github.com/vuejs/language-tools/tree/master/extensions/vscode#configs
 		- https://vitepress.dev/guide/using-vue#vs-code-intellisense-support
 	*/
-	"vue.server.includeLanguages": ["vue", "markdown"]
+	"vue.server.includeLanguages": [
+		"vue",
+		"markdown"
+	],
+	"interline-translate.knownPopularWordCount": 6000,
+	"iconify.annotations": true,
+	"iconify.inplace": true
 }

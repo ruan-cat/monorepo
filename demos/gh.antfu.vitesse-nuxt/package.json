@@ -1,6 +1,8 @@
 {
+	"name": "vitesse-nuxt",
 	"type": "module",
 	"private": true,
+	"version": "0.0.0",
 	"scripts": {
 		"build": "nuxi build",
 		"dev:pwa": "VITE_PLUGIN_PWA=true nuxi dev",
@@ -10,7 +12,9 @@
 		"start": "node .output/server/index.mjs",
 		"start:generate": "npx serve .output/public",
 		"lint": "eslint .",
-		"typecheck": "vue-tsc --noEmit"
+		"typecheck": "vue-tsc --noEmit",
+		"clear": "rimraf dist .turbo .vercel .cache .temp .nuxt .output",
+		"rm:node_modules": "rimraf node_modules pnpm-lock.yaml"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^3.11.2",
