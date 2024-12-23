@@ -61,6 +61,7 @@
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
 		"@vueuse/integrations": "^12.1.0",
 		"axios": "^1.7.9",
+		"qs": "^6.13.1",
 		"tsup": "^8.3.5",
 		"type-plus": "^7.6.2",
 		"typedoc": "^0.27.0",
@@ -69,10 +70,10 @@
 		"unplugin-vue-router": "^0.10.8"
 	},
 	"peerDependencies": {
-		"typescript": "catalog:",
-		"unplugin-vue-router": "^0.10.8",
 		"@vueuse/integrations": "^12",
-		"axios": "^1.7.x"
+		"axios": "^1.7.x",
+		"typescript": "catalog:",
+		"unplugin-vue-router": "^0.10.8"
 	},
 	"peerDependenciesMeta": {
 		"typescript": {
