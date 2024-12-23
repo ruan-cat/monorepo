@@ -1,9 +1,24 @@
 import axios from "axios";
+import qs from "qs";
+import { test } from "vitest";
+
+import { useAxiosWrapper } from "@utils/vueuse/useAxios";
+import type { KeyHelper } from "@utils/vueuse/useAxios";
+import type {
+	ApifoxModel,
+	Child,
+	Good,
+	HomeCategoryHeads,
+} from "@utils-tests/vueuse/useAxios/useAxiosWrapper/types/index";
 
 /**
  * 创建axios实例
+ * @description
+ * 从商城项目内获取得来
+ *
+ * @see https://apifox.com/apidoc/shared-c05cb8d7-e591-4d9c-aff8-11065a0ec1de/api-67132167
  */
-export function createAxiosInstance() {
+function createAxiosInstance() {
 	const instance = axios.create({
 		baseURL: "https://pcapi-xiaotuxian-front-devtest.itheima.net",
 
@@ -16,9 +31,30 @@ export function createAxiosInstance() {
 
 	// 使用qs序列化参数params参数
 	instance.defaults.paramsSerializer = function (params) {
-		// 有疑惑 formdata 格式和这个有什么关系？
 		return qs.stringify(params);
 	};
 
 	return instance;
 }
+
+const instance = createAxiosInstance();
+
+function homeCategoryHead() {
+	return useAxiosWrapper<ApifoxModel<HomeCategoryHeads[]>, KeyHelper<"url">>({
+		config: {
+			url: "/home/category/head",
+			method: "get",
+		},
+		instance,
+		options: {
+			immediate: false,
+		},
+	});
+}
+
+test("测试接口请求", async () => {
+	const { execute, data } = homeCategoryHead();
+
+	await execute();
+	console.log(" ？  ", data.value);
+});

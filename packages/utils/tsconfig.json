@@ -33,24 +33,16 @@
 			"typedoc",
 			"typedoc-plugin-markdown",
 		],
-		"paths": {
-			"@/*": [
-				"./src/*"
-			],
-			"tests/*": [
-				"./tests/*"
-			]
-		}
 	},
 	"include": [
 		"./src/**/*.ts",
-		"./tests/**/*.ts",
 		"./src/**/*.js",
-		"./tests/**/*.js",
-		// 尝试手动提供一个全局的类型声明。
-		"./tests/with-types/types/CanNewTypeByClass.d.ts",
+		// "./tests/**/*.ts",
+		// "./tests/**/*.js",
 	],
 	"exclude": [
+		// 测试用例的全部文件 交由本项目根目录下的 tsconfig.json 处理
+		"./tests/**/*.ts",
 		"notuse-typedoc.config.cjs"
 	]
 }
