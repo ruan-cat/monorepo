@@ -1,5 +1,6 @@
 {
 	// 为monorepo根目录配置的vitest专门设置的配置文件
+	// 废弃 不考虑为vitest实现特定的路径别名设置
 	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
 		"baseUrl": "./",
@@ -11,6 +12,9 @@
 		"paths": {
 			"@utils/*": [
 				"./packages/utils/src/*"
+			],
+			"@utils": [
+				"./packages/utils/src/index.ts"
 			],
 			"@utils-tests/*": [
 				"./packages/utils/tests/*"

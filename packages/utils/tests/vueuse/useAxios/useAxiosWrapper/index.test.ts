@@ -2,8 +2,8 @@ import axios from "axios";
 import qs from "qs";
 import { test } from "vitest";
 
-import { useAxiosWrapper } from "@utils/vueuse/useAxios";
-import type { KeyHelper } from "@utils/vueuse/useAxios";
+import { useAxiosWrapper } from "@utils";
+import type { KeyHelper } from "@utils";
 import type {
 	ApifoxModel,
 	Child,
