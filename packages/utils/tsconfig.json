@@ -42,7 +42,7 @@
 	],
 	"exclude": [
 		// 测试用例的全部文件 交由本项目根目录下的 tsconfig.json 处理
-		"./tests/**/*.ts",
+		"src/tests/**/*.ts",
 		"notuse-typedoc.config.cjs"
 	]
 }

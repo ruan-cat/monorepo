@@ -17,7 +17,7 @@
 				"./packages/utils/src/index.ts"
 			],
 			"@utils-tests/*": [
-				"./packages/utils/tests/*"
+				"packages/utils/src/tests/*"
 			]
 		}
 	},

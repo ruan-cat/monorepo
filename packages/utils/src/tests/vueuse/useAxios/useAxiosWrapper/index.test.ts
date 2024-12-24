@@ -9,7 +9,7 @@ import type {
 	Child,
 	Good,
 	HomeCategoryHeads,
-} from "@utils-tests/vueuse/useAxios/useAxiosWrapper/types/index";
+} from "@utils/tests/vueuse/useAxios/useAxiosWrapper/types/index";
 
 /**
  * 创建axios实例

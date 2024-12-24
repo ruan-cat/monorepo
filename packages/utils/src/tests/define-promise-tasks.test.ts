@@ -2,8 +2,8 @@ import { expect, test } from "vitest";
 import { consola } from "consola";
 import { sleep } from "@antfu/utils";
 
-import { definePromiseTasks, executePromiseTasks } from "../src/define-promise-tasks.ts";
-import { generateSimpleAsyncTask } from "../src/simple-promise-tools.ts";
+import { definePromiseTasks, executePromiseTasks } from "../define-promise-tasks.ts";
+import { generateSimpleAsyncTask } from "../simple-promise-tools.ts";
 
 test("定义并运行异步任务对象", () => {
 	executePromiseTasks(

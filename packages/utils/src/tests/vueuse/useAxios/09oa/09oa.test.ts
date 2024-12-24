@@ -1,7 +1,7 @@
 import type { PartialPick } from "type-plus";
 import type { UseAxiosOptions } from "@vueuse/integrations/useAxios";
 
-import type { JsonVO } from "tests/vueuse/useAxios/09oa/JsonVO.ts";
+import type { JsonVO } from "src/tests/vueuse/useAxios/09oa/JsonVO.ts";
 import type {
 	KeyAxiosRequestConfig,
 	CreateAxiosRequestConfig,

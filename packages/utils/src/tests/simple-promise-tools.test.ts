@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { consola } from "consola";
 import { sleep } from "@antfu/utils";
 
-import { generateSimpleAsyncTask, runPromiseByQueue } from "../src/simple-promise-tools.ts";
+import { generateSimpleAsyncTask, runPromiseByQueue } from "../simple-promise-tools.ts";
 
 // 没必要自己写了
 // function wait(time: number) {

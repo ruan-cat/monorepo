@@ -54,6 +54,7 @@
 	},
 	"files": [
 		"src",
+		"!src/tests",
 		"tsconfig.json"
 	],
 	"devDependencies": {
