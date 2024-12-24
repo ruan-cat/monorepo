@@ -1,14 +1,14 @@
 import type { PartialPick } from "type-plus";
 import type { UseAxiosOptions } from "@vueuse/integrations/useAxios";
 
-import type { JsonVO } from "src/tests/vueuse/useAxios/09oa/JsonVO.ts";
+import type { JsonVO } from "./JsonVO";
 import type {
 	KeyAxiosRequestConfig,
 	CreateAxiosRequestConfig,
 	UseAxiosWrapperParams,
 	KeyHelper,
-} from "@/vueuse/useAxios.ts";
-import { useAxiosWrapper } from "@/vueuse/useAxios.ts";
+} from "@ruan-cat/utils";
+import { useAxiosWrapper } from "@ruan-cat/utils";
 
 /**
  * 对 UseAxiosWrapperParams 做一层业务性质的封装

@@ -19,7 +19,7 @@ export default defineConfig({
 	test: {
 		reporters: ["html"],
 		outputFile: "./.vitest-reporter-html/index.html",
-		// 放弃在测试用例中使用别名 这些p配置都无效
+		// 放弃在测试用例中使用别名 这些配置都无效
 		// alias: {
 		// 	"@utils": resolve(__dirname, "packages/utils/src/index.ts"),
 		// 	"@utils-tests": resolve(__dirname, "./packages/utils/tests"),

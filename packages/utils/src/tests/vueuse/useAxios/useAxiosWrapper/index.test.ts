@@ -2,8 +2,8 @@ import axios from "axios";
 import qs from "qs";
 import { test } from "vitest";
 
-import { useAxiosWrapper } from "@utils";
-import type { KeyHelper } from "@utils";
+import { useAxiosWrapper } from "@ruan-cat/utils";
+import type { KeyHelper } from "@ruan-cat/utils";
 import type {
 	ApifoxModel,
 	Child,

@@ -1,6 +1,7 @@
 import type { RequiredPick } from "type-plus";
 import type { AxiosRequestConfig, AxiosResponse, AxiosInstance } from "axios";
 import type { UseAxiosOptions, UseAxiosReturn } from "@vueuse/integrations/useAxios";
+import { useAxios } from "@vueuse/integrations/useAxios";
 
 /** 拓展的类型参数 用于约束必填的字段 */
 export type KeyAxiosRequestConfig<D = any> = keyof AxiosRequestConfig<D>;
@@ -43,23 +44,25 @@ export interface StrictUseAxiosReturn<
 	) => Promise<StrictUseAxiosReturn<T, K, R, D>>;
 }
 
-/**
- * 拓展类型参数后的 useAxios 函数
- * @description
- * 在我们的封装中 使用本类型
- */
-export declare function useAxios<
-	T = any,
-	/** 拓展的类型参数 用于约束必填的字段 */
-	K extends KeyAxiosRequestConfig<D> = "url",
-	R = AxiosResponse<T>,
-	D = any,
->(
-	url: string,
-	config: AxiosRequestConfig<D>,
-	instance: AxiosInstance,
-	options?: UseAxiosOptions,
-): StrictUseAxiosReturn<T, K, R, D> & Promise<StrictUseAxiosReturn<T, K, R, D>>;
+declare module "@vueuse/integrations/useAxios" {
+	/**
+	 * 拓展类型参数后的 useAxios 函数
+	 * @description
+	 * 在我们的封装中 使用本类型
+	 */
+	function useAxios<
+		T = any,
+		/** 拓展的类型参数 用于约束必填的字段 */
+		K extends KeyAxiosRequestConfig<D> = "url",
+		R = AxiosResponse<T>,
+		D = any,
+	>(
+		url: string,
+		config: AxiosRequestConfig<D>,
+		instance: AxiosInstance,
+		options?: UseAxiosOptions,
+	): StrictUseAxiosReturn<T, K, R, D> & Promise<StrictUseAxiosReturn<T, K, R, D>>;
+}
 
 /** 包装器的参数 */
 export interface UseAxiosWrapperParams<
@@ -122,5 +125,9 @@ export function useAxiosWrapper<T, K extends KeyAxiosRequestConfig, D = any>(par
 		instance,
 		options,
 	} = params;
+	// 跳转到 vueuse 内的函数声明
+	// return useAxios<T, AxiosResponse<T>, D>(url, config, instance, options);
+
+	// 跳转到我们拓展的函数声明
 	return useAxios<T, K, AxiosResponse<T>, D>(url, config, instance, options);
 }
