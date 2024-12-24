@@ -1,5 +1,12 @@
 # @ruan-cat/utils 更新日志
 
+## 1.3.1
+
+### Patch Changes
+
+- 内部调整文件位置。以便测试 files 对应的 glob 语法是否正常，是否能够排除忽略掉不需要的 test 文件。
+  > https://docs.npmjs.com/cli/v6/configuring-npm/package-json#files
+
 ## 1.3.0
 
 ### Minor Changes
