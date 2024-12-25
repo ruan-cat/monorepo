@@ -27,9 +27,16 @@ function createAxiosInstance() {
 }
 
 function main() {
-	axios.get("https://pcapi-xiaotuxian-front-devtest.itheima.net/home/hot").then((res) => {
-		console.log(" ? ", res);
-	});
+	axios
+		.get(
+			//
+			//
+			"https://pcapi-xiaotuxian-front-devtest.itheima.net/home/category/head",
+			// "https://pcapi-xiaotuxian-front-devtest.itheima.net/home/hot"
+		)
+		.then((res) => {
+			console.log(" ? ", res);
+		});
 }
 
 main();
