@@ -26,7 +26,7 @@ function createAxiosInstance() {
 		timeout: 10000,
 
 		/** 允许跨域 */
-		withCredentials: true,
+		// withCredentials: true,
 	});
 
 	// 使用qs序列化参数params参数
@@ -52,9 +52,18 @@ function homeCategoryHead() {
 	});
 }
 
-test("测试接口请求", async () => {
-	const { execute, data } = homeCategoryHead();
+async function main() {
+	// const { execute, data } = homeCategoryHead();
+	// await execute();
+	// console.log(" ？  ", data.value);
 
-	await execute();
-	console.log(" ？  ", data.value);
-});
+	// const res = await instance.get("/home/category/head");
+	const res = await instance.get("/home/hot");
+	console.log(" ?  ", res);
+}
+
+main();
+
+// test("测试接口请求", async () => {
+// 	await main();
+// });
