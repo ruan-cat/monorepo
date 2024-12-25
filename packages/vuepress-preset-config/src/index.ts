@@ -71,6 +71,10 @@ export const ruancatHopeThemeConfig: ThemeOptions = {
 		components: {
 			components: ["Badge", "VPCard"],
 		},
+
+		slimsearch: {
+			indexContent: true,
+		},
 	},
 };
 
