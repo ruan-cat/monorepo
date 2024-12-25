@@ -59,12 +59,13 @@ export const ruancatHopeThemeConfig: ThemeOptions = {
 		// 上下角标
 		sub: true,
 		sup: true,
-		mermaid: true,
 		hint: true,
 		alert: true,
 		imgLazyload: true,
 		imgSize: true,
 		figure: true,
+		// 暂不提供mermaid支持
+		// mermaid: true,
 	},
 
 	plugins: {
