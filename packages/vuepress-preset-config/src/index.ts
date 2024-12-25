@@ -11,8 +11,6 @@ export { hopeTheme } from "vuepress-theme-hope";
 export type { ThemeOptions } from "vuepress-theme-hope";
 // const __dirname = getDirname(import.meta.url);
 
-import { slimsearchPlugin } from "@vuepress/plugin-slimsearch";
-
 function getYaer() {
 	return new Date().getFullYear();
 }
@@ -47,88 +45,32 @@ export const ruancatHopeThemeConfig: ThemeOptions = {
 		url: "https://github.com/ruan-cat",
 	},
 
+	markdown: {
+		align: true,
+		// 启用 GFM 警告
+		// 使用特殊标记为 Markdown 元素添加属性
+		attrs: true,
+		gfm: true,
+		//导入文件
+		include: true,
+		mark: true,
+		footnote: true,
+		tasklist: true,
+		// 上下角标
+		sub: true,
+		sup: true,
+		mermaid: true,
+		hint: true,
+		alert: true,
+		imgLazyload: true,
+		imgSize: true,
+		figure: true,
+	},
+
 	plugins: {
 		components: {
 			components: ["Badge", "VPCard"],
 		},
-
-		mdEnhance: {
-			align: true,
-			attrs: true,
-			component: true,
-			demo: true,
-			// TODO: 根据 rc53 的更新记录，做迁移调整
-			// figure: true,
-			// imgLazyload: true,
-			// imgSize: true,
-			// TODO: 根据 rc56 的更新记录，做迁移调整
-			// codetabs: true,
-			include: true,
-			mark: true,
-			stylize: [
-				{
-					matcher: "Recommended",
-					replacer: ({ tag }) => {
-						if (tag === "em") {
-							return {
-								tag: "Badge",
-								attrs: { type: "tip" },
-								content: "Recommended",
-							};
-						}
-					},
-				},
-			],
-			sub: true,
-			sup: true,
-			vPre: true,
-			// TODO: 根据 rc56 的更新记录，做迁移调整
-			// tabs: true,
-
-			// 在启用之前安装 chart.js
-			// chart: true,
-
-			// insert component easily
-
-			// 在启用之前安装 echarts
-			// echarts: true,
-
-			// 在启用之前安装 flowchart.ts
-			// flowchart: true,
-
-			// gfm requires mathjax-full to provide tex support
-			// gfm: true,
-
-			// 在启用之前安装 katex
-			// katex: true,
-
-			// 在启用之前安装 mathjax-full
-			// mathjax: true,
-
-			// 在启用之前安装 mermaid
-			// mermaid: true,
-
-			// playground: {
-			//   presets: ["ts", "vue"],
-			// },
-
-			// 在启用之前安装 reveal.js
-			// revealJs: {
-			//   plugins: ["highlight", "math", "search", "notes", "zoom"],
-			// },
-
-			// 在启用之前安装 @vue/repl
-			// vuePlayground: true,
-
-			// install sandpack-vue3 before enabling it
-			// sandpack: true,
-		},
-
-		// 该配置无效
-		// searchPro: {
-		// 	indexContent: true,
-		// 	autoSuggestions: true,
-		// },
 	},
 };
 
@@ -189,10 +131,15 @@ const defaultConfig: UserConfig = {
 	},
 
 	plugins: [
-		slimsearchPlugin({
-			indexContent: true,
-			autoSuggestions: true,
-		}),
+		/**
+		 * 不使用该工具，因为收到以下提示
+		 * You are not allowed to use plugin "@vuepress/plugin-slimsearch" yourself in vuepress config file.
+		 * Set "plugins.slimsearch" in theme options to customize it.
+		 */
+		// slimsearchPlugin({
+		// 	indexContent: true,
+		// 	autoSuggestions: true,
+		// }),
 	],
 };
 
