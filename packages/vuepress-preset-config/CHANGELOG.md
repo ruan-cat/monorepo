@@ -1,5 +1,14 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.16
+
+### Patch Changes
+
+- 按照通知要求，移除掉 `@vuepress/plugin-slimsearch` 依赖包。
+  > You are not allowed to use plugin "@vuepress/plugin-slimsearch" yourself in vuepress config file.
+  > Set "plugins.slimsearch" in theme options to customize it.
+- 迁移调整 markdown 的配置。
+
 ## 0.1.15
 
 ### Patch Changes
