@@ -1,3 +1,4 @@
+import { test } from "vitest";
 import axios from "axios";
 
 /**
@@ -25,16 +26,12 @@ function createAxiosInstance() {
 	return instance;
 }
 
-function main() {
+async function main() {
 	const instance = createAxiosInstance();
-	instance
-		.get("/home/category/head")
-		.then((res) => {
-			console.log(" ? ", res.data);
-		})
-		.catch((error) => {
-			console.error("Request failed", error);
-		});
+	return instance.get("/home/category/head");
 }
 
-main();
+test(`测试axios在node环境内的请求`, async () => {
+	const res = await main();
+	console.log(res.data);
+});
