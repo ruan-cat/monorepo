@@ -9,6 +9,8 @@ export type KeyAxiosRequestConfig<D = any> = keyof AxiosRequestConfig<D>;
 /** 填写key值的帮助类型 */
 export type KeyHelper<K extends KeyAxiosRequestConfig> = K;
 
+export type RemoveUrl<T extends KeyAxiosRequestConfig> = Exclude<T, "url">;
+
 /**
  * 创建 AxiosRequestConfig 的各种变种类型
  * @description

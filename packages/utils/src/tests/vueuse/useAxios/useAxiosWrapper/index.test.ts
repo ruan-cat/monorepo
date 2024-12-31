@@ -2,14 +2,11 @@ import axios from "axios";
 import qs from "qs";
 import { test } from "vitest";
 
+import type { PartialPick } from "type-plus";
+import type { UseAxiosOptions } from "@vueuse/integrations/useAxios";
 import { useAxiosWrapper } from "@ruan-cat/utils";
-import type { KeyHelper } from "@ruan-cat/utils";
-import type {
-	ApifoxModel,
-	Child,
-	Good,
-	HomeCategoryHeads,
-} from "@utils/tests/vueuse/useAxios/useAxiosWrapper/types/index";
+import type { KeyHelper, UseAxiosWrapperParams, KeyAxiosRequestConfig, RemoveUrl } from "@ruan-cat/utils";
+import type { ApifoxModel, Child, Good, HomeCategoryHeads } from "./types/index";
 
 /**
  * 创建axios实例
@@ -26,7 +23,9 @@ function createAxiosInstance() {
 		timeout: 10000,
 
 		/** 允许跨域 */
-		// withCredentials: true,
+		withCredentials: true,
+
+		proxy: false,
 	});
 
 	// 使用qs序列化参数params参数
@@ -39,6 +38,39 @@ function createAxiosInstance() {
 
 const instance = createAxiosInstance();
 
+interface _Params<T = any, K extends KeyAxiosRequestConfig<D> = "url", D = any>
+	extends UseAxiosWrapperParams<T, K, UseAxiosOptions<ApifoxModel<T>>, D> {}
+
+type Params = PartialPick<_Params, "instance" | "options">;
+
+function projectRequest<T = any, K extends KeyAxiosRequestConfig = "url", D = any>(params: Params) {
+	const {
+		config,
+		options = {
+			immediate: false,
+		},
+		instance = createAxiosInstance(),
+	} = params;
+	return useAxiosWrapper<ApifoxModel<T>, RemoveUrl<K>, D>({ config, instance, options });
+}
+
+/** 使用 projectRequest 包装过类型的业务接口 */
+function homeCategoryHead_projectRequest() {
+	return projectRequest<
+		HomeCategoryHeads[],
+		KeyHelper<"data">,
+		{
+			testsP: `testsP_${number}`;
+		}
+	>({
+		config: {
+			url: "/home/category/head",
+			method: "get",
+		},
+	});
+}
+
+/** 直接使用 useAxiosWrapper 的业务接口 */
 function homeCategoryHead() {
 	return useAxiosWrapper<ApifoxModel<HomeCategoryHeads[]>, KeyHelper<"url">>({
 		config: {
@@ -52,18 +84,16 @@ function homeCategoryHead() {
 	});
 }
 
-async function main() {
-	// const { execute, data } = homeCategoryHead();
-	// await execute();
-	// console.log(" ？  ", data.value);
+test("测试接口请求", async () => {
+	const homeCategoryHeadObj = homeCategoryHead();
+	await homeCategoryHeadObj.execute();
+	console.log(` 输出结果？ `, homeCategoryHeadObj.data.value);
 
-	// const res = await instance.get("/home/category/head");
-	const res = await instance.get("/home/hot");
-	console.log(" ?  ", res);
-}
-
-main();
-
-// test("测试接口请求", async () => {
-// 	await main();
-// });
+	const homeCategoryHead_projectRequestObj = homeCategoryHead_projectRequest();
+	// 经过类型测试 这里实际请求的函数可以得到类型约束
+	homeCategoryHead_projectRequestObj.execute({
+		data: {
+			testsP: "testsP_1",
+		},
+	});
+});
