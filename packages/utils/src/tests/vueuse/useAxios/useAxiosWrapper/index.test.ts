@@ -3,8 +3,8 @@ import qs from "qs";
 import { test } from "vitest";
 
 import type { PartialPick } from "type-plus";
-import type { UseAxiosOptions } from "@vueuse/integrations/useAxios";
 import { useAxiosWrapper } from "@ruan-cat/utils";
+import type { UseAxiosOptions } from "@ruan-cat/utils";
 import type { KeyHelper, UseAxiosWrapperParams, KeyAxiosRequestConfig, RemoveUrl } from "@ruan-cat/utils";
 import type { ApifoxModel, Child, Good, HomeCategoryHeads } from "./types/index";
 

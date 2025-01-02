@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.3.2
+
+### Patch Changes
+
+- 提供 js 打包文件。
+
 ## 1.3.1
 
 ### Patch Changes

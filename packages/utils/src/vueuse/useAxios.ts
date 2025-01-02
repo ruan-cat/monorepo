@@ -3,6 +3,9 @@ import type { AxiosRequestConfig, AxiosResponse, AxiosInstance } from "axios";
 import type { UseAxiosOptions, UseAxiosReturn } from "@vueuse/integrations/useAxios";
 import { useAxios } from "@vueuse/integrations/useAxios";
 
+/** 在封装函数时 需要使用该类型 */
+export { UseAxiosOptions };
+
 /** 拓展的类型参数 用于约束必填的字段 */
 export type KeyAxiosRequestConfig<D = any> = keyof AxiosRequestConfig<D>;
 
