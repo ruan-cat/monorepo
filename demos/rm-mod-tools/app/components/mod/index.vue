@@ -23,6 +23,10 @@ onMounted(() => {
 	window.addEventListener("keydown", handleF5);
 });
 
+onBeforeUnmount(() => {
+	window.removeEventListener("keydown", handleF5);
+});
+
 function updateMessage() {
 	message.value = "消息已更新！";
 }
@@ -147,18 +151,11 @@ const handleCardDblClick = (card, index) => {
 	// });
 };
 
-const app = {
-	beforeUnmount() {
-		window.removeEventListener("keydown", this.handleF5);
-	},
-};
-
 // 以下为工具函数
 // ——————————————————————————————
 
 const fs = require("fs");
 const path = require("path");
-let listData = [];
 
 // 工具函数：异步读取文件
 const readFileAsync = (filePath) =>
@@ -246,8 +243,7 @@ const addCardFromFolder = async (folderPath, app) => {
 		updateCardWithPlugins(newCard, plugins, folderPath);
 
 		// 添加到列表并更新应用数据
-		listData.push(newCard);
-		app.listData = [...listData];
+		listData.value.push(newCard);
 
 		console.log("已添加新卡:", newCard);
 	} catch (err) {
@@ -394,7 +390,7 @@ const submitCard = (app) => {
 
 <style lang="scss" scoped>
 .index-root {
-	/* Modal ��ʽ */
+	/* Modal 样式 */
 	.modal {
 		position: fixed;
 		top: 0;
@@ -408,104 +404,76 @@ const submitCard = (app) => {
 		z-index: 1000;
 	}
 
-	/* Modal ��ʽ */
-	.modal {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: rgba(0, 0, 0, 0.5);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		z-index: 1000;
-	}
-
-	/* Modal ��ʽ */
-	.modal {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: rgba(0, 0, 0, 0.5);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		z-index: 1000;
-	}
-
-	/* Modal �������� */
+	/* Modal 内容样式 */
 	.modal-content {
 		background: white;
 		padding: 20px;
-		border-radius: 15px; /* Բ�� */
-		width: 700px; /* ���ӿ��� */
-		height: 500px; /* ���Ӹ߶� */
+		border-radius: 15px; /* 圆角 */
+		width: 700px; /* 模态框宽度 */
+		height: 500px; /* 模态框高度 */
 		display: flex;
-		flex-direction: column; /* ���в��� */
-		gap: 15px; /* ����֮��ļ�� */
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* ������Ӱ */
-		overflow-y: auto; /* ������ݳ�������ʾ��ֱ������ */
-		max-height: 90vh; /* �������߶ȣ����ⴰ�ڹ��� */
-		padding-right: 12px; /* ΢���Ҳ��ڱ߾࣬�������������̫�� */
+		flex-direction: column; /* 垂直布局 */
+		gap: 15px; /* 子元素之间的间距 */
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+		overflow-y: auto; /* 内容超出时显示垂直滚动条 */
+		max-height: 90vh; /* 最大高度，防止超出视口 */
+		padding-right: 12px; /* 微调右内边距，防止滚动条遮挡内容 */
 	}
 
-	/* Modal �������ݣ����Ҳ��� */
+	/* Modal 内容布局 */
 	.modal-body {
 		display: flex;
-		gap: 20px; /* ����������֮��ļ�� */
+		gap: 20px; /* 子元素之间的间距 */
 	}
 
-	/* �������: ͼƬ���� */
+	/* 左侧面板: 图片预览 */
 	.left-panel {
-		flex: 1; /* ռ��һ���ֿ��� */
+		flex: 1; /* 占据一部分宽度 */
 		display: flex;
 		justify-content: center;
 		align-items: center;
 	}
 
-	/* �Ҳ�����: ����� */
+	/* 右侧面板: 表单 */
 	.right-panel {
-		flex: 1.5; /* ռ�ݸ������ */
+		flex: 1.5; /* 占据较大部分 */
 		display: flex;
 		flex-direction: column;
-		gap: 15px; /* �����֮��ļ�� */
+		gap: 15px; /* 子元素之间的间距 */
 	}
 
-	/* �����ͱ�ǩ������ */
+	/* 表单组: 标签和输入框 */
 	.modal-content .input-group {
 		display: flex;
-		justify-content: space-between; /* ��ǩ�������ֿ����� */
-		align-items: center; /* ��ֱ���� */
-		gap: 10px; /* ��ǩ�������֮��ļ�� */
+		justify-content: space-between; /* 标签和输入框两端对齐 */
+		align-items: center; /* 垂直居中 */
+		gap: 10px; /* 标签和输入框之间的间距 */
 	}
 
-	/* �����ͱ�ǩ����ʽ */
+	/* 表单标签样式 */
 	.modal-content label {
 		font-size: 14px;
 		color: #333;
-		width: 30%; /* ��ǩ�Ŀ��� */
+		width: 30%; /* 标签的宽度 */
 	}
 
-	/* ����� */
+	/* 输入框样式 */
 	.modal-content input[type="text"],
 	.modal-content input[type="file"] {
 		padding: 8px;
 		border: 1px solid #ccc;
-		border-radius: 8px; /* Բ�� */
+		border-radius: 8px; /* 圆角 */
 		font-size: 14px;
-		width: 65%; /* �����Ŀ��� */
+		width: 65%; /* 输入框的宽度 */
 	}
 
-	/* ��ť��ʽ */
+	/* 按钮样式 */
 	.modal-content button {
 		padding: 10px;
 		background-color: #4caf50;
 		color: white;
 		border: none;
-		border-radius: 8px; /* Բ�� */
+		border-radius: 8px; /* 圆角 */
 		cursor: pointer;
 		font-size: 16px;
 		transition: background-color 0.3s;
@@ -515,7 +483,7 @@ const submitCard = (app) => {
 		background-color: #45a049;
 	}
 
-	/* ȡ����ť */
+	/* 取消按钮 */
 	.modal-content button:nth-child(2) {
 		background-color: #f44336;
 	}
@@ -524,28 +492,28 @@ const submitCard = (app) => {
 		background-color: #e53935;
 	}
 
-	/* �Զ����������ʽ */
+	/* 自定义滚动条样式 */
 	.modal-content::-webkit-scrollbar {
-		width: 8px; /* ���ù��������� */
+		width: 8px; /* 滚动条宽度 */
 	}
 
-	/* ���������� (Thumb) */
+	/* 滚动条滑块 (Thumb) */
 	.modal-content::-webkit-scrollbar-thumb {
-		background-color: rgba(0, 0, 0, 0.3); /* ��������ɫ */
-		border-radius: 10px; /* ������Բ�� */
+		background-color: rgba(0, 0, 0, 0.3); /* 滑块颜色 */
+		border-radius: 10px; /* 滑块圆角 */
 	}
 
-	/* �ָ�Ĭ�Ϲ����������ʽ (ȥ���Զ�����) */
+	/* 恢复默认滚动条轨道样式 (去除自定义) */
 	.modal-content::-webkit-scrollbar-track {
-		background: none; /* �ָ�Ĭ�ϱ��� */
+		background: none; /* 恢复默认背景 */
 	}
 
-	/* ���̹������ܳ��� */
+	/* 调整滚动条滑块高度 */
 	.modal-content::-webkit-scrollbar-thumb {
-		height: 30px; /* ���û���ĸ߶ȣ����ٹ��������ܳ��� */
+		height: 30px; /* 滑块高度，防止滚动条过长 */
 	}
 
-	/* Modal ��ť���� */
+	/* Modal 按钮布局 */
 	.modal-actions {
 		display: flex;
 		justify-content: space-between;
@@ -556,7 +524,7 @@ const submitCard = (app) => {
 
 	/* style.css */
 
-	/* ȫ����ʽ */
+	/* 全局样式 */
 	body {
 		font-family: "Arial", sans-serif;
 		margin: 0;
@@ -564,16 +532,16 @@ const submitCard = (app) => {
 		display: flex;
 		height: 100vh;
 		background-color: #f4f7fc;
-		overflow: hidden; /* ��������ҳ��Ĺ����� */
+		overflow: hidden; /* 禁止整个页面的滚动条 */
 	}
 
-	/* �������ʽ */
+	/* 侧边栏样式 */
 	.sidebar {
-		background-color: #f39c12; /* ���û�ɫ����ɫ */
+		background-color: #f39c12; /* 设置背景颜色为橙色 */
 		color: white;
-		height: 100%; /* ������߶�����Ϊ100% */
-		width: 60px; /* Ĭ��������� */
-		transition: width 0.3s ease; /* ���ÿ��ȵĻ�������Ч�� */
+		height: 100%; /* 设置高度为100% */
+		width: 60px; /* 默认宽度 */
+		transition: width 0.3s ease; /* 设置宽度的过渡动画效果 */
 		position: fixed;
 		top: 0;
 		left: 0;
@@ -582,9 +550,9 @@ const submitCard = (app) => {
 		z-index: 100;
 	}
 
-	/* �����չ��ʱ */
+	/* 侧边栏展开时 */
 	.sidebar.expanded {
-		width: 250px; /* չ��ʱ���� */
+		width: 250px; /* 展开时宽度 */
 	}
 
 	.sidebar ul {
@@ -601,21 +569,21 @@ const submitCard = (app) => {
 	}
 
 	.sidebar ul li:hover {
-		background-color: #e67e22; /* �����ͣʱ����ɫ */
+		background-color: #e67e22; /* 鼠标悬停时背景颜色 */
 	}
 
-	/* �������� */
+	/* 主内容区域 */
 	.main-content {
 		flex-grow: 1;
 		background-color: #f4f7fc;
 		padding: 20px;
 		transition: margin-left 0.3s ease;
-		margin-left: 60px; /* Ĭ��������տ��ȣ�ƥ���������� */
-		overflow: hidden; /* ��ֹ��� */
+		margin-left: 60px; /* 默认左边距，匹配侧边栏宽度 */
+		overflow: hidden; /* 防止溢出 */
 	}
 
 	.sidebar.expanded + .main-content {
-		margin-left: 250px; /* չ�������ʱ�������������� */
+		margin-left: 250px; /* 展开侧边栏时主内容区域的左边距 */
 	}
 
 	h1 {
@@ -640,14 +608,14 @@ const submitCard = (app) => {
 		background-color: #45a049;
 	}
 
-	/* ��Ƭ������ʽ */
+	/* 卡片容器样式 */
 	.cards-container {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 20px; /* ��Ƭ֮��ļ�϶ */
-		justify-content: flex-start; /* ȷ����Ƭ����߿�ʼ���� */
-		overflow-y: auto; /* ������ֱ���� */
-		max-height: 80vh; /* ���߶ȣ�ȷ����Ƭ�������������� */
+		gap: 20px; /* 卡片之间的间距 */
+		justify-content: flex-start; /* 确保卡片从左边开始排列 */
+		overflow-y: auto; /* 显示垂直滚动条 */
+		max-height: 80vh; /* 最大高度，确保卡片容器不会超出视口 */
 		padding: 10px;
 	}
 
@@ -655,27 +623,27 @@ const submitCard = (app) => {
 		background-color: white;
 		border-radius: 8px;
 		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-		width: 250px; /* ÿ����Ƭ�Ŀ��� */
-		height: 220px; /* �޸�Ϊ220px�Ŀ�Ƭ�߶� */
-		position: relative; /* ���ڶ�λͼƬ */
-		overflow: hidden; /* ��ֹͼƬ������Ƭ */
+		width: 250px; /* 每张卡片的宽度 */
+		height: 220px; /* 修改为220px的卡片高度 */
+		position: relative; /* 用于定位图片 */
+		overflow: hidden; /* 防止图片溢出卡片 */
 		transition:
 			transform 0.3s ease,
 			border 0.3s ease;
-		border: 2px solid transparent; /* Ĭ��͸���߿� */
+		border: 2px solid transparent; /* 默认透明边框 */
 	}
 
-	/* ��Ƭ��ͣʱ�����߿� */
+	/* 卡片悬停时的边框 */
 	.card:hover {
-		transform: translateY(-5px); /* �����ͣʱ�ĸ���Ч�� */
-		border: 2px solid #f39c12; /* �����ͣʱ�߿���� */
+		transform: translateY(-5px); /* 鼠标悬停时的浮动效果 */
+		border: 2px solid #f39c12; /* 鼠标悬停时边框颜色 */
 	}
 
-	/* ��ƬͼƬ���� */
+	/* 卡片图片容器 */
 	.card-image-container {
 		position: relative;
 		width: 100%;
-		height: 60%; /* ͼƬ����ֻռ�ݿ�Ƭ���ϰ벿�� */
+		height: 60%; /* 图片容器只占据卡片的上半部分 */
 		overflow: hidden;
 		perspective: 800px;
 	}
@@ -693,34 +661,34 @@ const submitCard = (app) => {
 	.card-image {
 		width: 100%;
 		height: 100%;
-		object-fit: cover; /* ����ͼƬ�Ŀ��߱��������г������� */
+		object-fit: cover; /* 确保图片的宽高比不变且填满容器 */
 	}
 
-	/* ������ʽ */
+	/* 标题样式 */
 	.card h3 {
 		color: #333;
-		font-size: 16px; /* ��΢���ٱ�����ֺ� */
-		margin: 5px 6px; /* ���ٱ�������±߾� */
+		font-size: 16px; /* 略微调小标题字体 */
+		margin: 5px 6px; /* 调整标题的上下边距 */
 		text-align: left;
 	}
 
-	/* �ı���ʽ */
+	/* 文本样式 */
 	.card p {
 		color: #555;
-		font-size: 13px; /* �޸�Ϊ13px�ļ���ֺ� */
+		font-size: 13px; /* 修改为13px的文本字体 */
 		text-align: left;
-		margin: 5px 6px; /* ���ټ�鲿�ֵ���߾� */
-		padding: 0; /* ȥ����鲿�ֵ��ڱ߾� */
+		margin: 5px 6px; /* 调整文本的上下边距 */
+		padding: 0; /* 去除文本的内边距 */
 	}
 
-	/* �ָ�����ʽ */
+	/* 分割线样式 */
 	.card .divider {
 		height: 1px;
-		background-color: rgba(0, 0, 0, 0.1); /* ��͸���ĺ�ɫ�ָ��� */
-		margin: 5px 10px; /* ���ٷָ��ߵ����±߾� */
+		background-color: rgba(0, 0, 0, 0.1); /* 半透明的黑色分割线 */
+		margin: 5px 10px; /* 调整分割线的上下边距 */
 	}
 
-	/* ɾ����ť��ʽ */
+	/* 删除按钮样式 */
 	.delete-button {
 		position: absolute;
 		top: 10px;
@@ -739,7 +707,7 @@ const submitCard = (app) => {
 		background-color: darkred;
 	}
 
-	/* ���ְ�ť��ʽ */
+	/* 齿轮按钮样式 */
 	.card .gear-button {
 		position: absolute;
 		top: 5px;
@@ -754,12 +722,12 @@ const submitCard = (app) => {
 		color: #333;
 	}
 
-	/* �����ͣʱ��ʾ���ְ�ť */
+	/* 鼠标悬停时显示齿轮按钮 */
 	.card:hover .gear-button {
 		display: flex;
 	}
 
-	/* Բ�μӺŰ�ť��ʽ */
+	/* 圆形加号按钮样式 */
 	.fab-button {
 		position: fixed;
 		right: 20px;
