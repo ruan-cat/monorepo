@@ -5,7 +5,8 @@ definePageMeta({
 </script>
 
 <template>
-	<div>
-		<Temps></Temps>
-	</div>
+	<section>
+		<!-- <Temps></Temps> -->
+		<Mod></Mod>
+	</section>
 </template>
