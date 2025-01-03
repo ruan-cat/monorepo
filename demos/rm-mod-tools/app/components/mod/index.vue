@@ -4,6 +4,7 @@
 const message = ref("MOD管理器");
 const isSidebarExpanded = ref(false);
 const menuItems = ref(["首页", "设置", "关于", "帮助"]);
+const activeDeleteIndex = ref(null);
 const listData = ref([]);
 const isModalOpen = ref(false);
 const newCard = ref({
@@ -43,20 +44,20 @@ function handleCardClick(card, index) {
 }
 
 const showDeleteButton = (card, index) => {
-	if (app.activeDeleteIndex !== index) {
-		app.activeDeleteIndex = index;
+	if (activeDeleteIndex.value !== index) {
+		activeDeleteIndex.value = index;
 		listData.value.forEach((card, i) => {
 			card.showDelete = i === index;
 		});
 	} else {
-		app.activeDeleteIndex = null;
+		activeDeleteIndex.value = null;
 		card.showDelete = false;
 	}
 };
 
 const deleteCard = (index) => {
 	listData.value.splice(index, 1);
-	app.activeDeleteIndex = null;
+	activeDeleteIndex.value = null;
 };
 
 // 提交卡片数据并关闭弹窗
