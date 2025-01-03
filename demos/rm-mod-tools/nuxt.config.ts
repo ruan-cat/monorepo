@@ -68,5 +68,12 @@ export default defineNuxtConfig({
 		},
 	},
 
+	// 有疑惑 这里无法实现项目自动浏览器打开
+	vite: {
+		server: {
+			open: true,
+		},
+	},
+
 	pwa,
 });
