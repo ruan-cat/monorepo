@@ -32,7 +32,7 @@
 		"turbo:clear": "turbo clear",
 		"update-package": "pnpm dlx vp-update",
 		"turbo:update-packages": "turbo docs:update-package && pnpm update-package",
-		"prettier": "prettier --write .",
+		"prettier": "prettier --write=. --ignore-path=./.config/.prettierignore",
 		"eci:open": "eslint-config-inspector",
 		"eci:b": "eslint-config-inspector build",
 		"turbo:build-docs": "turbo build:docs",

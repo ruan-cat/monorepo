@@ -1,6 +1,8 @@
 {
+	"name": "rm-mod-tools",
 	"type": "module",
 	"private": true,
+	"description": "这是一个rm的mod工具。不是阮喵喵制作的。",
 	"scripts": {
 		"build": "nuxi build",
 		"dev:pwa": "VITE_PLUGIN_PWA=true nuxi dev",
