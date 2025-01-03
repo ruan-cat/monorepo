@@ -5,3 +5,16 @@
 # 全部以tsconfig开头的 尾缀为json的配置文件 都被忽略
 tsconfig*.json
 
+# 涉及到的文件夹不做处理
+.vitest-reporter-html
+.turbo
+.vercel
+# vuepress build output
+.vuepress/dist
+# Nuxt.js build / generate output
+.nuxt
+dist
+.output
+# vuepress v2.x temp and cache directory
+.temp
+.cache
