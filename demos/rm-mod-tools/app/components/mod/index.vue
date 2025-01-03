@@ -402,129 +402,93 @@ const submitCard = (app) => {
 		justify-content: center;
 		align-items: center;
 		z-index: 1000;
-	}
 
-	/* Modal 内容样式 */
-	.modal-content {
-		background: white;
-		padding: 20px;
-		border-radius: 15px; /* 圆角 */
-		width: 700px; /* 模态框宽度 */
-		height: 500px; /* 模态框高度 */
-		display: flex;
-		flex-direction: column; /* 垂直布局 */
-		gap: 15px; /* 子元素之间的间距 */
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 阴影效果 */
-		overflow-y: auto; /* 内容超出时显示垂直滚动条 */
-		max-height: 90vh; /* 最大高度，防止超出视口 */
-		padding-right: 12px; /* 微调右内边距，防止滚动条遮挡内容 */
-	}
+		/* Modal 内容样式 */
+		&-content {
+			background: white;
+			padding: 20px;
+			border-radius: 15px; /* 圆角 */
+			width: 700px; /* 模态框宽度 */
+			height: 500px; /* 模态框高度 */
+			display: flex;
+			flex-direction: column; /* 垂直布局 */
+			gap: 15px; /* 子元素之间的间距 */
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+			overflow-y: auto; /* 内容超出时显示垂直滚动条 */
+			max-height: 90vh; /* 最大高度，防止超出视口 */
+			padding-right: 12px; /* 微调右内边距，防止滚动条遮挡内容 */
 
-	/* Modal 内容布局 */
-	.modal-body {
-		display: flex;
-		gap: 20px; /* 子元素之间的间距 */
-	}
+			/* 表单组: 标签和输入框 */
+			.input-group {
+				display: flex;
+				justify-content: space-between; /* 标签和输入框两端对齐 */
+				align-items: center; /* 垂直居中 */
+				gap: 10px; /* 标签和输入框之间的间距 */
 
-	/* 左侧面板: 图片预览 */
-	.left-panel {
-		flex: 1; /* 占据一部分宽度 */
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
+				label {
+					font-size: 14px;
+					color: #333;
+					width: 30%; /* 标签的宽度 */
+				}
 
-	/* 右侧面板: 表单 */
-	.right-panel {
-		flex: 1.5; /* 占据较大部分 */
-		display: flex;
-		flex-direction: column;
-		gap: 15px; /* 子元素之间的间距 */
-	}
+				input[type="text"],
+				input[type="file"] {
+					padding: 8px;
+					border: 1px solid #ccc;
+					border-radius: 8px; /* 圆角 */
+					font-size: 14px;
+					width: 65%; /* 输入框的宽度 */
+				}
+			}
 
-	/* 表单组: 标签和输入框 */
-	.modal-content .input-group {
-		display: flex;
-		justify-content: space-between; /* 标签和输入框两端对齐 */
-		align-items: center; /* 垂直居中 */
-		gap: 10px; /* 标签和输入框之间的间距 */
-	}
+			button {
+				padding: 10px;
+				background-color: #4caf50;
+				color: white;
+				border: none;
+				border-radius: 8px; /* 圆角 */
+				cursor: pointer;
+				font-size: 16px;
+				transition: background-color 0.3s;
 
-	/* 表单标签样式 */
-	.modal-content label {
-		font-size: 14px;
-		color: #333;
-		width: 30%; /* 标签的宽度 */
-	}
+				&:hover {
+					background-color: #45a049;
+				}
 
-	/* 输入框样式 */
-	.modal-content input[type="text"],
-	.modal-content input[type="file"] {
-		padding: 8px;
-		border: 1px solid #ccc;
-		border-radius: 8px; /* 圆角 */
-		font-size: 14px;
-		width: 65%; /* 输入框的宽度 */
-	}
+				&:nth-child(2) {
+					background-color: #f44336;
 
-	/* 按钮样式 */
-	.modal-content button {
-		padding: 10px;
-		background-color: #4caf50;
-		color: white;
-		border: none;
-		border-radius: 8px; /* 圆角 */
-		cursor: pointer;
-		font-size: 16px;
-		transition: background-color 0.3s;
-	}
+					&:hover {
+						background-color: #e53935;
+					}
+				}
+			}
 
-	.modal-content button:hover {
-		background-color: #45a049;
-	}
+			/* 自定义滚动条样式 */
+			&::-webkit-scrollbar {
+				width: 8px; /* 滚动条宽度 */
+			}
 
-	/* 取消按钮 */
-	.modal-content button:nth-child(2) {
-		background-color: #f44336;
-	}
+			&::-webkit-scrollbar-thumb {
+				background-color: rgba(0, 0, 0, 0.3); /* 滑块颜色 */
+				border-radius: 10px; /* 滑块圆角 */
+				height: 30px; /* 滑块高度，防止滚动条过长 */
+			}
 
-	.modal-content button:nth-child(2):hover {
-		background-color: #e53935;
-	}
+			&::-webkit-scrollbar-track {
+				background: none; /* 恢复默认背景 */
+			}
+		}
 
-	/* 自定义滚动条样式 */
-	.modal-content::-webkit-scrollbar {
-		width: 8px; /* 滚动条宽度 */
+		/* Modal 按钮布局 */
+		.modal-actions {
+			display: flex;
+			justify-content: space-between;
+			gap: 10px;
+		}
 	}
-
-	/* 滚动条滑块 (Thumb) */
-	.modal-content::-webkit-scrollbar-thumb {
-		background-color: rgba(0, 0, 0, 0.3); /* 滑块颜色 */
-		border-radius: 10px; /* 滑块圆角 */
-	}
-
-	/* 恢复默认滚动条轨道样式 (去除自定义) */
-	.modal-content::-webkit-scrollbar-track {
-		background: none; /* 恢复默认背景 */
-	}
-
-	/* 调整滚动条滑块高度 */
-	.modal-content::-webkit-scrollbar-thumb {
-		height: 30px; /* 滑块高度，防止滚动条过长 */
-	}
-
-	/* Modal 按钮布局 */
-	.modal-actions {
-		display: flex;
-		justify-content: space-between;
-		gap: 10px;
-	}
-
-	// ______________
 
 	/* style.css */
-
-	/* 全局样式 */
 	body {
 		font-family: "Arial", sans-serif;
 		margin: 0;
@@ -548,28 +512,27 @@ const submitCard = (app) => {
 		padding-top: 20px;
 		overflow: hidden;
 		z-index: 100;
-	}
 
-	/* 侧边栏展开时 */
-	.sidebar.expanded {
-		width: 250px; /* 展开时宽度 */
-	}
+		&.expanded {
+			width: 250px; /* 展开时宽度 */
+		}
 
-	.sidebar ul {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-	}
+		ul {
+			list-style: none;
+			padding: 0;
+			margin: 0;
 
-	.sidebar ul li {
-		padding: 15px;
-		text-align: left;
-		cursor: pointer;
-		transition: background-color 0.3s ease;
-	}
+			li {
+				padding: 15px;
+				text-align: left;
+				cursor: pointer;
+				transition: background-color 0.3s ease;
 
-	.sidebar ul li:hover {
-		background-color: #e67e22; /* 鼠标悬停时背景颜色 */
+				&:hover {
+					background-color: #e67e22; /* 鼠标悬停时背景颜色 */
+				}
+			}
+		}
 	}
 
 	/* 主内容区域 */
@@ -580,154 +543,146 @@ const submitCard = (app) => {
 		transition: margin-left 0.3s ease;
 		margin-left: 60px; /* 默认左边距，匹配侧边栏宽度 */
 		overflow: hidden; /* 防止溢出 */
+
+		.sidebar.expanded + & {
+			margin-left: 250px; /* 展开侧边栏时主内容区域的左边距 */
+		}
+
+		h1 {
+			color: #333;
+			font-size: 24px;
+			margin-bottom: 20px;
+			text-align: center;
+		}
+
+		button {
+			padding: 10px 20px;
+			font-size: 16px;
+			color: #fff;
+			background-color: #4caf50;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+
+			&:hover {
+				background-color: #45a049;
+			}
+		}
+
+		/* 卡片容器样式 */
+		.cards-container {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 20px; /* 卡片之间的间距 */
+			justify-content: flex-start; /* 确保卡片从左边开始排列 */
+			overflow-y: auto; /* 显示垂直滚动条 */
+			max-height: 80vh; /* 最大高度，确保卡片容器不会超出视口 */
+			padding: 10px;
+		}
+
+		.card {
+			background-color: white;
+			border-radius: 8px;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+			width: 250px; /* 每张卡片的宽度 */
+			height: 220px; /* 修改为220px的卡片高度 */
+			position: relative; /* 用于定位图片 */
+			overflow: hidden; /* 防止图片溢出卡片 */
+			transition:
+				transform 0.3s ease,
+				border 0.3s ease;
+			border: 2px solid transparent; /* 默认透明边框 */
+
+			&:hover {
+				transform: translateY(-5px); /* 鼠标悬停时的浮动效果 */
+				border: 2px solid #f39c12; /* 鼠标悬停时边框颜色 */
+			}
+
+			/* 卡片图片容器 */
+			.card-image-container {
+				position: relative;
+				width: 100%;
+				height: 60%; /* 图片容器只占据卡片的上半部分 */
+				overflow: hidden;
+				perspective: 800px;
+
+				.card-image-layer {
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+					z-index: 1;
+					transition: transform 0.3s ease;
+				}
+
+				.card-image {
+					width: 100%;
+					height: 100%;
+					object-fit: cover; /* 确保图片的宽高比不变且填满容器 */
+				}
+			}
+
+			h3 {
+				color: #333;
+				font-size: 16px; /* 略微调小标题字体 */
+				margin: 5px 6px; /* 调整标题的上下边距 */
+				text-align: left;
+			}
+
+			p {
+				color: #555;
+				font-size: 13px; /* 修改为13px的文本字体 */
+				text-align: left;
+				margin: 5px 6px; /* 调整文本的上下边距 */
+				padding: 0; /* 去除文本的内边距 */
+			}
+
+			.divider {
+				height: 1px;
+				background-color: rgba(0, 0, 0, 0.1); /* 半透明的黑色分割线 */
+				margin: 5px 10px; /* 调整分割线的上下边距 */
+			}
+
+			.delete-button {
+				position: absolute;
+				top: 10px;
+				left: 10px;
+				background-color: red;
+				color: white;
+				padding: 5px 10px;
+				border: none;
+				border-radius: 5px;
+				font-size: 14px;
+				cursor: pointer;
+				transition: background-color 0.3s;
+
+				&:hover {
+					background-color: darkred;
+				}
+			}
+
+			.gear-button {
+				position: absolute;
+				top: 5px;
+				right: 5px;
+				width: 30px;
+				height: 30px;
+				display: none;
+				justify-content: center;
+				align-items: center;
+				cursor: pointer;
+				font-size: 18px;
+				color: #333;
+
+				&:hover {
+					display: flex;
+				}
+			}
+		}
 	}
 
-	.sidebar.expanded + .main-content {
-		margin-left: 250px; /* 展开侧边栏时主内容区域的左边距 */
-	}
-
-	h1 {
-		color: #333;
-		font-size: 24px;
-		margin-bottom: 20px;
-		text-align: center;
-	}
-
-	button {
-		padding: 10px 20px;
-		font-size: 16px;
-		color: #fff;
-		background-color: #4caf50;
-		border: none;
-		border-radius: 5px;
-		cursor: pointer;
-		transition: background-color 0.3s ease;
-	}
-
-	button:hover {
-		background-color: #45a049;
-	}
-
-	/* 卡片容器样式 */
-	.cards-container {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 20px; /* 卡片之间的间距 */
-		justify-content: flex-start; /* 确保卡片从左边开始排列 */
-		overflow-y: auto; /* 显示垂直滚动条 */
-		max-height: 80vh; /* 最大高度，确保卡片容器不会超出视口 */
-		padding: 10px;
-	}
-
-	.card {
-		background-color: white;
-		border-radius: 8px;
-		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-		width: 250px; /* 每张卡片的宽度 */
-		height: 220px; /* 修改为220px的卡片高度 */
-		position: relative; /* 用于定位图片 */
-		overflow: hidden; /* 防止图片溢出卡片 */
-		transition:
-			transform 0.3s ease,
-			border 0.3s ease;
-		border: 2px solid transparent; /* 默认透明边框 */
-	}
-
-	/* 卡片悬停时的边框 */
-	.card:hover {
-		transform: translateY(-5px); /* 鼠标悬停时的浮动效果 */
-		border: 2px solid #f39c12; /* 鼠标悬停时边框颜色 */
-	}
-
-	/* 卡片图片容器 */
-	.card-image-container {
-		position: relative;
-		width: 100%;
-		height: 60%; /* 图片容器只占据卡片的上半部分 */
-		overflow: hidden;
-		perspective: 800px;
-	}
-
-	.card-image-layer {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: 1;
-		transition: transform 0.3s ease;
-	}
-
-	.card-image {
-		width: 100%;
-		height: 100%;
-		object-fit: cover; /* 确保图片的宽高比不变且填满容器 */
-	}
-
-	/* 标题样式 */
-	.card h3 {
-		color: #333;
-		font-size: 16px; /* 略微调小标题字体 */
-		margin: 5px 6px; /* 调整标题的上下边距 */
-		text-align: left;
-	}
-
-	/* 文本样式 */
-	.card p {
-		color: #555;
-		font-size: 13px; /* 修改为13px的文本字体 */
-		text-align: left;
-		margin: 5px 6px; /* 调整文本的上下边距 */
-		padding: 0; /* 去除文本的内边距 */
-	}
-
-	/* 分割线样式 */
-	.card .divider {
-		height: 1px;
-		background-color: rgba(0, 0, 0, 0.1); /* 半透明的黑色分割线 */
-		margin: 5px 10px; /* 调整分割线的上下边距 */
-	}
-
-	/* 删除按钮样式 */
-	.delete-button {
-		position: absolute;
-		top: 10px;
-		left: 10px;
-		background-color: red;
-		color: white;
-		padding: 5px 10px;
-		border: none;
-		border-radius: 5px;
-		font-size: 14px;
-		cursor: pointer;
-		transition: background-color 0.3s;
-	}
-
-	.delete-button:hover {
-		background-color: darkred;
-	}
-
-	/* 齿轮按钮样式 */
-	.card .gear-button {
-		position: absolute;
-		top: 5px;
-		right: 5px;
-		width: 30px;
-		height: 30px;
-		display: none;
-		justify-content: center;
-		align-items: center;
-		cursor: pointer;
-		font-size: 18px;
-		color: #333;
-	}
-
-	/* 鼠标悬停时显示齿轮按钮 */
-	.card:hover .gear-button {
-		display: flex;
-	}
-
-	/* 圆形加号按钮样式 */
 	.fab-button {
 		position: fixed;
 		right: 20px;
@@ -747,15 +702,15 @@ const submitCard = (app) => {
 			background-color 0.3s ease,
 			transform 0.3s ease;
 		z-index: 200;
-	}
 
-	.fab-button:hover {
-		background-color: #e67e22;
-		transform: translateY(-3px);
-	}
+		&:hover {
+			background-color: #e67e22;
+			transform: translateY(-3px);
+		}
 
-	.fab-button:active {
-		transform: translateY(2px);
+		&:active {
+			transform: translateY(2px);
+		}
 	}
 }
 </style>
