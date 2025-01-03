@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOD管理器</title>
+    <script src="vue.global.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="modal.css">
+    <script src="data.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="sidebar" :class="['sidebar', { expanded: isSidebarExpanded }]" @mouseenter="expandSidebar" @mouseleave="collapseSidebar">
+            <ul>
+                <li v-for="(item, index) in menuItems" :key="index">{{ item }}</li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <h1>{{ message }}</h1>
+            <button @click="updateMessage">点击更新消息</button>
+
+            <!-- 卡片滚动容器 -->
+            <div class="cards-container">
+                <div class="card" v-for="(card, index) in listData" :key="index"
+                     @click="handleCardClick(card, index)"
+                     @dblclick="handleCardDblClick(card, index)"
+                     @contextmenu.prevent="showDeleteButton(card, index)">
+                    <!-- 这个容器会显示卡片的图片 -->
+                    <div class="card-image-container">
+                        <template v-if="card.imgs && card.imgs.length">
+                            <div v-for="(img, imgIndex) in card.imgs" :key="imgIndex" class="card-image-layer" :style="{ zIndex: imgIndex + 1, transform: 'translateZ(' + (imgIndex * -10) + 'px)' }">
+                                <img :src="getImageUrl({ img: img })" alt="Card Image" class="card-image">
+                            </div>
+                        </template>
+                        <template v-else>
+                            <img :src="getImageUrl(card)" alt="Card Image" class="card-image">
+                        </template>
+                    </div>
+                    <h3>{{ card.name }}</h3>
+                    <div class="divider"></div>
+                    <p>{{ card.txt }}</p>
+
+                    <!-- 齿轮按钮 -->
+                    <div class="gear-button" @click="showCardName(card.name)">⚙️</div>
+
+                    <!-- 删除按钮 (显示控制) -->
+                    <div v-if="card.showDelete" class="delete-button" @click="deleteCard(index)">删除</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 圆形加号按钮 -->
+        <div class="fab-button" @click="triggerFileInput">+</div>
+
+        <div v-if="isModalOpen" class="modal">
+            <div class="modal-content">
+                <h2>添加新卡片</h2>
+
+                <!-- 名称输入框 -->
+                <div class="input-group">
+                    <label for="name">名称:</label>
+                    <input type="text" id="name" v-model="newCard.name">
+                </div>
+
+                <!-- 背景图路径输入框 -->
+                <div class="input-group">
+                    <label for="img">背景图路径:</label>
+                    <input type="text" id="img" v-model="newCard.img" placeholder="手动输入背景图路径">
+                    <!-- 上传按钮 -->
+                    <input type="file" @change="handleImageUpload" style="margin-left: 10px;">
+                </div>
+
+                <!-- 绘制背景图的 Canvas -->
+                <div class="canvas-container">
+                    <!--<canvas id="canvas" width="300" height="200" style="border: 1px solid #ccc;"></canvas>-->
+                    <img id="canvas" :src="newCard.img" width="300" height="200" alt="Card Image" class="card-image">
+                </div>
+
+                <!-- 启动路径输入框 -->
+                <div class="input-group">
+                    <label for="cmd">启动路径:</label>
+                    <input type="text" id="cmd" v-model="newCard.cmd">
+                </div>
+
+                <!-- 确定和取消按钮 -->
+                <div class="modal-actions">
+                    <button @click="submitCard">确定</button>
+                    <button @click="closeModal">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="app.js"></script>
+</body>
+</html>
