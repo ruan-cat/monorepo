@@ -19,137 +19,141 @@ onMounted(() => {
 	loadCards("E:\\RPGMV\\【已整理】\\Memories Story～囚われの者たち～\\Memories Story～囚われの者たち～ Ver1.01", app);
 	loadCards("E:\\RPGMV\\【已整理】\\あの夏の島\\あの夏の島_Ver1.01", app);
 	loadCards("E:\\RPGMV\\【未处理】\\240302\\www", app);
-	// TODO: 更改函数
-	window.addEventListener("keydown", app.methods.handleF5);
+	window.addEventListener("keydown", handleF5);
 });
 
+function updateMessage() {
+	message.value = "消息已更新！";
+}
+
+function expandSidebar() {
+	isSidebarExpanded.value = true;
+}
+
+function collapseSidebar() {
+	isSidebarExpanded.value = false;
+}
+
+function showCardName(cardName) {
+	console.log(`卡片名称: ${cardName}`);
+}
+
+function handleCardClick(card, index) {
+	console.log(`卡片点击: ${card.name}, 索引: ${index}`);
+}
+
+const showDeleteButton = (card, index) => {
+	if (app.activeDeleteIndex !== index) {
+		app.activeDeleteIndex = index;
+		listData.value.forEach((card, i) => {
+			card.showDelete = i === index;
+		});
+	} else {
+		app.activeDeleteIndex = null;
+		card.showDelete = false;
+	}
+};
+
+const deleteCard = (index) => {
+	listData.value.splice(index, 1);
+	app.activeDeleteIndex = null;
+};
+
+// 提交卡片数据并关闭弹窗
+const submitCard = () => {
+	listData.value.push(newCard.value);
+	isModalOpen.value = false; // 关闭弹窗
+	console.log("新卡片已添加:", newCard.value);
+};
+
+// 关闭弹窗
+const closeModal = () => {
+	isModalOpen.value = false;
+};
+
+// Trigger File Input
+const triggerFileInput = () => {
+	const input = document.createElement("input");
+	input.type = "file";
+	input.nwdirectory = true;
+	input.onchange = (event) => {
+		if (event.target.files) {
+			console.log("path", event.target.files[0].path);
+			setCards(event.target.files[0].path, app); // 使用 setCards
+		}
+	};
+	input.click();
+};
+
+const getImageUrl = (card) => {
+	if (card.key) {
+		if (card.engine == "RMMV") {
+			return Decrypter.decryptImg(card.img);
+		}
+	} else return card.img;
+};
+
+const handleF5 = (event) => {
+	if (event.key === "F5") {
+		event.preventDefault();
+		location.reload();
+	}
+};
+
+// Modal 控制方法
+const openModal = () => {
+	isModalOpen.value = true;
+};
+
+const closeModal = () => {
+	isModalOpen.value = false;
+	// 重置新卡片数据
+	newCard.value = { name: "", img: "", cmd: "" };
+};
+
+const addCard = () => {
+	// 将新的卡片数据添加到 listData
+	listData.value.push({ ...newCard.value, showDelete: false });
+	closeModal();
+};
+
+const handleImageUpload = (event) => {
+	const file = event.target.files[0];
+	if (file) {
+		const reader = new FileReader();
+		// 读取文件并转换为数据 URL
+		reader.onload = (e) => {
+			newCard.value.img = e.target.result; // 更新 img 路径为 Data URL
+		};
+		reader.readAsDataURL(file); // 将图片读取为数据URL
+	}
+};
+
+// TODO: 用库重构成合适的文件读取
+const handleCardDblClick = (card, index) => {
+	// const { spawn } = require("child_process");
+	// const exec = require("child_process").exec;
+	// const path = require("path");
+	// var nwjsPath = "E:\\RM_RPG\\【道果】\\nw\\nw.exe";
+	// var cmdPath = "E:\\RM_RPG\\【道果】\\nw\\app";
+	// var appPath = cmdPath + "\\app副本";
+	// var jsPath = cmdPath + "\\PC\\www\\js\\";
+	// console.log("启动项目:", card.cmd);
+	// var project = spawn(nwjsPath, ["."], {
+	// 	cwd: appPath,
+	// 	detached: true,
+	// 	env: { Project_Path: card.cmd, jsPath: jsPath },
+	// });
+};
+
 const app = {
-	methods: {
-		updateMessage() {
-			this.message = "消息已更新！";
-		},
-		expandSidebar() {
-			this.isSidebarExpanded = true;
-		},
-		collapseSidebar() {
-			this.isSidebarExpanded = false;
-		},
-		showCardName(cardName) {
-			console.log(`卡片名称: ${cardName}`);
-		},
-		handleCardClick(card, index) {
-			console.log(`卡片点击: ${card.name}, 索引: ${index}`);
-		},
-
-		showDeleteButton(card, index) {
-			if (this.activeDeleteIndex !== index) {
-				this.activeDeleteIndex = index;
-				this.listData.forEach((card, i) => {
-					card.showDelete = i === index;
-				});
-			} else {
-				this.activeDeleteIndex = null;
-				card.showDelete = false;
-			}
-		},
-
-		deleteCard(index) {
-			this.listData.splice(index, 1);
-			this.activeDeleteIndex = null;
-		},
-
-		// 提交卡片数据并关闭弹窗
-		submitCard() {
-			this.listData.push(this.newCard);
-			this.isModalOpen = false; // 关闭弹窗
-			console.log("新卡片已添加:", this.newCard);
-		},
-
-		// 关闭弹窗
-		closeModal() {
-			this.isModalOpen = false;
-		},
-
-		// Trigger File Input
-		triggerFileInput() {
-			const input = document.createElement("input");
-			input.type = "file";
-			input.nwdirectory = true;
-			input.onchange = (event) => {
-				if (event.target.files) {
-					console.log("path", event.target.files[0].path);
-					setCards(event.target.files[0].path, this); // 使用 setCards
-				}
-			};
-			input.click();
-		},
-
-		getImageUrl(card) {
-			if (card.key) {
-				if (card.engine == "RMMV") {
-					return Decrypter.decryptImg(card.img);
-				}
-			} else return card.img;
-		},
-
-		handleF5(event) {
-			if (event.key === "F5") {
-				event.preventDefault();
-				location.reload();
-			}
-		},
-
-		// Modal 控制方法
-		openModal() {
-			this.isModalOpen = true;
-		},
-
-		closeModal() {
-			this.isModalOpen = false;
-			// 重置新卡片数据
-			this.newCard = { name: "", img: "", cmd: "" };
-		},
-
-		addCard() {
-			// 将新的卡片数据添加到 listData
-			this.listData.push({ ...this.newCard, showDelete: false });
-			this.closeModal();
-		},
-
-		handleImageUpload(event) {
-			const file = event.target.files[0];
-			if (file) {
-				const reader = new FileReader();
-				// 读取文件并转换为数据 URL
-				reader.onload = (e) => {
-					this.newCard.img = e.target.result; // 更新 img 路径为 Data URL
-				};
-				reader.readAsDataURL(file); // 将图片读取为数据URL
-			}
-		},
-
-		// TODO: 用库重构成合适的文件读取
-		handleCardDblClick(card, index) {
-			// const { spawn } = require("child_process");
-			// const exec = require("child_process").exec;
-			// const path = require("path");
-			// var nwjsPath = "E:\\RM_RPG\\【道果】\\nw\\nw.exe";
-			// var cmdPath = "E:\\RM_RPG\\【道果】\\nw\\app";
-			// var appPath = cmdPath + "\\app副本";
-			// var jsPath = cmdPath + "\\PC\\www\\js\\";
-			// console.log("启动项目:", card.cmd);
-			// var project = spawn(nwjsPath, ["."], {
-			// 	cwd: appPath,
-			// 	detached: true,
-			// 	env: { Project_Path: card.cmd, jsPath: jsPath },
-			// });
-		},
-	},
-
 	beforeUnmount() {
 		window.removeEventListener("keydown", this.handleF5);
 	},
 };
+
+// 以下为工具函数
+// ——————————————————————————————
 
 const fs = require("fs");
 const path = require("path");
