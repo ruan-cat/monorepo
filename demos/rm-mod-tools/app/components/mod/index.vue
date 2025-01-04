@@ -404,7 +404,7 @@ const submitCard = (app) => {
 		z-index: 1000;
 
 		/* Modal 内容样式 */
-		&-content {
+		.modal-content {
 			background: white;
 			padding: 20px;
 			border-radius: 15px; /* 圆角 */
