@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.3.4
+
+### Patch Changes
+
+- 增加 `dist/index.js` 配置，处理文件缺失丢失的问题。
+
 ## 1.3.3
 
 ### Patch Changes
