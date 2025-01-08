@@ -14,9 +14,9 @@
 		"rm:node_modules": "rimraf node_modules"
 	},
 	"devDependencies": {
-		"typedoc": "^0.27.0",
-		"typedoc-plugin-markdown": "^4.3.0",
-		"typedoc-vitepress-theme": "^1.0.1"
+		"typedoc": "^0.27.6",
+		"typedoc-plugin-markdown": "^4.4.1",
+		"typedoc-vitepress-theme": "^1.1.2"
 	},
 	"peerDependencies": {
 		"typescript": "catalog:"
