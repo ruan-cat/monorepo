@@ -1,5 +1,12 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.17
+
+### Patch Changes
+
+- 按照报错要求，重新安装 `@vuepress/plugin-slimsearch` 依赖包。
+  > vuepress-theme-hope: ✖ @vuepress/plugin-slimsearch is not installed!
+
 ## 0.1.16
 
 ### Patch Changes
