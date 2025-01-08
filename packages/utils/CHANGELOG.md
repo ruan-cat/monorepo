@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.3.5
+
+### Patch Changes
+
+- 重新调整了整个 monorepo 的 turbo 构建任务，严格控制发包前先完成打包。试图处理发包时文件缺失的故障。
+
 ## 1.3.4
 
 ### Patch Changes

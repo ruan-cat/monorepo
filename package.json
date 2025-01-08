@@ -42,7 +42,7 @@
 		"changeset:add": "changeset add",
 		"changeset:version": "changeset version",
 		"changeset:publish": "changeset publish",
-		"turbo:publish": "turbo build do-publish",
+		"turbo:publish": "turbo do-publish",
 		"code-workspace:del": "trash *.code-workspace",
 		"precode-workspace:create": "pnpm run code-workspace:del",
 		"code-workspace:create": "node --import=tsx ./scripts/generate.code-workspace.ts",
