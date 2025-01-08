@@ -19,7 +19,7 @@
 		"copy-changelog": "cpx CHANGELOG.md docs",
 		"typedoc": "typedoc --options typedoc.config.mjs",
 		"prettier-docs-(invalid)": "prettier docs/**/*.md --write",
-		"docs:dev-main": "vuepress-vite dev docs",
+		"docs:dev-main": "vuepress-vite dev docs --clean-cache --open",
 		"docs:dev": "turbo docs:dev",
 		"build:docs-main": "vuepress-vite build docs",
 		"build:docs": "turbo do-build-docs",
