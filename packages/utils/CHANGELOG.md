@@ -1,5 +1,15 @@
 # @ruan-cat/utils 更新日志
 
+## 1.3.3
+
+### Patch Changes
+
+- 修复依赖缺失的问题。将依赖声明为 dependencies 依赖。
+
+  > Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@vueuse/integrations' imported from /home/runner/work/RPGMV-dev-notes/RPGMV-dev-notes/node_modules/.pnpm/@ruan-cat+utils@1.3.2_axios@1.7.9_typescript@5.7.2/node_modules/@ruan-cat/utils/src/vueuse/useAxios.ts
+
+  目前，`@vueuse/integrations` 和 `axios` 均为生产环境依赖。预期将会自动安装到项目内。
+
 ## 1.3.2
 
 ### Patch Changes
