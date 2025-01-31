@@ -16,6 +16,7 @@
 	},
 	"scripts": {
 		"docs:dev": "vuepress-vite dev docs --clean-cache --open",
+		"docs:build": "vuepress-vite build docs",
 		"build": "vite build",
 		"build:watch": "vite build --watch",
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
