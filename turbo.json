@@ -14,9 +14,6 @@
 		"vp-update": {
 			"dependsOn": []
 		},
-		"//#eci:b": {
-			"dependsOn": []
-		},
 		"clear": {
 			"dependsOn": [
 				"^clear"
