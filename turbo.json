@@ -11,7 +11,7 @@
 				"^build"
 			]
 		},
-		"docs:update-package": {
+		"vp-update": {
 			"dependsOn": []
 		},
 		"//#eci:b": {

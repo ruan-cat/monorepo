@@ -18,7 +18,7 @@
 		"build": "vite build",
 		"build:watch": "vite build --watch",
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
-		"docs:update-package": "pnpm dlx vp-update",
+		"vp-update": "pnpm dlx vp-update",
 		"rm:node_modules": "rimraf node_modules"
 	},
 	"exports": {
@@ -55,16 +55,16 @@
 		"src"
 	],
 	"devDependencies": {
-		"@types/node": "^20.17.12",
+		"@types/node": "^20.17.16",
 		"@types/rollup-plugin-visualizer": "^4.2.4"
 	},
 	"dependencies": {
 		"@vuepress/bundler-vite": "2.0.0-rc.19",
-		"@vuepress/plugin-slimsearch": "2.0.0-rc.61",
+		"@vuepress/plugin-slimsearch": "2.0.0-rc.74",
 		"rollup-plugin-visualizer": "^5.14.0",
-		"sass-embedded": "^1.83.1",
+		"sass-embedded": "^1.83.4",
 		"vue": "^3.5.13",
 		"vuepress": "2.0.0-rc.19",
-		"vuepress-theme-hope": "2.0.0-rc.67"
+		"vuepress-theme-hope": "2.0.0-rc.71"
 	}
 }
