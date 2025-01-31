@@ -108,5 +108,13 @@
 	],
 	"interline-translate.knownPopularWordCount": 6000,
 	"iconify.annotations": true,
-	"iconify.inplace": true
+	"iconify.inplace": true,
+	/** 忽略特定的文件夹 不予搜索 */
+	"search.exclude": {
+		"**/dist": true,
+		"**/.cache": true,
+		"**/.temp": true,
+		"**/.vercel": true,
+		"**/.turbo": true,
+	}
 }
