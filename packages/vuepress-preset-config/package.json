@@ -15,6 +15,7 @@
 		"directory": "packages/vuepress-preset-config"
 	},
 	"scripts": {
+		"docs:dev": "vuepress-vite dev docs --clean-cache --open",
 		"build": "vite build",
 		"build:watch": "vite build --watch",
 		"clear": "rimraf dist .turbo .vercel .cache .temp",

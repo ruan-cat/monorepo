@@ -5,6 +5,7 @@
 	},
 	"include": [
 		// "./vite.config.ts"
-		"./src"
+		"./src",
+		".vuepress/**/*.ts"
 	]
 }
