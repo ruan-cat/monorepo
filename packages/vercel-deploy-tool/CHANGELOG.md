@@ -1,5 +1,12 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.5.6
+
+### Patch Changes
+
+- 锁死内部依赖 vercel 的版本号，尝试处理 vercel@39.4.2 安装失败的错误。
+  - @ruan-cat/utils@1.3.5
+
 ## 0.5.5
 
 ### Patch Changes

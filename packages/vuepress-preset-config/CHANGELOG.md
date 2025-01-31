@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.18
+
+### Patch Changes
+
+- 升级内部依赖，尝试处理打包报错问题。
+
 ## 0.1.17
 
 ### Patch Changes
