@@ -1,10 +1,10 @@
 {
 	"name": "@ruan-cat/commitlint-config",
 	"version": "0.0.0",
-	"description": "阮喵喵的 commitlint.config.cjs 配置。现在（2024-10-15）先暂停，以后再封装完成。",
+	"description": "阮喵喵自用的 commitlint.config.cjs 配置。",
 	"type": "module",
-	"main": "./src/index.ts",
-	"types": "./src/index.ts",
+	"main": "./dist/index.cjs",
+	"types": "./dist/index.d.ts",
 	"homepage": "https://github.com/ruan-cat/vercel-monorepo-test/tree/dev/configs-package/commitlint-config",
 	"bugs": {
 		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
@@ -15,16 +15,15 @@
 		"directory": "configs-package/commitlint-config"
 	},
 	"scripts": {
-		"build:docs-main": "vuepress-vite build docs",
+		"build": "tsup",
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"rm:node_modules": "rimraf node_modules"
 	},
 	"exports": {
 		".": {
-			"import": "./src/index.ts",
-			"types": "./src/index.ts"
-		},
-		"./src/*": "./src/*"
+			"require": "./dist/index.cjs",
+			"types": "./dist/index.d.ts"
+		}
 	},
 	"keywords": [],
 	"author": {
@@ -39,16 +38,9 @@
 		"tag": "beta"
 	},
 	"files": [
-		"src",
-		"tsconfig.json"
+		"dist"
 	],
 	"devDependencies": {
-		"@ruan-cat/vuepress-preset-config": "workspace:^",
-		"typedoc": "^0.27.0",
-		"typedoc-plugin-markdown": "^4.3.0",
-		"typescript": "catalog:"
-	},
-	"peerDependencies": {
-		"typescript": "catalog:"
+		"tsup": "^8.3.5"
 	}
 }
