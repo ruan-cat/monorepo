@@ -9,7 +9,9 @@
 // });
 
 // import { defineRuanCatVuepressConfig } from "../../src/index.ts";
-import { defineRuanCatVuepressConfig } from "@ruan-cat/vuepress-preset-config";
+// import { defineRuanCatVuepressConfig } from "@ruan-cat/vuepress-preset-config";
+// @ts-ignore
+import { defineRuanCatVuepressConfig } from "../../dist/vuepress-preset-config.js";
 export default defineRuanCatVuepressConfig({
 	lang: "zh-CN",
 	title: "这里是预设配置的测试文档",

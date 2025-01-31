@@ -4,7 +4,6 @@ import { type UserConfig, defineUserConfig } from "vuepress";
 // import { fileURLToPath, URL } from "node:url";
 
 import { viteBundler } from "@vuepress/bundler-vite";
-import { visualizer } from "rollup-plugin-visualizer";
 import { type ThemeOptions, hopeTheme } from "vuepress-theme-hope";
 
 export { hopeTheme } from "vuepress-theme-hope";
@@ -47,25 +46,23 @@ export const ruancatHopeThemeConfig: ThemeOptions = {
 
 	markdown: {
 		align: true,
-		// 启用 GFM 警告
-		// 使用特殊标记为 Markdown 元素添加属性
 		attrs: true,
+		codeTabs: true,
+		component: true,
+		demo: true,
+		figure: true,
 		gfm: true,
-		//导入文件
-		include: true,
-		mark: true,
-		footnote: true,
-		tasklist: true,
-		// 上下角标
-		sub: true,
-		sup: true,
-		hint: true,
-		alert: true,
 		imgLazyload: true,
 		imgSize: true,
-		figure: true,
-		// 暂不提供mermaid支持
-		// mermaid: true,
+		include: true,
+		mark: true,
+		plantuml: true,
+		spoiler: true,
+		sub: true,
+		sup: true,
+		tabs: true,
+		tasklist: true,
+		vPre: true,
 	},
 
 	plugins: {
