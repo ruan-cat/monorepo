@@ -1,5 +1,5 @@
 import { defineRuanCatVuepressConfig } from "@ruan-cat/vuepress-preset-config";
-// @ts-ignore
+// @ts-ignore 无法复测
 // import { defineRuanCatVuepressConfig } from "../../../../packages/vuepress-preset-config/dist/vuepress-preset-config.js";
 export default defineRuanCatVuepressConfig({
 	lang: "zh-CN",
