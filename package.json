@@ -102,7 +102,7 @@
 		"type-plus": "^7.6.2",
 		"typescript": "catalog:",
 		"typescript-lodash": "^0.2.2",
-		"vercel": "39.3.0",
+		"vercel": "catalog:",
 		"vite": "^5.4.14",
 		"vitest": "^2.1.8",
 		"vue": "^3.5.13",
