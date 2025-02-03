@@ -129,6 +129,9 @@ function getPackagesNameAndDescription() {
 	return czGitScopesType;
 }
 
+let scopes: ScopesType = defScopes;
+scopes = getPackagesNameAndDescription();
+
 /**
  * @description
  * 这个配置文件不能使用ts格式 ts不被支持
@@ -159,7 +162,7 @@ const config: UserConfig = {
 		/**
 		 * 基于monorepo内项目，决定提交范围域
 		 */
-		// scopes,
+		scopes,
 
 		// https://cz-git.qbb.sh/zh/recipes/#多选模式
 		enableMultipleScopes: true,

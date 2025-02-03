@@ -41,7 +41,7 @@
 		"dist"
 	],
 	"peerDependencies": {
-		"commitizen ": ">=4",
+		"commitizen": ">=4",
 		"cz-git": ">=1"
 	},
 	"devDependencies": {
