@@ -19,7 +19,8 @@ pnpm i -D commitizen cz-git @ruan-cat/commitlint-config
 
 ```js
 // commitlint.config.cjs
-module.exports = require("@ruan-cat/commitlint-config").default;
+const config = require("@ruan-cat/commitlint-config").default;
+module.exports = config;
 ```
 
 ## 被封装的配置文件

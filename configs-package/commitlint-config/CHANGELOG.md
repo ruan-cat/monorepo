@@ -1,5 +1,16 @@
 # @ruan-cat/commitlint-config
 
+## 0.1.3
+
+### Patch Changes
+
+- 更新正确的包使用方式，避免出现类型识别错误。
+
+```js
+const config = require("@ruan-cat/commitlint-config").default;
+module.exports = config;
+```
+
 ## 0.1.2
 
 ### Patch Changes
