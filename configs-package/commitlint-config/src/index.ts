@@ -7,7 +7,7 @@ const __dirname = dirname(__filename);
 
 import { sync } from "glob";
 import { load } from "js-yaml";
-import { isUndefined } from "lodash-es";
+import { isUndefined } from "lodash";
 
 import { type PackageJson } from "pkg-types";
 import { type ScopesType, UserConfig } from "cz-git";
@@ -92,7 +92,8 @@ function getPackagesNameAndDescription() {
 
 	// 根据每个模式匹配相应的目录
 	pkgPatterns.map((pkgPattern) => {
-		const matchedPath = pathChange(join(__dirname, pkgPattern, "package.json"));
+		// const matchedPath = pathChange(join(__dirname, pkgPattern, "package.json"));
+		const matchedPath = pathChange(join(process.cwd(), pkgPattern, "package.json"));
 
 		const matchedPaths = sync(matchedPath, {
 			ignore: "**/node_modules/**",
@@ -125,6 +126,8 @@ function getPackagesNameAndDescription() {
 			value: "pkgJsonPath",
 		};
 	});
+
+	// console.log("czGitScopesType :>> ", czGitScopesType);
 
 	return czGitScopesType;
 }

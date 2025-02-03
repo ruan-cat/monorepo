@@ -150,7 +150,7 @@ scopes = getPackagesNameAndDescription();
 
 // .commitlintrc.js
 /** @type {import("cz-git").UserConfig} */
-module.exports = {
+const czConfig = {
 	rules: {
 		// @see: https://commitlint.js.org/#/reference-rules
 	},
@@ -243,3 +243,6 @@ module.exports = {
 		defaultSubject: "",
 	},
 };
+
+// require("@ruan-cat/commitlint-config");
+module.exports = require("@ruan-cat/commitlint-config").default;

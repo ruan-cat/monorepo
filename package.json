@@ -50,6 +50,7 @@
 	"devDependencies": {
 		"@antfu/eslint-config": "^4.1.0",
 		"@changesets/cli": "^2.27.12",
+		"@ruan-cat/commitlint-config": "workspace:^",
 		"@ruan-cat/domains": "workspace:^",
 		"@ruan-cat/generate-code-workspace": "workspace:^",
 		"@ruan-cat/utils": "workspace:^",
