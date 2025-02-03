@@ -33,6 +33,7 @@ module.exports = config;
 被封装的配置文件
 </summary>
 
+<!-- prettier-ignore-start -->
 <!-- automd:file src="./src/config.ts" code -->
 
 ```ts [config.ts]
@@ -146,5 +147,6 @@ export const config: UserConfig = {
 ```
 
 <!-- /automd -->
+<!-- prettier-ignore-end -->
 
 </details>
