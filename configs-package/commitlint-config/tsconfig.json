@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"module": "NodeNext",
+		"noEmit": true,
+		"allowImportingTsExtensions": true
+	},
+	"include": [
+		"./src/**/*.ts"
+	]
+}

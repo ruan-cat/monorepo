@@ -1,4 +1,142 @@
-const config = {
+import { dirname, resolve, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import * as fs from "node:fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+import { sync } from "glob";
+import { load } from "js-yaml";
+import { isUndefined } from "lodash-es";
+
+import { type PackageJson } from "pkg-types";
+import { type ScopesType, UserConfig } from "cz-git";
+import { type PnpmWorkspace } from "@ruan-cat/utils/src/types/pnpm-workspace.yaml.shim.ts";
+
+type ScopesTypeItem = Exclude<ScopesType[number], string>;
+
+const defScopes = <ScopesType>[
+	"root|根目录",
+	"vuepress-preset-config|vp2预设配置",
+	"vercel-deploy-tool|vc部署工具",
+	"utils|工具包",
+	"demo|测试项目",
+];
+
+/**
+ * 路径转换工具
+ */
+function pathChange(path: string) {
+	return path.replace(/\\/g, "/");
+}
+
+/**
+ * 创建标签名称
+ */
+function createLabelName(packageJson: PackageJson) {
+	const { name, description } = packageJson;
+	const noneDesc = `该依赖包没有描述。`;
+	const desc = isUndefined(description) ? noneDesc : description;
+	return `${name ?? "bug：极端情况，这个包没有配置name名称"}    >>|>>    ${desc}`;
+}
+
+/**
+ * 创建包范围取值
+ */
+function createPackagescopes(packageJson: PackageJson) {
+	const { name } = packageJson;
+	const names = name?.split("/");
+	/**
+	 * 含有业务名称的包名
+	 * @description
+	 * 如果拆分的数组长度大于1 说明包是具有前缀的。取用后面的名称。
+	 *
+	 * 否则包名就是单纯的字符串，直接取用即可。
+	 */
+	// @ts-ignore 默认 name 名称总是存在的 不做undefined校验
+	const packageNameWithBusiness = names?.length > 1 ? names?.[1] : names?.[0];
+	return `${packageNameWithBusiness}`;
+}
+
+/**
+ * 根据 pnpm-workspace.yaml 配置的monorepo有意义的包名，获取包名和包描述
+ * @description
+ * 根据 pnpm-workspace.yaml 配置的monorepo有意义的包名，获取包名和包描述
+ */
+function getPackagesNameAndDescription() {
+	// 读取 pnpm-workspace.yaml 文件 文件路径
+	const workspaceConfigPath = join(process.cwd(), "pnpm-workspace.yaml");
+
+	// 文件
+	const workspaceFile = fs.readFileSync(workspaceConfigPath, "utf8");
+
+	/**
+	 * pnpm-workspace.yaml 的配置
+	 */
+	const workspaceConfig = <PnpmWorkspace>load(workspaceFile);
+
+	/**
+	 * packages配置 包的匹配语法
+	 */
+	const pkgPatterns = workspaceConfig.packages;
+
+	// 如果没查询到packages配置，返回默认的scopes
+	if (isUndefined(pkgPatterns)) {
+		return defScopes;
+	}
+
+	/**
+	 * 全部的 package.json 文件路径
+	 */
+	let pkgPaths: string[] = [];
+
+	// 根据每个模式匹配相应的目录
+	pkgPatterns.map((pkgPattern) => {
+		const matchedPath = pathChange(join(__dirname, pkgPattern, "package.json"));
+
+		const matchedPaths = sync(matchedPath, {
+			ignore: "**/node_modules/**",
+		});
+
+		// 找到包路径，就按照顺序逐个填充准备
+		pkgPaths = pkgPaths.concat(...matchedPaths);
+		return matchedPaths;
+	});
+
+	console.log("pkgPaths :>> ", pkgPaths);
+
+	const czGitScopesType = pkgPaths.map(function (pkgJsonPath) {
+		// 如果确实存在该文件，就处理。否则不管了。
+		if (fs.existsSync(pkgJsonPath)) {
+			/**
+			 * 包配置文件数据
+			 */
+			const pkgJson = <PackageJson>JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
+			return <ScopesTypeItem>{
+				// 标签名称 对外展示的标签名称
+				name: createLabelName(pkgJson),
+				// 取值
+				value: createPackagescopes(pkgJson),
+			};
+		}
+
+		return <ScopesTypeItem>{
+			name: "警告，没找到包名，请查看这个包路径是不是故障了：",
+			value: "pkgJsonPath",
+		};
+	});
+
+	return czGitScopesType;
+}
+
+/**
+ * @description
+ * 这个配置文件不能使用ts格式 ts不被支持
+ *
+ * @see https://cz-git.qbb.sh/zh/config/#中英文对照模板
+ * @see https://cz-git.qbb.sh/zh/recipes/#
+ */
+const config: UserConfig = {
 	rules: {
 		// @see: https://commitlint.js.org/#/reference-rules
 	},
