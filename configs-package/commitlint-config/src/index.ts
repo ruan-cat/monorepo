@@ -83,7 +83,12 @@ function getPackagesNameAndDescription() {
 	// 读取 pnpm-workspace.yaml 文件 文件路径
 	const workspaceConfigPath = join(process.cwd(), "pnpm-workspace.yaml");
 
-	// 文件
+	// 检查文件是否存在 如果文件不存在 返回默认的scopes
+	if (!fs.existsSync(workspaceConfigPath)) {
+		return defScopes;
+	}
+
+	// 获取文件
 	const workspaceFile = fs.readFileSync(workspaceConfigPath, "utf8");
 
 	/**

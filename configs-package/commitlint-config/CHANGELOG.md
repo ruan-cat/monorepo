@@ -1,5 +1,11 @@
 # @ruan-cat/commitlint-config
 
+## 0.1.1
+
+### Patch Changes
+
+- 检查文件是否存在 `pnpm-workspace.yaml`，如果文件不存在，则返回默认的 scopes 。
+
 ## 0.1.0
 
 ### Minor Changes

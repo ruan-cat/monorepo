@@ -4,7 +4,7 @@
 
 ## 功能
 
-- 根据 pnpm-workspace.yaml 自动识别 monorepo 项目内的全部包。
+- 根据 pnpm-workspace.yaml 自动识别 monorepo 项目内的全部包。如果根目录不存在 pnpm-workspace.yaml 文件，则不会扫描整个工作区。
 - 用户可以自定义提交域。
 
 ## 安装
@@ -141,7 +141,6 @@ export const config: UserConfig = {
 		defaultSubject: "",
 	},
 };
-
 ```
 
 <!-- /automd -->
