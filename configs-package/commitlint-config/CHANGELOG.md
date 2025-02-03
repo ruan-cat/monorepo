@@ -1,5 +1,11 @@
 # @ruan-cat/commitlint-config
 
+## 0.1.0
+
+### Minor Changes
+
+- 提供 getUserConfig 函数，允许用户自己提供自定义的提交范围。
+
 ## 0.0.1
 
 ### Patch Changes

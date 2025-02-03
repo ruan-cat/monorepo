@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/commitlint-config",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "阮喵喵自用的 commitlint.config.cjs 配置。",
 	"type": "module",
 	"main": "./dist/index.cjs",
@@ -15,7 +15,7 @@
 		"directory": "configs-package/commitlint-config"
 	},
 	"scripts": {
-		"prebuild": "automd ",
+		"prebuild": "automd",
 		"build": "tsup",
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"rm:node_modules": "rimraf node_modules"

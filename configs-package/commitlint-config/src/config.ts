@@ -1,40 +1,3 @@
-# commitlint.config.cjs 配置
-
-阮喵喵自用的 commitlint.config.cjs 的配置，是一个 cjs 的包。
-
-## 功能
-
-- 根据 pnpm-workspace.yaml 自动识别 monorepo 项目内的全部包。
-- 用户可以自定义提交域。
-
-## 安装
-
-```bash
-pnpm i -D commitizen cz-git @ruan-cat/commitlint-config
-```
-
-本库应当作为开发环境依赖。其中，commitizen 和 cz-git 为本依赖包的对等依赖。
-
-## 使用方式
-
-```js
-// commitlint.config.cjs
-module.exports = require("@ruan-cat/commitlint-config").default;
-```
-
-## 被封装的配置文件
-
-如下所示：
-
-<details>
-
-<summary>
-被封装的配置文件
-</summary>
-
-<!-- automd:file src="./src/config.ts" code -->
-
-```ts [config.ts]
 import { type UserConfig } from "cz-git";
 
 /**
@@ -141,9 +104,3 @@ export const config: UserConfig = {
 		defaultSubject: "",
 	},
 };
-
-```
-
-<!-- /automd -->
-
-</details>
