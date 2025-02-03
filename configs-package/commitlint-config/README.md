@@ -142,6 +142,7 @@ export const config: UserConfig = {
 		defaultSubject: "",
 	},
 };
+
 ```
 
 <!-- /automd -->
