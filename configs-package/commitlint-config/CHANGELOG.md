@@ -1,5 +1,11 @@
 # @ruan-cat/commitlint-config
 
+## 0.1.2
+
+### Patch Changes
+
+- 对外导出的类型文件改写成 `index.d.cts` ，便于查询包的对应类型文件。
+
 ## 0.1.1
 
 ### Patch Changes
