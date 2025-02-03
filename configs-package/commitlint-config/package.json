@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/commitlint-config",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"description": "阮喵喵自用的 commitlint.config.cjs 配置。",
 	"type": "module",
 	"main": "./dist/index.cjs",
@@ -38,7 +38,8 @@
 		"tag": "beta"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"readme.md"
 	],
 	"peerDependencies": {
 		"commitizen": ">=4",

@@ -104,7 +104,7 @@ function getPackagesNameAndDescription() {
 		return matchedPaths;
 	});
 
-	console.log("pkgPaths :>> ", pkgPaths);
+	// console.log("pkgPaths :>> ", pkgPaths);
 
 	const czGitScopesType = pkgPaths.map(function (pkgJsonPath) {
 		// 如果确实存在该文件，就处理。否则不管了。
