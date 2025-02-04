@@ -1,7 +1,6 @@
 import { execa } from "execa";
 import { consola } from "consola";
-import { generateSimpleAsyncTask } from "@ruan-cat/vercel-deploy-tool/src/utils/simple-promise-tools.ts";
-import { executePromiseTasks } from "@ruan-cat/vercel-deploy-tool/src/utils/define-promise-tasks";
+import { generateSimpleAsyncTask, executePromiseTasks } from "@ruan-cat/utils";
 
 /**
  * 生成简单的 execa 函数
