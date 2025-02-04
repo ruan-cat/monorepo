@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.4.0
+
+### Minor Changes
+
+- 获得阮喵喵全部的包信息。`getRuanCatPkgInfo()`。
+
 ## 1.3.5
 
 ### Patch Changes
