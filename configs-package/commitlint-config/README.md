@@ -23,6 +23,11 @@ const config = require("@ruan-cat/commitlint-config").default;
 module.exports = config;
 ```
 
+## 类似功能的依赖包
+
+- [@commitlint/config-pnpm-scopes](https://npm.im/@commitlint/config-pnpm-scopes)
+- [commitlint-config-pnpm-workspace](https://npm.im/commitlint-config-pnpm-workspace)
+
 ## 被封装的配置文件
 
 如下所示：
