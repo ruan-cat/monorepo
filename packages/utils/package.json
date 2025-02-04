@@ -67,6 +67,7 @@
 	"devDependencies": {
 		"@antfu/utils": "^0.7.10",
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
+		"@types/node": "^22.13.1",
 		"@types/qs": "^6.9.17",
 		"qs": "^6.13.1",
 		"tsup": "^8.3.5",
