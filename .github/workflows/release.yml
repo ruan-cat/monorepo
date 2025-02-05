@@ -5,8 +5,6 @@ name: Release
 
 on:
   push:
-    # tags:
-			# - "@*"
     branches:
       - main
 
