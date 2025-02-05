@@ -5,8 +5,8 @@ import { domains } from "@ruan-cat/domains";
 export default <Config>{
 	vercelProjetName: "vercel-monorepo-test-1-zn20",
 	vercelToken: "",
-	vercelOrgId: "",
-	vercelProjectId: "",
+	vercelOrgId: "team_cUeGw4TtOCLp0bbuH8kA7BYH",
+	vercelProjectId: "prj_THvaBaRzKye5CMlL72WMlvQLtFlB",
 
 	isShowCommand: true,
 	// afterBuildTasks: ["pnpm turbo build:docs"],
