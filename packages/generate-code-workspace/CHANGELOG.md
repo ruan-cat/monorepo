@@ -1,5 +1,11 @@
 # @ruan-cat/generate-code-workspace
 
+## 0.2.3
+
+### Patch Changes
+
+- 测试性质发包。用于测试 github 上面是否出现 tag。
+
 ## 0.2.2
 
 ### Patch Changes
