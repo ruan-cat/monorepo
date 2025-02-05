@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.4.1
+
+### Patch Changes
+
+- 仅查询淘宝源的数据。
+
 ## 1.4.0
 
 ### Minor Changes

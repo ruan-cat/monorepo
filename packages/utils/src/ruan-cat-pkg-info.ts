@@ -22,7 +22,13 @@ export interface PackageInfo {
  */
 export async function getRuanCatPkgInfo() {
 	return new Promise<PackageInfo[]>((resolve, reject) => {
-		const result = spawnSync("pnpm", ["s", "@ruan-cat/", "--json"], { encoding: "utf-8" });
+		/**
+		 * pnpm s @ruan-cat/* --registry https://registry.npmmirror.com/ --json
+		 * 仅查询淘宝源的数据
+		 */
+		const result = spawnSync("pnpm", ["s", "@ruan-cat/*", "--registry", "https://registry.npmmirror.com/", "--json"], {
+			encoding: "utf-8",
+		});
 
 		if (result.error) {
 			console.error(`Error executing command: ${result.error.message}`);
