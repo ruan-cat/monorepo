@@ -35,7 +35,6 @@
 		"prettier": "prettier --write . --ignore-path ./.config/.prettierignore --ignore-path .gitignore",
 		"turbo:build-docs": "turbo build:docs",
 		"on-github-action-flow": "turbo build:docs",
-		"turbo:build": "turbo build",
 		"npm:login": "pnpm login --registry=https://registry.npmjs.org/",
 		"changeset:init": "changeset init",
 		"changeset:add": "changeset add",

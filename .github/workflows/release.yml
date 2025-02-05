@@ -24,8 +24,11 @@ jobs:
         with:
           node-version: lts/*
 
+      - name: 安装整个项目的依赖
+        run: pnpm i
+
       - name: 打包
-        run: pnpm run turbo:build
+        run: pnpm exec turbo build
 
       - name: 发包
         run: pnpm changeset publish --otp ${{ secrets.NPM_TOKEN }}
