@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: 检出分支
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: 安装pnpm
         uses: pnpm/action-setup@v4
