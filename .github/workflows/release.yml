@@ -25,8 +25,7 @@ jobs:
           node-version: lts/*
 
       - name: 打包
-        run: pnpm exec turbo build
+        run: pnpm run turbo:build
 
       - name: 发包
         run: pnpm changeset publish --otp ${{ secrets.NPM_TOKEN }}
-
