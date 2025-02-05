@@ -28,6 +28,7 @@ jobs:
         with:
           node-version: 22.6.0
           cache: pnpm
+          registry-url: "https://registry.npmjs.org"
 
       - name: corepack手动再安装一次pnpm
         run: corepack enable && corepack prepare pnpm@9.5.0 --activate
@@ -39,4 +40,8 @@ jobs:
         run: pnpm exec turbo build
 
       - name: 发包
-        run: pnpm changeset publish --otp ${{ secrets.NPM_TOKEN }}
+        run: pnpm changeset publish --otp=${{ secrets.NPM_TOKEN }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
