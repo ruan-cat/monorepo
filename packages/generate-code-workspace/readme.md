@@ -14,6 +14,12 @@ pnpm i -D @ruan-cat/generate-code-workspace
 
 ### 函数用法
 
+<details>
+
+<summary>
+函数用法
+</summary>
+
 ```ts
 // scripts/generate.code-workspace.ts
 import { generateCodeWorkspace } from "@ruan-cat/generate-code-workspace";
@@ -27,6 +33,8 @@ generateCodeWorkspace("monorepo单仓");
 	}
 }
 ```
+
+</details>
 
 ### 命令行传参
 

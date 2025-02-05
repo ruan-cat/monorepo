@@ -1,5 +1,12 @@
 # @ruan-cat/generate-code-workspace
 
+## 0.2.2
+
+### Patch Changes
+
+- readme 增加折叠栏。
+  > 测试性质发包。用于测试 github 工作流是否预期工作。
+
 ## 0.2.1
 
 ### Patch Changes
