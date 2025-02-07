@@ -30,20 +30,5 @@
 				"//#changeset:publish"
 			]
 		},
-		"//#code-workspace:del": {
-			"cache": false
-		},
-		"//#code-workspace:create": {
-			"cache": false,
-			"dependsOn": [
-				"//#code-workspace:del"
-			]
-		},
-		"//#do-create-code-workspace": {
-			"cache": false,
-			"dependsOn": [
-				"//#code-workspace:create"
-			]
-		}
 	}
 }

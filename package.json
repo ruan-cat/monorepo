@@ -41,10 +41,7 @@
 		"changeset:version": "changeset version",
 		"changeset:publish": "changeset publish",
 		"turbo:publish": "turbo do-publish",
-		"code-workspace:del": "trash *.code-workspace",
-		"precode-workspace:create": "pnpm run code-workspace:del",
-		"code-workspace:create": "node --import=tsx ./scripts/generate.code-workspace.ts",
-		"turbo:do-create-code-workspace": "turbo do-create-code-workspace",
+		"create-code-workspace:": "node --import=tsx ./scripts/generate.code-workspace.ts",
 		"deploy-vercel": "node --import=tsx ./scripts/vercel-deploy-tool.ts"
 	},
 	"devDependencies": {
