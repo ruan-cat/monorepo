@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/domains",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"description": "为 ruancat6312.top 和 ruan-cat.com 两个域名，提供预设好的常量。旨在于管理全部的域名，便于查询和使用。",
 	"type": "module",
 	"main": "./main.ts",

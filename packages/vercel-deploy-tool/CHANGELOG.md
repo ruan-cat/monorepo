@@ -1,5 +1,13 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.5.9
+
+### Patch Changes
+
+- 提供 keywords ，便于查找信息。
+- Updated dependencies
+  - @ruan-cat/utils@1.4.2
+
 ## 0.5.8
 
 ### Patch Changes

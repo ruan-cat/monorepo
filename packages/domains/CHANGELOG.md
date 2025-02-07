@@ -1,5 +1,11 @@
 # @ruan-cat/domains 阮喵喵的域名集合
 
+## 0.1.4
+
+### Patch Changes
+
+- 提供 keywords ，便于查找信息。
+
 ## 0.1.3
 
 ### Patch Changes

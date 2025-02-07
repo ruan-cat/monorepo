@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.4.2
+
+### Patch Changes
+
+- 提供 keywords ，便于查找信息。
+
 ## 1.4.1
 
 ### Patch Changes

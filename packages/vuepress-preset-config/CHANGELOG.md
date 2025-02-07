@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.19
+
+### Patch Changes
+
+- 提供 keywords ，便于查找信息。
+
 ## 0.1.18
 
 ### Patch Changes

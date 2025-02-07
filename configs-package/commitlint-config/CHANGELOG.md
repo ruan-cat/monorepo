@@ -1,5 +1,11 @@
 # @ruan-cat/commitlint-config
 
+## 0.1.4
+
+### Patch Changes
+
+- 提供 keywords ，便于查找信息。
+
 ## 0.1.3
 
 ### Patch Changes
