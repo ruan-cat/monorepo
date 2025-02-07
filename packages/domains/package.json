@@ -27,7 +27,10 @@
 		"./dist/*": "./dist/*",
 		"./main.ts": "./main.ts"
 	},
-	"keywords": [],
+	"keywords": [
+		"ruan-cat.com",
+		"ruancat6312.top"
+	],
 	"author": {
 		"name": "ruan-cat",
 		"email": "1219043956@qq.com",

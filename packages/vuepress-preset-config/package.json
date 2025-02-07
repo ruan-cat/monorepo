@@ -31,7 +31,8 @@
 		"./src/*": "./src/*"
 	},
 	"keywords": [
-		"vuepress"
+		"vuepress",
+		"vuepress-theme-hope"
 	],
 	"author": {
 		"name": "ruan-cat",

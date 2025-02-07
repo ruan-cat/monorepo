@@ -29,7 +29,8 @@
 		"./src/*": "./src/*"
 	},
 	"keywords": [
-		"vercel"
+		"vercel",
+		"Build Output API"
 	],
 	"author": {
 		"name": "ruan-cat",

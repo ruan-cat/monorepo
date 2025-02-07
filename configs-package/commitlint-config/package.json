@@ -26,7 +26,11 @@
 			"types": "./dist/index.d.ts"
 		}
 	},
-	"keywords": [],
+	"keywords": [
+		"commitlint",
+		"cz-git",
+		"commitizen"
+	],
 	"author": {
 		"name": "ruan-cat",
 		"email": "1219043956@qq.com",
