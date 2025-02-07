@@ -29,6 +29,6 @@
 			"dependsOn": [
 				"//#changeset:publish"
 			]
-		},
+		}
 	}
 }
