@@ -1,0 +1,70 @@
+body {
+	max-width: 600px;
+	margin: 70px auto 0;
+}
+#header {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 20px;
+}
+#schedule,
+#script_type {
+	font-size: 15px;
+	padding: 2px 3px;
+}
+#schedule:focus,
+#script_type:focus {
+	outline: none;
+}
+#option {
+	margin: 10px 0;
+}
+#day > div {
+	margin: 5px 0;
+}
+#day input {
+	margin: 0 0 0 15px;
+}
+input[type="number"] {
+	padding: 3px 5px;
+	width: 100px;
+	border: 1px solid #999;
+	border-radius: 3px;
+}
+input[type="number"]:focus {
+	outline: none;
+	border: 1px solid #b459cf;
+}
+#generate,
+#generate_2 {
+	margin: 15px 0;
+	font-size: 15px;
+	padding: 3px 10px;
+	border: none;
+	transition: all 0.3s;
+}
+#generate:hover,
+#generate_2:hover {
+	background: #58aeff;
+	color: #fff;
+}
+#generate:active,
+#generate_2:active {
+	background: #006dd3;
+	color: #ececec;
+}
+#output {
+	margin-top: 20px;
+	padding: 5px 10px;
+	font-size: 16px;
+	font: inherit;
+	border: 1px solid rgb(52, 194, 83);
+	outline: none;
+}
+hr {
+	margin: 10px 0 15px 0;
+}
+#tips {
+	display: block;
+	margin: 10px 0 5px 0;
+}

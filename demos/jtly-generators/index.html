@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"> -->
+		<title>生成器</title>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<script src="script.js"></script>
+	</head>
+	<body>
+		<header id="header">生成器 v1.0</header>
+		<select id="schedule">
+			<option value="schedule">默认</option>
+			<option value="schedule_wd">工作日</option>
+			<option value="schedule_weather">天气</option>
+			<option value="schedule_random">随机</option>
+		</select>
+		<div id="option">
+			<div id="weekday">
+				<!-- <span>工作日</span> -->
+				<label><input type="checkbox" name="weekday" value="7" />周日</label>
+				<label><input type="checkbox" name="weekday" value="1" />周一</label>
+				<label><input type="checkbox" name="weekday" value="2" />周二</label>
+				<label><input type="checkbox" name="weekday" value="3" />周三</label>
+				<label><input type="checkbox" name="weekday" value="4" />周四</label>
+				<label><input type="checkbox" name="weekday" value="5" />周五</label>
+				<label><input type="checkbox" name="weekday" value="6" />周六</label>
+			</div>
+			<div id="weather">
+				<!-- <span>天气</span> -->
+				<label><input type="checkbox" name="weather" value="-4" />全局</label>
+				<label><input type="checkbox" name="weather" value="-3" />下雪</label>
+				<label><input type="checkbox" name="weather" value="-2" />暴风雨</label>
+				<label><input type="checkbox" name="weather" value="-1" />下雨</label>
+				<label><input type="checkbox" name="weather" value="0" />清除</label>
+			</div>
+			<div id="random">
+				<!-- <span>随机</span> -->
+				<input id="prob" type="number" placeholder="概率" min="0" max="100" />
+				<label><input type="radio" name="random" value="1" />夜间</label>
+				<label><input type="radio" name="random" value="2" />黎明</label>
+				<label><input type="radio" name="random" value="3" />白天</label>
+				<label><input type="radio" name="random" value="4" />黄昏</label>
+				<label><input type="radio" name="random" value="-1" checked />全阶段</label>
+			</div>
+		</div>
+		<div id="day">
+			<div>
+				<span>夜间</span><input id="night_x" type="number" placeholder="x" min="-1" /><input
+					id="night_y"
+					type="number"
+					placeholder="y"
+					min="-1"
+				/>
+			</div>
+			<div>
+				<span>黎明</span><input id="dawn_x" type="number" placeholder="x" min="-1" /><input
+					id="dawn_y"
+					type="number"
+					placeholder="y"
+					min="-1"
+				/>
+			</div>
+			<div>
+				<span>白天</span><input id="day_x" type="number" placeholder="x" min="-1" /><input
+					id="day_y"
+					type="number"
+					placeholder="y"
+					min="-1"
+				/>
+			</div>
+			<div>
+				<span>黄昏</span><input id="dusk_x" type="number" placeholder="x" min="-1" /><input
+					id="dusk_y"
+					type="number"
+					placeholder="y"
+					min="-1"
+				/>
+			</div>
+		</div>
+		<div>
+			<input id="generate" type="button" value="生成" />
+		</div>
+		<hr />
+		<div>
+			<div>
+				<select id="script_type">
+					<option value="is_random_schedule">判断随机时间表</option>
+					<option value="link_schedule">连接地图</option>
+					<option value="is_link">是否需要连接</option>
+				</select>
+			</div>
+			<div>
+				<span id="tips"><!-- 参数：map_id, event_id, random_schedule_id --></span>
+				<input id="args_1" type="number" placeholder="参数1" />
+				<input id="args_2" type="number" placeholder="参数2" />
+				<input id="args_3" type="number" placeholder="参数3" />
+				<input id="args_4" type="number" placeholder="参数4" />
+			</div>
+			<div>
+				<input id="generate_2" type="button" value="生成" />
+			</div>
+			<div>
+				<textarea id="output" rows="3" cols="60" placeholder="填写参数后点击生成按钮"></textarea>
+			</div>
+		</div>
+	</body>
+</html>
