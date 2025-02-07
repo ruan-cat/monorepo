@@ -19,6 +19,7 @@ pnpm i -D commitizen cz-git @ruan-cat/commitlint-config
 
 ```js
 // commitlint.config.cjs
+// @ts-check
 const config = require("@ruan-cat/commitlint-config").default;
 module.exports = config;
 ```
