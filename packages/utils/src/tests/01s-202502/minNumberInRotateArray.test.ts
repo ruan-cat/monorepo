@@ -16,15 +16,27 @@ const testItems: TestItem[] = [
 		input: [5, 5, 5, 6, 4, 5],
 		expected: 4,
 	},
+	{
+		input: [5, 6, 7, 7, 9, 9, 2, 2, 2, 4],
+		expected: 2,
+	},
+	{
+		input: [7, 9, 9, 2, 2, 2, 4, 5, 6, 7],
+		expected: 2,
+	},
+	{
+		input: [9, 2, 2, 2, 4, 5, 6, 7, 7, 9],
+		expected: 2,
+	},
 ];
 
 function minNumberInRotateArray(array: number[]): number {
 	let left = 0;
 	let right = array.length - 1;
 	while (left < right) {
-		let mid = toNumber((left + right) / 2);
+		let mid = Math.floor((left + right) / 2);
 		// 最小的数字在mid右边
-		if (array[mid] > array[right]) left = mid + 1;
+		if (array[mid] >= array[right]) left = mid + 1;
 		// 最小数字要么是mid要么在mid左边
 		else right = mid;
 	}
