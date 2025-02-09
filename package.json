@@ -26,6 +26,7 @@
 		"git:fetch": "git fetch -p",
 		"git:dev-2-main": "git rebase dev main",
 		"git:main-2-dev": "git rebase main dev",
+		"clearAllNm": "rimraf node_modules pnpm-lock.yaml && rimraf */**/node_modules",
 		"rm:node_modules": "pnpm -r rm:node_modules && rimraf node_modules pnpm-lock.yaml",
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"pnpm:clear": "pnpm -r clear && pnpm run clear",
