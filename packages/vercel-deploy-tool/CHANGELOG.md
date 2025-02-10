@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.6.0
+
+### Minor Changes
+
+- 实现流式输出内容。现在运行部署命令时，各个子命令的输出结果会流式地展示出来。
+
 ## 0.5.9
 
 ### Patch Changes
