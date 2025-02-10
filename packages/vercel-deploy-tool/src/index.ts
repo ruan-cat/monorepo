@@ -176,7 +176,13 @@ function generateExeca(execaSimpleParams: { command: string; parameters: string[
 		consola.info(` 当前运行的命令为： ${coloredCommand} \n`);
 	}
 
-	return generateSimpleAsyncTask(() => spawnSync(command, parameters, { shell: true }));
+	return generateSimpleAsyncTask(() => {
+		const result = spawnSync(command, parameters, { stdio: "inherit", shell: true });
+		if (result.error) {
+			throw result.error;
+		}
+		return result;
+	});
 }
 
 /**
