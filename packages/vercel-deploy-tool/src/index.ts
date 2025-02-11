@@ -168,8 +168,17 @@ function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
  * 封装 spawnSync 函数
  * @version 2
  */
-function generateExeca(execaSimpleParams: { command: string; parameters: string[] }) {
-	const { command, parameters } = execaSimpleParams;
+function generateExeca(execaSimpleParams: {
+	command: string;
+	parameters: string[];
+	/**
+	 * 是否流式输出内容
+	 * @description 默认输出的命令数据全部以流式的方式输出
+	 * @default true
+	 */
+	isFlow?: boolean;
+}) {
+	const { command, parameters, isFlow = true } = execaSimpleParams;
 
 	if (config?.isShowCommand) {
 		const coloredCommand = gradient(["rgb(0, 153, 247)", "rgb(241, 23, 18)"])(`${command} ${parameters.join(" ")}`);
@@ -177,7 +186,22 @@ function generateExeca(execaSimpleParams: { command: string; parameters: string[
 	}
 
 	return generateSimpleAsyncTask(() => {
-		const result = spawnSync(command, parameters, { stdio: "inherit", shell: true });
+		const result = spawnSync(command, parameters, {
+			/**
+			 * 是否流式输出？
+			 * 是流式输出就是继承父进程的流式输出
+			 * 否则就使用默认值
+			 * @see https://nodejs.org/api/child_process.html#optionsstdio
+			 */
+			stdio: isFlow ? "inherit" : "pipe",
+			shell: true,
+		});
+
+		// 如果不是流式输出 就直接返回返回值即可
+		if (!isFlow) {
+			return result;
+		}
+
 		if (result.error) {
 			throw result.error;
 		}
@@ -383,6 +407,8 @@ function generateDeployTask(deployTarget: DeployTarget) {
 			getTargetCWDCommandArgument(deployTarget),
 			getVercelTokenCommandArgument(),
 		),
+		// 部署任务不需要流式输出
+		isFlow: false,
 	});
 }
 
@@ -487,12 +513,8 @@ async function main() {
 													parameters: [],
 												});
 												consola.start(` 开始用户命令任务 `);
-												const child = await userCommand();
-												process.stdout.write(child.stdout);
-												process.stderr.write(child.stderr);
-												// consola.success(` 完成用户命令任务 ${code} `);
+												await userCommand();
 												consola.success(` 完成用户命令任务 `);
-												// consola.box(stdout);
 											});
 										}),
 									},
@@ -531,7 +553,6 @@ async function main() {
 								if (error) {
 									consola.error(" 部署失败了 \n");
 									consola.error(error);
-									process.stderr.write(stderr);
 									return;
 								}
 
@@ -540,7 +561,6 @@ async function main() {
 								consola.box(vercelUrl);
 
 								consola.success(` 部署任务输出如下： \n`);
-								process.stdout.write(stdout);
 								console.log(`\n`);
 
 								return vercelUrl;
