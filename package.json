@@ -87,6 +87,7 @@
 		"typescript": "catalog:",
 		"typescript-lodash": "^0.2.2",
 		"vercel": "catalog:",
+		"vite": "^6.0.11",
 		"vitest": "^2.1.9",
 		"vue": "^3.5.13",
 		"vue-tsc": "^2.2.0",
