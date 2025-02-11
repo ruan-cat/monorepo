@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.5.0
+
+### Minor Changes
+
+- 提供 pathChange 函数，用于实现路径变更。
+
 ## 1.4.2
 
 ### Patch Changes

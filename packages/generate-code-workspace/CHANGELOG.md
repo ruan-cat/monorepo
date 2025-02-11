@@ -1,5 +1,16 @@
 # @ruan-cat/generate-code-workspace
 
+## 0.3.0
+
+### Minor Changes
+
+- 使用工具包提供的 pathChange 函数实现路径转换。
+
+### Patch Changes
+
+- Updated dependencies
+  - @ruan-cat/utils@1.5.0
+
 ## 0.2.3
 
 ### Patch Changes
