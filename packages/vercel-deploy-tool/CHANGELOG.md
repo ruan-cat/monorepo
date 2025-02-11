@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.6.2
+
+### Patch Changes
+
+- 处理 bug。部署任务不需要流式输出。
+
 ## 0.6.1
 
 ### Patch Changes
