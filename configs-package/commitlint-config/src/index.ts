@@ -113,7 +113,7 @@ function getPackagesNameAndDescription() {
 
 	// 根据每个模式匹配相应的目录
 	pkgPatterns.map((pkgPattern) => {
-		// const matchedPath = pathChange(join(__dirname, pkgPattern, "package.json"));
+		// 在进程运行的根目录下，执行匹配。 一般来说是项目的根目录
 		const matchedPath = pathChange(join(process.cwd(), pkgPattern, "package.json"));
 
 		const matchedPaths = sync(matchedPath, {
