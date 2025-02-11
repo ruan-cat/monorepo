@@ -51,7 +51,6 @@
 		"cz-git": ">=1"
 	},
 	"devDependencies": {
-		"@ruan-cat/utils": "workspace:^",
 		"@types/js-yaml": "^4.0.9",
 		"@types/lodash": "^4.17.15",
 		"automd": "^0.3.12",
@@ -60,6 +59,7 @@
 		"tsup": "^8.3.5"
 	},
 	"dependencies": {
+		"@ruan-cat/utils": "workspace:^",
 		"glob": "^11.0.1",
 		"js-yaml": "^4.1.0",
 		"lodash": "^4.17.21"

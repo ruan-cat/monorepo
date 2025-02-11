@@ -8,6 +8,7 @@ import { program } from "commander";
 import { sync } from "glob";
 import yaml from "js-yaml";
 import { parse as parseJSONC } from "jsonc-parser";
+import { pathChange } from "@ruan-cat/utils";
 
 import { type PackageJson } from "pkg-types";
 import { type PnpmWorkspace } from "./types/pnpm-workspace.yaml.shim";
@@ -30,13 +31,6 @@ const __dirname = dirname(__filename);
 interface Folder {
 	name: string;
 	path: string;
-}
-
-/**
- * 路径转换工具
- */
-function pathChange(path: string) {
-	return path.replace(/\\/g, "/");
 }
 
 /**

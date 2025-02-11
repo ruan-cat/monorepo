@@ -55,6 +55,7 @@
 		"readme.md"
 	],
 	"dependencies": {
+		"@ruan-cat/utils": "workspace:^",
 		"commander": "^12.1.0",
 		"consola": "^3.2.3",
 		"glob": "^11.0.0",

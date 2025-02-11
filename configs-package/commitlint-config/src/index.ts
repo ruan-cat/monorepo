@@ -10,10 +10,11 @@ import { load } from "js-yaml";
 import { isUndefined } from "lodash";
 
 import { config } from "./config.ts";
+import { pathChange } from "@ruan-cat/utils";
 
 import { type PackageJson } from "pkg-types";
 import { type ScopesType, UserConfig } from "cz-git";
-import { type PnpmWorkspace } from "@ruan-cat/utils/src/types/pnpm-workspace.yaml.shim.ts";
+import { type PnpmWorkspace } from "@ruan-cat/utils";
 
 /**
  * ScopesType 的数组配置项
@@ -38,13 +39,6 @@ const defScopes = <ScopesTypeItem[]>[
 		value: "demo",
 	},
 ];
-
-/**
- * 路径转换工具
- */
-function pathChange(path: string) {
-	return path.replace(/\\/g, "/");
-}
 
 /**
  * 创建标签名称
