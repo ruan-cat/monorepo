@@ -1,23 +1,33 @@
 {
-	"extends": "../../tsconfig.base.json",
-	"references": [
-		{
-			"path": "../../tsconfig.md.json"
-		}
-	],
 	"compilerOptions": {
-		"module": "NodeNext",
-		"moduleResolution": "nodenext",
-		"paths": {
-			// 警告 目前该配置无意义 无效
-			"@/*": [
-				"./src/*"
-			]
-		}
+		"jsx": "preserve",
+		"lib": [
+			"DOM",
+			"ESNext"
+		],
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"resolveJsonModule": true,
+		"strict": true,
+		"strictNullChecks": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitAny": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noEmit": true,
+		"removeComments": false,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"skipLibCheck": true
 	},
 	"include": [
-		"./src/**/*.ts",
-		"./src/**/.vitepress/**/*.ts",
-		"./src/**/.vitepress/**/*.mts",
+		"**/.vitepress/**/*.ts",
+		"**/.vitepress/**/*.mts",
+		"**/.vitepress/**/*.vue"
+	],
+	"exclude": [
+		"node_modules"
 	]
 }
