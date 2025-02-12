@@ -14,13 +14,13 @@ export default <Config>{
 	// FIXME: execa运行的turbo命令，不会使用cache缓存，导致了重复构建。
 	deployTargets: [
 		// 01星球建议笔记
-		// {
-		// 	type: "userCommands",
-		// 	targetCWD: "./docs/docs-01-star",
-		// 	url: domains["01s-doc"] as unknown as string[],
-		// 	outputDirectory: "config/.vitepress/dist",
-		// 	userCommands: ["pnpm -C=./docs/docs-01-star build:docs"],
-		// },
+		{
+			type: "userCommands",
+			targetCWD: "./docs/docs-01-star",
+			url: domains["01s-doc"] as unknown as string[],
+			outputDirectory: "config/.vitepress/dist",
+			userCommands: ["pnpm -C=./docs/docs-01-star build:docs"],
+		},
 
 		// 1号项目
 		// {
