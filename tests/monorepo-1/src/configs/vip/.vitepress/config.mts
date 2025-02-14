@@ -64,6 +64,10 @@ export default defineConfig({
 	themeConfig: {
 		i18nRouting: true,
 
+		search: {
+			provider: "local",
+		},
+
 		outline: {
 			label: "本页目录",
 			level: "deep",

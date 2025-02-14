@@ -13,6 +13,10 @@ export default defineConfig({
 	themeConfig: {
 		i18nRouting: true,
 
+		search: {
+			provider: "local",
+		},
+
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [
 			{ text: "首页", link: "/" },
