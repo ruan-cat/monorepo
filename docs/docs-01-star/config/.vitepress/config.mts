@@ -5,9 +5,8 @@ import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-p
 import { calculateSidebar } from "@nolebase/vitepress-plugin-sidebar";
 
 /**
- * 之前手动配置的侧边栏
+ * 手动配置的侧边栏
  * @description
- * 现在展示不使用
  */
 const sidebar: DefaultTheme.Config["sidebar"] = [
 	// 警告 暂不提供
@@ -27,9 +26,17 @@ const sidebar: DefaultTheme.Config["sidebar"] = [
 	// },
 
 	{
+		text: "注意事项",
+		link: "/index",
+		base: "/attention",
+		items: [{ text: "及时修改git用户名", link: "/change-git-user-name" }],
+	},
+
+	{
 		text: "2024-09 大项目-oa项目",
 		link: "/index",
 		base: "/09oa",
+		collapsed: true,
 		items: [
 			// 警告 暂不提供
 			// { text: "项目首页", link: "/home" },
@@ -96,10 +103,11 @@ export default defineConfig({
 			level: "deep",
 		},
 
-		sidebar: generateSidebar({
-			documentRootPath: "docs",
-			collapsed: true,
-		}),
+		sidebar,
+		// sidebar: generateSidebar({
+		// 	documentRootPath: "docs",
+		// 	collapsed: true,
+		// }),
 		// sidebar: calculateSidebar(),
 
 		socialLinks: [
