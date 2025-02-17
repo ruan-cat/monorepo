@@ -25,6 +25,7 @@ const sidebar: DefaultTheme.Config["sidebar"] = [
 	// 	],
 	// },
 
+	// 注意事项
 	{
 		text: "注意事项",
 		link: "/index",
@@ -32,6 +33,7 @@ const sidebar: DefaultTheme.Config["sidebar"] = [
 		items: [{ text: "及时修改git用户名", link: "/change-git-user-name" }],
 	},
 
+	// 09oa项目专讲
 	{
 		text: "2024-09 大项目-oa项目",
 		link: "/index",
@@ -73,6 +75,19 @@ const sidebar: DefaultTheme.Config["sidebar"] = [
 			},
 
 			{ text: "阶段性总结", link: "/summary" },
+		],
+	},
+
+	// 历史项目
+	{
+		text: "历史项目",
+		link: "/index",
+		base: "/history-project",
+		collapsed: true,
+		items: [
+			{ text: "08mes", link: "/08mes" },
+			{ text: "09oa", link: "/09oa" },
+			{ text: "10wms", link: "/10wms" },
 		],
 	},
 ];
