@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.7.0
+
+### Minor Changes
+
+- node 路径
+
 ## 1.6.1
 
 ### Patch Changes
