@@ -65,7 +65,9 @@
 	],
 	"dependencies": {
 		"@vueuse/integrations": "^12.3.0",
-		"axios": "^1.7.9"
+		"axios": "^1.7.9",
+		"consola": "^3.4.0",
+		"gradient-string": "^3.0.0"
 	},
 	"devDependencies": {
 		"@antfu/utils": "^0.7.10",
