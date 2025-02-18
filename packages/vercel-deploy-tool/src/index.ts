@@ -163,12 +163,12 @@ function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
 /**
  * 生成简单的执行命令函数
  * @description
- * 对 execa 做简单的包装
+ * 对 spawnSync 做简单的包装
  *
- * 封装 spawnSync 函数
+ * 之前封装的是 execa 函数
  * @version 2
  */
-function generateExeca(execaSimpleParams: {
+function generateSpawnSync(spawnSyncSimpleParams: {
 	command: string;
 	parameters: string[];
 	/**
@@ -178,7 +178,7 @@ function generateExeca(execaSimpleParams: {
 	 */
 	isFlow?: boolean;
 }) {
-	const { command, parameters, isFlow = true } = execaSimpleParams;
+	const { command, parameters, isFlow = true } = spawnSyncSimpleParams;
 
 	if (config?.isShowCommand) {
 		const coloredCommand = gradient(["rgb(0, 153, 247)", "rgb(241, 23, 18)"])(`${command} ${parameters.join(" ")}`);
@@ -217,7 +217,7 @@ function generateExeca(execaSimpleParams: {
  * vc link --yes --cwd=${{env.p1}} --project=${{env.pjn}} -t ${{env.vct}}
  */
 function generateLinkTask(deployTarget: DeployTarget) {
-	return generateExeca({
+	return generateSpawnSync({
 		command: "vc link",
 		parameters: concat(
 			getYesCommandArgument(),
@@ -236,7 +236,7 @@ function generateLinkTask(deployTarget: DeployTarget) {
  * vc build --yes --prod --cwd=${{env.p1}} -A ./vercel.null.json -t ${{env.vct}}
  */
 function generateBuildTask(deployTarget: DeployTarget) {
-	return generateExeca({
+	return generateSpawnSync({
 		command: "vc build",
 		parameters: concat(
 			getYesCommandArgument(),
@@ -307,7 +307,7 @@ function generateCopyDistTasks_v1(deployTarget: WithUserCommands) {
 
 	const copyDistTasks = (<const>[delCmd, createCmd, copyFileCmd, printFileCmd]).map((command) => {
 		return generateSimpleAsyncTask(async function () {
-			const commandFunction = generateExeca({
+			const commandFunction = generateSpawnSync({
 				command,
 				parameters: [],
 			});
@@ -384,7 +384,7 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
  * vc alias set "$url1" ${{env.p1-url}} -t ${{env.vct}}
  */
 function generateAliasTask(vercelUrl: string, userUrl: string) {
-	return generateExeca({
+	return generateSpawnSync({
 		command: `vc alias set ${vercelUrl} ${userUrl}`,
 		parameters: concat(getVercelTokenCommandArgument()),
 	});
@@ -398,7 +398,7 @@ function generateAliasTask(vercelUrl: string, userUrl: string) {
  * vc deploy --yes --prebuilt --prod --cwd=${{env.p1}} -t ${{env.vct}}
  */
 function generateDeployTask(deployTarget: DeployTarget) {
-	return generateExeca({
+	return generateSpawnSync({
 		command: "vc deploy",
 		parameters: concat(
 			getYesCommandArgument(),
@@ -430,7 +430,7 @@ function generateAfterBuildTasksConfig(config: Config): Task {
 			type: "queue",
 			tasks: afterBuildTasks!.map((command) => {
 				return generateSimpleAsyncTask(async () => {
-					const userCommand = generateExeca({
+					const userCommand = generateSpawnSync({
 						command,
 						parameters: [],
 					});
@@ -508,7 +508,7 @@ async function main() {
 										type: "queue",
 										tasks: deployTarget.userCommands.map((command) => {
 											return generateSimpleAsyncTask(async () => {
-												const userCommand = generateExeca({
+												const userCommand = generateSpawnSync({
 													command,
 													parameters: [],
 												});
