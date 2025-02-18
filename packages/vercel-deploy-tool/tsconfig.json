@@ -12,7 +12,7 @@
 		"strict": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		// "rootDir": "./",
 		// 不能这样配置 导致路径识别错乱
 		// "rootDirs": [
