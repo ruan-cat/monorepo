@@ -6,7 +6,7 @@ import { normalize } from "node:path";
 import { spawnSync } from "node:child_process";
 
 import { generateSimpleAsyncTask } from "@ruan-cat/utils";
-import gradient from "gradient-string";
+// import gradient from "gradient-string";
 import consola from "consola";
 // import { normalizePath } from "vite";
 
@@ -38,7 +38,18 @@ export interface SpawnSyncSimpleParams {
 	 * @default true
 	 */
 	isShowCommand?: boolean;
+
+	/** 打印当前运行的命令 */
+	printCurrentCommand?: (params: Pick<SpawnSyncSimpleParams, "command" | "parameters">) => void;
 }
+
+/**
+ * 默认的打印当前运行命令 函数
+ */
+export const defPrintCurrentCommand: SpawnSyncSimpleParams["printCurrentCommand"] = function (params) {
+	const { command, parameters } = params;
+	consola.info(` 当前运行的命令为： ${command} ${parameters.join(" ")} \n`);
+};
 
 /**
  * 生成简单的执行命令函数
@@ -49,11 +60,18 @@ export interface SpawnSyncSimpleParams {
  * @version 2
  */
 export function generateSpawnSync(spawnSyncSimpleParams: SpawnSyncSimpleParams) {
-	const { command, parameters, isFlow = true, isShowCommand = true } = spawnSyncSimpleParams;
+	const {
+		command,
+		parameters,
+		isFlow = true,
+		isShowCommand = true,
+		printCurrentCommand = defPrintCurrentCommand,
+	} = spawnSyncSimpleParams;
 
 	if (isShowCommand) {
-		const coloredCommand = gradient(["rgb(0, 153, 247)", "rgb(241, 23, 18)"])(`${command} ${parameters.join(" ")}`);
-		consola.info(` 当前运行的命令为： ${coloredCommand} \n`);
+		// const coloredCommand = gradient(["rgb(0, 153, 247)", "rgb(241, 23, 18)"])(`${command} ${parameters.join(" ")}`);
+		// consola.info(` 当前运行的命令为： ${coloredCommand} \n`);
+		printCurrentCommand?.({ command, parameters });
 	}
 
 	return generateSimpleAsyncTask(() => {
