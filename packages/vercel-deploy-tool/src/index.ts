@@ -24,6 +24,7 @@ import {
 	generateSimpleAsyncTask,
 	definePromiseTasks,
 	executePromiseTasks,
+	generateSpawnSync,
 } from "@ruan-cat/utils";
 import type { Task } from "@ruan-cat/utils";
 
@@ -158,55 +159,6 @@ function getVercelLocalConfigCommandArgument() {
 /** 以命令参数数组的形式，获得工作目录 */
 function getTargetCWDCommandArgument(deployTarget: DeployTarget) {
 	return <const>[`--cwd=${deployTarget.targetCWD}`];
-}
-
-/**
- * 生成简单的执行命令函数
- * @description
- * 对 spawnSync 做简单的包装
- *
- * 之前封装的是 execa 函数
- * @version 2
- */
-function generateSpawnSync(spawnSyncSimpleParams: {
-	command: string;
-	parameters: string[];
-	/**
-	 * 是否流式输出内容
-	 * @description 默认输出的命令数据全部以流式的方式输出
-	 * @default true
-	 */
-	isFlow?: boolean;
-}) {
-	const { command, parameters, isFlow = true } = spawnSyncSimpleParams;
-
-	if (config?.isShowCommand) {
-		const coloredCommand = gradient(["rgb(0, 153, 247)", "rgb(241, 23, 18)"])(`${command} ${parameters.join(" ")}`);
-		consola.info(` 当前运行的命令为： ${coloredCommand} \n`);
-	}
-
-	return generateSimpleAsyncTask(() => {
-		const result = spawnSync(command, parameters, {
-			/**
-			 * 是否流式输出？
-			 * 是流式输出就是继承父进程的流式输出
-			 * 否则就使用默认值
-			 * @see https://nodejs.org/api/child_process.html#optionsstdio
-			 */
-			stdio: isFlow ? "inherit" : "pipe",
-			shell: true,
-		});
-
-		// 如果不是流式输出 就直接返回返回值即可
-		if (!isFlow) {
-			return result;
-		}
-
-		if (result.error) {
-			throw result.error;
-		}
-		return result;
-	});
 }
 
 /**

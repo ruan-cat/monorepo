@@ -109,13 +109,6 @@ export interface Config {
 	 */
 	vercelJsonPath?: string;
 
-	/**
-	 * 是否显示运行命令？
-	 * @description
-	 * 默认不显示运行命令。
-	 */
-	isShowCommand?: boolean;
-
 	/** 在build命令阶段后 执行的用户命令 */
 	afterBuildTasks?: string[];
 

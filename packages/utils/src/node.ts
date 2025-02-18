@@ -37,7 +37,7 @@ export interface SpawnSyncSimpleParams {
 	 * 是否打印目前正在执行的命令？
 	 * @default true
 	 */
-	isShowCommand: boolean;
+	isShowCommand?: boolean;
 }
 
 /**
