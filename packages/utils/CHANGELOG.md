@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.6.1
+
+### Patch Changes
+
+- 修复 isShowCommand 必填项的错误。
+
 ## 1.6.0
 
 ### Minor Changes
