@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.7.0
+
+### Minor Changes
+
+- 移除输出命令的控制变量。现在部署工具默认总是将执行的命令输出出来。
+
 ## 0.6.4
 
 ### Patch Changes
