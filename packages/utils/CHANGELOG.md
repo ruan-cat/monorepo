@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 1.6.0
+
+### Minor Changes
+
+- 增加生成简单的执行命令函数，`generateSpawnSync`。
+
 ## 1.5.0
 
 ### Minor Changes
