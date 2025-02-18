@@ -69,8 +69,6 @@ export function generateSpawnSync(spawnSyncSimpleParams: SpawnSyncSimpleParams) 
 	} = spawnSyncSimpleParams;
 
 	if (isShowCommand) {
-		// const coloredCommand = gradient(["rgb(0, 153, 247)", "rgb(241, 23, 18)"])(`${command} ${parameters.join(" ")}`);
-		// consola.info(` 当前运行的命令为： ${coloredCommand} \n`);
 		printCurrentCommand?.({ command, parameters });
 	}
 

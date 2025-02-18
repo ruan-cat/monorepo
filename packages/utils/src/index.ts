@@ -9,5 +9,5 @@ export * from "./ruan-cat-pkg-info.ts";
 export * from "./types/pnpm-workspace.yaml.shim.ts";
 export * from "./types/Prettify.ts";
 
-// 单独打包
+// 单独打包成cjs 并单独导出
 // export * from "./node.ts";
