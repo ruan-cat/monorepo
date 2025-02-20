@@ -67,6 +67,7 @@
 		"dist/*",
 		"!src/tests",
 		"!src/**/tests",
+		"!src/**/*.md",
 		"tsconfig.json"
 	],
 	"dependencies": {
