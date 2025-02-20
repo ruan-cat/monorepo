@@ -1,7 +1,7 @@
 ---
-order: 50
+order: 100
 dir:
-  order: 50
+  order: 100
 ---
 
 # @ruan-cat/utils 更新日志
