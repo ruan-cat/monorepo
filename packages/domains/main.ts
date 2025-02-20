@@ -24,6 +24,9 @@ export const domains = <const>{
 	/** 大项目 09OA项目 */
 	"09oa": ["01s-09oa.ruancat6312.top"],
 
+	/** 大项目 10WMS项目 */
+	"10wms": ["01s-10wms.ruancat6312.top"],
+
 	/** 01星球文档 */
 	"01s-doc": ["docs-01-star.ruancat6312.top"],
 
