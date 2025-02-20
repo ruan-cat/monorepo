@@ -1,5 +1,11 @@
 # @ruan-cat/domains 阮喵喵的域名集合
 
+## 0.3.0
+
+### Minor Changes
+
+- 新增[dm.ruan-cat.com](https://dm.ruan-cat.com)域名。
+
 ## 0.2.0
 
 ### Minor Changes
