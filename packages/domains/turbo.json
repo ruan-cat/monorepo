@@ -1,0 +1,22 @@
+{
+	"extends": [
+		"//"
+	],
+	"tasks": {
+		"copy-changelog": {
+			"cache": false
+		},
+		"docs:dev-main": {
+			"cache": false,
+			"dependsOn": [
+				"copy-changelog"
+			]
+		},
+		"build:docs-main": {
+			"cache": true,
+			"dependsOn": [
+				"copy-changelog"
+			]
+		}
+	}
+}

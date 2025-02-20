@@ -16,8 +16,11 @@
 	},
 	"scripts": {
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
-		"docs:dev": "vuepress-vite dev docs --clean-cache --open",
-		"build:docs": "vuepress-vite build docs",
+		"copy-changelog": "cpx CHANGELOG.md docs",
+		"docs:dev-main": "vuepress-vite dev docs --clean-cache --open",
+		"docs:dev": "turbo docs:dev-main",
+		"build:docs-main": "vuepress-vite build docs",
+		"build:docs": "turbo build:docs-main",
 		"build": "tsup",
 		"rm:node_modules": "rimraf node_modules"
 	},
@@ -58,6 +61,7 @@
 		"tsconfig.json"
 	],
 	"devDependencies": {
+		"cpx": "^1.5.0",
 		"tsup": "^8.3.5"
 	}
 }
