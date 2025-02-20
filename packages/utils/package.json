@@ -15,6 +15,7 @@
 		"directory": "packages/utils"
 	},
 	"scripts": {
+		"copy-src": "cpx src/**/* docs",
 		"copy-readme": "cpx readme.md docs",
 		"copy-changelog": "cpx CHANGELOG.md docs",
 		"typedoc": "typedoc --options typedoc.config.mjs",

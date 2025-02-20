@@ -1,6 +1,11 @@
 {
-	"extends": ["//"],
+	"extends": [
+		"//"
+	],
 	"tasks": {
+		"copy-src": {
+			"cache": false
+		},
 		"copy-readme": {
 			"cache": false
 		},
@@ -11,19 +16,34 @@
 			"cache": false
 		},
 		"generate-md": {
-			"dependsOn": ["copy-readme", "copy-changelog", "typedoc"]
+			"dependsOn": [
+				"copy-src",
+				"copy-readme",
+				"copy-changelog",
+				"typedoc"
+			]
 		},
 		"docs:dev-main": {
-			"dependsOn": ["build", "generate-md"]
+			"dependsOn": [
+				"build",
+				"generate-md"
+			]
 		},
 		"docs:dev": {
-			"dependsOn": ["docs:dev-main"]
+			"dependsOn": [
+				"docs:dev-main"
+			]
 		},
 		"build:docs-main": {
-			"dependsOn": ["build", "generate-md"]
+			"dependsOn": [
+				"build",
+				"generate-md"
+			]
 		},
 		"do-build-docs": {
-			"dependsOn": ["build:docs-main"]
+			"dependsOn": [
+				"build:docs-main"
+			]
 		}
 	}
 }
