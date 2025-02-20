@@ -1,6 +1,8 @@
 ---
 order: 10
 dir:
+  collapsible: false
+  link: true
   order: 10
 ---
 
