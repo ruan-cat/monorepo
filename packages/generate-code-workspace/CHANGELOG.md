@@ -1,5 +1,11 @@
 # @ruan-cat/generate-code-workspace
 
+## 0.3.4
+
+### Patch Changes
+
+- 处理文件导入路径错误的 bug。
+
 ## 0.3.3
 
 ### Patch Changes
