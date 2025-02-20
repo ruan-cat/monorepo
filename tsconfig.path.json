@@ -30,13 +30,13 @@
 		// 使用项目内提供的垫片类型
 		"./types/**/*.ts",
 		// 为配置文件提供来自其他地方准备的类型
-		"./commitlint.config.cjs"
+		"./commitlint.config.cjs",
+		"./prettier.config.js",
+		"./scripts"
 	],
 	"exclude": [
 		"**/dist",
 		"tests/monorepo-3/typedoc.config.js",
-		// FIXME: 受不了报错了，直接排除 不知道怎么处理
-		"./prettier.config.js",
 		"./eslint.config.js"
 	]
 }

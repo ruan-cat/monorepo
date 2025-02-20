@@ -6,16 +6,22 @@
 		"copy-changelog": {
 			"cache": false
 		},
-		"docs:dev-main": {
+		"changelog-yaml": {
 			"cache": false,
 			"dependsOn": [
 				"copy-changelog"
 			]
 		},
+		"docs:dev-main": {
+			"cache": false,
+			"dependsOn": [
+				"changelog-yaml"
+			]
+		},
 		"build:docs-main": {
 			"cache": true,
 			"dependsOn": [
-				"copy-changelog"
+				"changelog-yaml"
 			]
 		}
 	}

@@ -39,6 +39,14 @@ export async function writeYaml2md(params: Params) {
 		process.exit(1);
 	}
 
+	// Check if file exists
+	try {
+		readFileSync(mdPath, "utf-8");
+	} catch (error) {
+		consola.error(` 文件 ${mdPath} 不存在 `);
+		process.exit(1);
+	}
+
 	// Read the existing MD file
 	const mdContent = readFileSync(mdPath, "utf-8");
 

@@ -1,9 +1,3 @@
----
-order: 100
-dir:
-  order: 100
----
-
 # @ruan-cat/domains 阮喵喵的域名集合
 
 ## 0.2.0

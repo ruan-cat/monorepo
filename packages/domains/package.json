@@ -17,6 +17,7 @@
 	"scripts": {
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"copy-changelog": "cpx CHANGELOG.md docs",
+		"changelog-yaml": "node --import=tsx ./scripts/yaml-in-md.ts --md=./docs/CHANGELOG.md",
 		"docs:dev-main": "vuepress-vite dev docs --clean-cache --open",
 		"docs:dev": "turbo docs:dev-main",
 		"build:docs-main": "vuepress-vite build docs",
