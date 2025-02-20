@@ -1,3 +1,9 @@
+---
+order: 50
+dir:
+  order: 50
+---
+
 # @ruan-cat/utils 更新日志
 
 ## 1.7.0
