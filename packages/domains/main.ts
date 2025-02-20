@@ -34,7 +34,7 @@ export const domains = <const>{
 	utils: ["utils.ruancat6312.top", "utils.ruan-cat.com"],
 
 	/** 域名列表 */
-	domain: ["dm.ruancat6312.top"],
+	domain: ["dm.ruancat6312.top", "dm.ruan-cat.com"],
 
 	/** 笔记项目 */
 	notes: [
