@@ -85,5 +85,14 @@ export default <Config>{
 			url: domains.utils as unknown as string[],
 			userCommands: ["pnpm -C=./packages/utils build:docs"],
 		},
+
+		// 域名列表
+		{
+			type: "userCommands",
+			targetCWD: "./packages/domains",
+			outputDirectory: "docs/.vuepress/dist",
+			url: domains.domain as unknown as string[],
+			userCommands: ["pnpm -C=./packages/domains build:docs"],
+		},
 	],
 };
