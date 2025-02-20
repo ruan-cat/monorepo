@@ -25,6 +25,10 @@ function createAxiosInstance() {
 		/** 允许跨域 */
 		withCredentials: true,
 
+		/**
+		 * 在 vitest 内做接口请求时，会使用node环境内的环境变量
+		 * 比如 HTTPS_PROXY 变量。这里设置为false，不使用代理。
+		 */
 		proxy: false,
 	});
 

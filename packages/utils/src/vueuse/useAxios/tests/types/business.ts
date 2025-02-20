@@ -1,4 +1,14 @@
 /**
+ * 接口传参的 VO 对象
+ * @description
+ * 这是一个模拟用的对象 实际业务内不存在
+ */
+export interface HomeCategoryHeadsParams {
+	/** 是否是vip用户？ */
+	vip: boolean;
+}
+
+/**
  * 首页分类内容的数据对象
  */
 export interface HomeCategoryHeads {
