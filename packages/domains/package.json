@@ -16,6 +16,8 @@
 	},
 	"scripts": {
 		"clear": "rimraf dist .turbo .vercel .cache .temp",
+		"docs:dev": "vuepress-vite dev docs --clean-cache --open",
+		"build:docs": "vuepress-vite build docs",
 		"build": "tsup",
 		"rm:node_modules": "rimraf node_modules"
 	},
@@ -53,8 +55,6 @@
 	"files": [
 		"dist",
 		"main.ts",
-		"CHANGELOG.md",
-		"readme.md",
 		"tsconfig.json"
 	],
 	"devDependencies": {

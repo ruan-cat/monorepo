@@ -33,6 +33,9 @@ export const domains = <const>{
 	/** 工具包项目 */
 	utils: ["utils.ruancat6312.top", "utils.ruan-cat.com"],
 
+	/** 域名列表 */
+	domain: ["dm.ruancat6312.top"],
+
 	/** 笔记项目 */
 	notes: [
 		//
