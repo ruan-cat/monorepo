@@ -15,7 +15,7 @@
 		"directory": "packages/utils"
 	},
 	"scripts": {
-		"clean-docs": "rimraf docs",
+		"clean-docs": "rimraf -g \"docs/**/!(.vuepress)\"",
 		"copy-src": "cpx \"src/**/*\" docs",
 		"copy-readme": "cpx README.md docs",
 		"copy-changelog": "cpx CHANGELOG.md docs",

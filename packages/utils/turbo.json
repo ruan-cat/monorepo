@@ -3,30 +3,52 @@
 		"//"
 	],
 	"tasks": {
-		"copy-src": {
+		"clean-docs": {
 			"cache": false
+		},
+		"copy-src": {
+			"cache": false,
+			"dependsOn": [
+				"clean-docs"
+			]
 		},
 		"copy-readme": {
-			"cache": false
+			"cache": false,
+			"dependsOn": [
+				"clean-docs"
+			]
 		},
 		"copy-changelog": {
-			"cache": false
+			"cache": false,
+			"dependsOn": [
+				"clean-docs"
+			]
+		},
+		"do-copy": {
+			"dependsOn": [
+				"copy-src",
+				"copy-readme",
+				"copy-changelog"
+			]
 		},
 		"typedoc": {
 			"cache": false
 		},
 		"generate-md": {
 			"dependsOn": [
-				"copy-src",
-				"copy-readme",
-				"copy-changelog",
+				"do-copy",
 				"typedoc"
+			]
+		},
+		"std-prepare": {
+			"dependsOn": [
+				"build",
+				"generate-md"
 			]
 		},
 		"docs:dev-main": {
 			"dependsOn": [
-				"build",
-				"generate-md"
+				"std-prepare"
 			]
 		},
 		"docs:dev": {
@@ -36,8 +58,7 @@
 		},
 		"build:docs-main": {
 			"dependsOn": [
-				"build",
-				"generate-md"
+				"std-prepare"
 			]
 		},
 		"do-build-docs": {
