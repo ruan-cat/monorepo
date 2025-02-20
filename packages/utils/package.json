@@ -20,7 +20,7 @@
 		"copy-readme": "cpx README.md docs",
 		"copy-changelog": "cpx CHANGELOG.md docs",
 		"typedoc": "typedoc --options typedoc.config.mjs",
-		"prettier-docs-(invalid)": "prettier docs/**/*.md --write",
+		"changelog-yaml": "node --import=tsx ./scripts/yaml-in-md.ts --md=./docs/CHANGELOG.md",
 		"docs:dev-main": "vuepress-vite dev docs --clean-cache --open",
 		"docs:dev": "turbo docs:dev",
 		"build:docs-main": "vuepress-vite build docs",

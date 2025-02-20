@@ -31,6 +31,9 @@ interface Params {
 	data: Record<string, unknown>;
 }
 
+/**
+ * TODO: 将该功能整合到vuepress预设文档内，让该项目实现自动加入变更集文件。
+ */
 export async function writeYaml2md(params: Params) {
 	const { mdPath = defMdPath, data } = params;
 

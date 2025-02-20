@@ -24,6 +24,12 @@
 				"clean-docs"
 			]
 		},
+		"changelog-yaml": {
+			"cache": false,
+			"dependsOn": [
+				"copy-changelog"
+			]
+		},
 		"do-copy": {
 			"dependsOn": [
 				"copy-src",
@@ -37,7 +43,8 @@
 		"generate-md": {
 			"dependsOn": [
 				"do-copy",
-				"typedoc"
+				"typedoc",
+				"changelog-yaml"
 			]
 		},
 		"std-prepare": {

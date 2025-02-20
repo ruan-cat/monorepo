@@ -1,9 +1,3 @@
----
-order: 100
-dir:
-  order: 100
----
-
 # @ruan-cat/utils 更新日志
 
 ## 1.7.0
