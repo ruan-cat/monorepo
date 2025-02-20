@@ -15,8 +15,9 @@
 		"directory": "packages/utils"
 	},
 	"scripts": {
-		"copy-src": "cpx 'src/**/*' docs",
-		"copy-readme": "cpx readme.md docs",
+		"clean-docs": "rimraf docs",
+		"copy-src": "cpx \"src/**/*\" docs",
+		"copy-readme": "cpx README.md docs",
 		"copy-changelog": "cpx CHANGELOG.md docs",
 		"typedoc": "typedoc --options typedoc.config.mjs",
 		"prettier-docs-(invalid)": "prettier docs/**/*.md --write",
