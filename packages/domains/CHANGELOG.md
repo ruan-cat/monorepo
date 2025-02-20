@@ -1,4 +1,18 @@
+---
+order: 100
+dir:
+  order: 100
+---
+
 # @ruan-cat/domains 阮喵喵的域名集合
+
+## 0.2.0
+
+### Minor Changes
+
+- 新增 `dm.ruancat6312.top` 和 `01s-10wms.ruancat6312.top` 域名。
+  > - [dm.ruancat6312.top](https://dm.ruancat6312.top)
+  > - [01s-10wms.ruancat6312.top](https://01s-10wms.ruancat6312.top)
 
 ## 0.1.4
 
