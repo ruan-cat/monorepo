@@ -5,8 +5,9 @@ import * as fs from "node:fs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-import { upperFirst } from "lodash-es";
+import { upperFirst, isUndefined } from "lodash-es";
 import { createPlugin, getName } from "vite-plugin-autogeneration-import-file";
+import consola from "consola";
 
 const { autoImport } = createPlugin();
 
@@ -16,8 +17,10 @@ const { autoImport } = createPlugin();
  * 用于解析目录路径 默认从项目根目录开始
  *
  * 这里的项目根目录默认为 process.cwd()
+ *
+ * 作为工具函数对外导出 便于用户自己整理解析的文件路径
  */
-function pathResolve(dir: string) {
+export function pathResolve(dir: string) {
 	const resPath = resolve(process.cwd(), dir);
 	console.info(` 解析的文件路径: ${resPath}`);
 	return resPath;
@@ -76,33 +79,27 @@ export const defaultAutoImportTemplateFilename = <const>"components.template.d.t
  */
 export const defaultAutoImportTemplatePath = <const>`./template/${defaultAutoImportTemplateFilename}`;
 
-// console.log(fs.readFileSync(defaultAutoImportTemplatePath, "utf-8"));
-// console.log(__dirname);
-
 /**
  * 直接获得默认的自动导入模板
  * @description
  * 直接读取本项目内的 components.template.d.ts 文件
  * 反正都读取默认模板了 直接获取字符串即可
  */
-export function getDefaultAutoImportTemplate() {
+function getDefaultAutoImportTemplate() {
 	/** 相对路径文件 就在旁边的文件 */
 	const templatePath = join(__dirname, defaultAutoImportTemplatePath);
-
-	// console.info(`templatePath: ${templatePath}`);
-
 	return fs.readFileSync(templatePath, "utf-8");
 }
 
-// console.log(getDefaultAutoImportTemplate());
-// getDefaultAutoImportTemplate();
+/** 默认的自动导入模板 */
+export const defaultAutoImportTemplate = getDefaultAutoImportTemplate();
 
 /**
  * 创建文件生成模板字符串
  * @description
  * 会生成一个字符串 用于作为生成类型声明文件的模板
  */
-function createAutoImportTemplate(
+export function createAutoImportTemplate(
 	/**
 	 * 模板路径
 	 * @description
@@ -111,9 +108,13 @@ function createAutoImportTemplate(
 	 */
 	path?: string,
 ) {
-	const filepath = path ?? defaultAutoImportTemplatePath;
-	return fs.readFileSync(pathResolve(filepath), "utf-8");
+	// 如果用户没传递路径 就直接返回默认的模板
+	if (isUndefined(path)) {
+		return defaultAutoImportTemplate;
+	} else {
+		const filepath = pathResolve(path);
+		consola.log(` 当前读取的文件路径为: ${filepath}`);
+		// 否则读取用户传递的路径
+		return fs.readFileSync(pathResolve(path), "utf-8");
+	}
 }
-
-// TODO
-// const autoImportTemplate = createAutoImportTemplate();
