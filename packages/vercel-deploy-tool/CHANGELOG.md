@@ -1,5 +1,12 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.7.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @ruan-cat/utils@3.0.0
+
 ## 0.7.4
 
 ### Patch Changes

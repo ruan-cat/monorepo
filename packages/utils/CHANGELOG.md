@@ -1,5 +1,19 @@
 # @ruan-cat/utils 更新日志
 
+## 3.0.0
+
+### Major Changes
+
+- 重构文件导入体系。
+
+  > 凡是二次封装使用外部依赖的，全部使用单独的路径使用。一律只提供纯 ts 文件，不做打包。
+
+  目前提供的路径如下：
+
+  - `unplugin-vue-router`
+  - `vite-plugin-autogeneration-import-file`
+  - `vueuse`
+
 ## 2.0.1
 
 ### Patch Changes
