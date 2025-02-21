@@ -10,6 +10,16 @@ type GetRouteName = NonNullable<Options["getRouteName"]>;
  * 故自定义。
  *
  * unplugin-vue-router 插件的 getRouteName 配置项
+ *
+ * FIXME: https://github.com/vitejs/vite/issues/5370
+ *
+ * 该函数设计出来是为了解决这个问题
+ *
+ * 在vite符号链接未解决时，应该直接使用js文件，如下：
+ * import { getRouteName } from "@ruan-cat/utils/dist/index.js";
+ *
+ * 若已经彻底解决，请直接试图用来自符号链接的ts文件，如下：
+ * import { getRouteName } from "@ruan-cat/utils";
  */
 export const getRouteName: GetRouteName = function _getRouteName(node): ReturnType<GetRouteName> {
 	// 如果是根节点 那么没有对应的文件夹名称 返回空字符串
