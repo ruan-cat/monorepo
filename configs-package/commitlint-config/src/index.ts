@@ -10,7 +10,7 @@ import { load } from "js-yaml";
 import { isUndefined } from "lodash";
 
 import { config } from "./config.ts";
-import { pathChange } from "@ruan-cat/utils/node";
+import { pathChange } from "@ruan-cat/utils/node-cjs";
 
 import { type PackageJson } from "pkg-types";
 import { type ScopesType, UserConfig } from "cz-git";

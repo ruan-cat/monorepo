@@ -42,10 +42,14 @@
 			"import": "./src/index.ts",
 			"require": "./dist/index.cjs"
 		},
-		"./node": {
-			"types": "./src/node.d.ts",
-			"import": "./src/node.js",
-			"require": "./dist/node.cjs"
+		"./node-cjs": {
+			"types": "./src/node-cjs/index.ts",
+			"import": "./src/node-cjs/index.ts",
+			"require": "./dist/node-cjs/index.cjs"
+		},
+		"./node-esm": {
+			"types": "./src/node-esm/index.ts",
+			"import": "./src/node-esm/index.ts"
 		},
 		"./src/*": "./src/*",
 		"./dist/*": "./dist/*"

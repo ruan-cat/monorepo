@@ -1,4 +1,4 @@
-import { generateSpawnSync } from "@ruan-cat/utils/node";
+import { generateSpawnSync } from "../../node-cjs/index.ts";
 
 type GlobString = `**/{${string}}`;
 

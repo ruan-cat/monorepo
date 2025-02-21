@@ -26,7 +26,7 @@ import {
 	executePromiseTasks,
 } from "@ruan-cat/utils";
 import type { Task } from "@ruan-cat/utils";
-import { generateSpawnSync as generateSpawnSyncUtils, type SpawnSyncSimpleParams } from "@ruan-cat/utils/node";
+import { generateSpawnSync as generateSpawnSyncUtils, type SpawnSyncSimpleParams } from "@ruan-cat/utils/node-cjs";
 
 import { config, getConfig } from "./config";
 import type { Config, Base, DeployTarget, WithUserCommands } from "./config";

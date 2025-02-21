@@ -8,7 +8,7 @@ import { program } from "commander";
 import { sync } from "glob";
 import yaml from "js-yaml";
 import { parse as parseJSONC } from "jsonc-parser";
-import { pathChange } from "@ruan-cat/utils/node";
+import { pathChange } from "@ruan-cat/utils/node-cjs";
 
 import { type PackageJson } from "pkg-types";
 import { type PnpmWorkspace } from "./types/pnpm-workspace.yaml.shim";

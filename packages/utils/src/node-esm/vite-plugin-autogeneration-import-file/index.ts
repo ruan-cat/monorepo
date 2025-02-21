@@ -70,7 +70,7 @@ export function createDirOptionNameFunction(
  * 读取模板时 会默认读取该名称的文件
  * @example components.template.d.ts
  */
-export const defaultAutoImportTemplateFilename = <const>"components.template.d.ts";
+export const defaultAutoImportTemplateFilename = <const>"components.template.ts";
 
 /**
  * 默认的自动导入模板文件路径
