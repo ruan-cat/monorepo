@@ -1,10 +1,16 @@
 # @ruan-cat/utils 更新日志
 
+## 1.8.0
+
+### Minor Changes
+
+- 针对 vite-plugin-autogeneration-import-file 插件，提供二次封装的函数。便于在 vite 项目内使用。
+
 ## 1.7.0
 
 ### Minor Changes
 
-- node 路径
+- 提供专门的 node 路径。可以在专门的 node 路径内使用直接供给给 node 环境使用的函数。
 
 ## 1.6.1
 
