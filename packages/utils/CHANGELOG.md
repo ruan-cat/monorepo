@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 2.0.0
+
+### Major Changes
+
+- 废除单独的 node 导出地址。现在项目提供两款 node 导出地址。分别是 node-esm 和 node-cjs。用于在不同场景下使用 node 的工具函数。
+
 ## 1.8.0
 
 ### Minor Changes
