@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 2.0.1
+
+### Patch Changes
+
+- 处理在 vite esm 模式下，打包失败的 bug。避免直接使用 node 的函数。
+
 ## 2.0.0
 
 ### Major Changes
