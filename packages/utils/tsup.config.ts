@@ -38,11 +38,11 @@ export default defineConfig((options: Options) => [
 	},
 
 	// 专用于模板文件的复制粘贴
-	{
-		entry: ["./src/node-esm/vite-plugin-autogeneration-import-file/template/components.template.ts"],
-		clean: true,
-		format: ["esm"],
-		outDir: "dist/node-esm/template",
-		publicDir: "./src/node-esm/vite-plugin-autogeneration-import-file/template",
-	},
+	// {
+	// 	entry: ["./src/node-esm/vite-plugin-autogeneration-import-file/template/components.template.ts"],
+	// 	clean: true,
+	// 	format: ["esm"],
+	// 	outDir: "dist/node-esm/template",
+	// 	publicDir: "./src/node-esm/vite-plugin-autogeneration-import-file/template",
+	// },
 ]);

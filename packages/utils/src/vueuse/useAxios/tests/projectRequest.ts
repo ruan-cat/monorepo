@@ -1,7 +1,6 @@
 import type { PartialPick } from "type-plus";
-import { useAxiosWrapper } from "@ruan-cat/utils";
-import type { UseAxiosOptions } from "@ruan-cat/utils";
-import type { UseAxiosWrapperParams, KeyAxiosRequestConfig, RemoveUrl } from "@ruan-cat/utils";
+import { useAxiosWrapper } from "@ruan-cat/utils/vueuse";
+import type { UseAxiosOptions, UseAxiosWrapperParams, KeyAxiosRequestConfig, RemoveUrl } from "@ruan-cat/utils/vueuse";
 
 import type { ApifoxModel } from "./types/ApifoxModel.ts";
 import { createAxiosInstance } from "./createAxiosInstance.ts";

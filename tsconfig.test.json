@@ -4,6 +4,7 @@
 	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
 		"baseUrl": "./",
+		"moduleResolution": "bundler",
 		// 本文件被其他的 tsconfig.json 组合 ，用于提供test配置
 		"composite": true,
 		/**

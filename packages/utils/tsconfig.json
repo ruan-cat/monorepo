@@ -32,6 +32,7 @@
 		"types": [
 			"typedoc",
 			"typedoc-plugin-markdown",
+			"node"
 		],
 	},
 	"include": [
@@ -43,6 +44,5 @@
 	"exclude": [
 		// 测试用例的全部文件 交由本项目根目录下的 tsconfig.json 处理
 		"src/tests/**/*.ts",
-		"notuse-typedoc.config.cjs"
 	]
 }

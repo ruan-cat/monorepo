@@ -4,7 +4,11 @@ import { defineConfig } from "vite";
 import { createPlugin } from "vite-plugin-autogeneration-import-file";
 
 // 导入辅助工具函数和变量
-import { createDirOptionNameFunction, pathResolve, defaultAutoImportTemplate } from "@ruan-cat/utils/node-esm";
+import {
+	createDirOptionNameFunction,
+	pathResolve,
+	defaultAutoImportTemplate,
+} from "@ruan-cat/utils/vite-plugin-autogeneration-import-file";
 
 // 按照教程创建插件
 const { autoImport, resolver } = createPlugin();

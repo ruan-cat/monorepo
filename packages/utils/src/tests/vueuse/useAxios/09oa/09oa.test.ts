@@ -7,8 +7,9 @@ import type {
 	CreateAxiosRequestConfig,
 	UseAxiosWrapperParams,
 	KeyHelper,
-} from "@ruan-cat/utils";
-import { useAxiosWrapper } from "@ruan-cat/utils";
+	RemoveUrl,
+} from "@ruan-cat/utils/vueuse";
+import { useAxiosWrapper } from "@ruan-cat/utils/vueuse";
 
 /**
  * 对 UseAxiosWrapperParams 做一层业务性质的封装
@@ -33,7 +34,7 @@ function useAxiosTest<T = any, K extends KeyAxiosRequestConfig = "url", D = any>
 		instance = axiosInstance,
 	} = params;
 
-	setDefaultUseAxiosOptions(options);
+	// setDefaultUseAxiosOptions(options);
 
 	return useAxiosWrapper<JsonVO<T>, RemoveUrl<K>, D>({
 		config,

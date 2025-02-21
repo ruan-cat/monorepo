@@ -3,9 +3,14 @@ import qs from "qs";
 import { test } from "vitest";
 
 import type { PartialPick } from "type-plus";
-import { useAxiosWrapper } from "@ruan-cat/utils";
-import type { UseAxiosOptions } from "@ruan-cat/utils";
-import type { KeyHelper, UseAxiosWrapperParams, KeyAxiosRequestConfig, RemoveUrl } from "@ruan-cat/utils";
+import { useAxiosWrapper } from "@ruan-cat/utils/vueuse";
+import type {
+	UseAxiosOptions,
+	KeyHelper,
+	UseAxiosWrapperParams,
+	KeyAxiosRequestConfig,
+	RemoveUrl,
+} from "@ruan-cat/utils/vueuse";
 import type { ApifoxModel, Child, Good, HomeCategoryHeads } from "./types/index";
 
 /**
