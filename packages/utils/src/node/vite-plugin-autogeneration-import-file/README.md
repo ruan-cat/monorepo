@@ -1,0 +1,11 @@
+---
+order: 30
+dir:
+  collapsible: false
+  link: true
+  order: 30
+---
+
+# 自动类型生成插件的二次封装
+
+[vite-plugin-autogeneration-import-file](https://github.com/yuntian001/vite-plugin-autogeneration-import-file)，这个 vite 插件可以实现自动类型导入。在实际使用过程中，需要配置很多东西，故此处对该插件的使用做一些二次封装，并讲解该如何使用。
