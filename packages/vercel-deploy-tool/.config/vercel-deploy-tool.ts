@@ -1,4 +1,4 @@
-import { type Config } from "@ruan-cat/vercel-deploy-tool/config.ts";
+import { type Config } from "@ruan-cat/vercel-deploy-tool/src/config.ts";
 export default <Config>{
 	vercelProjetName: "vercel-monorepo-test-1-zn20",
 	vercelToken: "",
