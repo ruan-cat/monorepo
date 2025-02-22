@@ -1,9 +1,7 @@
 ---
-order: 30
 dir:
   collapsible: false
   link: true
-  order: 30
 ---
 
 # 自动类型生成插件的二次封装
