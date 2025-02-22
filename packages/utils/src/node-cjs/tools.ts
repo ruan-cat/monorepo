@@ -5,7 +5,7 @@
 import { normalize } from "node:path";
 import { spawnSync, type SpawnOptions } from "node:child_process";
 
-import { generateSimpleAsyncTask } from "@ruan-cat/utils";
+import { generateSimpleAsyncTask } from "@ruan-cat/utils/src/simple-promise-tools.ts";
 import consola from "consola";
 // import { normalizePath } from "vite";
 
