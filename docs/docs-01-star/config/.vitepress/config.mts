@@ -33,6 +33,14 @@ const sidebar: DefaultTheme.Config["sidebar"] = [
 		items: [{ text: "及时修改git用户名", link: "/change-git-user-name" }],
 	},
 
+	// 10wms 前端组
+	{
+		text: "注意事项",
+		link: "/index",
+		base: "/10wms",
+		items: [{ text: "2025年2月22日-会议纪要", link: "/2025-2-22-meet-summary" }],
+	},
+
 	// 09oa项目专讲
 	{
 		text: "2024-09 大项目-oa项目",
@@ -139,10 +147,12 @@ export default defineConfig({
 		},
 
 		plugins: [
+			// @ts-ignore
 			GitChangelog({
 				// 填写在此处填写您的仓库链接
 				repoURL: () => "https://github.com/ruan-cat/vercel-monorepo-test",
 			}),
+			// @ts-ignore
 			GitChangelogMarkdownSection(),
 		],
 
