@@ -140,6 +140,18 @@ function getVercelProjetNameCommandArgument() {
 	return <const>[`--project=${config.vercelProjetName}`];
 }
 
+/**
+ * 以命令参数数组的形式，获得范围名称
+ * @see https://vercel.com/docs/cli/global-options#scope
+ *
+ * 为什么传递组织id？
+ * 此篇讨论内 使用了组织id
+ * @see https://vercel.community/t/deployment-via-gitlab-ci-to-dev-domain/523/3
+ */
+function getVercelScopeCommandArgument() {
+	return <const>[`--scope=${config.vercelOrgId}`];
+}
+
 /** 以命令参数数组的形式，获得项目token */
 function getVercelTokenCommandArgument() {
 	return <const>[`--token=${config.vercelToken}`];
@@ -352,11 +364,15 @@ function generateCopyDistTasks(deployTarget: WithUserCommands) {
  * 旨在于封装类似于这样的命令：
  *
  * vc alias set "$url1" ${{env.p1-url}} -t ${{env.vct}}
+ *
+ * 封装出类似的命令：
+ * vercel alias set $DEPLOYMENT_URL domain2.com --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID
+ * @see https://vercel.community/t/deployment-via-gitlab-ci-to-dev-domain/523/3
  */
 function generateAliasTask(vercelUrl: string, userUrl: string) {
 	return generateSpawnSync({
 		command: `vc alias set ${vercelUrl} ${userUrl}`,
-		parameters: concat(getVercelTokenCommandArgument()),
+		parameters: concat(getVercelTokenCommandArgument(), getVercelScopeCommandArgument()),
 	});
 }
 
