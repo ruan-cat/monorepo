@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.8.1
+
+### Patch Changes
+
+- 处理读取环境变量失败的 bug。
+
 ## 0.8.0
 
 ### Minor Changes
