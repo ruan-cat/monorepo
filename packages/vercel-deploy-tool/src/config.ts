@@ -2,7 +2,7 @@ import { resolve } from "pathe";
 import { loadConfig } from "c12";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
 import { consola } from "consola";
-import { merge } from "lodash-es";
+import { merge, isEmpty } from "lodash-es";
 import { program } from "commander";
 
 /**
@@ -226,17 +226,21 @@ export async function initVercelConfig() {
 	const vercelProjectId = currentDotenvConfig!.VERCEL_PROJECT_ID ?? process.env.VERCEL_PROJECT_ID;
 	const vercelToken = currentDotenvConfig!.VERCEL_TOKEN ?? process.env.VERCEL_TOKEN;
 
-	const res: Config = merge(userConfig, {
-		vercelOrgId,
-		vercelProjectId,
-		vercelToken,
-	} satisfies Partial<Config>);
+	if (!isEmpty(vercelOrgId)) {
+		userConfig.vercelOrgId = vercelOrgId;
+	}
+	if (!isEmpty(vercelProjectId)) {
+		userConfig.vercelProjectId = vercelProjectId;
+	}
+	if (!isEmpty(vercelToken)) {
+		userConfig.vercelToken = vercelToken;
+	}
 
 	consola.success(" 完成初始化项目配置 ");
 	// 显示效果没有那么好看
-	consola.box(res);
+	consola.box(userConfig);
 
-	return res;
+	return userConfig;
 }
 
 /** 项目内的vercel配置 */
