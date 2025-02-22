@@ -1,5 +1,12 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.8.0
+
+### Minor Changes
+
+- 修复链接别名时，无法查询自定义域名的错误。
+  > 在 vercel 的 alias 命令内指定 --scope 参数，传参为组织 id 即可。
+
 ## 0.7.5
 
 ### Patch Changes
