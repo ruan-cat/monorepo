@@ -35,7 +35,7 @@ const sidebar: DefaultTheme.Config["sidebar"] = [
 
 	// 10wms 前端组
 	{
-		text: "注意事项",
+		text: "10wms前端组",
 		link: "/index",
 		base: "/10wms",
 		items: [{ text: "2025年2月22日-会议纪要", link: "/2025-2-22-meet-summary" }],

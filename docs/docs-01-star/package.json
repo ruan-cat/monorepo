@@ -2,7 +2,7 @@
 	"name": "@docs/docs-01-star",
 	"private": true,
 	"version": "0.0.1",
-	"description": "01星球的建议文档",
+	"description": "阮喵喵的01星球文档",
 	"main": "index.js",
 	"scripts": {
 		"docs:dev": "vitepress dev config --port 8080",
