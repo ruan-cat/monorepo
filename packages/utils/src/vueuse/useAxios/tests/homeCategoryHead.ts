@@ -1,6 +1,6 @@
 import { projectRequest } from "./projectRequest.ts";
 import { HomeCategoryHeads, HomeCategoryHeadsParams } from "./types/business.ts";
-import type { KeyHelper } from "@ruan-cat/utils";
+import type { KeyHelper } from "@ruan-cat/utils/vueuse";
 
 /**
  * 具体的业务接口
