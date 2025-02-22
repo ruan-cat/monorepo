@@ -1,5 +1,12 @@
 # @ruan-cat/utils 更新日志
 
+## 3.0.1
+
+### Patch Changes
+
+- 处理缺失 lodash-es 产生的报错。安装 lodash-es 作为生产环境依赖。
+- 处理 cjs 环境下错误导入额外的 esm 依赖的 bug。
+
 ## 3.0.0
 
 ### Major Changes
