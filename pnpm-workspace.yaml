@@ -16,4 +16,5 @@ catalog:
   lodash-es: 4.17.21
   # vercel出现bug，安装 39.4.2 出现依赖冲突。多个项目内均出现该错误。
   # 故在此考虑人工锁死版本号。
-  vercel: 39.3.0
+  # vercel: 39.3.0
+  vercel: 41.2.0
