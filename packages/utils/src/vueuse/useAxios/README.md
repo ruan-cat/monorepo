@@ -8,7 +8,13 @@ dir:
 
 # useAxios 的包装函数
 
-useAxiosWrapper，该函数旨在于实现 useAxios 的封装。使用方式如下：
+useAxiosWrapper，该函数旨在于实现 useAxios 的封装。
+
+## 安装依赖
+
+```bash
+pnpm i -P @vueuse/integrations axios
+```
 
 ## 准备接口返回数据的类型
 
