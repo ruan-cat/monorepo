@@ -22,7 +22,7 @@
 		"preinstall": "npx only-allow pnpm && npm run corepack:pnpm",
 		"corepack:pnpm": "corepack enable && corepack install",
 		"commit": "git-cz",
-		"test:vitest": "vitest --ui --watch --api.port=3000",
+		"test": "vitest --ui --watch --api.port=3000",
 		"git:fetch": "git fetch -p",
 		"git:dev-2-main": "git rebase dev main",
 		"git:main-2-dev": "git rebase main dev",
