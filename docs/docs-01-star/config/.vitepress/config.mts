@@ -1,8 +1,20 @@
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, URL } from "node:url";
+import * as fs from "node:fs";
+
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
+
 import { defineConfig, type DefaultTheme } from "vitepress";
 import { generateSidebar } from "vitepress-sidebar";
 
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
 import { calculateSidebar } from "@nolebase/vitepress-plugin-sidebar";
+
+import { importCodePlugin } from "@vuepress/markdown";
+
+import { getDirname, path } from "@vuepress/utils";
+const __dirname = getDirname(import.meta.url);
 
 /**
  * 手动配置的侧边栏
@@ -139,6 +151,29 @@ export default defineConfig({
 				link: "https://github.com/ruan-cat/vercel-monorepo-test/blob/dev/packages/docs-01-star/docs/index.md",
 			},
 		],
+	},
+
+	/**
+	 * @see https://vitepress.dev/zh/guide/markdown#advanced-configuration
+	 */
+	markdown: {
+		config: (md) => {
+			// 使用更多的 Markdown-it 插件！
+			// md.use(importCodePlugin, {
+			// 	md,
+			// 	handleImportPath(str) {
+			// 		// md.utils.
+			// 		// console.log(" ? __dirname ", __dirname);
+			// 		// __dirname;
+			// 		// return resolve(__dirname, "../../..", str);
+			// 		// return resolve(process.cwd(), str);
+			// 		// return join(process.cwd(), str);
+			// 		return str;
+			// 	},
+			// });
+			// md.use(importCodePlugin, { md, handleImportPath: (str) => join(process.cwd(), str) });
+			md.use(importCodePlugin, { handleImportPath: (str) => join(process.cwd(), str) });
+		},
 	},
 
 	vite: {
