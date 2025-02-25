@@ -63,6 +63,10 @@ export const ruancatHopeThemeConfig: ThemeOptions = {
 		tabs: true,
 		tasklist: true,
 		vPre: true,
+		// TODO: 有疑惑 不知道怎么实现默认的 twoslash 支持？
+		highlighter: {
+			type: "shiki",
+		},
 	},
 
 	plugins: {
