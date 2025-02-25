@@ -1,5 +1,12 @@
 # @ruan-cat/generate-code-workspace
 
+## 0.3.10
+
+### Patch Changes
+
+- Updated dependencies
+  - @ruan-cat/utils@3.1.0
+
 ## 0.3.9
 
 ### Patch Changes

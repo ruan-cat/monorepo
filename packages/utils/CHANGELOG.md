@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 3.1.0
+
+### Minor Changes
+
+- 删掉冗余的 rmmv-class-expand-tools ，避免出现其他项目出现 typedoc 生成失败的错误。
+
 ## 3.0.1
 
 ### Patch Changes

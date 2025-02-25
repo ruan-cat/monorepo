@@ -1,5 +1,12 @@
 # @ruan-cat/commitlint-config
 
+## 0.2.9
+
+### Patch Changes
+
+- Updated dependencies
+  - @ruan-cat/utils@3.1.0
+
 ## 0.2.8
 
 ### Patch Changes
