@@ -159,20 +159,14 @@ export default defineConfig({
 	markdown: {
 		config: (md) => {
 			// 使用更多的 Markdown-it 插件！
-			// md.use(importCodePlugin, {
-			// 	md,
-			// 	handleImportPath(str) {
-			// 		// md.utils.
-			// 		// console.log(" ? __dirname ", __dirname);
-			// 		// __dirname;
-			// 		// return resolve(__dirname, "../../..", str);
-			// 		// return resolve(process.cwd(), str);
-			// 		// return join(process.cwd(), str);
-			// 		return str;
-			// 	},
-			// });
-			// md.use(importCodePlugin, { md, handleImportPath: (str) => join(process.cwd(), str) });
-			md.use(importCodePlugin, { handleImportPath: (str) => join(process.cwd(), str) });
+			md.use(importCodePlugin, {
+				md,
+				handleImportPath: (str) => {
+					// console.log(" __filename ", __filename);
+					// console.log(" md ", md.block.State.name);
+					return join(process.cwd(), str);
+				},
+			});
 		},
 	},
 
