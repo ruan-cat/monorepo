@@ -38,6 +38,14 @@ pnpm i -P @vueuse/integrations axios
 
 :::
 
+## 基于项目二次封装 useAxiosWrapper 函数
+
+::: details
+
+@[code](./tests/projectRequest.ts)
+
+:::
+
 ## 定义接口
 
 如下：
