@@ -50,9 +50,7 @@
 	},
 	"files": [
 		"dist",
-		"src",
-		"CHANGELOG.md",
-		"readme.md"
+		"src"
 	],
 	"dependencies": {
 		"@ruan-cat/utils": "workspace:^",
