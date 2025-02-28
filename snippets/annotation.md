@@ -1,8 +1,7 @@
 <!-- prettier-ignore-start -->
-
 ## annotation
 通用的注释模板。
-```d,typescript,javascript,scss
+```
 /** $1 */
 ```
 

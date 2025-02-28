@@ -6,3 +6,5 @@
 # 全部以tsconfig开头的 尾缀为json的配置文件 都被忽略
 tsconfig*.json
 
+# 无效 不生效的
+**/snippets/*.md
