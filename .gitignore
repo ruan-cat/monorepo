@@ -162,3 +162,6 @@ vitest.config.ts.timestamp-*.mjs
 
 # 我们自动生成工作区文件 所以不提交到仓库内
 *.code-workspace
+
+# 忽略掉codess自动生成的代码片段
+*.codess.code-snippets
