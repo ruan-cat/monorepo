@@ -165,3 +165,5 @@ vitest.config.ts.timestamp-*.mjs
 
 # 忽略掉codess自动生成的代码片段
 *.codess.code-snippets
+# 忽略掉特定文件
+codess.code-snippets
