@@ -2,14 +2,14 @@
 
 ## t
 md 标题
-```md
+```markdown
 # $TM_FILENAME_BASE
 
 ```
 
 ## details
 vuepress、vitepress 能是识别的折叠栏语法
-```md
+```markdown
 ::: details
 
 :::
