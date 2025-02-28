@@ -7,4 +7,12 @@ md 标题
 
 ```
 
+## details
+vuepress、vitepress 能是识别的折叠栏语法
+```md
+::: details
+
+:::
+```
+
 <!-- prettier-ignore-end -->
