@@ -58,7 +58,7 @@
 		"src"
 	],
 	"devDependencies": {
-		"@types/node": "^20.17.19",
+		"@types/node": "^20.17.22",
 		"@types/rollup-plugin-visualizer": "^4.2.4"
 	},
 	"dependencies": {
