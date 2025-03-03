@@ -11,11 +11,6 @@ import { generateSidebar } from "vitepress-sidebar";
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
 import { calculateSidebar } from "@nolebase/vitepress-plugin-sidebar";
 
-import { importCodePlugin } from "@vuepress/markdown";
-
-import { getDirname, path } from "@vuepress/utils";
-const __dirname = getDirname(import.meta.url);
-
 /**
  * 手动配置的侧边栏
  * @description
@@ -151,23 +146,6 @@ export default defineConfig({
 				link: "https://github.com/ruan-cat/vercel-monorepo-test/blob/dev/packages/docs-01-star/docs/index.md",
 			},
 		],
-	},
-
-	/**
-	 * @see https://vitepress.dev/zh/guide/markdown#advanced-configuration
-	 */
-	markdown: {
-		config: (md) => {
-			// 使用更多的 Markdown-it 插件！
-			md.use(importCodePlugin, {
-				md,
-				handleImportPath: (str) => {
-					// console.log(" __filename ", __filename);
-					// console.log(" md ", md.block.State.name);
-					return join(process.cwd(), str);
-				},
-			});
-		},
 	},
 
 	vite: {
