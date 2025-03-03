@@ -58,8 +58,8 @@
 		"src"
 	],
 	"devDependencies": {
-		"@types/node": "^20.17.22",
-		"@types/rollup-plugin-visualizer": "^4.2.4"
+		"@types/node": "^22.13.8",
+		"@types/rollup-plugin-visualizer": "^5.0.3"
 	},
 	"dependencies": {
 		"@vuepress/bundler-vite": "2.0.0-rc.20",

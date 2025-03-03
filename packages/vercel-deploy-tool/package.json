@@ -48,21 +48,21 @@
 		"tsconfig.json"
 	],
 	"dependencies": {
-		"@dotenvx/dotenvx": "^1.11.5",
+		"@dotenvx/dotenvx": "^1.38.3",
 		"@ruan-cat/utils": "workspace:^",
-		"c12": "^1.11.2",
-		"commander": "^12.0.0",
-		"consola": "^3.2.3",
+		"c12": "^3.0.2",
+		"commander": "^13.1.0",
+		"consola": "^3.4.0",
 		"gradient-string": "^3.0.0",
-		"lodash-es": "catalog:",
-		"pathe": "^1.1.2",
+		"lodash-es": "^4.17.21",
+		"pathe": "^2.0.3",
 		"rimraf": "^6.0.1",
 		"shx": "^0.3.4",
-		"vercel": "^41.2.0"
+		"vercel": "^41.3.0"
 	},
 	"devDependencies": {
 		"@types/gulp": "^4.0.17",
 		"@types/lodash-es": "^4.17.12",
-		"@types/node": "^22.5.1"
+		"@types/node": "^22.13.8"
 	}
 }

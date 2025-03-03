@@ -11,8 +11,8 @@
 		"rm:node_modules": "rimraf node_modules pnpm-lock.yaml"
 	},
 	"devDependencies": {
-		"sass": "^1.82.0",
-		"typescript": "catalog:",
-		"vite": "^6.0.11"
+		"sass": "^1.85.1",
+		"typescript": "^5.8.2",
+		"vite": "^6.2.0"
 	}
 }
