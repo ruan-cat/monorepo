@@ -25,7 +25,7 @@
 		"test": "vitest --ui --watch --api.port=3000",
 		"git:fetch": "git fetch -p",
 		"git:push": "git push --follow-tags",
-		"git:dev-2-main": "git rebase dev main",
+		"git:dev-2-main": "git rebase dev main && pnpm run git:push",
 		"git:main-2-dev": "git rebase main dev",
 		"rm:node_modules": "pnpm -r rm:node_modules && rimraf node_modules pnpm-lock.yaml",
 		"clear": "node --import=tsx ./scripts/clean.ts",
