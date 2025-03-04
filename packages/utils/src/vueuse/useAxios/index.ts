@@ -13,6 +13,7 @@ export type KeyAxiosRequestConfig<D = any> = keyof AxiosRequestConfig<D>;
 export type KeyHelper<K extends KeyAxiosRequestConfig> = K;
 
 export type RemoveUrl<T extends KeyAxiosRequestConfig> = Exclude<T, "url">;
+export type RemoveUrlMethod<T extends KeyAxiosRequestConfig> = Exclude<T, "url" | "method">;
 
 /**
  * 创建 AxiosRequestConfig 的各种变种类型
