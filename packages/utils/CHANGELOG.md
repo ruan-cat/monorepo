@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 3.2.0
+
+### Minor Changes
+
+- 增加类型工具 `RemoveUrlMethod` ，用于处理 useAxios 工具的类型约束。
+
 ## 3.1.0
 
 ### Minor Changes
