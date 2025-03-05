@@ -12,7 +12,9 @@ export type KeyAxiosRequestConfig<D = any> = keyof AxiosRequestConfig<D>;
 /** 填写key值的帮助类型 */
 export type KeyHelper<K extends KeyAxiosRequestConfig> = K;
 
+/** @deprecated 在v2版本中，我们不使用该工具来约束删减类型 */
 export type RemoveUrl<T extends KeyAxiosRequestConfig> = Exclude<T, "url">;
+/** @deprecated 在v2版本中，我们不使用该工具来约束删减类型 */
 export type RemoveUrlMethod<T extends KeyAxiosRequestConfig> = Exclude<T, "url" | "method">;
 
 /**
@@ -70,7 +72,7 @@ declare module "@vueuse/integrations/useAxios" {
 	): StrictUseAxiosReturn<T, K, R, D> & Promise<StrictUseAxiosReturn<T, K, R, D>>;
 }
 
-/** 包装器的参数 */
+/** 包装器的参数 @version 1 */
 export interface UseAxiosWrapperParams<
 	/**
 	 * 业务数据类型
@@ -138,45 +140,4 @@ export function useAxiosWrapper<T, K extends KeyAxiosRequestConfig, D = any>(par
 	return useAxios<T, K, AxiosResponse<T>, D>(url, config, instance, options);
 }
 
-export interface UseAxiosWrapperParams2<
-	K extends KeyAxiosRequestConfig,
-	T,
-	UseAxiosOptionsLike extends UseAxiosOptionsBase = UseAxiosOptionsBase<T>,
-	/**
-	 * AxiosRequestConfig 用的类型
-	 * @description
-	 * 最后才可以传递此类型
-	 */
-	D = any,
-> {
-	url: string;
-	/**
-	 * axios的配置类型
-	 * @description
-	 * 默认为 必填url请求地址的 config 请求配置
-	 */
-	config: CreateAxiosRequestConfig<K, D>;
-
-	/**
-	 * axios实例
-	 * @description
-	 * 对于包装器函数而言 必须传递有意义的请求实例
-	 */
-	instance: AxiosInstance;
-
-	/** useAxios 的选项配置 */
-	options: UseAxiosOptionsLike;
-}
-
-/** 正在尝试重构的2 url不是非必填 多了独立的url参数 */
-export function useAxiosWrapper2<
-	K extends KeyAxiosRequestConfig,
-	T,
-	UseAxiosOptionsLike extends UseAxiosOptionsBase,
-	D = any,
->(params: UseAxiosWrapperParams2<K, T, UseAxiosOptionsLike, D>) {
-	// ...使用默认值处理可能缺失的属性
-	const { config = {}, instance, options = {} } = params;
-	const url = params.url || "";
-	return useAxios<T, K, AxiosResponse<T>, D>(url, config, instance, options);
-}
+export * from "./v2.ts";
