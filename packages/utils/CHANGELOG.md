@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 3.3.0
+
+### Minor Changes
+
+- 增加 `UseAxiosWrapperParams2` 和 `useAxiosWrapper2` 工具。提供实验版本的接口请求工具。未来将会在 4.0 内正式使用该工具。
+
 ## 3.2.0
 
 ### Minor Changes
