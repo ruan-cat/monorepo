@@ -137,3 +137,49 @@ export function useAxiosWrapper<T, K extends KeyAxiosRequestConfig, D = any>(par
 	// 跳转到我们拓展的函数声明
 	return useAxios<T, K, AxiosResponse<T>, D>(url, config, instance, options);
 }
+
+export interface UseAxiosWrapperParams2<
+	K extends KeyAxiosRequestConfig<D>,
+	/**
+	 * 业务数据类型
+	 * @description
+	 * 必须先填写业务类型
+	 */
+	T = any,
+	/**
+	 * UseAxiosOptions 的派生类型
+	 */
+	UseAxiosOptionsLike extends UseAxiosOptions = UseAxiosOptions,
+	/**
+	 * AxiosRequestConfig 用的类型
+	 * @description
+	 * 最后才可以传递此类型
+	 */
+	D = any,
+> {
+	url: string;
+	/**
+	 * axios的配置类型
+	 * @description
+	 * 默认为 必填url请求地址的 config 请求配置
+	 */
+	config: CreateAxiosRequestConfig<K, D>;
+
+	/**
+	 * axios实例
+	 * @description
+	 * 对于包装器函数而言 必须传递有意义的请求实例
+	 */
+	instance: AxiosInstance;
+
+	/** useAxios 的选项配置 */
+	options: UseAxiosOptionsLike;
+}
+
+/** 正在尝试重构的2 url不是非必填 多了独立的url参数 */
+export function useAxiosWrapper2<K extends KeyAxiosRequestConfig, T, D = any>(params: UseAxiosWrapperParams2<K>) {
+	// ...使用默认值处理可能缺失的属性
+	const { config = {}, instance, options = {} } = params;
+	const url = params.url || "";
+	return useAxios<T, K, AxiosResponse<T>, D>(url, config, instance, options);
+}
