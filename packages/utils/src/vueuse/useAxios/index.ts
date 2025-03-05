@@ -1,10 +1,10 @@
 import type { RequiredPick } from "type-plus";
 import type { AxiosRequestConfig, AxiosResponse, AxiosInstance } from "axios";
-import type { UseAxiosOptions, UseAxiosReturn } from "@vueuse/integrations/useAxios";
+import type { UseAxiosOptions, UseAxiosOptionsBase, UseAxiosReturn } from "@vueuse/integrations/useAxios";
 import { useAxios } from "@vueuse/integrations/useAxios";
 
 /** 在封装函数时 需要使用该类型 */
-export { UseAxiosOptions };
+export { UseAxiosOptions, UseAxiosOptionsBase };
 
 /** 拓展的类型参数 用于约束必填的字段 */
 export type KeyAxiosRequestConfig<D = any> = keyof AxiosRequestConfig<D>;
@@ -66,7 +66,7 @@ declare module "@vueuse/integrations/useAxios" {
 		url: string,
 		config: AxiosRequestConfig<D>,
 		instance: AxiosInstance,
-		options?: UseAxiosOptions,
+		options?: UseAxiosOptionsBase,
 	): StrictUseAxiosReturn<T, K, R, D> & Promise<StrictUseAxiosReturn<T, K, R, D>>;
 }
 
@@ -139,17 +139,9 @@ export function useAxiosWrapper<T, K extends KeyAxiosRequestConfig, D = any>(par
 }
 
 export interface UseAxiosWrapperParams2<
-	K extends KeyAxiosRequestConfig<D>,
-	/**
-	 * 业务数据类型
-	 * @description
-	 * 必须先填写业务类型
-	 */
-	T = any,
-	/**
-	 * UseAxiosOptions 的派生类型
-	 */
-	UseAxiosOptionsLike extends UseAxiosOptions = UseAxiosOptions,
+	K extends KeyAxiosRequestConfig,
+	T,
+	UseAxiosOptionsLike extends UseAxiosOptionsBase = UseAxiosOptionsBase<T>,
 	/**
 	 * AxiosRequestConfig 用的类型
 	 * @description
@@ -177,7 +169,12 @@ export interface UseAxiosWrapperParams2<
 }
 
 /** 正在尝试重构的2 url不是非必填 多了独立的url参数 */
-export function useAxiosWrapper2<K extends KeyAxiosRequestConfig, T, D = any>(params: UseAxiosWrapperParams2<K>) {
+export function useAxiosWrapper2<
+	K extends KeyAxiosRequestConfig,
+	T,
+	UseAxiosOptionsLike extends UseAxiosOptionsBase,
+	D = any,
+>(params: UseAxiosWrapperParams2<K, T, UseAxiosOptionsLike, D>) {
 	// ...使用默认值处理可能缺失的属性
 	const { config = {}, instance, options = {} } = params;
 	const url = params.url || "";
