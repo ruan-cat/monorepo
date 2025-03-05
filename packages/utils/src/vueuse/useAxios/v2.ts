@@ -61,14 +61,25 @@ export interface UseAxiosWrapperParams2<
 	options: UseAxiosOptionsLike;
 }
 
-/** 正在尝试重构的2 url不是非必填 多了独立的url参数 */
+/**
+ * 正在尝试重构的2 url不是非必填 多了独立的url参数 */
+
+/**
+ * useAxios 的包装函数
+ * @description
+ * 其本质是对 useAxios 函数的封装，仅仅是包装了参数层
+ *
+ * 预期设计成一个万能的 通用的请求函数
+ *
+ * 类型必传key T UseAxiosOptionsLike
+ * @version 2
+ */
 export function useAxiosWrapper2<
 	K extends KeyAxiosRequestConfig,
 	T,
 	UseAxiosOptionsLike extends UseAxiosOptionsBase,
 	D = any,
 >(params: UseAxiosWrapperParams2<K, T, UseAxiosOptionsLike, D>) {
-	// ...使用默认值处理可能缺失的属性
 	const { config = {}, instance, options = {} } = params;
 	const url = params.url || "";
 	return useAxios<T, K, AxiosResponse<T>, D>(url, config, instance, options);

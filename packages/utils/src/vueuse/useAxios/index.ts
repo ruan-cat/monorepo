@@ -125,6 +125,7 @@ export interface UseAxiosWrapperParams<
  * 其本质是对 useAxios 函数的封装，仅仅是包装了参数层
  *
  * 预期设计成一个万能的 通用的请求函数
+ * @version 1
  */
 export function useAxiosWrapper<T, K extends KeyAxiosRequestConfig, D = any>(params: UseAxiosWrapperParams) {
 	const {
