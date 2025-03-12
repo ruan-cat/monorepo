@@ -33,12 +33,12 @@ const sidebar: DefaultTheme.Config["sidebar"] = [
 	// },
 
 	// 注意事项
-	{
-		text: "注意事项",
-		link: "/index",
-		base: "/attention",
-		items: [{ text: "及时修改git用户名", link: "/change-git-user-name" }],
-	},
+	// {
+	// 	text: "注意事项",
+	// 	link: "/index",
+	// 	base: "/attention",
+	// 	items: [{ text: "及时修改git用户名", link: "/change-git-user-name" }],
+	// },
 
 	// 10wms 前端组
 	{
@@ -104,6 +104,12 @@ const sidebar: DefaultTheme.Config["sidebar"] = [
 			{ text: "09oa", link: "/09oa" },
 			{ text: "10wms", link: "/10wms" },
 		],
+	},
+
+	// 退出10wms项目组
+	{
+		text: "10wsm报告",
+		link: "/10wms/report",
 	},
 ];
 
