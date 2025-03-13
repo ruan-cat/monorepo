@@ -1,9 +1,12 @@
 import { test } from "vitest";
-
 import { homeCategoryHead } from "./homeCategoryHead.ts";
 
 test("使用homeCategoryHead接口", async () => {
-	const { execute, data } = homeCategoryHead();
+	const { execute, data } = homeCategoryHead({
+		onSuccess(data) {
+			console.log(` 在 onSuccess 回调内， 输出结果？ `, data.result);
+		},
+	});
 	await execute({
 		data: {
 			vip: true,

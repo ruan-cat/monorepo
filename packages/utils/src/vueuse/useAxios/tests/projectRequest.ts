@@ -36,12 +36,17 @@ type Params<K extends KeyAxiosRequestConfig, T = any, D = any> = PartialPick<_Pa
  */
 const projectRequestInstance = createAxiosInstance();
 
+/** @private 我们推荐你新建一个内部类型 移除掉多余key值 避免使用函数做请求时 反复声明无意义的变量 */
+type RemoveMethod<T extends KeyAxiosRequestConfig> = Exclude<T, "method">;
+
 /**
  * 项目内用的接口请求
  * @description
  * 推荐将 options 和 instance 参数提前封装好，不要每次调用接口请求函数时传递
  */
-export function projectRequest<K extends KeyAxiosRequestConfig, T = any, D = any>(params: Params<K, T, D>) {
+export function projectRequest<K extends KeyAxiosRequestConfig, T = any, D = any>(
+	params: Params<RemoveMethod<K>, T, D>,
+) {
 	const {
 		url,
 		config,
@@ -51,5 +56,10 @@ export function projectRequest<K extends KeyAxiosRequestConfig, T = any, D = any
 		instance = projectRequestInstance,
 	} = params;
 
-	return useAxiosWrapper<K, ApifoxModel<T>, UseAxiosOptionsBase<ApifoxModel<T>>, D>({ config, instance, options, url });
+	return useAxiosWrapper<RemoveMethod<K>, ApifoxModel<T>, UseAxiosOptionsBase<ApifoxModel<T>>, D>({
+		config,
+		instance,
+		options,
+		url,
+	});
 }
