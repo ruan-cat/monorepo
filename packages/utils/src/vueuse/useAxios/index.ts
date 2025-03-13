@@ -137,7 +137,7 @@ export interface UseAxiosWrapperParams<
  * 类型必传key T UseAxiosOptionsLike
  * @version 2
  */
-export function useAxiosWrapper2<
+export function useAxiosWrapper<
 	K extends KeyAxiosRequestConfig,
 	T,
 	UseAxiosOptionsLike extends UseAxiosOptionsBase,

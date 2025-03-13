@@ -67,7 +67,7 @@ export interface UseAxiosWrapperParamsV1<
  * 预期设计成一个万能的 通用的请求函数
  * @version 1
  */
-export function useAxiosWrapper<T, K extends KeyAxiosRequestConfig, D = any>(params: UseAxiosWrapperParamsV1) {
+export function useAxiosWrapperV1<T, K extends KeyAxiosRequestConfig, D = any>(params: UseAxiosWrapperParamsV1) {
 	const {
 		config: { url },
 		config,
