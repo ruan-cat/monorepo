@@ -14,6 +14,7 @@ export type KeyHelper<K extends KeyAxiosRequestConfig> = K;
 
 /** @deprecated 在v2版本中，我们不使用该工具来约束删减类型 */
 export type RemoveUrl<T extends KeyAxiosRequestConfig> = Exclude<T, "url">;
+
 /** @deprecated 在v2版本中，我们不使用该工具来约束删减类型 */
 export type RemoveUrlMethod<T extends KeyAxiosRequestConfig> = Exclude<T, "url" | "method">;
 
@@ -72,35 +73,42 @@ declare module "@vueuse/integrations/useAxios" {
 	): StrictUseAxiosReturn<T, K, R, D> & Promise<StrictUseAxiosReturn<T, K, R, D>>;
 }
 
-/** 包装器的参数 @version 1 */
+/** 包装器的参数 @version 2 */
 export interface UseAxiosWrapperParams<
-	/**
-	 * 业务数据类型
-	 * @description
-	 * 必须先填写业务类型
-	 */
-	T = any,
 	/**
 	 * AxiosRequestConfig 默认必填的字段
 	 * @description
-	 * 用于约束其他类型的字段
+	 * key是首先必填的字段 必须要约束axios请求配置的可选项值
 	 *
-	 * 然后才能填写必传的参数类型
-	 *
-	 * 默认为 必填url请求地址的 config 请求配置
+	 * 该key值不再默认要求url是必填项 不做严格约束
 	 */
-	K extends KeyAxiosRequestConfig<D> = "url",
+	K extends KeyAxiosRequestConfig,
 	/**
-	 * UseAxiosOptions 的派生类型
+	 * 业务数据类型
+	 * @description
+	 * axios的返回值类型 二版本不再默认提供any类型
+	 *
+	 * 下游工具必须主动传递类型
 	 */
-	UseAxiosOptionsLike extends UseAxiosOptions = UseAxiosOptions,
+	T,
+	/** UseAxiosOptionsBase 的派生类型 */
+	UseAxiosOptionsLike extends UseAxiosOptionsBase = UseAxiosOptionsBase<T>,
 	/**
 	 * AxiosRequestConfig 用的类型
 	 * @description
-	 * 最后才可以传递此类型
+	 * 通常是 axios 的输入值
 	 */
 	D = any,
 > {
+	/**
+	 * 接口的url
+	 * @description
+	 * 接口必须要有url地址，该url迁移到此处专门设置
+	 *
+	 * 不要求在 axios 配置内必传url了。
+	 * @version 2
+	 */
+	url: string;
 	/**
 	 * axios的配置类型
 	 * @description
@@ -125,19 +133,18 @@ export interface UseAxiosWrapperParams<
  * 其本质是对 useAxios 函数的封装，仅仅是包装了参数层
  *
  * 预期设计成一个万能的 通用的请求函数
- * @version 1
+ *
+ * 类型必传key T UseAxiosOptionsLike
+ * @version 2
  */
-export function useAxiosWrapper<T, K extends KeyAxiosRequestConfig, D = any>(params: UseAxiosWrapperParams) {
-	const {
-		config: { url },
-		config,
-		instance,
-		options,
-	} = params;
-	// 跳转到 vueuse 内的函数声明
-	// return useAxios<T, AxiosResponse<T>, D>(url, config, instance, options);
-
-	// 跳转到我们拓展的函数声明
+export function useAxiosWrapper2<
+	K extends KeyAxiosRequestConfig,
+	T,
+	UseAxiosOptionsLike extends UseAxiosOptionsBase,
+	D = any,
+>(params: UseAxiosWrapperParams<K, T, UseAxiosOptionsLike, D>) {
+	const { config = {}, instance, options = {} } = params;
+	const url = params.url || "";
 	return useAxios<T, K, AxiosResponse<T>, D>(url, config, instance, options);
 }
 
