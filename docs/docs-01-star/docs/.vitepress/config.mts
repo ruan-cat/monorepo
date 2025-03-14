@@ -6,7 +6,7 @@ import * as fs from "node:fs";
 // const __dirname = dirname(__filename);
 
 import { defineConfig, type DefaultTheme } from "vitepress";
-import { setUserConfig } from "@ruan-cat/vitepress-preset-config/config";
+import { setUserConfig, setGenerateSidebar } from "@ruan-cat/vitepress-preset-config/config";
 
 /**
  * 手动配置的侧边栏
@@ -114,7 +114,7 @@ export default setUserConfig({
 	title: "阮喵喵的01星球笔记",
 	description: "阮喵喵在01星球内的一些公用文档",
 	lang: "zh",
-	srcDir: "../docs",
+	// srcDir: "../docs",
 
 	themeConfig: {
 		nav: [
@@ -127,7 +127,10 @@ export default setUserConfig({
 			level: "deep",
 		},
 
-		sidebar,
+		sidebar: setGenerateSidebar({
+			documentRootPath: "docs",
+			// documentRootPath: "./config",
+		}),
 
 		socialLinks: [
 			{
