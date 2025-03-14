@@ -7,8 +7,8 @@ import { vitepressDemoPlugin } from "vitepress-demo-plugin";
 import { merge, isUndefined } from "lodash-es";
 
 /** 设置vitepress主配置 */
-export function setUserConfig(config: UserConfig<DefaultTheme.Config>) {
-	return merge(defaultUserConfig, config);
+export function setUserConfig(config?: UserConfig<DefaultTheme.Config>) {
+	return merge(defaultUserConfig, isUndefined(config) ? {} : config);
 }
 
 type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
@@ -18,13 +18,14 @@ type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
  * @see https://vitepress-sidebar.cdget.com/zhHans/guide/options
  */
 export function setGenerateSidebar(options?: VitePressSidebarOptions) {
-	return merge(defaultSidebarOptions, isUndefined(options) ? {} : options);
+	return generateSidebar(merge(defaultSidebarOptions, isUndefined(options) ? {} : options));
 }
 
 // TODO:
 /** 设置导航栏的变更日志 */
 function handleChangeLog() {}
 
+/** 默认用户配置 */
 const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	title: "10wms前端组技术文档",
 	description: "本前端项目内的组件使用、api、类型以及使用文档",
@@ -32,45 +33,7 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	lang: "zh",
 	// 暂不需要
 	// srcDir: "./src",
-};
 
-/** 默认侧边栏配置 */
-const defaultSidebarOptions: VitePressSidebarOptions = {
-	documentRootPath: "src",
-
-	// 侧边栏需要折叠
-	collapsed: true,
-
-	// 不需要配置折叠嵌套深度
-	// collapseDepth: 4,
-
-	// 不需要索引首页 首页直接在标题内找到即可
-	// includeRootIndexFile: true,
-
-	// 不需要索引文件夹
-	// includeFolderIndexFile: true,
-
-	// 用文件的 h1 标题作为侧边栏标题
-	useTitleFromFileHeading: true,
-
-	// 用index文件的标题作为折叠栏的标题
-	useFolderTitleFromIndexFile: true,
-
-	// 折叠栏链接到index文件
-	useFolderLinkFromIndexFile: true,
-
-	// 用order字段做菜单排序
-	sortMenusByFrontmatterOrder: true,
-
-	// 不使用倒序排序
-	// sortMenusOrderByDescending: true,
-	sortMenusByName: false,
-
-	useFolderLinkFromSameNameSubFile: true,
-};
-
-// https://vitepress.dev/reference/site-config
-export default defineConfig({
 	themeConfig: {
 		i18nRouting: true,
 
@@ -91,8 +54,8 @@ export default defineConfig({
 			level: "deep",
 		},
 
-		// 自动化路由
-		sidebar: generateSidebar(),
+		// 自动化侧边栏
+		sidebar: setGenerateSidebar(),
 
 		socialLinks: [
 			{
@@ -144,4 +107,42 @@ export default defineConfig({
 			md.use(vitepressDemoPlugin);
 		},
 	},
-});
+};
+
+/** 默认侧边栏配置 */
+const defaultSidebarOptions: VitePressSidebarOptions = {
+	documentRootPath: "src",
+
+	// 侧边栏需要折叠
+	collapsed: true,
+
+	// 不需要配置折叠嵌套深度
+	// collapseDepth: 4,
+
+	// 不需要索引首页 首页直接在标题内找到即可
+	// includeRootIndexFile: true,
+
+	// 不需要索引文件夹
+	// includeFolderIndexFile: true,
+
+	// 用文件的 h1 标题作为侧边栏标题
+	useTitleFromFileHeading: true,
+
+	// 用index文件的标题作为折叠栏的标题
+	useFolderTitleFromIndexFile: true,
+
+	// 折叠栏链接到index文件
+	useFolderLinkFromIndexFile: true,
+
+	// 用order字段做菜单排序
+	sortMenusByFrontmatterOrder: true,
+
+	// 不使用倒序排序
+	// sortMenusOrderByDescending: true,
+	sortMenusByName: false,
+
+	useFolderLinkFromSameNameSubFile: true,
+};
+
+// https://vitepress.dev/reference/site-config
+export default defineConfig(setUserConfig());
