@@ -64,6 +64,11 @@
 		"url": "https://github.com/ruan-cat"
 	},
 	"license": "MIT",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
+	},
 	"typesVersions": {
 		"*": {
 			"*": [
