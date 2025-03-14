@@ -56,7 +56,7 @@ export const config: UserConfig = {
 				name: "🔧 build:    构建相关 | Changes that affect the build system or external dependencies",
 			},
 			{ value: "🐎 ci", name: "🐎 ci:       持续集成 | Changes to our CI configuration files and scripts" },
-			{ value: "📢 publish", name: "📢 publish:       发包 | 依赖包发布版本。" },
+			{ value: "📢 publish", name: "📢 publish:  发包 | 依赖包发布版本。" },
 			{
 				value: "🦄 refactor",
 				name: "🦄 refactor: 代码重构 | A code change that neither fixes a bug nor adds a feature",
