@@ -26,7 +26,6 @@
 		"build:docs-main": "vuepress-vite build docs",
 		"build:docs": "turbo do-build-docs",
 		"clean:type": "rimraf dist",
-		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"generate:type-1": "vue-tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
 		"generate:type-2": "tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
 		"generate:type-3": "vue-tsc -p tsconfig.types.json",

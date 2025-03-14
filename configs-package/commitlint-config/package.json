@@ -17,7 +17,6 @@
 	"scripts": {
 		"prebuild": "automd",
 		"build": "tsup",
-		"clear": "rimraf dist .turbo .vercel .cache .temp",
 		"rm:node_modules": "rimraf node_modules"
 	},
 	"exports": {

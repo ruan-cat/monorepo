@@ -14,10 +14,7 @@
 		"url": "git+https://github.com/ruan-cat/vercel-monorepo-test.git",
 		"directory": "packages/generate-code-workspace"
 	},
-	"scripts": {
-		"clear": "rimraf dist .turbo .vercel .cache .temp",
-		"rm:node_modules": "rimraf node_modules"
-	},
+	"scripts": {},
 	"exports": {
 		".": {
 			"import": "./src/index.ts",

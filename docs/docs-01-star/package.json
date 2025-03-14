@@ -8,7 +8,6 @@
 		"docs:dev": "vitepress dev docs --port 8080",
 		"build:docs": "vitepress build docs",
 		"docs:preview": "vitepress preview docs",
-		"clear": "rimraf dist .turbo .vercel .cache .temp cache",
 		"rm:node_modules": "rimraf node_modules"
 	},
 	"keywords": [],

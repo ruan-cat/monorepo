@@ -14,11 +14,6 @@
 		"vp-update": {
 			"dependsOn": []
 		},
-		"clear": {
-			"dependsOn": [
-				"^clear"
-			]
-		},
 		"//#changeset:publish": {
 			"cache": false,
 			"dependsOn": [
