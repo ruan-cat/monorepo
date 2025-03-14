@@ -18,7 +18,7 @@ export default <Config>{
 			type: "userCommands",
 			targetCWD: "./docs/docs-01-star",
 			url: domains["01s-doc"] as unknown as string[],
-			outputDirectory: "config/.vitepress/dist",
+			outputDirectory: "docs/.vitepress/dist",
 			userCommands: ["pnpm -C=./docs/docs-01-star build:docs"],
 		},
 
