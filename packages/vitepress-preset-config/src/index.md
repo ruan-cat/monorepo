@@ -1,3 +1,35 @@
 # 阮喵喵自用的vitepress预设配置
 
+## 设计初衷
+
+为了替换掉之前的vuepress预设配置。之前的vuepress预设配置导致我命名md文件很不舒服。
+
+## 安装
+
+```bash
+pnpm i -D @ruan-cat/vitepress-preset-config
+```
+
 ## 简易使用
+
+### 用户配置
+
+::: details config.mts
+
+<<< ./tests/config.example.ts
+
+:::
+
+::: warning 侧边栏配置必须单独赋值
+
+经过测试，目前发现侧边栏数组只能在手动赋值的时候才生效。
+
+:::
+
+### 主题配置
+
+::: details theme/index.ts
+
+<<< ./tests/theme.example.ts
+
+:::
