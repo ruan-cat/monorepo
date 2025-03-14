@@ -55,6 +55,7 @@
 		"@ruan-cat/generate-code-workspace": "workspace:^",
 		"@ruan-cat/utils": "workspace:^",
 		"@ruan-cat/vercel-deploy-tool": "workspace:^",
+		"@ruan-cat/vitepress-preset-config": "workspace:^",
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
 		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/js-yaml": "^4.0.9",
