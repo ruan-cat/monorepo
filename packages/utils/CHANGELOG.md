@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.1.0
+
+### Minor Changes
+
+- 增加工具 `addChangelog2doc` 函数，为其他的文档配置预设项目，提供基础的工具函数。
+
 ## 4.0.0
 
 ### Major Changes
