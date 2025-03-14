@@ -4,9 +4,26 @@ import { generateSidebar } from "vitepress-sidebar";
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
 import { vitepressDemoPlugin } from "vitepress-demo-plugin";
 
-function setUserConfig() {
-	return;
+import { merge, isUndefined } from "lodash-es";
+
+/** 设置vitepress主配置 */
+export function setUserConfig(config: UserConfig<DefaultTheme.Config>) {
+	return merge(defaultUserConfig, config);
 }
+
+type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
+
+/**
+ * 设置自动生成侧边栏的配置
+ * @see https://vitepress-sidebar.cdget.com/zhHans/guide/options
+ */
+export function setGenerateSidebar(options?: VitePressSidebarOptions) {
+	return merge(defaultSidebarOptions, isUndefined(options) ? {} : options);
+}
+
+// TODO:
+/** 设置导航栏的变更日志 */
+function handleChangeLog() {}
 
 const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	title: "10wms前端组技术文档",
@@ -15,6 +32,41 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	lang: "zh",
 	// 暂不需要
 	// srcDir: "./src",
+};
+
+/** 默认侧边栏配置 */
+const defaultSidebarOptions: VitePressSidebarOptions = {
+	documentRootPath: "src",
+
+	// 侧边栏需要折叠
+	collapsed: true,
+
+	// 不需要配置折叠嵌套深度
+	// collapseDepth: 4,
+
+	// 不需要索引首页 首页直接在标题内找到即可
+	// includeRootIndexFile: true,
+
+	// 不需要索引文件夹
+	// includeFolderIndexFile: true,
+
+	// 用文件的 h1 标题作为侧边栏标题
+	useTitleFromFileHeading: true,
+
+	// 用index文件的标题作为折叠栏的标题
+	useFolderTitleFromIndexFile: true,
+
+	// 折叠栏链接到index文件
+	useFolderLinkFromIndexFile: true,
+
+	// 用order字段做菜单排序
+	sortMenusByFrontmatterOrder: true,
+
+	// 不使用倒序排序
+	// sortMenusOrderByDescending: true,
+	sortMenusByName: false,
+
+	useFolderLinkFromSameNameSubFile: true,
 };
 
 // https://vitepress.dev/reference/site-config
@@ -40,41 +92,7 @@ export default defineConfig({
 		},
 
 		// 自动化路由
-		sidebar: generateSidebar({
-			documentRootPath: "src",
-
-			// 侧边栏需要折叠
-			collapsed: true,
-
-			// 不需要配置折叠嵌套深度
-			// collapseDepth: 4,
-
-			// 不需要索引首页 首页直接在标题内找到即可
-			// includeRootIndexFile: true,
-
-			// 不需要索引文件夹
-			// includeFolderIndexFile: true,
-
-			// 用文件的 h1 标题作为侧边栏标题
-			useTitleFromFileHeading: true,
-
-			// 用index文件的标题作为折叠栏的标题
-			useFolderTitleFromIndexFile: true,
-
-			// 折叠栏链接到index文件
-			useFolderLinkFromIndexFile: true,
-
-			// 用order字段做菜单排序
-			sortMenusByFrontmatterOrder: true,
-
-			// 不使用倒序排序
-			// sortMenusOrderByDescending: true,
-			sortMenusByName: false,
-
-			useFolderLinkFromSameNameSubFile: true,
-		}),
-		// sidebar,
-		// sidebar: calculateSidebar(),
+		sidebar: generateSidebar(),
 
 		socialLinks: [
 			{
