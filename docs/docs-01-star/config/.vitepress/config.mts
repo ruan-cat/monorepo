@@ -6,10 +6,7 @@ import * as fs from "node:fs";
 // const __dirname = dirname(__filename);
 
 import { defineConfig, type DefaultTheme } from "vitepress";
-import { generateSidebar } from "vitepress-sidebar";
-
-import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
-import { calculateSidebar } from "@nolebase/vitepress-plugin-sidebar";
+import { setUserConfig } from "@ruan-cat/vitepress-preset-config/config";
 
 /**
  * 手动配置的侧边栏
@@ -113,22 +110,13 @@ const sidebar: DefaultTheme.Config["sidebar"] = [
 	},
 ];
 
-// https://vitepress.dev/reference/site-config
-export default defineConfig({
+export default setUserConfig({
 	title: "阮喵喵的01星球笔记",
 	description: "阮喵喵在01星球内的一些公用文档",
-
 	lang: "zh",
 	srcDir: "../docs",
 
 	themeConfig: {
-		i18nRouting: true,
-
-		search: {
-			provider: "local",
-		},
-
-		// https://vitepress.dev/reference/default-theme-config
 		nav: [
 			{ text: "首页", link: "/" },
 			{ text: "仓库地址", link: "https://github.com/ruan-cat/vercel-monorepo-test/tree/dev/packages/docs-01-star" },
@@ -140,11 +128,6 @@ export default defineConfig({
 		},
 
 		sidebar,
-		// sidebar: generateSidebar({
-		// 	documentRootPath: "docs",
-		// 	collapsed: true,
-		// }),
-		// sidebar: calculateSidebar(),
 
 		socialLinks: [
 			{
@@ -152,42 +135,5 @@ export default defineConfig({
 				link: "https://github.com/ruan-cat/vercel-monorepo-test/blob/dev/packages/docs-01-star/docs/index.md",
 			},
 		],
-	},
-
-	vite: {
-		server: {
-			open: true,
-		},
-
-		plugins: [
-			// @ts-ignore
-			GitChangelog({
-				// 填写在此处填写您的仓库链接
-				repoURL: () => "https://github.com/ruan-cat/vercel-monorepo-test",
-			}),
-			// @ts-ignore
-			GitChangelogMarkdownSection(),
-		],
-
-		optimizeDeps: {
-			exclude: [
-				"@nolebase/vitepress-plugin-breadcrumbs/client",
-				"@nolebase/vitepress-plugin-enhanced-readabilities/client",
-				"vitepress",
-				"@nolebase/ui",
-			],
-		},
-
-		ssr: {
-			noExternal: [
-				// 如果还有别的依赖需要添加的话，并排填写和配置到这里即可
-				"@nolebase/vitepress-plugin-breadcrumbs",
-
-				"@nolebase/vitepress-plugin-enhanced-readabilities",
-				"@nolebase/ui",
-
-				"@nolebase/vitepress-plugin-highlight-targeted-heading",
-			],
-		},
 	},
 });
