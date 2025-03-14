@@ -19,8 +19,7 @@
 		"docs:build": "vuepress-vite build docs",
 		"build": "vite build",
 		"build:watch": "vite build --watch",
-		"vp-update": "pnpm dlx vp-update",
-		"rm:node_modules": "rimraf node_modules"
+		"vp-update": "pnpm dlx vp-update"
 	},
 	"exports": {
 		".": {

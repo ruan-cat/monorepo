@@ -8,8 +8,7 @@
 	"scripts": {
 		"dev": "vite",
 		"notuse-build": "vite build",
-		"preview": "vite preview",
-		"rm:node_modules": "rimraf node_modules"
+		"preview": "vite preview"
 	},
 	"dependencies": {
 		"@giegie/components": "workspace:^",

@@ -7,8 +7,7 @@
 	"scripts": {
 		"docs:dev": "vitepress dev docs --port 8080",
 		"build:docs": "vitepress build docs",
-		"docs:preview": "vitepress preview docs",
-		"rm:node_modules": "rimraf node_modules"
+		"docs:preview": "vitepress preview docs"
 	},
 	"keywords": [],
 	"author": "",

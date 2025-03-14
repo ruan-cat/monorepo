@@ -6,8 +6,7 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
-		"preview": "vite preview",
-		"rm:node_modules": "rimraf node_modules pnpm-lock.yaml"
+		"preview": "vite preview"
 	},
 	"devDependencies": {
 		"sass": "^1.85.1",

@@ -7,8 +7,7 @@
 	"type": "module",
 	"scripts": {
 		"docs:dev": "vuepress-vite dev src --clean-cache --open",
-		"build:docs": "vuepress-vite build src",
-		"rm:node_modules": "rimraf node_modules"
+		"build:docs": "vuepress-vite build src"
 	},
 	"devDependencies": {
 		"@ruan-cat/vuepress-preset-config": "workspace:^"

@@ -12,8 +12,7 @@
 		"vip:dev": "vitepress dev src/configs/vip --port 8080 --open",
 		"vip:build": "vitepress build src/configs/vip",
 		"vip-carbon:dev": "vitepress dev src/configs/vip-carbon --port 8080 --open",
-		"vip-carbon:build": "vitepress build src/configs/vip-carbon",
-		"rm:node_modules": "rimraf node_modules"
+		"vip-carbon:build": "vitepress build src/configs/vip-carbon"
 	},
 	"devDependencies": {
 		"@ruan-cat/vitepress-preset-config": "workspace:^",

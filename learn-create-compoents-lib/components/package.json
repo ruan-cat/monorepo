@@ -28,8 +28,7 @@
 	},
 	"scripts": {
 		"notuse-build": "gulp -f build/gulpfile.js",
-		"build:vite": "vite build",
-		"rm:node_modules": "rimraf node_modules"
+		"build:vite": "vite build"
 	},
 	"keywords": [],
 	"author": "",

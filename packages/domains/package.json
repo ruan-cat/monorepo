@@ -21,8 +21,7 @@
 		"docs:dev": "turbo docs:dev-main",
 		"build:docs-main": "vuepress-vite build docs",
 		"build:docs": "turbo build:docs-main",
-		"build": "tsup",
-		"rm:node_modules": "rimraf node_modules"
+		"build": "tsup"
 	},
 	"exports": {
 		".": {

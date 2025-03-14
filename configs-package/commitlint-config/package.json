@@ -16,8 +16,7 @@
 	},
 	"scripts": {
 		"prebuild": "automd",
-		"build": "tsup",
-		"rm:node_modules": "rimraf node_modules"
+		"build": "tsup"
 	},
 	"exports": {
 		".": {

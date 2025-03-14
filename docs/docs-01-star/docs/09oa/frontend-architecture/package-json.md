@@ -62,14 +62,6 @@ npx only-allow pnpm && npm run corepack:pnpm
 }
 ```
 
-### 删除依赖
-
-```json
-{
-	"rm:node_modules": "rimraf node_modules pnpm-lock.yaml"
-}
-```
-
 ### 删除类型声明文件
 
 ```json

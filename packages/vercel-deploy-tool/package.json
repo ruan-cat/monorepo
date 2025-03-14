@@ -18,8 +18,7 @@
 		"—build-not-use-for-now": "tsc",
 		"start": "node ./dist/index.js",
 		"run": "node --import=tsx ./src/index.ts --env-path=.env.test",
-		"test:config": "node --import=tsx ./tests/config.test.ts --env-path=.env.test",
-		"rm:node_modules": "rimraf node_modules"
+		"test:config": "node --import=tsx ./tests/config.test.ts --env-path=.env.test"
 	},
 	"exports": {
 		".": {
