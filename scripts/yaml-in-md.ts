@@ -1,19 +1,18 @@
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 import { program } from "commander";
 import { consola } from "consola";
 import { isUndefined } from "lodash-es";
 import yaml from "js-yaml";
-import prettier from "prettier";
 
-import prettierConfig from "../prettier.config.js";
+// import prettier from "prettier";
+// import prettierConfig from "../prettier.config.js";
 
 program
 	.name("yaml-in-md")
 	// 环境变量的地址
 	.option("--md <path>", "目标md文件的地址，目前仅考虑单个文件")
 	.parse();
-
 const options = program.opts();
 consola.info(" 查看命令行提供的参数 ", options);
 consola.info(` 当前运行的地址为： ${process.cwd()} `);
@@ -26,15 +25,15 @@ if (isUndefined(defMdPath)) {
 	process.exit(1);
 }
 
-interface Params {
+interface Params<T = Record<string, any>> {
 	mdPath?: string;
-	data: Record<string, unknown>;
+	data: T;
 }
 
 /**
- * TODO: 将该功能整合到vuepress预设文档内，让该项目实现自动加入变更集文件。
+ * 将YAML数据写入到MD文件内
  */
-export async function writeYaml2md(params: Params) {
+export async function writeYaml2md<T>(params: Params<T>) {
 	const { mdPath = defMdPath, data } = params;
 
 	if (isUndefined(mdPath)) {
@@ -59,14 +58,16 @@ export async function writeYaml2md(params: Params) {
 	// Combine YAML with MD content
 	const newContent = `---\n${yamlContent}---\n\n${mdContent}`;
 
+	// 警告 暂不考虑使用本函数内的prettier功能 避免打包体积太大
 	// Format with prettier using project config
-	const formattedContent = await prettier.format(newContent, {
-		parser: "markdown",
-		...prettierConfig,
-	});
+	// const formattedContent = await prettier.format(newContent, {
+	// 	parser: "markdown",
+	// 	...prettierConfig,
+	// });
 
 	// Write back to file
-	writeFileSync(mdPath, formattedContent, "utf-8");
+	// writeFileSync(mdPath, formattedContent, "utf-8");
+	writeFileSync(mdPath, newContent, "utf-8");
 
 	consola.success(` 已将YAML数据写入到 ${mdPath} `);
 }
