@@ -90,7 +90,7 @@ export default <Config>{
 		{
 			type: "userCommands",
 			targetCWD: "./packages/domains",
-			outputDirectory: "docs/.vuepress/dist",
+			outputDirectory: "docs/.vitepress/dist",
 			url: domains.domain as unknown as string[],
 			userCommands: ["pnpm -C=./packages/domains build:docs"],
 		},
