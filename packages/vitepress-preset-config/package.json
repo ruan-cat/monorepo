@@ -6,10 +6,8 @@
 	"types": "./src/index.ts",
 	"main": "index.js",
 	"scripts": {
-		"docs:dev": "vuepress-vite dev docs --clean-cache --open",
-		"docs:build": "vuepress-vite build docs",
-		"build": "vite build",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"docs:dev": "vitepress dev src --port 8080",
+		"docs:build": "vitepress build src"
 	},
 	"dependencies": {
 		"@nolebase/vitepress-plugin-breadcrumbs": "^2.15.0",
