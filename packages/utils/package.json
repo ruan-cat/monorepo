@@ -83,7 +83,6 @@
 	},
 	"devDependencies": {
 		"@antfu/utils": "^9.1.0",
-		"@ruan-cat/vuepress-preset-config": "workspace:^",
 		"@types/lodash-es": "^4.17.12",
 		"@types/node": "^22.13.8",
 		"@types/qs": "^6.9.18",

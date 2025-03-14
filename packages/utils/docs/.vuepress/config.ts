@@ -1,4 +1,6 @@
-import { defineRuanCatVuepressConfig } from "@ruan-cat/vuepress-preset-config";
+// 特殊写法 避免出现循环依赖
+// import { defineRuanCatVuepressConfig } from "@ruan-cat/vuepress-preset-config";
+import { defineRuanCatVuepressConfig } from "../../../vuepress-preset-config";
 
 import { addChangelog2doc } from "@ruan-cat/utils/node-esm";
 
