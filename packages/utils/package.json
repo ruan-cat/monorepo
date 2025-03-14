@@ -105,9 +105,6 @@
 		"vite-plugin-autogeneration-import-file": ">=3"
 	},
 	"peerDependenciesMeta": {
-		"commander": {
-			"optional": true
-		},
 		"js-yaml": {
 			"optional": true
 		},
