@@ -17,15 +17,18 @@ import yaml from "js-yaml";
 // /** md文件的地址 */
 // const defMdPath: string = options?.md;
 
-interface Params<T = Record<string, any>> {
+export interface WriteYaml2mdParams<T = Record<string, any>> {
+	/** 目标md文件地址 */
 	mdPath: string;
+
+	/** 被插入到md头部的数据 */
 	data: T;
 }
 
 /**
  * 将YAML数据写入到MD文件内
  */
-export function writeYaml2md<T>(params: Params<T>) {
+export function writeYaml2md<T>(params: WriteYaml2mdParams<T>) {
 	consola.info(` 当前运行的地址为： ${process.cwd()} `);
 	const { mdPath, data } = params;
 

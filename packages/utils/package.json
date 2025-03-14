@@ -47,7 +47,7 @@
 		},
 		"./node-esm": {
 			"types": "./src/node-esm/index.ts",
-			"import": "./src/node-esm/index.ts"
+			"import": "./dist/node-esm/index.js"
 		},
 		"./unplugin-vue-router": "./src/unplugin-vue-router/index.ts",
 		"./vite-plugin-autogeneration-import-file": "./src/vite-plugin-autogeneration-import-file/index.ts",
