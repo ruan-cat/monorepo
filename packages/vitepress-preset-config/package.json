@@ -1,0 +1,50 @@
+{
+	"name": "@ruan-cat/vitepress-preset-config",
+	"version": "0.0.0",
+	"description": "用于给大多数的vuepress项目提供一个预设的配置文件。",
+	"homepage": "https://utils.ruancat6312.top",
+	"types": "./src/index.ts",
+	"main": "index.js",
+	"scripts": {
+		"docs:dev": "vuepress-vite dev docs --clean-cache --open",
+		"docs:build": "vuepress-vite build docs",
+		"build": "vite build",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"bugs": {
+		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ruan-cat/vercel-monorepo-test.git",
+		"directory": "packages/vitepress-preset-config"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/vuepress-preset-config.js",
+			"types": "./src/index.ts"
+		},
+		"./src/*": "./src/*"
+	},
+	"keywords": [
+		"vitepress"
+	],
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	},
+	"license": "MIT",
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/*",
+				"./*"
+			]
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	]
+}
