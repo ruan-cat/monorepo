@@ -1,7 +1,6 @@
 import { defineConfig, type Options } from "tsup";
 
 export default defineConfig((options: Options) => [
-	// 常规 esm 情况的包
 	{
 		entry: ["./src/index.ts"],
 		sourcemap: true,
