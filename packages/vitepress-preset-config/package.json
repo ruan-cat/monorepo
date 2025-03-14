@@ -7,7 +7,7 @@
 	"main": "./src/config.mts",
 	"scripts": {
 		"docs:dev": "vitepress dev src --port 8080",
-		"docs:build": "vitepress build src",
+		"build:docs": "vitepress build src",
 		"build": "tsup"
 	},
 	"dependencies": {
