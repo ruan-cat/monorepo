@@ -10,4 +10,10 @@ dir:
 
 如下：
 
-@[code](../main.ts)
+<!-- @[code](../main.ts) -->
+
+::: details 域名
+
+<<< ../main.ts
+
+:::

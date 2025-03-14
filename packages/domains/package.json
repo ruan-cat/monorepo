@@ -15,8 +15,10 @@
 		"directory": "packages/domains"
 	},
 	"scripts": {
-		"docs:dev": "vuepress-vite dev docs --clean-cache --open",
-		"build:docs": "vuepress-vite build docs",
+		"docs:dev-vp": "vuepress-vite dev docs --clean-cache --open",
+		"build:docs-vp": "vuepress-vite build docs",
+		"docs:dev": "vitepress dev docs --port 8080",
+		"build:docs": "vitepress build docs",
 		"build": "tsup"
 	},
 	"exports": {
@@ -56,7 +58,9 @@
 		"tsconfig.json"
 	],
 	"devDependencies": {
+		"@ruan-cat/vitepress-preset-config": "workspace:^",
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
-		"tsup": "^8.4.0"
+		"tsup": "^8.4.0",
+		"vitepress": "^1.6.3"
 	}
 }
