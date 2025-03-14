@@ -20,11 +20,8 @@
 		"directory": "packages/vitepress-preset-config"
 	},
 	"exports": {
-		".": {
-			"import": "./dist/vuepress-preset-config.js",
-			"types": "./src/index.ts"
-		},
-		"./src/*": "./src/*"
+		"./config.mts": "./src/.vitepress/config.mts",
+		"./theme": "./src/.vitepress/theme/index.ts"
 	},
 	"keywords": [
 		"vitepress"
