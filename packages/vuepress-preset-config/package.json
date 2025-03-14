@@ -17,13 +17,14 @@
 	"scripts": {
 		"docs:dev": "vuepress-vite dev docs --clean-cache --open",
 		"docs:build": "vuepress-vite build docs",
-		"build": "vite build",
-		"build:watch": "vite build --watch",
+		"build": "tsup",
+		"build:vite": "vite build",
+		"build:vite:watch": "vite build --watch",
 		"vp-update": "pnpm dlx vp-update"
 	},
 	"exports": {
 		".": {
-			"import": "./dist/vuepress-preset-config.js",
+			"import": "./dist/index.js",
 			"types": "./src/index.ts"
 		},
 		"./src/*": "./src/*"
@@ -57,7 +58,8 @@
 	],
 	"devDependencies": {
 		"@types/node": "^22.13.8",
-		"@types/rollup-plugin-visualizer": "^5.0.3"
+		"@types/rollup-plugin-visualizer": "^5.0.3",
+		"tsup": "^8.4.0"
 	},
 	"dependencies": {
 		"@ruan-cat/utils": "workspace:^",
