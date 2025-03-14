@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.0.0
+
+### Major Changes
+
+- 正式使用第二版本的接口请求工具。
+
 ## 3.3.0
 
 ### Minor Changes
