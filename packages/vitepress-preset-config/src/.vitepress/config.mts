@@ -1,18 +1,24 @@
-import { defineConfig, type DefaultTheme } from "vitepress";
+import { defineConfig, type DefaultTheme, type UserConfig } from "vitepress";
 import { generateSidebar } from "vitepress-sidebar";
 
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
 import { vitepressDemoPlugin } from "vitepress-demo-plugin";
 
-// https://vitepress.dev/reference/site-config
-export default defineConfig({
+function setUserConfig() {
+	return;
+}
+
+const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	title: "10wms前端组技术文档",
 	description: "本前端项目内的组件使用、api、类型以及使用文档",
 
 	lang: "zh",
 	// 暂不需要
 	// srcDir: "./src",
+};
 
+// https://vitepress.dev/reference/site-config
+export default defineConfig({
 	themeConfig: {
 		i18nRouting: true,
 
