@@ -1,6 +1,7 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"moduleResolution": "bundler",
 		"rootDir": "./src",
 	},
 	"include": [

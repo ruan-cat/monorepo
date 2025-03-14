@@ -1,4 +1,11 @@
-import { setUserConfig, setGenerateSidebar } from "@ruan-cat/vitepress-preset-config/config";
+import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "@ruan-cat/vitepress-preset-config/config";
+
+addChangelog2doc({
+	target: "./src",
+	data: {
+		order: 1000,
+	},
+});
 
 /**
  * 本文档的渲染配置

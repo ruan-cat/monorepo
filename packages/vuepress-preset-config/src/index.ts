@@ -10,6 +10,9 @@ export { hopeTheme } from "vuepress-theme-hope";
 export type { ThemeOptions } from "vuepress-theme-hope";
 // const __dirname = getDirname(import.meta.url);
 
+import { addChangelog2doc } from "@ruan-cat/utils/node-esm";
+export { addChangelog2doc };
+
 function getYaer() {
 	return new Date().getFullYear();
 }

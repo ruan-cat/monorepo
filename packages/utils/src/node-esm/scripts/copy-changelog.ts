@@ -4,6 +4,8 @@ import consola from "consola";
 
 /** 检查当前运行的根目录 是否存在 CHANGELOG.md 文件 */
 export function hasChangelogMd() {
+	consola.log("当前项目根目录为：", process.cwd());
+	consola.warn("当前项目根目录不存在 CHANGELOG.md 文件");
 	return fs.existsSync(path.resolve(process.cwd(), "CHANGELOG.md"));
 }
 
@@ -14,8 +16,6 @@ export function hasChangelogMd() {
  */
 export function copyChangelogMd(/** 目标文件夹 */ target: string) {
 	if (!hasChangelogMd()) {
-		consola.log("当前项目根目录为：", process.cwd());
-		consola.error("当前项目根目录不存在 CHANGELOG.md 文件");
 		return;
 	}
 

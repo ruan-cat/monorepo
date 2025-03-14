@@ -1,6 +1,4 @@
-import { defineRuanCatVuepressConfig } from "@ruan-cat/vuepress-preset-config";
-
-import { addChangelog2doc } from "@ruan-cat/utils/node-esm";
+import { defineRuanCatVuepressConfig, addChangelog2doc } from "@ruan-cat/vuepress-preset-config";
 
 addChangelog2doc({
 	target: "./docs",

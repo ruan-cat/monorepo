@@ -8,6 +8,9 @@ import { vitepressDemoPlugin } from "vitepress-demo-plugin";
 
 import { merge, isUndefined, cloneDeep } from "lodash-es";
 
+import { addChangelog2doc } from "@ruan-cat/utils/node-esm";
+export { addChangelog2doc };
+
 /** 默认侧边栏配置 */
 const defaultSidebarOptions: VitePressSidebarOptions = {
 	// documentRootPath: "src",
