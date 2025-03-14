@@ -1,5 +1,12 @@
 # @ruan-cat/commitlint-config
 
+## 1.0.0
+
+### Major Changes
+
+1. 增加了标记 `publish` 。
+2. 允许使用破坏性变更的标记。`markBreakingChangeMode`。
+
 ## 0.2.12
 
 ### Patch Changes
