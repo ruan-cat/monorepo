@@ -1,11 +1,10 @@
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import * as fs from "node:fs";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
-
-import { defineConfig, type DefaultTheme } from "vitepress";
+import { type DefaultTheme } from "vitepress";
 import { setUserConfig, setGenerateSidebar } from "@ruan-cat/vitepress-preset-config/config";
 
 /**
@@ -110,28 +109,19 @@ const sidebar: DefaultTheme.Config["sidebar"] = [
 	},
 ];
 
-export default setUserConfig({
+const userConfig = setUserConfig({
 	title: "阮喵喵的01星球笔记",
 	description: "阮喵喵在01星球内的一些公用文档",
 	lang: "zh",
-	// srcDir: "../docs",
-
 	themeConfig: {
 		nav: [
 			{ text: "首页", link: "/" },
 			{ text: "仓库地址", link: "https://github.com/ruan-cat/vercel-monorepo-test/tree/dev/packages/docs-01-star" },
 		],
-
 		outline: {
 			label: "本页目录",
 			level: "deep",
 		},
-
-		sidebar: setGenerateSidebar({
-			documentRootPath: "docs",
-			// documentRootPath: "./config",
-		}),
-
 		socialLinks: [
 			{
 				icon: "github",
@@ -140,3 +130,8 @@ export default setUserConfig({
 		],
 	},
 });
+// @ts-ignore
+userConfig.themeConfig.sidebar = setGenerateSidebar({
+	documentRootPath: "./docs",
+});
+export default userConfig;

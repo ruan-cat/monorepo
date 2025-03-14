@@ -1,5 +1,7 @@
 import { defineConfig, type DefaultTheme, type UserConfig } from "vitepress";
-import { generateSidebar } from "vitepress-sidebar";
+import { generateSidebar, withSidebar } from "vitepress-sidebar";
+
+export { defineConfig };
 
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
 import { vitepressDemoPlugin } from "vitepress-demo-plugin";
@@ -39,14 +41,21 @@ const defaultSidebarOptions: VitePressSidebarOptions = {
 	sortMenusByName: false,
 
 	useFolderLinkFromSameNameSubFile: true,
+
+	debugPrint: true,
 };
+
+/** 获得合并后的侧边栏配置 */
+function getMergeSidebarOptions(options?: VitePressSidebarOptions) {
+	return merge(defaultSidebarOptions, isUndefined(options) ? {} : options);
+}
 
 /**
  * 设置自动生成侧边栏的配置
  * @see https://vitepress-sidebar.cdget.com/zhHans/guide/options
  */
 export function setGenerateSidebar(options?: VitePressSidebarOptions) {
-	return generateSidebar(merge(defaultSidebarOptions, isUndefined(options) ? {} : options));
+	return generateSidebar(getMergeSidebarOptions(options));
 }
 
 /** 默认用户配置 */
