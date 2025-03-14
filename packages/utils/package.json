@@ -89,6 +89,8 @@
 		"@types/lodash-es": "^4.17.12",
 		"@types/node": "^22.13.8",
 		"@types/qs": "^6.9.18",
+		"commander": "^13.1.0",
+		"js-yaml": "^4.1.0",
 		"qs": "^6.14.0",
 		"tsup": "^8.4.0",
 		"type-plus": "^7.6.2",
@@ -105,6 +107,12 @@
 		"vite-plugin-autogeneration-import-file": ">=3"
 	},
 	"peerDependenciesMeta": {
+		"commander": {
+			"optional": true
+		},
+		"js-yaml": {
+			"optional": true
+		},
 		"typescript": {
 			"optional": true
 		},
