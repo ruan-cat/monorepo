@@ -7,20 +7,6 @@
 		"moduleResolution": "bundler",
 		// 本文件被其他的 tsconfig.json 组合 ，用于提供test配置
 		"composite": true,
-		/**
-			模仿 vueuse 的测试写法 这里提供很多配置路径 专门用于在测试用例文件内配置路径别名
-		*/
-		"paths": {
-			"@utils/*": [
-				"./packages/utils/src/*"
-			],
-			"@utils": [
-				"./packages/utils/src/index.ts"
-			],
-			"@utils-tests/*": [
-				"packages/utils/src/tests/*"
-			]
-		}
 	},
 	"include": [
 		// 匹配本项目内 全部的测试用例文件
@@ -28,7 +14,9 @@
 		// 匹配本项目内 全部位于tests文件夹下的ts文件
 		"**/tests/**/*.ts",
 		// 给 @utils/ 别名使用
-		"./packages/utils/src/**/*.ts"
+		"./packages/utils/src/**/*.ts",
+		"**/.vitepress/**/*.ts",
+		"**/.vitepress/**/*.mts"
 	],
 	"exclude": [],
 }
