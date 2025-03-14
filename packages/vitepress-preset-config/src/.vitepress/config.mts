@@ -154,4 +154,14 @@ type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 function handleChangeLog() {}
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig(setUserConfig());
+
+/**
+ * 本文档的渲染配置
+ * @private 不对外暴露出去 但是会被对外打包出去 成为冗余代码
+ */
+const thisDocUserConfig = setUserConfig();
+// @ts-ignore
+thisDocUserConfig.themeConfig.sidebar = setGenerateSidebar({
+	documentRootPath: "./src",
+});
+export default thisDocUserConfig;
