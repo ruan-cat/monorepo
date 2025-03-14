@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"module": "NodeNext",
+		"moduleResolution": "nodenext"
+	},
+	"include": [
+		"./src/.vitepress/**/*.ts",
+		"./src/.vitepress/**/*.mts"
+	]
+}

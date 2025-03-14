@@ -7,7 +7,8 @@
 	"main": "./src/.vitepress/config.mts",
 	"scripts": {
 		"docs:dev": "vitepress dev src --port 8080",
-		"docs:build": "vitepress build src"
+		"docs:build": "vitepress build src",
+		"build": "tsup --watch"
 	},
 	"dependencies": {
 		"@nolebase/vitepress-plugin-breadcrumbs": "^2.15.0",
@@ -20,6 +21,10 @@
 		"vitepress-sidebar": "^1.31.0",
 		"vue": "^3.5.13"
 	},
+	"devDependencies": {
+		"@types/lodash-es": "^4.17.12",
+		"tsup": "^8.4.0"
+	},
 	"bugs": {
 		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
 	},
@@ -29,8 +34,14 @@
 		"directory": "packages/vitepress-preset-config"
 	},
 	"exports": {
-		"./config.mts": "./src/.vitepress/config.mts",
-		"./theme": "./src/.vitepress/theme/index.ts"
+		"./config": {
+			"import": "./dist/config.mjs",
+			"types": "./src/.vitepress/config.mts"
+		},
+		"./theme": {
+			"import": "./dist/theme/index.mjs",
+			"types": "./src/.vitepress/theme/index.ts"
+		}
 	},
 	"keywords": [
 		"vitepress"
@@ -52,8 +63,5 @@
 	"files": [
 		"dist",
 		"src"
-	],
-	"devDependencies": {
-		"@types/lodash-es": "^4.17.12"
-	}
+	]
 }
