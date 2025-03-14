@@ -83,7 +83,8 @@ export const config: UserConfig = {
 		themeColorCode: "",
 
 		upperCaseSubject: false,
-		markBreakingChangeMode: false,
+		/** 允许使用破坏性变更的标记 */
+		markBreakingChangeMode: true,
 		allowBreakingChanges: ["feat", "fix"],
 		breaklineNumber: 100,
 		breaklineChar: "|",
