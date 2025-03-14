@@ -2,20 +2,7 @@ import { defineConfig, type DefaultTheme } from "vitepress";
 import { generateSidebar } from "vitepress-sidebar";
 
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
-// @ts-ignore
-import { calculateSidebar } from "@nolebase/vitepress-plugin-sidebar";
 import { vitepressDemoPlugin } from "vitepress-demo-plugin";
-
-import AutoImport from "../plugins/unplugin-auto-import/index.ts";
-import Components from "../plugins/unplugin-vue-components/index.ts";
-import autoImport from "../plugins/vite-plugin-autogeneration-import-file.ts";
-import tsAlias from "../plugins/vite-plugin-ts-alias/index.ts";
-
-/**
- * 手动配置的侧边栏
- * @description
- */
-const sidebar: DefaultTheme.Config["sidebar"] = [];
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -97,15 +84,6 @@ export default defineConfig({
 		},
 
 		plugins: [
-			// 自动生成类型声明文件插件
-			// autoImport,
-			// 自动导入插件
-			AutoImport,
-			// // 自动导入vue组件的插件
-			// Components,
-			// 别名插件
-			tsAlias,
-
 			// @ts-ignore
 			GitChangelog({
 				// 填写在此处填写您的仓库链接

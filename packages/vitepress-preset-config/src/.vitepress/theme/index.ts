@@ -4,15 +4,6 @@ import type { Theme } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import "./style.css";
 
-// 全局导入element-plus组件 并全局注册
-import elementplus from "element-plus";
-import "element-plus/dist/index.css";
-
-// import "./assets/main.css";
-// import "./assets/iconfont/iconfont.css";
-// import "../../assets/main.css";
-// import "../../assets/iconfont/iconfont.css";
-
 import { NolebaseBreadcrumbs } from "@nolebase/vitepress-plugin-breadcrumbs/client";
 
 import {
@@ -50,8 +41,6 @@ export default {
 	enhanceApp({ app, router, siteData }) {
 		// ...
 		app.use(NolebaseGitChangelogPlugin);
-
-		app.use(elementplus);
 
 		app.provide(InjectionKey, {
 			layoutSwitch: {
