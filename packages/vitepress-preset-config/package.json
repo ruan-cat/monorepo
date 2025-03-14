@@ -3,8 +3,8 @@
 	"version": "0.0.0",
 	"description": "用于给大多数的vitepress项目提供一个预设的配置文件。",
 	"homepage": "https://utils.ruancat6312.top",
-	"types": "./src/.vitepress/config.mts",
-	"main": "./src/.vitepress/config.mts",
+	"types": "./src/config.mts",
+	"main": "./src/config.mts",
 	"scripts": {
 		"docs:dev": "vitepress dev src --port 8080",
 		"docs:build": "vitepress build src",
@@ -44,7 +44,7 @@
 	"exports": {
 		"./config": {
 			"import": "./dist/config.mjs",
-			"types": "./src/.vitepress/config.mts"
+			"types": "./src/config.mts"
 		},
 		"./theme": {
 			"import": "./dist/theme/index.mjs",

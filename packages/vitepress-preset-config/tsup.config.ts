@@ -2,7 +2,7 @@ import { defineConfig, type Options } from "tsup";
 
 export default defineConfig((options: Options) => [
 	{
-		entry: ["./src/.vitepress/config.mts"],
+		entry: ["./src/config.mts"],
 		outDir: "dist",
 		format: ["esm"],
 		clean: true,

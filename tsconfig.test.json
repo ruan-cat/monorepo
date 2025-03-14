@@ -16,7 +16,8 @@
 		// 给 @utils/ 别名使用
 		"./packages/utils/src/**/*.ts",
 		"**/.vitepress/**/*.ts",
-		"**/.vitepress/**/*.mts"
+		"**/.vitepress/**/*.mts",
+		"packages/vitepress-preset-config/src/index.ts"
 	],
 	"exclude": [],
 }
