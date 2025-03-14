@@ -6,12 +6,40 @@ import { vitepressDemoPlugin } from "vitepress-demo-plugin";
 
 import { merge, isUndefined } from "lodash-es";
 
-/** 设置vitepress主配置 */
-export function setUserConfig(config?: UserConfig<DefaultTheme.Config>) {
-	return merge(defaultUserConfig, isUndefined(config) ? {} : config);
-}
+/** 默认侧边栏配置 */
+const defaultSidebarOptions: VitePressSidebarOptions = {
+	// documentRootPath: "src",
 
-type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
+	// 侧边栏需要折叠
+	collapsed: true,
+
+	// 不需要配置折叠嵌套深度
+	// collapseDepth: 4,
+
+	// 不需要索引首页 首页直接在标题内找到即可
+	// includeRootIndexFile: true,
+
+	// 不需要索引文件夹
+	// includeFolderIndexFile: true,
+
+	// 用文件的 h1 标题作为侧边栏标题
+	useTitleFromFileHeading: true,
+
+	// 用index文件的标题作为折叠栏的标题
+	useFolderTitleFromIndexFile: true,
+
+	// 折叠栏链接到index文件
+	useFolderLinkFromIndexFile: true,
+
+	// 用order字段做菜单排序
+	sortMenusByFrontmatterOrder: true,
+
+	// 不使用倒序排序
+	// sortMenusOrderByDescending: true,
+	sortMenusByName: false,
+
+	useFolderLinkFromSameNameSubFile: true,
+};
 
 /**
  * 设置自动生成侧边栏的配置
@@ -20,10 +48,6 @@ type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 export function setGenerateSidebar(options?: VitePressSidebarOptions) {
 	return generateSidebar(merge(defaultSidebarOptions, isUndefined(options) ? {} : options));
 }
-
-// TODO:
-/** 设置导航栏的变更日志 */
-function handleChangeLog() {}
 
 /** 默认用户配置 */
 const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
@@ -109,40 +133,16 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	},
 };
 
-/** 默认侧边栏配置 */
-const defaultSidebarOptions: VitePressSidebarOptions = {
-	documentRootPath: "src",
+/** 设置vitepress主配置 */
+export function setUserConfig(config?: UserConfig<DefaultTheme.Config>) {
+	return merge(defaultUserConfig, isUndefined(config) ? {} : config);
+}
 
-	// 侧边栏需要折叠
-	collapsed: true,
+type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 
-	// 不需要配置折叠嵌套深度
-	// collapseDepth: 4,
-
-	// 不需要索引首页 首页直接在标题内找到即可
-	// includeRootIndexFile: true,
-
-	// 不需要索引文件夹
-	// includeFolderIndexFile: true,
-
-	// 用文件的 h1 标题作为侧边栏标题
-	useTitleFromFileHeading: true,
-
-	// 用index文件的标题作为折叠栏的标题
-	useFolderTitleFromIndexFile: true,
-
-	// 折叠栏链接到index文件
-	useFolderLinkFromIndexFile: true,
-
-	// 用order字段做菜单排序
-	sortMenusByFrontmatterOrder: true,
-
-	// 不使用倒序排序
-	// sortMenusOrderByDescending: true,
-	sortMenusByName: false,
-
-	useFolderLinkFromSameNameSubFile: true,
-};
+// TODO:
+/** 设置导航栏的变更日志 */
+function handleChangeLog() {}
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig(setUserConfig());
