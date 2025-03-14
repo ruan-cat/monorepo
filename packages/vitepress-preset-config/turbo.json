@@ -1,0 +1,18 @@
+{
+	"extends": [
+		"//"
+	],
+	"tasks": {
+		"do-build": {
+			"dependsOn": [
+				"^build"
+			]
+		},
+		"do-build-docs": {
+			"cache": true,
+			"dependsOn": [
+				"do-build"
+			]
+		}
+	}
+}

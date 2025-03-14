@@ -7,8 +7,10 @@
 	"main": "./src/config.mts",
 	"scripts": {
 		"docs:dev": "vitepress dev src --port 8080",
-		"build:docs": "vitepress build src",
-		"build": "tsup"
+		"do-build-docs": "vitepress build src",
+		"build:docs": "turbo do-build-docs",
+		"do-build": "tsup",
+		"build": "turbo do-build"
 	},
 	"dependencies": {
 		"@nolebase/vitepress-plugin-breadcrumbs": "^2.15.1",
