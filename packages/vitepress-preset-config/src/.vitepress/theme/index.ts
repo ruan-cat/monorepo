@@ -23,7 +23,7 @@ import "@nolebase/vitepress-plugin-highlight-targeted-heading/client/style.css";
 import { NolebaseGitChangelogPlugin } from "@nolebase/vitepress-plugin-git-changelog/client";
 import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
 
-export default {
+const theme = {
 	extends: DefaultTheme,
 	Layout: () => {
 		return h(DefaultTheme.Layout, null, {
@@ -55,3 +55,5 @@ export default {
 		} as Options);
 	},
 } satisfies Theme;
+
+export default theme;
