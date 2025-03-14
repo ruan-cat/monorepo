@@ -73,6 +73,9 @@
 	"files": [
 		"dist",
 		"src",
+		"!src/tests",
+		"!src/**/tests",
+		"!src/**/*.md",
 		"!src/.vitepress/cache"
 	]
 }
