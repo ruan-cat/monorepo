@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import defConfig, { setGenerateSidebar, setUserConfig } from "../.vitepress/config.mts";
+import { setGenerateSidebar, setUserConfig } from "@ruan-cat/vitepress-preset-config/config.mts";
 
 describe("测试合并配置", () => {
 	it("setUserConfig 设置vitepress用户配置", () => {
