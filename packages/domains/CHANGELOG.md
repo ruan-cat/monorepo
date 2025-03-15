@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.4.0
+
+### Minor Changes
+
+- 新增[vitepress-preset.ruancat6312.top](https://vitepress-preset.ruancat6312.top)域名。
+
 ## 0.3.0
 
 ### Minor Changes
