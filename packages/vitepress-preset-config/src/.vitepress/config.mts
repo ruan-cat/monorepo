@@ -17,6 +17,14 @@ addChangelog2doc({
 const thisDocUserConfig = setUserConfig({
 	title: "vitepress预设配置",
 	description,
+	themeConfig: {
+		socialLinks: [
+			{
+				icon: "github",
+				link: "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/vitepress-preset-config",
+			},
+		],
+	},
 });
 // @ts-ignore
 thisDocUserConfig.themeConfig.sidebar = setGenerateSidebar({
