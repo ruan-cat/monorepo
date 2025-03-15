@@ -19,7 +19,7 @@ const config = {
 	entryPoints: ["./src/index.ts", "./src/node-cjs/index.ts", "./src/node-esm/index.ts"],
 	plugin: ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
 	// 指定输出目录
-	out: "./docs/typedoc-md",
+	out: "./src/typedoc-md",
 	// 排除不需要生成文档的目录
 	exclude: ["node_modules", "libs"],
 	// 指定 TypeScript 配置文件
