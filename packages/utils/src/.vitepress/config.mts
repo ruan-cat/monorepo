@@ -7,9 +7,9 @@ import { description } from "../../package.json";
 addChangelog2doc({
 	target: "./src",
 	data: {
-		order: 1000,
+		order: 2000,
 		dir: {
-			order: 1000,
+			order: 2000,
 		},
 	},
 });

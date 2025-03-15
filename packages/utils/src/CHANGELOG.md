@@ -1,7 +1,7 @@
 ---
-order: 1000
+order: 2000
 dir:
-  order: 1000
+  order: 2000
 ---
 
 # @ruan-cat/utils 更新日志
