@@ -10,3 +10,6 @@ docs/**/*.ts
 # 忽略掉docs内的全部文件
 docs/**/*
 
+
+!docs/.vitepress/**/*.ts
+!docs/.vitepress/**/*.mts
