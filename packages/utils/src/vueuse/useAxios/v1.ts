@@ -6,7 +6,7 @@ import type { RequiredPick } from "type-plus";
 import type { AxiosResponse, AxiosInstance } from "axios";
 import type { UseAxiosOptionsBase, UseAxiosOptions } from "@vueuse/integrations/useAxios";
 import { useAxios } from "@vueuse/integrations/useAxios";
-import type { CreateAxiosRequestConfig, KeyAxiosRequestConfig } from "./index.ts";
+import type { CreateAxiosRequestConfig, KeyAxiosRequestConfig } from "./index.js";
 
 /**
  * 包装器的参数

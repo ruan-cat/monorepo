@@ -19,5 +19,3 @@ pnpm i -D unplugin-vue-router
 ```ts
 import { getRouteName } from "@ruan-cat/utils/unplugin-vue-router";
 ```
-
-<!-- 触发部署 -->

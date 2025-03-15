@@ -148,4 +148,4 @@ export function useAxiosWrapper<
 	return useAxios<T, K, AxiosResponse<T>, D>(url, config, instance, options);
 }
 
-export * from "./v2.ts";
+export * from "./v1.js";

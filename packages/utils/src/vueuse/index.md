@@ -1,4 +1,5 @@
 ---
+order: 20
 dir:
   order: 20
   link: true
