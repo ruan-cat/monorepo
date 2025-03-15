@@ -19,7 +19,6 @@ const userConfig = setUserConfig({
 				link: "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/domains",
 			},
 		],
-		nav: [{ text: "首页", link: "/" }],
 	},
 });
 
