@@ -33,6 +33,9 @@ export const domains = <const>{
 	/** 工具包项目 */
 	utils: ["utils.ruancat6312.top", "utils.ruan-cat.com"],
 
+	/** vitepress配置预设 */
+	"vitepress-preset": ["vip.ruancat6312.top", "vitepress-preset.ruancat6312.top", "vitepress.ruancat6312.top"],
+
 	/** 域名列表 */
 	domain: ["dm.ruancat6312.top", "dm.ruan-cat.com"],
 
