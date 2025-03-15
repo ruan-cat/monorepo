@@ -1,7 +1,11 @@
-import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "@ruan-cat/vitepress-preset-config/config";
+// 工具包文档项目 直接导入生成文档配置 避免出现循环依赖
+import { setUserConfig, setGenerateSidebar } from "../../../vitepress-preset-config";
+import { addChangelog2doc } from "@ruan-cat/utils/node-esm";
+
+import { description } from "../../package.json";
 
 addChangelog2doc({
-	target: "./docs",
+	target: "./src",
 	data: {
 		order: 1000,
 		dir: {
@@ -11,7 +15,8 @@ addChangelog2doc({
 });
 
 const userConfig = setUserConfig({
-	title: "阮喵喵域名文档",
+	title: "阮喵喵工具包",
+	description,
 	themeConfig: {
 		socialLinks: [
 			{
@@ -19,12 +24,11 @@ const userConfig = setUserConfig({
 				link: "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/domains",
 			},
 		],
-		nav: [{ text: "首页", link: "/" }],
 	},
 });
 
 // @ts-ignore
 userConfig.themeConfig.sidebar = setGenerateSidebar({
-	documentRootPath: "docs",
+	documentRootPath: "src",
 });
 export default userConfig;

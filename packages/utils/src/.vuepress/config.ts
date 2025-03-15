@@ -5,7 +5,7 @@ import { defineRuanCatVuepressConfig } from "../../../vuepress-preset-config";
 import { addChangelog2doc } from "@ruan-cat/utils/node-esm";
 
 addChangelog2doc({
-	target: "./docs",
+	target: "./src",
 	data: {
 		order: 940,
 		dir: {

@@ -81,7 +81,7 @@ export default <Config>{
 		{
 			type: "userCommands",
 			targetCWD: "./packages/utils",
-			outputDirectory: "docs/.vuepress/dist",
+			outputDirectory: "src/.vitepress/dist",
 			url: domains.utils as unknown as string[],
 			userCommands: ["pnpm -C=./packages/utils build:docs"],
 		},
