@@ -7,9 +7,12 @@ import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-p
 import { vitepressDemoPlugin } from "vitepress-demo-plugin";
 
 import { merge, isUndefined, cloneDeep } from "lodash-es";
+import consola from "consola";
 
-import { addChangelog2doc } from "@ruan-cat/utils/node-esm";
+import { addChangelog2doc, hasChangelogMd } from "@ruan-cat/utils/node-esm";
 export { addChangelog2doc };
+
+type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 
 /** 默认侧边栏配置 */
 const defaultSidebarOptions: VitePressSidebarOptions = {
@@ -145,13 +148,40 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	},
 };
 
-/** 设置vitepress主配置 */
-export function setUserConfig(config?: UserConfig<DefaultTheme.Config>) {
-	return merge({}, cloneDeep(defaultUserConfig), isUndefined(config) ? {} : config);
+/**
+ * 设置导航栏的变更日志
+ * @description
+ * 在导航栏内添加一行 变更日志 的入口
+ *
+ * 直接修改外部传递进来的配置对象即可
+ * @private 内部使用即可
+ */
+function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
+	if (!hasChangelogMd()) {
+		consola.warn(` 未找到变更日志文件，不添加变更日志导航栏。 `);
+		return;
+	}
+
+	const nav = userConfig?.themeConfig?.nav;
+
+	if (isUndefined(nav)) {
+		consola.error(` 当前的用户配置为： `, userConfig);
+		throw new Error(` nav 默认提供的导航栏配置为空。不符合默认配置，请检查。 `);
+	}
+
+	nav.push({
+		text: "变更日志",
+		link: "/CHANGELOG.md",
+	});
 }
 
-type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
+/** 设置vitepress主配置 */
+export function setUserConfig(config?: UserConfig<DefaultTheme.Config>) {
+	/** 最终的用户数据 */
+	const resUserConfig = merge({}, cloneDeep(defaultUserConfig), isUndefined(config) ? {} : config);
 
-// TODO:
-/** 设置导航栏的变更日志 */
-function handleChangeLog() {}
+	// 增加导航栏
+	handleChangeLog(resUserConfig);
+
+	return resUserConfig;
+}
