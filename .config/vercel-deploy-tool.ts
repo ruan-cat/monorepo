@@ -86,6 +86,15 @@ export default <Config>{
 			userCommands: ["pnpm -C=./packages/utils build:docs"],
 		},
 
+		// vitepress预设配置文档
+		{
+			type: "userCommands",
+			targetCWD: "./packages/vitepress-preset-config",
+			outputDirectory: "src/.vitepress/dist",
+			url: domains["vitepress-preset"] as unknown as string[],
+			userCommands: ["pnpm -C=./packages/vitepress-preset-config build:docs"],
+		},
+
 		// 域名列表
 		{
 			type: "userCommands",
