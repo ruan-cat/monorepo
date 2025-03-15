@@ -14,7 +14,7 @@
  */
 // @ts-ignore
 const config = {
-	name: "本地化示例",
+	name: "typedoc生成的api文档",
 	// 指定项目的入口点
 	entryPoints: ["./src/index.ts", "./src/node-cjs/index.ts", "./src/node-esm/index.ts"],
 	plugin: ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
