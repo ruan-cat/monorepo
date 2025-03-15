@@ -72,6 +72,7 @@
 		"!src/tests",
 		"!src/**/tests",
 		"!src/**/*.md",
+		"!src/typedoc-md/**/*",
 		"tsconfig.json"
 	],
 	"dependencies": {
