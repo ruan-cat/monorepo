@@ -94,7 +94,7 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 		socialLinks: [
 			{
 				icon: "github",
-				link: "https://github.com/ruan-cat/vercel-monorepo-test/blob/dev/packages/docs-01-star/docs/index.md",
+				link: "https://github.com/ruan-cat",
 			},
 		],
 	},
