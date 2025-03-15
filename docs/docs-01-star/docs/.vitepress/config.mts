@@ -113,6 +113,14 @@ const sidebar: DefaultTheme.Config["sidebar"] = [
 const userConfig = setUserConfig({
 	title: "阮喵喵的01星球笔记",
 	description,
+	themeConfig: {
+		socialLinks: [
+			{
+				icon: "github",
+				link: "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/docs/docs-01-star",
+			},
+		],
+	},
 });
 // @ts-ignore
 userConfig.themeConfig.sidebar = setGenerateSidebar({
