@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.1.1
+
+### Patch Changes
+
+- 处理 `hasChangelogMd` 提示错误的bug。
+
 ## 4.1.0
 
 ### Minor Changes

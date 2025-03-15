@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/vercel-deploy-tool",
-	"version": "0.8.7",
+	"version": "0.8.8",
 	"description": "阮喵喵自用的vercel部署工具，用于实现复杂项目的部署。",
 	"type": "module",
 	"main": "./src/index.ts",
