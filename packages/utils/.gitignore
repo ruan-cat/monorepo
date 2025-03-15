@@ -1,3 +1,5 @@
 # 忽略本项目生成的文件夹
 src/typedoc-md/**/*
 
+# 忽略自动复制过来的文件
+scr/CHANGELOG.md
