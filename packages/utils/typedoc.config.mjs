@@ -31,7 +31,13 @@ const config = {
 	excludeProtected: true,
 	// 不需要专门移动readme文件
 	readme: "none",
-	// "readme": "readme.md",
+
+	/**
+	 * 入口文件的文件名 默认为 index
+	 * @see https://typedoc-plugin-markdown.org/docs/options/file-options#entryfilename
+	 */
+	entryFileName: "index",
+
 	hidePageHeader: true,
 	hideBreadcrumbs: true,
 	enumMembersFormat: "table",
@@ -53,13 +59,15 @@ const config = {
 	 * 配置参数语法：
 	 * @see https://theme-hope.vuejs.press/zh/config/frontmatter/layout.html#dir
 	 * @see https://theme-hope.vuejs.press/zh/config/frontmatter/layout.html#order
+	 *
+	 * @deprecated 不使用，在vitepress和相关的侧边栏插件的帮助下 不需要配置order排序了
 	 */
-	readmeFrontmatter: {
-		order: 90,
-		dir: {
-			order: 90,
-		},
-	},
+	// readmeFrontmatter: {
+	// 	order: 10,
+	// 	dir: {
+	// 		order: 10,
+	// 	},
+	// },
 };
 
 export default config;
