@@ -21,7 +21,7 @@ const config = {
 	// 指定输出目录
 	out: "./src/typedoc-md",
 	// 排除不需要生成文档的目录
-	exclude: ["node_modules", "libs"],
+	exclude: ["node_modules", "libs", "./src/typedoc-md"],
 	// 指定 TypeScript 配置文件
 	tsconfig: "./tsconfig.json",
 	gitRevision: "main",
