@@ -16,16 +16,10 @@ const userConfig = setUserConfig({
 		socialLinks: [
 			{
 				icon: "github",
-				link: "https://github.com/ruan-cat/vercel-monorepo-test/blob/dev/tests/monorepo-1/docs/index.md",
+				link: "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/domains",
 			},
 		],
-		nav: [
-			{ text: "首页", link: "/" },
-			// {
-			// 	text: "仓库地址",
-			// 	link: "https://github.com/ruan-cat/vercel-monorepo-test/blob/dev/tests/monorepo-1/docs/index.md",
-			// },
-		],
+		nav: [{ text: "首页", link: "/" }],
 	},
 });
 
