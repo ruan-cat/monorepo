@@ -15,22 +15,21 @@
 		"directory": "packages/utils"
 	},
 	"scripts": {
+		"build": "tsup",
+		"docs:dev": "turbo docs:dev",
+		"build:docs": "turbo do-build-docs",
 		"clean-docs": "rimraf -g \"docs/**/!(.vuepress)\"",
 		"copy-src": "cpx \"src/**/*\" docs",
 		"copy-readme": "cpx README.md docs",
 		"typedoc": "typedoc --options typedoc.config.mjs",
 		"docs:dev-main": "vuepress-vite dev docs --clean-cache --open",
-		"docs:dev": "turbo docs:dev",
 		"build:docs-main": "vuepress-vite build docs",
-		"build:docs": "turbo do-build-docs",
 		"clean:type": "rimraf dist",
 		"generate:type-1": "vue-tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
 		"generate:type-2": "tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
 		"generate:type-3": "vue-tsc -p tsconfig.types.json",
 		"get-type": "pnpm clean:type && pnpm generate:type-3",
-		"build:-try-1": "pnpm clean:type && vue-tsc -p tsconfig.build.json",
-		"build:tsup": "tsup",
-		"build": "pnpm run build:tsup"
+		"build:-try-1": "pnpm clean:type && vue-tsc -p tsconfig.build.json"
 	},
 	"exports": {
 		".": {
