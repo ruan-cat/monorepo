@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: 检出项目
         uses: actions/checkout@main
+        with:
+          fetch-depth: 0
 
       # - name: 部署monorepo-1
       #   uses: amondnet/vercel-action@v25.1.1

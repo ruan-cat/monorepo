@@ -60,6 +60,8 @@ jobs:
     steps:
       - name: 检出分支
         uses: actions/checkout@main
+        with:
+          fetch-depth: 0
 
       - name: 开启 corepack
         run: corepack enable && corepack install
