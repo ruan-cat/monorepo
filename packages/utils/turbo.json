@@ -3,20 +3,13 @@
 		"//"
 	],
 	"tasks": {
-		"clean-docs": {
-			"cache": false
-		},
 		"copy-src": {
 			"cache": false,
-			"dependsOn": [
-				"clean-docs"
-			]
+			"dependsOn": []
 		},
 		"copy-readme": {
 			"cache": false,
-			"dependsOn": [
-				"clean-docs"
-			]
+			"dependsOn": []
 		},
 		"do-copy": {
 			"dependsOn": [

@@ -18,7 +18,6 @@
 		"build": "tsup",
 		"docs:dev": "turbo docs:dev",
 		"build:docs": "turbo do-build-docs",
-		"clean-docs": "rimraf -g docs/**/!(.vuepress)",
 		"copy-src": "cpx \"src/**/*\" docs",
 		"copy-readme": "cpx README.md docs",
 		"typedoc": "typedoc --options typedoc.config.mjs",
