@@ -1,7 +1,7 @@
 ---
-order: 20
+order: 10
 dir:
-  order: 20
+  order: 10
   link: true
 ---
 

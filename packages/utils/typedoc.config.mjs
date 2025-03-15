@@ -53,21 +53,21 @@ const config = {
 	 * @description
 	 * 让生成出来的首页带有特定的排序值
 	 *
+	 * 让生成出来的自动化文件 排位靠后
+	 *
 	 * 配置语法：
 	 * @see https://typedoc-plugin-markdown.org/plugins/frontmatter/options#readmefrontmatter
 	 *
 	 * 配置参数语法：
 	 * @see https://theme-hope.vuejs.press/zh/config/frontmatter/layout.html#dir
 	 * @see https://theme-hope.vuejs.press/zh/config/frontmatter/layout.html#order
-	 *
-	 * @deprecated 不使用，在vitepress和相关的侧边栏插件的帮助下 不需要配置order排序了
 	 */
-	// readmeFrontmatter: {
-	// 	order: 10,
-	// 	dir: {
-	// 		order: 10,
-	// 	},
-	// },
+	readmeFrontmatter: {
+		order: 1000,
+		dir: {
+			order: 1000,
+		},
+	},
 };
 
 export default config;
