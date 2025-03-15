@@ -66,8 +66,8 @@ export function setGenerateSidebar(options?: VitePressSidebarOptions) {
 
 /** 默认用户配置 */
 const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
-	title: "10wms前端组技术文档",
-	description: "本前端项目内的组件使用、api、类型以及使用文档",
+	title: "请填写有意义的标题",
+	description: "请填写有意义的描述",
 
 	lang: "zh",
 	// 暂不需要
@@ -81,12 +81,7 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 		},
 
 		// https://vitepress.dev/reference/default-theme-config
-		nav: [
-			{ text: "首页", link: "/" },
-			{ text: "更新日志", link: "/CHANGELOG.md" },
-			// TODO: 未来项目结束时，在此补充配置
-			// { text: "仓库地址", link: "https://github.com/ruan-cat/vercel-monorepo-test/tree/dev/packages/docs-01-star" },
-		],
+		nav: [{ text: "首页", link: "/" }],
 
 		outline: {
 			label: "本页目录",
@@ -169,10 +164,7 @@ function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
 		throw new Error(` nav 默认提供的导航栏配置为空。不符合默认配置，请检查。 `);
 	}
 
-	nav.push({
-		text: "变更日志",
-		link: "/CHANGELOG.md",
-	});
+	nav.push({ text: "更新日志", link: "/CHANGELOG.md" });
 }
 
 /** 设置vitepress主配置 */

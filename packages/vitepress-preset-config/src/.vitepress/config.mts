@@ -2,6 +2,7 @@
 // import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "@ruan-cat/vitepress-preset-config/config";
 // @ts-ignore
 import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "../../src/config.mts";
+import { description } from "../../package.json";
 
 addChangelog2doc({
 	target: "./src",
@@ -13,7 +14,10 @@ addChangelog2doc({
 /**
  * 本文档的渲染配置
  */
-const thisDocUserConfig = setUserConfig();
+const thisDocUserConfig = setUserConfig({
+	title: "vitepress预设配置",
+	description,
+});
 // @ts-ignore
 thisDocUserConfig.themeConfig.sidebar = setGenerateSidebar({
 	documentRootPath: "./src",
