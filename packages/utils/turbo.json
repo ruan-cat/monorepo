@@ -3,33 +3,13 @@
 		"//"
 	],
 	"tasks": {
-		"copy-src": {
-			"cache": false,
-			"dependsOn": []
-		},
-		"copy-readme": {
-			"cache": false,
-			"dependsOn": []
-		},
-		"do-copy": {
-			"dependsOn": [
-				"copy-src",
-				"copy-readme"
-			]
-		},
 		"typedoc": {
-			"cache": false
-		},
-		"generate-md": {
-			"dependsOn": [
-				"do-copy",
-				"typedoc"
-			]
+			"cache": true
 		},
 		"std-prepare": {
 			"dependsOn": [
 				"build",
-				"generate-md"
+				"typedoc"
 			]
 		},
 		"docs:dev-main": {
