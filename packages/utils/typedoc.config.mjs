@@ -49,6 +49,14 @@ const config = {
 	expandObjects: true,
 
 	/**
+	 * 指定路由模式
+	 * FIXME: 目前生成的文件 会生成不合适的文件链接 被vitepress识别为错误链接
+	 * 会导致构建失败 故此处设置成导出的全部内容，均在一个md文件内
+	 * 降低了可读性
+	 */
+	router: "module",
+
+	/**
 	 * 设置生成文件首页的信息
 	 * @description
 	 * 让生成出来的首页带有特定的排序值
