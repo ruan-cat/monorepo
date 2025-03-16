@@ -1,5 +1,9 @@
 name: 过一遍turbo打包行为，测试项目健壮性
 
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
 on:
   push:
     branches:
