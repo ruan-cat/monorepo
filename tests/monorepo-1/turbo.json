@@ -17,8 +17,8 @@
 		},
 		"do-multi-build": {
 			"cache": true,
-			"outputs:": [
-				"./dist"
+			"outputs": [
+				"dist/**"
 			],
 			"dependsOn": [
 				"vip:build"
