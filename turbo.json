@@ -4,7 +4,8 @@
 		"build": {
 			"cache": true,
 			"outputs": [
-				"**/dist/**"
+				"**/dist/**",
+				"**/.output/**"
 			],
 			"dependsOn": [
 				"^build"
