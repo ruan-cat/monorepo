@@ -36,6 +36,7 @@ jobs:
           node -v
           pnpm -v
           vc -v
+          turbo --version
 
       - name: pnpm全局检查依赖包
         run: pnpm ls -g
@@ -44,7 +45,7 @@ jobs:
         run: turbo login --token=${{env.TURBO_TOKEN}} --team=${{env.TURBO_TEAM}}
 
       - name: turbo link 链接远程项目
-        run: turbo login --token=${{env.TURBO_TOKEN}} --scope=${{env.TURBO_TEAM}} --yes
+        run: turbo link --token=${{env.TURBO_TOKEN}} --scope=${{env.TURBO_TEAM}} --yes
 
       - name: turbo并发打包全部子项目
         run: pnpm run on-github-action-flow
