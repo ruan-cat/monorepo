@@ -21,9 +21,9 @@ pnpm i -D vite-plugin-autogeneration-import-file
 
 使用示例如下：
 
-::: details
+::: details vite.config.ts
 
-@[code](./tests/vite.config.ts)
+<<< ./tests/vite.config.ts
 
 :::
 
@@ -31,8 +31,8 @@ pnpm i -D vite-plugin-autogeneration-import-file
 
 类型文件使用的模板如下：
 
-::: details
+::: details components.template.ts
 
-@[code](./template/components.template.ts)
+<<< ./template/components.template.ts
 
 :::

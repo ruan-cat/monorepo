@@ -22,7 +22,7 @@ pnpm i -P @vueuse/integrations axios
 
 ::: details
 
-@[code](./tests/types/ApifoxModel.ts)
+<<< ./tests/types/ApifoxModel.ts
 
 :::
 
@@ -34,7 +34,7 @@ pnpm i -P @vueuse/integrations axios
 
 ::: details
 
-@[code](./tests/createAxiosInstance.ts)
+<<< ./tests/createAxiosInstance.ts
 
 :::
 
