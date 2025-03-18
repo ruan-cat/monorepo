@@ -1,6 +1,6 @@
-export * from "./ruan-cat-pkg-info.ts";
+export * from "./ruan-cat-pkg-info";
 
-export * from "./scripts/clean.ts";
-export * from "./scripts/copy-changelog.ts";
-export * from "./scripts/yaml-to-md.ts";
-export * from "./scripts/add-changelog-to-doc.ts";
+export * from "./scripts/clean";
+export * from "./scripts/copy-changelog";
+export * from "./scripts/yaml-to-md";
+export * from "./scripts/add-changelog-to-doc";

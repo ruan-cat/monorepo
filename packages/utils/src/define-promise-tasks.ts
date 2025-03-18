@@ -1,4 +1,4 @@
-import { type SimpleAsyncTask } from "./simple-promise-tools.ts";
+import { type SimpleAsyncTask } from "./simple-promise-tools";
 
 export const taskTypes = <const>["single", "parallel", "queue"];
 

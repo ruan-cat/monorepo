@@ -1,1 +1,1 @@
-export * from "./useAxios/index.ts";
+export * from "./useAxios/index";

@@ -6,8 +6,8 @@
 		// 项目基础目录
 		"baseUrl": ".",
 		"declaration": true,
-		"allowImportingTsExtensions": true,
-		"noEmit": true,
+		// "allowImportingTsExtensions": true,
+		// "noEmit": true,
 		// tsc 编译产物输出目录
 		"outDir": "dist",
 		"checkJs": true,
@@ -17,6 +17,7 @@
 		"target": "ESNext",
 		// 模块解析策略
 		"moduleResolution": "bundler",
+		"allowJs": true,
 		// 严格模式类型检查，建议开启
 		"strict": true,
 		// 允许引入 .json 模块

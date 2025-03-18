@@ -1,7 +1,7 @@
 import path from "node:path";
 
-import { copyChangelogMd, hasChangelogMd } from "./copy-changelog.ts";
-import { writeYaml2md } from "./yaml-to-md.ts";
+import { copyChangelogMd, hasChangelogMd } from "./copy-changelog";
+import { writeYaml2md } from "./yaml-to-md";
 
 export interface AddChangelog2docOptions<T = Record<string, any>> {
 	/** 目标文件夹 */

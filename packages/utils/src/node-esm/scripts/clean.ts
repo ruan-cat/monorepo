@@ -1,4 +1,4 @@
-import { generateSpawnSync } from "../../node-cjs/index.ts";
+import { generateSpawnSync } from "../../node-cjs/index";
 
 type GlobString = `**/{${string}}`;
 

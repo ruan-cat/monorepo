@@ -1,6 +1,6 @@
-export * from "./conditions.ts";
-export * from "./define-promise-tasks.ts";
-export * from "./simple-promise-tools.ts";
+export * from "./conditions";
+export * from "./define-promise-tasks";
+export * from "./simple-promise-tools";
 
-export * from "./types/pnpm-workspace.yaml.shim.ts";
-export * from "./types/Prettify.ts";
+export * from "./types/pnpm-workspace.yaml.shim";
+export * from "./types/Prettify";
