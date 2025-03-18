@@ -16,7 +16,7 @@ pnpm i -D @ruan-cat/vitepress-preset-config
 
 ::: details config.mts
 
-<<< ./tests/config.example.ts
+<<< ./tests/config.example.ts#snipaste{ts twoslash}
 
 :::
 
@@ -30,6 +30,6 @@ pnpm i -D @ruan-cat/vitepress-preset-config
 
 ::: details theme/index.ts
 
-<<< ./tests/theme.example.ts
+<<< ./tests/theme.example.ts#snipaste{ts twoslash}
 
 :::
