@@ -2,8 +2,8 @@ import type { PartialPick } from "type-plus";
 import { useAxiosWrapper } from "@ruan-cat/utils/vueuse";
 import type { UseAxiosOptionsBase, UseAxiosWrapperParams, KeyAxiosRequestConfig } from "@ruan-cat/utils/vueuse";
 
-import type { ApifoxModel } from "./types/ApifoxModel.ts";
-import { createAxiosInstance } from "./createAxiosInstance.ts";
+import type { ApifoxModel } from "@ruan-cat/utils/src/vueuse/useAxios/tests/types/ApifoxModel.ts";
+import { createAxiosInstance } from "@ruan-cat/utils/src/vueuse/useAxios/tests/createAxiosInstance.ts";
 
 /**
  * 提供默认返回值的包装类型

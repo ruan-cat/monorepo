@@ -1,5 +1,11 @@
-import { projectRequest, type UseAxiosOptionsWithReturnWrapper } from "./projectRequest.ts";
-import { HomeCategoryHeads, HomeCategoryHeadsParams } from "./types/business.ts";
+import {
+	projectRequest,
+	type UseAxiosOptionsWithReturnWrapper,
+} from "@ruan-cat/utils/src/vueuse/useAxios/tests/projectRequest.ts";
+import {
+	HomeCategoryHeads,
+	HomeCategoryHeadsParams,
+} from "@ruan-cat/utils/src/vueuse/useAxios/tests/types/business.ts";
 
 /**
  * 具体的业务接口

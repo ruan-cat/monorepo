@@ -1,5 +1,5 @@
 import { test } from "vitest";
-import { homeCategoryHead } from "./homeCategoryHead.ts";
+import { homeCategoryHead } from "@ruan-cat/utils/src/vueuse/useAxios/tests/homeCategoryHead.ts";
 
 test("使用homeCategoryHead接口", async () => {
 	const { execute, data } = homeCategoryHead({
