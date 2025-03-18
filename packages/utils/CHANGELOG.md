@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.2.1
+
+### Patch Changes
+
+- 处理cjs在import模式下的导入bug。
+
 ## 4.2.0
 
 ### Minor Changes

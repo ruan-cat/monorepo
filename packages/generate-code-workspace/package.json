@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/generate-code-workspace",
-	"version": "0.3.16",
+	"version": "0.3.17",
 	"description": "根据 pnpm-workspace.yaml 配置，生成vscode的code-workspace工作区文件。",
 	"type": "module",
 	"main": "./src/index.ts",
