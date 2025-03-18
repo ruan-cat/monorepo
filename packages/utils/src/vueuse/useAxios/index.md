@@ -42,7 +42,7 @@ pnpm i -P @vueuse/integrations axios
 
 ::: details
 
-@[code](./tests/projectRequest.ts)
+<<< ./tests/projectRequest.ts
 
 :::
 
@@ -52,7 +52,7 @@ pnpm i -P @vueuse/integrations axios
 
 ::: details
 
-@[code](./tests/homeCategoryHead.ts)
+<<< ./tests/homeCategoryHead.ts
 
 :::
 
@@ -62,6 +62,6 @@ pnpm i -P @vueuse/integrations axios
 
 ::: details
 
-@[code](./tests/homeCategoryHead.test.ts)
+<<< ./tests/homeCategoryHead.test.ts
 
 :::
