@@ -8,7 +8,7 @@
 
 ::: details 依赖
 
-<<< ./vite/imp.ts#snipaste{ts twoslash}
+<<< ./vite/imp.ts
 
 :::
 
@@ -33,7 +33,7 @@ function pathResolve(dir: string) {
 
 ::: details 工具
 
-<<< ./vite/create-type-file.ts#snipaste{ts twoslash}
+<<< ./vite/create-type-file.ts
 
 :::
 
@@ -43,7 +43,7 @@ function pathResolve(dir: string) {
 
 ::: details 打包时手动分包的特殊处理
 
-<<< ./vite/build.ts#snipaste{ts twoslash}
+<<< ./vite/build.ts
 
 :::
 
@@ -53,7 +53,7 @@ function pathResolve(dir: string) {
 
 ::: details 路径别名
 
-<<< ./vite/resolve.ts#snipaste{ts twoslash}
+<<< ./vite/resolve.ts
 
 :::
 
@@ -63,7 +63,7 @@ function pathResolve(dir: string) {
 
 ::: details tsconfig.app.json
 
-<<< ./vite/examlpe-tsconfig.json#snipaste{json twoslash}
+<<< ./vite/examlpe-tsconfig.json
 
 :::
 
@@ -82,7 +82,7 @@ vite 插件配置是麻烦且复杂的。上限很高，完全取决于你自己
 
 ::: details VueRouter
 
-<<< ./vite/VueRouter.ts#snipaste{ts twoslash}
+<<< ./vite/VueRouter.ts
 
 :::
 
@@ -96,7 +96,7 @@ vite 插件配置是麻烦且复杂的。上限很高，完全取决于你自己
 
 ::: details visualizer
 
-<<< ./vite/visualizer.ts#snipaste{ts twoslash}
+<<< ./vite/visualizer.ts
 
 :::
 
@@ -112,7 +112,7 @@ vite 不是默认支持 vue 的，要安装插件，vite 才认识 vue 组件，
 
 ::: details autoImport
 
-<<< ./vite/autoImport-for-create.ts#snipaste{ts twoslash}
+<<< ./vite/autoImport-for-create.ts
 
 :::
 
@@ -124,7 +124,7 @@ vite 不是默认支持 vue 的，要安装插件，vite 才认识 vue 组件，
 
 ::: details AutoImport
 
-<<< ./vite/AutoImport.ts#snipaste{ts twoslash}
+<<< ./vite/AutoImport.ts
 
 :::
 
@@ -134,7 +134,7 @@ vite 不是默认支持 vue 的，要安装插件，vite 才认识 vue 组件，
 
 ::: details Components
 
-<<< ./vite/Components.ts#snipaste{ts twoslash}
+<<< ./vite/Components.ts
 
 :::
 
@@ -144,7 +144,7 @@ vite 不是默认支持 vue 的，要安装插件，vite 才认识 vue 组件，
 
 ::: details Icons
 
-<<< ./vite/Icons.ts#snipaste{ts twoslash}
+<<< ./vite/Icons.ts
 
 :::
 
@@ -164,7 +164,7 @@ vite 不是默认支持 vue 的，要安装插件，vite 才认识 vue 组件，
 
 ::: details vueDevTools
 
-<<< ./vite/vueDevTools.ts#snipaste{ts twoslash}
+<<< ./vite/vueDevTools.ts
 
 :::
 
@@ -176,6 +176,6 @@ vite 不是默认支持 vue 的，要安装插件，vite 才认识 vue 组件，
 
 ::: details createHtmlPlugin
 
-<<< ./vite/createHtmlPlugin.ts#snipaste{ts twoslash}
+<<< ./vite/createHtmlPlugin.ts
 
 :::
