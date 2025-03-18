@@ -16,4 +16,4 @@ order: 200
 
 ## 使用例子
 
-<<< ./tests/use-node-esm.example.ts
+<<< ./tests/use-node-esm.example.ts#snipaste{ts twoslash}

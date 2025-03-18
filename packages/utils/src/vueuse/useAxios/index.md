@@ -22,7 +22,7 @@ pnpm i -P @vueuse/integrations axios
 
 ::: details
 
-<<< ./tests/types/ApifoxModel.ts
+<<< ./tests/types/ApifoxModel.ts#snipaste{ts twoslash}
 
 :::
 
@@ -34,7 +34,7 @@ pnpm i -P @vueuse/integrations axios
 
 ::: details
 
-<<< ./tests/createAxiosInstance.ts
+<<< ./tests/createAxiosInstance.ts#snipaste{ts twoslash}
 
 :::
 
@@ -42,7 +42,7 @@ pnpm i -P @vueuse/integrations axios
 
 ::: details
 
-<<< ./tests/projectRequest.ts
+<<< ./tests/projectRequest.ts#snipaste{ts twoslash}
 
 :::
 
@@ -52,7 +52,7 @@ pnpm i -P @vueuse/integrations axios
 
 ::: details
 
-<<< ./tests/homeCategoryHead.ts
+<<< ./tests/homeCategoryHead.ts#snipaste{ts twoslash}
 
 :::
 
@@ -62,6 +62,6 @@ pnpm i -P @vueuse/integrations axios
 
 ::: details
 
-<<< ./tests/homeCategoryHead.test.ts
+<<< ./tests/homeCategoryHead.test.ts#snipaste{ts twoslash}
 
 :::

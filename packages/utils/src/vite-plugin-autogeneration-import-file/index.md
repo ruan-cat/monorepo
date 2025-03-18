@@ -23,7 +23,7 @@ pnpm i -D vite-plugin-autogeneration-import-file
 
 ::: details vite.config.ts
 
-<<< ./tests/vite.config.ts
+<<< ./tests/vite.config.ts#snipaste{ts twoslash}
 
 :::
 
@@ -33,6 +33,6 @@ pnpm i -D vite-plugin-autogeneration-import-file
 
 ::: details components.template.ts
 
-<<< ./template/components.template.ts
+<<< ./template/components.template.ts#snipaste{ts twoslash}
 
 :::
