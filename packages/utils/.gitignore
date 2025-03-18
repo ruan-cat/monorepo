@@ -2,4 +2,4 @@
 src/typedoc-md/**/*
 
 # 忽略自动复制过来的文件
-scr/CHANGELOG.md
+src/CHANGELOG.md
