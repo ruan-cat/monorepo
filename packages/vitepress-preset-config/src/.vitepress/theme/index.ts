@@ -1,6 +1,6 @@
 // https://vitepress.dev/guide/custom-theme
 import { h } from "vue";
-import type { Theme } from "vitepress";
+import type { Theme, EnhanceAppContext } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import "./style.css";
 
@@ -23,6 +23,9 @@ import "@nolebase/vitepress-plugin-highlight-targeted-heading/client/style.css";
 import { NolebaseGitChangelogPlugin } from "@nolebase/vitepress-plugin-git-changelog/client";
 import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
 
+import TwoslashFloatingVue from "@shikijs/vitepress-twoslash/client";
+import "@shikijs/vitepress-twoslash/style.css";
+
 const theme = {
 	extends: DefaultTheme,
 	Layout: () => {
@@ -38,9 +41,10 @@ const theme = {
 			"layout-top": () => [h(NolebaseHighlightTargetedHeading)],
 		});
 	},
-	enhanceApp({ app, router, siteData }) {
-		// ...
+	enhanceApp({ app, router, siteData }: EnhanceAppContext) {
 		app.use(NolebaseGitChangelogPlugin);
+
+		app.use(TwoslashFloatingVue);
 
 		app.provide(InjectionKey, {
 			layoutSwitch: {

@@ -12,6 +12,8 @@ import consola from "consola";
 import { addChangelog2doc, hasChangelogMd } from "@ruan-cat/utils/node-esm";
 export { addChangelog2doc };
 
+import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
+
 type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 
 /** 默认侧边栏配置 */
@@ -141,6 +143,12 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 			md.use(vitepressDemoPlugin);
 		},
 
+		codeTransformers: [
+			// @ts-ignore FIXME: 这里出现奇怪的类型报错 屏蔽了
+			transformerTwoslash(),
+		],
+		// languages: ["js", "jsx", "ts", "tsx"],
+
 		container: {
 			tipLabel: "提示",
 			warningLabel: "警告",
@@ -174,6 +182,10 @@ function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
 
 	nav.push({ text: "更新日志", link: "/CHANGELOG.md" });
 }
+
+// function addTwoslashPlugin(userConfig: UserConfig<DefaultTheme.Config>) {
+// 	userConfig.markdown?.codeTransformers?.push(transformerTwoslash());
+// }
 
 /** 设置vitepress主配置 */
 export function setUserConfig(config?: UserConfig<DefaultTheme.Config>) {
