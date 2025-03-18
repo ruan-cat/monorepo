@@ -36,7 +36,7 @@
 		},
 		"./node-cjs": {
 			"types": "./dist/node-cjs/index.d.cts",
-			"import": "./dist/node-cjs/index.d.cts",
+			"import": "./src/node-cjs/index.ts",
 			"require": "./dist/node-cjs/index.cjs"
 		},
 		"./node-esm": {
