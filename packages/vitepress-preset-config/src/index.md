@@ -7,7 +7,7 @@
 ## 安装
 
 ```bash
-pnpm i -D @ruan-cat/vitepress-preset-config
+pnpm i -D @ruan-cat/vitepress-preset-config vitepress
 ```
 
 ## 简易使用
