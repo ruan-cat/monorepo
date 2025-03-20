@@ -5,6 +5,7 @@ export { defineConfig };
 
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
 import { vitepressDemoPlugin } from "vitepress-demo-plugin";
+import "vitepress-demo-plugin/dist/style.css";
 
 import { merge, isUndefined, cloneDeep } from "lodash-es";
 import consola from "consola";
