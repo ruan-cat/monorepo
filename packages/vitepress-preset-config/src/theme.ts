@@ -3,8 +3,11 @@ import { h } from "vue";
 import type { Theme, EnhanceAppContext } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 
+// 将全部的样式集中在专门的文件内 在tsup内被打包出去
+import "./index.css";
+
 import { VitepressDemoBox, VitepressDemoPlaceholder } from "@ruan-cat/vitepress-demo-plugin";
-import "@ruan-cat/vitepress-demo-plugin/dist/index.css";
+// import "@ruan-cat/vitepress-demo-plugin/dist/index.css";
 
 import { NolebaseBreadcrumbs } from "@nolebase/vitepress-plugin-breadcrumbs/client";
 
@@ -17,16 +20,16 @@ import {
 	type Options,
 	LayoutMode,
 } from "@nolebase/vitepress-plugin-enhanced-readabilities/client";
-import "@nolebase/vitepress-plugin-enhanced-readabilities/client/style.css";
+// import "@nolebase/vitepress-plugin-enhanced-readabilities/client/style.css";
 
 import { NolebaseHighlightTargetedHeading } from "@nolebase/vitepress-plugin-highlight-targeted-heading/client";
-import "@nolebase/vitepress-plugin-highlight-targeted-heading/client/style.css";
+// import "@nolebase/vitepress-plugin-highlight-targeted-heading/client/style.css";
 
 import { NolebaseGitChangelogPlugin } from "@nolebase/vitepress-plugin-git-changelog/client";
-import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
+// import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
 
 import TwoslashFloatingVue from "@shikijs/vitepress-twoslash/client";
-import "@shikijs/vitepress-twoslash/style.css";
+// import "@shikijs/vitepress-twoslash/style.css";
 
 /** 一个回调函数 用来暴露变量 实现注册 */
 export interface EnhanceAppCallBack {

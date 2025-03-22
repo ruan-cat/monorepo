@@ -53,7 +53,8 @@
 		"./theme": {
 			"import": "./dist/theme.mjs",
 			"types": "./src/theme.ts"
-		}
+		},
+		"./theme.css": "./dist/theme.css"
 	},
 	"keywords": [
 		"vitepress"
