@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.5.0
+
+### Minor Changes
+
+- 主题配置要求手动导入 `import "@ruan-cat/vitepress-preset-config/theme.css";` 样式。
+
 ## 0.4.1
 
 ### Patch Changes
