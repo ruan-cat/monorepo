@@ -7,12 +7,16 @@
 ## 安装
 
 ```bash
-pnpm i -D @ruan-cat/vitepress-preset-config vitepress vitepress-demo-plugin
+pnpm i -D @ruan-cat/vitepress-preset-config vue vitepress vitepress-demo-plugin
 ```
 
 ::: warning 必须安装对等依赖
 
-必须安装 `vitepress` 和 `vitepress-demo-plugin` 这两个对等依赖。
+必须安装以下对等依赖：
+
+- `vitepress`
+- `vitepress-demo-plugin`
+- `vue`
 
 :::
 

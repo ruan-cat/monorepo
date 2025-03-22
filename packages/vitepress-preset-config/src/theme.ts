@@ -92,7 +92,7 @@ export function defineRuancatPresetTheme(params?: DefineRuancatPresetThemeParams
 }
 
 /** 默认布局配置 */
-const defaultLayoutConfig = {
+export const defaultLayoutConfig = {
 	// https://vitepress.dev/guide/extending-default-theme#layout-slots
 	"doc-before": () => h(NolebaseBreadcrumbs),
 	"nav-bar-content-after": () => h(NolebaseEnhancedReadabilitiesMenu),
