@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.6.0
+
+### Minor Changes
+
+- 放弃内部封装 `vitepress-demo-plugin` 依赖。要求生产环境安装该对等依赖。
+
 ## 0.5.0
 
 ### Minor Changes
