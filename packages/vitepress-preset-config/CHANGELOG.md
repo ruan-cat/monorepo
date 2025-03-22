@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.4.1
+
+### Patch Changes
+
+- 最大日志深度为10, 避免获取过多无意义的历史日志
+
 ## 0.4.0
 
 ### Minor Changes
