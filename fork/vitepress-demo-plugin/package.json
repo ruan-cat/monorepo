@@ -37,7 +37,6 @@
 	"scripts": {
 		"build": "vite build",
 		"dev": "vite build --watch",
-		"prepare": "pnpm build",
 		"release": "pnpm build && vr release --skip-changelog"
 	},
 	"devDependencies": {
