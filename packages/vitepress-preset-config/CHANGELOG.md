@@ -1,5 +1,16 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.4.0
+
+### Minor Changes
+
+- 使用来自镜像源的demo展示包。
+
+### Patch Changes
+
+- Updated dependencies
+  - @ruan-cat/vitepress-demo-plugin@0.1.0
+
 ## 0.3.0
 
 ### Minor Changes

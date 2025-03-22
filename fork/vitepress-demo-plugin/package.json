@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/vitepress-demo-plugin",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"description": "阮喵喵自己照抄别人vitepress-demo-plugin的插件。纯粹自用。",
 	"keywords": [
 		"vitepress",
