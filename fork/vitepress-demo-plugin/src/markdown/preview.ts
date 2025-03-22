@@ -211,9 +211,13 @@ export const transformPreview = (md: MarkdownIt, token: Token, mdFile: any, conf
 	const reactComponentName = `react${componentName}`;
 
 	// 注入 vitepress-demo-plugin 组件和样式
-	injectComponentImportScript(mdFile, "vitepress-demo-plugin", `{ VitepressDemoBox, VitepressDemoPlaceholder }`);
+	/**
+	 * 警告 不使用该语句 该语句决定了 vitepress-demo-plugin 必须成为文档项目的直接依赖，否则全局找不到该包
+	 * 目前一下两个组件已经被改成全局注册的方式了
+	 */
+	// injectComponentImportScript(mdFile, "vitepress-demo-plugin", `{ VitepressDemoBox, VitepressDemoPlaceholder }`);
 
-	// 阮喵喵自主fork版本 不提供局部注册的样式 改成全局导入样式。
+	// 警告 阮喵喵自主fork版本 不提供局部注册的样式 改成全局导入样式。
 	// injectComponentImportScript(mdFile, 'vitepress-demo-plugin/dist/style.css');
 	injectComponentImportScript(mdFile, "vue", "{ ref, onMounted }");
 
