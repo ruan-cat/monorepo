@@ -51,8 +51,8 @@
 			"types": "./src/config.mts"
 		},
 		"./theme": {
-			"import": "./dist/theme/index.mjs",
-			"types": "./src/.vitepress/theme/index.ts"
+			"import": "./dist/theme.mjs",
+			"types": "./src/theme.ts"
 		}
 	},
 	"keywords": [

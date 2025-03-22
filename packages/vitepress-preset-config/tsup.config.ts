@@ -2,7 +2,7 @@ import { defineConfig, type Options } from "tsup";
 
 export default defineConfig((options: Options) => [
 	{
-		entry: ["./src/config.mts"],
+		entry: ["./src/config.mts", "./src/theme.ts"],
 		outDir: "dist",
 		format: ["esm"],
 		clean: true,
@@ -10,12 +10,13 @@ export default defineConfig((options: Options) => [
 		dts: true,
 		tsconfig: "./tsconfig.build.json",
 	},
-	{
-		entry: ["./src/.vitepress/theme/index.ts"],
-		outDir: "dist/theme",
-		format: ["esm"],
-		clean: true,
-		dts: true,
-		tsconfig: "./tsconfig.build.json",
-	},
+	// 不直接使用文档配置
+	// {
+	// 	entry: ["./src/.vitepress/theme/index.ts"],
+	// 	outDir: "dist/theme",
+	// 	format: ["esm"],
+	// 	clean: true,
+	// 	dts: true,
+	// 	tsconfig: "./tsconfig.build.json",
+	// },
 ]);
