@@ -31,10 +31,14 @@
 	},
 	"peerDependencies": {
 		"vitepress": "^1.6.x",
-		"vitepress-demo-plugin": "^1"
+		"vitepress-demo-plugin": "^1",
+		"vue": "^3.5.x"
 	},
 	"peerDependenciesMeta": {
 		"vitepress": {
+			"optional": true
+		},
+		"vue": {
 			"optional": true
 		},
 		"vitepress-demo-plugin": {
