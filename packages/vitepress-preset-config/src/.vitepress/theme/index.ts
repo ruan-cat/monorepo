@@ -4,7 +4,7 @@ import type { Theme, EnhanceAppContext } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import "./style.css";
 
-import "vitepress-demo-plugin/dist/style.css";
+import "vitepress-demo-plugin/dist/index.css";
 
 import { NolebaseBreadcrumbs } from "@nolebase/vitepress-plugin-breadcrumbs/client";
 
