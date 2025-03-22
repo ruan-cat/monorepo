@@ -12,6 +12,7 @@ export default defineConfig((options: Options) => [
 		/**
 		 * 不排除内部包 直接全量打包
 		 * 选择把demo包发出去吧
+		 * 放弃内部处理该库 在生产环境内使用peer对等依赖
 		 */
 		// noExternal: ["@ruan-cat/vitepress-demo-plugin"],
 	},
