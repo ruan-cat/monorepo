@@ -33,7 +33,9 @@ export default defineConfig(() => {
 		plugins: [
 			vue(),
 			dts({
-				entryRoot: "src/markdown",
+				// entryRoot: "src/markdown",
+				// 导出入口包括组件库类型
+				entryRoot: "src",
 				rollupTypes: true,
 				strictOutput: true,
 			}),
