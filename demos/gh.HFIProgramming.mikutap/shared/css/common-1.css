@@ -129,14 +129,16 @@ textarea {
 .basefont,
 body,
 html {
-	font-family: "游ゴシック", "Yu Gothic", "游ゴシック体", YuGothic, "Yu Gothic UI", "ヒラギノ角ゴ Pro W3",
+	font-family:
+		"游ゴシック", "Yu Gothic", "游ゴシック体", YuGothic, "Yu Gothic UI", "ヒラギノ角ゴ Pro W3",
 		"Hiragino Kaku Gothic Pro", "Meiryo UI", "メイリオ", Meiryo, sans-serif;
 	letter-spacing: 0.2rem;
 	line-height: 1.5;
 	-webkit-text-size-adjust: 100%;
 }
 #aidn {
-	font-family: Lato, "游ゴシック", "Yu Gothic", "游ゴシック体", YuGothic, "Yu Gothic UI", "ヒラギノ角ゴ Pro W3",
+	font-family:
+		Lato, "游ゴシック", "Yu Gothic", "游ゴシック体", YuGothic, "Yu Gothic UI", "ヒラギノ角ゴ Pro W3",
 		"Hiragino Kaku Gothic Pro", "Meiryo UI", "メイリオ", Meiryo, sans-serif;
 	font-weight: 500;
 }

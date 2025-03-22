@@ -43,35 +43,35 @@ pnpm add vitepress-demo-plugin -D
 
 1. 引入插件
 
-  ```ts
-  import { defineConfig } from 'vitepress';
-  import { vitepressDemoPlugin } from 'vitepress-demo-plugin'; 
-  import path from 'path';
+```ts
+import { defineConfig } from "vitepress";
+import { vitepressDemoPlugin } from "vitepress-demo-plugin";
+import path from "path";
 
-  export default defineConfig({
-    // other configs...
-    markdown: { 
-      config(md) { 
-        md.use(vitepressDemoPlugin); 
-      }, 
-    }, 
-  });
-  ```
+export default defineConfig({
+	// other configs...
+	markdown: {
+		config(md) {
+			md.use(vitepressDemoPlugin);
+		},
+	},
+});
+```
 
 2. 展示 Demo
 
-  现在你可以在 markdown 中通过 `<demo />` 组件展示你的 demo 了：
+现在你可以在 markdown 中通过 `<demo />` 组件展示你的 demo 了：
 
-  ```html
-  <!-- 展示 vue demo -->
-  <demo vue="../demos/demo.vue" />
+```html
+<!-- 展示 vue demo -->
+<demo vue="../demos/demo.vue" />
 
-  <!-- 展示 react demo -->
-  <demo react="../demos/demo.tsx" />
+<!-- 展示 react demo -->
+<demo react="../demos/demo.tsx" />
 
-  <!-- 展示 html demo -->
-  <demo html="../demos/demo.html" />
-  ```
+<!-- 展示 html demo -->
+<demo html="../demos/demo.html" />
+```
 
 ## 📧 交流与反馈
 
@@ -81,4 +81,3 @@ pnpm add vitepress-demo-plugin -D
   <img src="https://cdn.jsdelivr.net/gh/zh-lx/static-img/vitepress-demo-plugin/wx-group.jpg" width="200" height="272" />
   <img src="https://cdn.jsdelivr.net/gh/zh-lx/static-img/code-inspector/wx-qrcode.jpg" width="200" height="272" />
 </div>
-

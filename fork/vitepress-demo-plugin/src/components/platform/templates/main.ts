@@ -1,4 +1,4 @@
-import { ComponentType } from '@/constant/type';
+import { ComponentType } from "@/constant/type";
 
 const mainVue = `import { createApp } from "vue";
 import Demo from "./Demo.vue";
@@ -16,13 +16,13 @@ root.render(<Demo />);
 `;
 
 export function genMainTs(type: ComponentType): string {
-  if (type === ComponentType.VUE) {
-    return mainVue;
-  }
+	if (type === ComponentType.VUE) {
+		return mainVue;
+	}
 
-  if (type === ComponentType.REACT) {
-    return mainReact;
-  }
+	if (type === ComponentType.REACT) {
+		return mainReact;
+	}
 
-  return '';
+	return "";
 }

@@ -1,13 +1,5 @@
-export const genHtmlCode = ({
-  code,
-  styles,
-  links,
-}: {
-  code: string;
-  styles: string;
-  links: string;
-}) => {
-  return `
+export const genHtmlCode = ({ code, styles, links }: { code: string; styles: string; links: string }) => {
+	return `
 <!DOCTYPE html>
 <html lang="en">
   <head>

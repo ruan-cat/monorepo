@@ -1,4 +1,4 @@
-import { ComponentType } from '@/constant/type';
+import { ComponentType } from "@/constant/type";
 
 const vueViteConfig = `import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
@@ -16,11 +16,11 @@ export default defineConfig({
 `;
 
 export function genViteConfig(type: ComponentType) {
-  if (type === ComponentType.VUE) {
-    return vueViteConfig;
-  }
-  if (type === ComponentType.REACT) {
-    return reactViteConfig;
-  }
-  return '';
+	if (type === ComponentType.VUE) {
+		return vueViteConfig;
+	}
+	if (type === ComponentType.REACT) {
+		return reactViteConfig;
+	}
+	return "";
 }
