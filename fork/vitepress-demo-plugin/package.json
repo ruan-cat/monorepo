@@ -1,63 +1,62 @@
 {
-  "name": "vitepress-demo-plugin",
-  "version": "1.3.1",
-  "description": "A vitepress plugin to preview component and display code",
-  "keywords": [
-    "vitepress",
-    "plugin",
-    "code",
-    "demo",
-    "block",
-    "preview",
-    "component",
-    "display"
-  ],
-  "homepage": "https://vitepress-demo.fe-dev.cn/",
-  "bugs": "https://github.com/zh-lx/vitepress-demo-plugin/issues",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:zh-lx/vitepress-demo-plugin.git"
-  },
-  "license": "MIT",
-  "author": "zh-lx",
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.umd.cjs"
-    },
-    "./dist/style.css": "./dist/style.css"
-  },
-  "main": "./dist/index.umd.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "vite build",
-    "dev": "vite build --watch",
-    "prepare": "pnpm build",
-    "release": "pnpm build && vr release --skip-changelog"
-  },
-  "devDependencies": {
-    "@stackblitz/sdk": "^1.11.0",
-    "@types/markdown-it": "^12.2.3",
-    "@types/node": "^20.4.2",
-    "@types/pretty": "^2.0.3",
-    "@vitejs/plugin-vue": "^3.0.3",
-    "codesandbox": "^2.2.3",
-    "pretty": "^2.0.0",
-    "sass": "^1.54.8",
-    "vite": "^3.0.9",
-    "vite-plugin-dts": "^4.4.0",
-    "vue": "^3.2.38",
-    "shiki": "^3.0.0"
-  },
-  "peerDependencies": {
-    "vitepress": "*",
-    "vue": "^3.2.0",
-    "shiki": "*"
-  },
-  "packageManager": "pnpm@9.15.6+sha512.139cab068fdf0b751268179ac5f909b5be72afb4a75c513d1905d151befc8977b593d3cf8671ed83d4d6637c5c94b98ffbce108125de4a5a27a31233601a99de"
+	"name": "vitepress-demo-plugin",
+	"version": "1.3.1",
+	"description": "A vitepress plugin to preview component and display code",
+	"keywords": [
+		"vitepress",
+		"plugin",
+		"code",
+		"demo",
+		"block",
+		"preview",
+		"component",
+		"display"
+	],
+	"homepage": "https://vitepress-demo.fe-dev.cn/",
+	"bugs": "https://github.com/zh-lx/vitepress-demo-plugin/issues",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:zh-lx/vitepress-demo-plugin.git"
+	},
+	"license": "MIT",
+	"author": "zh-lx",
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"require": "./dist/index.umd.cjs"
+		},
+		"./dist/style.css": "./dist/style.css"
+	},
+	"main": "./dist/index.umd.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "vite build",
+		"dev": "vite build --watch",
+		"prepare": "pnpm build",
+		"release": "pnpm build && vr release --skip-changelog"
+	},
+	"devDependencies": {
+		"@stackblitz/sdk": "^1.11.0",
+		"@types/markdown-it": "^12.2.3",
+		"@types/node": "^20.4.2",
+		"@types/pretty": "^2.0.3",
+		"@vitejs/plugin-vue": "^3.0.3",
+		"codesandbox": "^2.2.3",
+		"pretty": "^2.0.0",
+		"sass": "^1.54.8",
+		"shiki": "^3.0.0",
+		"vite": "^6.2.2",
+		"vite-plugin-dts": "^4.4.0",
+		"vue": "^3.5.13"
+	},
+	"peerDependencies": {
+		"shiki": "*",
+		"vitepress": "*",
+		"vue": "^3.2.0"
+	}
 }
