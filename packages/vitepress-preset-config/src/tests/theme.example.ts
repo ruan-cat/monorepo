@@ -1,2 +1,2 @@
-import theme from "@ruan-cat/vitepress-preset-config/theme";
-export default theme;
+import { defineRuancatPresetTheme } from "@ruan-cat/vitepress-preset-config/theme";
+export default defineRuancatPresetTheme();
