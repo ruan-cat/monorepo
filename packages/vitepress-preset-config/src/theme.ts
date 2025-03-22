@@ -3,8 +3,8 @@ import { h } from "vue";
 import type { Theme, EnhanceAppContext } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 
-import { VitepressDemoBox, VitepressDemoPlaceholder } from "vitepress-demo-plugin";
-import "vitepress-demo-plugin/dist/index.css";
+import { VitepressDemoBox, VitepressDemoPlaceholder } from "@ruan-cat/vitepress-demo-plugin";
+import "@ruan-cat/vitepress-demo-plugin/dist/index.css";
 
 import { NolebaseBreadcrumbs } from "@nolebase/vitepress-plugin-breadcrumbs/client";
 

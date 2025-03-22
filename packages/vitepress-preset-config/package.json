@@ -16,11 +16,11 @@
 		"@nolebase/vitepress-plugin-git-changelog": "^2.15.1",
 		"@nolebase/vitepress-plugin-highlight-targeted-heading": "^2.15.1",
 		"@ruan-cat/utils": "workspace:^",
+		"@ruan-cat/vitepress-demo-plugin": "workspace:^",
 		"@shikijs/vitepress-twoslash": "^3.2.1",
 		"consola": "^3.4.0",
 		"js-yaml": "^4.1.0",
 		"lodash-es": "^4.17.21",
-		"vitepress-demo-plugin": "workspace:^",
 		"vitepress-sidebar": "^1.31.1",
 		"vue": "^3.5.13"
 	},

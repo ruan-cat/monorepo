@@ -4,7 +4,7 @@ import { generateSidebar, withSidebar } from "vitepress-sidebar";
 export { defineConfig };
 
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
-import { vitepressDemoPlugin } from "vitepress-demo-plugin";
+import { vitepressDemoPlugin } from "@ruan-cat/vitepress-demo-plugin";
 
 import { merge, isUndefined, cloneDeep } from "lodash-es";
 import consola from "consola";
