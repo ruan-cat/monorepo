@@ -45,7 +45,7 @@
 		"@types/markdown-it": "^12.2.3",
 		"@types/node": "^20.4.2",
 		"@types/pretty": "^2.0.3",
-		"@vitejs/plugin-vue": "^3.0.3",
+		"@vitejs/plugin-vue": "^5.2.3",
 		"codesandbox": "^2.2.3",
 		"pretty": "^2.0.0",
 		"sass": "^1.54.8",
