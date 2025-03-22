@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.3.0
+
+### Minor Changes
+
+- 主题配置改成用 `defineRuancatPresetTheme` 来实现定义与使用。
+
 ## 0.2.0
 
 ### Minor Changes
