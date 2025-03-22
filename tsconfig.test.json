@@ -17,7 +17,8 @@
 		"./packages/utils/src/**/*.ts",
 		"**/.vitepress/**/*.ts",
 		"**/.vitepress/**/*.mts",
-		"packages/vitepress-preset-config/src/config.mts",
+		"packages/vitepress-preset-config/src/**/*.ts",
+		"packages/vitepress-preset-config/src/**/*.mts",
 	],
 	"exclude": [],
 }
