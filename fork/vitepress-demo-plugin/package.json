@@ -2,7 +2,7 @@
 	"name": "@ruan-cat/vitepress-demo-plugin",
 	"private": true,
 	"version": "0.0.1",
-	"description": "A vitepress plugin to preview component and display code",
+	"description": "阮喵喵自己照抄别人vitepress-demo-plugin的插件。纯粹自用。",
 	"keywords": [
 		"vitepress",
 		"plugin",
@@ -32,6 +32,19 @@
 	"main": "./dist/index.umd.cjs",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
+	},
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/*",
+				"./*"
+			]
+		}
+	},
 	"files": [
 		"dist"
 	],
