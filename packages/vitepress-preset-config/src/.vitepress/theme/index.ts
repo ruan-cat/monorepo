@@ -4,6 +4,7 @@ import type { Theme, EnhanceAppContext } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import "./style.css";
 
+import { VitepressDemoBox, VitepressDemoPlaceholder } from "vitepress-demo-plugin";
 import "vitepress-demo-plugin/dist/index.css";
 
 import { NolebaseBreadcrumbs } from "@nolebase/vitepress-plugin-breadcrumbs/client";
@@ -59,6 +60,10 @@ const theme = {
 				},
 			},
 		} as Options);
+
+		// 全局注册demo展示组件
+		app.component("VitepressDemoBox", VitepressDemoBox);
+		app.component("VitepressDemoPlaceholder", VitepressDemoPlaceholder);
 	},
 } satisfies Theme;
 
