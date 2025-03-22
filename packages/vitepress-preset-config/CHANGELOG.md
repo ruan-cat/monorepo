@@ -1,5 +1,13 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.2.0
+
+### Minor Changes
+
+- 自动导入demo组件和样式。
+
+`vitepress-demo-plugin` 的样式和组件将会在本包内实现导入和全局注册。不再使用内部注入的方式向 md 文件注入局部组件。
+
 ## 0.1.2
 
 ### Patch Changes
