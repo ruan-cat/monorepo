@@ -1,5 +1,12 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.7.0
+
+### Minor Changes
+
+1. 增加 `vue` 作为对等依赖。
+2. 增加 `defaultLayoutConfig` 和 `defaultEnhanceAppPreset` 。现在主题配置要求用户自己拼接。
+
 ## 0.6.0
 
 ### Minor Changes
