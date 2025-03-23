@@ -1,5 +1,18 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.8.0
+
+### Minor Changes
+
+1. 移除 `defaultTheme2` 测试主题。不再需要该内容完成测试。
+2. 主题配置默认使用 `defaultTheme` 对象和 `defineRuancatPresetTheme` 函数完成配置。
+3. 主题配置默认仅服务于纯 `ts` 文件，不考虑 `js` 文件。
+
+未来的预期更改如下：
+
+1. `defaultLayoutConfig` 和 `defaultEnhanceAppPreset` 要被标记为内部变量，未来将不再导出。
+2. 主题配置将**不再要求**手动导入 `import "@ruan-cat/vitepress-preset-config/theme.css";` 样式。
+
 ## 0.7.2
 
 ### Patch Changes
