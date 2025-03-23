@@ -15,7 +15,6 @@ import { NolebaseBreadcrumbs } from "@nolebase/vitepress-plugin-breadcrumbs/clie
 import {
 	NolebaseEnhancedReadabilitiesMenu,
 	NolebaseEnhancedReadabilitiesScreenMenu,
-
 	// https://nolebase-integrations.ayaka.io/pages/zh-CN/integrations/vitepress-plugin-enhanced-readabilities/#如何在-vitepress-中进行配置
 	InjectionKey,
 	type Options,
@@ -33,68 +32,21 @@ import TwoslashFloatingVue from "@shikijs/vitepress-twoslash/client";
 // import "@shikijs/vitepress-twoslash/style.css";
 
 /**
- * 一个回调函数 用来暴露变量 实现注册\
- * @deprecated
+ * 一个回调函数 用来暴露变量 实现注册
  */
 export interface EnhanceAppCallBack {
 	({ app, router, siteData }: EnhanceAppContext): void;
 }
 
 /**
- * @deprecated
  */
 export interface DefineRuancatPresetThemeParams {
 	enhanceAppCallBack?: EnhanceAppCallBack;
 }
 
 /**
- * 定义默认主题预设
- * @deprecated
- */
-export function defineRuancatPresetTheme(params?: DefineRuancatPresetThemeParams) {
-	return {
-		extends: DefaultTheme,
-		Layout: () => {
-			return h(DefaultTheme.Layout, null, {
-				// https://vitepress.dev/guide/extending-default-theme#layout-slots
-				"doc-before": () => h(NolebaseBreadcrumbs),
-				"nav-bar-content-after": () => h(NolebaseEnhancedReadabilitiesMenu),
-				// 为较窄的屏幕（通常是小于 iPad Mini）添加阅读增强菜单
-				"nav-screen-content-after": () => h(NolebaseEnhancedReadabilitiesScreenMenu),
-				"layout-top": () => [h(NolebaseHighlightTargetedHeading)],
-			});
-		},
-		enhanceApp({ app, router, siteData }: EnhanceAppContext) {
-			app.use(NolebaseGitChangelogPlugin);
-			app.use(TwoslashFloatingVue);
-			app.provide(InjectionKey, {
-				layoutSwitch: {
-					defaultMode: LayoutMode["BothWidthAdjustable"],
-					pageLayoutMaxWidth: {
-						defaultMaxWidth: 85,
-					},
-					contentLayoutMaxWidth: {
-						defaultMaxWidth: 95,
-					},
-				},
-			} as Options);
-
-			/**
-			 * 放弃全局注册demo展示组件
-			 * 在生产环境内使用peer对等依赖
-			 */
-			// app.component("VitepressDemoBox", VitepressDemoBox);
-			// app.component("VitepressDemoPlaceholder", VitepressDemoPlaceholder);
-
-			params?.enhanceAppCallBack?.({ app, router, siteData });
-		},
-	} satisfies Theme;
-}
-
-/**
  * 默认布局配置
  * @description
- * 有疑惑 经过测试 该写法会导致找不到主题文件
  */
 export const defaultLayoutConfig = {
 	// https://vitepress.dev/guide/extending-default-theme#layout-slots
@@ -108,7 +60,8 @@ export const defaultLayoutConfig = {
 /**
  * 默认 enhanceApp 预设
  * @description
- * 有疑惑 经过测试 该写法会导致找不到主题文件
+ * 这个函数预期应该作为一个内部函数 不应该对外暴露使用
+ * @private
  */
 export function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppContext) {
 	app.use(NolebaseGitChangelogPlugin);
@@ -124,6 +77,12 @@ export function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppCon
 			},
 		},
 	} as Options);
+	/**
+	 * 放弃全局注册demo展示组件
+	 * 在生产环境内使用peer对等依赖
+	 */
+	// app.component("VitepressDemoBox", VitepressDemoBox);
+	// app.component("VitepressDemoPlaceholder", VitepressDemoPlaceholder);
 }
 
 /** 默认主题配置 */
@@ -134,47 +93,20 @@ export const defaultTheme = {
 	},
 	enhanceApp({ app, router, siteData }: EnhanceAppContext) {
 		defaultEnhanceAppPreset({ app, router, siteData });
-		/**
-		 * 放弃全局注册demo展示组件
-		 * 在生产环境内使用peer对等依赖
-		 */
-		// app.component("VitepressDemoBox", VitepressDemoBox);
-		// app.component("VitepressDemoPlaceholder", VitepressDemoPlaceholder);
 	},
 } satisfies Theme;
 
 /**
- * 默认主题配置2
- * @description
- * 从 @sugarat/theme 内学习的配置写法
+ * 定义默认主题预设
  */
-export const defaultTheme2 = {
-	...DefaultTheme,
-	Layout: () => {
-		return h(DefaultTheme.Layout, null, {
-			// https://vitepress.dev/guide/extending-default-theme#layout-slots
-			"doc-before": () => h(NolebaseBreadcrumbs),
-			"nav-bar-content-after": () => h(NolebaseEnhancedReadabilitiesMenu),
-			// 为较窄的屏幕（通常是小于 iPad Mini）添加阅读增强菜单
-			"nav-screen-content-after": () => h(NolebaseEnhancedReadabilitiesScreenMenu),
-			"layout-top": () => [h(NolebaseHighlightTargetedHeading)],
-		});
-	},
-	enhanceApp(ctx: EnhanceAppContext) {
-		DefaultTheme.enhanceApp(ctx);
-
-		ctx.app.use(NolebaseGitChangelogPlugin);
-		ctx.app.use(TwoslashFloatingVue);
-		ctx.app.provide(InjectionKey, {
-			layoutSwitch: {
-				defaultMode: LayoutMode["BothWidthAdjustable"],
-				pageLayoutMaxWidth: {
-					defaultMaxWidth: 85,
-				},
-				contentLayoutMaxWidth: {
-					defaultMaxWidth: 95,
-				},
-			},
-		} as Options);
-	},
-} satisfies Theme;
+export function defineRuancatPresetTheme(params?: DefineRuancatPresetThemeParams) {
+	return {
+		...defaultTheme,
+		enhanceApp({ app, router, siteData }: EnhanceAppContext) {
+			// 回调默认主题内的函数
+			defaultTheme.enhanceApp({ app, router, siteData });
+			// 执行用户传入的回调函数
+			params?.enhanceAppCallBack?.({ app, router, siteData });
+		},
+	} satisfies Theme;
+}
