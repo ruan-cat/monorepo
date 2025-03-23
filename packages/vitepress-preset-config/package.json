@@ -55,8 +55,8 @@
 	},
 	"exports": {
 		"./config": {
-			"import": "./src/config.mts",
-			"types": "./src/config.mts"
+			"import": "./src/config.ts",
+			"types": "./src/config.ts"
 		},
 		"./theme": {
 			"import": "./src/theme.ts",

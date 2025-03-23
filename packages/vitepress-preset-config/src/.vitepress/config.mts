@@ -1,7 +1,7 @@
 // 避免直接使用自己的包
 // import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "@ruan-cat/vitepress-preset-config/config";
 // @ts-ignore
-import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "../../src/config.mts";
+import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "../config";
 import { description } from "../../package.json";
 
 addChangelog2doc({
