@@ -59,7 +59,7 @@
 			"types": "./src/config.mts"
 		},
 		"./theme": {
-			"import": "./dist/theme.mjs",
+			"import": "./src/theme.ts",
 			"types": "./src/theme.ts"
 		},
 		"./theme.css": "./dist/theme.css",
