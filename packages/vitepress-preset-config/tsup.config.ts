@@ -2,7 +2,11 @@ import { defineConfig, type Options } from "tsup";
 
 export default defineConfig((options: Options) => [
 	{
-		entry: ["./src/config.mts", "./src/theme.ts"],
+		entry: [
+			"./src/config.mts",
+			// TODO: 主题配置也要被构建 目的是为了实现样式导入
+			"./src/theme.ts",
+		],
 		outDir: "dist",
 		format: ["esm"],
 		clean: true,
