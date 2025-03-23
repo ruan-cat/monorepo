@@ -62,7 +62,6 @@
 			"import": "./src/theme.ts",
 			"types": "./src/theme.ts"
 		},
-		"./theme.css": "./dist/theme.css",
 		"./src/*": "./src/*"
 	},
 	"keywords": [
