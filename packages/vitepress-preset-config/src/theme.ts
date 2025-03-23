@@ -142,3 +142,39 @@ export const defaultTheme = {
 		// app.component("VitepressDemoPlaceholder", VitepressDemoPlaceholder);
 	},
 } satisfies Theme;
+
+/**
+ * 默认主题配置2
+ * @description
+ * 从 @sugarat/theme 内学习的配置写法
+ */
+export const defaultTheme2 = {
+	...DefaultTheme,
+	Layout: () => {
+		return h(DefaultTheme.Layout, null, {
+			// https://vitepress.dev/guide/extending-default-theme#layout-slots
+			"doc-before": () => h(NolebaseBreadcrumbs),
+			"nav-bar-content-after": () => h(NolebaseEnhancedReadabilitiesMenu),
+			// 为较窄的屏幕（通常是小于 iPad Mini）添加阅读增强菜单
+			"nav-screen-content-after": () => h(NolebaseEnhancedReadabilitiesScreenMenu),
+			"layout-top": () => [h(NolebaseHighlightTargetedHeading)],
+		});
+	},
+	enhanceApp(ctx: EnhanceAppContext) {
+		DefaultTheme.enhanceApp(ctx);
+
+		ctx.app.use(NolebaseGitChangelogPlugin);
+		ctx.app.use(TwoslashFloatingVue);
+		ctx.app.provide(InjectionKey, {
+			layoutSwitch: {
+				defaultMode: LayoutMode["BothWidthAdjustable"],
+				pageLayoutMaxWidth: {
+					defaultMaxWidth: 85,
+				},
+				contentLayoutMaxWidth: {
+					defaultMaxWidth: 95,
+				},
+			},
+		} as Options);
+	},
+} satisfies Theme;
