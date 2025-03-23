@@ -91,7 +91,11 @@ export function defineRuancatPresetTheme(params?: DefineRuancatPresetThemeParams
 	} satisfies Theme;
 }
 
-/** 默认布局配置 */
+/**
+ * 默认布局配置
+ * @description
+ * 有疑惑 经过测试 该写法会导致找不到主题文件
+ */
 export const defaultLayoutConfig = {
 	// https://vitepress.dev/guide/extending-default-theme#layout-slots
 	"doc-before": () => h(NolebaseBreadcrumbs),
@@ -101,7 +105,11 @@ export const defaultLayoutConfig = {
 	"layout-top": () => [h(NolebaseHighlightTargetedHeading)],
 };
 
-/** 默认 enhanceApp 预设 */
+/**
+ * 默认 enhanceApp 预设
+ * @description
+ * 有疑惑 经过测试 该写法会导致找不到主题文件
+ */
 export function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppContext) {
 	app.use(NolebaseGitChangelogPlugin);
 	app.use(TwoslashFloatingVue);

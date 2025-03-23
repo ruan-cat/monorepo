@@ -43,3 +43,7 @@ pnpm i -D @ruan-cat/vitepress-preset-config vue vitepress vitepress-demo-plugin
 <<< ./tests/theme.example.ts#snipaste{ts twoslash}
 
 :::
+
+## 有疑惑
+
+在单独的项目内使用该库，会出现主题找不到的错误。
