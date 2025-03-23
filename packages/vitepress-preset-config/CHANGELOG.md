@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.9.0
+
+### Minor Changes
+
+1. 实现 0.8.0 版本的删减计划。
+
 ## 0.8.0
 
 ### Minor Changes
