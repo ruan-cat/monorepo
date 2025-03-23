@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.7.1
+
+### Patch Changes
+
+- 提供 `defaultTheme2` 用于测试。
+
 ## 0.7.0
 
 ### Minor Changes
