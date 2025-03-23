@@ -1,5 +1,12 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.7.2
+
+### Patch Changes
+
+1. 增加 `src` 导出路径。
+2. 移除掉发包时多余的 `dist` 目录。
+
 ## 0.7.1
 
 ### Patch Changes
