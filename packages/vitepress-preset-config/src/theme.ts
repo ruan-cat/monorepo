@@ -50,8 +50,9 @@ export interface DefineRuancatPresetThemeParams {
 /**
  * 默认布局配置
  * @description
+ * @private
  */
-export const defaultLayoutConfig = {
+const defaultLayoutConfig = {
 	// https://vitepress.dev/guide/extending-default-theme#layout-slots
 	"doc-before": () => h(NolebaseBreadcrumbs),
 	"nav-bar-content-after": () => h(NolebaseEnhancedReadabilitiesMenu),
@@ -66,7 +67,7 @@ export const defaultLayoutConfig = {
  * 这个函数预期应该作为一个内部函数 不应该对外暴露使用
  * @private
  */
-export function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppContext) {
+function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppContext) {
 	app.use(NolebaseGitChangelogPlugin);
 	app.use(TwoslashFloatingVue);
 	app.provide(InjectionKey, {
