@@ -48,7 +48,7 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "vite build",
+		"notuse-build": "vite build",
 		"dev": "vite build --watch",
 		"release": "pnpm build && vr release --skip-changelog"
 	},
