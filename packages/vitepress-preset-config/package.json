@@ -62,7 +62,8 @@
 			"import": "./dist/theme.mjs",
 			"types": "./src/theme.ts"
 		},
-		"./theme.css": "./dist/theme.css"
+		"./theme.css": "./dist/theme.css",
+		"./src/*": "./src/*"
 	},
 	"keywords": [
 		"vitepress"
@@ -92,6 +93,7 @@
 		"!src/tests",
 		"!src/**/tests",
 		"!src/**/*.md",
-		"!src/.vitepress/cache"
+		"!src/.vitepress/cache",
+		"!src/.vitepress/dist"
 	]
 }
