@@ -17,5 +17,5 @@ hero:
       link: /09oa/frontend-architecture
     - theme: alt
       text: 在github内查看
-      link: https://github.com/ruan-cat/vercel-monorepo-test/tree/dev/packages/docs-01-star
+      link: https://github.com/ruan-cat/monorepo/tree/dev/packages/docs-01-star
 ---

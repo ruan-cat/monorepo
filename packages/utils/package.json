@@ -7,7 +7,7 @@
 	"types": "./src/index.ts",
 	"homepage": "https://utils.ruancat6312.top",
 	"bugs": {
-		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
+		"url": "https://github.com/ruan-cat/monorepo/issues"
 	},
 	"repository": {
 		"type": "git",

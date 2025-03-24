@@ -16,7 +16,7 @@ const userConfig = setUserConfig({
 		socialLinks: [
 			{
 				icon: "github",
-				link: "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/domains",
+				link: "https://github.com/ruan-cat/monorepo/tree/main/packages/domains",
 			},
 		],
 	},

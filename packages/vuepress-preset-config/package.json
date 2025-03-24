@@ -5,9 +5,9 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./src/index.ts",
-	"homepage": "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/vuepress-preset-config",
+	"homepage": "https://github.com/ruan-cat/monorepo/tree/main/packages/vuepress-preset-config",
 	"bugs": {
-		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
+		"url": "https://github.com/ruan-cat/monorepo/issues"
 	},
 	"repository": {
 		"type": "git",

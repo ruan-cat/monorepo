@@ -48,8 +48,6 @@ export interface WithUserCommands extends Base {
 	 * FIXME: 这个字段无法实现类型声明，缺失类型提示了。
 	 * TODO: 实现对 targetCWD 的读取，并实现类型声明。
 	 *
-	 * pnpm -F @ruan-cat-vercel-monorepo-test/docs-01-star build:docs
-	 *
 	 * @example pnpm -C=./packages/docs-01-star build:docs
 	 * @example pnpm -C=./packages/monorepo-5 build:docs
 	 */

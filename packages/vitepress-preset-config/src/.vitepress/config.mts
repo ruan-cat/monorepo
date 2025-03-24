@@ -21,7 +21,7 @@ const thisDocUserConfig = setUserConfig({
 		socialLinks: [
 			{
 				icon: "github",
-				link: "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/vitepress-preset-config",
+				link: "https://github.com/ruan-cat/monorepo/tree/main/packages/vitepress-preset-config",
 			},
 		],
 	},

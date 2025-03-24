@@ -5,9 +5,9 @@
 	"type": "module",
 	"main": "./dist/index.cjs",
 	"types": "./dist/index.d.cts",
-	"homepage": "https://github.com/ruan-cat/vercel-monorepo-test/tree/dev/configs-package/commitlint-config",
+	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/configs-package/commitlint-config",
 	"bugs": {
-		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
+		"url": "https://github.com/ruan-cat/monorepo/issues"
 	},
 	"repository": {
 		"type": "git",

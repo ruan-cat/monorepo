@@ -5,9 +5,9 @@
 	"type": "module",
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
-	"homepage": "https://github.com/ruan-cat/vercel-monorepo-test/tree/main/packages/vercel-deploy-tool",
+	"homepage": "https://github.com/ruan-cat/monorepo/tree/main/packages/vercel-deploy-tool",
 	"bugs": {
-		"url": "https://github.com/ruan-cat/vercel-monorepo-test/issues"
+		"url": "https://github.com/ruan-cat/monorepo/issues"
 	},
 	"repository": {
 		"type": "git",
