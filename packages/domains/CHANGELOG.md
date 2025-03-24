@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.4.1
+
+### Patch Changes
+
+- github 仓库改名了。不再使用 `/vercel-monorepo-test/` 字符串，全部改成 `/monorepo/` 。对外不再称呼为测试性质项目，而是正式的工程项目。
+
 ## 0.4.0
 
 ### Minor Changes
