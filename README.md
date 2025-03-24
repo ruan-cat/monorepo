@@ -18,6 +18,10 @@
 vercel 部署工具。
 
 <!-- automd:badges color="yellow" name="@ruan-cat/vercel-deploy-tool" -->
+
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/vercel-deploy-tool?color=yellow)](https://npmjs.com/package/@ruan-cat/vercel-deploy-tool)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/vercel-deploy-tool?color=yellow)](https://npm.chart.dev/@ruan-cat/vercel-deploy-tool)
+
 <!-- /automd -->
 
 ## `@ruan-cat/vitepress-preset-config`
@@ -25,6 +29,10 @@ vercel 部署工具。
 vitepress 预设。
 
 <!-- automd:badges color="yellow" name="@ruan-cat/vitepress-preset-config" -->
+
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/vitepress-preset-config?color=yellow)](https://npmjs.com/package/@ruan-cat/vitepress-preset-config)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/vitepress-preset-config?color=yellow)](https://npm.chart.dev/@ruan-cat/vitepress-preset-config)
+
 <!-- /automd -->
 
 ## `@ruan-cat/vuepress-preset-config`
@@ -32,6 +40,10 @@ vitepress 预设。
 vuepress 预设。
 
 <!-- automd:badges color="yellow" name="@ruan-cat/vuepress-preset-config" -->
+
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/vuepress-preset-config?color=yellow)](https://npmjs.com/package/@ruan-cat/vuepress-preset-config)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/vuepress-preset-config?color=yellow)](https://npm.chart.dev/@ruan-cat/vuepress-preset-config)
+
 <!-- /automd -->
 
 ## `@ruan-cat/commitlint-config`
@@ -39,6 +51,10 @@ vuepress 预设。
 commitlint 配置。
 
 <!-- automd:badges color="yellow" name="@ruan-cat/commitlint-config" -->
+
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/commitlint-config?color=yellow)](https://npmjs.com/package/@ruan-cat/commitlint-config)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/commitlint-config?color=yellow)](https://npm.chart.dev/@ruan-cat/commitlint-config)
+
 <!-- /automd -->
 
 ## `@ruan-cat/generate-code-workspace`
@@ -46,4 +62,8 @@ commitlint 配置。
 生成工作区配置文件。
 
 <!-- automd:badges color="yellow" name="@ruan-cat/generate-code-workspace" -->
+
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/generate-code-workspace?color=yellow)](https://npmjs.com/package/@ruan-cat/generate-code-workspace)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/generate-code-workspace?color=yellow)](https://npm.chart.dev/@ruan-cat/generate-code-workspace)
+
 <!-- /automd -->
