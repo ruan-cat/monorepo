@@ -33,6 +33,7 @@
 		"update-package": "pnpm dlx vp-update",
 		"create-code-workspace:": "node --import=tsx ./scripts/generate.code-workspace.ts",
 		"deploy-vercel": "node --import=tsx ./scripts/vercel-deploy-tool.ts",
+		"automd": "automd",
 		"preinstall": "npx only-allow pnpm && npm run corepack:pnpm",
 		"corepack:pnpm": "corepack enable && corepack install",
 		"commit": "git-cz",
