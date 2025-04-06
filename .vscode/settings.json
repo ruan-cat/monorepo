@@ -116,5 +116,6 @@
 		"**/.temp": true,
 		"**/.vercel": true,
 		"**/.turbo": true,
+		"**/cache": true,
 	}
 }
