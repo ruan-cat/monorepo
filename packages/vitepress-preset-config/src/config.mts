@@ -14,6 +14,8 @@ export { addChangelog2doc };
 
 import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
+import llmstxt from "vitepress-plugin-llms";
+
 type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 
 /** 默认侧边栏配置 */
@@ -107,6 +109,9 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 		},
 
 		plugins: [
+			/** @see https://github.com/okineadev/vitepress-plugin-llms */
+			llmstxt(),
+
 			// @ts-ignore
 			GitChangelog({
 				// 填写在此处填写您的仓库链接
