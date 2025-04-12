@@ -27,7 +27,8 @@
 	"devDependencies": {
 		"@types/lodash-es": "^4.17.12",
 		"tsup": "^8.4.0",
-		"vitepress": "^1.6.3"
+		"vitepress": "^1.6.3",
+		"vitepress-plugin-llms": "^1.1.0"
 	},
 	"peerDependencies": {
 		"vitepress": "^1.6.x",
