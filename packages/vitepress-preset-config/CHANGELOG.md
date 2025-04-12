@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.10.0
+
+### Minor Changes
+
+- 接入插件 `vitepress-plugin-llms` 。文档打包后会生成便于大模型读取识别的文件。增强AI的读取能力。
+
 ## 0.9.1
 
 ### Patch Changes

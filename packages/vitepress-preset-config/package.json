@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/vitepress-preset-config",
-	"version": "0.9.1",
+	"version": "0.10.0",
 	"description": "用于给大多数的vitepress项目提供一个预设的配置文件。",
 	"homepage": "https://vitepress-preset.ruancat6312.top",
 	"types": "./src/config.mts",
@@ -21,14 +21,14 @@
 		"js-yaml": "^4.1.0",
 		"lodash-es": "^4.17.21",
 		"vitepress-demo-plugin": "^1.3.1",
+		"vitepress-plugin-llms": "^1.1.0",
 		"vitepress-sidebar": "^1.31.1",
 		"vue": "^3.5.13"
 	},
 	"devDependencies": {
 		"@types/lodash-es": "^4.17.12",
 		"tsup": "^8.4.0",
-		"vitepress": "^1.6.3",
-		"vitepress-plugin-llms": "^1.1.0"
+		"vitepress": "^1.6.3"
 	},
 	"peerDependencies": {
 		"vitepress": "^1.6.x",
