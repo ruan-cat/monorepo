@@ -1,5 +1,9 @@
-# Vue 3 + TypeScript + Vite
+# 本项目不再继续跟进
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+- https://juejin.cn/column/7288602155110400000
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+本项目是用来学习如何封装基于element-plus的vue组件库的。目前不打算继续跟进该文章了，看其他的文章来学习封装组件库。
+
+## 了解学习 `vite-plugin-autogeneration-import-file`
+
+本项目最重要的是学习了解vue组件该如何生成出供外部使用的typescript类型。
