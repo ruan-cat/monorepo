@@ -1,5 +1,11 @@
 # @ruan-cat/generate-code-workspace
 
+## 0.4.0
+
+### Minor Changes
+
+- 增加`tsx`作为显性提示的对等依赖。
+
 ## 0.3.18
 
 ### Patch Changes
