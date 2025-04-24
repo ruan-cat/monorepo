@@ -5,10 +5,12 @@
 ## 安装
 
 ```bash
-pnpm i -D @ruan-cat/generate-code-workspace
+pnpm i -D @ruan-cat/generate-code-workspace tsx
 ```
 
 本库应当作为开发环境依赖。
+
+本库将使用 `tsx` 完成对ts脚本的运行，故需要安装 `tsx` 作为对等依赖。
 
 ## 使用方式
 
