@@ -63,10 +63,10 @@
 		"pkg-types": "^2.0.1"
 	},
 	"peerDependencies": {
-		"tsup": ">8"
+		"tsx": ">4"
 	},
 	"peerDependenciesMeta": {
-		"tsup": {
+		"tsx": {
 			"optional": true
 		}
 	}
