@@ -1,5 +1,11 @@
 # @ruan-cat/generate-code-workspace
 
+## 0.4.1
+
+### Patch Changes
+
+- 处理标记错误版本号的bug。
+
 ## 0.4.0
 
 ### Minor Changes
