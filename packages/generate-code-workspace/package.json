@@ -61,5 +61,13 @@
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.9",
 		"pkg-types": "^2.0.1"
+	},
+	"peerDependencies": {
+		"tsup": ">8"
+	},
+	"peerDependenciesMeta": {
+		"tsup": {
+			"optional": true
+		}
 	}
 }
