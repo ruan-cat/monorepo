@@ -118,6 +118,28 @@
 		"**/.turbo": true,
 		"**/cache": true,
 	},
+	/** 
+		排除文件或文件夹的文件系统监视（watcher）。vscode 默认会监视文件系统的变化，
+		但对于大型项目，监视过多文件可能会导致性能问题。
+	*/
+	"files.watcherExclude": {
+		"**/.git/objects/**": true,
+		"**/.git/subtree-cache/**": true,
+		"**/.turbo/**": true,
+		"**/node_modules/*/**": true,
+		"**/dist/**": true,
+		"**/.changeset/**": true
+	},
+	/** 禁用自动下载类型定义文件 */
+	"typescript.disableAutomaticTypeAcquisition": true,
+	/** 增加 TypeScript 服务的内存限制。 */
+	"typescript.tsserver.maxTsServerMemory": 4096,
+	/** 优化文件和目录监视方式，提升性能。 */
+	"typescript.tsserver.watchOptions": {
+		"watchFile": "useFsEvents",
+		"watchDirectory": "useFsEvents",
+		"fallbackPolling": "dynamicPriority"
+	},
 	// 配置多根项目的目录地址 默认为项目根目录
 	"terminal.integrated.cwd": "${workspaceFolder}",
 	// 配置多根项目的目录地址 默认为项目根目录 且该配置仅在 .code-workspace 文件内生效
