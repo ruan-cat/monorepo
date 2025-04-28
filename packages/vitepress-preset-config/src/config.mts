@@ -110,6 +110,7 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 
 		plugins: [
 			/** @see https://github.com/okineadev/vitepress-plugin-llms */
+			// @ts-ignore
 			llmstxt(),
 
 			// @ts-ignore
