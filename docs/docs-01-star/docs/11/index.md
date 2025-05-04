@@ -4,10 +4,11 @@
 
 ## 技术选型
 
-业务用组件库：
+### 面向业务的二次封装组件库
 
 - https://github.com/plus-pro-components/plus-pro-components
 
-项目模板：
+### 项目模板 vue-pure-admin
 
-- https://github.com/pure-admin/vue-pure-admin
+- 仓库： https://github.com/pure-admin/vue-pure-admin
+- 在线地址： https://pure-admin.github.io/vue-pure-admin/
