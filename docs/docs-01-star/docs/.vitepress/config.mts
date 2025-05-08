@@ -125,5 +125,10 @@ const userConfig = setUserConfig({
 // @ts-ignore
 userConfig.themeConfig.sidebar = setGenerateSidebar({
 	documentRootPath: "./docs",
+	/**
+	 * 排除掉含有 exclude 值的md文件
+	 * @see https://vitepress-sidebar.cdget.com/zhHans/guide/options#excludefilesbyfrontmatterfieldname
+	 */
+	excludeFilesByFrontmatterFieldName: "exclude",
 });
 export default userConfig;
