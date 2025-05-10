@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.8.12
+
+### Patch Changes
+
+- 删除不需要的shx依赖。
+
 ## 0.8.11
 
 ### Patch Changes
