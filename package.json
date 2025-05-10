@@ -7,11 +7,9 @@
 	"description": "这是单仓架构项目的根目录。",
 	"main": "index.js",
 	"type": "module",
-	"packageManager": "pnpm@9.5.0",
+	"packageManager": "pnpm@9.15.0",
 	"engines": {
-		"node": ">=20.15.1",
-		"vscode": "^1.22.0",
-		"pnpm": ">=9.5.0"
+		"node": ">=22.14.0"
 	},
 	"scripts": {
 		"build": "turbo build",
