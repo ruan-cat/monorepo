@@ -10,11 +10,8 @@ hero:
   #   alt: VitePress
   actions:
     - theme: brand
-      text: 阅读10wms前端组的内容
-      link: /10wms
-    - theme: brand
-      text: 学习09oa项目的前端架构
-      link: /09oa/frontend-architecture
+      text: 阅读11智慧社区项目
+      link: /11
     - theme: alt
       text: 在github内查看
       link: https://github.com/ruan-cat/monorepo/tree/dev/packages/docs-01-star
