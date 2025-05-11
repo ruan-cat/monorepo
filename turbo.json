@@ -38,8 +38,7 @@
 		"do-build-01star-doc": {
 			"cache": true,
 			"outputs": [
-				"**/.vitepress/dist/**",
-				"**/.vuepress/dist/**"
+				"docs/docs-01-star/docs/.vitepress/dist/**"
 			],
 			"dependsOn": [
 				"@ruan-cat/utils#build",
