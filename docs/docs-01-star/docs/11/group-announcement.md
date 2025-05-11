@@ -37,6 +37,8 @@ f1-XXX
 ## 小组公共文档
 
 - 会议材料：https://docs-01-star.ruancat6312.top/11/meeting-minutes/
+- [cloudflare部署版本](https://docs-01-star.ruan-cat.com/11/meeting-minutes/)
+- [github workflow部署版本](https://docs-01-star.ruancat6312.top/11/meeting-minutes/)
 
 ## 待补充完善
 
