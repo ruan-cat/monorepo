@@ -158,6 +158,15 @@ git clone https://codeup.aliyun.com/zero-one-star/zero-awei/zero-one-11community
 
 :::
 
+## 在腾讯文档内补全内容
+
+信息总表提供了新的信息栏，请各位根据自己的情况补全。
+
+- 性别
+- 学历阶段
+- 个人状态
+- 会议是否能开麦沟通？
+
 ## 其他说明
 
 1. 组长未来不会去统计会议出勤情况。不做任何会议出勤考核。
