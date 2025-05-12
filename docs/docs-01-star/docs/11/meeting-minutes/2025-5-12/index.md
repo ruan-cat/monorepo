@@ -187,3 +187,10 @@ git clone https://codeup.aliyun.com/zero-one-star/zero-awei/zero-one-11community
 1. 组长未来不会去统计会议出勤情况。不做任何会议出勤考核。
 2. 除了明确说明必须参加的会议以外，其他情况下可以不参加会议。
 3. 未来的会议主要负责解答疑惑、培训必要的前端技术、整合代码分支、代码审核与优化改进等。
+
+## 本次会议布置的任务
+
+1. 克隆云效仓库。
+2. 克隆阮喵喵维护的github仓库，提前了解项目架构。
+3. 有针对性的阅读`原型`和`需求脑图`。
+4. 针对性地学习 [pure-admin](https://github.com/pure-admin/vue-pure-admin) 框架。
