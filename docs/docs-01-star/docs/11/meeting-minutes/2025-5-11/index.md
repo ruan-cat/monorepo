@@ -62,6 +62,12 @@
 - [Watt Toolkit](https://steampp.net/)
 - 确保自己能够翻墙，能够正常访问github，能够正常的安装来自npm官方镜像源的node依赖。
 
+::: tip
+
+这里推荐使用[大机场](https://bigairport-mirror.com/)提供的节点来翻墙。
+
+:::
+
 ### vscode
 
 在下一次会议补充说明。
