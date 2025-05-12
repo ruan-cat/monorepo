@@ -96,6 +96,16 @@
 
 :::
 
+::: tip
+
+可以使用以下命令克隆：
+
+```bash
+git clone https://codeup.aliyun.com/zero-one-star/zero-awei/zero-one-11community.git 01s-11comm
+```
+
+:::
+
 目前（2025-5-12）尚未有明确的前端分支。
 
 ## 阅读 `版本计划.emmx` 文件
