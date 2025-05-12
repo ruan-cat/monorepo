@@ -40,6 +40,12 @@ f1-XXX
 - [cloudflare部署版本](https://docs-01-star.ruan-cat.com/11/meeting-minutes/)
 - [github workflow部署版本](https://docs-01-star.ruancat6312.top/11/meeting-minutes/)
 
+## 阿里云效地址
+
+- 工作台 https://devops.aliyun.com/
+- 代码仓库 https://codeup.aliyun.com/zero-one-star/zero-awei/zero-one-11community
+- 需求工单 https://devops.aliyun.com/projex/project/980bfa8a86624703565bf3d1e1
+
 ## 待补充完善
 
 项目生产环境地址：（待组长部署）
