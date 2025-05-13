@@ -90,4 +90,12 @@ monorepo下的node命令调度器。
 - [Message](https://element-plus.org/zh-CN/component/message.html)
 - [Tree](https://element-plus.org/zh-CN/component/tree.html)
 
-##
+## pure-admin
+
+本次项目用的模板。由阮喵喵决定套用并改造该模板：
+
+- [表格固定列](https://vscode.dev/github.com/pure-admin/vue-pure-admin/blob/main/src/views/table/base/fixColumn.vue)
+- [表单](https://pure-admin.github.io/vue-pure-admin/#/form/index)
+- 树形菜单：
+  - https://pure-admin.github.io/vue-pure-admin/#/system/user/index
+  - https://vscode.dev/github.com/pure-admin/vue-pure-admin/blob/main/src/views/system/user/tree.vue
