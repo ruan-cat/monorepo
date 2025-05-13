@@ -23,6 +23,23 @@ f1-XXX
 
 :::
 
+::: details 腾讯会议邀请信息
+
+[点击链接](https://meeting.tencent.com/p/7933309962)直接加入会议： https://meeting.tencent.com/p/7933309962
+
+```txt
+阮喵喵 邀请您加入01s-11智慧社区-f1小组会议室
+
+点击链接直接加入会议：
+https://meeting.tencent.com/p/7933309962
+
+#腾讯会议：793-330-9962
+
+复制该信息，打开手机腾讯会议即可参与
+```
+
+:::
+
 ## 腾讯文档
 
 - 小组信息总表：https://docs.qq.com/sheet/DTURndGZLenZzV05h
