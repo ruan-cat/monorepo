@@ -6,7 +6,7 @@
 
 ::: tip 提前预备合适的浏览器插件
 
-当你阅读文档时，会不可避免的遇到英文文档。这里推荐你准备好这些[浏览器插件](../../09oa/frontend-dev/chrome-extensions.md)。
+当你阅读文档时，会不可避免的遇到英文文档。这里推荐你准备好这些[浏览器插件](../09oa/frontend-dev/chrome-extensions.md)。
 
 :::
 
