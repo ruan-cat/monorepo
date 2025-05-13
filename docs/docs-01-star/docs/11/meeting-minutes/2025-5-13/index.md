@@ -63,7 +63,16 @@ git merge origin/f1
 
 ### 认识.vscode目录下的配置文件
 
-### 在monorepo内选择正确的根目录
+### 学会vscode常用的命令
+
+调用命令的快捷键： `Ctrl+Shift+P`
+
+1. **重启vscode**： `reloadwindow`
+2. **打开个人用户全局配置**： `openusersetjson`
+
+### vscode登录github账户，全局同步个人配置
+
+### 在monorepo内选择正确的根目录终端
 
 ### 安装依赖
 
@@ -82,6 +91,8 @@ create-code-workspace 命令。
 打开工作区文件，以工作区的形式打开项目。
 
 ### 学会使用cz命令编写满足规范的git commit
+
+### 学会使用vscode集成的npm脚本菜单
 
 ### 运行项目
 
@@ -104,3 +115,7 @@ clear:deps 命令。
 如果你已经有能力翻墙，那么可以忽略此教程。
 
 :::
+
+## 针对性的阅读技术文档
+
+这里[列举](../technical-doc.md)必须要学会的技术。
