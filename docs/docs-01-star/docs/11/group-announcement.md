@@ -46,6 +46,10 @@ f1-XXX
 - 代码仓库 https://codeup.aliyun.com/zero-one-star/zero-awei/zero-one-11community
 - 需求工单 https://devops.aliyun.com/projex/project/980bfa8a86624703565bf3d1e1
 
+## 历史项目入门教程
+
+- [10wms项目教程](https://01s-10wms-frontend-docs.ruancat6312.top/)
+
 ## 待补充完善
 
 项目生产环境地址：（待组长部署）
