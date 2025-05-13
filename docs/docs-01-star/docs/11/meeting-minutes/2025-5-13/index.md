@@ -138,3 +138,7 @@ clear:deps 命令。
 这里[列举](../../technical-doc.md)必须要学会的技术。
 
 请各位自己酌情安排时间，务必掌握该表内列举的技术。
+
+## git操作推荐视频
+
+- [和傻子一起写代码](https://www.bilibili.com/video/BV1udEuzrEa7/)
