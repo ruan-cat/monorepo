@@ -57,6 +57,16 @@
 - vercel
 - degit
 
+::: tip 全局安装命令
+
+你必须用以下命令来完成pnpm安装全局依赖：
+
+```bash
+pnpm i -g commitizen
+```
+
+:::
+
 ### 网络环境
 
 - [Watt Toolkit](https://steampp.net/)
