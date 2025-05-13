@@ -129,4 +129,4 @@ clear:deps 命令。
 
 ## 针对性的阅读技术文档
 
-这里[列举](../technical-doc.md)必须要学会的技术。
+这里[列举](../../technical-doc.md)必须要学会的技术。
