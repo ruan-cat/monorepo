@@ -92,6 +92,17 @@ create-code-workspace 命令。
 
 ### 学会使用cz命令编写满足规范的git commit
 
+在工作区根目录内进入终端。
+
+```bash
+# 保存当前全部文件 进入git暂存区
+git add .
+# 使用全局依赖 commitizen 和 cz-git ，开始编写git commit
+cz
+```
+
+务必编写有意义的，内容清晰明确的git commit提交记录。
+
 ### 学会使用vscode集成的npm脚本菜单
 
 ### 运行项目
