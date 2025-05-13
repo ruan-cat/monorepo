@@ -63,6 +63,16 @@ https://meeting.tencent.com/p/7933309962
 - [cloudflare部署版本](https://docs-01-star.ruan-cat.com/11/meeting-minutes/)
 - [github workflow部署版本](https://docs-01-star.ruancat6312.top/11/meeting-minutes/)
 
+::: warning 更新内容有延迟
+
+[github workflow部署版本](https://docs-01-star.ruancat6312.top/11/meeting-minutes/)，由于需要主分支的提交才能触发部署，故更新缓慢，内容不及时。经常会落后很多个版本。
+
+建议大家阅读[cloudflare部署版本](https://docs-01-star.ruan-cat.com/11/meeting-minutes/)的文档。
+
+cloudflare版本的文档最快在90秒（1分30秒）内完成自动部署，最慢120秒。
+
+:::
+
 ## 阿里云效地址
 
 - 工作台 https://devops.aliyun.com/
