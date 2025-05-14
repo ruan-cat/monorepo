@@ -109,6 +109,10 @@ pnpm ls -g
 
 如果你使用的是Mac苹果电脑系统，请用类似的方式输出环境。
 
+### 对应云效工单
+
+- https://devops.aliyun.com/projex/project/980bfa8a86624703565bf3d1e1/req/1809ac7c0f8efccf4e2a8aee5b
+
 ## 其他故障解释
 
 ### 生成工作区后，显示效果不一致
