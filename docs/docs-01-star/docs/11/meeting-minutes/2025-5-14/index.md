@@ -144,3 +144,9 @@ f1-阮喵喵 在 Apifox 邀请你加入项目 11comm智慧社区项目
 ![2025-05-14-10-23-06](https://s2.loli.net/2025/05/14/CEfaZjnry3eDW9s.png)
 
 :::
+
+### 之前安装的pnpm全局包丢失了
+
+参考该教程：
+
+- https://notes.ruan-cat.com/corepack/#切换-node-版本后要及时开启-corepack
