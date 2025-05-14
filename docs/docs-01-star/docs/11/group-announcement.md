@@ -40,6 +40,16 @@ https://meeting.tencent.com/p/7933309962
 
 :::
 
+## 每日例会时间
+
+每天晚上8点20分开始例会。
+
+::: tip
+
+可以提前进入会议室等待。
+
+:::
+
 ## 腾讯文档
 
 - 小组信息总表：https://docs.qq.com/sheet/DTURndGZLenZzV05h
