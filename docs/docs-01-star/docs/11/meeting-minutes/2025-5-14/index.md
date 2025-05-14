@@ -150,3 +150,9 @@ f1-阮喵喵 在 Apifox 邀请你加入项目 11comm智慧社区项目
 参考该教程：
 
 - https://notes.ruan-cat.com/corepack/#切换-node-版本后要及时开启-corepack
+
+### 安装依赖卡死
+
+参考该教程：
+
+- https://01s-10wms-frontend-docs.ruancat6312.top/#配置-npm-镜像源
