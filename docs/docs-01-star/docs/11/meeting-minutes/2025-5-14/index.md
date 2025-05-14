@@ -113,6 +113,18 @@ pnpm ls -g
 
 - https://devops.aliyun.com/projex/project/980bfa8a86624703565bf3d1e1/req/1809ac7c0f8efccf4e2a8aee5b
 
+## 进入apifox项目组
+
+请各位前端成员，进入此链接。
+
+f1-阮喵喵 在 Apifox 邀请你加入项目 11comm智慧社区项目
+
+- https://app.apifox.com/invite/project?token=6ag-751v_2qnMtUDMUuj7
+
+1. 在本次大项目内，你们将在该apifox项目内，审阅后端上传的接口。
+2. 你们应该及时地更改apifox的用户名。并且统一用户名格式。
+3. 前端组成员拥有全部的编辑权限。但是你们不应该随便修改掉后端提供的接口。
+
 ## 其他故障解释
 
 ### 生成工作区后，显示效果不一致
