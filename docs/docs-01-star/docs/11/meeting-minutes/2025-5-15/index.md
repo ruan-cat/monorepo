@@ -34,3 +34,7 @@
 3. 运行10wms项目，运行精简版项目。在云效内评论截图，验收标准如下：
 
 ![2025-05-13-23-05-02](https://s2.loli.net/2025/05/13/xgnSkHm9swArD2C.png)
+
+## 补充说明cz的提交类型
+
+- https://github.com/ruan-cat/monorepo/tree/dev/configs-package/commitlint-config#被封装的配置文件
