@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.3.0
+
+### Minor Changes
+
+- 为 unplugin-vue-router 提供处理脏数据的 disposalAutoRouter 函数。
+
 ## 4.2.2
 
 ### Patch Changes

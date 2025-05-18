@@ -1,5 +1,16 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.11.0
+
+### Minor Changes
+
+- 对外导出来自 [vitepress-plugin-mermaid](https://emersonbottero.github.io/vitepress-plugin-mermaid/) 的 withMermaid 函数。
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ruan-cat/utils@4.3.0
+
 ## 0.10.0
 
 ### Minor Changes
