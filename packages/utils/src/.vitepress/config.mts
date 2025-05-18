@@ -1,5 +1,5 @@
 // 工具包文档项目 直接导入生成文档配置 避免出现循环依赖
-import { setUserConfig, setGenerateSidebar } from "../../../vitepress-preset-config";
+import { setUserConfig, setGenerateSidebar, withMermaid } from "../../../vitepress-preset-config";
 import { addChangelog2doc } from "@ruan-cat/utils/node-esm";
 
 import { description } from "../../package.json";
@@ -31,4 +31,4 @@ const userConfig = setUserConfig({
 userConfig.themeConfig.sidebar = setGenerateSidebar({
 	documentRootPath: "src",
 });
-export default userConfig;
+export default withMermaid(userConfig);
