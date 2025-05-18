@@ -45,16 +45,27 @@ export function disposalAutoRouter(routes: RouteRecordRaw[]): RouteRecordRaw[] {
 ## 数据流转图
 
 ```mermaid
-flowchart TD
-    A[开始] --> B[接收路由数组]
-    B --> C{数组为空?}
-    C -->|是| D[返回空数组]
-    C -->|否| E[遍历每个顶级路由]
-    E --> F[调用processRoute处理]
-    F --> G[返回处理后的路由数组]
-    G --> H[结束]
+flowchart LR
+    %% 设置图表方向为左到右
 
-    subgraph processRoute函数
+    %% 主流程（左侧）
+    subgraph Main[disposalAutoRouter主流程]
+        direction TB
+        A[开始] --> B[接收路由数组]
+        B --> C{数组为空?}
+        C -->|是| D[返回空数组]
+        C -->|否| E[遍历每个顶级路由]
+        E --> F[调用processRoute处理]
+        F --> G[返回处理后的路由数组]
+        G --> H[结束]
+    end
+
+    %% 连接主流程和子流程
+    Main --> |调用| PR
+
+    %% processRoute子流程（右侧）
+    subgraph PR[processRoute函数]
+        direction TB
         P1[创建路由副本] --> P2[拼接完整路径]
         P2 --> P3{有子路由?}
         P3 -->|否| P8[返回处理后的路由]
@@ -70,7 +81,13 @@ flowchart TD
         P11 -->|否| P13[删除children属性]
         P12 --> P8
         P13 --> P8
+
+        %% 递归调用自身
+        P10 -.->|递归| P1
     end
+
+    %% 返回处理结果
+    PR --> |返回| Main
 ```
 
 ## 数据转换示例
