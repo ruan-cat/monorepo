@@ -7,6 +7,8 @@ describe("disposalAutoRouter", () => {
 	it("将自动化路由返回的数据减少层级", () => {
 		const result = disposalAutoRouter(autoRouterData as unknown as RouteRecordRaw[]);
 
+		console.log(" 查看输出结果 ", result);
+
 		// 验证函数能正常处理并返回数据
 		expect(result).toBeDefined();
 		expect(Array.isArray(result)).toBe(true);
