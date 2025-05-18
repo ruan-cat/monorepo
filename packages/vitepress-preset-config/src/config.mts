@@ -16,6 +16,18 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt from "vitepress-plugin-llms";
 
+/**
+ * 让vitepress支持mermaid图表
+ * @see https://emersonbottero.github.io/vitepress-plugin-mermaid/guide/getting-started.html
+ */
+import { withMermaid } from "vitepress-plugin-mermaid";
+/**
+ * 不考虑这种二次包装的写法
+ * 本库仅仅是负责二次导出该函数
+ * mermaid 需求并不是常用的需求 故设计成让用户自己二次包装使用
+ */
+export { withMermaid };
+
 type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 
 /** 默认侧边栏配置 */
