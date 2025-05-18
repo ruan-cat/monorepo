@@ -117,6 +117,8 @@
 		"**/.vercel": true,
 		"**/.turbo": true,
 		"**/cache": true,
+		"**/.vitepress/cache/**": true,
+		"**/.nuxt/**": true,
 	},
 	/** 
 		排除文件或文件夹的文件系统监视（watcher）。vscode 默认会监视文件系统的变化，
