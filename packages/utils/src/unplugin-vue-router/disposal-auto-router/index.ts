@@ -73,6 +73,8 @@ export function disposalAutoRouter(routes: RouteRecordRaw[]): RouteRecordRaw[] {
  * 打印自动路由信息（支持嵌套，完整打印每层对象）
  * @param routes 路由对象或数组
  * @param level 当前缩进层级（内部递归用）
+ * @description
+ * 一个辅助函数 帮助打印路由的信息
  */
 export function printAutoRouter(routes: RouteRecordRaw[] | RouteRecordRaw, level = 0): void {
 	const indent = (n: number) => "  ".repeat(n);
