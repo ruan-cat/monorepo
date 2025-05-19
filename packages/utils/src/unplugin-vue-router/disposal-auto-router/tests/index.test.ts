@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { disposalAutoRouter, processRoute } from "../index";
+import { disposalAutoRouter, processRoute, printAutoRouter } from "../index";
 import { autoRouterData } from "./auto-router-data";
 import type { RouteRecordRaw } from "vue-router";
 
@@ -7,7 +7,7 @@ describe("disposalAutoRouter", () => {
 	it("将自动化路由返回的数据减少层级", () => {
 		const result = disposalAutoRouter(autoRouterData as unknown as RouteRecordRaw[]);
 
-		console.log(" 查看输出结果 ", result);
+		console.log(" 查看输出结果 \n", JSON.stringify(result, null, 2));
 
 		// 验证函数能正常处理并返回数据
 		expect(result).toBeDefined();

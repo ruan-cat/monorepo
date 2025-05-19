@@ -75,26 +75,31 @@ export function disposalAutoRouter(routes: RouteRecordRaw[]): RouteRecordRaw[] {
  * @param level 当前缩进层级（内部递归用）
  * @description
  * 一个辅助函数 帮助打印路由的信息
+ *
+ * @deprecated
+ * 废弃 不如直接json转换一次，输出效果还好。
+ * `JSON.stringify(result, null, 2)`
  */
 export function printAutoRouter(routes: RouteRecordRaw[] | RouteRecordRaw, level = 0): void {
 	const indent = (n: number) => "  ".repeat(n);
+
 	const printOne = (route: RouteRecordRaw, lvl: number) => {
 		const prefix = indent(lvl);
-		consola.box(`${prefix}Route Level ${lvl}`);
-		consola.log(prefix + JSON.stringify(route, null, 2));
+		// console.log(`${prefix}Route Level ${lvl}`);
+		console.warn(prefix + JSON.stringify(route, null, 2));
 		if (route.children && route.children.length > 0) {
-			consola.info(`${prefix}children:`);
+			// console.log(`${prefix}children:`);
 			route.children.forEach((child) => printOne(child, lvl + 1));
 		}
 	};
 
 	if (Array.isArray(routes)) {
-		consola.start("打印路由数组...");
+		// console.log("打印路由数组...");
 		routes.forEach((route) => printOne(route, level));
-		consola.success("打印结束");
+		// console.log("打印结束");
 	} else {
-		consola.start("打印单个路由...");
+		// console.log("打印单个路由...");
 		printOne(routes, level);
-		consola.success("打印结束");
+		// console.log("打印结束");
 	}
 }
