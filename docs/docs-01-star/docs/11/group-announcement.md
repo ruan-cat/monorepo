@@ -50,6 +50,11 @@ https://meeting.tencent.com/p/7933309962
 
 :::
 
+## 项目生产环境地址
+
+- https://01s-11comm.ruancat6312.top
+- https://01s-11.ruancat6312.top
+
 ## 腾讯文档
 
 - 小组信息总表：https://docs.qq.com/sheet/DTURndGZLenZzV05h
@@ -101,9 +106,7 @@ cloudflare版本的文档最快在90秒（1分30秒）内完成自动部署，�
 
 ## 待补充完善
 
-项目生产环境地址：（待组长部署）
-
-apifox文档地址：（待组长新建组织）
+TODO: apifox文档地址：（待组长新建组织）
 
 ## 游客守则
 
