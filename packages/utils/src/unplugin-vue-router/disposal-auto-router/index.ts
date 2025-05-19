@@ -9,6 +9,7 @@
  */
 import type { RouteRecordRaw } from "vue-router";
 import { omit } from "lodash-es";
+import { consola } from "consola";
 
 /**
  * 处理单个路由，包括处理空路径子路由和拼接完整路径
@@ -66,4 +67,32 @@ export function disposalAutoRouter(routes: RouteRecordRaw[]): RouteRecordRaw[] {
 
 	// 处理所有顶级路由
 	return routes.map((route) => processRoute(route));
+}
+
+/**
+ * 打印自动路由信息（支持嵌套，完整打印每层对象）
+ * @param routes 路由对象或数组
+ * @param level 当前缩进层级（内部递归用）
+ */
+export function printAutoRouter(routes: RouteRecordRaw[] | RouteRecordRaw, level = 0): void {
+	const indent = (n: number) => "  ".repeat(n);
+	const printOne = (route: RouteRecordRaw, lvl: number) => {
+		const prefix = indent(lvl);
+		consola.box(`${prefix}Route Level ${lvl}`);
+		consola.log(prefix + JSON.stringify(route, null, 2));
+		if (route.children && route.children.length > 0) {
+			consola.info(`${prefix}children:`);
+			route.children.forEach((child) => printOne(child, lvl + 1));
+		}
+	};
+
+	if (Array.isArray(routes)) {
+		consola.start("打印路由数组...");
+		routes.forEach((route) => printOne(route, level));
+		consola.success("打印结束");
+	} else {
+		consola.start("打印单个路由...");
+		printOne(routes, level);
+		consola.success("打印结束");
+	}
 }
