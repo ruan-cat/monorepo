@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.3.1
+
+### Patch Changes
+
+- 补全导出路由处理函数。
+
 ## 4.3.0
 
 ### Minor Changes
