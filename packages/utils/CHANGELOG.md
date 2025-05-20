@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.3.2
+
+### Patch Changes
+
+- 升级依赖 unplugin-vue-router 到最新版。
+
 ## 4.3.1
 
 ### Patch Changes
