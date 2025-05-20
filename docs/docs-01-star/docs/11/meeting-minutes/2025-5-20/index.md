@@ -25,6 +25,12 @@
 - [definePage语法](https://uvr.esm.is/guide/extending-routes.html#definepage)
 - [pure-admin定义路由](https://pure-admin.cn/pages/routerMenu/)
 
+## 明确新建页面文件的规范
+
+- pages 目录。
+- 统一为 index.vue 命名。
+- 子组件文件夹的名称一律为 components 。
+
 ## 学会使用接口请求工具
 
 ## 学会使用项目内配置的git commit提交命令
