@@ -90,6 +90,13 @@ monorepo下的node命令调度器。
 - [Message](https://element-plus.org/zh-CN/component/message.html)
 - [Tree](https://element-plus.org/zh-CN/component/tree.html)
 
+## unplugin-vue-router
+
+基于文件的路由生成插件。
+
+- https://uvr.esm.is/guide/file-based-routing.html
+- https://uvr.esm.is/guide/extending-routes.html#definepage
+
 ## pure-admin
 
 本次项目用的模板。由阮喵喵决定套用并改造该模板：
