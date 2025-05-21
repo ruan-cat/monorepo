@@ -106,3 +106,11 @@ monorepo下的node命令调度器。
 - 树形菜单：
   - https://pure-admin.github.io/vue-pure-admin/#/system/user/index
   - https://vscode.dev/github.com/pure-admin/vue-pure-admin/blob/main/src/views/system/user/tree.vue
+
+## plus-pro-components
+
+本次项目用的表单组件组件库。
+
+表单组件是单独的，专门的组件库实现的。
+
+- [搜索栏组件](https://plus-pro-components.com/components/search.html)

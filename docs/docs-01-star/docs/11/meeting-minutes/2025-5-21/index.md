@@ -21,3 +21,7 @@
 ## 新建目录
 
 现场演示如何新建目录和页面。
+
+## 注意学习plus-pro-components组件库
+
+技术文档新增内容。[plus-pro-components组件库](../../technical-doc.md#plus-pro-components)。
