@@ -4,6 +4,12 @@
 
 以下内容仅为大纲，不会提供过于详细的内容。
 
+本次培训的重点是：
+
+1. i18n分治策略以及各个组件对 i18n 的配置。
+2. git操作。
+3. 表格搜索栏。
+
 ## 参考例子
 
 以 `apps\admin\src\pages\property-manage\community-manage\house-decoration\index.vue` 为例子。
@@ -12,6 +18,27 @@
 
 - https://pure-admin.github.io/vue-pure-admin/#/form/index
 - https://plus-pro-components.com/components/config.html#valuetype-可选的表单值
+
+### 动态变化的i18n文本
+
+- https://github.com/plus-pro-components/plus-pro-components/issues/184
+
+## 表格组件
+
+针对 i18n 功能，表格组件要做出改动。
+
+### 全局组件注册时，应该同步注册 i18n 实例
+
+- https://github.com/pure-admin/vue-pure-admin/issues/926
+- https://vscode.dev/github/pure-admin/pure-admin-table/blob/main/src/main.ts#L17-L19
+
+### 动态的表格表头要用`headerRenderer`而不是`label`
+
+使用响应式的语法实现动态变化的i18n文本。
+
+- https://vscode.dev/github/pure-admin/pure-admin-table/blob/main/src/columns.tsx#L36
+
+## 全新的i18n文件分治策略
 
 ## 不推荐使用git graph插件来修改用户名了
 
@@ -32,3 +59,7 @@ git config --local user.name f1-阮喵喵
 ```
 
 - https://notes.ruan-cat.com/git/git-change-username.html
+
+## 学会阅读约定式提交的破坏性变更标记
+
+## 学会使用时间线来阅读代码负责人
