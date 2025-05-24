@@ -39,13 +39,42 @@ export const domains = <const>{
 	/** 域名列表 */
 	domain: ["dm.ruancat6312.top", "dm.ruan-cat.com"],
 
-	/** 笔记项目 */
-	notes: [
-		//
-		"notes.ruan-cat.com",
-		"ruan-cat-notes.ruan-cat.com",
-		"ruan-cat-notes.ruancat6312.top",
-	],
+	/**
+	 * 笔记项目 `github`流水线版本
+	 * @description
+	 * 在 github workflow 流水线内部署的域名
+	 * 为了保证vercel静态文件上传时 不会出现构建次数超出每个月100次的额度限制
+	 * 该域名预期仅仅在main主分支被触发的时候 完成更新
+	 *
+	 * - *更新速度*： 预期是`低频触发，低速部署`的域名。
+	 * - *cname*： 该域名没有在平台内配置指定的cname 整个`ruancat6312.top`域名被vercel管控。vercel会实现自动域名。
+	 * - *有意义配置*： 该配置预期会给vercel部署工具直接使用。
+	 */
+	notesGithubWorkflow: ["ruan-cat-notes.ruancat6312.top"],
+
+	/**
+	 * 笔记项目 `cloudflare`流水线版本
+	 * @description
+	 * 在 cloudflare pages 流水线内部署的域名
+	 * 这个域名会在dev分支 且notes目录下有变更时重新部署
+	 *
+	 * - *更新速度*： 预期是`高频触发，低速部署`的域名。
+	 * - *cname*： 该域名有明确的cname配置 对接的是`cloudflare pages`提供的默认域名。
+	 * - *无意义配置*： 本配置在此处仅仅是用来声明 目前暂时没有专门的域名配置。
+	 */
+	notesCloudflare: ["notes.ruan-cat.com"],
+
+	/**
+	 * 笔记项目 `vercel`流水线版本
+	 * @description
+	 * 在 vercel 流水线内部署的域名
+	 * 这个域名会在vc分支触发的时候重新部署
+	 *
+	 * - *更新速度*： 预期是`中频触发，高速部署`的域名。
+	 * - *cname*： 该域名有明确的cname配置 对接的是`vercel`提供的服务器ns。
+	 * - *无意义配置*： 本配置在此处仅仅是用来声明 目前暂时没有专门的域名配置。
+	 */
+	notesVercel: ["ruan-cat-notes.ruan-cat.com"],
 
 	/** rmmv笔记项目 */
 	"rmmv-notes": [
