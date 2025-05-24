@@ -68,6 +68,7 @@ export const config: UserConfig = {
 			{ value: "🐳 chore", name: "🐳 chore:    其他修改 | Other changes that do not modify src or test files" },
 			{ value: "↩ revert", name: "↩ revert:   回退代码 | Revert to a commit" },
 			{ value: "🗑 del", name: "🗑 del:    删除垃圾 | 删除无意义的东西，注释，文件，代码段等。" },
+			{ value: "🌐 i18n", name: "🌐 i18n:    国际化 | 专门设置国际化的翻译文本。" },
 			{ value: "🌈 style", name: "🌈 style:    代码格式 | Changes that do not affect the meaning of the code" },
 			{
 				value: "🤔 save-file",
