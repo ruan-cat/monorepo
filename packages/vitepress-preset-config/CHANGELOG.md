@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.12.0
+
+### Minor Changes
+
+- 不输出调试信息
+
 ## 0.11.2
 
 ### Patch Changes
