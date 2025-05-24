@@ -64,7 +64,8 @@ const defaultSidebarOptions: VitePressSidebarOptions = {
 
 	useFolderLinkFromSameNameSubFile: true,
 
-	debugPrint: true,
+	// 不输出调试信息了
+	debugPrint: false,
 };
 
 /** 获得合并后的侧边栏配置 */
