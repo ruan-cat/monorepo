@@ -1,5 +1,11 @@
 # @ruan-cat/commitlint-config
 
+## 1.1.0
+
+### Minor Changes
+
+- 增加新的提交类型。🌐 i18n。
+
 ## 1.0.8
 
 ### Patch Changes
