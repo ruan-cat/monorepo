@@ -10,6 +10,10 @@
 
 :::
 
+## git多人协作实践教学视频
+
+- [和傻子一起写代码](https://www.bilibili.com/video/BV1udEuzrEa7/)
+
 ## lodash
 
 lodash 是基础性质库。是javascript层面上的工具库。
