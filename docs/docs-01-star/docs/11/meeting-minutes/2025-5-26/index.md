@@ -37,6 +37,8 @@
 
 ![2025-05-26-18-07-40](https://s2.loli.net/2025/05/26/GtaVBbDuwhiSxdp.png)
 
+![2025-05-26-18-51-16](https://s2.loli.net/2025/05/26/x6iWJYphQVFePwT.png)
+
 :::
 
 ::: details 未提供参数校验的错误接口
@@ -71,7 +73,7 @@
 
 一会小驼峰：
 
-::: details
+::: details 小驼峰
 
 ![2025-05-26-17-42-50](https://s2.loli.net/2025/05/26/RYamsqUQ8zL2Zh6.png)
 
@@ -79,7 +81,7 @@
 
 一会又是短杆加大驼峰：
 
-::: details
+::: details 短杆加大驼峰
 
 ![2025-05-26-17-43-28](https://s2.loli.net/2025/05/26/FjwD7YHvorumkVx.png)
 
@@ -122,8 +124,6 @@
 :::
 
 ### 变量没有设计成枚举，且没有提供明确的枚举值
-
-### 胡乱新建
 
 ## 业务评审
 
