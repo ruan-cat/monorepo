@@ -51,7 +51,7 @@
 
 #### 不允许私自新建规范外的变量
 
-分页接口统一的变量仅为 pageIndex 和 pageSize，不允许新建其他多余的 pageNum。
+分页接口统一的变量仅为 `pageIndex` 和 `pageSize`，不允许新建其他多余的 pageNum。
 
 ::: details 不允许对规范内的变量改名
 
