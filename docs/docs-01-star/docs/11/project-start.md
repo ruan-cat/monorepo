@@ -89,6 +89,8 @@
    - https://vueuse.org/integrations/useAxios/
    - https://utils.ruan-cat.com/vueuse/useAxios/
 5. 路由**排序**配置与**重定向**。
+   - 菜单排序： https://pure-admin.cn/pages/routerMenu/#菜单排序-rank
+   - 重定向： https://pure-admin.cn/pages/routerMenu/#重定向-2
 6. apifox接口审核。（已完成培训）
 
 ## 组长的其他个人计划
