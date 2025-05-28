@@ -34,3 +34,7 @@
 
 - defaultPagination
 - defaultPureTableProps
+
+## 确定大家的时间使用情况
+
+给出成员任务进度，可支配时间的时间表。
