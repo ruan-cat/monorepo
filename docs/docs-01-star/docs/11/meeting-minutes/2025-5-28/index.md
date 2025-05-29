@@ -16,6 +16,8 @@
 
 ## 学习配置表格分页栏
 
+以 `apps\admin\src\pages\property-manage\community-manage\house-decoration\index.vue` 房屋装修，为例子：
+
 ::: details 定义分页栏配置
 
 定义分页栏的配置对象，和处理页码变化的异步函数。
