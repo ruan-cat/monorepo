@@ -16,6 +16,10 @@
 - lucky
 - ok
 
+## 参考例子
+
+`property-manage/expense-manage/expense-item-setting`
+
 ## 学习使用 useMode 实现模式标记
 
 ## 学习使用 addDialog
