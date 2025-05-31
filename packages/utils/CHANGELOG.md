@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.4.0
+
+### Minor Changes
+
+- 封装`01s`项目集常用的接口请求工具。
+
 ## 4.3.2
 
 ### Patch Changes
