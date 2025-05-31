@@ -1,5 +1,7 @@
-import { defineAxiosInstance } from "@ruan-cat/utils/vueuse/useAxios-for-01s/index";
-import { axiosInstance } from "./createAxiosInstance";
+// @ts-ignore
+import { defineAxiosInstance } from "@ruan-cat/utils/vueuse/useAxios-for-01s/index.ts";
+// @ts-ignore
+import { axiosInstance } from "./createAxiosInstance.ts";
 
 defineAxiosInstance(axiosInstance);
 
@@ -21,4 +23,5 @@ export {
 	setDefaultUseAxiosOptions,
 	setDataByHttpParamWay,
 	useRequestIn01s as useRequest,
-} from "@ruan-cat/utils/vueuse/useAxios-for-01s/index";
+	// @ts-ignore
+} from "@ruan-cat/utils/vueuse/useAxios-for-01s/index.ts";

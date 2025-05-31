@@ -1,5 +1,7 @@
-import type { ParamsQueryKey, UseAxiosOptionsJsonVO } from "./request";
-import { useRequest } from "./request";
+// @ts-ignore
+import type { ParamsQueryKey, UseAxiosOptionsJsonVO } from "./request.ts";
+// @ts-ignore
+import { useRequest } from "./request.ts";
 
 interface ToDelete {
 	/** 分类的唯一编号 */

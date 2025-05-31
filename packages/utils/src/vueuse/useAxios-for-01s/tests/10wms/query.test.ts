@@ -1,6 +1,7 @@
 import { it } from "vitest";
 
-import { queryExample } from "./query.example";
+// @ts-ignore
+import { queryExample } from "./query.example.ts";
 
 it("使用 query 接口", async () => {
 	const { execute, data, isLoading, isFinished } = queryExample({

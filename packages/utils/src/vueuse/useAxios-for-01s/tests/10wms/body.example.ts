@@ -1,5 +1,7 @@
-import type { ParamsBodyKey, UseAxiosOptionsJsonVO } from "./request";
-import { useRequest } from "./request";
+// @ts-ignore
+import type { ParamsBodyKey, UseAxiosOptionsJsonVO } from "./request.ts";
+// @ts-ignore
+import { useRequest } from "./request.ts";
 
 /**
  * 分类对象例子

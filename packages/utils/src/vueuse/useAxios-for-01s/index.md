@@ -29,3 +29,7 @@ pnpm i -P qs
 <<< ./tests/unplugin-auto-import.ts#snipaste{ts twoslash}
 
 :::
+
+## 使用本工具
+
+点此[阅读本工具](./use.md)。

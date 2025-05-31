@@ -1,5 +1,7 @@
-import type { ParamsPathKey, UseAxiosOptionsJsonVO } from "./request";
-import { useRequest } from "./request";
+// @ts-ignore
+import type { ParamsPathKey, UseAxiosOptionsJsonVO } from "./request.ts";
+// @ts-ignore
+import { useRequest } from "./request.ts";
 
 /**
  * path传参例子

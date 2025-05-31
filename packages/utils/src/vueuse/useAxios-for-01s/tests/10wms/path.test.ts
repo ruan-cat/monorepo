@@ -1,6 +1,7 @@
 import { it } from "vitest";
 
-import { pathExample } from "./path.example";
+// @ts-ignore
+import { pathExample } from "./path.example.ts";
 
 /** 要被删除项的id 需要自己准备好 */
 const id = "wgwegherth";
