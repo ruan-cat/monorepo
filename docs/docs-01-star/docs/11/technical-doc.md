@@ -38,7 +38,8 @@ lodash 是基础性质库。是javascript层面上的工具库。
 - [Props](https://cn.vuejs.org/guide/components/props.html)
 - [ref](https://cn.vuejs.org/api/reactivity-core.html#ref)
 - [computed](https://cn.vuejs.org/api/reactivity-core.html#computed)
-- [watch](https://cn.vuejs.org/api/reactivity-core.html#computed)
+- [watch](https://cn.vuejs.org/api/reactivity-core.html#watch)
+- [useTemplateRef](https://cn.vuejs.org/api/composition-api-helpers.html#usetemplateref)
 
 ## vueuse
 
