@@ -34,3 +34,9 @@
 
 - https://plus-pro-components.com/components/form.html
 - https://plus-pro-components.com/components/config.html
+
+## 完整的补录视频
+
+录制：2025-6-1-002-命令式弹框+表单（完整版培训视频）
+日期：2025-06-01 16:58:11
+录制文件：https://meeting.tencent.com/crm/NLMA4P5G59
