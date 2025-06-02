@@ -104,9 +104,9 @@ cloudflare版本的文档最快在90秒（1分30秒）内完成自动部署，�
 
 - [10wms项目教程](https://01s-10wms-frontend-docs.ruancat6312.top/)
 
-## 待补充完善
+## apifox文档地址
 
-TODO: apifox文档地址：（待组长新建组织）
+- https://01s-11.apifox.cn/
 
 ## 游客守则
 
