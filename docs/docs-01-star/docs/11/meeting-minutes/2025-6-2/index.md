@@ -12,9 +12,17 @@
 
 ## 用ai生成接口函数
 
+### cursor
+
 - 录制: 2025-6-1-03-用cursor生成apifox接口
 - 日期: 2025-06-01 19:52:15
 - 录制文件：https://meeting.tencent.com/crm/Kn5rVZxw13
+
+### trae
+
+- 录制：6-3-01-trae无法完成接口生成任务
+- 日期：2025-06-03 14:54:30
+- 录制文件：https://meeting.tencent.com/crm/NQzqPDwJ0c
 
 ## 生成接口的其他注意事项
 
