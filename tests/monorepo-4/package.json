@@ -2,12 +2,12 @@
 	"name": "@test/monorepo-4",
 	"private": true,
 	"version": "2.0.0",
-	"description": "monorepo-4",
+	"description": "monorepo-4 不需要该包测试 vuepress-preset-config 了。",
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
 		"docs:dev": "vuepress-vite dev src --clean-cache --open",
-		"build:docs": "vuepress-vite build src"
+		"-build:docs": "vuepress-vite build src"
 	},
 	"devDependencies": {
 		"@ruan-cat/vuepress-preset-config": "workspace:^"
