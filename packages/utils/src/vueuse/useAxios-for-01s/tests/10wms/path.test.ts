@@ -8,7 +8,7 @@ import { pathExample } from "./path.example.ts";
 const id = "wgwegherth";
 
 it("使用 path 接口", async () => {
-	const { execute, data, isLoading, isFinished } = pathExample({
+	const { execute, data } = pathExample({
 		onSuccess(data) {
 			console.warn("path onSuccess", printFormat(data));
 		},

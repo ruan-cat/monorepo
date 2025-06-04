@@ -5,7 +5,7 @@ import { printFormat } from "../../../../print";
 import { bodyExample } from "./body.example.ts";
 
 it("使用 body 接口", async () => {
-	const { execute, data, isLoading, isFinished } = bodyExample({
+	const { execute, data } = bodyExample({
 		onSuccess(data) {
 			console.warn("body onSuccess", printFormat(data));
 		},

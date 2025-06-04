@@ -5,7 +5,7 @@ import { printFormat } from "../../../../print";
 import { queryExample } from "./query.example.ts";
 
 it("使用 query 接口", async () => {
-	const { execute, data, isLoading, isFinished } = queryExample({
+	const { execute, data } = queryExample({
 		onSuccess(data) {
 			console.warn("query onSuccess", printFormat(data));
 		},
