@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.5.0
+
+### Minor Changes
+
+- 新建工具函数 printFormat 来格式化打印内容。
+
 ## 4.4.0
 
 ### Minor Changes
