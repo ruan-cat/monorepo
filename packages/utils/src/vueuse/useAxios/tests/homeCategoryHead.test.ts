@@ -1,10 +1,11 @@
 import { test } from "vitest";
 import { homeCategoryHead } from "./homeCategoryHead";
+import { printFormat } from "../../../print";
 
 test("使用homeCategoryHead接口", async () => {
 	const { execute, data } = homeCategoryHead({
 		onSuccess(data) {
-			console.log(` 在 onSuccess 回调内， 输出结果？ `, data.result);
+			console.warn(` 在 onSuccess 回调内， 输出结果？ `, printFormat(data.result));
 		},
 	});
 	await execute({
@@ -12,5 +13,5 @@ test("使用homeCategoryHead接口", async () => {
 			vip: true,
 		},
 	});
-	console.log(` 输出结果？ `, data.value?.result);
+	console.warn(` 输出结果？ `, printFormat(data.value?.result));
 });

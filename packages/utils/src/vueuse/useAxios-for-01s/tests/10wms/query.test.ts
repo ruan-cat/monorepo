@@ -1,4 +1,5 @@
 import { it } from "vitest";
+import { printFormat } from "../../../../print";
 
 // @ts-ignore
 import { queryExample } from "./query.example.ts";
@@ -6,7 +7,7 @@ import { queryExample } from "./query.example.ts";
 it("使用 query 接口", async () => {
 	const { execute, data, isLoading, isFinished } = queryExample({
 		onSuccess(data) {
-			console.log("query onSuccess", data);
+			console.warn("query onSuccess", printFormat(data));
 		},
 		onError(error) {},
 		onFinish() {},
@@ -17,5 +18,5 @@ it("使用 query 接口", async () => {
 			id: "123",
 		},
 	});
-	console.log("查看简单的 data.value ", data.value);
+	console.warn("查看简单的 data.value ", printFormat(data.value));
 });

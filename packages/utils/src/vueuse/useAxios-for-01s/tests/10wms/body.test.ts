@@ -1,4 +1,5 @@
 import { it } from "vitest";
+import { printFormat } from "../../../../print";
 
 // @ts-ignore
 import { bodyExample } from "./body.example.ts";
@@ -6,7 +7,7 @@ import { bodyExample } from "./body.example.ts";
 it("使用 body 接口", async () => {
 	const { execute, data, isLoading, isFinished } = bodyExample({
 		onSuccess(data) {
-			console.log("body onSuccess", data);
+			console.warn("body onSuccess", printFormat(data));
 		},
 		onError(error) {},
 		onFinish() {},
@@ -20,5 +21,5 @@ it("使用 body 接口", async () => {
 			parentId: "上级id",
 		},
 	});
-	console.log("查看简单的 data.value ", data.value);
+	console.warn("查看简单的 data.value ", printFormat(data.value));
 });

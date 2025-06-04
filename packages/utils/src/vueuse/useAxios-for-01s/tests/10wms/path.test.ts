@@ -1,4 +1,5 @@
 import { it } from "vitest";
+import { printFormat } from "../../../../print";
 
 // @ts-ignore
 import { pathExample } from "./path.example.ts";
@@ -9,7 +10,7 @@ const id = "wgwegherth";
 it("使用 path 接口", async () => {
 	const { execute, data, isLoading, isFinished } = pathExample({
 		onSuccess(data) {
-			console.log("path onSuccess", data);
+			console.warn("path onSuccess", printFormat(data));
 		},
 		onError(error) {},
 		onFinish() {},
@@ -18,5 +19,5 @@ it("使用 path 接口", async () => {
 	await execute({
 		url: `/sysmanager/typegroup/remove/${id}`,
 	});
-	console.log("查看简单的 data.value ", data.value);
+	console.warn("查看简单的 data.value ", printFormat(data.value));
 });
