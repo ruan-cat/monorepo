@@ -78,14 +78,14 @@
 ## 培训计划
 
 1. 表格搜索栏。（已完成）
-2. 命令式弹框。
+2. 命令式弹框。（已完成）
    - 命令式弹框源码： apps\admin\src\views\components\dialog\index.vue
    - 弹框案例： https://pure-admin.github.io/vue-pure-admin/#/components/dialog
-3. 表单组件。
+3. 表单组件。（已完成）
    - 框架的表单组件使用例子： https://pure-admin.github.io/vue-pure-admin/#/form/index
    - PlusProComponents的form表单组件： https://plus-pro-components.com/components/form.html
    - 组件类型配置： https://plus-pro-components.com/components/config.html
-4. 接口请求工具`useAxios`。
+4. 接口请求工具`useAxios`。（已完成）
    - https://vueuse.org/integrations/useAxios/
    - https://utils.ruan-cat.com/vueuse/useAxios/
 5. 路由**排序**配置与**重定向**。
