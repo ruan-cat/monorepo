@@ -10,7 +10,6 @@ it("使用 body 接口", async () => {
 			console.warn("body onSuccess", printFormat(data));
 		},
 		onError(error) {},
-		onFinish() {},
 	});
 	// 主动的做接口请求 从回调函数内获取返回值 或者直接使用解构出来的响应式 data 对象
 	await execute({
