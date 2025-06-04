@@ -1,4 +1,5 @@
 export * from "./conditions";
+export * from "./print";
 export * from "./define-promise-tasks";
 export * from "./simple-promise-tools";
 
