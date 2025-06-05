@@ -79,6 +79,44 @@ export enum HttpCode {
 }
 
 /**
+ * 请求结果分类
+ * @description
+ * 成功 失败 错误
+ */
+export type HttpStatus = "success" | "fail" | "error";
+
+/** 接口请求状态是否是成功的？ */
+export function isHttpStatusSuccess(status: HttpStatus): status is "success" {
+	return status === "success";
+}
+
+/**
+ * http码的映射存储值
+ * @description
+ * 根据业务类型存储不同的值
+ */
+export interface HttpCodeMessageMapValue {
+	/** 接口提示文本 */
+	message: string;
+	/** 接口请求状态 */
+	type: HttpStatus;
+}
+
+/** 请求码与请求响应文本的映射表 */
+export const HttpCodeMessageMap: Record<HttpCode, HttpCodeMessageMapValue> = {
+	[HttpCode.UNAUTHORIZED]: { message: "未登录或登录已过期，请重新登录", type: "error" },
+	[HttpCode.FORBIDDEN]: { message: "没有相关权限", type: "error" },
+	[HttpCode.NOT_FOUND]: { message: "访问页面未找到", type: "error" },
+	[HttpCode.SERVER_ERROR]: { message: "服务器错误", type: "error" },
+	[HttpCode.PARAMS_INVALID]: { message: "上传参数异常", type: "error" },
+	[HttpCode.CONTENT_TYPE_ERR]: { message: "ContentType错误", type: "error" },
+	[HttpCode.API_UN_IMPL]: { message: "功能尚未实现", type: "error" },
+	[HttpCode.SERVER_BUSY]: { message: "服务器繁忙", type: "error" },
+	[HttpCode.FAIL]: { message: "操作失败", type: "fail" },
+	[HttpCode.SUCCESS]: { message: "操作成功", type: "success" },
+};
+
+/**
  * 上传类型-请求体类型 枚举
  * @description
  * 待优化 未来可以直接复用axios内提供的值 不需要额外地封装工具
