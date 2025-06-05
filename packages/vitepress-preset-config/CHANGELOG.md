@@ -1,5 +1,12 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.12.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ruan-cat/utils@4.6.0
+
 ## 0.12.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.6.0
+
+### Minor Changes
+
+- 增加 请求码与请求响应文本的映射表。
+
 ## 4.5.0
 
 ### Minor Changes
