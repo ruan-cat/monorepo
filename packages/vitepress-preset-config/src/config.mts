@@ -28,6 +28,9 @@ import { withMermaid } from "vitepress-plugin-mermaid";
  */
 export { withMermaid };
 
+import VitePluginVercel from "vite-plugin-vercel";
+export { VitePluginVercel };
+
 type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 
 /** 默认侧边栏配置 */
@@ -136,6 +139,8 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 
 			// @ts-ignore
 			GitChangelogMarkdownSection(),
+
+			VitePluginVercel(),
 		],
 
 		optimizeDeps: {
