@@ -25,6 +25,16 @@ export type Base = {
 
 	/** 生产环境的访问url */
 	url: string[];
+
+	/**
+	 * 是否需要vercel的build命令？
+	 * @description
+	 * 某些情况下 用户已经能够准备好vercel的目录结构 不需要依赖于 `vercel build` 命令完成目录构建
+	 *
+	 * 故设计此配置 允许用户直接跳过 `vercel build` 命令
+	 * @default true
+	 */
+	isNeedVercelBuild?: boolean;
 };
 
 /**
