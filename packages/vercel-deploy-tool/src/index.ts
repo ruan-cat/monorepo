@@ -96,6 +96,11 @@ function getIsCopyDist(target: WithUserCommands) {
 	return target?.isCopyDist ?? true;
 }
 
+/** isNeedVercelBuild 配置 */
+function isNeedVercelBuild(target: Base) {
+	return target?.isNeedVercelBuild ?? true;
+}
+
 /** 是否需要移动文件？ */
 function isNeedCopyDist(target: DeployTarget) {
 	if (isDeployTargetsWithUserCommands(target)) {
@@ -463,12 +468,17 @@ async function main() {
 				type: "parallel",
 				tasks: deployTargets.map((deployTarget) => {
 					return generateSimpleAsyncTask(async () => {
+						/** 当前部署目标 是否需要 vercel 的 build 任务？ */
+						const isNeedBuildTask = isNeedVercelBuild(deployTarget);
+						if (!isNeedBuildTask) {
+							consola.warn(` 当前部署目标不需要执行build任务 `);
+							return;
+						}
+
 						const build = generateBuildTask(deployTarget);
 						consola.start(` 开始build任务 `);
 						const { stdout } = await build();
 						consola.success(` 完成build任务 `);
-						// consola.info(` 完成命令 ${code} `);
-						// consola.box(stdout);
 					});
 				}),
 			},
