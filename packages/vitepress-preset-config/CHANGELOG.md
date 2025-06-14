@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.13.0
+
+### Minor Changes
+
+- 使用本预设打包文档项目时，会在文档根目录内，额外生成 `.vercel` 目录，以便于 vercel 平台的部署。
+
 ## 0.12.3
 
 ### Patch Changes
