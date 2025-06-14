@@ -129,10 +129,11 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 			// @ts-ignore
 			GitChangelog({
 				// 填写在此处填写您的仓库链接
-				repoURL: () => "https://github.com/ruan-cat/vercel-monorepo-test",
+				repoURL: () => "https://github.com/ruan-cat/monorepo",
 				// 最大日志深度为10, 避免获取过多无意义的历史日志
 				maxGitLogCount: 10,
 			}),
+
 			// @ts-ignore
 			GitChangelogMarkdownSection(),
 		],
