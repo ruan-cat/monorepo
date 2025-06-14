@@ -20,6 +20,16 @@ pnpm i -D @ruan-cat/vitepress-preset-config vue vitepress vitepress-demo-plugin
 
 :::
 
+## git提交忽略配置 <Badge type="tip">0.13.0</Badge>
+
+从 0.13.0 版本开始，在使用预设配置打包文档项目时，会在文档根目录内，额外生成 `.vercel` 目录，以便于 vercel 平台的部署。在使用命令行直接完成 vercel 平台部署时，额外整理好的 `.vercel` 目录能有效的完成快速部署。
+
+因此，在文档项目内，或者是其他的`.gitignore`内，至少要包含`.vercel`目录，该目录应该要被忽略提交。
+
+```txt
+.vercel
+```
+
 ## 简易使用
 
 ### 用户配置
