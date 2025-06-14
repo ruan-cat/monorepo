@@ -1,5 +1,12 @@
 # @ruan-cat/vercel-deploy-tool
 
+## 0.9.0
+
+### Minor Changes
+
+- 每一个部署任务，都可以根据 `isNeedVercelBuild` 配置来决定要不要跳过vercel的默认build命令。
+  > 在某些特殊情况下，用户会自动提供满足 vercel 部署的目录结构，故不需要额外运行 `vercel build` 命令。
+
 ## 0.8.18
 
 ### Patch Changes
