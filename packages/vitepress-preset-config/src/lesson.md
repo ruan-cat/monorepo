@@ -13,3 +13,9 @@ order: 100
 ## 文档配置无法识别 ts 后缀
 
 `文档配置`和`主题配置`不同，文档配置必须要用 js 文件，否则会出现报错。
+
+## vite-plugin-vercel 在vitepress项目内打包产物不一致
+
+TODO: 疑似bug ，需要反馈给 vite-plugin-vercel 插件。
+
+![2025-06-16-00-18-13](https://s2.loli.net/2025/06/16/ZjpGyahSeO5MFzc.png)
