@@ -40,8 +40,7 @@
 		"changeset:publish": "changeset publish",
 		"turbo:publish": "turbo do-publish",
 		"codess:init": "codess init",
-		"codess:build": "codess build",
-		"build:docs:01star": "turbo run do-build-01star-doc"
+		"codess:build": "codess build"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^4.3.0",

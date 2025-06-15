@@ -34,17 +34,6 @@
 			"dependsOn": [
 				"//#changeset:publish"
 			]
-		},
-		"do-build-01star-doc": {
-			"cache": true,
-			"outputs": [
-				"docs/docs-01-star/docs/.vitepress/dist/**"
-			],
-			"dependsOn": [
-				"@ruan-cat/utils#build",
-				"@ruan-cat/vitepress-preset-config#build",
-				"@docs/docs-01-star#build:docs"
-			]
 		}
 	}
 }
