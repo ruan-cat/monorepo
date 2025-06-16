@@ -34,7 +34,7 @@ export function defineAxiosInstance(axiosInstance: AxiosInstance) {
 }
 
 export type ParamsPathKey = AxiosRequestConfigBaseKey | "url";
-export type ParamsQueryKey = AxiosRequestConfigBaseKey | "data";
+export type ParamsQueryKey = AxiosRequestConfigBaseKey | "params";
 export type ParamsBodyKey = AxiosRequestConfigBaseKey | "data";
 
 type UseAxiosWrapperUseKey<T extends HttpParamWay, K extends KeyAxiosRequestConfig> =
