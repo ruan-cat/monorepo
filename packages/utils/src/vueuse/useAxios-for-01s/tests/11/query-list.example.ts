@@ -109,3 +109,21 @@ export function queryCommitteeList<T = PageDTO<CommitteeMemberListItem>>(options
 		},
 	});
 }
+
+// 直接请求？
+const { execute } = queryCommitteeList({
+	onSuccess: (response) => {
+		console.log("请求成功：", response);
+	},
+	onError: (error) => {
+		console.error("请求失败：", error);
+	},
+});
+
+execute({
+	data: {
+		pageIndex: 3,
+		pageSize: 40,
+		state: "1000",
+	},
+});
