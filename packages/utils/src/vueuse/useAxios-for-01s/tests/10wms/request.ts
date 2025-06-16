@@ -25,7 +25,6 @@ export {
 	setHeaders,
 	createDefaultUseAxiosOptions,
 	setDefaultUseAxiosOptions,
-	setDataByHttpParamWay,
 	useRequestIn01s as useRequest,
 	// @ts-ignore
 } from "@ruan-cat/utils/vueuse/useAxios-for-01s/index.ts";
