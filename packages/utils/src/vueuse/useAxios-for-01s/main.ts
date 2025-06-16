@@ -8,13 +8,7 @@ import axios from "axios";
 import type { JsonVO } from "./types/JsonVO";
 
 import type { AxiosRequestConfigBaseKey, HttpParamWay } from "./tools.ts";
-import {
-	createDefaultUseAxiosOptions,
-	setHeaders,
-	UpType,
-	setDefaultUseAxiosOptions,
-	setDataByHttpParamWay,
-} from "./tools";
+import { createDefaultUseAxiosOptions, setHeaders, UpType, setDefaultUseAxiosOptions } from "./tools";
 
 /**
  * 内部用的 axios 实例
@@ -80,10 +74,6 @@ export function useRequestIn01s<
 	} = params;
 	setHeaders(config, upType);
 	setDefaultUseAxiosOptions(options);
-	setDataByHttpParamWay({
-		httpParamWay,
-		config,
-	});
 
 	// console.log(" 最后请求前，看一下数据？ ", config);
 	// console.log(" instance  ?", instance.defaults.baseURL);

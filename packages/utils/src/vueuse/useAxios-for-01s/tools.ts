@@ -12,6 +12,15 @@ import { isConditionsSome } from "../../index";
  * @description
  * 用于控制接口请求时的参数传递方式
  * @see https://www.cnblogs.com/jinyuanya/p/13934722.html
+ *
+ * @description
+ * 警告 该配置目前失去意义
+ *
+ * 该配置目前不再被使用了 不会被任何函数使用 配置起来属于无意义内容
+ *
+ * 未来会被删除 并重新整理对应的接口生成成果
+ *
+ * TODO: 准备删除该工具
  */
 export type HttpParamWay =
 	// 路径传参
@@ -203,12 +212,29 @@ export function setDefaultUseAxiosOptions<T>(options: UseAxiosOptionsBase<T>) {
 	options.immediate = options?.immediate ?? _options.immediate;
 }
 
-/** @private */
+/**
+ * @private
+ * @deprecated
+ * 废弃该功能
+ *
+ * 该函数没意义 重设请求前的参数 没有意义
+ *
+ * 重新设置的参数 没办法及时传递到真正执行接口请求的函数内
+ */
 interface SetDataByHttpParamWayParams {
 	httpParamWay: HttpParamWay;
 	config: AxiosRequestConfig;
 }
-export function setDataByHttpParamWay(params: SetDataByHttpParamWayParams) {
+
+/**
+ * @deprecated
+ * 废弃该功能
+ *
+ * 该函数没意义 重设请求前的参数 没有意义
+ *
+ * 重新设置的参数 没办法及时传递到真正执行接口请求的函数内
+ */
+function setDataByHttpParamWay(params: SetDataByHttpParamWayParams) {
 	const { httpParamWay, config } = params;
 	if (
 		isConditionsSome([
