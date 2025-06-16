@@ -101,7 +101,7 @@ export function queryCommitteeList<T = PageDTO<CommitteeMemberListItem>>(options
 		httpParamWay: "query",
 		config: {
 			method: "GET",
-			data: {
+			params: {
 				pageIndex: 1,
 				pageSize: 10,
 				state: "1000",
@@ -121,7 +121,7 @@ const { execute } = queryCommitteeList({
 });
 
 execute({
-	data: {
+	params: {
 		pageIndex: 3,
 		pageSize: 40,
 		state: "1000",

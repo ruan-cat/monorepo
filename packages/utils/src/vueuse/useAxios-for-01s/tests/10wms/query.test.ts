@@ -13,7 +13,7 @@ it("使用 query 接口", async () => {
 	});
 	// 主动的做接口请求 从回调函数内获取返回值 或者直接使用解构出来的响应式 data 对象
 	await execute({
-		data: {
+		params: {
 			id: "123",
 		},
 	});

@@ -12,7 +12,7 @@ it("使用 query 查询列表页接口", async () => {
 	});
 	// 主动的做接口请求 从回调函数内获取返回值 或者直接使用解构出来的响应式 data 对象
 	await execute({
-		data: {
+		params: {
 			pageIndex: 1,
 			pageSize: 10,
 		},
@@ -20,7 +20,7 @@ it("使用 query 查询列表页接口", async () => {
 	console.warn("查看简单的 pageIndex=1 ", printFormat(data.value));
 
 	await execute({
-		data: {
+		params: {
 			pageIndex: 2,
 			pageSize: 20,
 		},

@@ -19,7 +19,7 @@ export function queryExample<T = string>(options: UseAxiosOptionsJsonVO<T>) {
 		httpParamWay: "query",
 		config: {
 			method: "delete",
-			data: {
+			params: {
 				id: "",
 			},
 		},
