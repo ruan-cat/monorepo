@@ -120,10 +120,21 @@ const { execute } = queryCommitteeList({
 	},
 });
 
-execute({
-	params: {
-		pageIndex: 3,
-		pageSize: 40,
-		state: "1000",
-	},
-});
+async function mainTest() {
+	await execute({
+		params: {
+			pageIndex: 1,
+			pageSize: 1,
+			state: "1000",
+		},
+	});
+	await execute({
+		params: {
+			pageIndex: 3,
+			pageSize: 1,
+			state: "1000",
+		},
+	});
+}
+
+mainTest();

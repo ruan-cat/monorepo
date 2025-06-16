@@ -1,4 +1,4 @@
-import { it } from "vitest";
+import { it, expect } from "vitest";
 import { printFormat } from "../../../../print";
 
 import { queryCommitteeList } from "./query-list.example";
@@ -18,12 +18,23 @@ it("使用 query 查询列表页接口", async () => {
 		},
 	});
 	console.warn("查看简单的 pageIndex=1 ", printFormat(data.value));
+	expect(data.value?.message).toBe("页码1 页数10");
 
 	await execute({
 		params: {
-			pageIndex: 2,
-			pageSize: 20,
+			pageIndex: 1,
+			pageSize: 1,
 		},
 	});
-	console.warn("查看简单的 pageIndex=2 ", printFormat(data.value));
+	console.warn("查看简单的 pageIndex=1 pageSize=1 ", printFormat(data.value));
+	expect(data.value?.message).toBe("页码1 页数1");
+
+	await execute({
+		params: {
+			pageIndex: 3,
+			pageSize: 1,
+		},
+	});
+	console.warn("查看简单的 pageIndex=3 pageSize=1 ", printFormat(data.value));
+	expect(data.value?.message).toBe("页码3 页数1");
 });
