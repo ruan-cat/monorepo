@@ -1,5 +1,12 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.31
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ruan-cat/utils@4.7.0
+
 ## 0.1.30
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @ruan-cat/utils 更新日志
 
+## 4.7.0
+
+### Minor Changes
+
+1. `useRequestIn01s` 请求函数，在内部废弃掉 `setDataByHttpParamWay` 函数。
+2. `useRequestIn01s` ，准备要废弃 HttpParamWay 类型和 httpParamWay 配置。
+3. `@vueuse/integrations` 升级依赖到 13 版本。
+4. `useAxiosWrapper` 和 `useRequestIn01s` 请求函数，增加泛型类型。
+
 ## 4.6.0
 
 ### Minor Changes
