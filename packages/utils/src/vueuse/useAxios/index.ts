@@ -43,6 +43,7 @@ export interface StrictUseAxiosReturn<
 	K extends KeyAxiosRequestConfig<D>,
 	R,
 	D,
+	O extends UseAxiosOptions = UseAxiosOptions<T>,
 > extends UseAxiosReturn<T, R, D> {
 	/**
 	 * Manually call the axios request
@@ -50,7 +51,7 @@ export interface StrictUseAxiosReturn<
 	execute: (
 		url?: string | CreateAxiosRequestConfig<K, D>,
 		config?: CreateAxiosRequestConfig<K, D>,
-	) => Promise<StrictUseAxiosReturn<T, K, R, D>>;
+	) => Promise<StrictUseAxiosReturn<T, K, R, D, O>>;
 }
 
 declare module "@vueuse/integrations/useAxios" {
@@ -65,12 +66,13 @@ declare module "@vueuse/integrations/useAxios" {
 		K extends KeyAxiosRequestConfig<D> = "url",
 		R = AxiosResponse<T>,
 		D = any,
+		O extends UseAxiosOptionsBase<T> = UseAxiosOptionsBase<T>,
 	>(
 		url: string,
 		config: AxiosRequestConfig<D>,
 		instance: AxiosInstance,
-		options?: UseAxiosOptionsBase,
-	): StrictUseAxiosReturn<T, K, R, D> & Promise<StrictUseAxiosReturn<T, K, R, D>>;
+		options: O,
+	): StrictUseAxiosReturn<T, K, R, D, O> & Promise<StrictUseAxiosReturn<T, K, R, D, O>>;
 }
 
 /** 包装器的参数 @version 2 */
@@ -142,10 +144,11 @@ export function useAxiosWrapper<
 	T,
 	UseAxiosOptionsLike extends UseAxiosOptionsBase,
 	D = any,
+	O extends UseAxiosOptionsBase<T> = UseAxiosOptionsBase<T>,
 >(params: UseAxiosWrapperParams<K, T, UseAxiosOptionsLike, D>) {
-	const { config = {}, instance, options = {} } = params;
+	const { config = {}, instance, options = {} as O } = params;
 	const url = params.url || "";
-	return useAxios<T, K, AxiosResponse<T>, D>(url, config, instance, options);
+	return useAxios<T, K, AxiosResponse<T>, D, O>(url, config, instance, options as O);
 }
 
 export * from "./v1.js";

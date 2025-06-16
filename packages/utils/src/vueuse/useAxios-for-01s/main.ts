@@ -61,6 +61,7 @@ export function useRequestIn01s<
 	T = any,
 	D = any,
 	HttpParamWayTemp extends HttpParamWay = Params<K>["httpParamWay"],
+	O extends UseAxiosOptionsBase<JsonVO<T>> = UseAxiosOptionsBase<JsonVO<T>>,
 >(
 	params: Params<
 		//
@@ -83,12 +84,15 @@ export function useRequestIn01s<
 		httpParamWay,
 		config,
 	});
+
+	// console.log(" 最后请求前，看一下数据？ ", config);
 	// console.log(" instance  ?", instance.defaults.baseURL);
 	return useAxiosWrapper<
 		//
 		UseAxiosWrapperUseKey<HttpParamWayTemp, K>,
 		JsonVO<T>,
 		UseAxiosOptionsBase<JsonVO<T>>,
-		D
+		D,
+		O
 	>({ config, instance, options, url });
 }
