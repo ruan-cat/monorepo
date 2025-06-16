@@ -9,6 +9,8 @@
 	"include": [
 		// 匹配本项目内全部的md文件
 		"**/*.md",
+		// 匹配github文件夹内的全部md文件 认定是提示词文件
+		".github/**/*.md",
 		"./tests/**/.vitepress/*.md",
 	],
 	"exclude": [],
