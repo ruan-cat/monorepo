@@ -1,5 +1,12 @@
 # @ruan-cat/utils 更新日志
 
+## 4.8.0
+
+### Minor Changes
+
+1. 允许在 cjs 模式下，导出绝大多数常用的普通工具函数。
+   > 这会增加包的体积。
+
 ## 4.7.0
 
 ### Minor Changes

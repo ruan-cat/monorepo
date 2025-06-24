@@ -1,5 +1,16 @@
 # @ruan-cat/commitlint-config
 
+## 1.2.0
+
+### Minor Changes
+
+- 允许 getUserConfig 用户配置函数，直接导入用户的业务配置数组。
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ruan-cat/utils@4.8.0
+
 ## 1.1.4
 
 ### Patch Changes
