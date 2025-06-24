@@ -10,7 +10,7 @@ import { load } from "js-yaml";
 import { consola } from "consola";
 import { isNil, isUndefined, isPlainObject, isEqual, concat, uniqWith, cloneDeep } from "lodash";
 
-import { config } from "./config.ts";
+import { config as defaultUserCommitlintConfig } from "./config.ts";
 import { pathChange, isConditionsEvery } from "@ruan-cat/utils/node-cjs";
 
 import { type PackageJson } from "pkg-types";
@@ -203,6 +203,18 @@ function setScopesInUserConfig(params: { scopes: ScopesType; userConfig: UserCon
 	userConfig.prompt.scopes = scopes;
 }
 
+type GetUserConfigParams = {
+	/** 用户提供的范围配置 */
+	userScopes?: UserScopesItem[];
+	config?: {
+		/**
+		 * 是否打印范围？
+		 * @default true 默认打印 提示用户可以使用的提交范围有哪些
+		 */
+		isPrintScopes?: boolean;
+	};
+};
+
 /**
  * 获取用户配置
  * @description
@@ -210,10 +222,13 @@ function setScopesInUserConfig(params: { scopes: ScopesType; userConfig: UserCon
  *
  * 其范围配置数组，默认排序到最前面，其次才是自动识别到包范围。
  */
-export function getUserConfig(
-	/** 用户提供的范围配置 */
-	userScopes?: UserScopesItem[],
-) {
+export function getUserConfig(params: GetUserConfigParams = {}) {
+	const {
+		userScopes = defScopes,
+		config = {
+			isPrintScopes: true,
+		},
+	} = params;
 	const item = userScopes?.[0];
 
 	/** ScopesTypeItem 类型的 用户配置 */
@@ -252,11 +267,13 @@ export function getUserConfig(
 		isEqual,
 	);
 
-	consola.success(` 可用的提交范围如下： `);
-	consola.box(scopes);
+	if (config?.isPrintScopes === true) {
+		consola.box(scopes);
+		consola.success(` 可用的提交范围如下： `);
+	}
 
 	// 用户配置
-	const userConfig = config;
+	const userConfig = defExportCommitlintConfig;
 
 	// 设置范围
 	setScopesInUserConfig({ scopes, userConfig });
@@ -264,6 +281,6 @@ export function getUserConfig(
 	return userConfig;
 }
 
-const defCommitlintConfig = cloneDeep(config);
-setScopesInUserConfig({ scopes: defScopes, userConfig: defCommitlintConfig });
-export default defCommitlintConfig;
+const defExportCommitlintConfig = cloneDeep(defaultUserCommitlintConfig);
+setScopesInUserConfig({ scopes: defScopes, userConfig: defExportCommitlintConfig });
+export default defExportCommitlintConfig;
