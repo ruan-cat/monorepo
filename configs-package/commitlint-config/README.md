@@ -17,11 +17,29 @@ pnpm i -D commitizen cz-git @ruan-cat/commitlint-config
 
 ## 使用方式
 
+### 最简使用
+
+直接导入默认的配置即可。
+
 ```js
 // commitlint.config.cjs
 // @ts-check
-const config = require("@ruan-cat/commitlint-config").default;
-module.exports = config;
+module.exports = require("@ruan-cat/commitlint-config").default;
+```
+
+### 可拓展配置
+
+可以使用 `getUserConfig` 函数来拓展配置。
+
+```js
+// commitlint.config.cjs
+// @ts-check
+module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
+	config: {
+		// 推荐不打印提交范围
+		isPrintScopes: false,
+	},
+});
 ```
 
 ## 类似功能的依赖包
