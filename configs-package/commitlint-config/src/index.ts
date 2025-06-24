@@ -7,13 +7,15 @@ const __dirname = dirname(__filename);
 
 import { sync } from "glob";
 import { load } from "js-yaml";
-import { isUndefined } from "lodash";
+import { isNil, isUndefined, isPlainObject } from "lodash";
 
 import { config } from "./config.ts";
-import { pathChange } from "@ruan-cat/utils/node-cjs";
+import { pathChange, isConditionsEvery } from "@ruan-cat/utils/node-cjs";
 
 import { type PackageJson } from "pkg-types";
 import { type ScopesType, UserConfig } from "cz-git";
+export type { ScopesType };
+
 import { type PnpmWorkspace } from "@ruan-cat/utils";
 
 /**
@@ -21,11 +23,47 @@ import { type PnpmWorkspace } from "@ruan-cat/utils";
  * @description
  * 为了约束配置范围
  */
-type ScopesTypeItem = Exclude<ScopesType[number], string>;
+export type ScopesTypeItem = Exclude<ScopesType[number], string>;
 
-export type { ScopesType, ScopesTypeItem };
+import type { ScopesItemWithDesc } from "./common-scopes.ts";
+export type { ScopesItemWithDesc } from "./common-scopes.ts";
 
-const defScopes = <ScopesTypeItem[]>[
+import { commonScopes } from "./common-scopes.ts";
+
+/**
+ * 用户配置项
+ * @description
+ * 可以是 ScopesTypeItem 或 ScopesItemWithDesc
+ */
+export type UserScopesItem = ScopesTypeItem | ScopesItemWithDesc;
+
+function isScopesTypeItem(item: UserScopesItem): item is ScopesTypeItem {
+	return isConditionsEvery([
+		//
+		() => !isNil(item),
+		() => isPlainObject(item),
+		() => Object.hasOwn(item, "name"),
+	]);
+}
+
+function isScopesItemWithDesc(item: UserScopesItem): item is ScopesItemWithDesc {
+	return isConditionsEvery([
+		() => !isNil(item),
+		() => isPlainObject(item),
+		() => Object.hasOwn(item, "code"),
+		() => Object.hasOwn(item, "value"),
+		() => Object.hasOwn(item, "desc"),
+	]);
+}
+
+function ScopesItemWithDesc_To_ScopesTypeItem(item: ScopesItemWithDesc): ScopesTypeItem {
+	return {
+		name: `${item.code} | ${item.desc}`,
+		value: item.value,
+	};
+}
+
+const defScopes: ScopesTypeItem[] = [
 	{
 		name: "root|根目录",
 		value: "root",
@@ -173,10 +211,38 @@ function setScopesInUserConfig(params: { scopes: ScopesType; userConfig: UserCon
  */
 export function getUserConfig(
 	/** 用户提供的范围配置 */
-	userScopes?: ScopesTypeItem[],
+	userScopes?: UserScopesItem[],
 ) {
-	// 初始化范围
-	const scopes = [...(userScopes ?? []), ...getInitScopes()];
+	const item = userScopes?.[0];
+
+	let scopesTypeItems: ScopesTypeItem[] = [];
+
+	/**
+	 * 判断传递的参数类型 并做出类型转换
+	 * 准备好初始值
+	 */
+	if (!isNil(item)) {
+		if (isScopesTypeItem(item)) {
+			// 如果是 ScopesTypeItem 类型，直接使用
+			scopesTypeItems = userScopes as ScopesTypeItem[];
+		} else if (isScopesItemWithDesc(item)) {
+			// 如果是 ScopesItemWithDesc 类型，转换为 ScopesTypeItem
+
+			/**
+			 * 先将 commonScopes 和 userScopes 合并
+			 * 其中 用户的数据在后 用户的配置通常是业务配置
+			 * 可以覆盖掉默认配置
+			 */
+			const toChange = [...commonScopes, ...(userScopes as ScopesItemWithDesc[])];
+
+			scopesTypeItems = toChange.map<ScopesTypeItem>(ScopesItemWithDesc_To_ScopesTypeItem);
+		} else {
+			throw new Error("userScopes 的类型不正确，请检查配置。");
+		}
+	}
+
+	/** 初始化范围 */
+	const scopes = [...scopesTypeItems, ...getInitScopes()];
 
 	// 用户配置
 	const userConfig = config;
