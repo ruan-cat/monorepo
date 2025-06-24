@@ -42,6 +42,28 @@ module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
 });
 ```
 
+### 类型标注
+
+可以使用 `ScopesItemWithDesc` 类型来标注配置数组。
+
+```js
+// commitlint.config.cjs
+// @ts-check
+/**
+ * @type { import("@ruan-cat/commitlint-config").ScopesItemWithDesc[] }
+ */
+const userScopes = [
+	{ code: "process", value: "流程应用管理", desc: "流程应用管理" },
+	{ code: "personal", value: "个人设置", desc: "个人设置" },
+];
+module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
+	userScopes,
+	config: {
+		isPrintScopes: false,
+	},
+});
+```
+
 ## 类似功能的依赖包
 
 - [@commitlint/config-pnpm-scopes](https://npm.im/@commitlint/config-pnpm-scopes)
