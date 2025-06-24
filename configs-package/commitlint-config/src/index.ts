@@ -267,5 +267,3 @@ export function getUserConfig(
 const defCommitlintConfig = cloneDeep(config);
 setScopesInUserConfig({ scopes: defScopes, userConfig: defCommitlintConfig });
 export default defCommitlintConfig;
-
-// export default getUserConfig([defScopes[0]]);
