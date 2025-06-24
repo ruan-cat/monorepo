@@ -7,7 +7,8 @@ const __dirname = dirname(__filename);
 
 import { sync } from "glob";
 import { load } from "js-yaml";
-import { isNil, isUndefined, isPlainObject } from "lodash";
+import { consola } from "consola";
+import { isNil, isUndefined, isPlainObject, isEqual, concat, uniqWith, cloneDeep } from "lodash";
 
 import { config } from "./config.ts";
 import { pathChange, isConditionsEvery } from "@ruan-cat/utils/node-cjs";
@@ -65,15 +66,15 @@ function ScopesItemWithDesc_To_ScopesTypeItem(item: ScopesItemWithDesc): ScopesT
 
 const defScopes: ScopesTypeItem[] = [
 	{
-		name: "root|根目录",
+		name: "root | 根目录",
 		value: "root",
 	},
 	{
-		name: "utils|工具包",
+		name: "utils | 工具包",
 		value: "utils",
 	},
 	{
-		name: "demo|测试项目",
+		name: "demo | 测试项目",
 		value: "demo",
 	},
 ];
@@ -215,34 +216,44 @@ export function getUserConfig(
 ) {
 	const item = userScopes?.[0];
 
-	let scopesTypeItems: ScopesTypeItem[] = [];
+	/** ScopesTypeItem 类型的 用户配置 */
+	let userScopesInScopesTypeItem: ScopesTypeItem[] = [];
 
-	/**
-	 * 判断传递的参数类型 并做出类型转换
-	 * 准备好初始值
-	 */
+	/** 判断传递的参数类型 并做出类型转换 */
 	if (!isNil(item)) {
 		if (isScopesTypeItem(item)) {
 			// 如果是 ScopesTypeItem 类型，直接使用
-			scopesTypeItems = userScopes as ScopesTypeItem[];
+			userScopesInScopesTypeItem = userScopes as ScopesTypeItem[];
 		} else if (isScopesItemWithDesc(item)) {
 			// 如果是 ScopesItemWithDesc 类型，转换为 ScopesTypeItem
-
-			/**
-			 * 先将 commonScopes 和 userScopes 合并
-			 * 其中 用户的数据在后 用户的配置通常是业务配置
-			 * 可以覆盖掉默认配置
-			 */
-			const toChange = [...commonScopes, ...(userScopes as ScopesItemWithDesc[])];
-
-			scopesTypeItems = toChange.map<ScopesTypeItem>(ScopesItemWithDesc_To_ScopesTypeItem);
+			userScopesInScopesTypeItem = userScopes.map<ScopesTypeItem>(ScopesItemWithDesc_To_ScopesTypeItem);
 		} else {
 			throw new Error("userScopes 的类型不正确，请检查配置。");
 		}
 	}
 
-	/** 初始化范围 */
-	const scopes = [...scopesTypeItems, ...getInitScopes()];
+	/** ScopesTypeItem 类型的 常用配置 */
+	const commonScopesInScopesTypeItem = commonScopes.map<ScopesTypeItem>(ScopesItemWithDesc_To_ScopesTypeItem);
+
+	/** 初始化包范围的配置 */
+	const initScopes = getInitScopes();
+
+	/** 最终使用的 合并后的范围 */
+	const scopes = uniqWith(
+		// 去重
+		concat(
+			// 合并
+			[] as ScopesTypeItem[],
+			initScopes,
+			commonScopesInScopesTypeItem,
+			userScopesInScopesTypeItem,
+		),
+		// 用对象判断的方式 判断去重
+		isEqual,
+	);
+
+	consola.success(` 可用的提交范围如下： `);
+	consola.box(scopes);
 
 	// 用户配置
 	const userConfig = config;
@@ -253,4 +264,8 @@ export function getUserConfig(
 	return userConfig;
 }
 
-export default getUserConfig([{ name: "root|根目录", value: "root" }]);
+const defCommitlintConfig = cloneDeep(config);
+setScopesInUserConfig({ scopes: defScopes, userConfig: defCommitlintConfig });
+export default defCommitlintConfig;
+
+// export default getUserConfig([defScopes[0]]);
