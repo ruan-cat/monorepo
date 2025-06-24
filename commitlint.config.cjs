@@ -1,2 +1,7 @@
-const config = require("@ruan-cat/commitlint-config").default;
-module.exports = config;
+// @ts-check
+
+module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
+	config: {
+		isPrintScopes: false,
+	},
+});
