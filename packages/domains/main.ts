@@ -19,6 +19,10 @@ export type Domains = Record<(typeof projectNames)[number], string[]>;
  * 域名对象
  * @description
  * 设计成简单的常量即可 无需额外的类型约束
+ *
+ * 这些域名主要是用于 vercel 的基于文件结构的部署。目前没有其他的用途。
+ *
+ * 其他域名仅用于声明，类似于文档说明。
  */
 export const domains = <const>{
 	/** 大项目 09OA项目 */
@@ -28,7 +32,13 @@ export const domains = <const>{
 	"10wms": ["01s-10wms.ruancat6312.top"],
 
 	/** 大项目 11智慧社区项目 */
-	"11comm": ["01s-11comm.ruancat6312.top", "01s-11.ruancat6312.top"],
+	"11comm": [
+		"01s-11comm.ruancat6312.top",
+		"01s-11.ruancat6312.top",
+		// 以下域名主要用于 cloudflare worker 部署 上下两款域名的内容并不完全等价
+		// "01s-11comm.ruan-cat.com",
+		// "01s-11.ruan-cat.com",
+	],
 
 	/** 01星球文档 */
 	"01s-doc": ["docs-01-star.ruancat6312.top"],
