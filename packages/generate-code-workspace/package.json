@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/generate-code-workspace",
-	"version": "0.4.9",
+	"version": "0.4.10",
 	"description": "根据 pnpm-workspace.yaml 配置，生成vscode的code-workspace工作区文件。",
 	"type": "module",
 	"main": "./src/index.ts",
@@ -11,7 +11,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/ruan-cat/vercel-monorepo-test.git",
+		"url": "git+https://github.com/ruan-cat/monorepo.git",
 		"directory": "packages/generate-code-workspace"
 	},
 	"scripts": {},

@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/domains",
-	"version": "0.6.0",
+	"version": "0.6.1",
 	"description": "为 ruancat6312.top 和 ruan-cat.com 两个域名，提供预设好的常量。旨在于管理全部的域名，便于查询和使用。",
 	"type": "module",
 	"main": "./main.ts",
@@ -11,7 +11,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/ruan-cat/vercel-monorepo-test.git",
+		"url": "git+https://github.com/ruan-cat/monorepo.git",
 		"directory": "packages/domains"
 	},
 	"scripts": {

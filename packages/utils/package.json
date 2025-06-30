@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/utils",
-	"version": "4.8.0",
+	"version": "4.8.1",
 	"description": "阮喵喵工具集合。默认提供js文件，也直接提供ts文件。",
 	"type": "module",
 	"main": "./src/index.ts",
@@ -11,7 +11,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/ruan-cat/vercel-monorepo-test.git",
+		"url": "git+https://github.com/ruan-cat/monorepo.git",
 		"directory": "packages/utils"
 	},
 	"scripts": {

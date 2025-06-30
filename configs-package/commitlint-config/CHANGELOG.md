@@ -1,5 +1,26 @@
 # @ruan-cat/commitlint-config
 
+## 1.3.1
+
+### Patch Changes
+
+- 杂项变更，发包仓库地址改名。
+
+  发包时，其 `repository.url` 从 `git+https://github.com/ruan-cat/vercel-monorepo-test.git` 更改成 `git+https://github.com/ruan-cat/monorepo.git` 。以便适应仓库名称改名的需求。
+
+  现在发包的 package.json 内，其 url 地址如下：
+
+  ```json
+  {
+  	"repository": {
+  		"url": "git+https://github.com/ruan-cat/monorepo.git"
+  	}
+  }
+  ```
+
+- Updated dependencies []:
+  - @ruan-cat/utils@4.8.1
+
 ## 1.3.0
 
 ### Minor Changes
