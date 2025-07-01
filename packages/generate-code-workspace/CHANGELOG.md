@@ -1,5 +1,11 @@
 # @ruan-cat/generate-code-workspace
 
+## 0.4.11
+
+### Patch Changes
+
+- 尝试触发发包。
+
 ## 0.4.10
 
 ### Patch Changes

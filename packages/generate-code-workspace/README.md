@@ -56,3 +56,5 @@ import "@ruan-cat/generate-code-workspace";
 ## 更新日志
 
 [CHANGELOG.md](./CHANGELOG.md)
+
+<!-- 尝试触发部署 -->
