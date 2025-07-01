@@ -8,7 +8,7 @@ on:
     branches:
       - not-main
     tags:
-      - "v*"
+      - "@ruan-cat/*"
 
 jobs:
   release:
