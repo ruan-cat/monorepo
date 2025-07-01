@@ -37,7 +37,7 @@ jobs:
 
       - name: 构建并发版
         id: changesets
-        uses: changesets/action@latest
+        uses: changesets/action@v1
         with:
           commit: "chore: release package(s)"
           title: "chore: release package(s)"
