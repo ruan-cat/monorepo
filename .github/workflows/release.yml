@@ -42,7 +42,7 @@ jobs:
       - name: 构建并发版
         id: changesets
         uses: changesets/action@v1
-				with:
+        with:
           commit: "chore: release package(s)"
           title: "chore: release package(s)"
           publish: pnpm release
