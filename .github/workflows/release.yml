@@ -6,9 +6,7 @@ permissions:
 on:
   push:
     branches:
-      - not-main
-    tags:
-      - "@ruan-cat/*"
+      - main
 
 jobs:
   release:
@@ -37,15 +35,14 @@ jobs:
       - name: 安装整个项目的依赖
         run: pnpm i
 
-      - name: 打包
-        run: pnpm exec turbo build
-
-      - name: 发包
-        run: pnpm changeset publish --otp=${{ secrets.NPM_TOKEN }}
+      - name: 构建并发版
+        id: changesets
+        uses: changesets/action@latest
+        with:
+          commit: "chore: release package(s)"
+          title: "chore: release package(s)"
+          publish: pnpm release
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: 生成github release的信息
-        run: npx changelogithub
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

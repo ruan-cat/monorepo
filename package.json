@@ -39,11 +39,13 @@
 		"changeset:init": "changeset init",
 		"changeset:publish": "changeset publish",
 		"turbo:publish": "turbo do-publish",
+		"release": "pnpm build && changeset publish",
 		"codess:init": "codess init",
 		"codess:build": "codess build"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^4.3.0",
+		"@changesets/changelog-github": "^0.5.1",
 		"@changesets/cli": "^2.28.1",
 		"@ruan-cat/commitlint-config": "workspace:^",
 		"@ruan-cat/domains": "workspace:^",
@@ -52,7 +54,6 @@
 		"@ruan-cat/vercel-deploy-tool": "workspace:^",
 		"@ruan-cat/vitepress-preset-config": "workspace:^",
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
-		"@svitejs/changesets-changelog-github-compact": "^1.2.0",
 		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/js-yaml": "^4.0.9",
 		"@types/lodash-es": "^4.17.12",
