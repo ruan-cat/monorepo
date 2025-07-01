@@ -39,6 +39,14 @@ jobs:
       - name: 安装整个项目的依赖
         run: pnpm i
 
+      - name: 在 .npmrc 内写入token
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+            //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: 构建并发版
         id: changesets
         uses: changesets/action@v1
