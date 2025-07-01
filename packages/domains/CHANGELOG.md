@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.6.2
+
+### Patch Changes
+
+- 无意义的空包。测试用来触发 npx changelogithub 。
+
 ## 0.6.1
 
 ### Patch Changes
