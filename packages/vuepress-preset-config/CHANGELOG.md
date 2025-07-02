@@ -1,5 +1,11 @@
 # @ruan-cat/vuepress-preset-config
 
+## 0.1.38
+
+### Patch Changes
+
+- [`e23108e`](https://github.com/ruan-cat/monorepo/commit/e23108ee2eda803e3536fa23d3f2074679d16557) Thanks [@ruan-cat](https://github.com/ruan-cat)! - 编写 vuepress 预设包的文档。
+
 ## 0.1.33
 
 ### Patch Changes
