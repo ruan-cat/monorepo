@@ -12,7 +12,7 @@ on:
   push:
     branches:
       # 避免高频率占用vercel资源，改成仅在main分支执行部署行为
-      - main
+      - notuse-main
       # - dev-pause
       # - dev
   repository_dispatch:
