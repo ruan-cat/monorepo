@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.14.0
+
+### Minor Changes
+
+- 增加图片放大预览功能。 ([`32d5561`](https://github.com/ruan-cat/monorepo/commit/32d5561fe24678777dfec68e5ca1104b0fd03f7f))
+
 ## 0.13.4
 
 ### Patch Changes
