@@ -53,3 +53,13 @@ pnpm i -D @ruan-cat/vitepress-preset-config vue vitepress vitepress-demo-plugin
 <<< ./tests/theme.example.ts#snipaste{ts twoslash}
 
 :::
+
+## 提供功能
+
+本预设默认提供以下功能：
+
+### 图片放大预览
+
+点击以下图片，即可放大预览
+
+![2025-07-03-01-20-20](https://s2.loli.net/2025/07/03/Bm9EQW2HSCy8FTa.png)
