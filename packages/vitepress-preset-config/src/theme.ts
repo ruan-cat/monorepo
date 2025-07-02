@@ -34,6 +34,10 @@ import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
 import TwoslashFloatingVue from "@shikijs/vitepress-twoslash/client";
 import "@shikijs/vitepress-twoslash/style.css";
 
+import "viewerjs/dist/viewer.min.css";
+import imageViewer from "vitepress-plugin-image-viewer";
+import { useRoute } from "vitepress";
+
 /**
  * 一个回调函数 用来暴露变量 实现注册
  */
@@ -111,6 +115,12 @@ export function defineRuancatPresetTheme(params?: DefineRuancatPresetThemeParams
 			defaultTheme.enhanceApp({ app, router, siteData });
 			// 执行用户传入的回调函数
 			params?.enhanceAppCallBack?.({ app, router, siteData });
+		},
+		setup() {
+			// Get route
+			const route = useRoute();
+			// Using
+			imageViewer(route);
 		},
 	} satisfies Theme;
 }
