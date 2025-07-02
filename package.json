@@ -40,6 +40,7 @@
 		"changeset:publish": "changeset publish",
 		"turbo:publish": "turbo do-publish",
 		"release": "pnpm build && changeset publish",
+		"version": "changeset version",
 		"codess:init": "codess init",
 		"codess:build": "codess build"
 	},
