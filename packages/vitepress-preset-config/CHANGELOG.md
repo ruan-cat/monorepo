@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.13.4
+
+### Patch Changes
+
+- 增加依赖 [vitepress-plugin-image-viewer](https://github.com/T-miracle/vitepress-plugin-image-viewer) ，准备对接该库。 ([`a578e43`](https://github.com/ruan-cat/monorepo/commit/a578e43ed551eebbb0a364275746a0aba0f812a2))
+
 ## 0.13.3
 
 ### Patch Changes
