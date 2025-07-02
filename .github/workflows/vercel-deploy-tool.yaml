@@ -15,11 +15,22 @@ on:
       - main
       # - dev-pause
       # - dev
+  repository_dispatch:
+    types: [deploy-after-release]
 
 jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
     steps:
+      - name: 显示触发信息
+        run: |
+          echo "工作流触发方式: ${{ github.event_name }}"
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "触发事件类型: ${{ github.event.action }}"
+            echo "发布的包: ${{ github.event.client_payload.publishedPackages }}"
+            echo "触发的提交: ${{ github.event.client_payload.sha }}"
+          fi
+
       - name: 检出分支
         uses: actions/checkout@v4
         with:
