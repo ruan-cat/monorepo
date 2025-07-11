@@ -15,4 +15,12 @@ vuepress、vitepress 能是识别的折叠栏语法
 :::
 ```
 
+## `ts
+ts的代码块
+```
+	```ts
+
+	```
+```
+
 <!-- prettier-ignore-end -->
