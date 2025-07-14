@@ -1,4 +1,4 @@
-# @ruan-cat/commitlint-config
+# @ruan-cat/commitlint-config 更新日志
 
 ## 1.3.1
 

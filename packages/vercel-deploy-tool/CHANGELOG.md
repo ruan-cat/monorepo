@@ -1,4 +1,4 @@
-# @ruan-cat/vercel-deploy-tool
+# @ruan-cat/vercel-deploy-tool 更新日志
 
 ## 0.9.3
 

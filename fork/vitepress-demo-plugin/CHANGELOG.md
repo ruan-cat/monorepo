@@ -1,4 +1,4 @@
-# @ruan-cat/vitepress-demo-plugin
+# @ruan-cat/vitepress-demo-plugin 更新日志
 
 ## 0.1.0
 
