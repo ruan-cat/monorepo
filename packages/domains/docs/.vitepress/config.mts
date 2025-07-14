@@ -1,4 +1,11 @@
-import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "@ruan-cat/vitepress-preset-config/config";
+import {
+	setUserConfig,
+	setGenerateSidebar,
+	addChangelog2doc,
+	copyReadmeMd,
+} from "@ruan-cat/vitepress-preset-config/config";
+
+copyReadmeMd("./docs")
 
 addChangelog2doc({
 	target: "./docs",
