@@ -140,6 +140,7 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 			// @ts-ignore
 			GitChangelogMarkdownSection(),
 
+			// @ts-ignore
 			VitePluginVercel(),
 		],
 
