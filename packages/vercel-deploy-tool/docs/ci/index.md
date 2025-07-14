@@ -11,3 +11,11 @@
 :::
 
 ## 带有远程 turbo 缓存的 github workflow
+
+::: details
+
+<!-- 工作流等待验证 -->
+
+<<< ./github-workflow-with-turbo.yaml
+
+:::
