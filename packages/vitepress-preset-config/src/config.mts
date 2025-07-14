@@ -9,8 +9,8 @@ import { vitepressDemoPlugin } from "vitepress-demo-plugin";
 import { merge, isUndefined, cloneDeep } from "lodash-es";
 import consola from "consola";
 
-import { addChangelog2doc, hasChangelogMd } from "@ruan-cat/utils/node-esm";
-export { addChangelog2doc };
+import { addChangelog2doc, hasChangelogMd, copyReadmeMd } from "@ruan-cat/utils/node-esm";
+export { addChangelog2doc, copyReadmeMd };
 
 import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
