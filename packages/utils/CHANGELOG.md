@@ -1,5 +1,15 @@
 # @ruan-cat/utils 更新日志
 
+## 4.9.0
+
+### Minor Changes
+
+- 提供针对Readme文件的检查与移动函数。 ([`cce2a9e`](https://github.com/ruan-cat/monorepo/commit/cce2a9ede596409e0b84575beff8975f49cf76c5))
+  - hasCapitalReadmeMd 检查当前运行的根目录 是否存在文件名大写的 `README.md` 文件
+  - hasLowerCaseReadmeMd 检查当前运行的根目录 是否存在文件名小写的 `readme.md` 文件
+  - hasReadmeMd 检查当前运行的根目录 是否存在任意一个大小写命名的 README.md 文件
+  - copyReadmeMd 将 README.md 文件移动到指定要求的位置内，并重命名为 index.md
+
 ## 4.8.1
 
 ### Patch Changes
@@ -143,7 +153,6 @@
   > 凡是二次封装使用外部依赖的，全部使用单独的路径使用。一律只提供纯 ts 文件，不做打包。
 
   目前提供的路径如下：
-
   - `unplugin-vue-router`
   - `vite-plugin-autogeneration-import-file`
   - `vueuse`

@@ -1,5 +1,16 @@
 # @ruan-cat/vitepress-preset-config
 
+## 0.15.0
+
+### Minor Changes
+
+- 对外导出 `copyReadmeMd` 函数。用于实现Readme文件的复制功能。 ([`3b9b673`](https://github.com/ruan-cat/monorepo/commit/3b9b673fd4e0850fd8a36e3664e7cbb01dc52988))
+
+### Patch Changes
+
+- Updated dependencies [[`cce2a9e`](https://github.com/ruan-cat/monorepo/commit/cce2a9ede596409e0b84575beff8975f49cf76c5)]:
+  - @ruan-cat/utils@4.9.0
+
 ## 0.14.0
 
 ### Minor Changes
