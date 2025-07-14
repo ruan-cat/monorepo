@@ -15,6 +15,8 @@
 		"directory": "packages/vercel-deploy-tool"
 	},
 	"scripts": {
+		"docs:dev": "vitepress dev docs --port 8080",
+		"build:docs": "vitepress build docs",
 		"—build-not-use-for-now": "tsc",
 		"start": "node ./dist/index.js",
 		"run": "node --import=tsx ./src/index.ts --env-path=.env.test",
@@ -59,9 +61,11 @@
 		"vercel": "^41.3.0"
 	},
 	"devDependencies": {
+		"@ruan-cat/vitepress-preset-config": "workspace:^",
 		"@types/gulp": "^4.0.17",
 		"@types/lodash-es": "^4.17.12",
 		"@types/node": "^22.13.8",
-		"execa": "^9.5.3"
+		"execa": "^9.5.3",
+		"vitepress": "^1.6.3"
 	}
 }
