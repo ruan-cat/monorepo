@@ -25,11 +25,24 @@ import { defaultConfig } from "@ruan-cat/taze-config";
 export default defineConfig(defaultConfig);
 ```
 
+在使用配置文件时，项目必须安装 taze 依赖。
+
 ### 准备运行命令
 
 ```bash
 npx taze -r
 ```
+
+### 在monorepo内的推荐命令
+
+推荐在 monorepo 项目内，使用以下命令完成升级：
+
+```bash
+pnpm -w up @ruan-cat/taze-config -L && npx taze -r
+```
+
+1. 先在单仓根包内，单独升级此包。确保拿到最新的配置文件。
+2. 然后再使用 taze 升级全部依赖。
 
 ## 被封装的配置文件
 
