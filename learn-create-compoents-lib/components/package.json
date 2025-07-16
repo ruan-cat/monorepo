@@ -36,14 +36,14 @@
 	"devDependencies": {
 		"@giegie/resolver": "workspace:^",
 		"@types/gulp": "^4.0.17",
-		"@vitejs/plugin-vue": "^5.2.1",
-		"gulp": "^5.0.0",
+		"@vitejs/plugin-vue": "^5.2.4",
+		"gulp": "^5.0.1",
 		"gulp-autoprefixer": "^9.0.0",
-		"gulp-sass": "^6.0.0",
-		"sass": "^1.85.1",
+		"gulp-sass": "^6.0.1",
+		"sass": "^1.89.2",
 		"shelljs": "^0.8.5",
-		"unplugin-vue-components": "^28.4.1",
+		"unplugin-vue-components": "^28.8.0",
 		"vite-plugin-autogeneration-import-file": "^3.0.0",
-		"vite-plugin-dts": "^4.5.3"
+		"vite-plugin-dts": "^4.5.4"
 	}
 }

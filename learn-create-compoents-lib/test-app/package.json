@@ -12,17 +12,17 @@
 	},
 	"dependencies": {
 		"@giegie/components": "workspace:^",
-		"vue": "^3.5.13"
+		"vue": "^3.5.17"
 	},
 	"devDependencies": {
 		"@giegie/resolver": "workspace:^",
-		"@vitejs/plugin-vue": "^5.2.1",
+		"@vitejs/plugin-vue": "^5.2.4",
 		"rollup-plugin-visualizer": "^5.14.0",
-		"typescript": "^5.8.2",
-		"unplugin-auto-import": "^19.1.1",
-		"unplugin-vue-components": "^28.4.1",
+		"typescript": "^5.8.3",
+		"unplugin-auto-import": "^19.3.0",
+		"unplugin-vue-components": "^28.8.0",
 		"vite": "^6.2.0",
-		"vite-plugin-dts": "^4.5.3",
-		"vue-tsc": "^2.2.8"
+		"vite-plugin-dts": "^4.5.4",
+		"vue-tsc": "^2.2.12"
 	}
 }

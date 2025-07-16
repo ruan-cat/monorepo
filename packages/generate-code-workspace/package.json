@@ -52,15 +52,15 @@
 	"dependencies": {
 		"@ruan-cat/utils": "workspace:^",
 		"commander": "^13.1.0",
-		"consola": "^3.4.0",
-		"glob": "^11.0.1",
+		"consola": "^3.4.2",
+		"glob": "^11.0.3",
 		"js-yaml": "^4.1.0",
 		"jsonc-parser": "^3.3.1",
 		"lodash-es": "^4.17.21"
 	},
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.9",
-		"pkg-types": "^2.0.1"
+		"pkg-types": "^2.2.0"
 	},
 	"peerDependencies": {
 		"tsx": "4.19.3"

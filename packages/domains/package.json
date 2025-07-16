@@ -60,7 +60,7 @@
 	"devDependencies": {
 		"@ruan-cat/vitepress-preset-config": "workspace:^",
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
-		"tsup": "^8.4.0",
+		"tsup": "^8.5.0",
 		"vitepress": "^1.6.3"
 	}
 }
