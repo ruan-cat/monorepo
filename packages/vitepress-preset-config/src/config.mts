@@ -3,7 +3,7 @@ import { defineConfig, type DefaultTheme, type UserConfig } from "vitepress";
 export { defineConfig };
 import { generateSidebar, withSidebar } from "vitepress-sidebar";
 
-import { type RuanCatConfig } from "./type";
+import { type RuanCatConfig } from "./type.ts";
 export { RuanCatConfig };
 
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
