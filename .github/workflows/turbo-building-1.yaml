@@ -1,8 +1,10 @@
 name: 过一遍turbo打包行为，测试项目健壮性
 
 env:
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+  # https://turborepo.com/docs/crafting-your-repository/constructing-ci#enabling-remote-caching
+  # https://vercel.com/docs/monorepos/remote-caching#use-remote-caching-from-external-ci/cd
+  TURBO_TOKEN: ${{ secrets.vercel_token }}
+  TURBO_TEAM: "ruancat-projects"
 
 on:
   push:

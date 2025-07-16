@@ -3,10 +3,17 @@
 # https://vercel.com/guides/how-to-alias-a-preview-deployment-using-the-cli
 
 name: 自写的vercel部署工具
+
 env:
   VERCEL_TOKEN: ${{ secrets.vercel_token }}
-  VERCEL_ORG_ID: ${{ secrets.vercel_orgId }}
-  VERCEL_PROJECT_ID: ${{ secrets.vercel_projectId }}
+  # 根据 vercel-deploy-tool 部署配置来决定是否需要以下环境变量
+  # VERCEL_ORG_ID: ${{ secrets.vercel_orgId }}
+  # VERCEL_PROJECT_ID: ${{ secrets.vercel_projectId }}
+
+  # https://turborepo.com/docs/crafting-your-repository/constructing-ci#enabling-remote-caching
+  # https://vercel.com/docs/monorepos/remote-caching#use-remote-caching-from-external-ci/cd
+  TURBO_TOKEN: ${{ secrets.vercel_token }}
+  TURBO_TEAM: "ruancat-projects"
 
 on:
   push:
@@ -63,6 +70,12 @@ jobs:
 
       - name: pnpm全局检查依赖包
         run: pnpm ls -g
+
+      - name: turbo login 远程登录
+        run: turbo login --token=${{env.TURBO_TOKEN}} --team=${{env.TURBO_TEAM}}
+
+      - name: turbo link 链接远程项目
+        run: turbo link --token=${{env.TURBO_TOKEN}} --scope=${{env.TURBO_TEAM}} --yes
 
       - name: 运行自写的vercel部署工具
         # https://dotenvx.com/docs/cis/github-actions#install-dotenvx
