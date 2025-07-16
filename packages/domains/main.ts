@@ -31,6 +31,9 @@ export const domains = <const>{
 	/** 大项目 10WMS项目 */
 	"10wms": ["01s-10wms.ruancat6312.top"],
 
+	/** 大项目 10WMS项目 前端文档 */
+	"10wms-doc": ["01s-10wms-frontend-docs.ruancat6312.top", "01s-10wms-doc.ruancat6312.top"],
+
 	/** 大项目 11智慧社区项目 */
 	"11comm": [
 		"01s-11comm.ruancat6312.top",
@@ -39,6 +42,9 @@ export const domains = <const>{
 		// "01s-11comm.ruan-cat.com",
 		// "01s-11.ruan-cat.com",
 	],
+
+	/** 大项目 11智慧社区项目 前端文档 */
+	"11comm-doc": ["01s-11comm-doc.ruancat6312.top"],
 
 	/** 01星球文档 */
 	"01s-doc": ["docs-01-star.ruancat6312.top"],
