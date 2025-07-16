@@ -33,12 +33,20 @@ export default defineConfig(defaultConfig);
 npx taze -r
 ```
 
-### 在monorepo内的推荐命令
+### 在 monorepo 内的推荐命令
 
 推荐在 monorepo 项目内，使用以下命令完成升级：
 
 ```bash
 pnpm -w up @ruan-cat/taze-config -L && npx taze -r
+```
+
+建议在 package.json 内将命令命名为 `up-taze` 。
+
+```json
+{
+	"up-taze": "pnpm -w up @ruan-cat/taze-config -L && npx taze -r"
+}
 ```
 
 1. 先在单仓根包内，单独升级此包。确保拿到最新的配置文件。
