@@ -5,7 +5,7 @@
 	"type": "module",
 	"main": "./main.ts",
 	"types": "main.ts",
-	"homepage": "https://github.com/ruan-cat/monorepo/tree/main/packages/domains",
+	"homepage": "https://dm.ruancat6312.top",
 	"bugs": {
 		"url": "https://github.com/ruan-cat/monorepo/issues"
 	},
