@@ -94,5 +94,12 @@ export default <Config>{
 			// outputDirectory: "docs/.vitepress/dist",
 			// userCommands: ["pnpm -C=./packages/domains build:docs"],
 		},
+
+		// vercel部署工具
+		{
+			type: "static",
+			targetCWD: "./packages/vercel-deploy-tool/docs/.vitepress/dist",
+			url: domains["vercel-deploy-tool"] as unknown as string[],
+		},
 	],
 };
