@@ -1,0 +1,55 @@
+{
+	"name": "@ruan-cat/taze-config",
+	"version": "0.0.0",
+	"description": "阮喵喵自用的 taze.config.ts 配置。",
+	"type": "module",
+	"main": "./src/taze.config.ts",
+	"types": "./src/taze.config.ts",
+	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/configs-package/taze-config",
+	"bugs": {
+		"url": "https://github.com/ruan-cat/monorepo/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ruan-cat/monorepo.git",
+		"directory": "configs-package/taze-config"
+	},
+	"scripts": {
+		"build": "automd"
+	},
+	"exports": {
+		".": {
+			"import": "./src/taze.config.ts",
+			"types": "./src/taze.config.ts"
+		}
+	},
+	"keywords": [
+		"taze"
+	],
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	},
+	"license": "MIT",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
+	},
+	"files": [
+		"src"
+	],
+	"peerDependencies": {
+		"taze": ">=19"
+	},
+	"peerDependenciesMeta": {
+		"taze": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"automd": "^0.4.0",
+		"taze": "^19.1.0"
+	}
+}
