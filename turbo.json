@@ -21,6 +21,11 @@
 				"^build"
 			]
 		},
+		"//#deploy-vercel": {
+			"dependsOn": [
+				"^build:docs"
+			]
+		},
 		"vp-update": {
 			"dependsOn": []
 		},
