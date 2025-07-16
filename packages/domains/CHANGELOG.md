@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.8.0
+
+### Minor Changes
+
+- 增加 vercel部署工具 的域名 ([`bdbd85f`](https://github.com/ruan-cat/monorepo/commit/bdbd85fac28b602c31b09b9c9c62670637bf1cdb))
+
 ## 0.7.0
 
 ### Minor Changes
