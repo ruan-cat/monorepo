@@ -26,7 +26,11 @@ export const defaultConfig: Parameters<typeof defineConfig>["0"] = {
 		cropperjs: "ignore",
 		vite: "ignore",
 		// regex starts and ends with '/'
+
+		/** 阮喵喵系列的依赖包 都升级到最新版 */
 		"/@ruan-cat/": "latest",
+
+		// 以下依赖包的最新版的tag标签是next 而不是常见的latest 故需要专门声明
 		"/@form-create/": "next",
 		"/@wangeditor/": "next",
 	},
