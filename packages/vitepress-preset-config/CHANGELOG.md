@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 0.16.0
+
+### Minor Changes
+
+- setUserConfig 函数增加参数 ruanCatConfig，用来进一步的精细化设置文档。 ([`ebd11b8`](https://github.com/ruan-cat/monorepo/commit/ebd11b86b6577796e664029aa0e084d234161505))
+
 ## 0.15.0
 
 ### Minor Changes
