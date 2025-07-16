@@ -12,9 +12,13 @@ on:
   push:
     branches:
       # 避免高频率占用vercel资源，改成仅在main分支执行部署行为
-      - notuse-main
-      # - dev-pause
-      # - dev
+      - main
+    paths:
+      # 当任何 md 文件被更改时触发
+      - "*.md"
+      - "**/*.md"
+      # 当任何 .vitepress 文件夹下面的文件被更改时触发
+      - "**/.vitepress/**"
   repository_dispatch:
     types: [deploy-after-release]
 
