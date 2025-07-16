@@ -70,29 +70,29 @@ export default <Config>{
 
 		// 工具包文档项目
 		{
-			type: "userCommands",
-			targetCWD: "./packages/utils",
-			outputDirectory: "src/.vitepress/dist",
+			type: "static",
+			targetCWD: "./packages/utils/src/.vitepress/dist",
 			url: domains.utils as unknown as string[],
-			userCommands: ["pnpm -C=./packages/utils build:docs"],
+			// outputDirectory: "src/.vitepress/dist",
+			// userCommands: ["pnpm -C=./packages/utils build:docs"],
 		},
 
 		// vitepress预设配置文档
 		{
-			type: "userCommands",
-			targetCWD: "./packages/vitepress-preset-config",
-			outputDirectory: "src/.vitepress/dist",
+			type: "static",
+			targetCWD: "./packages/vitepress-preset-config/src/.vitepress/dist",
 			url: domains["vitepress-preset"] as unknown as string[],
-			userCommands: ["pnpm -C=./packages/vitepress-preset-config build:docs"],
+			// outputDirectory: "src/.vitepress/dist",
+			// userCommands: ["pnpm -C=./packages/vitepress-preset-config build:docs"],
 		},
 
 		// 域名列表
 		{
-			type: "userCommands",
-			targetCWD: "./packages/domains",
-			outputDirectory: "docs/.vitepress/dist",
+			type: "static",
+			targetCWD: "./packages/domain/docs/.vitepress/dist",
 			url: domains.domain as unknown as string[],
-			userCommands: ["pnpm -C=./packages/domains build:docs"],
+			// outputDirectory: "docs/.vitepress/dist",
+			// userCommands: ["pnpm -C=./packages/domains build:docs"],
 		},
 	],
 };
