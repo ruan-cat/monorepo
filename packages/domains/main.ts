@@ -58,6 +58,14 @@ export const domains = <const>{
 	/** 域名列表 */
 	domain: ["dm.ruancat6312.top", "dm.ruan-cat.com"],
 
+	/** vercel部署工具 */
+	"vercel-deploy-tool": [
+		"vercel-deploy-tool.ruancat6312.top",
+		"vercel.ruancat6312.top",
+		"vc.ruancat6312.top",
+		"vc.ruan-cat.com",
+	],
+
 	/**
 	 * 笔记项目 `github`流水线版本
 	 * @description
