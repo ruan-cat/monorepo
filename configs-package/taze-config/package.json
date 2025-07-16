@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/taze-config",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"description": "阮喵喵自用的 taze.config.ts 配置。",
 	"type": "module",
 	"main": "./src/taze.config.ts",
