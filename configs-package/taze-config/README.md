@@ -7,10 +7,10 @@
 ## 安装
 
 ```bash
-pnpm i -D taze @ruan-cat/@ruan-cat/taze-config
+pnpm i -D @ruan-cat/taze-config
 ```
 
-taze 作为对等依赖，必须要安装。
+taze 作为对等依赖，可以安装。
 
 ## 使用方式
 
@@ -26,6 +26,10 @@ export default defineConfig(defaultConfig);
 ```
 
 ### 准备运行命令
+
+```bash
+npx taze -r
+```
 
 ## 被封装的配置文件
 
