@@ -7,7 +7,7 @@
 ## 安装
 
 ```bash
-pnpm i -D @ruan-cat/taze-config
+pnpm i -D @ruan-cat/taze-config taze
 ```
 
 taze 作为对等依赖，可以安装。
