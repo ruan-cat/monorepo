@@ -13,7 +13,7 @@
 	},
 	"scripts": {
 		"git:fetch": "git fetch -p",
-		"git:dev-2-main": "git rebase dev main && pnpm run git:push",
+		"git:dev-2-main": "pnpm git:fetch && pnpm git:push && git rebase dev main && pnpm git:push",
 		"git:main-2-dev": "git rebase main dev",
 		"changeset:add": "changeset add",
 		"build": "turbo build",
