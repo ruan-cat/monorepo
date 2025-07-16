@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.7.0
+
+### Minor Changes
+
+- 新增 10WMS 和 11智慧社区项目的前端文档域名配置。 ([`10c4b82`](https://github.com/ruan-cat/monorepo/commit/10c4b8274d4d4b275dfd36832ea4abc1db9a338b))
+
 ## 0.6.2
 
 ### Patch Changes
