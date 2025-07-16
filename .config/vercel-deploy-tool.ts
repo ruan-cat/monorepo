@@ -89,7 +89,7 @@ export default <Config>{
 		// 域名列表
 		{
 			type: "static",
-			targetCWD: "./packages/domain/docs/.vitepress/dist",
+			targetCWD: "./packages/domains/docs/.vitepress/dist",
 			url: domains.domain as unknown as string[],
 			// outputDirectory: "docs/.vitepress/dist",
 			// userCommands: ["pnpm -C=./packages/domains build:docs"],
