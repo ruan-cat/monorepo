@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool 更新日志
 
+## 0.9.4
+
+### Patch Changes
+
+- 更新 package.json 的 home 首页，改成对应包的 url 可访问地址。 ([`76117bd`](https://github.com/ruan-cat/monorepo/commit/76117bd689a3e17948f834c1a0e60dd4a74c8ff3))
+
 ## 0.9.3
 
 ### Patch Changes
