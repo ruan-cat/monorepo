@@ -379,7 +379,7 @@
 举例如下：
 
 ```bash
-node --import=tsx ./tests/config.test.ts --env-path=.env.test
+tsx ./tests/config.test.ts --env-path=.env.test
 ```
 
 传递 --env-path 变量，并提供地址即可。

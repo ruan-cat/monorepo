@@ -95,7 +95,7 @@
 	"pnpmCatalogLens.enabled": true,
 	"code-runner.executorMap": {
 		// https://nodejs.org/en/learn/typescript/run#registering-tsx-via-node
-		"typescript": "pnpm dotenvx run -- node --import=tsx $fullFileName"
+		"typescript": "pnpm dotenvx run -- tsx $fullFileName"
 	},
 	/** 
 		让volar对md提供基础的类型支持

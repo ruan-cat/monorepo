@@ -114,7 +114,7 @@ import "@ruan-cat/vercel-deploy-tool/src/index.ts";
 		"pnpm": ">=9"
 	},
 	"scripts": {
-		"deploy-vercel": "node --import=tsx ./bin/vercel-deploy-tool.ts"
+		"deploy-vercel": "tsx ./bin/vercel-deploy-tool.ts"
 	}
 }
 ```

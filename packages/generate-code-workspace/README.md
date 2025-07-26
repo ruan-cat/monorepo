@@ -31,7 +31,7 @@ generateCodeWorkspace("monorepo单仓");
 ```json
 {
 	"scripts": {
-		"code-workspace:create": "node --import=tsx ./scripts/generate.code-workspace.ts"
+		"code-workspace:create": "tsx ./scripts/generate.code-workspace.ts"
 	}
 }
 ```
@@ -48,7 +48,7 @@ import "@ruan-cat/generate-code-workspace";
 ```json
 {
 	"scripts": {
-		"code-workspace:create": "node --import=tsx ./scripts/generate.code-workspace.ts --name=monorepo单仓"
+		"code-workspace:create": "tsx ./scripts/generate.code-workspace.ts --name=monorepo单仓"
 	}
 }
 ```
