@@ -12,7 +12,7 @@
 	},
 	"dependencies": {
 		"@giegie/components": "workspace:^",
-		"vue": "^3.5.17"
+		"vue": "^3.5.18"
 	},
 	"devDependencies": {
 		"@giegie/resolver": "workspace:^",
