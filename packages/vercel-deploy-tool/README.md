@@ -134,4 +134,3 @@ pnpm i -D tsx
 - [x] github action 运行产物。
 - [x] github action 全局安装新开发的包，实现纯工作流的部署。
 - [x] 去其他项目，自主完成配置与部署。
-- [ ] 封装 node 的 bin 命令，发包。
