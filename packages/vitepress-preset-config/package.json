@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/vitepress-preset-config",
-	"version": "0.16.0",
+	"version": "0.16.1",
 	"description": "用于给大多数的vitepress项目提供一个预设的配置文件。",
 	"homepage": "https://vitepress-preset.ruancat6312.top",
 	"types": "./src/config.mts",

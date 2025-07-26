@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.8.2
+
+### Patch Changes
+
+- 升级依赖。 ([`b95ea59`](https://github.com/ruan-cat/monorepo/commit/b95ea59110185efedc162a91bde541cca53a81fe))
+
 ## 0.8.1
 
 ### Patch Changes

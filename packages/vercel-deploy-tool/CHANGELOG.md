@@ -1,5 +1,19 @@
 # @ruan-cat/vercel-deploy-tool 更新日志
 
+## 0.10.0
+
+### Minor Changes
+
+- 1. 不再从 `--env-path` 配置内获取环境变量。 ([`ca5d41d`](https://github.com/ruan-cat/monorepo/commit/ca5d41d31c6e8a7e77292b882522c9965eb16c6a))
+  2. 不再从 `dotenvConfig` 函数内获取环境变量，一律从 `process.env` 内获取环境变量
+
+### Patch Changes
+
+- 升级依赖。 ([`b95ea59`](https://github.com/ruan-cat/monorepo/commit/b95ea59110185efedc162a91bde541cca53a81fe))
+
+- Updated dependencies [[`b95ea59`](https://github.com/ruan-cat/monorepo/commit/b95ea59110185efedc162a91bde541cca53a81fe)]:
+  - @ruan-cat/utils@4.9.1
+
 ## 0.9.4
 
 ### Patch Changes
