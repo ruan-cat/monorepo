@@ -2,8 +2,9 @@ import { resolve } from "pathe";
 import { loadConfig } from "c12";
 import { config as dotenvConfig } from "@dotenvx/dotenvx";
 import { consola } from "consola";
-import { merge, isEmpty } from "lodash-es";
+import { isUndefined } from "lodash-es";
 import { program } from "commander";
+import { printFormat } from "@ruan-cat/utils";
 
 /**
  * @description
@@ -162,9 +163,21 @@ program
 	.parse();
 const options = program.opts();
 
+const envPath = options?.envPath;
+
+if (!isUndefined(envPath)) {
+	consola.warn(` 警告 ：envPath 参数已被弃用，请使用 dotenvx  命令行工具来注入环境变量 `);
+}
+
 consola.info(" 查看命令行提供的参数 ", options);
 
-/** 初始化的当前的环境变量 */
+/**
+ * 初始化的当前的环境变量
+ * @deprecated
+ * 设计变更
+ *
+ * 本函数目前不会再继续用 dotenvConfig 来获取环境变量了
+ */
 function initCurrentDotenvConfig() {
 	// 如果存在环境变量路径 就使用并读取
 	const dotenvConfigParams = options?.envPath
@@ -173,17 +186,15 @@ function initCurrentDotenvConfig() {
 			}
 		: {};
 
-	const res = dotenvConfig(
-		dotenvConfigParams,
-		// 	{
-		// 	// 具体识别的路径，会自动识别根目录下面的env文件，故这里不作处理
-		// 	 path: "../../../.env"
-		// }
-	).parsed;
-
-	consola.info(" 查看来自 @dotenvx/dotenvx 获取的环境变量： ");
-	consola.box(res);
-
+	const res = dotenvConfig().parsed;
+	// dotenvConfigParams,
+	// 	{
+	// 	// 具体识别的路径，会自动识别根目录下面的env文件，故这里不作处理
+	// 	 path: "../../../.env"
+	// }
+	// consola.info(" 查看来自 @dotenvx/dotenvx 获取的环境变量： ");
+	// consola.box(process.env);
+	// consola.success(" process.env ", process.env);
 	return res;
 }
 
@@ -213,7 +224,7 @@ async function loadUserConfig() {
 	});
 
 	consola.success(" 完成加载用户配置 ");
-	consola.box(config);
+	consola.box(printFormat(config));
 
 	return config;
 }
@@ -224,29 +235,31 @@ async function loadUserConfig() {
  * 初始化环境变量
  */
 export async function initVercelConfig() {
-	/** 当前的环境变量 */
+	/**
+	 * 当前的环境变量
+	 * @deprecated
+	 */
 	const currentDotenvConfig = initCurrentDotenvConfig();
 
 	/** 用户配置 */
 	const userConfig = await loadUserConfig();
 
-	const vercelOrgId = currentDotenvConfig!.VERCEL_ORG_ID ?? process.env.VERCEL_ORG_ID;
-	const vercelProjectId = currentDotenvConfig!.VERCEL_PROJECT_ID ?? process.env.VERCEL_PROJECT_ID;
-	const vercelToken = currentDotenvConfig!.VERCEL_TOKEN ?? process.env.VERCEL_TOKEN;
+	const vercelOrgId = process.env.VERCEL_ORG_ID;
+	const vercelProjectId = process.env.VERCEL_PROJECT_ID;
+	const vercelToken = process.env.VERCEL_TOKEN;
 
-	if (!isEmpty(vercelOrgId)) {
+	if (!isUndefined(vercelOrgId)) {
 		userConfig.vercelOrgId = vercelOrgId;
 	}
-	if (!isEmpty(vercelProjectId)) {
+	if (!isUndefined(vercelProjectId)) {
 		userConfig.vercelProjectId = vercelProjectId;
 	}
-	if (!isEmpty(vercelToken)) {
+	if (!isUndefined(vercelToken)) {
 		userConfig.vercelToken = vercelToken;
 	}
 
-	consola.success(" 完成初始化项目配置 ");
-	// 显示效果没有那么好看
-	consola.box(userConfig);
+	consola.success(` 完成初始化项目配置 `);
+	consola.box(printFormat(userConfig));
 
 	return userConfig;
 }
