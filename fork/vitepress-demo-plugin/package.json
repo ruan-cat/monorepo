@@ -61,7 +61,7 @@
 		"codesandbox": "^2.2.3",
 		"pretty": "^2.0.0",
 		"sass": "^1.89.2",
-		"shiki": "^3.8.1",
+		"shiki": "^3.9.1",
 		"vite": "^6.2.2",
 		"vite-plugin-dts": "^4.5.4",
 		"vue": "^3.5.18"
