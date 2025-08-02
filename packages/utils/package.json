@@ -99,7 +99,7 @@
 		"vitepress": "^1.6.3"
 	},
 	"peerDependencies": {
-		"typescript": "catalog:",
+		"typescript": ">=5",
 		"unplugin-vue-router": "^0.12.0",
 		"vite-plugin-autogeneration-import-file": ">=3"
 	},
