@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/utils",
-	"version": "4.9.1",
+	"version": "4.9.2",
 	"description": "阮喵喵工具集合。默认提供js文件，也直接提供ts文件。",
 	"type": "module",
 	"main": "./src/index.ts",

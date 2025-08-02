@@ -1,5 +1,12 @@
 # @ruan-cat/vitepress-demo-plugin 更新日志
 
+## 0.1.2
+
+### Patch Changes
+
+- 1. 更新依赖。 ([`208f061`](https://github.com/ruan-cat/monorepo/commit/208f061096ea936b1c021656de5efc1a7603bd27))
+  2. 首页 README.md 增加了来自 automd 提供的标签，优化显示效果。
+
 ## 0.1.1
 
 ### Patch Changes
