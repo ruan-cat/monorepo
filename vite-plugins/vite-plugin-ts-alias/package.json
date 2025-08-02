@@ -1,0 +1,57 @@
+{
+	"name": "@ruan-cat/vite-plugin-ts-alias",
+	"version": "0.0.0",
+	"description": "将 tsconfig.paths 配置转换成 vite 的 alias 路径别名。",
+	"type": "module",
+	"main": "./dist/index.cjs",
+	"types": "./dist/index.d.ts",
+	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/vite-plugins/vite-plugin-ts-alias",
+	"bugs": {
+		"url": "https://github.com/ruan-cat/monorepo/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ruan-cat/monorepo.git",
+		"directory": "vite-plugins/vite-plugin-ts-alias"
+	},
+	"scripts": {
+		"build": "tsup 888 TODO"
+	},
+	"exports": {
+		".": {
+			"import": "./src/TODO:",
+			"types": "./src/taze.config.ts"
+		}
+	},
+	"keywords": [
+		"vite",
+		"vite plugin",
+		"tsconfig paths",
+		"alias"
+	],
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	},
+	"license": "MIT",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
+	},
+	"files": [
+		"dist TODO:"
+	],
+	"peerDependencies": {
+		"vite": ">=6"
+	},
+	"dependencies": {
+		"load-tsconfig": "^0.2.3",
+		"upath": "^2.0.1"
+	},
+	"devDependencies": {
+		"typescript": "^4.6.4",
+		"vite": "^2.9.9"
+	}
+}
