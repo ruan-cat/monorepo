@@ -15,7 +15,7 @@
 		"directory": "vite-plugins/vite-plugin-ts-alias"
 	},
 	"scripts": {
-		"build": "tsup 888 TODO"
+		"build": "tsup"
 	},
 	"exports": {
 		".": {
@@ -47,6 +47,7 @@
 		"vite": ">=6"
 	},
 	"dependencies": {
+		"consola": "^3.4.2",
 		"load-tsconfig": "^0.2.5",
 		"upath": "^2.0.1"
 	},
