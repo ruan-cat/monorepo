@@ -1,5 +1,12 @@
 # 生成工作区文件
 
+<!-- automd:badges color="yellow" name="@ruan-cat/generate-code-workspace" -->
+
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/generate-code-workspace?color=yellow)](https://npmjs.com/package/@ruan-cat/generate-code-workspace)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/generate-code-workspace?color=yellow)](https://npm.chart.dev/@ruan-cat/generate-code-workspace)
+
+<!-- /automd -->
+
 本库用于生成工作区文件。
 
 ## 安装

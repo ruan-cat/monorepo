@@ -1,5 +1,12 @@
 # taze.config.ts 配置
 
+<!-- automd:badges color="yellow" name="@ruan-cat/taze-config" -->
+
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/taze-config?color=yellow)](https://npmjs.com/package/@ruan-cat/taze-config)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/taze-config?color=yellow)](https://npm.chart.dev/@ruan-cat/taze-config)
+
+<!-- /automd -->
+
 阮喵喵自用的 taze.config.ts 的配置。目的是用预设的 taze 配置，实现依赖升级。
 
 本依赖包仅仅是对外单纯地导出一个 ts 配置文件。

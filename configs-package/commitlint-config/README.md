@@ -1,5 +1,12 @@
 # commitlint.config.cjs 配置
 
+<!-- automd:badges color="yellow" name="@ruan-cat/commitlint-config" -->
+
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/commitlint-config?color=yellow)](https://npmjs.com/package/@ruan-cat/commitlint-config)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/commitlint-config?color=yellow)](https://npm.chart.dev/@ruan-cat/commitlint-config)
+
+<!-- /automd -->
+
 阮喵喵自用的 commitlint.config.cjs 的配置，是一个 cjs 的包。
 
 ## 功能

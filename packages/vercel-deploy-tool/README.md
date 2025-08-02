@@ -1,5 +1,12 @@
 # 阮喵喵自用的 vercel 部署工具
 
+<!-- automd:badges color="yellow" name="@ruan-cat/vercel-deploy-tool" -->
+
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/vercel-deploy-tool?color=yellow)](https://npmjs.com/package/@ruan-cat/vercel-deploy-tool)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/vercel-deploy-tool?color=yellow)](https://npm.chart.dev/@ruan-cat/vercel-deploy-tool)
+
+<!-- /automd -->
+
 生成满足 [Vercel Output API （v3）](https://vercel.com/docs/build-output-api)规范的目录结构，并推送到 vercel 平台内。
 
 目前仅考虑简单的静态页面，没有实现云函数等功能。

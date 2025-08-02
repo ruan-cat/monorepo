@@ -16,6 +16,7 @@
 	},
 	"scripts": {
 		"build": "tsup",
+		"prebuild": "automd",
 		"docs:dev-vp": "vuepress-vite dev docs --clean-cache --open",
 		"build:docs-vp": "vuepress-vite build docs",
 		"docs:dev": "vitepress dev docs --port 8080",
@@ -60,6 +61,7 @@
 	"devDependencies": {
 		"@ruan-cat/vitepress-preset-config": "workspace:^",
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
+		"automd": "^0.4.0",
 		"tsup": "^8.5.0",
 		"vitepress": "^1.6.3"
 	}
