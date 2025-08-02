@@ -9,6 +9,17 @@
 
 <!-- /automd -->
 
+> [!CAUTION]
+> 这个包是基于 [Codpoe/vite-plugin-ts-alias](https://github.com/Codpoe/vite-plugin-ts-alias) 仓库的代码进行修改和增强的，**不是作者原创的包**。
+>
+> **主要改进**：
+>
+> - ✅ 增加了更详细的错误提示
+> - ✅ 优化了类型定义
+> - ✅ 改进了错误处理机制
+>
+> **原始仓库**：[Codpoe/vite-plugin-ts-alias](https://github.com/Codpoe/vite-plugin-ts-alias)
+
 ## 安装
 
 ```bash
