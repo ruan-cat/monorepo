@@ -13,7 +13,7 @@ packages:
   - "configs-package/*"
 
 catalog:
-  typescript: 5.7.3
+  typescript: 5.9.2
   lodash-es: 4.17.21
   # vercel出现bug，安装 39.4.2 出现依赖冲突。多个项目内均出现该错误。
   # 故在此考虑人工锁死版本号。
