@@ -3,8 +3,15 @@
 		"module": "NodeNext",
 		"noEmit": true,
 		// "allowImportingTsExtensions": true
+		"skipLibCheck": true,
+		// 该行必须 否则打包会报错
+		"types": []
 	},
 	"include": [
 		"./src/**/*.ts"
+	],
+	"exclude": [
+		"node_modules",
+		"dist"
 	]
 }

@@ -7,5 +7,7 @@ export default defineConfig((options: Options) => [
 		dts: true,
 		clean: true,
 		external: ["vite"],
+		// 禁用自动类型包含，避免包含不需要的类型定义
+		skipNodeModulesBundle: true,
 	},
 ]);
