@@ -1,13 +1,13 @@
 # @ruan-cat/vite-plugin-ts-alias
 
-将 tsconfig.paths 配置转换成 vite 的 alias 路径别名。
-
 <!-- automd:badges color="yellow" name="@ruan-cat/vite-plugin-ts-alias" -->
 
 [![npm version](https://img.shields.io/npm/v/@ruan-cat/vite-plugin-ts-alias?color=yellow)](https://npmjs.com/package/@ruan-cat/vite-plugin-ts-alias)
 [![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/vite-plugin-ts-alias?color=yellow)](https://npm.chart.dev/@ruan-cat/vite-plugin-ts-alias)
 
 <!-- /automd -->
+
+将 tsconfig.paths 配置转换成 vite 的 alias 路径别名。
 
 > [!CAUTION]
 > 这个包是基于 [Codpoe/vite-plugin-ts-alias](https://github.com/Codpoe/vite-plugin-ts-alias) 仓库的代码进行修改和增强的，**不是作者原创的包**。
