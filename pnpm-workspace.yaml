@@ -7,6 +7,7 @@ packages:
   - "tests/*"
   - "docs/*"
   - "fork/*"
+  - "vite-plugins/*"
   - "learn-create-compoents-lib/*"
   # 配置系列的依赖包 为了实现便捷快速的配置分发
   - "configs-package/*"
