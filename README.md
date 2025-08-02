@@ -67,3 +67,14 @@ commitlint 配置。
 [![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/generate-code-workspace?color=yellow)](https://npm.chart.dev/@ruan-cat/generate-code-workspace)
 
 <!-- /automd -->
+
+## `@ruan-cat/taze-config`
+
+taze 配置。
+
+<!-- automd:badges color="yellow" name="@ruan-cat/taze-config" -->
+
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/taze-config?color=yellow)](https://npmjs.com/package/@ruan-cat/taze-config)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/taze-config?color=yellow)](https://npm.chart.dev/@ruan-cat/taze-config)
+
+<!-- /automd -->
