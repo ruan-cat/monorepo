@@ -18,6 +18,7 @@
 		"docs:dev": "vuepress-vite dev docs --clean-cache --open",
 		"docs:build": "vuepress-vite build docs",
 		"build": "tsup",
+		"prebuild": "automd",
 		"build:vite": "vite build",
 		"build:vite:watch": "vite build --watch",
 		"vp-update": "pnpm dlx vp-update"
@@ -59,6 +60,7 @@
 	"devDependencies": {
 		"@types/node": "^22.17.0",
 		"@types/rollup-plugin-visualizer": "^5.0.3",
+		"automd": "^0.4.0",
 		"tsup": "^8.5.0"
 	},
 	"dependencies": {

@@ -28,6 +28,7 @@
 		"deploy": "turbo deploy-vercel",
 		"deploy-vercel": "tsx ./scripts/vercel-deploy-tool.ts",
 		"automd": "automd",
+		"automd:all": "pnpm -F=* exec -- automd",
 		"preinstall": "npx only-allow pnpm && npm run corepack:pnpm",
 		"corepack:pnpm": "corepack enable && corepack install",
 		"commit": "git-cz",
