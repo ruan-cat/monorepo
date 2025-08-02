@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"description": "将 tsconfig.paths 配置转换成 vite 的 alias 路径别名。",
 	"type": "module",
-	"main": "./dist/index.cjs",
+	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/vite-plugins/vite-plugin-ts-alias",
 	"bugs": {
@@ -19,8 +19,8 @@
 	},
 	"exports": {
 		".": {
-			"import": "./src/TODO:",
-			"types": "./src/taze.config.ts"
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
 		}
 	},
 	"keywords": [
@@ -41,7 +41,7 @@
 		"tag": "beta"
 	},
 	"files": [
-		"dist TODO:"
+		"dist"
 	],
 	"peerDependencies": {
 		"vite": ">=6"
