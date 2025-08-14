@@ -88,4 +88,9 @@ export const commonScopes: ScopesItemWithDesc[] = [
 		value: "api",
 		desc: "API接口",
 	},
+	{
+		code: "claude",
+		value: "claude",
+		desc: "claude code的配置。特指在claude code生成或使用的文件。包括配置、提示词、代理、记忆文件等。",
+	},
 ];
