@@ -62,4 +62,6 @@ pnpm i -D @ruan-cat/vitepress-preset-config vue vitepress vitepress-demo-plugin
 
 点击以下图片，即可放大预览
 
+警告，目前在使用 vitepress-theme-teek 主题时，会出现重复点击图片的 bug。在原版项目内不会出现，在我们项目内就出现了。
+
 ![2025-07-03-01-20-20](https://s2.loli.net/2025/07/03/Bm9EQW2HSCy8FTa.png)
