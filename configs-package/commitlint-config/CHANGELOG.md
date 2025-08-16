@@ -1,5 +1,11 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 1.4.0
+
+### Minor Changes
+
+- 添加 claude 相关的配置项，描述其在代码生成和使用中的作用。 ([`6018d05`](https://github.com/ruan-cat/monorepo/commit/6018d059b8e5b793ce1602316bb220d179ec30db))
+
 ## 1.3.1
 
 ### Patch Changes
