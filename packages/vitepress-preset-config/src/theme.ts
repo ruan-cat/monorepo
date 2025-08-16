@@ -38,6 +38,10 @@ import "viewerjs/dist/viewer.min.css";
 import imageViewer from "vitepress-plugin-image-viewer";
 import { useRoute } from "vitepress";
 
+// https://vp.teek.top/guide/quickstart.html#teek-引入
+import Teek from "vitepress-theme-teek";
+import "vitepress-theme-teek/index.css";
+
 /**
  * 一个回调函数 用来暴露变量 实现注册
  */
@@ -95,9 +99,17 @@ function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppContext) {
 
 /** 默认主题配置 */
 export const defaultTheme = {
-	extends: DefaultTheme,
+	// extends: DefaultTheme,
+	// TODO: 正在应用 teek 主题 需要进行测试
+	extends: Teek,
 	Layout: () => {
-		return h(DefaultTheme.Layout, null, defaultLayoutConfig);
+		return h(
+			// DefaultTheme.Layout
+			// TODO: 正在应用 teek 主题 需要进行测试
+			Teek.Layout,
+			null,
+			defaultLayoutConfig,
+		);
 	},
 	enhanceApp({ app, router, siteData }: EnhanceAppContext) {
 		defaultEnhanceAppPreset({ app, router, siteData });

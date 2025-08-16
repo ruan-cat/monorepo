@@ -34,6 +34,12 @@ export { withMermaid };
 import VitePluginVercel from "vite-plugin-vercel";
 export { VitePluginVercel };
 
+// https://vp.teek.top/guide/quickstart.html#teek-引入
+import { defineTeekConfig } from "vitepress-theme-teek/config";
+
+/** Teek 主题配置 */
+const teekConfig = defineTeekConfig({});
+
 type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 
 /** 默认侧边栏配置 */
@@ -112,6 +118,9 @@ const defaultVitePlugins: PluginOption[] = [
 
 /** 默认用户配置 */
 const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
+	// TODO: 正在应用 teek 主题 需要进行测试
+	extends: teekConfig,
+
 	title: "请填写有意义的标题",
 	description: "请填写有意义的描述",
 
