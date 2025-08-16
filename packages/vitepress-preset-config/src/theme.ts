@@ -34,10 +34,6 @@ import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
 import TwoslashFloatingVue from "@shikijs/vitepress-twoslash/client";
 import "@shikijs/vitepress-twoslash/style.css";
 
-import "viewerjs/dist/viewer.min.css";
-import imageViewer from "vitepress-plugin-image-viewer";
-import { useRoute } from "vitepress";
-
 // https://vp.teek.top/guide/quickstart.html#teek-引入
 import Teek from "vitepress-theme-teek";
 import "vitepress-theme-teek/index.css";
@@ -128,11 +124,6 @@ export function defineRuancatPresetTheme(params?: DefineRuancatPresetThemeParams
 			// 执行用户传入的回调函数
 			params?.enhanceAppCallBack?.({ app, router, siteData });
 		},
-		setup() {
-			// Get route
-			const route = useRoute();
-			// Using
-			imageViewer(route);
-		},
+		// setup() {},
 	} satisfies Theme;
 }
