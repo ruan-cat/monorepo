@@ -35,7 +35,8 @@
 		"@types/lodash-es": "^4.17.12",
 		"automd": "^0.4.0",
 		"tsup": "^8.5.0",
-		"vitepress": "^1.6.4"
+		"vitepress": "^1.6.4",
+		"vitepress-theme-teek": "^1.4.0"
 	},
 	"peerDependencies": {
 		"vitepress": "^1.6.x",
