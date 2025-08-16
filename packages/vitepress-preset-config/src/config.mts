@@ -38,7 +38,27 @@ export { VitePluginVercel };
 import { defineTeekConfig } from "vitepress-theme-teek/config";
 
 /** Teek 主题配置 */
-const teekConfig = defineTeekConfig({});
+const teekConfig = defineTeekConfig({
+	vitePlugins: {
+		/**
+		 * 关闭 vitepress-plugin-permalink 插件
+		 * @see https://vp.teek.top/guide/plugins.html#vitepress-plugin-permalink
+		 */
+		permalink: false,
+
+		/**
+		 * 关闭 vitepress-plugin-sidebar-resolve 插件
+		 * @see https://vp.teek.top/guide/plugins.html#vitepress-plugin-sidebar-resolve
+		 */
+		sidebar: false,
+
+		/**
+		 * 关闭 vitepress-plugin-md-h1 插件
+		 * @see https://vp.teek.top/guide/plugins.html#vitepress-plugin-md-h1
+		 */
+		mdH1: false,
+	},
+});
 
 type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 
