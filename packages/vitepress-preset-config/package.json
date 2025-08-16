@@ -12,10 +12,7 @@
 		"prebuild": "automd"
 	},
 	"dependencies": {
-		"@nolebase/vitepress-plugin-breadcrumbs": "^2.18.2",
-		"@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.2",
 		"@nolebase/vitepress-plugin-git-changelog": "^2.18.2",
-		"@nolebase/vitepress-plugin-highlight-targeted-heading": "^2.18.2",
 		"@ruan-cat/utils": "workspace:^",
 		"@shikijs/vitepress-twoslash": "^3.9.2",
 		"consola": "^3.4.2",

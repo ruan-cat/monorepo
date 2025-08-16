@@ -13,21 +13,6 @@ import DefaultTheme from "vitepress/theme";
 // import { VitepressDemoBox, VitepressDemoPlaceholder } from "@ruan-cat/vitepress-demo-plugin";
 // import "@ruan-cat/vitepress-demo-plugin/dist/index.css";
 
-import { NolebaseBreadcrumbs } from "@nolebase/vitepress-plugin-breadcrumbs/client";
-
-import {
-	NolebaseEnhancedReadabilitiesMenu,
-	NolebaseEnhancedReadabilitiesScreenMenu,
-	// https://nolebase-integrations.ayaka.io/pages/zh-CN/integrations/vitepress-plugin-enhanced-readabilities/#如何在-vitepress-中进行配置
-	InjectionKey,
-	type Options,
-	LayoutMode,
-} from "@nolebase/vitepress-plugin-enhanced-readabilities/client";
-import "@nolebase/vitepress-plugin-enhanced-readabilities/client/style.css";
-
-import { NolebaseHighlightTargetedHeading } from "@nolebase/vitepress-plugin-highlight-targeted-heading/client";
-import "@nolebase/vitepress-plugin-highlight-targeted-heading/client/style.css";
-
 import { NolebaseGitChangelogPlugin } from "@nolebase/vitepress-plugin-git-changelog/client";
 import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
 
@@ -52,20 +37,6 @@ export interface DefineRuancatPresetThemeParams {
 }
 
 /**
- * 默认布局配置
- * @description
- * @private
- */
-const defaultLayoutConfig = {
-	// https://vitepress.dev/guide/extending-default-theme#layout-slots
-	"doc-before": () => h(NolebaseBreadcrumbs),
-	"nav-bar-content-after": () => h(NolebaseEnhancedReadabilitiesMenu),
-	// 为较窄的屏幕（通常是小于 iPad Mini）添加阅读增强菜单
-	"nav-screen-content-after": () => h(NolebaseEnhancedReadabilitiesScreenMenu),
-	"layout-top": () => [h(NolebaseHighlightTargetedHeading)],
-};
-
-/**
  * 默认 enhanceApp 预设
  * @description
  * 这个函数预期应该作为一个内部函数 不应该对外暴露使用
@@ -74,17 +45,6 @@ const defaultLayoutConfig = {
 function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppContext) {
 	app.use(NolebaseGitChangelogPlugin);
 	app.use(TwoslashFloatingVue);
-	app.provide(InjectionKey, {
-		layoutSwitch: {
-			defaultMode: LayoutMode["BothWidthAdjustable"],
-			pageLayoutMaxWidth: {
-				defaultMaxWidth: 85,
-			},
-			contentLayoutMaxWidth: {
-				defaultMaxWidth: 95,
-			},
-		},
-	} as Options);
 	/**
 	 * 放弃全局注册demo展示组件
 	 * 在生产环境内使用peer对等依赖
@@ -104,7 +64,6 @@ export const defaultTheme = {
 			// TODO: 正在应用 teek 主题 需要进行测试
 			Teek.Layout,
 			null,
-			defaultLayoutConfig,
 		);
 	},
 	enhanceApp({ app, router, siteData }: EnhanceAppContext) {
