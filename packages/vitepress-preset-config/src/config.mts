@@ -39,6 +39,9 @@ import { defineTeekConfig } from "vitepress-theme-teek/config";
 
 /** Teek 主题配置 */
 const teekConfig = defineTeekConfig({
+	/** @see https://vp.teek.top/reference/config/global-config.html#sidebartrigger */
+	sidebarTrigger: true,
+
 	vitePlugins: {
 		/**
 		 * 关闭 vitepress-plugin-permalink 插件
