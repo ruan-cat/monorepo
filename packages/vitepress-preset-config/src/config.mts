@@ -183,23 +183,13 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 		plugins: defaultVitePlugins,
 
 		optimizeDeps: {
-			exclude: [
-				"@nolebase/vitepress-plugin-breadcrumbs/client",
-				"@nolebase/vitepress-plugin-enhanced-readabilities/client",
-				"vitepress",
-				"@nolebase/ui",
-			],
+			exclude: ["vitepress", "@nolebase/ui"],
 		},
 
 		ssr: {
 			noExternal: [
 				// 如果还有别的依赖需要添加的话，并排填写和配置到这里即可
-				"@nolebase/vitepress-plugin-breadcrumbs",
-
-				"@nolebase/vitepress-plugin-enhanced-readabilities",
 				"@nolebase/ui",
-
-				"@nolebase/vitepress-plugin-highlight-targeted-heading",
 			],
 		},
 	},
