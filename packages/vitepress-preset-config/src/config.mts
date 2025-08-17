@@ -40,7 +40,8 @@ const teekConfig = defineTeekConfig({
 		 * 关闭 vitepress-plugin-permalink 插件
 		 * @see https://vp.teek.top/guide/plugins.html#vitepress-plugin-permalink
 		 */
-		permalink: false,
+		// TODO: 该问题预期在 1.4.3 版本内解决
+		// permalink: false,
 
 		/**
 		 * 关闭 vitepress-plugin-sidebar-resolve 插件
@@ -120,7 +121,6 @@ export function setGenerateSidebar(options?: VitePressSidebarOptions) {
 
 /** 默认用户配置 */
 const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
-	// TODO: 正在应用 teek 主题 需要进行测试
 	extends: teekConfig,
 
 	title: "请填写有意义的标题",
