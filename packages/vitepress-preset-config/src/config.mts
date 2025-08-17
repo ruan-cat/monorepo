@@ -1,7 +1,6 @@
-import { type PluginOption } from "vite";
 import { defineConfig, type DefaultTheme, type UserConfig } from "vitepress";
 export { defineConfig };
-import { generateSidebar, withSidebar } from "vitepress-sidebar";
+import { generateSidebar } from "vitepress-sidebar";
 
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
 import { vitepressDemoPlugin } from "vitepress-demo-plugin";
