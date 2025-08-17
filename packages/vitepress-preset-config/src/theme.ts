@@ -53,19 +53,29 @@ function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppContext) {
 	// app.component("VitepressDemoPlaceholder", VitepressDemoPlaceholder);
 }
 
+/** 简单主题 尝试避免复杂的使用 */
+export const smipleTheme = {
+	extends: Teek,
+	enhanceApp({ app, router, siteData }: EnhanceAppContext) {
+		app.use(NolebaseGitChangelogPlugin);
+		app.use(TwoslashFloatingVue);
+	},
+} satisfies Theme;
+
 /** 默认主题配置 */
 export const defaultTheme = {
 	// extends: DefaultTheme,
 	// TODO: 正在应用 teek 主题 需要进行测试
 	extends: Teek,
-	Layout: () => {
-		return h(
-			// DefaultTheme.Layout
-			// TODO: 正在应用 teek 主题 需要进行测试
-			Teek.Layout,
-			null,
-		);
-	},
+	// Layout: () => {
+	// 	return h(
+	// 		// DefaultTheme.Layout
+	// 		// TODO: 正在应用 teek 主题 需要进行测试
+	// 		Teek.Layout,
+	// 		null,
+	// 	);
+	// },
+	Layout: Teek.Layout,
 	enhanceApp({ app, router, siteData }: EnhanceAppContext) {
 		defaultEnhanceAppPreset({ app, router, siteData });
 	},
