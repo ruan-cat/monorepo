@@ -17,7 +17,8 @@ const teekConfig = defineTeekConfig({
 		 * 关闭 vitepress-plugin-permalink 插件
 		 * @see https://vp.teek.top/guide/plugins.html#vitepress-plugin-permalink
 		 */
-		permalink: false,
+		// TODO: 该问题预期在 1.4.3 版本内解决
+		// permalink: false,
 
 		/**
 		 * 关闭 vitepress-plugin-sidebar-resolve 插件
