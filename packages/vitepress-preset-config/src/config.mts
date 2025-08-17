@@ -3,9 +3,6 @@ import { defineConfig, type DefaultTheme, type UserConfig } from "vitepress";
 export { defineConfig };
 import { generateSidebar, withSidebar } from "vitepress-sidebar";
 
-import { type RuanCatConfig } from "./type.ts";
-export { RuanCatConfig };
-
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
 import { vitepressDemoPlugin } from "vitepress-demo-plugin";
 
@@ -30,9 +27,6 @@ import { withMermaid } from "vitepress-plugin-mermaid";
  * mermaid 需求并不是常用的需求 故设计成让用户自己二次包装使用
  */
 export { withMermaid };
-
-import VitePluginVercel from "vite-plugin-vercel";
-export { VitePluginVercel };
 
 // https://vp.teek.top/guide/quickstart.html#teek-引入
 import { defineTeekConfig } from "vitepress-theme-teek/config";
@@ -125,29 +119,6 @@ export function setGenerateSidebar(options?: VitePressSidebarOptions) {
 	return generateSidebar(getMergeSidebarOptions(options));
 }
 
-/** @see https://github.com/okineadev/vitepress-plugin-llms */
-const defaultLlmstxt = llmstxt();
-
-const defaultGitChangelog = GitChangelog({
-	// 填写在此处填写您的仓库链接
-	repoURL: () => "https://github.com/ruan-cat/monorepo",
-	// 最大日志深度为10, 避免获取过多无意义的历史日志
-	maxGitLogCount: 10,
-});
-
-const defaultGitChangelogMarkdownSection = GitChangelogMarkdownSection();
-
-const defaultVitePluginVercel = VitePluginVercel();
-
-/** 默认的vite插件 */
-const defaultVitePlugins: PluginOption[] = [
-	defaultLlmstxt,
-	defaultGitChangelog,
-	defaultGitChangelogMarkdownSection,
-	// @ts-ignore
-	defaultVitePluginVercel,
-];
-
 /** 默认用户配置 */
 const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	// TODO: 正在应用 teek 主题 需要进行测试
@@ -191,8 +162,22 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 			open: true,
 		},
 
-		// @ts-ignore
-		plugins: defaultVitePlugins,
+		plugins: [
+			/** @see https://github.com/okineadev/vitepress-plugin-llms */
+			// @ts-ignore
+			llmstxt(),
+
+			// @ts-ignore
+			GitChangelog({
+				// 填写在此处填写您的仓库链接
+				repoURL: () => "https://github.com/ruan-cat/monorepo",
+				// 最大日志深度为10, 避免获取过多无意义的历史日志
+				maxGitLogCount: 10,
+			}),
+
+			// @ts-ignore
+			GitChangelogMarkdownSection(),
+		],
 
 		optimizeDeps: {
 			exclude: ["vitepress", "@nolebase/ui"],
@@ -251,56 +236,13 @@ function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
 	nav.push({ text: "更新日志", link: "/CHANGELOG.md" });
 }
 
-const defaultRuanCatConfig: RuanCatConfig = {
-	plugins: {
-		llmstxt: true,
-		gitChangelog: true,
-		gitChangelogMarkdownSection: true,
-		vitePluginVercel: true,
-	},
-};
-
-/** 处理插件配置 */
-function handlePlugins(
-	//
-	userConfig: UserConfig<DefaultTheme.Config>,
-	ruanCatConfig: RuanCatConfig = defaultRuanCatConfig,
-) {
-	let resPlugins: PluginOption[] = [];
-
-	ruanCatConfig = merge({}, cloneDeep(defaultRuanCatConfig), ruanCatConfig);
-
-	if (ruanCatConfig?.plugins?.llmstxt) {
-		resPlugins.push(defaultLlmstxt);
-	}
-	if (ruanCatConfig?.plugins?.gitChangelog) {
-		resPlugins.push(defaultGitChangelog);
-	}
-	if (ruanCatConfig?.plugins?.gitChangelogMarkdownSection) {
-		resPlugins.push(defaultGitChangelogMarkdownSection);
-	}
-	if (ruanCatConfig?.plugins?.vitePluginVercel) {
-		// @ts-ignore
-		resPlugins.push(defaultVitePluginVercel);
-	}
-
-	// @ts-ignore
-	userConfig.vite.plugins = resPlugins;
-}
-
 /** 设置vitepress主配置 */
-export function setUserConfig(
-	config?: UserConfig<DefaultTheme.Config>,
-	ruanCatConfig: RuanCatConfig = defaultRuanCatConfig,
-): UserConfig<DefaultTheme.Config> {
+export function setUserConfig(config?: UserConfig<DefaultTheme.Config>): UserConfig<DefaultTheme.Config> {
 	/** 最终的用户数据 */
 	const resUserConfig = merge({}, cloneDeep(defaultUserConfig), isUndefined(config) ? {} : config);
 
 	// 增加导航栏
 	handleChangeLog(resUserConfig);
-
-	// 设置插件
-	handlePlugins(resUserConfig, ruanCatConfig);
 
 	return resUserConfig;
 }

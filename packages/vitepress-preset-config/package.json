@@ -19,7 +19,6 @@
 		"js-yaml": "^4.1.0",
 		"lodash-es": "^4.17.21",
 		"mermaid": "^11.9.0",
-		"vite-plugin-vercel": "^9.0.7",
 		"vitepress-demo-plugin": "^1.4.7",
 		"vitepress-plugin-llms": "^1.7.3",
 		"vitepress-plugin-mermaid": "^2.0.17",
