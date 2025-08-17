@@ -4,6 +4,7 @@ import { merge, isUndefined, cloneDeep } from "lodash-es";
 import { generateSidebar } from "vitepress-sidebar";
 import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 import llmstxt from "vitepress-plugin-llms";
+import { vitepressDemoPlugin } from "vitepress-demo-plugin";
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
 
 /** Teek 主题配置 */
@@ -144,6 +145,23 @@ export const config = defineConfig({
 				// 如果还有别的依赖需要添加的话，并排填写和配置到这里即可
 				"@nolebase/ui",
 			],
+		},
+	},
+	markdown: {
+		config(md) {
+			md.use(vitepressDemoPlugin);
+		},
+		codeTransformers: [
+			// @ts-ignore FIXME: 这里出现奇怪的类型报错 屏蔽了
+			transformerTwoslash(),
+		],
+		// languages: ["js", "jsx", "ts", "tsx"],
+		container: {
+			tipLabel: "提示",
+			warningLabel: "警告",
+			dangerLabel: "危险",
+			infoLabel: "信息",
+			detailsLabel: "详情",
 		},
 	},
 });
