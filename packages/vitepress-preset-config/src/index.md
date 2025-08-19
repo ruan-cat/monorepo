@@ -76,6 +76,14 @@ pnpm i -D @ruan-cat/vitepress-preset-config vue vitepress vitepress-demo-plugin
 
 ### vue 组件 demo 预览
 
+组件预览能力，使用的单独的 [vitepress-demo-plugin](https://github.com/zh-lx/vitepress-demo-plugin) 包，不是 vitepress-theme-teek 提供的 demo 能力。
+
+使用效果如下：
+
+::: details vitepress-demo-plugin 预览效果
+
+:::
+
 <!-- TODO: 待补充具体例子 -->
 
 ## 路线图
