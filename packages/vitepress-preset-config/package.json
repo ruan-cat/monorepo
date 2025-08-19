@@ -29,6 +29,7 @@
 	"devDependencies": {
 		"@types/lodash-es": "^4.17.12",
 		"automd": "^0.4.0",
+		"element-plus": "^2.10.7",
 		"tsup": "^8.5.0",
 		"vitepress": "^1.6.4"
 	},

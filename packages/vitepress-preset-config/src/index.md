@@ -82,9 +82,9 @@ pnpm i -D @ruan-cat/vitepress-preset-config vue vitepress vitepress-demo-plugin
 
 ::: details vitepress-demo-plugin 预览效果
 
-:::
+<demo vue="./tests/pagination/tests/mini-example.vue" />
 
-<!-- TODO: 待补充具体例子 -->
+:::
 
 ## 路线图
 
