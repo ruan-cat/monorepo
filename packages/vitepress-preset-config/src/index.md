@@ -50,17 +50,29 @@ pnpm i -D @ruan-cat/vitepress-preset-config vue vitepress vitepress-demo-plugin
 
 ### 图片放大预览
 
-点击以下图片，即可放大预览
+图片放大预览功能，来自于二次包装的 [vitepress-theme-teek](https://github.com/Kele-Bingtang/vitepress-theme-teek) 主题。
+
+点击以下图片，即可放大预览。
 
 ![2025-07-03-01-20-20](https://s2.loli.net/2025/07/03/Bm9EQW2HSCy8FTa.png)
 
 ### typescript 类型提示
+
+类型提示来自于 @shikijs/vitepress-twoslash 包。
 
 ::: details 封装好的 config.mts 配置
 
 <<< ./config.mts#snipaste{ts twoslash}
 
 :::
+
+编写语法如下：
+
+```markdown
+<<< ./config.mts#snipaste{ts twoslash}
+```
+
+在 vitepress [导入代码块](https://vitepress.dev/zh/guide/markdown#import-code-snippets)的基础上，增加后面的尾缀 `#snipaste{ts twoslash}` 即可。
 
 ### vue 组件 demo 预览
 
