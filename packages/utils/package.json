@@ -75,7 +75,7 @@
 		"tsconfig.json"
 	],
 	"dependencies": {
-		"@vueuse/integrations": "^13.6.0",
+		"@vueuse/integrations": "^13.7.0",
 		"axios": "^1.11.0",
 		"consola": "^3.4.2",
 		"lodash-es": "^4.17.21"
