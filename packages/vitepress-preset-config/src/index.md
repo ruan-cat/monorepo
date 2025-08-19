@@ -66,7 +66,11 @@ pnpm i -D @ruan-cat/vitepress-preset-config vue vitepress vitepress-demo-plugin
 
 ### typescript 类型提示
 
-<!-- TODO: 待补充具体例子 -->
+::: details 封装好的 config.mts 配置
+
+<<< ./config.mts#snipaste{ts twoslash}
+
+:::
 
 ### vue 组件 demo 预览
 
