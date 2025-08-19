@@ -46,6 +46,7 @@
 		"tag": "beta"
 	},
 	"files": [
+		"!**/.vercel/**",
 		"src",
 		"tsconfig.json"
 	],

@@ -91,6 +91,7 @@
 		}
 	},
 	"files": [
+		"!**/.vercel/**",
 		"dist",
 		"src",
 		"!src/tests",

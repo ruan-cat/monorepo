@@ -54,6 +54,7 @@
 		}
 	},
 	"files": [
+		"!**/.vercel/**",
 		"dist",
 		"main.ts",
 		"tsconfig.json"
