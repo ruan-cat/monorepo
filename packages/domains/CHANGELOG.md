@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.9.0
+
+### Minor Changes
+
+- 增加发包配置 `!**/.vercel/**` 避免出现不小心把部署信息一起打包的情况。减少打包体积。 ([`b5b8d38`](https://github.com/ruan-cat/monorepo/commit/b5b8d3833553cdae070422233612a85066228e16))
+
 ## 0.8.2
 
 ### Patch Changes
