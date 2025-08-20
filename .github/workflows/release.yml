@@ -59,6 +59,9 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: 构建项目
+        run: pnpm run build
+
       - name: 构建并发版
         id: changesets
         uses: changesets/action@v1
