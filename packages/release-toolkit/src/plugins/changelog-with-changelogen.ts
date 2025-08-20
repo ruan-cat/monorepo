@@ -4,14 +4,8 @@ import {
 	extractCommitTypes,
 	createEmojiTypeMap,
 	createTypeEmojiMap,
-} from "@ruan-cat/commitlint-config/src/types-extractor.js";
-import {
-	getGitDiff,
-	parseCommits,
-	loadChangelogConfig,
-	type GitCommit,
-	type ChangelogConfig,
-} from "changelogen";
+} from "@ruan-cat/commitlint-config/src/types-extractor.ts";
+import { getGitDiff, parseCommits, loadChangelogConfig, type GitCommit, type ChangelogConfig } from "changelogen";
 import changelogConfig from "../configs/changelogen.config.ts";
 
 /**
@@ -91,33 +85,33 @@ function formatCommitToChangelogLine(commit: GitCommit, repoUrl?: string): strin
 const getReleaseLine: ChangelogFunctions["getReleaseLine"] = async (changeset, type, changelogOpts) => {
 	try {
 		const repoUrl = `https://github.com/${changelogOpts?.repo || "ruan-cat/monorepo"}`;
-		
+
 		// 方案1: 如果有关联的提交，直接使用提交哈希
 		if (changeset.commit) {
 			consola.debug(`Processing changeset ${changeset.id} with commit ${changeset.commit}`);
-			
+
 			// 尝试从 git 历史中获取该特定提交的详细信息
 			const commits = await getCommitsFromGitHistory(changeset.commit, changeset.commit);
-			
+
 			if (commits.length > 0) {
 				const commit = commits[0];
 				const line = formatCommitToChangelogLine(commit, repoUrl);
 				consola.debug(`Generated changelog line from git commit for ${changeset.id}:`, line);
 				return line;
 			}
-			
+
 			// 如果无法获取 git 提交信息，回退到基于 changeset 内容的解析
 			consola.warn(`Could not find git commit ${changeset.commit}, falling back to changeset parsing`);
 		}
 
 		// 方案2: 基于 changeset 内容解析 (回退方案)
 		consola.debug(`Processing changeset ${changeset.id} without commit, using changeset content`);
-		
+
 		// 尝试从 changeset 摘要中提取语义化提交信息
 		const firstLine = changeset.summary.split("\n")[0];
 		const typeEmojiMap = createTypeEmojiMap();
 		const emojiTypeMap = createEmojiTypeMap();
-		
+
 		// 简化的语义化解析
 		let line = "- ";
 		let emoji = "";
@@ -131,9 +125,9 @@ const getReleaseLine: ChangelogFunctions["getReleaseLine"] = async (changeset, t
 
 		// 尝试匹配 emoji + conventional 格式
 		const emojiConventionalMatch = firstLine.match(
-			/^([\u{1f000}-\u{1f9ff}|\u{2600}-\u{27bf}|\u{2700}-\u{27BF}|\u{1F600}-\u{1F64F}|\u{1F300}-\u{1F5FF}|\u{1F680}-\u{1F6FF}|\u{1F1E0}-\u{1F1FF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}])\s+(\w+)(\([^)]+\))?(!)?\s*:\s*(.+)$/u
+			/^([\u{1f000}-\u{1f9ff}|\u{2600}-\u{27bf}|\u{2700}-\u{27BF}|\u{1F600}-\u{1F64F}|\u{1F300}-\u{1F5FF}|\u{1F680}-\u{1F6FF}|\u{1F1E0}-\u{1F1FF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}])\s+(\w+)(\([^)]+\))?(!)?\s*:\s*(.+)$/u,
 		);
-		
+
 		if (emojiConventionalMatch) {
 			[, emoji, commitType, scope, , description] = emojiConventionalMatch;
 			scope = scope ? scope.slice(1, -1) : "";
@@ -175,7 +169,6 @@ const getReleaseLine: ChangelogFunctions["getReleaseLine"] = async (changeset, t
 
 		consola.debug(`Generated changelog line for ${changeset.id}:`, line);
 		return line;
-
 	} catch (error) {
 		consola.error(`Error processing changeset ${changeset.id}:`, error);
 		return `- ${changeset.summary}`;
@@ -211,11 +204,11 @@ export async function generateChangelogFromGitHistory(
 		repo?: string;
 		includeAuthors?: boolean;
 		groupByType?: boolean;
-	}
+	},
 ): Promise<string> {
 	try {
 		consola.info("Generating changelog from git commit history...");
-		
+
 		const commits = await getCommitsFromGitHistory(from, to);
 		if (commits.length === 0) {
 			consola.warn("No commits found in the specified range");
@@ -228,8 +221,8 @@ export async function generateChangelogFromGitHistory(
 		if (options?.groupByType) {
 			// 按类型分组生成变更日志
 			const commitsByType = new Map<string, GitCommit[]>();
-			
-			commits.forEach(commit => {
+
+			commits.forEach((commit) => {
 				const type = commit.type || "other";
 				if (!commitsByType.has(type)) {
 					commitsByType.set(type, []);
@@ -238,7 +231,20 @@ export async function generateChangelogFromGitHistory(
 			});
 
 			// 按重要性排序类型
-			const typeOrder = ["feat", "fix", "perf", "revert", "docs", "style", "refactor", "test", "build", "ci", "chore", "other"];
+			const typeOrder = [
+				"feat",
+				"fix",
+				"perf",
+				"revert",
+				"docs",
+				"style",
+				"refactor",
+				"test",
+				"build",
+				"ci",
+				"chore",
+				"other",
+			];
 			const sortedTypes = Array.from(commitsByType.keys()).sort((a, b) => {
 				const indexA = typeOrder.indexOf(a);
 				const indexB = typeOrder.indexOf(b);
@@ -254,16 +260,16 @@ export async function generateChangelogFromGitHistory(
 				const typeEmojiMap = createTypeEmojiMap();
 				const typeInfo = typeEmojiMap.get(type);
 				const typeTitle = typeInfo ? `${typeInfo.emoji} ${typeInfo.description}` : type.toUpperCase();
-				
+
 				changelog += `\n### ${typeTitle}\n\n`;
-				
-				typeCommits.forEach(commit => {
+
+				typeCommits.forEach((commit) => {
 					changelog += formatCommitToChangelogLine(commit, repoUrl) + "\n";
 				});
 			}
 		} else {
 			// 按时间顺序生成变更日志
-			commits.forEach(commit => {
+			commits.forEach((commit) => {
 				changelog += formatCommitToChangelogLine(commit, repoUrl) + "\n";
 			});
 		}
@@ -271,23 +277,24 @@ export async function generateChangelogFromGitHistory(
 		// 添加贡献者信息
 		if (options?.includeAuthors) {
 			const authors = new Set<string>();
-			commits.forEach(commit => {
-				commit.authors.forEach(author => {
+			commits.forEach((commit) => {
+				commit.authors.forEach((author) => {
 					authors.add(author.name);
 				});
 			});
 
 			if (authors.size > 0) {
 				changelog += `\n### Contributors\n\n`;
-				Array.from(authors).sort().forEach(author => {
-					changelog += `- ${author}\n`;
-				});
+				Array.from(authors)
+					.sort()
+					.forEach((author) => {
+						changelog += `- ${author}\n`;
+					});
 			}
 		}
 
 		consola.success(`Generated changelog with ${commits.length} commits`);
 		return changelog;
-
 	} catch (error) {
 		consola.error("Error generating changelog from git history:", error);
 		return "";
@@ -305,7 +312,7 @@ export async function generateHybridChangelog(
 		from?: string;
 		to?: string;
 		fallbackToGit?: boolean;
-	}
+	},
 ): Promise<string> {
 	try {
 		let changelog = "";
@@ -313,7 +320,7 @@ export async function generateHybridChangelog(
 		// 首先处理 changesets
 		if (changesets && changesets.length > 0) {
 			consola.info(`Processing ${changesets.length} changesets...`);
-			
+
 			for (const changeset of changesets) {
 				// 这里可以调用 getReleaseLine 函数来处理每个 changeset
 				// 但由于我们在插件上下文外，需要模拟调用
@@ -325,22 +332,17 @@ export async function generateHybridChangelog(
 		// 如果启用回退到 git 且 changesets 不足，补充 git commit 信息
 		if (options?.fallbackToGit && (!changesets || changesets.length === 0)) {
 			consola.info("No changesets found, falling back to git commit history...");
-			
-			const gitChangelog = await generateChangelogFromGitHistory(
-				options.from,
-				options.to,
-				{
-					repo: options.repo,
-					groupByType: true,
-					includeAuthors: true,
-				}
-			);
-			
+
+			const gitChangelog = await generateChangelogFromGitHistory(options.from, options.to, {
+				repo: options.repo,
+				groupByType: true,
+				includeAuthors: true,
+			});
+
 			changelog += gitChangelog;
 		}
 
 		return changelog;
-
 	} catch (error) {
 		consola.error("Error generating hybrid changelog:", error);
 		return "";
