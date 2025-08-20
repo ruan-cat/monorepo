@@ -17,7 +17,7 @@
 graph TB
     A[开发者提交 PR] --> B[PR 合并到 main]
     B --> C[GitHub Actions 触发]
-    C --> D[changesets/action@v1]
+    C --> D["changesets/action@v1"]
     D --> E[自定义 changelog 插件]
     E --> F[Changelogen 语义分析]
     F --> G[生成增强版 CHANGELOG.md]
