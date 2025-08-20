@@ -16,11 +16,12 @@ export type { PublishedPackage, ChangelogEntry } from "./scripts/sync-github-rel
 // 导出 changelogen 配置
 export { default as changelogConfig } from "./configs/changelogen.config.ts";
 
-// 重新导出 commitlint-config 的类型功能 (方便使用)
-export {
-	extractCommitTypes,
-	createEmojiTypeMap,
-	createTypeEmojiMap,
-	getSupportedTypes,
-} from "@ruan-cat/commitlint-config";
-export type { CommitType } from "@ruan-cat/commitlint-config";
+// 有疑惑 不明白为什么AI需要重新导出 commitlint-config 的类型功能 先注释掉 未来再考虑删除
+// // 重新导出 commitlint-config 的类型功能 (方便使用)
+// export {
+// 	extractCommitTypes,
+// 	createEmojiTypeMap,
+// 	createTypeEmojiMap,
+// 	getSupportedTypes,
+// } from "@ruan-cat/commitlint-config";
+// export type { CommitType } from "@ruan-cat/commitlint-config";
