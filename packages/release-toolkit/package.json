@@ -17,7 +17,9 @@
 	"scripts": {
 		"build": "tsup",
 		"prebuild": "automd",
-		"dev": "tsup --watch"
+		"dev": "tsup --watch",
+		"test": "tsx src/tests/run-tests.ts",
+		"test:build": "pnpm build && node dist/tests/run-tests.js"
 	},
 	"exports": {
 		".": {
