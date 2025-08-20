@@ -54,6 +54,7 @@
 		"@ruan-cat/commitlint-config": "workspace:^",
 		"@ruan-cat/domains": "workspace:^",
 		"@ruan-cat/generate-code-workspace": "workspace:^",
+		"@ruan-cat/release-toolkit": "workspace:^",
 		"@ruan-cat/taze-config": "workspace:^",
 		"@ruan-cat/utils": "workspace:^",
 		"@ruan-cat/vercel-deploy-tool": "workspace:^",

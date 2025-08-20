@@ -46,6 +46,17 @@ vuepress 预设。
 
 <!-- /automd -->
 
+## `@ruan-cat/release-toolkit`
+
+基于 changelogen 增强 changesets 工作流的发布工具包，提供语义化提交解析和 GitHub Release 同步功能。
+
+<!-- automd:badges color="yellow" name="@ruan-cat/release-toolkit" -->
+
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/release-toolkit?color=yellow)](https://npmjs.com/package/@ruan-cat/release-toolkit)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/release-toolkit?color=yellow)](https://npm.chart.dev/@ruan-cat/release-toolkit)
+
+<!-- /automd -->
+
 ## `@ruan-cat/commitlint-config`
 
 commitlint 配置。

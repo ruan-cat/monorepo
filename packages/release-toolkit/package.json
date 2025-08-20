@@ -1,0 +1,101 @@
+{
+	"name": "@ruan-cat/release-toolkit",
+	"version": "0.1.0",
+	"description": "基于 changelogen 增强 changesets 工作流的发布工具包，提供语义化提交解析和 GitHub Release 同步功能。",
+	"type": "module",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"homepage": "https://github.com/ruan-cat/monorepo/tree/main/packages/release-toolkit",
+	"bugs": {
+		"url": "https://github.com/ruan-cat/monorepo/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ruan-cat/monorepo.git",
+		"directory": "packages/release-toolkit"
+	},
+	"scripts": {
+		"build": "tsup",
+		"prebuild": "automd",
+		"dev": "tsup --watch"
+	},
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		},
+		"./plugins/changelog-with-changelogen": {
+			"types": "./src/plugins/changelog-with-changelogen.ts",
+			"import": "./dist/plugins/changelog-with-changelogen.js",
+			"require": "./dist/plugins/changelog-with-changelogen.cjs"
+		},
+		"./scripts/sync-github-release": {
+			"types": "./src/scripts/sync-github-release.ts",
+			"import": "./dist/scripts/sync-github-release.js",
+			"require": "./dist/scripts/sync-github-release.cjs"
+		},
+		"./configs/changelogen.config": {
+			"types": "./src/configs/changelogen.config.ts",
+			"import": "./dist/configs/changelogen.config.js",
+			"require": "./dist/configs/changelogen.config.cjs"
+		},
+		"./src/*": "./src/*",
+		"./dist/*": "./dist/*"
+	},
+	"keywords": [
+		"changesets",
+		"changelogen",
+		"changelog",
+		"release",
+		"github-release",
+		"semantic-commits",
+		"conventional-commits",
+		"monorepo"
+	],
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	},
+	"license": "MIT",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
+	},
+	"files": [
+		"!**/.vercel/**",
+		"src",
+		"dist/*",
+		"!src/tests",
+		"!src/**/tests",
+		"!src/**/*.md",
+		"tsconfig.json"
+	],
+	"dependencies": {
+		"changelogen": "^0.5.7",
+		"@octokit/rest": "^21.0.2",
+		"consola": "^3.4.2",
+		"@ruan-cat/commitlint-config": "workspace:^"
+	},
+	"devDependencies": {
+		"@changesets/types": "^6.0.0",
+		"@types/node": "^22.17.2",
+		"automd": "^0.4.0",
+		"tsup": "^8.5.0",
+		"typescript": "^5.9.2"
+	},
+	"peerDependencies": {
+		"@changesets/cli": "^2.29.0",
+		"typescript": ">=5"
+	},
+	"peerDependenciesMeta": {
+		"@changesets/cli": {
+			"optional": true
+		},
+		"typescript": {
+			"optional": true
+		}
+	}
+}

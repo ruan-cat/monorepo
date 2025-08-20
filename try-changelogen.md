@@ -24,7 +24,7 @@ graph TB
     G --> H[changesets 发布到 NPM]
     H --> I[GitHub Release 同步脚本]
     I --> J[创建/更新 GitHub Release]
-    
+
     F --> K[解析 Git 提交]
     K --> L[提取语义信息]
     L --> M[格式化为 Markdown]
@@ -56,62 +56,53 @@ packages/release-toolkit/
 
 ```typescript
 // src/plugins/changelog-with-changelogen.ts
-import { generateMarkDown } from 'changelogen'
-import type { ChangelogFunction } from '@changesets/types'
-import { consola } from 'consola'
+import { generateMarkDown } from "changelogen";
+import type { ChangelogFunction } from "@changesets/types";
+import { consola } from "consola";
 
-export const getReleaseLine: ChangelogFunction['getReleaseLine'] = async (
-  changeset,
-  type,
-  changelogOpts
-) => {
-  // 使用changelogen分析git提交
-  const { commits } = await generateMarkDown({
-    from: `${changeset.commit}~1`,
-    to: changeset.commit,
-    repo: changelogOpts.repo
-  })
+export const getReleaseLine: ChangelogFunction["getReleaseLine"] = async (changeset, type, changelogOpts) => {
+	// 使用changelogen分析git提交
+	const { commits } = await generateMarkDown({
+		from: `${changeset.commit}~1`,
+		to: changeset.commit,
+		repo: changelogOpts.repo,
+	});
 
-  if (commits.length > 0) {
-    const commit = commits[0]
-    const semanticInfo = parseSemanticCommit(commit.message)
-    
-    return `- ${semanticInfo.emoji} **${semanticInfo.type}**: ${changeset.summary} ([#${commit.shortHash}](${commit.url}))`
-  }
+	if (commits.length > 0) {
+		const commit = commits[0];
+		const semanticInfo = parseSemanticCommit(commit.message);
 
-  return `- ${changeset.summary}`
-}
+		return `- ${semanticInfo.emoji} **${semanticInfo.type}**: ${changeset.summary} ([#${commit.shortHash}](${commit.url}))`;
+	}
+
+	return `- ${changeset.summary}`;
+};
 ```
 
 ### 3. GitHub Release 同步脚本
 
 ```typescript
 // src/scripts/sync-github-release.ts
-import { Octokit } from '@octokit/rest'
-import { readFileSync } from 'fs'
-import { consola } from 'consola'
+import { Octokit } from "@octokit/rest";
+import { readFileSync } from "fs";
+import { consola } from "consola";
 
 export class GitHubReleaseSync {
-  private octokit: Octokit
-  
-  constructor(token: string, repo: string) {
-    this.octokit = new Octokit({ auth: token })
-    this.repo = repo
-  }
+	private octokit: Octokit;
 
-  async syncFromChangesets(publishedPackages: any[]) {
-    for (const pkg of publishedPackages) {
-      const changelogPath = `packages/${pkg.name}/CHANGELOG.md`
-      const { version, releaseNotes } = this.parseLatestChangelog(changelogPath)
-      
-      await this.createOrUpdateRelease(
-        `${pkg.name}@${version}`,
-        `${pkg.name} v${version}`,
-        releaseNotes,
-        version
-      )
-    }
-  }
+	constructor(token: string, repo: string) {
+		this.octokit = new Octokit({ auth: token });
+		this.repo = repo;
+	}
+
+	async syncFromChangesets(publishedPackages: any[]) {
+		for (const pkg of publishedPackages) {
+			const changelogPath = `packages/${pkg.name}/CHANGELOG.md`;
+			const { version, releaseNotes } = this.parseLatestChangelog(changelogPath);
+
+			await this.createOrUpdateRelease(`${pkg.name}@${version}`, `${pkg.name} v${version}`, releaseNotes, version);
+		}
+	}
 }
 ```
 
@@ -119,41 +110,41 @@ export class GitHubReleaseSync {
 
 ```typescript
 // src/configs/changelogen.config.ts
-import { defineConfig } from 'changelogen'
-import { getCommitTypes } from '@ruan-cat/commitlint-config'
+import { defineConfig } from "changelogen";
+import { getCommitTypes } from "@ruan-cat/commitlint-config";
 
 export default defineConfig({
-  types: getCommitTypes(),
-  
-  formatOptions: {
-    groupByType: true,
-    showReferences: true,
-    showAuthors: false
-  },
+	types: getCommitTypes(),
 
-  excludeAuthors: ['renovate[bot]', 'dependabot[bot]'],
-  
-  // 自定义解析器处理emoji + conventional格式
-  parseCommit: (commit) => {
-    const emojiMatch = commit.message.match(/^([\u{1f000}-\u{1f9ff}|\u{2600}-\u{27bf}])\s*(.+)$/u)
-    if (emojiMatch) {
-      const [, emoji, rest] = emojiMatch
-      const typeMatch = rest.match(/^(\w+)(\(.+\))?:\s*(.+)$/)
-      
-      if (typeMatch) {
-        const [, type, scope, description] = typeMatch
-        return {
-          type,
-          scope: scope?.slice(1, -1),
-          description,
-          emoji
-        }
-      }
-    }
-    
-    return null
-  }
-})
+	formatOptions: {
+		groupByType: true,
+		showReferences: true,
+		showAuthors: false,
+	},
+
+	excludeAuthors: ["renovate[bot]", "dependabot[bot]"],
+
+	// 自定义解析器处理emoji + conventional格式
+	parseCommit: (commit) => {
+		const emojiMatch = commit.message.match(/^([\u{1f000}-\u{1f9ff}|\u{2600}-\u{27bf}])\s*(.+)$/u);
+		if (emojiMatch) {
+			const [, emoji, rest] = emojiMatch;
+			const typeMatch = rest.match(/^(\w+)(\(.+\))?:\s*(.+)$/);
+
+			if (typeMatch) {
+				const [, type, scope, description] = typeMatch;
+				return {
+					type,
+					scope: scope?.slice(1, -1),
+					description,
+					emoji,
+				};
+			}
+		}
+
+		return null;
+	},
+});
 ```
 
 ## 配置更新
@@ -162,28 +153,28 @@ export default defineConfig({
 
 ```json
 {
-  "$schema": "https://unpkg.com/@changesets/config@3.0.3/schema.json",
-  "changelog": [
-    "@ruan-cat/release-toolkit/plugins/changelog-with-changelogen",
-    {
-      "repo": "ruan-cat/monorepo"
-    }
-  ],
-  "commit": false,
-  "fixed": [],
-  "linked": [],
-  "access": "public",
-  "baseBranch": "main",
-  "updateInternalDependencies": "patch",
-  "ignore": []
+	"$schema": "https://unpkg.com/@changesets/config@3.0.3/schema.json",
+	"changelog": [
+		"@ruan-cat/release-toolkit/plugins/changelog-with-changelogen",
+		{
+			"repo": "ruan-cat/monorepo"
+		}
+	],
+	"commit": false,
+	"fixed": [],
+	"linked": [],
+	"access": "public",
+	"baseBranch": "main",
+	"updateInternalDependencies": "patch",
+	"ignore": []
 }
 ```
 
 ### 2. .config/changelogen.config.ts
 
 ```typescript
-import config from '@ruan-cat/release-toolkit/configs/changelogen.config'
-export default config
+import config from "@ruan-cat/release-toolkit/configs/changelogen.config";
+export default config;
 ```
 
 ### 3. GitHub Actions 工作流更新
@@ -239,11 +230,13 @@ export default config
 ### CHANGELOG.md 增强示例
 
 **之前**:
+
 ```markdown
 - 增加发包配置 `!**/.vercel/**` 避免出现不小心把部署信息一起打包的情况。减少打包体积。 ([`b5b8d38`](https://github.com/ruan-cat/monorepo/commit/b5b8d3833553cdae070422233612a85066228e16))
 ```
 
 **之后**:
+
 ```markdown
 - 🔧 **build**: 增加发包配置 `!**/.vercel/**` 避免出现不小心把部署信息一起打包的情况。减少打包体积。 ([#b5b8d38](https://github.com/ruan-cat/monorepo/commit/b5b8d3833553cdae070422233612a85066228e16))
 - ✨ **feat**: 新增用户认证模块支持OAuth2.0登录 ([#a1b2c3d](https://github.com/ruan-cat/monorepo/commit/...))

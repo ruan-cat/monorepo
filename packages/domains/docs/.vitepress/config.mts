@@ -5,7 +5,7 @@ import {
 	copyReadmeMd,
 } from "@ruan-cat/vitepress-preset-config/config";
 
-copyReadmeMd("./docs")
+copyReadmeMd("./docs");
 
 addChangelog2doc({
 	target: "./docs",
