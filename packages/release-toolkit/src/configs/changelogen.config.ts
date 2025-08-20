@@ -1,5 +1,7 @@
 import type { ChangelogConfig } from "changelogen";
-import { extractCommitTypes, createEmojiTypeMap } from "@ruan-cat/commitlint-config/src/types-extractor.ts";
+
+// TODO: 目前设计是 该配置文件预期在纯 cjs 环境内使用 作为一个规范数据的配置文件 而不是面向 changelogen cli 功能的配置文件。
+import { extractCommitTypes, createEmojiTypeMap } from "@ruan-cat/commitlint-config/types-extractor";
 
 /**
  * 基于 @ruan-cat/commitlint-config 的 changelogen 配置

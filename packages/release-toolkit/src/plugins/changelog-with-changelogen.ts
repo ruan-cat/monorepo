@@ -4,7 +4,7 @@ import {
 	extractCommitTypes,
 	createEmojiTypeMap,
 	createTypeEmojiMap,
-} from "@ruan-cat/commitlint-config/src/types-extractor.ts";
+} from "@ruan-cat/commitlint-config/types-extractor";
 import { getGitDiff, parseCommits, loadChangelogConfig, type GitCommit, type ChangelogConfig } from "changelogen";
 import changelogConfig from "../configs/changelogen.config.ts";
 
