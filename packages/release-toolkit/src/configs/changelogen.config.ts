@@ -1,13 +1,13 @@
 import type { ChangelogConfig } from "changelogen";
-import { extractCommitTypes, createEmojiTypeMap } from "@ruan-cat/commitlint-config";
+import { extractCommitTypes, createEmojiTypeMap } from "@ruan-cat/commitlint-config/src/types-extractor.ts";
 
 /**
  * 基于 @ruan-cat/commitlint-config 的 changelogen 配置
  * 支持 emoji + conventional commits 格式解析
- * 
+ *
  * changelogen 内置支持以下 emoji commit 格式：
  * - :sparkles: feat: 新增功能
- * - ✨ feat: 新增功能  
+ * - ✨ feat: 新增功能
  * - 🐞 fix: 修复问题
  * - 📃 docs: 更新文档
  */
@@ -33,18 +33,18 @@ const createCompleteTypeMapping = () => {
 		// 新功能类
 		sparkles: { title: "✨ 新增功能", semver: "minor" as const },
 		zap: { title: "⚡ 性能优化", semver: "patch" as const },
-		
+
 		// 修复类
 		bug: { title: "🐞 修复问题", semver: "patch" as const },
 		ambulance: { title: "🚑 紧急修复", semver: "patch" as const },
-		
+
 		// 文档类
 		memo: { title: "📝 更新文档", semver: "patch" as const },
-		
+
 		// 构建类
 		package: { title: "📦 构建系统", semver: "patch" as const },
 		rocket: { title: "🚀 部署功能", semver: "patch" as const },
-		
+
 		// 其他
 		other: { title: "其他更改", semver: "patch" as const },
 	};
@@ -66,7 +66,7 @@ const config: Partial<ChangelogConfig> = {
 	// 作用域映射 - 增强 scope 显示，支持中文映射
 	scopeMap: {
 		api: "接口",
-		ui: "界面", 
+		ui: "界面",
 		docs: "文档",
 		test: "测试",
 		config: "配置",
@@ -78,7 +78,7 @@ const config: Partial<ChangelogConfig> = {
 	cwd: process.cwd(),
 	from: "",
 	to: "HEAD",
-	
+
 	// 排除的作者（包括机器人账号）
 	excludeAuthors: ["renovate[bot]", "dependabot[bot]", "github-actions[bot]"],
 

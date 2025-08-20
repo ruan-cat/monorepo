@@ -26,7 +26,8 @@
 		"./types-extractor": {
 			"require": "./dist/types-extractor.cjs",
 			"types": "./dist/types-extractor.d.cts"
-		}
+		},
+		"./src/*": "./src/*"
 	},
 	"keywords": [
 		"commitlint",
