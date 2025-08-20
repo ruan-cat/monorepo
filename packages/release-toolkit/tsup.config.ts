@@ -13,7 +13,7 @@ export default defineConfig((options: Options) => [
 		outDir: "dist",
 		format: ["esm", "cjs"],
 		clean: true,
-		dts: false, // 先跳过 DTS 生成
+		dts: true,
 		tsconfig: "./tsconfig.json",
 		splitting: false,
 		treeshake: false,
