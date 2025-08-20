@@ -1,6 +1,10 @@
 import type { ChangelogFunctions } from "@changesets/types";
 import { consola } from "consola";
-import { extractCommitTypes, createEmojiTypeMap, createTypeEmojiMap } from "@ruan-cat/commitlint-config";
+import {
+	extractCommitTypes,
+	createEmojiTypeMap,
+	createTypeEmojiMap,
+} from "@ruan-cat/commitlint-config/types-extractor";
 
 /**
  * 解析语义化提交信息

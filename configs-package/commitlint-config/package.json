@@ -45,8 +45,13 @@
 		"tag": "beta"
 	},
 	"files": [
-		"dist",
-		"readme.md"
+		"!**/.vercel/**",
+		"src",
+		"dist/*",
+		"!src/tests",
+		"!src/**/tests",
+		"!src/**/*.md",
+		"tsconfig.json"
 	],
 	"peerDependencies": {
 		"commitizen": ">=4",
