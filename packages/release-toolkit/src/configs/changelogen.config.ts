@@ -1,137 +1,184 @@
 import type { ChangelogConfig } from "changelogen";
-import { extractCommitTypes, createEmojiTypeMap, createTypeEmojiMap } from "@ruan-cat/commitlint-config";
+import { extractCommitTypes, createEmojiTypeMap } from "@ruan-cat/commitlint-config";
 
 /**
  * 基于 @ruan-cat/commitlint-config 的 changelogen 配置
  * 支持 emoji + conventional commits 格式解析
+ * 
+ * changelogen 内置支持以下 emoji commit 格式：
+ * - :sparkles: feat: 新增功能
+ * - ✨ feat: 新增功能  
+ * - 🐞 fix: 修复问题
+ * - 📃 docs: 更新文档
  */
 
 // 获取提交类型配置
 const commitTypes = extractCommitTypes();
 const emojiTypeMap = createEmojiTypeMap();
-const typeEmojiMap = createTypeEmojiMap();
 
-const config: ChangelogConfig = {
+// 创建完整的类型映射，包括 emoji 和 type 的关联
+const createCompleteTypeMapping = () => {
+	const typeMapping: Record<string, { title: string; semver: "major" | "minor" | "patch" }> = {};
+
+	// 从 commitlint-config 获取的标准类型
+	commitTypes.forEach(({ type, description, emoji }) => {
+		typeMapping[type] = {
+			title: emoji ? `${emoji} ${description}` : description,
+			semver: getSemverByType(type),
+		};
+	});
+
+	// 添加常见的 gitmoji 类型映射（changelogen 支持这些）
+	const gitmojiMapping = {
+		// 新功能类
+		sparkles: { title: "✨ 新增功能", semver: "minor" as const },
+		zap: { title: "⚡ 性能优化", semver: "patch" as const },
+		
+		// 修复类
+		bug: { title: "🐞 修复问题", semver: "patch" as const },
+		ambulance: { title: "🚑 紧急修复", semver: "patch" as const },
+		
+		// 文档类
+		memo: { title: "📝 更新文档", semver: "patch" as const },
+		
+		// 构建类
+		package: { title: "📦 构建系统", semver: "patch" as const },
+		rocket: { title: "🚀 部署功能", semver: "patch" as const },
+		
+		// 其他
+		other: { title: "其他更改", semver: "patch" as const },
+	};
+
+	return { ...typeMapping, ...gitmojiMapping };
+};
+
+// changelogen 默认配置值
+const config: Partial<ChangelogConfig> = {
 	// 仓库配置
 	repo: {
 		provider: "github",
 		repo: "ruan-cat/monorepo",
 	},
 
-	// 提交类型映射 - 转换为 changelogen 格式
-	types: Object.fromEntries(commitTypes.map(({ type, description }) => [type, { title: description }])),
+	// 完整的提交类型映射 - 支持 emoji + conventional commits
+	types: createCompleteTypeMapping(),
 
-	// 格式化选项
-	formatOptions: {
-		groupByType: true,
-		showReferences: true,
-		showAuthors: false,
+	// 作用域映射 - 增强 scope 显示，支持中文映射
+	scopeMap: {
+		api: "接口",
+		ui: "界面", 
+		docs: "文档",
+		test: "测试",
+		config: "配置",
+		deps: "依赖",
+		release: "发布",
 	},
 
-	// 排除的作者
+	// 默认配置参数
+	cwd: process.cwd(),
+	from: "",
+	to: "HEAD",
+	
+	// 排除的作者（包括机器人账号）
 	excludeAuthors: ["renovate[bot]", "dependabot[bot]", "github-actions[bot]"],
 
-	// 自定义提交解析器
-	parseCommit: (commit: any) => {
-		const { message, shortHash, hash } = commit;
+	// GitHub token 配置 - 将通过环境变量读取
+	tokens: {},
 
-		// 尝试解析 emoji + conventional 格式: "🔧 build(scope): message"
-		const emojiConventionalMatch = message.match(
-			/^([\u{1f000}-\u{1f9ff}|\u{2600}-\u{27bf}|\u{2700}-\u{27BF}|\u{1F600}-\u{1F64F}|\u{1F300}-\u{1F5FF}|\u{1F680}-\u{1F6FF}|\u{1F1E0}-\u{1F1FF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}])\s+(\w+)(\([^)]+\))?(!)?\s*:\s*(.+)$/u,
-		);
+	// 输出配置 - 生成 CHANGELOG.md 文件
+	output: "CHANGELOG.md",
 
-		if (emojiConventionalMatch) {
-			const [, emoji, type, scopePart, breaking, description] = emojiConventionalMatch;
-			const scope = scopePart ? scopePart.slice(1, -1) : undefined;
-
-			return {
-				type,
-				scope,
-				description,
-				emoji,
-				shortHash,
-				hash,
-				isBreaking: !!breaking || message.toLowerCase().includes("breaking change"),
-				references: extractReferences(message),
-			};
-		}
-
-		// 尝试解析纯 conventional 格式: "build(scope): message"
-		const conventionalMatch = message.match(/^(\w+)(\([^)]+\))?(!)?\s*:\s*(.+)$/);
-
-		if (conventionalMatch) {
-			const [, type, scopePart, breaking, description] = conventionalMatch;
-			const scope = scopePart ? scopePart.slice(1, -1) : undefined;
-			const typeInfo = typeEmojiMap.get(type);
-
-			return {
-				type,
-				scope,
-				description,
-				emoji: typeInfo?.emoji || "",
-				shortHash,
-				hash,
-				isBreaking: !!breaking || message.toLowerCase().includes("breaking change"),
-				references: extractReferences(message),
-			};
-		}
-
-		// 尝试仅解析 emoji 开头: "🔧 some message"
-		const emojiMatch = message.match(
-			/^([\u{1f000}-\u{1f9ff}|\u{2600}-\u{27bf}|\u{2700}-\u{27BF}|\u{1F600}-\u{1F64F}|\u{1F300}-\u{1F5FF}|\u{1F680}-\u{1F6FF}|\u{1F1E0}-\u{1F1FF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}])\s+(.+)$/u,
-		);
-
-		if (emojiMatch) {
-			const [, emoji, description] = emojiMatch;
-			const typeInfo = emojiTypeMap.get(emoji);
-
-			return {
-				type: typeInfo?.type || "other",
-				description,
-				emoji,
-				shortHash,
-				hash,
-				isBreaking: message.toLowerCase().includes("breaking change"),
-				references: extractReferences(message),
-			};
-		}
-
-		// 如果都不匹配，返回默认格式
-		return {
-			type: "other",
-			description: message,
-			shortHash,
-			hash,
-			isBreaking: message.toLowerCase().includes("breaking change"),
-			references: extractReferences(message),
-		};
+	// 发布配置
+	publish: {
+		args: [],
+		private: false,
 	},
 
-	// 自定义变更日志输出模板
-	output: {
-		format: "markdown",
+	// Git 标签配置
+	signTags: false,
+
+	// 模板配置 - 自定义提交和标签消息格式
+	templates: {
+		commitMessage: "📢 publish: release package(s) {{newVersion}}",
+		tagMessage: "{{newVersion}}",
+		tagBody: "Released on {{date}}",
 	},
 };
+
+/**
+ * 根据提交类型获取对应的语义化版本级别
+ */
+function getSemverByType(type: string): "major" | "minor" | "patch" {
+	switch (type) {
+		case "feat":
+			return "minor"; // 新功能 -> 次版本号
+		case "fix":
+			return "patch"; // 修复 -> 补丁版本号
+		case "perf":
+			return "patch"; // 性能优化 -> 补丁版本号
+		case "revert":
+			return "patch"; // 回滚 -> 补丁版本号
+		case "docs":
+		case "style":
+		case "refactor":
+		case "test":
+		case "chore":
+		case "build":
+		case "ci":
+		default:
+			return "patch"; // 其他类型 -> 补丁版本号
+	}
+}
 
 export default config;
 
 /**
- * 从提交消息中提取引用 (如 issue 编号等)
+ * 验证 emoji commit 支持的测试函数
+ * 
+ * 测试各种 emoji commit 格式：
+ * - :sparkles: feat(auth): 新增用户认证功能
+ * - ✨ feat(auth): 新增用户认证功能
+ * - 🐞 fix(api): 修复数据获取错误
+ * - 📝 docs: 更新API文档
  */
-function extractReferences(message: string): string[] {
-	const references: string[] = [];
+export function validateEmojiCommitSupport() {
+	const testCommits = [
+		":sparkles: feat(auth): 新增用户认证功能",
+		"✨ feat(auth): 新增用户认证功能", 
+		"🐞 fix(api): 修复数据获取错误",
+		"📝 docs: 更新API文档",
+		"🔧 build(deps): 升级依赖包版本",
+		"📦 chore: 更新构建配置",
+		"feat(api): 新增数据导出功能", // 无 emoji 的标准格式
+	];
 
-	// 匹配 #123 格式的 issue 引用
-	const issueMatches = message.match(/#(\d+)/g);
-	if (issueMatches) {
-		references.push(...issueMatches);
-	}
+	// changelogen 的提交解析正则表达式（从源码复制）
+	const ConventionalCommitRegex = /(?<emoji>:.+:|(\uD83C[\uDF00-\uDFFF])|(\uD83D[\uDC00-\uDE4F\uDE80-\uDEFF])|[\u2600-\u2B55])?( *)?(?<type>[a-z]+)(\((?<scope>.+)\))?(?<breaking>!)?: (?<description>.+)/i;
+	
+	console.log("🧪 Testing emoji commit parsing:");
+	testCommits.forEach((commit) => {
+		const match = commit.match(ConventionalCommitRegex);
+		if (match) {
+			const { emoji, type, scope, description } = match.groups || {};
+			console.log(`✅ ${commit}`);
+			console.log(`   → Type: ${type}, Scope: ${scope || 'none'}, Emoji: ${emoji || 'none'}`);
+			console.log(`   → Description: ${description}`);
+		} else {
+			console.log(`❌ ${commit} - 无法解析`);
+		}
+		console.log();
+	});
 
-	// 匹配 fixes #123, closes #123 等
-	const fixesMatches = message.match(/(?:fixes|closes|resolves|fix|close|resolve)\s+#(\d+)/gi);
-	if (fixesMatches) {
-		references.push(...fixesMatches.map((match) => match.replace(/.*#/, "#")));
-	}
-
-	return [...new Set(references)]; // 去重
+	return {
+		totalTests: testCommits.length,
+		supportedFormats: [
+			"gitmoji 代码格式: :sparkles: type: description",
+			"Unicode emoji 格式: ✨ type: description", 
+			"带作用域: 🐞 type(scope): description",
+			"标准格式: type(scope): description",
+		]
+	};
 }
+
+// 开发时可以取消注释来测试
+// validateEmojiCommitSupport();
