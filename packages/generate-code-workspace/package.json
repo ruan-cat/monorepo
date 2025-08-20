@@ -61,7 +61,7 @@
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.9",
 		"automd": "^0.4.0",
-		"pkg-types": "^2.2.0"
+		"pkg-types": "^2.3.0"
 	},
 	"peerDependencies": {
 		"tsx": "4.19.3"

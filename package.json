@@ -7,7 +7,7 @@
 	"description": "这是单仓架构项目的根目录。",
 	"main": "index.js",
 	"type": "module",
-	"packageManager": "pnpm@10.14.0",
+	"packageManager": "pnpm@10.15.0",
 	"engines": {
 		"node": ">=22.14.0"
 	},
@@ -82,11 +82,11 @@
 		"js-yaml": "^4.1.0",
 		"lodash-es": "^4.17.21",
 		"markdown-it": "^14.1.0",
-		"pkg-types": "^2.2.0",
+		"pkg-types": "^2.3.0",
 		"prettier": "^3.6.2",
 		"prettier-plugin-lint-md": "^1.0.1",
 		"rimraf": "^6.0.1",
-		"taze": "^19.1.0",
+		"taze": "^19.1.1",
 		"tsx": "^4.20.4",
 		"turbo": "^2.5.6",
 		"type-fest": "^4.41.0",

@@ -14,11 +14,11 @@
 	"dependencies": {
 		"@nolebase/vitepress-plugin-git-changelog": "^2.18.2",
 		"@ruan-cat/utils": "workspace:^",
-		"@shikijs/vitepress-twoslash": "^3.9.2",
+		"@shikijs/vitepress-twoslash": "^3.11.0",
 		"consola": "^3.4.2",
 		"js-yaml": "^4.1.0",
 		"lodash-es": "^4.17.21",
-		"mermaid": "^11.9.0",
+		"mermaid": "^11.10.0",
 		"vitepress-demo-plugin": "^1.4.7",
 		"vitepress-plugin-llms": "^1.7.3",
 		"vitepress-plugin-mermaid": "^2.0.17",

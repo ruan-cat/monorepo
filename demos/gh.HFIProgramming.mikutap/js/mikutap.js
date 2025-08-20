@@ -4,18 +4,18 @@ $(function () {
 var MainManager = function () {
 		aidn.util.useDummyDiv();
 		function a() {
-			(G = aidn.window.width()), (A = aidn.window.height()), I && (I.resize(G, A), g && g.resize());
+			((G = aidn.window.width()), (A = aidn.window.height()), I && (I.resize(G, A), g && g.resize()));
 		}
 		function e(n, a) {
-			(a = R.length + C.length), 1 == b && (n += C.length);
+			((a = R.length + C.length), 1 == b && (n += C.length));
 			var e = Math.round((n / a) * 100) + "%";
-			a <= 0 && (e = "0%"), $("#scene_loading hr").css("width", e);
+			(a <= 0 && (e = "0%"), $("#scene_loading hr").css("width", e));
 		}
 		function t() {
 			1 == ++b ? R.init(t, e) : 2 == b && i();
 		}
 		function i() {
-			(x = 1),
+			((x = 1),
 				$("#scene_loading hr").css("display", "none"),
 				$("#scene_loading hr").css("width", 0),
 				$("#scene_loading").stop().fadeOut(200, "linear"),
@@ -27,22 +27,22 @@ var MainManager = function () {
 					: $("#scene_main").stop().fadeIn(200, "linear"),
 				(m = aidn.___waContext.currentTime),
 				g.start(),
-				C.start();
+				C.start());
 		}
 		function n(n) {
-			(U = !U)
+			((U = !U)
 				? ($("#bt_feedback a").text("反馈: 开启"), aidn.util.setCookie("fb", "on", 2592e3))
 				: ($("#bt_feedback a").text("反馈: 关闭"), aidn.util.setCookie("fb", "off", 2592e3)),
-				n && n.preventDefault();
+				n && n.preventDefault());
 		}
 		function o(n) {
-			(T = !T)
+			((T = !T)
 				? ($("#bt_backtrack a").text("背景音乐: 开启"), aidn.util.setCookie("bt", "on", 2592e3))
 				: ($("#bt_backtrack a").text("背景音乐: 关闭"), aidn.util.setCookie("bt", "off", 2592e3)),
-				n && n.preventDefault();
+				n && n.preventDefault());
 		}
 		function r() {
-			C.update(),
+			(C.update(),
 				1 == x && --D < 0 && v(),
 				(function () {
 					if (!p) return;
@@ -65,12 +65,12 @@ var MainManager = function () {
 											? (t < 0.35 && (i = 2), t < 0.24 && (i = 0))
 											: 0 <= h && t < 0.4 && (i = 0);
 							for (var o = 0; o < i; o++)
-								(d = c[f]), 32 <= ++f && ((f = 0), aidn.util.shuffleArray(c)), g.changeId(d, 0, !0);
+								((d = c[f]), 32 <= ++f && ((f = 0), aidn.util.shuffleArray(c)), g.changeId(d, 0, !0));
 						}
 					}
 				})(),
 				I.render(z),
-				window.requestAnimFrame(r);
+				window.requestAnimFrame(r));
 		}
 		this.init = function () {
 			!(function () {
@@ -80,14 +80,14 @@ var MainManager = function () {
 				} catch (n) {}
 				var n = 1;
 				2 <= window.devicePixelRatio && (n = 2);
-				((I = PIXI.autoDetectRenderer(G, A, { backgroundColor: 16756655, antialias: !1, resolution: n })).autoDensity =
+				(((I = PIXI.autoDetectRenderer(G, A, { backgroundColor: 16756655, antialias: !1, resolution: n })).autoDensity =
 					!0),
 					document.getElementById("view").appendChild(I.view),
 					(z = new PIXI.Container()),
 					g.init(),
 					a(),
 					$("#scene_top").fadeIn(300),
-					r();
+					r());
 			})();
 		};
 		for (var l = 0, s = 6e4 / 280, d = Math.floor(32 * Math.random()), h = 0, c = [], f = 0, u = 0; u < 32; u++)
@@ -101,27 +101,27 @@ var MainManager = function () {
 				$("#scene_main .set").stop().fadeIn(200, "linear"));
 		}
 		var p = !1;
-		1 == aidn.util.getQuery().auto && (p = !0), aidn.util.needExpandArea(!0);
+		(1 == aidn.util.getQuery().auto && (p = !0), aidn.util.needExpandArea(!0));
 		var B = aidn.util.enabledFullscreen();
-		B &&
+		(B &&
 			($("#bt_fs").css("display", "block"),
 			$("#bt_fs").click(function (n) {
 				aidn.util.fullscreen();
 			})),
 			$("#bt_start a").click(function (n) {
-				$("#scene_top").stop().fadeOut(200, "linear"),
+				($("#scene_top").stop().fadeOut(200, "linear"),
 					$("#scene_loading").stop().fadeIn(200, "linear"),
-					2 == b ? i() : (new aidn.WebAudio().load(""), C.init(t, e));
+					2 == b ? i() : (new aidn.WebAudio().load(""), C.init(t, e)));
 				try {
 					aidn.adv.hide();
 				} catch (n) {}
 				n.preventDefault();
 			}),
 			$("#bt_about a").click(function (n) {
-				$("#about").stop().fadeIn(200, "linear"), $("#about_cover").stop().fadeIn(200, "linear"), n.preventDefault();
+				($("#about").stop().fadeIn(200, "linear"), $("#about_cover").stop().fadeIn(200, "linear"), n.preventDefault());
 			}),
 			$("#bt_close,#about_cover").click(function () {
-				$("#about").stop().fadeOut(200, "linear"), $("#about_cover").stop().fadeOut(200, "linear");
+				($("#about").stop().fadeOut(200, "linear"), $("#about_cover").stop().fadeOut(200, "linear"));
 			}),
 			$("#bt_back").click(function () {
 				switch (x) {
@@ -130,26 +130,26 @@ var MainManager = function () {
 						try {
 							aidn.adv.show();
 						} catch (n) {}
-						g.end(),
+						(g.end(),
 							C.end(),
 							$("#scene_top").stop().fadeIn(100, "linear"),
 							$("#scene_loading").stop().fadeOut(100, "linear"),
 							$("#scene_main").stop().fadeOut(100, "linear"),
-							v();
+							v());
 						break;
 					default:
 						location.href = "https://github.com/HFIProgramming/mikutap/";
 				}
 			}),
 			$("#bt_feedback a").click(n),
-			$("#bt_backtrack a").click(o);
+			$("#bt_backtrack a").click(o));
 		var G,
 			A,
 			y = aidn.util.checkJapanese(),
 			E = aidn.util.checkMobile(),
 			w = "https://aidn.jp/mikutap/",
 			M = "Mikutap";
-		(M += y ? ",初音未来10周年" : ",Miku10th"),
+		((M += y ? ",初音未来10周年" : ",Miku10th"),
 			$("#bt_tw").click(function (n) {
 				var a = document.title;
 				aidn.social.shareTw(w, !0, a, "daniwell_aidn", M);
@@ -159,7 +159,7 @@ var MainManager = function () {
 			}),
 			$("#bt_gp").click(function (n) {
 				aidn.social.shareGp(w, !0);
-			});
+			}));
 		var m,
 			I,
 			z,
@@ -173,13 +173,13 @@ var MainManager = function () {
 					f && f(n, a);
 				}
 				var r;
-				(this.init = function (n, a) {
-					(f = a),
+				((this.init = function (n, a) {
+					((f = a),
 						(function (n) {
 							c = n;
 							for (var a = [], e = 0; e < o; e++) a[e] = [e + ".mp3"];
 							(r = new WebAudioManager()).load("data/track/track.json", a, t, i);
-						})(n);
+						})(n));
 				}),
 					(this.update = function () {
 						!(function () {
@@ -199,10 +199,10 @@ var MainManager = function () {
 						})();
 					}),
 					(this.start = function () {
-						(l = !0), (v = 0);
-					});
+						((l = !0), (v = 0));
+					}));
 				this.end = function () {
-					(l = !1), (v = 0);
+					((l = !1), (v = 0));
 				};
 				var l = !1,
 					o = 11;
@@ -211,11 +211,11 @@ var MainManager = function () {
 				s[1] *= 0.6;
 				var d = [[0, 1, 2, 1], []],
 					a = "";
-				(a += "3443443443443434"), (a += "5665665665665656"), (a += "7887887887887878");
+				((a += "3443443443443434"), (a += "5665665665665656"), (a += "7887887887887878"));
 				var e = (a += "9119119119119191").length;
 				for (n = 0; n < e; n++) {
 					var h = parseInt(a.charAt(n));
-					1 == h && (h = 10), (d[1][n] = h), 4 <= n && (d[0][n] = d[0][n % 4]);
+					(1 == h && (h = 10), (d[1][n] = h), 4 <= n && (d[0][n] = d[0][n % 4]));
 				}
 				var c,
 					f,
@@ -234,23 +234,23 @@ var MainManager = function () {
 					e && e(n, a);
 				}
 				this.init = function (n, a) {
-					(e = a),
+					((e = a),
 						(function (n) {
 							c = n;
 							for (var a = [], e = 0; e < s; e++) a[e] = [e + ".mp3"];
 							(o = new WebAudioManager()).load("data/main/main.json", a, t, i);
-						})(n);
+						})(n));
 				};
 				this.play = function (n, a) {
 					var e = 1e3 * (aidn.___waContext.currentTime + h[n] - m),
 						t = Math.floor(e / f);
-					t == r && 0 <= l && o.stop(l), (r = t), (l = n);
+					(t == r && 0 <= l && o.stop(l), (r = t), (l = n));
 					var i = f - (e % f);
 					o.play(n, i / 1e3, d[n]);
 				};
 				var s = 32;
 				this.length = s;
-				for (var d = [], h = [], n = 0; n < s; n++) (d[n] = 1), (h[n] = 0.05);
+				for (var d = [], h = [], n = 0; n < s; n++) ((d[n] = 1), (h[n] = 0.05));
 				for (
 					h[6] = 0.08,
 						h[20] = 0.1,
@@ -275,43 +275,43 @@ var MainManager = function () {
 			})(),
 			g = new (function () {
 				var s = function (n, a) {
-						(this.id = n),
+						((this.id = n),
 							(this.setPosition = function (n, a) {
-								(r.position.x = e = n), (r.position.y = t = a);
+								((r.position.x = e = n), (r.position.y = t = a));
 							}),
 							(this.setSize = function (n, a) {
-								(i = n), (o = a), r.clear(), r.beginFill(16777215), (r.alpha = 0), r.drawRect(0, 0, i, o);
+								((i = n), (o = a), r.clear(), r.beginFill(16777215), (r.alpha = 0), r.drawRect(0, 0, i, o));
 							}),
 							(this.play = function () {
 								U && gsap.fromTo(r, 0.5, { alpha: 0.7 }, { alpha: 0, ease: Power0.easeNon });
 							}),
 							(this.hitcheck = function (n, a) {
 								return e <= n && n < e + i && t <= a && a < t + o;
-							});
+							}));
 						var e = 0,
 							t = 0,
 							i = 0,
 							o = 0,
 							r = new PIXI.Graphics();
-						(r.interactive = !0), a.addChild(r);
+						((r.interactive = !0), a.addChild(r));
 					},
 					n = function (n) {
 						function a() {
-							o.clear(), o.beginFill(16777215), o.drawRect(0, 0, G, A);
+							(o.clear(), o.beginFill(16777215), o.drawRect(0, 0, G, A));
 						}
 						function e() {
 							t.resize();
 						}
-						(this.resize = function () {
-							o.clear(), o.beginFill(i), o.drawRect(0, 0, G, A);
+						((this.resize = function () {
+							(o.clear(), o.beginFill(i), o.drawRect(0, 0, G, A));
 						}),
 							(this.flash = function () {
 								r.setChildIndex(o, r.children.length - 1);
-								for (var n = 0; n < 3; n += 2) gsap.delayedCall(0.07 * n, a), gsap.delayedCall(0.07 * (n + 1), e);
+								for (var n = 0; n < 3; n += 2) (gsap.delayedCall(0.07 * n, a), gsap.delayedCall(0.07 * (n + 1), e));
 							}),
 							(this.setColor = function (n, a) {
-								(i = n), (a = 0 <= a ? a : 0), r.setChildIndex(o, a), t.resize();
-							});
+								((i = n), (a = 0 <= a ? a : 0), r.setChildIndex(o, a), t.resize());
+							}));
 						var t = this,
 							i = 16777215,
 							o = new PIXI.Graphics(),
@@ -326,31 +326,31 @@ var MainManager = function () {
 								t = 1.3 * d;
 							if ((f.clear(), f.beginFill(0), f.moveTo(0, 0), 0 == o))
 								for (var i = 0; i < c.rotation; i += 30)
-									(n = ((s * i + l) * Math.PI) / 180), (a = Math.cos(n) * t), (e = Math.sin(n) * t), f.lineTo(a, e);
+									((n = ((s * i + l) * Math.PI) / 180), (a = Math.cos(n) * t), (e = Math.sin(n) * t), f.lineTo(a, e));
 							else
 								for (i = 360; c.rotation < i; i -= 30)
-									(n = ((s * i + l) * Math.PI) / 180), (a = Math.cos(n) * t), (e = Math.sin(n) * t), f.lineTo(a, e);
-							(n = ((s * c.rotation + l) * Math.PI) / 180),
+									((n = ((s * i + l) * Math.PI) / 180), (a = Math.cos(n) * t), (e = Math.sin(n) * t), f.lineTo(a, e));
+							((n = ((s * c.rotation + l) * Math.PI) / 180),
 								(a = Math.cos(n) * t),
 								(e = Math.sin(n) * t),
 								f.lineTo(a, e),
 								f.lineTo(0, 0),
-								f.endFill();
+								f.endFill());
 						}
 						function t() {
-							(o = 1),
+							((o = 1),
 								gsap.fromTo(
 									c,
 									0.9,
 									{ rotation: 0 },
 									{ rotation: 360, ease: Power1.easeOut, onUpdate: e, onComplete: i },
-								);
+								));
 						}
 						function i() {
 							r && r();
 						}
 						this.play = function (n, a) {
-							(o = 0),
+							((o = 0),
 								(d = n),
 								(r = a),
 								(l = 360 * Math.random()),
@@ -366,7 +366,7 @@ var MainManager = function () {
 									0.6,
 									{ rotation: 0 },
 									{ rotation: 360, ease: Power1.easeOut, onUpdate: e, onComplete: t },
-								);
+								));
 						};
 						var o,
 							r,
@@ -376,45 +376,49 @@ var MainManager = function () {
 							h = n,
 							c = { rotation: 0 },
 							f = new PIXI.Graphics();
-						h.addChild(f), (a.mask = f);
+						(h.addChild(f), (a.mask = f));
 					},
 					r = function (n) {
 						function h() {
-							w.clear(), 0 == f ? w.lineStyle(v, u) : w.beginFill(u);
+							(w.clear(), 0 == f ? w.lineStyle(v, u) : w.beginFill(u));
 							for (var n = 0; n < p; n++) {
 								var a = M["p" + n].x,
 									e = M["p" + n].y;
 								0 == n ? w.moveTo(a, e) : w.lineTo(a, e);
 							}
-							(a = M.p0.x), (e = M.p0.y), w.lineTo(a, e);
+							((a = M.p0.x), (e = M.p0.y), w.lineTo(a, e));
 						}
 						function c() {
-							(w.visible = !1), e && e();
+							((w.visible = !1), e && e());
 						}
 						this.play = function (n, a) {
-							(f = n),
+							((f = n),
 								(e = a),
 								(function () {
-									y.setChildIndex(w, y.children.length - 1), (w.visible = !0), (w.x = G / 2), (w.y = A / 2), (u = L());
+									(y.setChildIndex(w, y.children.length - 1),
+										(w.visible = !0),
+										(w.x = G / 2),
+										(w.y = A / 2),
+										(u = L()));
 									var n,
 										a = Math.min(G, A) * (0.32 * Math.random() + 0.16),
 										e = Math.floor(5 * Math.random()) + 3;
-									(p = e),
+									((p = e),
 										(v = 5 * Math.random() + 3),
 										w.clear(),
 										(w.rotation = 30 * Math.floor(6 * Math.random())),
 										(M = {}),
-										(n = 0 == f ? 3 : 2.5);
+										(n = 0 == f ? 3 : 2.5));
 									for (var t = 360 / p, i = 0; i < p; i++) {
 										var o = (i * t * Math.PI) / 180,
 											r = a * Math.cos(o),
 											l = a * Math.sin(o),
 											s = r + a * (Math.random() - 0.5) * n,
 											d = l + a * (Math.random() - 0.5) * n;
-										(M["p" + i] = { x: r, y: l }), gsap.to(M["p" + i], 0.6, { x: s, y: d });
+										((M["p" + i] = { x: r, y: l }), gsap.to(M["p" + i], 0.6, { x: s, y: d }));
 									}
-									(M.progress = 0), gsap.to(M, 0.8, { progress: 1, onUpdate: h, onComplete: c });
-								})();
+									((M.progress = 0), gsap.to(M, 0.8, { progress: 1, onUpdate: h, onComplete: c }));
+								})());
 						};
 						var e,
 							f,
@@ -429,7 +433,7 @@ var MainManager = function () {
 					t = function (n, a) {
 						var f = function (n) {
 							function i() {
-								v.clear(), v.lineStyle(d, h), v.moveTo(s.x, s.y), 0 == u ? v.lineTo(r.x, r.y) : v.lineTo(l.x, l.y);
+								(v.clear(), v.lineStyle(d, h), v.moveTo(s.x, s.y), 0 == u ? v.lineTo(r.x, r.y) : v.lineTo(l.x, l.y));
 							}
 							function o() {
 								0 == u
@@ -466,16 +470,16 @@ var MainManager = function () {
 							a.addChild(v);
 						};
 						function u() {
-							(y.visible = !1), 0 <= v.id && C[v.id].push(v), e && e();
+							((y.visible = !1), 0 <= v.id && C[v.id].push(v), e && e());
 						}
 						this.play = function (n) {
-							(e = n),
+							((e = n),
 								(function () {
-									p.setChildIndex(y, p.children.length - 1),
+									(p.setChildIndex(y, p.children.length - 1),
 										(y.visible = !0),
 										(y.x = G / 2),
 										(y.y = A / 2),
-										(y.rotation = 0.5 * Math.PI * Math.floor(4 * Math.random()));
+										(y.rotation = 0.5 * Math.PI * Math.floor(4 * Math.random())));
 									for (
 										var n,
 											a = Math.floor(7 * Math.random() + 2),
@@ -492,10 +496,10 @@ var MainManager = function () {
 											d = { x: -e / 2, y: s },
 											h = { x: e / 2, y: s },
 											c = (n = w[l] ? w[l] : new f(y)).play(d, h, i, o);
-										r < c && (r = c), (w[l] = n);
+										(r < c && (r = c), (w[l] = n));
 									}
 									gsap.delayedCall(r, u);
-								})();
+								})());
 						};
 						var v = this,
 							p = n;
@@ -503,12 +507,12 @@ var MainManager = function () {
 						var e,
 							y = new PIXI.Container(),
 							w = [];
-						(this.size = 0), (this.container = y), p.addChild(y);
+						((this.size = 0), (this.container = y), p.addChild(y));
 					};
 				function l(n, a) {
 					for (var e = M.length, t = 0; t < e; t++) {
 						var i = M[t];
-						if (i.hitcheck(n, a)) return u != i.id && i.play(), i.id;
+						if (i.hitcheck(n, a)) return (u != i.id && i.play(), i.id);
 					}
 					return !1;
 				}
@@ -557,7 +561,7 @@ var MainManager = function () {
 							(t = n % m.length),
 							(0 < C[t].length ? C[t].pop() : new m[t](b, t)).play()));
 				}
-				(this.resize = function () {
+				((this.resize = function () {
 					if (w) {
 						var n = 0,
 							a = v,
@@ -566,21 +570,24 @@ var MainManager = function () {
 						for (var t = G / a, i = A / e, o = 0; o < e; o++)
 							for (var r = 0; r < a; r++) {
 								var l;
-								M[n] ? (l = M[n]) : ((l = new s(n, f)), (M[n] = l)), l.setPosition(t * r, i * o), l.setSize(t, i), n++;
+								(M[n] ? (l = M[n]) : ((l = new s(n, f)), (M[n] = l)),
+									l.setPosition(t * r, i * o),
+									l.setSize(t, i),
+									n++);
 							}
 						T.resize();
 					}
 				}),
 					(this.init = function () {
-						(w = !0),
+						((w = !0),
 							(b = new PIXI.Container()),
 							z.addChild(b),
 							(f = new PIXI.Container()),
 							z.addChild(f),
-							(T = new n(b)).setColor(8965324, 0);
+							(T = new n(b)).setColor(8965324, 0));
 					}),
 					(this.start = function () {
-						E ||
+						(E ||
 							($("#view").on("mousedown", i),
 							$(window).on("mousemove", o),
 							$(window).on("mouseup", h),
@@ -588,10 +595,10 @@ var MainManager = function () {
 							$(window).on("keyup", e)),
 							(E || window.TouchEvent) &&
 								($("#view").on("touchstart", i), $(window).on("touchmove", o), $(window).on("touchend", h)),
-							$("#view").css("cursor", "pointer");
+							$("#view").css("cursor", "pointer"));
 					}),
 					(this.end = function () {
-						E ||
+						(E ||
 							($("#view").off("mousedown", i),
 							$(window).off("mousemove", o),
 							$(window).off("mouseup", h),
@@ -599,11 +606,11 @@ var MainManager = function () {
 							$(window).off("keyup", e)),
 							(E || window.TouchEvent) &&
 								($("#view").off("touchstart", i), $(window).off("touchmove", o), $(window).off("touchend", h)),
-							$("#view").css("cursor", "auto");
+							$("#view").css("cursor", "auto"));
 					}),
 					(this.changeId = function (n, a, e) {
 						c(n, a, e);
-					});
+					}));
 				var f,
 					u = -1,
 					v = 4,
@@ -618,17 +625,17 @@ var MainManager = function () {
 									s.visible = !1;
 								}
 								this.play = function (n, a, e) {
-									(s.visible = !0), s.clear();
+									((s.visible = !0), s.clear());
 									var t = G * Math.random(),
 										i = A * Math.random(),
 										o = Math.min(G, A) * (0.03 * Math.random() + 0.02);
-									s.lineStyle(3 * Math.random() + 3, e),
+									(s.lineStyle(3 * Math.random() + 3, e),
 										s.drawCircle(0, 0, o),
 										(s.x = n),
 										(s.y = a),
 										(s.scale.x = 0),
 										(s.scale.y = 0),
-										(s.rotation = Math.random() * Math.PI);
+										(s.rotation = Math.random() * Math.PI));
 									var r = 0.2 * Math.random() + 0.4;
 									return (
 										gsap.to(s, r, {
@@ -647,11 +654,11 @@ var MainManager = function () {
 								a.addChild(s);
 							};
 							function d() {
-								(f.visible = !1), C[e.id].push(e);
+								((f.visible = !1), C[e.id].push(e));
 							}
 							this.play = function () {
 								!(function () {
-									h.setChildIndex(f, h.children.length - 1), (f.visible = !0);
+									(h.setChildIndex(f, h.children.length - 1), (f.visible = !0));
 									for (var n = 5 * Math.random() + 7, a = 0, e = G / 2, t = A / 2, i = L(), o = 0; o < n; o++) {
 										var r;
 										r = c[o] ? c[o] : new s(f);
@@ -674,17 +681,17 @@ var MainManager = function () {
 									s.visible = !1;
 								}
 								this.play = function (n, a, e) {
-									(s.visible = !0), s.clear();
+									((s.visible = !0), s.clear());
 									var t = G * Math.random(),
 										i = A * Math.random(),
 										o = Math.min(G, A) * (0.04 * Math.random() + 0.02);
-									s.beginFill(e),
+									(s.beginFill(e),
 										s.drawRect(-o / 2, -o / 2, o, o),
 										(s.x = n),
 										(s.y = a),
 										(s.scale.x = 0),
 										(s.scale.y = 0),
-										(s.rotation = Math.random() * Math.PI);
+										(s.rotation = Math.random() * Math.PI));
 									var r = 0.2 * Math.random() + 0.4;
 									return (
 										gsap.to(s, r, {
@@ -703,11 +710,11 @@ var MainManager = function () {
 								a.addChild(s);
 							};
 							function d() {
-								(f.visible = !1), C[e.id].push(e);
+								((f.visible = !1), C[e.id].push(e));
 							}
 							this.play = function () {
 								!(function () {
-									h.setChildIndex(f, h.children.length - 1), (f.visible = !0);
+									(h.setChildIndex(f, h.children.length - 1), (f.visible = !0));
 									for (var n = 5 * Math.random() + 7, a = 0, e = G / 2, t = A / 2, i = L(), o = 0; o < n; o++) {
 										var r;
 										r = c[o] ? c[o] : new s(f);
@@ -727,20 +734,27 @@ var MainManager = function () {
 						function (n, a) {
 							var h = function (n) {
 								function r() {
-									h.beginFill(l),
+									(h.beginFill(l),
 										h.drawCircle(0, 0, s),
 										(h.scale.x = 0),
 										(h.scale.y = 0),
-										gsap.to(h.scale, 0.7, { x: 1, y: 1, ease: Elastic.easeOut.config(1, 0.3), onComplete: a });
+										gsap.to(h.scale, 0.7, { x: 1, y: 1, ease: Elastic.easeOut.config(1, 0.3), onComplete: a }));
 								}
 								function a() {
 									gsap.to(h.scale, 0.4, { x: 0, y: 0, ease: Power2.easeOut, onComplete: e, delay: 0.1 });
 								}
 								function e() {
-									(h.visible = !1), d && d();
+									((h.visible = !1), d && d());
 								}
 								this.play = function (n, a, e, t, i, o) {
-									(h.visible = !0), h.clear(), (h.x = t), (h.y = i), (l = a), (s = e), (d = o), gsap.delayedCall(n, r);
+									((h.visible = !0),
+										h.clear(),
+										(h.x = t),
+										(h.y = i),
+										(l = a),
+										(s = e),
+										(d = o),
+										gsap.delayedCall(n, r));
 								};
 								var l,
 									s,
@@ -750,15 +764,15 @@ var MainManager = function () {
 								t.addChild(h);
 							};
 							function c() {
-								(v.visible = !1), C[e.id].push(e);
+								((v.visible = !1), C[e.id].push(e));
 							}
 							this.play = function () {
 								!(function () {
-									f.setChildIndex(v, f.children.length - 1),
+									(f.setChildIndex(v, f.children.length - 1),
 										(v.visible = !0),
 										(v.x = G / 2),
 										(v.y = A / 2),
-										(v.rotation = Math.random() * Math.PI * 2);
+										(v.rotation = Math.random() * Math.PI * 2));
 									for (
 										var n = 10, a = L(), e = (Math.min(G, A) / 64) * (0.6 * Math.random() + 0.7), t = 2, i = 0;
 										i < 40;
@@ -768,9 +782,9 @@ var MainManager = function () {
 											r = (25 * i * Math.PI) / 180,
 											l = n * Math.cos(r),
 											s = n * Math.sin(r);
-										(n += e), (t += 0.22), (o = u[i] ? u[i] : new h(v)), (u[i] = o);
+										((n += e), (t += 0.22), (o = u[i] ? u[i] : new h(v)), (u[i] = o));
 										var d = null;
-										39 == i && (d = c), o.play(0.03 * i, a, t, l, s, d);
+										(39 == i && (d = c), o.play(0.03 * i, a, t, l, s, d));
 									}
 								})();
 							};
@@ -807,17 +821,17 @@ var MainManager = function () {
 						},
 						function (n, a) {
 							function h() {
-								(f.visible = !1), C[e.id].push(e);
+								((f.visible = !1), C[e.id].push(e));
 							}
 							this.play = function () {
 								!(function () {
-									c.setChildIndex(f, c.children.length - 1), (f.visible = !0), (f.x = G / 2), (f.y = A / 2);
+									(c.setChildIndex(f, c.children.length - 1), (f.visible = !0), (f.x = G / 2), (f.y = A / 2));
 									var n = L(),
 										a = Math.min(G, A) * (0.28 * Math.random() + 0.2),
 										e = Math.floor(5 * Math.random()) + 3;
-									u.clear(),
+									(u.clear(),
 										u.lineStyle(7 * Math.random() + 4, n, 1),
-										(u.rotation = 30 * Math.floor(6 * Math.random()));
+										(u.rotation = 30 * Math.floor(6 * Math.random())));
 									for (var t = 360 / e, i = 0; i <= e; i++) {
 										var o = (i * t * Math.PI) / 180,
 											r = a * Math.cos(o),
@@ -826,7 +840,7 @@ var MainManager = function () {
 									}
 									var s = 0.8 * Math.random() + 0.4,
 										d = 0.8 * Math.random() + 0.4;
-									gsap.fromTo(u.scale, 0.9, { x: s, y: s }, { x: d, y: d, ease: Bounce.easeOut }), v.play(a, h);
+									(gsap.fromTo(u.scale, 0.9, { x: s, y: s }, { x: d, y: d, ease: Bounce.easeOut }), v.play(a, h));
 								})();
 							};
 							var e = this,
@@ -834,7 +848,7 @@ var MainManager = function () {
 							this.id = a;
 							var f = new PIXI.Container(),
 								u = new PIXI.Graphics();
-							c.addChild(f), f.addChild(u);
+							(c.addChild(f), f.addChild(u));
 							var v = new d(f, u);
 						},
 						function (n, a) {
@@ -842,7 +856,7 @@ var MainManager = function () {
 								function e() {
 									var n = Math.min(G, A),
 										a = n * (0.08 * Math.random() + 0.05);
-									l.lineStyle(4 * Math.random() + 4, L()),
+									(l.lineStyle(4 * Math.random() + 4, L()),
 										l.drawRect(-a / 2, -a / 2, a, a),
 										(l.x = o + (n / 2) * (Math.random() - 0.5)),
 										(l.y = r + (n / 2) * (Math.random() - 0.5)),
@@ -850,13 +864,13 @@ var MainManager = function () {
 										(l.scale.y = 0),
 										(l.rotation = Math.random() * Math.PI),
 										gsap.to(l, 0.5, { x: o, y: r, rotation: 0, ease: Back.easeOut.config(1.7), onComplete: t }),
-										gsap.to(l.scale, 0.5, { x: 1, y: 1, ease: Back.easeOut.config(1.7) });
+										gsap.to(l.scale, 0.5, { x: 1, y: 1, ease: Back.easeOut.config(1.7) }));
 								}
 								function t() {
 									var n = Math.min(G, A),
 										a = o + (n / 2) * (Math.random() - 0.5),
 										e = r + (n / 2) * (Math.random() - 0.5);
-									gsap.to(l, 0.5, {
+									(gsap.to(l, 0.5, {
 										x: a,
 										y: e,
 										rotation: -Math.random() * Math.PI,
@@ -864,13 +878,17 @@ var MainManager = function () {
 										onComplete: i,
 										delay: 0.2,
 									}),
-										gsap.to(l.scale, 0.5, { x: 0, y: 0, ease: Back.easeIn.config(1.7), delay: 0.2 });
+										gsap.to(l.scale, 0.5, { x: 0, y: 0, ease: Back.easeIn.config(1.7), delay: 0.2 }));
 								}
 								function i() {
 									l.visible = !1;
 								}
 								this.play = function (n, a) {
-									(l.visible = !0), l.clear(), (o = G * Math.random()), (r = A * Math.random()), gsap.delayedCall(n, e);
+									((l.visible = !0),
+										l.clear(),
+										(o = G * Math.random()),
+										(r = A * Math.random()),
+										gsap.delayedCall(n, e));
 								};
 								var o,
 									r,
@@ -879,16 +897,16 @@ var MainManager = function () {
 								a.addChild(l);
 							};
 							function o() {
-								(l.visible = !1), C[e.id].push(e);
+								((l.visible = !1), C[e.id].push(e));
 							}
 							this.play = function () {
 								!(function () {
-									r.setChildIndex(l, r.children.length - 1), (l.visible = !0);
+									(r.setChildIndex(l, r.children.length - 1), (l.visible = !0));
 									for (var n = Math.floor(5 * Math.random() + 5), a = 0; a < n; a++) {
 										var e;
-										(e = s[a] ? s[a] : new i(l)), (s[a] = e);
+										((e = s[a] ? s[a] : new i(l)), (s[a] = e));
 										var t = null;
-										a == n - 1 && (t = o), e.play(0.06 * a, t);
+										(a == n - 1 && (t = o), e.play(0.06 * a, t));
 									}
 								})();
 							};
@@ -903,13 +921,13 @@ var MainManager = function () {
 							var i = function (n) {
 								function e() {
 									var n = Math.min(G, A) * (0.05 * Math.random() + 0.014);
-									l.beginFill(L()),
+									(l.beginFill(L()),
 										l.drawCircle(0, 0, n),
 										(l.x = i),
 										(l.y = o),
 										(l.scale.x = 0),
 										(l.scale.y = 0),
-										gsap.to(l.scale, 0.5, { x: 1, y: 1, ease: Elastic.easeOut.config(1, 0.3), onComplete: a });
+										gsap.to(l.scale, 0.5, { x: 1, y: 1, ease: Elastic.easeOut.config(1, 0.3), onComplete: a }));
 								}
 								function a() {
 									gsap.to(l.scale, 0.5, { x: 0, y: 0, ease: Back.easeIn.config(1.7), onComplete: t, delay: 0.2 });
@@ -918,7 +936,11 @@ var MainManager = function () {
 									l.visible = !1;
 								}
 								this.play = function (n, a) {
-									(l.visible = !0), l.clear(), (i = G * Math.random()), (o = A * Math.random()), gsap.delayedCall(n, e);
+									((l.visible = !0),
+										l.clear(),
+										(i = G * Math.random()),
+										(o = A * Math.random()),
+										gsap.delayedCall(n, e));
 								};
 								var i,
 									o,
@@ -927,16 +949,16 @@ var MainManager = function () {
 								r.addChild(l);
 							};
 							function o() {
-								(l.visible = !1), C[e.id].push(e);
+								((l.visible = !1), C[e.id].push(e));
 							}
 							this.play = function () {
 								!(function () {
-									r.setChildIndex(l, r.children.length - 1), (l.visible = !0);
+									(r.setChildIndex(l, r.children.length - 1), (l.visible = !0));
 									for (var n = Math.floor(5 * Math.random() + 5), a = 0; a < n; a++) {
 										var e;
-										(e = s[a] ? s[a] : new i(l)), (s[a] = e);
+										((e = s[a] ? s[a] : new i(l)), (s[a] = e));
 										var t = null;
-										a == n - 1 && (t = o), e.play(0.06 * a, t);
+										(a == n - 1 && (t = o), e.play(0.06 * a, t));
 									}
 								})();
 							};
@@ -949,20 +971,20 @@ var MainManager = function () {
 						},
 						function (n, a) {
 							function o() {
-								(l.visible = !1), C[e.id].push(e);
+								((l.visible = !1), C[e.id].push(e));
 							}
 							this.play = function () {
 								!(function () {
-									(l.visible = !0), r.setChildIndex(l, r.children.length - 1), (d.container.mask = s), d.play(o);
+									((l.visible = !0), r.setChildIndex(l, r.children.length - 1), (d.container.mask = s), d.play(o));
 									var n = d.size / 2;
-									(s.x = G / 2), (s.y = A / 2), s.clear(), s.beginFill(0), s.drawCircle(0, 0, n);
+									((s.x = G / 2), (s.y = A / 2), s.clear(), s.beginFill(0), s.drawCircle(0, 0, n));
 									var a = ((45 * Math.PI) / 180) * Math.floor(2 * Math.random()),
 										e = a + ((45 * Math.PI) / 180) * Math.floor(4 * Math.random() - 2),
 										t = 0.3 * Math.random() + 1,
 										i = 0.3 * -Math.random() + 1;
-									gsap.fromTo(d.container, 0.6, { rotation: a }, { rotation: e, ease: Power2.easeOut }),
+									(gsap.fromTo(d.container, 0.6, { rotation: a }, { rotation: e, ease: Power2.easeOut }),
 										gsap.fromTo(d.container.scale, 0.6, { x: t, y: t }, { x: i, y: i, ease: Back.easeOut.config(1.7) }),
-										gsap.fromTo(s.scale, 0.6, { x: t, y: t }, { x: i, y: i, ease: Back.easeOut.config(1.7) });
+										gsap.fromTo(s.scale, 0.6, { x: t, y: t }, { x: i, y: i, ease: Back.easeOut.config(1.7) }));
 								})();
 							};
 							var e = this,
@@ -976,16 +998,16 @@ var MainManager = function () {
 						},
 						function (n, a) {
 							function d() {
-								(c.visible = !1), C[e.id].push(e);
+								((c.visible = !1), C[e.id].push(e));
 							}
 							this.play = function () {
 								!(function () {
-									h.setChildIndex(c, h.children.length - 1),
+									(h.setChildIndex(c, h.children.length - 1),
 										c.clear(),
 										(c.visible = !0),
 										c.lineStyle(5 * Math.random() + 3, L(), 1),
 										(c.x = G / 2),
-										(c.y = A / 2);
+										(c.y = A / 2));
 									for (
 										var n = 0.6 * Math.min(G, A),
 											a = Math.floor(5 * Math.random()) + 3,
@@ -1001,13 +1023,13 @@ var MainManager = function () {
 										0 == i ? c.moveTo(r, l) : c.lineTo(r, l);
 									}
 									var s = 0.3 * Math.random() + 0.6;
-									gsap.fromTo(c.scale, s, { x: 0, y: 0 }, { x: t, y: t, onComplete: d, ease: Power2.easeOut }),
+									(gsap.fromTo(c.scale, s, { x: 0, y: 0 }, { x: t, y: t, onComplete: d, ease: Power2.easeOut }),
 										gsap.fromTo(
 											c,
 											s,
 											{ rotation: Math.random() * Math.PI },
 											{ rotation: Math.random() * Math.PI, ease: Power1.easeOut },
-										);
+										));
 								})();
 							};
 							var e = this,
@@ -1018,14 +1040,14 @@ var MainManager = function () {
 						},
 						function (n, a) {
 							function e() {
-								(o.visible = !1), C[t.id].push(t);
+								((o.visible = !1), C[t.id].push(t));
 							}
 							this.play = function () {
 								!(function () {
-									i.setChildIndex(o, i.children.length - 1), (o.visible = !0), (o.x = G / 2), (o.y = A / 2);
+									(i.setChildIndex(o, i.children.length - 1), (o.visible = !0), (o.x = G / 2), (o.y = A / 2));
 									var n = L(),
 										a = Math.min(G, A) * (0.25 * Math.random() + 0.1);
-									r.clear(), r.beginFill(n), r.drawCircle(0, 0, a), l.play(a, e);
+									(r.clear(), r.beginFill(n), r.drawCircle(0, 0, a), l.play(a, e));
 								})();
 							};
 							var t = this,
@@ -1033,23 +1055,27 @@ var MainManager = function () {
 							this.id = a;
 							var o = new PIXI.Container(),
 								r = new PIXI.Graphics();
-							i.addChild(o), o.addChild(r);
+							(i.addChild(o), o.addChild(r));
 							var l = new d(o, r);
 						},
 						function (n, a) {
 							var u = function (n) {
 								function t() {
-									gsap.to(l.scale, 0.4, { x: 0, y: 0, ease: Back.easeIn.config(2), onComplete: a, delay: 0.7 }),
-										gsap.to(l, 0.4, { rotation: Math.random() * Math.PI * 2, ease: Back.easeIn.config(2), delay: 0.7 });
+									(gsap.to(l.scale, 0.4, { x: 0, y: 0, ease: Back.easeIn.config(2), onComplete: a, delay: 0.7 }),
+										gsap.to(l, 0.4, {
+											rotation: Math.random() * Math.PI * 2,
+											ease: Back.easeIn.config(2),
+											delay: 0.7,
+										}));
 								}
 								function a() {
-									(l.visibloe = !1), i && i();
+									((l.visibloe = !1), i && i());
 								}
-								(this.init = function (n, a, e, t) {
-									(_state = 0), (o = e), (r = t), (l.x = n), (l.y = a);
+								((this.init = function (n, a, e, t) {
+									((_state = 0), (o = e), (r = t), (l.x = n), (l.y = a));
 								}),
 									(this.play = function (n, a) {
-										(i = a),
+										((i = a),
 											l.clear(),
 											(l.visibloe = !0),
 											l.beginFill(r),
@@ -1065,10 +1091,10 @@ var MainManager = function () {
 												0.7,
 												{ rotation: Math.random() * Math.PI * 2 },
 												{ rotation: 0, ease: Elastic.easeOut.config(1, 0.3), delay: n },
-											);
+											));
 										var e = Math.random() * Math.PI;
 										gsap.fromTo(y, 1, { rotation: 0 }, { rotation: e, ease: Bounce.easeOut, delay: n });
-									});
+									}));
 								var i,
 									o,
 									r,
@@ -1077,11 +1103,11 @@ var MainManager = function () {
 								e.addChild(l);
 							};
 							function v() {
-								(y.visible = !1), C[e.id].push(e);
+								((y.visible = !1), C[e.id].push(e));
 							}
 							this.play = function () {
 								!(function () {
-									p.setChildIndex(y, p.children.length - 1), (y.visible = !0), (y.x = G / 2), (y.y = A / 2);
+									(p.setChildIndex(y, p.children.length - 1), (y.visible = !0), (y.x = G / 2), (y.y = A / 2));
 									var n = Math.floor(8 * Math.random() + 6),
 										a = Math.min(G, A) * (0.25 * Math.random() + 0.25),
 										e = 360 / n,
@@ -1095,9 +1121,9 @@ var MainManager = function () {
 											d = ((r * e * l + o) * Math.PI) / 180,
 											h = a * Math.cos(d),
 											c = a * Math.sin(d);
-										(s = w[l] ? w[l] : new u(y)), (w[l] = s);
+										((s = w[l] ? w[l] : new u(y)), (w[l] = s));
 										var f = null;
-										l == n - 1 && (f = v), s.init(h, c, t, i), s.play(0.05 * l, f);
+										(l == n - 1 && (f = v), s.init(h, c, t, i), s.play(0.05 * l, f));
 									}
 								})();
 							};
@@ -1114,17 +1140,17 @@ var MainManager = function () {
 									var n = 0.5 * G,
 										a = l.x + Math.random() * n - n / 2,
 										e = l.y + Math.random() * n - n / 2;
-									gsap.to(l.scale, 0.3, { x: 0, y: 0, ease: Power1.easeOut, onComplete: t, delay: 0.5 }),
-										gsap.to(l, 0.3, { x: a, y: e, ease: Power2.easeOut, delay: 0.5 });
+									(gsap.to(l.scale, 0.3, { x: 0, y: 0, ease: Power1.easeOut, onComplete: t, delay: 0.5 }),
+										gsap.to(l, 0.3, { x: a, y: e, ease: Power2.easeOut, delay: 0.5 }));
 								}
 								function t() {
-									(l.visibloe = !1), i && i();
+									((l.visibloe = !1), i && i());
 								}
-								(this.init = function (n, a, e, t) {
-									(_state = 0), (o = e), (r = t), (l.x = n), (l.y = a);
+								((this.init = function (n, a, e, t) {
+									((_state = 0), (o = e), (r = t), (l.x = n), (l.y = a));
 								}),
 									(this.play = function (n, a) {
-										(i = a),
+										((i = a),
 											l.clear(),
 											(l.visibloe = !0),
 											l.beginFill(r),
@@ -1134,8 +1160,8 @@ var MainManager = function () {
 												0.3,
 												{ x: 0, y: 0 },
 												{ x: 1, y: 1, ease: Back.easeOut.config(1.7), onComplete: e, delay: n },
-											);
-									});
+											));
+									}));
 								var i,
 									o,
 									r,
@@ -1144,11 +1170,11 @@ var MainManager = function () {
 								a.addChild(l);
 							};
 							function v() {
-								(y.visible = !1), C[e.id].push(e);
+								((y.visible = !1), C[e.id].push(e));
 							}
 							this.play = function () {
 								!(function () {
-									p.setChildIndex(y, p.children.length - 1), (y.visible = !0), (y.x = G / 2), (y.y = A / 2);
+									(p.setChildIndex(y, p.children.length - 1), (y.visible = !0), (y.x = G / 2), (y.y = A / 2));
 									var n = Math.floor(8 * Math.random() + 6),
 										a = Math.min(G, A) * (0.2 * Math.random() + 0.25),
 										e = 360 / n,
@@ -1162,9 +1188,9 @@ var MainManager = function () {
 											d = ((r * e * l + o) * Math.PI) / 180,
 											h = a * Math.cos(d),
 											c = a * Math.sin(d);
-										(s = w[l] ? w[l] : new u(y)), (w[l] = s);
+										((s = w[l] ? w[l] : new u(y)), (w[l] = s));
 										var f = null;
-										l == n - 1 && (f = v), s.init(h, c, t, i), s.play(0.05 * l, f);
+										(l == n - 1 && (f = v), s.init(h, c, t, i), s.play(0.05 * l, f));
 									}
 								})();
 							};
@@ -1177,19 +1203,19 @@ var MainManager = function () {
 						},
 						function (n, a) {
 							function i() {
-								(r.visible = !1), C[e.id].push(e);
+								((r.visible = !1), C[e.id].push(e));
 							}
 							this.play = function () {
 								!(function () {
-									(r.visible = !0),
+									((r.visible = !0),
 										o.setChildIndex(r, o.children.length - 1),
 										(r.x = 0.2 * G + 0.6 * G * Math.random()),
-										(r.y = 0.2 * A + 0.6 * A * Math.random());
+										(r.y = 0.2 * A + 0.6 * A * Math.random()));
 									var n,
 										a = Math.min(G, A) * (0.7 + 0.2 * Math.random()),
 										e = (a / 10) * (0.5 + 0.8 * Math.random()),
 										t = L();
-									l.clear(),
+									(l.clear(),
 										l.beginFill(t),
 										l.drawRect(0, -e / 2, a, e),
 										s.clear(),
@@ -1208,7 +1234,7 @@ var MainManager = function () {
 											.to(s.scale, 0.4, { y: 1, ease: Power2.easeOut }, 0.1)
 											.to(r, 0.6, { rotation: n, ease: Back.easeOut.config(1.7) }, 0)
 											.to(l.scale, 0.3, { x: 0, ease: Power2.easeOut })
-											.to(s.scale, 0.3, { y: 0, ease: Power2.easeOut, onComplete: i }, 0.6);
+											.to(s.scale, 0.3, { y: 0, ease: Power2.easeOut, onComplete: i }, 0.6));
 								})();
 							};
 							var e = this,
@@ -1217,7 +1243,7 @@ var MainManager = function () {
 							var r = new PIXI.Container(),
 								l = new PIXI.Graphics(),
 								s = new PIXI.Graphics();
-							o.addChild(r), r.addChild(l), r.addChild(s);
+							(o.addChild(r), r.addChild(l), r.addChild(s));
 						},
 						function (n, a) {
 							function o() {
@@ -1226,7 +1252,7 @@ var MainManager = function () {
 										case 0:
 											l = 1;
 											var n = h[0];
-											(f.x = n.x), (f.y = n.y), (c = 0), o();
+											((f.x = n.x), (f.y = n.y), (c = 0), o());
 											break;
 										case 1:
 											l = 2;
@@ -1246,7 +1272,7 @@ var MainManager = function () {
 							}
 							this.play = function () {
 								!(function () {
-									u.clear(),
+									(u.clear(),
 										(u.visible = !0),
 										Math.random() < 0.5
 											? ((u.x = 0), (u.y = 0), (u.rotation = 0))
@@ -1254,19 +1280,19 @@ var MainManager = function () {
 										(c = l = 0),
 										(r = Math.floor(3 * Math.random()) + 3),
 										(s = 20 * Math.random() + 2),
-										(d = L());
+										(d = L()));
 									var n,
 										a = Math.random() < 0.5;
 									n = a ? G / r : A / r;
 									for (var e = 0; e <= r; e++) {
 										var t;
-										a
+										(a
 											? ((t = { x: e * n, y: A * Math.random() }), 0 == e && (t.x -= 10), e == r && (t.x += 10))
 											: ((t = { y: e * n, x: G * Math.random() }), 0 == e && (t.y -= 10), e == r && (t.y += 10)),
-											(h[e] = t);
+											(h[e] = t));
 									}
 									var i = h[0];
-									(f.x = i.x), (f.y = i.y), o();
+									((f.x = i.x), (f.y = i.y), o());
 								})();
 							};
 							var t = n;
@@ -1286,7 +1312,7 @@ var MainManager = function () {
 					I = [
 						function (n, a) {
 							function d() {
-								y.clear(), y.beginFill(c), y.moveTo(u.pos.b1.x, u.pos.b1.y), y.lineTo(u.pos.b0.x, u.pos.b0.y);
+								(y.clear(), y.beginFill(c), y.moveTo(u.pos.b1.x, u.pos.b1.y), y.lineTo(u.pos.b0.x, u.pos.b0.y));
 								for (var n = 0; u.pos["p" + n]; n++) {
 									var a = u.pos["p" + n];
 									y.lineTo(a.x, a.y);
@@ -1294,48 +1320,48 @@ var MainManager = function () {
 								y.endFill();
 							}
 							function h() {
-								F == w && T.setColor(c, p - 1), (y.visible = !1), C[u.id].push(u);
+								(F == w && T.setColor(c, p - 1), (y.visible = !1), C[u.id].push(u));
 							}
 							this.play = function () {
 								!(function () {
 									F = w;
 									var n = X();
-									(c = P[n]),
+									((c = P[n]),
 										$("#about").css("background-color", "#" + c.toString(16)),
 										Math.random() < 0.3 && T.flash(p),
 										(O = n),
 										y.clear(),
 										(y.visible = !0),
 										(p = v.children.length - 1 - Math.floor(2 * Math.random())),
-										v.setChildIndex(y, p);
+										v.setChildIndex(y, p));
 									var a = Math.random() < 0.5,
 										e = Math.floor(4 * Math.random()) + 1;
 									u.pos = {};
 									var t = 0;
-									a
+									(a
 										? ((t = A / e), (u.pos.b0 = { x: 0, y: 0 }), (u.pos.b1 = { x: 0, y: A }))
 										: ((t = G / e), (u.pos.b0 = { x: 0, y: 0 }), (u.pos.b1 = { x: G, y: 0 })),
 										Math.random() < 0.5
 											? ((y.rotation = 0), (y.x = 0), (y.y = 0))
-											: ((y.rotation = Math.PI), (y.x = G), (y.y = A));
+											: ((y.rotation = Math.PI), (y.x = G), (y.y = A)));
 									for (var i = (f = 0); i <= e; i++) {
 										var o = { x: 0, y: 0 },
 											r = 0;
-										0 != i && i != e && (r = (t / 4) * Math.random() - t / 8),
+										(0 != i && i != e && (r = (t / 4) * Math.random() - t / 8),
 											a ? (o.y = t * i + r) : (o.x = t * i + r),
-											(u.pos["p" + i] = o);
+											(u.pos["p" + i] = o));
 										var l,
 											s = 0.4 * Math.random() + 0.3;
-										(f = 2), (l = a ? { x: G } : { y: A }), gsap.to(u.pos["p" + i], s, l);
+										((f = 2), (l = a ? { x: G } : { y: A }), gsap.to(u.pos["p" + i], s, l));
 									}
-									(u.progress = 0), gsap.to(u, f, { progress: 1, ease: Power0.easeNone, onUpdate: d, onComplete: h });
+									((u.progress = 0), gsap.to(u, f, { progress: 1, ease: Power0.easeNone, onUpdate: d, onComplete: h }));
 								})();
 							};
 							var c,
 								f,
 								u = this,
 								v = n;
-							(this.id = a), (this.progress = 0), (this.pos = {});
+							((this.id = a), (this.progress = 0), (this.pos = {}));
 							var p = 0,
 								y = new PIXI.Graphics();
 							v.addChild(y);
@@ -1372,7 +1398,7 @@ var MainManager = function () {
 			D = 0,
 			U = "off" == aidn.util.getCookie("fb"),
 			T = "off" == aidn.util.getCookie("bt");
-		n(),
+		(n(),
 			o(),
 			aidn.util.webaudio
 				? ($("#ng").css("display", "none"),
@@ -1383,31 +1409,31 @@ var MainManager = function () {
 					$(".ok").css("display", "none"),
 					y || $("#ng .atten").html("Sorry,<br>your device or browser doesn't support this site.")),
 			(PIXI.utils._saidHello = !0),
-			aidn.window.resize(a);
+			aidn.window.resize(a));
 	},
 	WebAudioManager = function () {
 		function i() {
 			if ((a++, (h.now = a), s && s(a, o), o <= a)) l && l();
 			else {
 				var n = new aidn.WebAudio();
-				n.load(d[r[a]], i), (t[a] = n);
+				(n.load(d[r[a]], i), (t[a] = n));
 			}
 		}
-		(this.load = function (n, a, e, t) {
-			(l = e),
+		((this.load = function (n, a, e, t) {
+			((l = e),
 				(s = t),
 				(o = (r = a).length),
 				(h.length = o),
 				$.getJSON(n, function (n) {
-					(d = n), i();
-				});
+					((d = n), i());
+				}));
 		}),
 			(this.play = function (n, a, e) {
-				0 <= e || (e = 1), n < o && t[n].play(0, !1, null, 0, e, a);
+				(0 <= e || (e = 1), n < o && t[n].play(0, !1, null, 0, e, a));
 			}),
 			(this.stop = function (n) {
 				n < o && t[n].stop();
-			});
+			}));
 		var o,
 			r,
 			l,
@@ -1416,5 +1442,5 @@ var MainManager = function () {
 			h = this,
 			a = -1,
 			t = [];
-		(this.length = 0), (this.now = 0);
+		((this.length = 0), (this.now = 0));
 	};
