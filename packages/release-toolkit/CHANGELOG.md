@@ -1,5 +1,11 @@
 # @ruan-cat/release-toolkit 更新日志
 
+## 0.1.1
+
+### Patch Changes
+
+- 初始化 @ruan-cat/release-toolkit 包。 ([e9a977f](https://github.com/ruan-cat/monorepo/commit/e9a977fdeb0fad5d97fd49207471d7613ebff269))
+
 ## 0.1.0
 
 ### Minor Changes
