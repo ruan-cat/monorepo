@@ -30,11 +30,6 @@
 			"import": "./dist/plugins/changelog-with-changelogen.js",
 			"require": "./dist/plugins/changelog-with-changelogen.cjs"
 		},
-		"./scripts/sync-github-release": {
-			"types": "./src/scripts/sync-github-release.ts",
-			"import": "./dist/scripts/sync-github-release.js",
-			"require": "./dist/scripts/sync-github-release.cjs"
-		},
 		"./configs/changelogen.config": {
 			"types": "./src/configs/changelogen.config.ts",
 			"import": "./dist/configs/changelogen.config.js",
