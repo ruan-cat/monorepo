@@ -284,6 +284,3 @@ export function getUserConfig(params: GetUserConfigParams = {}) {
 const defExportCommitlintConfig = cloneDeep(defaultUserCommitlintConfig);
 setScopesInUserConfig({ scopes: defScopes, userConfig: defExportCommitlintConfig });
 export default defExportCommitlintConfig;
-
-// 导出类型提取功能
-export * from "./types-extractor.js";

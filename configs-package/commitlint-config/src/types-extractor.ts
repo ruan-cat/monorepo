@@ -1,4 +1,4 @@
-import { config } from "./config.js";
+import { config } from "./config.ts";
 
 /**
  * 从 commitlint-config 中提取commit类型配置
