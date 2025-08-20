@@ -30,11 +30,6 @@
 			"import": "./dist/plugins/changelog-with-changelogen.js",
 			"require": "./dist/plugins/changelog-with-changelogen.cjs"
 		},
-		"./configs/changelogen.config": {
-			"types": "./src/configs/changelogen.config.ts",
-			"import": "./dist/configs/changelogen.config.js",
-			"require": "./dist/configs/changelogen.config.cjs"
-		},
 		"./src/*": "./src/*",
 		"./dist/*": "./dist/*"
 	},
