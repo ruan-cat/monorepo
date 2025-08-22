@@ -19,7 +19,7 @@
 		"build": "turbo build",
 		"test": "vitest --ui --watch --api.port=4000",
 		"build:docs": "turbo build:docs",
-		"on-github-action-flow": "pnpm run build && pnpm run build:docs",
+		"ci": "pnpm run build && pnpm run build:docs",
 		"clear": "tsx ./scripts/clean.ts",
 		"format": "prettier --experimental-cli --write . --ignore-path ./.config/.prettierignore --ignore-path .gitignore",
 		"up-taze": "npx taze -r",

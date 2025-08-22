@@ -110,7 +110,7 @@ jobs:
         # vc build --yes --prod --cwd=${{env.eci}} -A ./vercel.null.json -t ${{env.vct}}
 
       - name: turbo并发打包全部子项目
-        run: pnpm run on-github-action-flow
+        run: pnpm run ci
 
       - name: eci:生成vercel静态站点目录结构
         run: vc build --yes --prod --cwd=${{env.eci}} -A ./vercel.null.json -t ${{env.vct}}

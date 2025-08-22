@@ -48,7 +48,7 @@ jobs:
         # run: vc build --yes --prod --cwd=./packages/monorepo-3 -A ./vercel.null.json
 
       - name: turbo并发运行打包命令
-        run: pnpm run on-github-action-flow
+        run: pnpm run ci
 
       # - name: 手动移动文件
       #   run: |
