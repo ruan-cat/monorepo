@@ -1,7 +1,7 @@
 {
 	"$schema": "https://unpkg.com/@changesets/config@3.0.3/schema.json",
 	"changelog": [
-		"@ruan-cat/release-toolkit/plugins/changelog-with-changelogen",
+		"@svitejs/changesets-changelog-github-compact",
 		{
 			"repo": "ruan-cat/monorepo"
 		}
