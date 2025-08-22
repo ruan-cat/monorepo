@@ -91,6 +91,7 @@ module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
 
 ```ts [config.ts]
 import { type UserConfig } from "cz-git";
+import { convertCommitTypesToCzGitFormat } from "./utils.ts";
 
 /**
  * @description
@@ -138,38 +139,7 @@ export const config: UserConfig = {
 		customScopesAlias: "custom",
 		emptyScopesAlias: "empty",
 
-		types: [
-			{ value: "✨ feat", name: "✨ feat:     新增功能 | A new feature" },
-			{ value: "🐞 fix", name: "🐞 fix:      修复缺陷 | A bug fix" },
-			{ value: "📃 docs", name: "📃 docs:     文档更新 | Documentation only changes" },
-			{ value: "📦 deps", name: "📃 deps:     依赖更新" },
-			{ value: "🧪 test", name: "🧪 test:     测试相关 | Adding missing tests or correcting existing tests" },
-			{
-				value: "🔧 build",
-				name: "🔧 build:    构建相关 | Changes that affect the build system or external dependencies",
-			},
-			{ value: "🐎 ci", name: "🐎 ci:       持续集成 | Changes to our CI configuration files and scripts" },
-			{ value: "📢 publish", name: "📢 publish:  发包 | 依赖包发布版本。" },
-			{
-				value: "🦄 refactor",
-				name: "🦄 refactor: 代码重构 | A code change that neither fixes a bug nor adds a feature",
-			},
-			{ value: "🎈 perf", name: "🎈 perf:     性能提升 | A code change that improves performance" },
-			{ value: "🎉 init", name: "🎉 init:     初始化 | 项目初始化。" },
-			{ value: "⚙️ config", name: "⚙️ config:    更新配置 | 配置更新。通用性的配置更新。" },
-
-			{ value: "🐳 chore", name: "🐳 chore:    其他修改 | Other changes that do not modify src or test files" },
-			{ value: "↩ revert", name: "↩ revert:   回退代码 | Revert to a commit" },
-			{ value: "🗑 del", name: "🗑 del:    删除垃圾 | 删除无意义的东西，注释，文件，代码段等。" },
-			{ value: "🌐 i18n", name: "🌐 i18n:    国际化 | 专门设置国际化的翻译文本。" },
-			{ value: "🌈 style", name: "🌈 style:    代码格式 | Changes that do not affect the meaning of the code" },
-			{
-				value: "🤔 save-file",
-				name: "🤔 save-file:    保存文件 | 文件保存类型。仅仅是为了保存文件。有时候会需要紧急提交，并快速切换分支。此时就需要提交代码。并保存文件。",
-			},
-			{ value: "✋ main-pull-update", name: "✋ main-pull-update:    主分支拉取更新 | 主分支拉取更新。" },
-			{ value: "⏩ mark-progress", name: "⏩ mark-progress:    标记进度 | 标记进度。" },
-		],
+		types: convertCommitTypesToCzGitFormat(),
 		useEmoji: true,
 		emojiAlign: "center",
 		useAI: false,
@@ -205,6 +175,226 @@ export const config: UserConfig = {
 
 <!-- /automd -->
 <!-- prettier-ignore-end -->
+
+## 提交类型 commit-types.ts
+
+<!-- automd:file src="./src/commit-types.ts" code -->
+
+```ts [commit-types.ts]
+import { CommitType } from "./type.ts";
+
+export const commitTypes: CommitType[] = [
+	{
+		emoji: "✨",
+		type: "feat",
+		description: "新增功能 | A new feature",
+	},
+	{
+		emoji: "🐞",
+		type: "fix",
+		description: "修复缺陷 | A bug fix",
+	},
+	{
+		emoji: "📃",
+		type: "docs",
+		description: "文档更新 | Documentation only changes",
+	},
+	{
+		emoji: "📦",
+		type: "deps",
+		description: "依赖更新",
+	},
+	{
+		emoji: "🧪",
+		type: "test",
+		description: "测试相关 | Adding missing tests or correcting existing tests",
+	},
+	{
+		emoji: "🔧",
+		type: "build",
+		description: "构建相关 | Changes that affect the build system or external dependencies",
+	},
+	{
+		emoji: "🐎",
+		type: "ci",
+		description: "持续集成 | Changes to our CI configuration files and scripts",
+	},
+	{
+		emoji: "📢",
+		type: "publish",
+		description: "发包 | 依赖包发布版本。",
+	},
+	{
+		emoji: "🦄",
+		type: "refactor",
+		description: "代码重构 | A code change that neither fixes a bug nor adds a feature",
+	},
+	{
+		emoji: "🎈",
+		type: "perf",
+		description: "性能提升 | A code change that improves performance",
+	},
+	{
+		emoji: "🎉",
+		type: "init",
+		description: "初始化 | 项目初始化。",
+	},
+	{
+		emoji: "⚙️",
+		type: "config",
+		description: "更新配置 | 配置更新。通用性的配置更新。",
+	},
+	{
+		emoji: "🐳",
+		type: "chore",
+		description: "其他修改 | Other changes that do not modify src or test files",
+	},
+	{
+		emoji: "↩",
+		type: "revert",
+		description: "回退代码 | Revert to a commit",
+	},
+	{
+		emoji: "🗑",
+		type: "del",
+		description: "删除垃圾 | 删除无意义的东西，注释，文件，代码段等。",
+	},
+	{
+		emoji: "🌐",
+		type: "i18n",
+		description: "国际化 | 专门设置国际化的翻译文本。",
+	},
+	{
+		emoji: "🌈",
+		type: "style",
+		description: "代码格式 | Changes that do not affect the meaning of the code",
+	},
+	{
+		emoji: "🤔",
+		type: "save-file",
+		description:
+			"保存文件 | 文件保存类型。仅仅是为了保存文件。有时候会需要紧急提交，并快速切换分支。此时就需要提交代码。并保存文件。",
+	},
+	// 暂不需要该提交类型。
+	// {
+	// 	emoji: "✋",
+	// 	type: "main-pull-update",
+	// 	description: "主分支拉取更新 | 主分支拉取更新。",
+	// },
+	// {
+	// 	emoji: "⏩",
+	// 	type: "mark-progress",
+	// 	description: "标记进度 | 标记进度。",
+	// },
+];
+```
+
+<!-- /automd -->
+
+## 常用提交范围 common-scopes.ts
+
+<!-- automd:file src="./src/common-scopes.ts" code -->
+
+```ts [common-scopes.ts]
+/**
+ * 用户自己额外配置的范围项 拆分出表述文本的配置项
+ * @description
+ */
+export type ScopesItemWithDesc = {
+	/** 输入时的提示词 */
+	code: string;
+
+	/** 最终显示在 git commit 的文本 */
+	value: string;
+
+	/** 表述文本 */
+	desc: string;
+};
+
+/**
+ * 常用的范围配置
+ * @description
+ * 该配置是为了提供更多的范围配置，以便于更好的管理提交范围。
+ *
+ * 这里罗列一些高频更改配置的文件，并定位为专门的提交范围。
+ *
+ * 这些配置范围，大多数是从具体项目中 不断提炼出来的常用范围
+ */
+export const commonScopes: ScopesItemWithDesc[] = [
+	{
+		code: "config",
+		value: "config",
+		desc: "各种配置文件",
+	},
+	{
+		code: "turbo",
+		value: "turbo",
+		desc: "任务调度器",
+	},
+	{
+		code: "root",
+		value: "root",
+		desc: "根目录",
+	},
+	{
+		code: "package.json",
+		value: "package.json",
+		desc: "包配置",
+	},
+	{
+		code: "vite.config.js/ts",
+		value: "vite",
+		desc: "vite打包工具配置",
+	},
+	{
+		code: "vitepress",
+		value: "文档配置",
+		desc: "vitepress文档工具配置",
+	},
+	{
+		code: "commitlint.config.cjs",
+		value: "commitlint",
+		desc: "cz配置，即git提交工具的配置",
+	},
+	{
+		code: "tsconfig",
+		value: "tsc",
+		desc: "typescript项目配置",
+	},
+	{
+		code: "router",
+		value: "router",
+		desc: "路由配置",
+	},
+	{
+		code: "vscode/settings.json",
+		value: "vsc",
+		desc: "vscode配置",
+	},
+	{
+		code: "i18n",
+		value: "i18n",
+		desc: "国际化",
+	},
+	{
+		code: "prompt",
+		value: "prompt",
+		desc: "提示词。特指和AI协作使用的提示词文件。",
+	},
+	{
+		code: "api",
+		value: "api",
+		desc: "API接口",
+	},
+	{
+		code: "claude",
+		value: "claude",
+		desc: "claude code的配置。特指在claude code生成或使用的文件。包括配置、提示词、代理、记忆文件等。",
+	},
+];
+```
+
+<!-- /automd -->
 
 </details>
 

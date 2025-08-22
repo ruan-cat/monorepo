@@ -1,15 +1,5 @@
 import { config } from "./config.ts";
-
-/**
- * 从 commitlint-config 中提取commit类型配置
- * 用于与 changelogen 集成
- */
-
-export interface CommitType {
-	emoji: string;
-	type: string;
-	description: string;
-}
+import { CommitType } from "./type.ts";
 
 /**
  * 解析 cz-git 配置中的 types，提取 emoji 和类型信息
