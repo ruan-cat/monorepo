@@ -21,7 +21,7 @@
 
 本工具包包含三个核心模块：
 
-```
+```plain
 @ruan-cat/release-toolkit/
 ├── plugins/changelog-with-changelogen    # changesets 自定义插件
 ├── scripts/sync-github-release           # GitHub Release 同步脚本
@@ -129,7 +129,7 @@ runSync().catch((error) => {
 
 ### Emoji + Conventional Commits (推荐)
 
-```
+```plain
 ✨ feat(auth): 新增OAuth2.0登录功能
 🐞 fix(api): 修复用户数据获取错误
 📃 docs: 更新API文档和使用示例
@@ -138,7 +138,7 @@ runSync().catch((error) => {
 
 ### 纯 Conventional Commits
 
-```
+```plain
 feat(auth): 新增OAuth2.0登录功能
 fix(api): 修复用户数据获取错误
 docs: 更新API文档
@@ -147,7 +147,7 @@ build: 升级依赖包版本
 
 ### 仅 Emoji
 
-```
+```plain
 ✨ 新增用户认证模块
 🐞 修复登录页面显示bug
 📃 完善README文档说明
@@ -165,8 +165,8 @@ build: 升级依赖包版本
 
 ```markdown
 - 🔧 **build**: 增加发包配置避免部署信息打包。减少体积。 ([b5b8d38](https://github.com/...))
-- ✨ **feat**(auth): 新增OAuth2.0登录支持 ([a1b2c3d](https://github.com/...))
-- 📃 **docs**: 更新API文档和使用示例 ([e4f5g6h](https://github.com/...))
+- ✨ **feat**(auth): 新增 OAuth2.0 登录支持 ([a1b2c3d](https://github.com/...))
+- 📃 **docs**: 更新 API 文档和使用示例 ([e4f5g6h](https://github.com/...))
 ```
 
 ## API 文档
@@ -257,3 +257,11 @@ pnpm prebuild
 - [changesets](https://github.com/changesets/changesets) - 版本管理和发布工具
 - [changelogen](https://github.com/unjs/changelogen) - 变更日志生成器
 - [@ruan-cat/commitlint-config](../commitlint-config) - 提交信息规范配置
+
+## 警告 该项目目前完全不能用
+
+原本是期望给 .changeset\config.json 的 changelog 项配置一个日志生成功能，但是现在发现，所依赖的 changelogen 本身是不支持 monorepo 的，不如等待 changelogen 自身支持 monorepo，这样我就不需要封装该包了。
+
+目前该包是用 claude code 自动生成的，效果完全不行，完全不能满足要求的。
+
+暂且放弃，不再继续跟进。
