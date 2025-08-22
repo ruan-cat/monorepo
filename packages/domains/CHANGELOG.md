@@ -22,13 +22,13 @@
 
 ### Minor Changes
 
-- 增加 vercel部署工具 的域名 ([`bdbd85f`](https://github.com/ruan-cat/monorepo/commit/bdbd85fac28b602c31b09b9c9c62670637bf1cdb))
+- 增加 vercel 部署工具 的域名 ([`bdbd85f`](https://github.com/ruan-cat/monorepo/commit/bdbd85fac28b602c31b09b9c9c62670637bf1cdb))
 
 ## 0.7.0
 
 ### Minor Changes
 
-- 新增 10WMS 和 11智慧社区项目的前端文档域名配置。 ([`10c4b82`](https://github.com/ruan-cat/monorepo/commit/10c4b8274d4d4b275dfd36832ea4abc1db9a338b))
+- 新增 10WMS 和 11 智慧社区项目的前端文档域名配置。 ([`10c4b82`](https://github.com/ruan-cat/monorepo/commit/10c4b8274d4d4b275dfd36832ea4abc1db9a338b))
 
 ## 0.6.2
 
@@ -58,13 +58,13 @@
 
 ### Minor Changes
 
-- 大项目 11智慧社区项目
+- 大项目 11 智慧社区项目
 
 ## 0.5.0
 
 ### Minor Changes
 
-- 重新设计了笔记项目域名的使用方式。废弃了notes变量。
+- 重新设计了笔记项目域名的使用方式。废弃了 notes 变量。
 
 ## 0.4.1
 

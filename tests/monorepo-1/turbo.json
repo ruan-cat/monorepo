@@ -1,13 +1,9 @@
 {
-	"extends": [
-		"//"
-	],
+	"extends": ["//"],
 	"tasks": {
 		"vp-hope:build": {
 			"cache": false,
-			"dependsOn": [
-				"@ruan-cat/vuepress-preset-config#build"
-			]
+			"dependsOn": ["@ruan-cat/vuepress-preset-config#build"]
 		},
 		"vip:build": {
 			"cache": false
@@ -17,12 +13,8 @@
 		},
 		"do-multi-build": {
 			"cache": true,
-			"outputs": [
-				"dist/**"
-			],
-			"dependsOn": [
-				"vip:build"
-			]
+			"outputs": ["dist/**"],
+			"dependsOn": ["vip:build"]
 		}
 	}
 }

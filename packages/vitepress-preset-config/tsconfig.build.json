@@ -4,8 +4,5 @@
 		"moduleResolution": "nodenext",
 		"allowImportingTsExtensions": true
 	},
-	"include": [
-		"./src/.vitepress/**/*.ts",
-		"./src/.vitepress/**/*.mts"
-	]
+	"include": ["./src/.vitepress/**/*.ts", "./src/.vitepress/**/*.mts"]
 }

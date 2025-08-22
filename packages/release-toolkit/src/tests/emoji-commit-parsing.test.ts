@@ -1,9 +1,9 @@
 /**
  * 测试 changelogen 的 emoji commit 解析功能
- * 
+ *
  * 验证各种提交格式是否能够被正确解析：
  * - gitmoji 代码格式: :sparkles: feat: description
- * - Unicode emoji 格式: ✨ feat: description  
+ * - Unicode emoji 格式: ✨ feat: description
  * - 带作用域: 🐞 fix(scope): description
  * - 标准格式: feat(scope): description
  */
@@ -22,7 +22,8 @@ function assertEqual<T>(actual: T, expected: T, message: string) {
 }
 
 // changelogen 的提交解析正则表达式（从源码复制）
-const ConventionalCommitRegex = /(?<emoji>:.+:|(\uD83C[\uDF00-\uDFFF])|(\uD83D[\uDC00-\uDE4F\uDE80-\uDEFF])|[\u2600-\u2B55])?( *)?(?<type>[a-z]+)(\((?<scope>.+)\))?(?<breaking>!)?: (?<description>.+)/i;
+const ConventionalCommitRegex =
+	/(?<emoji>:.+:|(\uD83C[\uDF00-\uDFFF])|(\uD83D[\uDC00-\uDE4F\uDE80-\uDEFF])|[\u2600-\u2B55])?( *)?(?<type>[a-z]+)(\((?<scope>.+)\))?(?<breaking>!)?: (?<description>.+)/i;
 
 interface CommitMatch {
 	emoji?: string;
@@ -72,7 +73,7 @@ function testEmojiCommitParsing() {
 			expected: {
 				emoji: "✨",
 				type: "feat",
-				scope: "auth", 
+				scope: "auth",
 				description: "新增用户认证功能",
 			},
 		},
@@ -124,15 +125,15 @@ function testEmojiCommitParsing() {
 	testCommits.forEach(({ commit, expected }, index) => {
 		try {
 			const result = parseCommitMessage(commit);
-			
+
 			assert(result !== null, `Commit should be parseable: "${commit}"`);
 			assertEqual(result!.type, expected.type, `Type mismatch for commit: "${commit}"`);
 			assertEqual(result!.scope, expected.scope, `Scope mismatch for commit: "${commit}"`);
 			assertEqual(result!.emoji, expected.emoji, `Emoji mismatch for commit: "${commit}"`);
 			assertEqual(result!.description, expected.description, `Description mismatch for commit: "${commit}"`);
-			
+
 			console.log(`✅ Test #${index + 1} passed: "${commit}"`);
-			console.log(`   → Type: ${result!.type}, Scope: ${result!.scope || 'none'}, Emoji: ${result!.emoji || 'none'}`);
+			console.log(`   → Type: ${result!.type}, Scope: ${result!.scope || "none"}, Emoji: ${result!.emoji || "none"}`);
 			console.log(`   → Description: ${result!.description}\n`);
 			passedTests++;
 		} catch (error) {
@@ -150,11 +151,7 @@ function testEmojiCommitParsing() {
 function testInvalidCommitMessages() {
 	console.log("🧪 Testing Invalid Commit Messages...\n");
 
-	const invalidCommits = [
-		"just a random message",
-		"feat without colon",
-		"123: starts with number (no type)",
-	];
+	const invalidCommits = ["just a random message", "feat without colon", "123: starts with number (no type)"];
 
 	let passedTests = 0;
 	invalidCommits.forEach((commit, index) => {
@@ -179,18 +176,18 @@ function testBreakingChanges() {
 	console.log("\n🧪 Testing Breaking Changes...\n");
 
 	const breakingCommit = "🔥 feat!: remove deprecated API";
-	
+
 	try {
 		const result = parseCommitMessage(breakingCommit);
-		
+
 		assert(result !== null, "Breaking commit should be parseable");
 		assertEqual(result!.type, "feat", "Breaking change type should be feat");
 		assertEqual(result!.breaking, "!", "Breaking change marker should be !");
 		assertEqual(result!.description, "remove deprecated API", "Breaking change description should match");
-		
+
 		console.log(`✅ Breaking change test passed: "${breakingCommit}"`);
 		console.log(`   → Type: ${result!.type}, Breaking: ${result!.breaking}, Description: ${result!.description}`);
-		
+
 		return 1;
 	} catch (error) {
 		console.error(`❌ Breaking change test failed: "${breakingCommit}"`);
@@ -206,18 +203,18 @@ function testPullRequestReferences() {
 	console.log("\n🧪 Testing Pull Request References...\n");
 
 	const commitWithPR = "✨ feat(auth): add OAuth support (#123)";
-	
+
 	try {
 		const result = parseCommitMessage(commitWithPR);
-		
+
 		assert(result !== null, "PR commit should be parseable");
 		assertEqual(result!.type, "feat", "PR commit type should be feat");
 		assertEqual(result!.scope, "auth", "PR commit scope should be auth");
 		assertEqual(result!.description, "add OAuth support (#123)", "PR commit description should include PR reference");
-		
+
 		console.log(`✅ PR reference test passed: "${commitWithPR}"`);
 		console.log(`   → Type: ${result!.type}, Scope: ${result!.scope}, Description: ${result!.description}`);
-		
+
 		return 1;
 	} catch (error) {
 		console.error(`❌ PR reference test failed: "${commitWithPR}"`);
@@ -234,7 +231,7 @@ function testSupportedFormats() {
 
 	const supportedFormats = [
 		"gitmoji 代码格式: :sparkles: type: description",
-		"Unicode emoji 格式: ✨ type: description", 
+		"Unicode emoji 格式: ✨ type: description",
 		"带作用域: 🐞 type(scope): description",
 		"标准格式: type(scope): description",
 	];
@@ -268,8 +265,8 @@ function testSupportedFormats() {
  */
 export function runAllTests() {
 	console.log("🚀 Starting Emoji Commit Parsing Tests\n");
-	console.log("=" .repeat(50));
-	
+	console.log("=".repeat(50));
+
 	const results = {
 		emojiParsing: testEmojiCommitParsing(),
 		invalidMessages: testInvalidCommitMessages(),
@@ -277,25 +274,27 @@ export function runAllTests() {
 		prReferences: testPullRequestReferences(),
 		supportedFormats: testSupportedFormats(),
 	};
-	
-	console.log("=" .repeat(50));
+
+	console.log("=".repeat(50));
 	console.log("📊 Test Results Summary:");
 	console.log(`✅ Emoji parsing: ${results.emojiParsing}/7 tests passed`);
 	console.log(`✅ Invalid messages: ${results.invalidMessages}/3 tests passed`);
 	console.log(`✅ Breaking changes: ${results.breakingChanges}/1 tests passed`);
 	console.log(`✅ PR references: ${results.prReferences}/1 tests passed`);
 	console.log(`✅ Supported formats: ${results.supportedFormats}/4 tests passed`);
-	
+
 	const totalPassed = Object.values(results).reduce((sum, count) => sum + count, 0);
 	const totalTests = 16;
-	
-	console.log(`\n🎯 Overall: ${totalPassed}/${totalTests} tests passed (${Math.round(totalPassed / totalTests * 100)}%)`);
-	
+
+	console.log(
+		`\n🎯 Overall: ${totalPassed}/${totalTests} tests passed (${Math.round((totalPassed / totalTests) * 100)}%)`,
+	);
+
 	if (totalPassed === totalTests) {
 		console.log("🎉 All tests passed! Emoji commit parsing is working correctly.");
 	} else {
 		console.log("⚠️  Some tests failed. Please check the implementation.");
 	}
-	
+
 	return totalPassed === totalTests;
 }

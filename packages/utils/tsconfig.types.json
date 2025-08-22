@@ -1,11 +1,9 @@
 {
 	// 构建类型声明文件专用的配置
-	"extends": [
-		"./tsconfig.json"
-	],
+	"extends": ["./tsconfig.json"],
 	"compilerOptions": {
 		"composite": false,
 		"declaration": true,
 		"emitDeclarationOnly": true
-	},
+	}
 }

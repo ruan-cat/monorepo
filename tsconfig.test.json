@@ -6,7 +6,7 @@
 		"baseUrl": "./",
 		"moduleResolution": "bundler",
 		// 本文件被其他的 tsconfig.json 组合 ，用于提供test配置
-		"composite": true,
+		"composite": true
 	},
 	"include": [
 		// 匹配本项目内 全部的测试用例文件
@@ -18,7 +18,7 @@
 		"**/.vitepress/**/*.ts",
 		"**/.vitepress/**/*.mts",
 		"packages/vitepress-preset-config/src/**/*.ts",
-		"packages/vitepress-preset-config/src/**/*.mts",
+		"packages/vitepress-preset-config/src/**/*.mts"
 	],
-	"exclude": [],
+	"exclude": []
 }

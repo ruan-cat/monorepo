@@ -48,7 +48,7 @@
 
 ### Minor Changes
 
-- 对外导出 `copyReadmeMd` 函数。用于实现Readme文件的复制功能。 ([`3b9b673`](https://github.com/ruan-cat/monorepo/commit/3b9b673fd4e0850fd8a36e3664e7cbb01dc52988))
+- 对外导出 `copyReadmeMd` 函数。用于实现 Readme 文件的复制功能。 ([`3b9b673`](https://github.com/ruan-cat/monorepo/commit/3b9b673fd4e0850fd8a36e3664e7cbb01dc52988))
 
 ### Patch Changes
 
@@ -164,7 +164,7 @@
 
 ### Minor Changes
 
-- 接入插件 `vitepress-plugin-llms` 。文档打包后会生成便于大模型读取识别的文件。增强AI的读取能力。
+- 接入插件 `vitepress-plugin-llms` 。文档打包后会生成便于大模型读取识别的文件。增强 AI 的读取能力。
 
 ## 0.9.1
 
@@ -231,13 +231,13 @@
 
 ### Patch Changes
 
-- 最大日志深度为10, 避免获取过多无意义的历史日志
+- 最大日志深度为 10, 避免获取过多无意义的历史日志
 
 ## 0.4.0
 
 ### Minor Changes
 
-- 使用来自镜像源的demo展示包。
+- 使用来自镜像源的 demo 展示包。
 
 ### Patch Changes
 
@@ -254,7 +254,7 @@
 
 ### Minor Changes
 
-- 自动导入demo组件和样式。
+- 自动导入 demo 组件和样式。
 
 `vitepress-demo-plugin` 的样式和组件将会在本包内实现导入和全局注册。不再使用内部注入的方式向 md 文件注入局部组件。
 
@@ -284,7 +284,7 @@
 ### Patch Changes
 
 - 删除掉内部冗余的配置。
-- 更新了默认github按钮的入口。
+- 更新了默认 github 按钮的入口。
 
 ## 0.0.2
 

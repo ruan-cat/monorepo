@@ -4,10 +4,10 @@ export default defineConfig((options: Options) => [
 	// 主入口文件和所有模块一起构建
 	{
 		entry: [
-			"./src/index.ts", 
+			"./src/index.ts",
 			"./src/plugins/changelog-with-changelogen.ts",
 			"./src/tests/emoji-commit-parsing.test.ts",
-			"./src/tests/run-tests.ts"
+			"./src/tests/run-tests.ts",
 		],
 		sourcemap: true,
 		outDir: "dist",

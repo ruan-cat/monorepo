@@ -37,7 +37,7 @@ graph TB
 
 新建专用的工具包，包含三个核心模块：
 
-```
+```plain
 packages/release-toolkit/
 ├── src/
 │   ├── plugins/
@@ -239,8 +239,8 @@ export default config;
 
 ```markdown
 - 🔧 **build**: 增加发包配置 `!**/.vercel/**` 避免出现不小心把部署信息一起打包的情况。减少打包体积。 ([#b5b8d38](https://github.com/ruan-cat/monorepo/commit/b5b8d3833553cdae070422233612a85066228e16))
-- ✨ **feat**: 新增用户认证模块支持OAuth2.0登录 ([#a1b2c3d](https://github.com/ruan-cat/monorepo/commit/...))
-- 📃 **docs**: 更新API文档和使用示例 ([#e4f5g6h](https://github.com/ruan-cat/monorepo/commit/...))
+- ✨ **feat**: 新增用户认证模块支持 OAuth2.0 登录 ([#a1b2c3d](https://github.com/ruan-cat/monorepo/commit/...))
+- 📃 **docs**: 更新 API 文档和使用示例 ([#e4f5g6h](https://github.com/ruan-cat/monorepo/commit/...))
 ```
 
 ## 技术优势

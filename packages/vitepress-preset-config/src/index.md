@@ -1,8 +1,8 @@
-# 阮喵喵自用的vitepress预设配置
+# 阮喵喵自用的 vitepress 预设配置
 
 ## 设计初衷
 
-为了替换掉之前的vuepress预设配置。之前的vuepress预设配置导致我命名md文件很不舒服。
+为了替换掉之前的 vuepress 预设配置。之前的 vuepress 预设配置导致我命名 md 文件很不舒服。
 
 ## 安装
 

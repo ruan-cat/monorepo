@@ -209,7 +209,7 @@ export const config: UserConfig = {
 
 ## 其他参考
 
-本包经常用于给阮喵喵维护的项目初始化简单的 cz 配置，这里提供[阮喵喵常用的cz配置笔记](https://notes.ruan-cat.com/cz)，便于阅读。
+本包经常用于给阮喵喵维护的项目初始化简单的 cz 配置，这里提供[阮喵喵常用的 cz 配置笔记](https://notes.ruan-cat.com/cz)，便于阅读。
 
 ## 路线图
 

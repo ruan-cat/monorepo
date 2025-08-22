@@ -7,11 +7,6 @@
 		// 该行必须 否则打包会报错
 		"types": []
 	},
-	"include": [
-		"./src/**/*.ts"
-	],
-	"exclude": [
-		"node_modules",
-		"dist"
-	]
+	"include": ["./src/**/*.ts"],
+	"exclude": ["node_modules", "dist"]
 }

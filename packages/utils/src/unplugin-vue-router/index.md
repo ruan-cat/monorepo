@@ -7,7 +7,7 @@ dir:
 
 # unplugin-vue-router
 
-[unplugin-vue-router](https://github.com/posva/unplugin-vue-router/blob/main/README.md)，是一款基于文件目录结构生成路由的vite插件。目前作为我前端开发的主力工具。
+[unplugin-vue-router](https://github.com/posva/unplugin-vue-router/blob/main/README.md)，是一款基于文件目录结构生成路由的 vite 插件。目前作为我前端开发的主力工具。
 
 ## 安装依赖
 

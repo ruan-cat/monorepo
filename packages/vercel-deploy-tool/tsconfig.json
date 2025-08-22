@@ -22,21 +22,15 @@
 		"baseUrl": ".",
 		"rootDir": ".",
 		"paths": {
-			"@/*": [
-				"src/*"
-			],
-			"src/*": [
-				"src/*"
-			],
-			"tests/*": [
-				"tests/*"
-			]
+			"@/*": ["src/*"],
+			"src/*": ["src/*"],
+			"tests/*": ["tests/*"]
 		}
 	},
 	"include": [
 		"./src/**/*.ts",
 		"./tests/**/*.test.ts",
-		"./tests/**/*.ts",
+		"./tests/**/*.ts"
 		// "src",
 		// "tests"
 	]

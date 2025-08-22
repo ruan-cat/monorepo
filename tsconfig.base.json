@@ -38,13 +38,7 @@
 		"moduleResolution": "node",
 		"allowJs": true,
 		// lib
-		"lib": [
-			"DOM",
-			"ESNext"
-		],
-		"types": [
-			"vite/client",
-			"node"
-		],
+		"lib": ["DOM", "ESNext"],
+		"types": ["vite/client", "node"]
 	}
 }

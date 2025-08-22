@@ -2,7 +2,7 @@
 
 /**
  * 简单的测试运行器
- * 
+ *
  * 运行方式：
  * - pnpm exec tsx src/tests/run-tests.ts
  * - node dist/tests/run-tests.js (构建后)
@@ -14,9 +14,9 @@ async function main() {
 	try {
 		console.log("🧪 Release Toolkit - Emoji Commit Parsing Tests");
 		console.log("================================================\n");
-		
+
 		const success = runAllTests();
-		
+
 		if (success) {
 			console.log("\n✅ All tests completed successfully!");
 			process.exit(0);

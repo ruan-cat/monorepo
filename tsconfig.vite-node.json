@@ -3,16 +3,10 @@
 	"compilerOptions": {
 		"baseUrl": "./utils",
 		"rootDir": "./utils",
-		"rootDirs": [
-			"./utils"
-		],
-		"typeRoots": [
-			"./utils"
-		],
+		"rootDirs": ["./utils"],
+		"typeRoots": ["./utils"],
 		"paths": {
-			"@/*": [
-				"./src/*"
-			]
+			"@/*": ["./src/*"]
 		}
 	}
 }

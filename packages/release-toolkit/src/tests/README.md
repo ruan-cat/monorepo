@@ -46,7 +46,7 @@ node dist/tests/run-tests.js
 ### 测试用例统计
 
 - **Emoji parsing**: 7 个测试用例
-- **Invalid messages**: 3 个测试用例  
+- **Invalid messages**: 3 个测试用例
 - **Breaking changes**: 1 个测试用例
 - **PR references**: 1 个测试用例
 - **Supported formats**: 4 个测试用例

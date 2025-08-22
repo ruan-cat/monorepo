@@ -79,7 +79,7 @@
 
 ### Minor Changes
 
-- 每一个部署任务，都可以根据 `isNeedVercelBuild` 配置来决定要不要跳过vercel的默认build命令。
+- 每一个部署任务，都可以根据 `isNeedVercelBuild` 配置来决定要不要跳过 vercel 的默认 build 命令。
   > 在某些特殊情况下，用户会自动提供满足 vercel 部署的目录结构，故不需要额外运行 `vercel build` 命令。
 
 ## 0.8.18
@@ -128,7 +128,7 @@
 
 ### Patch Changes
 
-- 删除不需要的shx依赖。
+- 删除不需要的 shx 依赖。
 
 ## 0.8.11
 

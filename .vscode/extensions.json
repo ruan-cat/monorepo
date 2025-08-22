@@ -13,7 +13,7 @@
 		"antfu.iconify",
 		"antfu.unocss",
 		"antfu.goto-alias",
-		"csstools.postcss",
+		"csstools.postcss"
 	],
 	"unwantedRecommendations": []
 }

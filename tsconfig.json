@@ -1,23 +1,19 @@
 {
-	"exclude": [
-		"**/dist",
-		"**/node_modules",
-		"./scripts",
-	],
+	"exclude": ["**/dist", "**/node_modules", "./scripts"],
 	"compilerOptions": {
-		"outDir": "**/dist",
+		"outDir": "**/dist"
 		// "rootDir": "./",
 		// "baseUrl": "./"
 	},
 	"references": [
 		{
-			"path": "./tsconfig.md.json",
+			"path": "./tsconfig.md.json"
 		},
 		{
-			"path": "./tsconfig.test.json",
+			"path": "./tsconfig.test.json"
 		},
 		{
-			"path": "./tsconfig.path.json",
-		},
-	],
+			"path": "./tsconfig.path.json"
+		}
+	]
 }

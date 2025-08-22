@@ -7,7 +7,7 @@
 
 <!-- /automd -->
 
-阮喵喵的 vuepress 项目预设，为了快速初始化 vuepress 文档项目，故提供一系列vuepress的项目预设。
+阮喵喵的 vuepress 项目预设，为了快速初始化 vuepress 文档项目，故提供一系列 vuepress 的项目预设。
 
 ## 路线图
 

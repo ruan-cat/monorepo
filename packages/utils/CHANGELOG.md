@@ -23,7 +23,7 @@
 
 ### Minor Changes
 
-- 提供针对Readme文件的检查与移动函数。 ([`cce2a9e`](https://github.com/ruan-cat/monorepo/commit/cce2a9ede596409e0b84575beff8975f49cf76c5))
+- 提供针对 Readme 文件的检查与移动函数。 ([`cce2a9e`](https://github.com/ruan-cat/monorepo/commit/cce2a9ede596409e0b84575beff8975f49cf76c5))
   - hasCapitalReadmeMd 检查当前运行的根目录 是否存在文件名大写的 `README.md` 文件
   - hasLowerCaseReadmeMd 检查当前运行的根目录 是否存在文件名小写的 `readme.md` 文件
   - hasReadmeMd 检查当前运行的根目录 是否存在任意一个大小写命名的 README.md 文件
@@ -109,7 +109,7 @@
 
 ### Patch Changes
 
-- 处理cjs在import模式下的导入bug。
+- 处理 cjs 在 import 模式下的导入 bug。
 
 ## 4.2.0
 
@@ -117,14 +117,14 @@
 
 破坏性变更：
 
-1. 本库不再对外直接提供ts文件。内部的类型声明跳转只能跳转到纯粹的.d.ts文件，而不是原来的ts源码。
-2. 内部做重构，不再提供显性的ts尾缀导入。
+1. 本库不再对外直接提供 ts 文件。内部的类型声明跳转只能跳转到纯粹的.d.ts 文件，而不是原来的 ts 源码。
+2. 内部做重构，不再提供显性的 ts 尾缀导入。
 
 ## 4.1.1
 
 ### Patch Changes
 
-- 处理 `hasChangelogMd` 提示错误的bug。
+- 处理 `hasChangelogMd` 提示错误的 bug。
 
 ## 4.1.0
 

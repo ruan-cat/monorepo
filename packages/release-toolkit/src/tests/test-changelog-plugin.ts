@@ -12,15 +12,15 @@ async function testChangelogPlugin() {
 	try {
 		// 测试1: 从 git commit 历史生成变更日志
 		consola.info("\n📋 测试1: 从最近10个 git commit 生成变更日志");
-		
+
 		const gitChangelog = await generateChangelogFromGitHistory(
 			"HEAD~10", // 从最近10个提交开始
-			"HEAD",    // 到最新提交
+			"HEAD", // 到最新提交
 			{
 				repo: "ruan-cat/monorepo",
 				groupByType: true,
 				includeAuthors: true,
-			}
+			},
 		);
 
 		if (gitChangelog) {
@@ -34,7 +34,7 @@ async function testChangelogPlugin() {
 
 		// 测试2: 混合模式（由于没有实际的 changesets，主要测试回退到 git）
 		consola.info("\n🔄 测试2: 混合模式变更日志生成（回退到 git）");
-		
+
 		const hybridChangelog = await generateHybridChangelog(
 			[], // 空的 changesets 数组
 			{
@@ -42,7 +42,7 @@ async function testChangelogPlugin() {
 				from: "HEAD~5",
 				to: "HEAD",
 				fallbackToGit: true,
-			}
+			},
 		);
 
 		if (hybridChangelog) {
@@ -56,16 +56,12 @@ async function testChangelogPlugin() {
 
 		// 测试3: 测试不同的时间范围
 		consola.info("\n📅 测试3: 测试最近3个提交的变更日志");
-		
-		const recentChangelog = await generateChangelogFromGitHistory(
-			"HEAD~3",
-			"HEAD",
-			{
-				repo: "ruan-cat/monorepo",
-				groupByType: false, // 按时间顺序，不分组
-				includeAuthors: false,
-			}
-		);
+
+		const recentChangelog = await generateChangelogFromGitHistory("HEAD~3", "HEAD", {
+			repo: "ruan-cat/monorepo",
+			groupByType: false, // 按时间顺序，不分组
+			includeAuthors: false,
+		});
 
 		if (recentChangelog) {
 			consola.success("✅ 成功生成最近提交变更日志:");
@@ -77,7 +73,6 @@ async function testChangelogPlugin() {
 		}
 
 		consola.success("🎉 所有测试完成！插件集成 changelogen 功能正常");
-
 	} catch (error) {
 		consola.error("❌ 测试过程中出现错误:", error);
 		process.exit(1);

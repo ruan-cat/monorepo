@@ -4,7 +4,7 @@ import { consola } from "consola";
 
 async function simpleTest() {
 	consola.info("🧪 简单测试开始");
-	
+
 	try {
 		// 测试基本导入
 		const { generateChangelogFromGitHistory } = await import("../plugins/changelog-with-changelogen.js");
@@ -23,7 +23,6 @@ async function simpleTest() {
 		} else {
 			consola.warn("未生成变更日志");
 		}
-
 	} catch (error) {
 		consola.error("测试失败:", error);
 	}

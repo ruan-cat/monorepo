@@ -1,6 +1,6 @@
-# 配置turbo的任务
+# 配置 turbo 的任务
 
-帮助我配置turbo的任务调度。
+帮助我配置 turbo 的任务调度。
 
 我现在在配置 do-build-01star-doc 任务，这个任务的依赖关系是这样的：
 

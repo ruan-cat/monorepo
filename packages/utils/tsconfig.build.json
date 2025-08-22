@@ -20,7 +20,7 @@
 		"noEmit": false,
 		"emitDeclarationOnly": false,
 		"declarationMap": true,
-		"allowJs": true,
+		"allowJs": true
 		// "allowImportingTsExtensions": true
-	},
+	}
 }

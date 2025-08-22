@@ -1,6 +1,6 @@
 # 生成路由脏数据格式化函数
 
-为我编写一个typescript函数，用于实现路由脏数据的格式化。
+为我编写一个 typescript 函数，用于实现路由脏数据的格式化。
 
 该函数接收一个包含路由信息的对象数组，并返回一个处理后的对象数组。
 
@@ -153,11 +153,11 @@ const goodRoute: RouteRecordRaw[] = {
 
 ### 仅仅针对 `path: "",` 的路由
 
-我们的目的是将路径path为空字符串的路由信息，提取复制到父级路由内。
+我们的目的是将路径 path 为空字符串的路由信息，提取复制到父级路由内。
 
 我们只重点处理路径为空字符串的路由。其他不满足要求的路由，不要做任何多余的处理。
 
-### 仅复制除path路径的其他路由信息
+### 仅复制除 path 路径的其他路由信息
 
 比如以下例子：
 
@@ -206,7 +206,7 @@ const routeFromAutoRouter: RouteRecordRaw[] = {
 };
 ```
 
-路径处理交由其他的逻辑实现。在复制数据时，我们仅复制除开path路径的其他路由信息。
+路径处理交由其他的逻辑实现。在复制数据时，我们仅复制除开 path 路径的其他路由信息。
 
 ### 及时删除掉空路径路由信息
 
@@ -216,8 +216,8 @@ const routeFromAutoRouter: RouteRecordRaw[] = {
 
 ### 拼接子路由的完整路径
 
-当你注意到当前路由的path不为空字符串时，请将子路由的path拼接上父级路由的path。
+当你注意到当前路由的 path 不为空字符串时，请将子路由的 path 拼接上父级路由的 path。
 
-比如子路由的path为 `message-center` ，父路由的path为 `/message-middle` 。
+比如子路由的 path 为 `message-center` ，父路由的 path 为 `/message-middle` 。
 
 那么子路由拼接后的完整路径为 `/message-middle/message-center` 。

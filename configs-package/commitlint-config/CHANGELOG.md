@@ -31,7 +31,7 @@
 
 ### Minor Changes
 
-- 1. 处理 getUserConfig 重复执行2次的 bug。现在本工具不会重复执行两次获取用户配置函数了。
+- 1. 处理 getUserConfig 重复执行 2 次的 bug。现在本工具不会重复执行两次获取用户配置函数了。
   2. 拓展 getUserConfig 的传参，允许使用 isPrintScopes 来打印可用的提交范围。默认是打印全部范围的。
 
 ## 1.2.0

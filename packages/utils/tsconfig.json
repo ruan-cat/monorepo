@@ -26,25 +26,19 @@
 		"skipLibCheck": true,
 		// 需要使用 ThisType 工具
 		"noImplicitThis": true,
-		"types": [
-			"typedoc",
-			"typedoc-plugin-markdown",
-			"node"
-		],
+		"types": ["typedoc", "typedoc-plugin-markdown", "node"],
 		"paths": {
-			"@ruan-cat/utils/*": [
-				"./src/*"
-			]
-		},
+			"@ruan-cat/utils/*": ["./src/*"]
+		}
 	},
 	"include": [
-		"./src/**/*.ts",
+		"./src/**/*.ts"
 		// "./src/**/*.js",
 		// "./tests/**/*.ts",
 		// "./tests/**/*.js",
 	],
 	"exclude": [
 		// 测试用例的全部文件 交由本项目根目录下的 tsconfig.json 处理
-		"src/tests/**/*.ts",
+		"src/tests/**/*.ts"
 	]
 }

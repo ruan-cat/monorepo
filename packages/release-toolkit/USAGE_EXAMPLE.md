@@ -5,18 +5,21 @@
 ## 功能特性
 
 ### 1. 增强的 changesets 集成
+
 - 原有的 changesets 工作流保持不变
 - 当 changeset 关联了 git commit 时，会使用 changelogen 解析真实的 commit 信息
 - 支持 emoji + conventional commits 格式解析
 - 自动生成提交链接
 
 ### 2. 纯 git commit 变更日志生成
+
 - 独立于 changesets，直接从 git 历史生成变更日志
 - 支持按提交类型分组
 - 支持贡献者统计
 - 使用项目的 changelogen.config.ts 配置
 
 ### 3. 混合模式
+
 - 结合 changesets 和 git commit 历史
 - 当没有 changesets 时自动回退到 git 历史
 - 确保变更日志的完整性
@@ -27,43 +30,43 @@
 
 ```json
 {
-  "changelog": [
-    "@ruan-cat/release-toolkit/plugins/changelog-with-changelogen",
-    {
-      "repo": "ruan-cat/monorepo"
-    }
-  ]
+	"changelog": [
+		"@ruan-cat/release-toolkit/plugins/changelog-with-changelogen",
+		{
+			"repo": "ruan-cat/monorepo"
+		}
+	]
 }
 ```
 
 ### 程序化调用
 
 ```typescript
-import { 
-  generateChangelogFromGitHistory,
-  generateHybridChangelog 
+import {
+	generateChangelogFromGitHistory,
+	generateHybridChangelog,
 } from "@ruan-cat/release-toolkit/plugins/changelog-with-changelogen";
 
 // 从 git commit 历史生成变更日志
 const changelog = await generateChangelogFromGitHistory(
-  "v1.0.0",  // 起始标签/提交
-  "HEAD",    // 结束标签/提交
-  {
-    repo: "your-org/your-repo",
-    groupByType: true,      // 按类型分组
-    includeAuthors: true,   // 包含贡献者
-  }
+	"v1.0.0", // 起始标签/提交
+	"HEAD", // 结束标签/提交
+	{
+		repo: "your-org/your-repo",
+		groupByType: true, // 按类型分组
+		includeAuthors: true, // 包含贡献者
+	},
 );
 
 // 混合模式生成
 const hybridChangelog = await generateHybridChangelog(
-  changesets, // changesets 数组
-  {
-    repo: "your-org/your-repo",
-    from: "v1.0.0",
-    to: "HEAD",
-    fallbackToGit: true,  // 启用回退到 git
-  }
+	changesets, // changesets 数组
+	{
+		repo: "your-org/your-repo",
+		from: "v1.0.0",
+		to: "HEAD",
+		fallbackToGit: true, // 启用回退到 git
+	},
 );
 ```
 
@@ -127,6 +130,7 @@ CONSOLA_LEVEL=4 npx changesets version
 ```
 
 这将显示插件的详细处理过程，包括：
+
 - Git commit 解析结果
 - Changelogen 配置加载状态
 - 变更日志生成过程
@@ -143,6 +147,7 @@ CONSOLA_LEVEL=4 npx changesets version
 ### 1. 无法读取 git commit
 
 确保：
+
 - 在 git 仓库中运行
 - 有足够的 commit 历史
 - Git 工作目录是干净的
@@ -150,6 +155,7 @@ CONSOLA_LEVEL=4 npx changesets version
 ### 2. changelogen 配置问题
 
 检查：
+
 - `changelogen.config.ts` 文件是否存在
 - 配置格式是否正确
 - 依赖是否正确安装
@@ -157,6 +163,7 @@ CONSOLA_LEVEL=4 npx changesets version
 ### 3. 导入路径问题
 
 确保使用正确的导入路径：
+
 ```typescript
 // ✅ 正确
 import { generateChangelogFromGitHistory } from "@ruan-cat/release-toolkit/plugins/changelog-with-changelogen";
