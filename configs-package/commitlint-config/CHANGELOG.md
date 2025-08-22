@@ -1,5 +1,11 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 1.5.0
+
+### Minor Changes
+
+- 新增提交类型 deps 。 ([0099581](https://github.com/ruan-cat/monorepo/commit/009958124282d0996b50040849544e70e9faefd9))
+
 ## 1.4.0
 
 ### Minor Changes
