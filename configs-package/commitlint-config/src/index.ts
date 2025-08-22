@@ -5,6 +5,12 @@ import * as fs from "node:fs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+export * from "./commit-types.ts";
+export * from "./common-scopes.ts";
+export * from "./config.ts";
+export * from "./utils.ts";
+export * from "./type.ts";
+
 import { sync } from "glob";
 import { load } from "js-yaml";
 import { consola } from "consola";

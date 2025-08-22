@@ -23,10 +23,6 @@
 			"require": "./dist/index.cjs",
 			"types": "./dist/index.d.cts"
 		},
-		"./types-extractor": {
-			"require": "./dist/types-extractor.cjs",
-			"types": "./dist/types-extractor.d.cts"
-		},
 		"./src/*": "./src/*"
 	},
 	"keywords": [

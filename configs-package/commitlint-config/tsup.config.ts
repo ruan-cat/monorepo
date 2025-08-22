@@ -1,14 +1,7 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-	entry: [
-		"./src/index.ts",
-		/**
-		 * 导出类型提取功能
-		 * 用于与 changelogen 集成
-		 */
-		"./src/types-extractor.ts",
-	],
+	entry: ["./src/index.ts"],
 	outDir: "dist",
 	format: ["cjs"],
 	clean: true,
