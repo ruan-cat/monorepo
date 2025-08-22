@@ -1,12 +1,30 @@
 import type { ChangelogFunctions } from "@changesets/types";
 import { consola } from "consola";
-import {
-	extractCommitTypes,
-	createEmojiTypeMap,
-	createTypeEmojiMap,
-} from "@ruan-cat/commitlint-config/types-extractor";
+import { commitTypes, type CommitType } from "@ruan-cat/commitlint-config";
 import { getGitDiff, parseCommits, loadChangelogConfig, type GitCommit, type ChangelogConfig } from "changelogen";
 import changelogConfig from "../configs/changelogen.config.ts";
+
+/**
+ * 创建 type -> emoji 映射
+ */
+function createTypeEmojiMap(): Map<string, { emoji: string; description: string }> {
+	const map = new Map<string, { emoji: string; description: string }>();
+	commitTypes.forEach(({ type, emoji, description }) => {
+		map.set(type, { emoji, description });
+	});
+	return map;
+}
+
+/**
+ * 创建 emoji -> type 映射
+ */
+function createEmojiTypeMap(): Map<string, string> {
+	const map = new Map<string, string>();
+	commitTypes.forEach(({ type, emoji }) => {
+		map.set(emoji, type);
+	});
+	return map;
+}
 
 /**
  * 从 git commit 历史中获取提交信息并解析
