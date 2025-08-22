@@ -1,4 +1,4 @@
-name: 过一遍turbo打包行为，测试项目健壮性
+name: CI
 
 env:
   # https://turborepo.com/docs/crafting-your-repository/constructing-ci#enabling-remote-caching
