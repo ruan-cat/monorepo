@@ -2,7 +2,7 @@
 /** @type {import("prettier").Config} */
 const config = {
 	// FIXME: 该配置导致md文件格式化时收到干扰 配置不是热更新的 而且忽略配置是失效的
-	plugins: ["prettier-plugin-lint-md"],
+	plugins: ["prettier-plugin-lint-md", "@prettier/plugin-oxc"],
 	singleQuote: false,
 	printWidth: 120,
 	semi: true,
