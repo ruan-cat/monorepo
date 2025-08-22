@@ -1,9 +1,12 @@
 
 # 全部的json文件 都忽略
-*.json
+**/*.json
 
 # 全部以tsconfig开头的 尾缀为json的配置文件 都被忽略
-tsconfig*.json
+**/tsconfig*.json
+
+# 全部的package.json文件 都忽略
+**/package.json
 
 # 涉及到的文件夹不做处理
 .vitest-reporter-html
