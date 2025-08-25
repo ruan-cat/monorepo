@@ -19,3 +19,29 @@ order: 100
 TODO: 疑似 bug ，需要反馈给 vite-plugin-vercel 插件。
 
 ![2025-06-16-00-18-13](https://s2.loli.net/2025/06/16/ZjpGyahSeO5MFzc.png)
+
+## 测试： 代码行号显示故障
+
+### 长代码片段 有 details 容器
+
+::: details 长代码片段 有 details 容器
+
+<<< ./config.mts#snipaste{ts twoslash}
+
+:::
+
+### 长代码片段 无 details 容器
+
+<<< ./config.mts#snipaste{ts twoslash}
+
+### 短代码片段 有 details 容器
+
+::: details 短代码片段 有 details 容器
+
+<<< ./tests/theme.example.ts#snipaste{ts twoslash}
+
+:::
+
+### 短代码片段 无 details 容器
+
+<<< ./tests/theme.example.ts#snipaste{ts twoslash}
