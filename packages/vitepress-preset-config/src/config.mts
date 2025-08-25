@@ -200,6 +200,7 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 		],
 		// languages: ["js", "jsx", "ts", "tsx"],
 
+		lineNumbers: true,
 		container: {
 			tipLabel: "提示",
 			warningLabel: "警告",
