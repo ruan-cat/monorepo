@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 1.2.0
+
+### Minor Changes
+
+- 增加行号显示。 ([`b988db7`](https://github.com/ruan-cat/monorepo/commit/b988db74836e1148e68d2a49b327934727c2d9dc))
+
 ## 1.1.0
 
 ### Minor Changes
