@@ -22,26 +22,39 @@ TODO: 疑似 bug ，需要反馈给 vite-plugin-vercel 插件。
 
 ## 测试： 代码行号显示故障
 
+### 代码片段激活 twoslash 的方案
+
+- `{ts twoslash}` 官方的 pr 支持了。
+- `#snipaste{ts twoslash}` 某个 issue 内支持这个写法。
+
 ### 长代码片段 有 details 容器
 
 ::: details 长代码片段 有 details 容器
 
-<<< ./config.mts#snipaste{ts twoslash}
+<<< ./config.mts{ts twoslash}
+
+<!-- #snipaste{ts twoslash} -->
 
 :::
 
 ### 长代码片段 无 details 容器
 
-<<< ./config.mts#snipaste{ts twoslash}
+<<< ./config.mts{ts twoslash}
+
+<!-- #snipaste{ts twoslash} -->
 
 ### 短代码片段 有 details 容器
 
 ::: details 短代码片段 有 details 容器
 
-<<< ./tests/theme.example.ts#snipaste{ts twoslash}
+<<< ./tests/theme.example.ts{ts twoslash}
+
+<!-- #snipaste{ts twoslash} -->
 
 :::
 
 ### 短代码片段 无 details 容器
 
-<<< ./tests/theme.example.ts#snipaste{ts twoslash}
+<<< ./tests/theme.example.ts{ts twoslash}
+
+<!-- #snipaste{ts twoslash} -->
