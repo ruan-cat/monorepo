@@ -15,9 +15,6 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt from "vitepress-plugin-llms";
 
-// @ts-ignore TODO: 临时测试
-import { lineNumberPlugin } from "./tests/temp-lineNumberPlugin.ts";
-
 /**
  * 让vitepress支持mermaid图表
  * @see https://emersonbottero.github.io/vitepress-plugin-mermaid/guide/getting-started.html
@@ -195,9 +192,6 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	markdown: {
 		config(md) {
 			md.use(vitepressDemoPlugin);
-
-			// @ts-ignore
-			// md.use(lineNumberPlugin, true);
 		},
 
 		codeTransformers: [
@@ -206,7 +200,11 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 		],
 		// languages: ["js", "jsx", "ts", "tsx"],
 
+		/**
+		 * FIXME: 在开启 twoslash 后 ，行号显示是不正确的。 这个故障是vitepress的bug，暂时没有好的方案来解决。
+		 */
 		lineNumbers: true,
+
 		container: {
 			tipLabel: "提示",
 			warningLabel: "警告",
