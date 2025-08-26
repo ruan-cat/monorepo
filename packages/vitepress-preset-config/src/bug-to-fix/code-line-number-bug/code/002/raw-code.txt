@@ -1,0 +1,70 @@
+<div class="language-ts vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">ts</span><pre class="shiki shiki-themes github-light github-dark vp-code" style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;--shiki-light-bg:#fff;--shiki-dark-bg:#24292e" tabindex="0" v-pre=""><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583">import</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8"> { defineConfig } </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583">from</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF"> "vitepress"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D">// https://vitepress.dev/reference/site-config</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583">import</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8"> { transformerTwoslash } </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583">from</span><span 
+style="--shiki-light:#032F62;--shiki-dark:#9ECBFF"> "@shikijs/vitepress-twoslash"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">;</span></span>        
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D">// @ts-ignore</span></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583">import</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8"> { lineNumberPlugin } 
+</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583">from</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF"> "./temp-plugins/temp-lineNumberPlugin"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">;</span></span>  
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583">export</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583"> default</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0"> defineConfig</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">({</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">  title: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"My Awesome Project"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">,</span></span>    
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">  description: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"A VitePress 
+Site"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">,</span></span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">  themeConfig: {</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D">    // https://vitepress.dev/reference/default-theme-config</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">    nav: [</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">      { 
+text: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"Home"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">, link: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"/"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8"> },</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">      { 
+text: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"Examples"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">, link: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"/markdown-examples"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8"> },</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">    ],</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">    sidebar: [</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">      {</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">        
+text: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"Examples"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">        
+items: [</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">        
+  { text: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"Markdown 
+Examples"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">, link: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"/markdown-examples"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8"> },</span></span>      
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">        
+  { text: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"Runtime API Examples"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">, link: 
+</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"/api-examples"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8"> },</span></span>        
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">        
+],</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">      },</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">    ],</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">    socialLinks: [</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">      { 
+icon: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"github"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">, link: </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF">"https://github.com/vuejs/vitepress"</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8"> },</span></span>     
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">    ],</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">  },</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">  vite: 
+{</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">    server: {</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">      open: </span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF">true</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">      port: </span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF">8080</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">    },</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">  },</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">  markdown: {</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">    codeTransformers: [</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D">      // @ts-ignore</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0">      transformerTwoslash</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">(),</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">    ],</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0">    config</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">(</span><span style="--shiki-light:#E36209;--shiki-dark:#FFAB70">md</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">) {</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D">      // @ts-ignore</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">      md.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0">use</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">(lineNumberPlugin, </span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF">true</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">);</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">    },</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D">    // Explicitly load these languages for types hightlighting</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D">    // languages: ["js", "jsx", "ts", "tsx"] as LanguageInput[],</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">  },</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8">});</span></span></code></pre>
+</div>
