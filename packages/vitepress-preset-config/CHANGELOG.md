@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 1.2.1
+
+### Patch Changes
+
+- 更新行号渲染错误的文档。 ([`86988a8`](https://github.com/ruan-cat/monorepo/commit/86988a83580ef46a8c312d50c5e7ffff09f5f046))
+
 ## 1.2.0
 
 ### Minor Changes
