@@ -114,3 +114,5 @@ pnpm -F=@ruan-cat/vitepress-preset-config i -P markdown-it-async
 ```
 
 ### 最小化的测试复现仓库
+
+- https://github.com/ruan-cat/vitepress-code-line-number-bug-when-use-with-shiki
