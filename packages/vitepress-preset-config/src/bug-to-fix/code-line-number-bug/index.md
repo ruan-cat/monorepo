@@ -99,6 +99,12 @@ const code = rawCode.slice(rawCode.indexOf("<code>"), rawCode.indexOf("</code>")
 
 TODO: 去官方 issue 组织语言比较复杂，先放一放。
 
+## shiki 对行号的解决方案
+
+增加 css，而不是去重新计算行号。
+
+- https://github.com/shikijs/shiki/issues/3#issuecomment-830564854
+
 ## 其他杂项
 
 ### 本项目为此额外增加的依赖
