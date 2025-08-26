@@ -18,6 +18,7 @@
 		"consola": "^3.4.2",
 		"js-yaml": "^4.1.0",
 		"lodash-es": "^4.17.21",
+		"markdown-it-async": "^2.2.0",
 		"mermaid": "^11.10.0",
 		"vitepress-demo-plugin": "^1.4.7",
 		"vitepress-plugin-llms": "^1.7.3",

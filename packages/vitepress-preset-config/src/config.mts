@@ -15,6 +15,9 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt from "vitepress-plugin-llms";
 
+// @ts-ignore TODO: 临时测试
+import { lineNumberPlugin } from "./tests/temp-lineNumberPlugin.ts";
+
 /**
  * 让vitepress支持mermaid图表
  * @see https://emersonbottero.github.io/vitepress-plugin-mermaid/guide/getting-started.html
@@ -192,6 +195,9 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	markdown: {
 		config(md) {
 			md.use(vitepressDemoPlugin);
+
+			// @ts-ignore
+			// md.use(lineNumberPlugin, true);
 		},
 
 		codeTransformers: [
