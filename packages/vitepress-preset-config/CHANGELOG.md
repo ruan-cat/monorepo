@@ -1,5 +1,12 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 1.3.0
+
+### Minor Changes
+
+- - 关闭默认的 [teekHome](https://vp.teek.top/reference/config/global-config.html#teekhome) 首页风格。 ([`986421f`](https://github.com/ruan-cat/monorepo/commit/986421f7cfbb9cdeb07cc36bf4b2a74dcc8cb3c4))
+  - 默认启动项目的端口为 8080 。
+
 ## 1.2.1
 
 ### Patch Changes
