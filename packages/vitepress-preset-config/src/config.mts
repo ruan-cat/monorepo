@@ -35,6 +35,12 @@ const teekConfig = defineTeekConfig({
 	/** @see https://vp.teek.top/reference/config/global-config.html#sidebartrigger */
 	sidebarTrigger: true,
 
+	/**
+	 * 关闭 Teek 主题的首页风格
+	 * @see https://vp.teek.top/reference/config/global-config.html#teekhome
+	 */
+	teekHome: false,
+
 	vitePlugins: {
 		/**
 		 * 关闭 vitepress-plugin-permalink 插件
@@ -158,6 +164,7 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	vite: {
 		server: {
 			open: true,
+			port: 8080,
 		},
 
 		plugins: [
