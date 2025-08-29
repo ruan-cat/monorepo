@@ -118,4 +118,12 @@ export const domains = <const>{
 		"drill.ruancat6312.top",
 		"drill.ruan-cat.com",
 	],
+
+	/** rmmv api文档 */
+	"rmmv-api-doc": [
+		// TODO: 目前没有配置工作流给该域名 未来看情况使用
+		"rmmv-api-doc.ruancat6312.top",
+		// 该域名在vercel内配置cname 在此处仅声明 不实际暴露出去使用
+		// "rmmv-api-doc.ruan-cat.com",
+	],
 };
