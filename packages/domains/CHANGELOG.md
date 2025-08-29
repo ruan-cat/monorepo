@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.10.0
+
+### Minor Changes
+
+- 增加域名 [rmmv-api-doc.ruancat6312.top](https://rmmv-api-doc.ruancat6312.top) 和 [rmmv-api-doc.ruan-cat.com](https://rmmv-api-doc.ruan-cat.com) 。 ([`05e1bf7`](https://github.com/ruan-cat/monorepo/commit/05e1bf79029dd502df89900f07c9d8b24606b0e9))
+
 ## 0.9.0
 
 ### Minor Changes
