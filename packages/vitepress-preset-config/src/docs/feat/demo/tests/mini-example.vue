@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { PaginationProps } from "../type";
-import ComponentsPagination from "../index.vue";
+import type { PaginationProps } from "./type";
+import ComponentsPagination from "./index.vue";
 import { ref } from "vue";
 
 /** 模拟请求 */
