@@ -2,8 +2,10 @@
 
 比如以下流程图；
 
+::: details 流程图预览框
+
 ```mermaid
-flowchart TD
+flowchart LR
     A[平台配置<br/>platform-config.json] --> B[类型定义<br/>global.d.ts]
     B --> C[全局配置服务<br/>config/index.ts]
     C --> D[组合式API<br/>useConfigurableVerifyCode]
@@ -18,4 +20,6 @@ flowchart TD
     style F fill:#f1f8e9
 ```
 
-本包默认提供 mermaid 流程图渲染能力。
+:::
+
+本包默认提供 mermaid 流程图渲染能力。使用 [@leelaa/vitepress-plugin-extended](https://github.com/admin8756/vitepress-ext) 的 mermaid 渲染组件来实现。

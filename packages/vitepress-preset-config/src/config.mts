@@ -15,17 +15,8 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt from "vitepress-plugin-llms";
 
-/**
- * 让vitepress支持mermaid图表
- * @see https://emersonbottero.github.io/vitepress-plugin-mermaid/guide/getting-started.html
- */
-import { withMermaid } from "vitepress-plugin-mermaid";
-/**
- * 不考虑这种二次包装的写法
- * 本库仅仅是负责二次导出该函数
- * mermaid 需求并不是常用的需求 故设计成让用户自己二次包装使用
- */
-export { withMermaid };
+/** @see https://vitepress-ext.leelaa.cn/Mermaid.html#扩展-md-插件 */
+import { MermaidPlugin } from "@leelaa/vitepress-plugin-extended";
 
 // https://vp.teek.top/guide/quickstart.html#teek-引入
 import { defineTeekConfig } from "vitepress-theme-teek/config";
@@ -199,6 +190,9 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	markdown: {
 		config(md) {
 			md.use(vitepressDemoPlugin);
+
+			// @ts-ignore
+			MermaidPlugin(md);
 		},
 
 		codeTransformers: [
@@ -211,6 +205,11 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 		 * FIXME: 在开启 twoslash 后 ，行号显示是不正确的。 这个故障是vitepress的bug，暂时没有好的方案来解决。
 		 */
 		lineNumbers: true,
+
+		/** @see https://vitepress-ext.leelaa.cn/Mermaid.html#扩展-md-插件 */
+		lazyLoading: true,
+		breaks: true,
+		math: true,
 
 		container: {
 			tipLabel: "提示",

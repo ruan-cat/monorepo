@@ -17,6 +17,10 @@ import "@shikijs/vitepress-twoslash/style.css";
 import Teek from "vitepress-theme-teek";
 import "vitepress-theme-teek/index.css";
 
+/** @see https://vitepress-ext.leelaa.cn/Mermaid.html#全局引入 */
+// @ts-ignore
+import { Mermaid } from "@leelaa/vitepress-plugin-extended";
+
 /**
  * 一个回调函数 用来暴露变量 实现注册
  */
@@ -39,6 +43,7 @@ export interface DefineRuancatPresetThemeParams {
 function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppContext) {
 	app.use(NolebaseGitChangelogPlugin);
 	app.use(TwoslashFloatingVue);
+	app.component("Mermaid", Mermaid);
 	/**
 	 * 放弃全局注册demo展示组件
 	 * 在生产环境内使用peer对等依赖
