@@ -50,6 +50,6 @@
 	},
 	"devDependencies": {
 		"automd": "^0.4.0",
-		"taze": "^19.1.1"
+		"taze": "^19.3.0"
 	}
 }

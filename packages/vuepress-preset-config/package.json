@@ -58,7 +58,7 @@
 		"src"
 	],
 	"devDependencies": {
-		"@types/node": "^22.17.2",
+		"@types/node": "^22.18.0",
 		"@types/rollup-plugin-visualizer": "^5.0.3",
 		"automd": "^0.4.0",
 		"tsup": "^8.5.0"
@@ -69,8 +69,8 @@
 		"@vuepress/plugin-slimsearch": "2.0.0-rc.80",
 		"js-yaml": "^4.1.0",
 		"rollup-plugin-visualizer": "^5.14.0",
-		"sass-embedded": "^1.90.0",
-		"vue": "^3.5.18",
+		"sass-embedded": "^1.91.0",
+		"vue": "^3.5.20",
 		"vuepress": "2.0.0-rc.20",
 		"vuepress-theme-hope": "2.0.0-rc.73"
 	}

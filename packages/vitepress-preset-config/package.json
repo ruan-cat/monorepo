@@ -15,7 +15,7 @@
 		"@leelaa/vitepress-plugin-extended": "^1.0.7",
 		"@nolebase/vitepress-plugin-git-changelog": "^2.18.2",
 		"@ruan-cat/utils": "workspace:^",
-		"@shikijs/vitepress-twoslash": "^3.11.0",
+		"@shikijs/vitepress-twoslash": "^3.12.0",
 		"consola": "^3.4.2",
 		"js-yaml": "^4.1.0",
 		"lodash-es": "^4.17.21",
@@ -24,13 +24,13 @@
 		"vitepress-demo-plugin": "^1.4.7",
 		"vitepress-plugin-llms": "^1.7.3",
 		"vitepress-sidebar": "^1.33.0",
-		"vitepress-theme-teek": "^1.4.3",
-		"vue": "^3.5.18"
+		"vitepress-theme-teek": "^1.4.6",
+		"vue": "^3.5.20"
 	},
 	"devDependencies": {
 		"@types/lodash-es": "^4.17.12",
 		"automd": "^0.4.0",
-		"element-plus": "^2.10.7",
+		"element-plus": "^2.11.1",
 		"tsup": "^8.5.0",
 		"vitepress": "^1.6.4"
 	},

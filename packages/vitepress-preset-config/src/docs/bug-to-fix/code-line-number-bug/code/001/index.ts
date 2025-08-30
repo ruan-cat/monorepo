@@ -1,9 +1,9 @@
 export type TestType = {
-  name: string;
-  age: number;
+	name: string;
+	age: number;
 };
 
 export const testType: TestType = {
-  name: "test",
-  age: 18,
+	name: "test",
+	age: 18,
 };
