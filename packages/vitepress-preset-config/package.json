@@ -95,7 +95,7 @@
 		"!**/.vercel/**",
 		"dist",
 		"src",
-		"!src/tests",
+		"!src/docs/**",
 		"!src/**/tests",
 		"!src/**/*.md",
 		"!src/.vitepress/cache",
