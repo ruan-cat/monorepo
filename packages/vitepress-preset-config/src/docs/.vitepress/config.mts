@@ -1,8 +1,8 @@
 // 避免直接使用自己的包
 // import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "@ruan-cat/vitepress-preset-config/config";
 // @ts-ignore
-import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "../config.mts";
-import { description } from "../../package.json";
+import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "../../config.mts";
+import { description } from "../../../package.json";
 
 addChangelog2doc({
 	target: "./src",
@@ -29,7 +29,7 @@ const thisDocUserConfig = setUserConfig({
 
 // @ts-ignore
 thisDocUserConfig.themeConfig.sidebar = setGenerateSidebar({
-	documentRootPath: "./src",
+	documentRootPath: "./src/docs",
 });
 
 export default thisDocUserConfig;

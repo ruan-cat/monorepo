@@ -80,7 +80,7 @@ export default <Config>{
 		// vitepress预设配置文档
 		{
 			type: "static",
-			targetCWD: "./packages/vitepress-preset-config/src/.vitepress/dist",
+			targetCWD: "./packages/vitepress-preset-config/src/docs/.vitepress/dist",
 			url: domains["vitepress-preset"] as unknown as string[],
 			// outputDirectory: "src/.vitepress/dist",
 			// userCommands: ["pnpm -C=./packages/vitepress-preset-config build:docs"],
