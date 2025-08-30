@@ -1,5 +1,13 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 1.4.0
+
+### Minor Changes
+
+- 重新恢复 mermaid 渲染能力。并且渲染方案选用 [@leelaa/vitepress-plugin-extended](https://github.com/admin8756/vitepress-ext) ，而不是 [vitepress-plugin-mermaid](https://github.com/emersonbottero/vitepress-plugin-mermaid) 的方案了。 ([`bbb7acf`](https://github.com/ruan-cat/monorepo/commit/bbb7acfd7dc0798960e5a96c35abd38f2553a7df))
+
+- 内部文件移动重构位置。 ([`420d7b3`](https://github.com/ruan-cat/monorepo/commit/420d7b388d2ee7f5becb0abad432b6d9d823a7e6))
+
 ## 1.3.0
 
 ### Minor Changes
