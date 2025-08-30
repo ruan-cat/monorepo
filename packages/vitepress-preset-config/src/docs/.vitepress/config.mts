@@ -5,7 +5,7 @@ import { setUserConfig, setGenerateSidebar, addChangelog2doc } from "../../confi
 import { description } from "../../../package.json";
 
 addChangelog2doc({
-	target: "./src",
+	target: "./src/docs",
 	data: {
 		order: 1000,
 	},
