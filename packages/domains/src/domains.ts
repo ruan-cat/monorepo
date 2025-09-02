@@ -156,7 +156,13 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "notes",
 			order: 1,
 			projectAlias: "notesCloudflare",
-			description: "Cloudflare pages 流水线版本 - 高频触发，低速部署",
+			description: `笔记项目 Cloudflare 流水线版本
+在 cloudflare pages 流水线内部署的域名
+这个域名会在dev分支且notes目录下有变更时重新部署
+
+- 更新速度：预期是高频触发，低速部署的域名
+- cname：该域名有明确的cname配置，对接的是cloudflare pages提供的默认域名
+- 无意义配置：本配置在此处仅仅是用来声明，目前暂时没有专门的域名配置`,
 		},
 
 		{
@@ -164,7 +170,13 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "ruan-cat-notes",
 			order: 2,
 			projectAlias: "notesVercel",
-			description: "Vercel 流水线版本 - 中频触发，高速部署",
+			description: `笔记项目 Vercel 流水线版本
+在 vercel 流水线内部署的域名
+这个域名会在vc分支触发的时候重新部署
+
+- 更新速度：预期是中频触发，高速部署的域名
+- cname：该域名有明确的cname配置，对接的是vercel提供的服务器ns
+- 无意义配置：本配置在此处仅仅是用来声明，目前暂时没有专门的域名配置`,
 		},
 
 		{
@@ -172,9 +184,17 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "ruan-cat-notes",
 			order: 3,
 			projectAlias: "notesGithubWorkflow",
-			description: `GitHub workflow 流水线版本 - 低频触发，低速部署`,
+			description: `笔记项目 GitHub Workflow 流水线版本
+在 github workflow 流水线内部署的域名
+为了保证vercel静态文件上传时不会出现构建次数超出每个月100次的额度限制
+该域名预期仅仅在main主分支被触发的时候完成更新
+
+- 更新速度：预期是低频触发，低速部署的域名
+- cname：该域名没有在平台内配置指定的cname，整个ruancat6312.top域名被vercel管控。vercel会实现自动域名
+- 有意义配置：该配置预期会给vercel部署工具直接使用`,
 		},
 	],
+
 	/** rmmv笔记项目 */
 	"rmmv-notes": [
 		{
