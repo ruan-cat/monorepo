@@ -32,7 +32,7 @@ export const domains = <const>{
 	"10wms": ["01s-10wms.ruancat6312.top"],
 
 	/** 大项目 10WMS项目 前端文档 */
-	"10wms-doc": ["01s-10wms-frontend-docs.ruancat6312.top", "01s-10wms-doc.ruancat6312.top"],
+	"10wms-doc": ["01s-10wms-doc.ruancat6312.top", "01s-10wms-frontend-docs.ruancat6312.top"],
 
 	/** 大项目 11智慧社区项目 */
 	"11comm": [
