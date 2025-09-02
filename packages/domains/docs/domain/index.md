@@ -8,6 +8,6 @@ order: 10
 
 ::: details 域名
 
-<<< ../main.ts#snipaste{ts twoslash}
+<<< ../../main.ts#snipaste{ts twoslash}
 
 :::
