@@ -15,12 +15,12 @@
 		"directory": "packages/domains"
 	},
 	"scripts": {
+		"docs:dev": "vitepress dev docs",
+		"build:docs": "vitepress build docs",
 		"build": "tsup",
 		"prebuild": "automd",
 		"docs:dev-vp": "vuepress-vite dev docs --clean-cache --open",
-		"build:docs-vp": "vuepress-vite build docs",
-		"docs:dev": "vitepress dev docs --port 8080",
-		"build:docs": "vitepress build docs"
+		"build:docs-vp": "vuepress-vite build docs"
 	},
 	"exports": {
 		".": {
