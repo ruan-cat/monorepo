@@ -68,23 +68,29 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			order: 1,
 		},
 	],
-	/** 大项目 01星球文档 */
+	/** 01星球文档 */
 	"01s-doc": [
 		{
 			topLevelDomain: "ruancat6312.top",
 			secondLevelDomain: "docs-01-star",
 			order: 1,
 		},
+		{
+			topLevelDomain: "ruancat6312.top",
+			secondLevelDomain: "01s-doc",
+			order: 2,
+			description: "本域名是别名。旨在于统一域名的编写格式。",
+		},
 	],
 	/** 工具包项目 */
 	utils: [
 		{
-			topLevelDomain: "ruancat6312.top",
+			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "utils",
 			order: 1,
 		},
 		{
-			topLevelDomain: "ruan-cat.com",
+			topLevelDomain: "ruancat6312.top",
 			secondLevelDomain: "utils",
 			order: 2,
 		},
@@ -98,12 +104,12 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 		},
 		{
 			topLevelDomain: "ruancat6312.top",
-			secondLevelDomain: "vitepress-preset",
+			secondLevelDomain: "vitepress",
 			order: 2,
 		},
 		{
 			topLevelDomain: "ruancat6312.top",
-			secondLevelDomain: "vitepress",
+			secondLevelDomain: "vitepress-preset",
 			order: 3,
 		},
 	],
@@ -146,22 +152,27 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 	/** 阮喵喵笔记 */
 	"ruan-cat-notes": [
 		{
-			topLevelDomain: "ruancat6312.top",
-			secondLevelDomain: "ruan-cat-notes",
-			order: 1,
-			description: "GitHub workflow 流水线版本 - 低频触发，低速部署",
-		},
-		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "notes",
-			order: 2,
+			order: 1,
+			projectAlias: "notesCloudflare",
 			description: "Cloudflare pages 流水线版本 - 高频触发，低速部署",
 		},
+
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "ruan-cat-notes",
-			order: 3,
+			order: 2,
+			projectAlias: "notesVercel",
 			description: "Vercel 流水线版本 - 中频触发，高速部署",
+		},
+
+		{
+			topLevelDomain: "ruancat6312.top",
+			secondLevelDomain: "ruan-cat-notes",
+			order: 3,
+			projectAlias: "notesGithubWorkflow",
+			description: `GitHub workflow 流水线版本 - 低频触发，低速部署`,
 		},
 	],
 	/** rmmv笔记项目 */

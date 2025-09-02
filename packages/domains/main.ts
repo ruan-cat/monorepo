@@ -53,7 +53,7 @@ export const domains = <const>{
 	utils: ["utils.ruancat6312.top", "utils.ruan-cat.com"],
 
 	/** vitepress配置预设 */
-	"vitepress-preset": ["vip.ruancat6312.top", "vitepress-preset.ruancat6312.top", "vitepress.ruancat6312.top"],
+	"vitepress-preset": ["vip.ruancat6312.top", "vitepress.ruancat6312.top", "vitepress-preset.ruancat6312.top"],
 
 	/** 域名列表 */
 	domain: ["dm.ruancat6312.top", "dm.ruan-cat.com"],
@@ -65,19 +65,6 @@ export const domains = <const>{
 		"vc.ruancat6312.top",
 		"vc.ruan-cat.com",
 	],
-
-	/**
-	 * 笔记项目 `github`流水线版本
-	 * @description
-	 * 在 github workflow 流水线内部署的域名
-	 * 为了保证vercel静态文件上传时 不会出现构建次数超出每个月100次的额度限制
-	 * 该域名预期仅仅在main主分支被触发的时候 完成更新
-	 *
-	 * - *更新速度*： 预期是`低频触发，低速部署`的域名。
-	 * - *cname*： 该域名没有在平台内配置指定的cname 整个`ruancat6312.top`域名被vercel管控。vercel会实现自动域名。
-	 * - *有意义配置*： 该配置预期会给vercel部署工具直接使用。
-	 */
-	notesGithubWorkflow: ["ruan-cat-notes.ruancat6312.top"],
 
 	/**
 	 * 笔记项目 `cloudflare`流水线版本
@@ -102,6 +89,19 @@ export const domains = <const>{
 	 * - *无意义配置*： 本配置在此处仅仅是用来声明 目前暂时没有专门的域名配置。
 	 */
 	notesVercel: ["ruan-cat-notes.ruan-cat.com"],
+
+	/**
+	 * 笔记项目 `github`流水线版本
+	 * @description
+	 * 在 github workflow 流水线内部署的域名
+	 * 为了保证vercel静态文件上传时 不会出现构建次数超出每个月100次的额度限制
+	 * 该域名预期仅仅在main主分支被触发的时候 完成更新
+	 *
+	 * - *更新速度*： 预期是`低频触发，低速部署`的域名。
+	 * - *cname*： 该域名没有在平台内配置指定的cname 整个`ruancat6312.top`域名被vercel管控。vercel会实现自动域名。
+	 * - *有意义配置*： 该配置预期会给vercel部署工具直接使用。
+	 */
+	notesGithubWorkflow: ["ruan-cat-notes.ruancat6312.top"],
 
 	/** rmmv笔记项目 */
 	"rmmv-notes": [
