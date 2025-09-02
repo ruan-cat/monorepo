@@ -11,3 +11,7 @@ order: 100
 <<< ../../main.ts#snipaste{ts twoslash}
 
 :::
+
+## 高频度使用的域名
+
+其他常用的域名，见侧边栏。
