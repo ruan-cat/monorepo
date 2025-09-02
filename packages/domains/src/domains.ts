@@ -244,5 +244,12 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			order: 1,
 			description: "目前没有配置工作流给该域名，未来看情况使用",
 		},
+
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "rmmv-api-doc",
+			order: 2,
+			description: "该域名在vercel内配置cname 在此处仅声明 不实际暴露出去使用",
+		},
 	],
 };
