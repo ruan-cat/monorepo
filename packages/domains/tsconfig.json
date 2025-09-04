@@ -4,5 +4,10 @@
 			"path": "../../tsconfig.md.json"
 		}
 	],
-	"include": ["main.ts"]
+	"include": [
+		"main.ts",
+		"src/**/*.ts",
+		"docs/**/*.ts",
+		"docs/.vitepress/**/*.vue",
+	]
 }
