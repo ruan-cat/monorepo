@@ -17,6 +17,7 @@
 		"./packages/utils/src/**/*.ts",
 		"**/.vitepress/**/*.ts",
 		"**/.vitepress/**/*.mts",
+		"**/.vitepress/**/*.vue",
 		"packages/vitepress-preset-config/src/**/*.ts",
 		"packages/vitepress-preset-config/src/**/*.mts"
 	],
