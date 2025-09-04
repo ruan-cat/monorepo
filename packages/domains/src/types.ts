@@ -1,4 +1,3 @@
-import { projectNames } from "./../main";
 /**
  * 顶级域名
  * @description
