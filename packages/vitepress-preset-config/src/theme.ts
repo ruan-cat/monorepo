@@ -55,7 +55,8 @@ function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppContext) {
 /** 默认主题配置 */
 export const defaultTheme = {
 	extends: Teek,
-	Layout: Teek.Layout,
+	// 有疑惑 根据和 teek 作者的沟通 这个配置可以不写
+	// Layout: Teek.Layout,
 	enhanceApp({ app, router, siteData }: EnhanceAppContext) {
 		defaultEnhanceAppPreset({ app, router, siteData });
 	},
