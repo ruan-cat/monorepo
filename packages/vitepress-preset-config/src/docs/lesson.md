@@ -19,3 +19,5 @@ order: 100
 TODO: 疑似 bug ，需要反馈给 vite-plugin-vercel 插件。
 
 ![2025-06-16-00-18-13](https://s2.loli.net/2025/06/16/ZjpGyahSeO5MFzc.png)
+
+## vitepress-plugin-llms 可能导致动态路由识别失败
