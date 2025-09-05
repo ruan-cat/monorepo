@@ -5,6 +5,9 @@ import {
 	copyReadmeMd,
 } from "@ruan-cat/vitepress-preset-config/config";
 
+// TODO:
+import { merge } from "lodash-es";
+
 copyReadmeMd("./docs");
 
 addChangelog2doc({
@@ -26,11 +29,52 @@ const userConfig = setUserConfig({
 				link: "https://github.com/ruan-cat/monorepo/tree/main/packages/domains",
 			},
 		],
+
+		// TODO:
+		sidebar: [
+			{
+				text: "动态域名测试Domain",
+				items: [
+					{ text: "全部 index Domain", link: "/domain" },
+					{ text: "09oa", link: "/domain/09oa" },
+					{ text: "10wms", link: "/domain/10wms" },
+					{ text: "10wms-doc", link: "/domain/10wms-doc" },
+					{ text: "11comm", link: "/domain/11comm" },
+					{ text: "11comm-doc", link: "/domain/11comm-doc" },
+					{ text: "01s-doc", link: "/domain/01s-doc" },
+					{ text: "utils", link: "/domain/utils" },
+					{ text: "vitepress-preset", link: "/domain/vitepress-preset" },
+					{ text: "domain", link: "/domain/domain" },
+					{ text: "vercel-deploy-tool", link: "/domain/vercel-deploy-tool" },
+				],
+			},
+		],
 	},
 });
+
+// TODO:
+const sidebarWithDomain = [
+	{
+		text: "动态域名测试Domain",
+		items: [
+			{ text: "全部 index Domain", link: "/domain" },
+			{ text: "09oa", link: "/domain/09oa" },
+			{ text: "10wms", link: "/domain/10wms" },
+			{ text: "10wms-doc", link: "/domain/10wms-doc" },
+			{ text: "11comm", link: "/domain/11comm" },
+			{ text: "11comm-doc", link: "/domain/11comm-doc" },
+			{ text: "01s-doc", link: "/domain/01s-doc" },
+			{ text: "utils", link: "/domain/utils" },
+			{ text: "vitepress-preset", link: "/domain/vitepress-preset" },
+			{ text: "domain", link: "/domain/domain" },
+			{ text: "vercel-deploy-tool", link: "/domain/vercel-deploy-tool" },
+		],
+	},
+];
 
 // @ts-ignore
 userConfig.themeConfig.sidebar = setGenerateSidebar({
 	documentRootPath: "docs",
 });
+
 export default userConfig;

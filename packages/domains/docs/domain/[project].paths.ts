@@ -1,12 +1,13 @@
-import { projects } from "../../src/types";
+// TODO: 更改成动态写法
+// import { projects } from "../../src/types";
 
 export default {
 	paths() {
-		const result = projects.map((project) => ({
-			params: {
-				project: project.name,
-			},
-		}));
+		// const result = projects.map((project) => ({
+		// 	params: {
+		// 		project: project.name,
+		// 	},
+		// }));
 
 		// console.log(result);
 
