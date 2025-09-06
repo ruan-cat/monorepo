@@ -22,6 +22,10 @@ order: 100
 
 <<< ../../index.ts
 
+因此，在 package.json 包内，配置依赖包导出是不对的。
+
+<<< ./package-not-export-all-code.json
+
 ## vite-plugin-vercel 在 vitepress 项目内打包产物不一致
 
 TODO: 疑似 bug ，需要反馈给 vite-plugin-vercel 插件。
