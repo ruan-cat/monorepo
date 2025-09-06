@@ -6,6 +6,7 @@ export default defineConfig((options: Options) => [
 			"./src/config.mts",
 			// TODO: 主题配置也要被构建 目的是为了实现样式导入
 			"./src/theme.ts",
+			"./src/index.ts",
 		],
 		outDir: "dist",
 		format: ["esm"],
