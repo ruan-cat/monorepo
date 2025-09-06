@@ -1,9 +1,12 @@
 import llmstxt from "vitepress-plugin-llms";
 import { GitChangelog, type GitChangelogMarkdownSectionOptions } from "@nolebase/vitepress-plugin-git-changelog/vite";
+import { defineTeekConfig } from "vitepress-theme-teek";
 
 export type LlmstxtSettings = NonNullable<Parameters<typeof llmstxt>[0]>;
 
 export type GitChangelogOptions = NonNullable<Parameters<typeof GitChangelog>[0]>;
+
+export type TeekConfigOptions = NonNullable<Parameters<typeof defineTeekConfig>[0]>;
 
 /**
  * 额外的配置
@@ -35,4 +38,10 @@ export interface ExtraConfig {
 		 */
 		gitChangelogMarkdownSection?: GitChangelogMarkdownSectionOptions | false;
 	};
+
+	/**
+	 * Teek 主题配置
+	 * @see https://vp.teek.top/reference/config.html
+	 */
+	teekConfig?: TeekConfigOptions;
 }

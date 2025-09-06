@@ -16,57 +16,13 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt from "vitepress-plugin-llms";
 
-import { handlePlugins } from "./config/plugins.ts";
+import { defaultTeekConfig, handleTeekConfig, handlePlugins } from "./config/index.ts";
 
 /** @see https://vitepress-ext.leelaa.cn/Mermaid.html#扩展-md-插件 */
 import { MermaidPlugin } from "@leelaa/vitepress-plugin-extended";
 
 // https://vp.teek.top/guide/quickstart.html#teek-引入
 import { defineTeekConfig } from "vitepress-theme-teek/config";
-
-/** Teek 主题配置 */
-const teekConfig = defineTeekConfig({
-	/** @see https://vp.teek.top/reference/config/global-config.html#sidebartrigger */
-	sidebarTrigger: true,
-
-	/**
-	 * 关闭 Teek 主题的首页风格
-	 * @see https://vp.teek.top/reference/config/global-config.html#teekhome
-	 */
-	teekHome: false,
-
-	vitePlugins: {
-		/**
-		 * 关闭 vitepress-plugin-permalink 插件
-		 * @see https://vp.teek.top/guide/plugins.html#vitepress-plugin-permalink
-		 */
-		permalink: false,
-
-		/**
-		 * 关闭 vitepress-plugin-sidebar-resolve 插件
-		 * @see https://vp.teek.top/guide/plugins.html#vitepress-plugin-sidebar-resolve
-		 */
-		// sidebar: false,
-		sidebarOption: {
-			type: "array", // 修改侧边栏生成类型
-		},
-
-		/**
-		 * 关闭 vitepress-plugin-md-h1 插件
-		 * @see https://vp.teek.top/guide/plugins.html#vitepress-plugin-md-h1
-		 */
-		mdH1: false,
-	},
-
-	/** @see https://vp.teek.top/reference/article-config.html#articleshare */
-	articleShare: {
-		enabled: true, // 是否开启文章链接分享功能
-		text: "分享此页面", // 分享按钮文本
-		copiedText: "链接已复制", // 复制成功文本
-		query: false, // 是否包含查询参数
-		hash: false, // 是否包含哈希值
-	},
-});
 
 type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 
@@ -123,7 +79,11 @@ export function setGenerateSidebar(options?: VitePressSidebarOptions) {
 
 /** 默认用户配置 */
 const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
-	extends: teekConfig,
+	/**
+	 * 使用默认的 Teek 主题配置
+	 * 后续会有函数重新设置 Teek 主题配置，并覆盖默认配置
+	 */
+	extends: defaultTeekConfig,
 
 	title: "请填写有意义的标题",
 	description: "请填写有意义的描述",
@@ -242,6 +202,9 @@ export function setUserConfig(
 
 	// 设置插件
 	handlePlugins(resUserConfig, extraConfig);
+
+	// 设置 Teek 主题配置
+	handleTeekConfig(resUserConfig, extraConfig);
 
 	return resUserConfig;
 }
