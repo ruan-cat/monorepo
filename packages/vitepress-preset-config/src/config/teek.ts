@@ -28,9 +28,6 @@ export const defaultTeekConfig: TeekConfigOptions = {
 		 * @see https://vp.teek.top/guide/plugins.html#vitepress-plugin-sidebar-resolve
 		 */
 		sidebar: false,
-		// sidebarOption: {
-		// 	type: "array", // 修改侧边栏生成类型
-		// },
 
 		/**
 		 * 关闭 vitepress-plugin-md-h1 插件
