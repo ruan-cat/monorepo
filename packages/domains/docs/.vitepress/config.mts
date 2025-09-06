@@ -62,17 +62,21 @@ const userConfig = setUserConfig(
 			},
 		},
 
-		teekConfig: {
-			vitePlugins: {
-				sidebarOption: {
-					/**
-					 * 修改侧边栏生成类型
-					 * 使得侧边栏可以识别出来
-					 */
-					type: "array",
-				},
-			},
-		},
+		/**
+		 * 不应该使用该配置
+		 * 自动化侧边栏的效果很难看
+		 */
+		// teekConfig: {
+		// 	vitePlugins: {
+		// 		sidebarOption: {
+		// 			/**
+		// 			 * 修改侧边栏生成类型
+		// 			 * 使得侧边栏可以识别出来
+		// 			 */
+		// 			type: "array",
+		// 		},
+		// 	},
+		// },
 	},
 );
 
@@ -82,7 +86,6 @@ const sidebarT = [
 		text: "域名集",
 		collapsed: true,
 		items: [
-			// { text: "全部 index Domain", link: "/domain" },
 			{ text: "09oa", link: "/domain/09oa" },
 			{ text: "10wms", link: "/domain/10wms" },
 			{ text: "10wms-doc", link: "/domain/10wms-doc" },
