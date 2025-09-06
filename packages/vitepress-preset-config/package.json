@@ -67,7 +67,11 @@
 			"import": "./src/theme.ts",
 			"types": "./src/theme.ts"
 		},
-		"./src/*": "./src/*"
+		"./src/*": "./src/*",
+		"./": {
+			"import": "./dist/index.mjs",
+			"types": "./src/index.ts"
+		}
 	},
 	"keywords": [
 		"vitepress"
