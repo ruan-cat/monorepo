@@ -51,6 +51,6 @@
 
 ## 001 优化动效
 
-<!-- 后面再考虑 -->
+<!-- TODO: 后面再考虑提供更好看的动效 现在暂时没有需求 -->
 
 - https://vue-bits.dev/animations/electric-border
