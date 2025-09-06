@@ -18,6 +18,7 @@ import llmstxt from "vitepress-plugin-llms";
 
 import {
 	defaultTeekConfig,
+	getPlugins,
 	// handleTeekConfig, handlePlugins
 } from "./config/index.ts";
 
