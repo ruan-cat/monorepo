@@ -26,6 +26,16 @@ order: 100
 
 <<< ./package-not-export-all-code.json
 
+## 二次封装 defineTeekConfig 时的注意事项
+
+不要遗漏掉 defineTeekConfig 函数。否则项目打包后，在具体的文档项目构建时，就会出现以下错误：
+
+::: details
+
+<<< ./not-defineTeekConfig-error.log
+
+:::
+
 ## vite-plugin-vercel 在 vitepress 项目内打包产物不一致
 
 TODO: 疑似 bug ，需要反馈给 vite-plugin-vercel 插件。
