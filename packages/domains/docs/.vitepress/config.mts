@@ -31,7 +31,7 @@ const userConfig = setUserConfig(
 				},
 			],
 
-			// TODO:
+			// TODO: 更改成动态的代码写法
 			sidebar: [
 				{
 					text: "动态域名测试Domain",
@@ -57,32 +57,16 @@ const userConfig = setUserConfig(
 		teekConfig: {
 			vitePlugins: {
 				sidebarOption: {
-					type: "array", // 修改侧边栏生成类型
+					/**
+					 * 修改侧边栏生成类型
+					 * 使得侧边栏可以识别出来
+					 */
+					type: "array",
 				},
 			},
 		},
 	},
 );
-
-// TODO:
-const sidebarWithDomain = [
-	{
-		text: "动态域名测试Domain",
-		items: [
-			{ text: "全部 index Domain", link: "/domain" },
-			{ text: "09oa", link: "/domain/09oa" },
-			{ text: "10wms", link: "/domain/10wms" },
-			{ text: "10wms-doc", link: "/domain/10wms-doc" },
-			{ text: "11comm", link: "/domain/11comm" },
-			{ text: "11comm-doc", link: "/domain/11comm-doc" },
-			{ text: "01s-doc", link: "/domain/01s-doc" },
-			{ text: "utils", link: "/domain/utils" },
-			{ text: "vitepress-preset", link: "/domain/vitepress-preset" },
-			{ text: "domain", link: "/domain/domain" },
-			{ text: "vercel-deploy-tool", link: "/domain/vercel-deploy-tool" },
-		],
-	},
-];
 
 // @ts-ignore
 userConfig.themeConfig.sidebar = setGenerateSidebar({
