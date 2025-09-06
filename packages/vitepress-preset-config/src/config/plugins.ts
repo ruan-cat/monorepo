@@ -3,8 +3,6 @@ import { type DefaultTheme, type UserConfig } from "vitepress";
 import type { ExtraConfig, GitChangelogOptions } from "../types.ts";
 import vitepressPluginLlmstxt from "vitepress-plugin-llms";
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
-// import type { PluginOption } from "vite";
-// importtype Plug{nOp ion} from "vitepress";
 
 function isFalse(value: unknown): value is false {
 	return value === false;
