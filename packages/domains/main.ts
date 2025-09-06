@@ -1,21 +1,4 @@
 /**
- * 项目名称
- * @description
- * 各种项目的名称 作为标识符查询
- *
- * @deprecated
- * 没必要
- */
-export const projectNames = <const>["09oa", "utils", "09oa-docs", "notes", "rmmv-notes"];
-
-/**
- * 域名对象
- * @deprecated
- * 没必要
- */
-export type Domains = Record<(typeof projectNames)[number], string[]>;
-
-/**
  * 域名对象
  * @description
  * 设计成简单的常量即可 无需额外的类型约束
