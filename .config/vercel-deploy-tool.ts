@@ -1,6 +1,6 @@
 import { type Config } from "@ruan-cat/vercel-deploy-tool/src/config.ts";
 
-import { domains } from "@ruan-cat/domains";
+import { getDomains } from "@ruan-cat/domains";
 
 export default <Config>{
 	vercelProjetName: "vercel-monorepo-test-1-zn20",
@@ -72,7 +72,7 @@ export default <Config>{
 		{
 			type: "static",
 			targetCWD: "./packages/utils/src/.vitepress/dist",
-			url: domains.utils as unknown as string[],
+			url: getDomains("utils"),
 			// outputDirectory: "src/.vitepress/dist",
 			// userCommands: ["pnpm -C=./packages/utils build:docs"],
 		},
@@ -81,7 +81,7 @@ export default <Config>{
 		{
 			type: "static",
 			targetCWD: "./packages/vitepress-preset-config/src/docs/.vitepress/dist",
-			url: domains["vitepress-preset"] as unknown as string[],
+			url: getDomains("vitepress-preset"),
 			// outputDirectory: "src/.vitepress/dist",
 			// userCommands: ["pnpm -C=./packages/vitepress-preset-config build:docs"],
 		},
@@ -90,7 +90,7 @@ export default <Config>{
 		{
 			type: "static",
 			targetCWD: "./packages/domains/docs/.vitepress/dist",
-			url: domains.domain as unknown as string[],
+			url: getDomains("domain"),
 			// outputDirectory: "docs/.vitepress/dist",
 			// userCommands: ["pnpm -C=./packages/domains build:docs"],
 		},
@@ -99,7 +99,7 @@ export default <Config>{
 		{
 			type: "static",
 			targetCWD: "./packages/vercel-deploy-tool/docs/.vitepress/dist",
-			url: domains["vercel-deploy-tool"] as unknown as string[],
+			url: getDomains("vercel-deploy-tool"),
 		},
 	],
 };
