@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 2.1.0
+
+### Minor Changes
+
+- 封装 [vitepress-plugin-llms](https://github.com/okineadev/vitepress-plugin-llms/blob/main/README.md) 提供的复制按钮。 ([`1281367`](https://github.com/ruan-cat/monorepo/commit/128136703389c07acf650ffd78aa5360aebacec7))
+
 ## 2.0.0
 
 ### Major Changes

@@ -1,5 +1,13 @@
 # 更新日志
 
+## 1.0.0
+
+### Major Changes
+
+- 1. 废弃掉 `projectNames` 常量和 `Domains` 类型。 ([`1422cfb`](https://github.com/ruan-cat/monorepo/commit/1422cfb62558c89f86884e3deea67046976b52c9))
+  2. 更新默认导出的入口，不再是 `main.ts` ，而是 `src/index.ts` 。
+  3. 开发新函数 `getDomains` ，代替之前直接获取域名对象。
+
 ## 0.10.0
 
 ### Minor Changes
