@@ -16,7 +16,7 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt from "vitepress-plugin-llms";
 
-import { getPlugins } from "./config/plugins.ts";
+import { handlePlugins } from "./config/plugins.ts";
 
 /** @see https://vitepress-ext.leelaa.cn/Mermaid.html#扩展-md-插件 */
 import { MermaidPlugin } from "@leelaa/vitepress-plugin-extended";
@@ -227,16 +227,6 @@ function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
 	}
 
 	nav.push({ text: "更新日志", link: "/CHANGELOG.md" });
-}
-
-/**
- * 处理插件
- * @description
- * 根据用户的额外配置 设置插件
- */
-function handlePlugins(userConfig: UserConfig<DefaultTheme.Config>, extraConfig?: ExtraConfig) {
-	// @ts-ignore
-	userConfig.vite.plugins = getPlugins(extraConfig);
 }
 
 /** 设置vitepress主配置 */

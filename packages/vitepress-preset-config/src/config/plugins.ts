@@ -1,3 +1,5 @@
+import { type DefaultTheme, type UserConfig } from "vitepress";
+
 import type { ExtraConfig, GitChangelogOptions } from "../types.ts";
 import vitepressPluginLlmstxt from "vitepress-plugin-llms";
 import { GitChangelog, GitChangelogMarkdownSection } from "@nolebase/vitepress-plugin-git-changelog/vite";
@@ -17,6 +19,8 @@ const defaultGitChangelogOptions: GitChangelogOptions = {
 
 /**
  * 根据配置 返回插件列表
+ * @description
+ * 该函数将根据具体的配置 返回插件列表
  */
 export function getPlugins(extraConfig?: ExtraConfig) {
 	const plugins = [];
@@ -39,4 +43,13 @@ export function getPlugins(extraConfig?: ExtraConfig) {
 	}
 
 	return plugins;
+}
+
+/**
+ * 根据用户的额外配置 设置`文档配置`的 vite 插件
+ * @description
+ */
+export function handlePlugins(userConfig: UserConfig<DefaultTheme.Config>, extraConfig?: ExtraConfig) {
+	// @ts-ignore
+	userConfig.vite.plugins = getPlugins(extraConfig);
 }
