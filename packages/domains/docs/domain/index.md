@@ -1,5 +1,6 @@
 ---
 order: 100
+exclude: true
 ---
 
 # 域名列表

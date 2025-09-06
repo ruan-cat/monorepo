@@ -1,5 +1,4 @@
 import { defineRuancatPresetTheme } from "@ruan-cat/vitepress-preset-config/theme";
-// import { defineRuancatPresetTheme } from "@ruan-cat/vitepress-preset-config";
 
 import ProjectDomainDisplay from "../components/ProjectDomainDisplay.vue";
 

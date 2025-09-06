@@ -5,6 +5,8 @@ import {
 	copyReadmeMd,
 } from "@ruan-cat/vitepress-preset-config/config";
 
+import { printFormat } from "@ruan-cat/utils";
+
 // TODO:
 import { merge } from "lodash-es";
 
@@ -32,31 +34,31 @@ const userConfig = setUserConfig(
 			],
 
 			// TODO: 更改成动态的代码写法
-			sidebar: [
-				{
-					text: "动态域名测试Domain",
-					items: [
-						{ text: "全部 index Domain", link: "/domain" },
-						{ text: "09oa", link: "/domain/09oa" },
-						{ text: "10wms", link: "/domain/10wms" },
-						{ text: "10wms-doc", link: "/domain/10wms-doc" },
-						{ text: "11comm", link: "/domain/11comm" },
-						{ text: "11comm-doc", link: "/domain/11comm-doc" },
-						{ text: "01s-doc", link: "/domain/01s-doc" },
-						{ text: "utils", link: "/domain/utils" },
-						{ text: "vitepress-preset", link: "/domain/vitepress-preset" },
-						{ text: "domain", link: "/domain/domain" },
-						{ text: "vercel-deploy-tool", link: "/domain/vercel-deploy-tool" },
-					],
-				},
-			],
+			// sidebar: [
+			// 	{
+			// 		text: "动态域名测试Domain",
+			// 		items: [
+			// 			{ text: "全部 index Domain", link: "/domain" },
+			// 			{ text: "09oa", link: "/domain/09oa" },
+			// 			{ text: "10wms", link: "/domain/10wms" },
+			// 			{ text: "10wms-doc", link: "/domain/10wms-doc" },
+			// 			{ text: "11comm", link: "/domain/11comm" },
+			// 			{ text: "11comm-doc", link: "/domain/11comm-doc" },
+			// 			{ text: "01s-doc", link: "/domain/01s-doc" },
+			// 			{ text: "utils", link: "/domain/utils" },
+			// 			{ text: "vitepress-preset", link: "/domain/vitepress-preset" },
+			// 			{ text: "domain", link: "/domain/domain" },
+			// 			{ text: "vercel-deploy-tool", link: "/domain/vercel-deploy-tool" },
+			// 		],
+			// 	},
+			// ],
 		},
 	},
 
 	{
 		plugins: {
 			llmstxt: {
-				ignoreFiles: ["domain/*"],
+				ignoreFiles: ["domain/**"],
 			},
 		},
 
@@ -74,9 +76,37 @@ const userConfig = setUserConfig(
 	},
 );
 
-// @ts-ignore
-userConfig.themeConfig.sidebar = setGenerateSidebar({
-	documentRootPath: "docs",
+// TODO: 更改成动态的代码写法
+const sidebarT = [
+	{
+		text: "域名集",
+		collapsed: true,
+		items: [
+			// { text: "全部 index Domain", link: "/domain" },
+			{ text: "09oa", link: "/domain/09oa" },
+			{ text: "10wms", link: "/domain/10wms" },
+			{ text: "10wms-doc", link: "/domain/10wms-doc" },
+			{ text: "11comm", link: "/domain/11comm" },
+			{ text: "11comm-doc", link: "/domain/11comm-doc" },
+			{ text: "01s-doc", link: "/domain/01s-doc" },
+			{ text: "utils", link: "/domain/utils" },
+			{ text: "vitepress-preset", link: "/domain/vitepress-preset" },
+			{ text: "domain", link: "/domain/domain" },
+			{ text: "vercel-deploy-tool", link: "/domain/vercel-deploy-tool" },
+		],
+	},
+];
+
+const sidebarAuto = setGenerateSidebar({
+	documentRootPath: "./docs",
+	excludeFilesByFrontmatterFieldName: "exclude",
+	excludeByGlobPattern: ["domain/**"],
 });
+
+// @ts-ignore
+userConfig.themeConfig.sidebar = sidebarT.concat(sidebarAuto);
+
+// @ts-ignore
+console.log(printFormat(userConfig.themeConfig.sidebar));
 
 export default userConfig;
