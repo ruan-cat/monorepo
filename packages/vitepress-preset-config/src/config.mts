@@ -132,9 +132,7 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	themeConfig: {
 		i18nRouting: true,
 
-		search: {
-			provider: "local",
-		},
+		search: { provider: "local" },
 
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [{ text: "首页", link: "/" }],
@@ -147,19 +145,11 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 		// 自动化侧边栏
 		sidebar: setGenerateSidebar(),
 
-		socialLinks: [
-			{
-				icon: "github",
-				link: "https://github.com/ruan-cat",
-			},
-		],
+		socialLinks: [{ icon: "github", link: "https://github.com/ruan-cat" }],
 	},
 
 	vite: {
-		server: {
-			open: true,
-			port: 8080,
-		},
+		server: { open: true, port: 8080 },
 
 		plugins: [
 			/** @see https://github.com/okineadev/vitepress-plugin-llms */
@@ -178,9 +168,7 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 			GitChangelogMarkdownSection(),
 		],
 
-		optimizeDeps: {
-			exclude: ["vitepress", "@nolebase/ui"],
-		},
+		optimizeDeps: { exclude: ["vitepress", "@nolebase/ui"] },
 
 		ssr: {
 			noExternal: [
