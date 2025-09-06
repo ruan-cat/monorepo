@@ -54,6 +54,12 @@ const userConfig = setUserConfig(
 	},
 
 	{
+		plugins: {
+			llmstxt: {
+				ignoreFiles: ["domain/*"],
+			},
+		},
+
 		teekConfig: {
 			vitePlugins: {
 				sidebarOption: {
