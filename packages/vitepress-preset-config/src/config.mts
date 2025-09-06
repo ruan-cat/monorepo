@@ -7,6 +7,7 @@ import { vitepressDemoPlugin } from "vitepress-demo-plugin";
 
 import { merge, isUndefined, cloneDeep } from "lodash-es";
 import consola from "consola";
+import type { ExtraConfig } from "./types.ts";
 
 import { addChangelog2doc, hasChangelogMd, copyReadmeMd } from "@ruan-cat/utils/node-esm";
 export { addChangelog2doc, copyReadmeMd };
@@ -237,7 +238,10 @@ function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
 }
 
 /** 设置vitepress主配置 */
-export function setUserConfig(config?: UserConfig<DefaultTheme.Config>): UserConfig<DefaultTheme.Config> {
+export function setUserConfig(
+	config?: UserConfig<DefaultTheme.Config>,
+	extraConfig?: ExtraConfig,
+): UserConfig<DefaultTheme.Config> {
 	/** 最终的用户数据 */
 	const resUserConfig = merge({}, cloneDeep(defaultUserConfig), isUndefined(config) ? {} : config);
 
