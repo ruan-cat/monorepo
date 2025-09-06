@@ -14,7 +14,7 @@ export { addChangelog2doc, copyReadmeMd };
 
 import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
-import llmstxt from "vitepress-plugin-llms";
+import llmstxt, { copyOrDownloadAsMarkdownButtons } from "vitepress-plugin-llms";
 
 import { defaultTeekConfig, handleTeekConfig, handlePlugins } from "./config/index.ts";
 
@@ -137,6 +137,9 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 
 			// @ts-ignore
 			MermaidPlugin(md);
+
+			// @ts-ignore
+			md.use(copyOrDownloadAsMarkdownButtons);
 		},
 
 		codeTransformers: [

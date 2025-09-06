@@ -13,6 +13,9 @@ import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
 import TwoslashFloatingVue from "@shikijs/vitepress-twoslash/client";
 import "@shikijs/vitepress-twoslash/style.css";
 
+/** @see https://github.com/okineadev/vitepress-plugin-llms/blob/main/README.md */
+import CopyOrDownloadAsMarkdownButtons from "vitepress-plugin-llms/vitepress-components/CopyOrDownloadAsMarkdownButtons.vue";
+
 // https://vp.teek.top/guide/quickstart.html#teek-引入
 import Teek from "vitepress-theme-teek";
 import "vitepress-theme-teek/index.css";
@@ -44,6 +47,7 @@ function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppContext) {
 	app.use(NolebaseGitChangelogPlugin);
 	app.use(TwoslashFloatingVue);
 	app.component("Mermaid", Mermaid);
+	app.component("CopyOrDownloadAsMarkdownButtons", CopyOrDownloadAsMarkdownButtons);
 	/**
 	 * 放弃全局注册demo展示组件
 	 * 在生产环境内使用peer对等依赖
