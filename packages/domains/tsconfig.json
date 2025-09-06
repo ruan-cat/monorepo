@@ -5,7 +5,6 @@
 		}
 	],
 	"include": [
-		"main.ts",
 		"src/**/*.ts",
 		"docs/**/*.ts",
 		"docs/.vitepress/**/*.vue",
