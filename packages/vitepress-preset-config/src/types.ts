@@ -1,6 +1,8 @@
 import llmstxt from "vitepress-plugin-llms";
 import { GitChangelog, type GitChangelogMarkdownSectionOptions } from "@nolebase/vitepress-plugin-git-changelog/vite";
-import { defineTeekConfig } from "vitepress-theme-teek";
+
+// https://vp.teek.top/guide/quickstart.html#teek-引入
+import { defineTeekConfig } from "vitepress-theme-teek/config";
 
 export type LlmstxtSettings = NonNullable<Parameters<typeof llmstxt>[0]>;
 
