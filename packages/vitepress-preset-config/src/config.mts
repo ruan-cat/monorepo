@@ -16,12 +16,7 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt from "vitepress-plugin-llms";
 
-import {
-	defaultTeekConfig,
-	getPlugins,
-	handleTeekConfig,
-	// handlePlugins
-} from "./config/index.ts";
+import { defaultTeekConfig, handleTeekConfig, handlePlugins } from "./config/index.ts";
 
 /** @see https://vitepress-ext.leelaa.cn/Mermaid.html#扩展-md-插件 */
 import { MermaidPlugin } from "@leelaa/vitepress-plugin-extended";
@@ -193,27 +188,6 @@ function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
 
 	nav.push({ text: "更新日志", link: "/CHANGELOG.md" });
 }
-
-// TODO: cheshi1
-
-/**
- * 根据用户的额外配置 设置`文档配置`的 vite 插件
- * @description
- */
-export function handlePlugins(userConfig: UserConfig<DefaultTheme.Config>, extraConfig?: ExtraConfig) {
-	// @ts-ignore
-	userConfig.vite.plugins = getPlugins(extraConfig);
-}
-/**
- * 根据用户的额外配置 设置`文档配置`的 teek 主题配置
- * @description
- */
-// export function handleTeekConfig(userConfig: UserConfig<DefaultTheme.Config>, extraConfig?: ExtraConfig) {
-// 	const { teekConfig = defaultTeekConfig } = extraConfig ?? {};
-
-// 	// @ts-ignore
-// 	userConfig.extends = merge({}, cloneDeep(defaultTeekConfig), teekConfig);
-// }
 
 /** 设置vitepress主配置 */
 export function setUserConfig(
