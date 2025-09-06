@@ -1,9 +1,9 @@
 import llmstxt from "vitepress-plugin-llms";
 import { GitChangelog, type GitChangelogMarkdownSectionOptions } from "@nolebase/vitepress-plugin-git-changelog/vite";
 
-type LlmstxtSettings = NonNullable<Parameters<typeof llmstxt>[0]>;
+export type LlmstxtSettings = NonNullable<Parameters<typeof llmstxt>[0]>;
 
-type GitChangelogOptions = NonNullable<Parameters<typeof GitChangelog>[0]>;
+export type GitChangelogOptions = NonNullable<Parameters<typeof GitChangelog>[0]>;
 
 /**
  * 额外的配置

@@ -16,6 +16,8 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt from "vitepress-plugin-llms";
 
+import { getPlugins } from "./config/plugins.ts";
+
 /** @see https://vitepress-ext.leelaa.cn/Mermaid.html#扩展-md-插件 */
 import { MermaidPlugin } from "@leelaa/vitepress-plugin-extended";
 
@@ -152,22 +154,12 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	vite: {
 		server: { open: true, port: 8080 },
 
-		plugins: [
-			/** @see https://github.com/okineadev/vitepress-plugin-llms */
-			// @ts-ignore
-			llmstxt(),
-
-			// @ts-ignore
-			GitChangelog({
-				// 填写在此处填写您的仓库链接
-				repoURL: () => "https://github.com/ruan-cat/monorepo",
-				// 最大日志深度为10, 避免获取过多无意义的历史日志
-				maxGitLogCount: 10,
-			}),
-
-			// @ts-ignore
-			GitChangelogMarkdownSection(),
-		],
+		/**
+		 * 插件
+		 * @description
+		 * 这里留空 插件在 config/plugins.ts 中配置
+		 */
+		plugins: [],
 
 		optimizeDeps: { exclude: ["vitepress", "@nolebase/ui"] },
 
@@ -237,6 +229,16 @@ function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
 	nav.push({ text: "更新日志", link: "/CHANGELOG.md" });
 }
 
+/**
+ * 处理插件
+ * @description
+ * 根据用户的额外配置 设置插件
+ */
+function handlePlugins(userConfig: UserConfig<DefaultTheme.Config>, extraConfig?: ExtraConfig) {
+	// @ts-ignore
+	userConfig.vite.plugins = getPlugins(extraConfig);
+}
+
 /** 设置vitepress主配置 */
 export function setUserConfig(
 	config?: UserConfig<DefaultTheme.Config>,
@@ -247,6 +249,9 @@ export function setUserConfig(
 
 	// 增加导航栏
 	handleChangeLog(resUserConfig);
+
+	// 设置插件
+	handlePlugins(resUserConfig, extraConfig);
 
 	return resUserConfig;
 }
