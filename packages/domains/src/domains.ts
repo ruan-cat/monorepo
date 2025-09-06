@@ -1,4 +1,4 @@
-import { ProjectLikeDomainSet } from "./types";
+import { type ProjectLikeDomainSet } from "./types";
 
 /**
  * 项目化的域名集合
