@@ -5,8 +5,6 @@ import {
 	copyReadmeMd,
 } from "@ruan-cat/vitepress-preset-config/config";
 
-// import { setUserConfig, setGenerateSidebar, addChangelog2doc, copyReadmeMd } from "@ruan-cat/vitepress-preset-config";
-
 // TODO:
 import { merge } from "lodash-es";
 
@@ -22,37 +20,49 @@ addChangelog2doc({
 	},
 });
 
-const userConfig = setUserConfig({
-	title: "阮喵喵域名文档",
-	themeConfig: {
-		socialLinks: [
-			{
-				icon: "github",
-				link: "https://github.com/ruan-cat/monorepo/tree/main/packages/domains",
-			},
-		],
+const userConfig = setUserConfig(
+	{
+		title: "阮喵喵域名文档",
+		themeConfig: {
+			socialLinks: [
+				{
+					icon: "github",
+					link: "https://github.com/ruan-cat/monorepo/tree/main/packages/domains",
+				},
+			],
 
-		// TODO:
-		sidebar: [
-			{
-				text: "动态域名测试Domain",
-				items: [
-					{ text: "全部 index Domain", link: "/domain" },
-					{ text: "09oa", link: "/domain/09oa" },
-					{ text: "10wms", link: "/domain/10wms" },
-					{ text: "10wms-doc", link: "/domain/10wms-doc" },
-					{ text: "11comm", link: "/domain/11comm" },
-					{ text: "11comm-doc", link: "/domain/11comm-doc" },
-					{ text: "01s-doc", link: "/domain/01s-doc" },
-					{ text: "utils", link: "/domain/utils" },
-					{ text: "vitepress-preset", link: "/domain/vitepress-preset" },
-					{ text: "domain", link: "/domain/domain" },
-					{ text: "vercel-deploy-tool", link: "/domain/vercel-deploy-tool" },
-				],
-			},
-		],
+			// TODO:
+			sidebar: [
+				{
+					text: "动态域名测试Domain",
+					items: [
+						{ text: "全部 index Domain", link: "/domain" },
+						{ text: "09oa", link: "/domain/09oa" },
+						{ text: "10wms", link: "/domain/10wms" },
+						{ text: "10wms-doc", link: "/domain/10wms-doc" },
+						{ text: "11comm", link: "/domain/11comm" },
+						{ text: "11comm-doc", link: "/domain/11comm-doc" },
+						{ text: "01s-doc", link: "/domain/01s-doc" },
+						{ text: "utils", link: "/domain/utils" },
+						{ text: "vitepress-preset", link: "/domain/vitepress-preset" },
+						{ text: "domain", link: "/domain/domain" },
+						{ text: "vercel-deploy-tool", link: "/domain/vercel-deploy-tool" },
+					],
+				},
+			],
+		},
 	},
-});
+
+	{
+		teekConfig: {
+			vitePlugins: {
+				sidebarOption: {
+					type: "array", // 修改侧边栏生成类型
+				},
+			},
+		},
+	},
+);
 
 // TODO:
 const sidebarWithDomain = [
