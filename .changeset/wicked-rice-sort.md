@@ -6,4 +6,3 @@
 2. setUserConfig 函数，增加 extraConfig 配置。允许用户做出额外的配置
    - `plugins` 即 vite 的 plugins
    - `teekConfig` Teek 主题配置
-3. 增设专门的项目访问入口，使得 @ruan-cat/vitepress-preset-config 可以直接访问到全部**经过打包**代码。

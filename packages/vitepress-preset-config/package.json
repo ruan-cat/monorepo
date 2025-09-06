@@ -59,10 +59,6 @@
 		"directory": "packages/vitepress-preset-config"
 	},
 	"exports": {
-		".": {
-			"import": "./dist/index.mjs",
-			"types": "./src/index.ts"
-		},
 		"./config": {
 			"import": "./dist/config.mjs",
 			"types": "./src/config.mts"

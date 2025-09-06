@@ -7,7 +7,7 @@ export default defineConfig((options: Options) => [
 			// 警告 主题配置也要被构建 目的是为了实现样式导入
 			"./src/theme.ts",
 			// 警告 不能直接将全部的模块放到一个 index.ts 内导出 否则会出现css无法识别的错误
-			"./src/index.ts",
+			// "./src/index.ts",
 		],
 		outDir: "dist",
 		format: ["esm"],
