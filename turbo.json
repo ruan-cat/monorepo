@@ -1,28 +1,45 @@
 {
 	"$schema": "https://turbo.build/schema.json",
+	"ui": "tui",
 	"tasks": {
 		"build": {
 			"cache": true,
-			"outputs": ["**/dist/**", "**/.output/**"],
-			"dependsOn": ["^build"]
+			"outputs": [
+				"**/dist/**",
+				"**/.output/**"
+			],
+			"dependsOn": [
+				"^build"
+			]
 		},
 		"build:docs": {
 			"cache": true,
-			"outputs": ["**/.vitepress/dist/**", "**/.vuepress/dist/**"],
-			"dependsOn": ["^build"]
+			"outputs": [
+				"**/.vitepress/dist/**",
+				"**/.vuepress/dist/**"
+			],
+			"dependsOn": [
+				"^build"
+			]
 		},
 		"//#deploy-vercel": {
-			"dependsOn": ["^build:docs"]
+			"dependsOn": [
+				"^build:docs"
+			]
 		},
 		"vp-update": {
 			"dependsOn": []
 		},
 		"//#changeset:publish": {
 			"cache": false,
-			"dependsOn": ["^build"]
+			"dependsOn": [
+				"^build"
+			]
 		},
 		"//#do-publish": {
-			"dependsOn": ["//#changeset:publish"]
+			"dependsOn": [
+				"//#changeset:publish"
+			]
 		}
 	}
 }
