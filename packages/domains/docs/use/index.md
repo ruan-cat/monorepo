@@ -12,6 +12,14 @@ pnpm i -D @ruan-cat/domains
 
 因为本包仅仅是一个封装常量的包，所以请直接阅读源码，导入模块即可。
 
+## 推荐用法
+
+::: details 使用 getDomains 函数
+
+<<< ./getDomains-example.ts
+
+:::
+
 ### 类型
 
 ::: details
