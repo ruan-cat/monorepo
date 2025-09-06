@@ -23,6 +23,8 @@ export type Domains = Record<(typeof projectNames)[number], string[]>;
  * 这些域名主要是用于 vercel 的基于文件结构的部署。目前没有其他的用途。
  *
  * 其他域名仅用于声明，类似于文档说明。
+ *
+ * 这是旧版本的配置 未来会废弃掉
  */
 export const domains = <const>{
 	/** 大项目 09OA项目 */
