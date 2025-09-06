@@ -14,6 +14,7 @@ import TwoslashFloatingVue from "@shikijs/vitepress-twoslash/client";
 import "@shikijs/vitepress-twoslash/style.css";
 
 /** @see https://github.com/okineadev/vitepress-plugin-llms/blob/main/README.md */
+// @ts-ignore FIXME: 该组件直接使用时没有故障的 但是tsup打包有故障 故忽略类型报错
 import CopyOrDownloadAsMarkdownButtons from "vitepress-plugin-llms/vitepress-components/CopyOrDownloadAsMarkdownButtons.vue";
 
 // https://vp.teek.top/guide/quickstart.html#teek-引入
@@ -21,7 +22,7 @@ import Teek from "vitepress-theme-teek";
 import "vitepress-theme-teek/index.css";
 
 /** @see https://vitepress-ext.leelaa.cn/Mermaid.html#全局引入 */
-// @ts-ignore
+// @ts-ignore FIXME: 忽略类型导出的bug 避免tsup打包失败
 import { Mermaid } from "@leelaa/vitepress-plugin-extended";
 
 /**
