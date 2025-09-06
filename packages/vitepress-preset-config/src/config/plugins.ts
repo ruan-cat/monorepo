@@ -1,4 +1,4 @@
-import { type DefaultTheme, type UserConfig } from "vitepress";
+// import { type DefaultTheme, type UserConfig } from "vitepress";
 
 import type { ExtraConfig, GitChangelogOptions } from "../types.ts";
 import vitepressPluginLlmstxt from "vitepress-plugin-llms";
@@ -47,7 +47,7 @@ export function getPlugins(extraConfig?: ExtraConfig) {
  * 根据用户的额外配置 设置`文档配置`的 vite 插件
  * @description
  */
-export function handlePlugins(userConfig: UserConfig<DefaultTheme.Config>, extraConfig?: ExtraConfig) {
-	// @ts-ignore
-	userConfig.vite.plugins = getPlugins(extraConfig);
-}
+// export function handlePlugins(userConfig: UserConfig<DefaultTheme.Config>, extraConfig?: ExtraConfig) {
+// 	// @ts-ignore
+// 	userConfig.vite.plugins = getPlugins(extraConfig);
+// }
