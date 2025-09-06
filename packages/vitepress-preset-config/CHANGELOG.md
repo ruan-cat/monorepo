@@ -1,5 +1,14 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 2.0.0
+
+### Major Changes
+
+- 1. 增加 getPlugins 函数，用于配置 vitepress 的插件。实现自定义插件配置。 ([`249e6f0`](https://github.com/ruan-cat/monorepo/commit/249e6f01ff5da95a8370af6e5d7051f671242a91))
+  2. setUserConfig 函数，增加 extraConfig 配置。允许用户做出额外的配置
+     - `plugins` 即 vite 的 plugins
+     - `teekConfig` Teek 主题配置
+
 ## 1.4.0
 
 ### Minor Changes
