@@ -4,5 +4,13 @@
 		"moduleResolution": "nodenext",
 		"allowImportingTsExtensions": true
 	},
-	"include": ["./src/.vitepress/**/*.ts", "./src/.vitepress/**/*.mts"]
+	"include": [
+		"./src/.vitepress/**/*.ts",
+		"./src/.vitepress/**/*.mts",
+		"./src/config/**/*.ts",
+		"./src/index.ts",
+		"./src/theme.ts",
+		"./src/config.mts",
+		"./src/types.ts"
+	]
 }
