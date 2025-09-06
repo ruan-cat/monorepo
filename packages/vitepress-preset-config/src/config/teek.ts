@@ -1,6 +1,8 @@
-// import { type DefaultTheme, type UserConfig } from "vitepress";
-import type { TeekConfigOptions, ExtraConfig } from "../types";
+import { type DefaultTheme, type UserConfig } from "vitepress";
+import { defineTeekConfig } from "vitepress-theme-teek/config";
 import { merge, cloneDeep } from "lodash-es";
+
+import type { TeekConfigOptions, ExtraConfig } from "../types";
 
 /**
  * 默认的 Teek 主题配置
@@ -50,8 +52,8 @@ export const defaultTeekConfig: TeekConfigOptions = {
  * 根据用户的额外配置 设置`文档配置`的 teek 主题配置
  * @description
  */
-// export function handleTeekConfig(userConfig: UserConfig<DefaultTheme.Config>, extraConfig?: ExtraConfig) {
-// 	const { teekConfig = defaultTeekConfig } = extraConfig ?? {};
-// 	// @ts-ignore
-// 	userConfig.extends = merge({}, cloneDeep(defaultTeekConfig), teekConfig);
-// }
+export function handleTeekConfig(userConfig: UserConfig<DefaultTheme.Config>, extraConfig?: ExtraConfig) {
+	const { teekConfig = defaultTeekConfig } = extraConfig ?? {};
+	// @ts-ignore
+	userConfig.extends = defineTeekConfig(merge({}, cloneDeep(defaultTeekConfig), teekConfig));
+}

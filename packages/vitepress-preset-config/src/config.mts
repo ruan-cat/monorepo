@@ -19,7 +19,8 @@ import llmstxt from "vitepress-plugin-llms";
 import {
 	defaultTeekConfig,
 	getPlugins,
-	// handleTeekConfig, handlePlugins
+	handleTeekConfig,
+	// handlePlugins
 } from "./config/index.ts";
 
 /** @see https://vitepress-ext.leelaa.cn/Mermaid.html#扩展-md-插件 */
@@ -87,7 +88,7 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 	 * 使用默认的 Teek 主题配置
 	 * 后续会有函数重新设置 Teek 主题配置，并覆盖默认配置
 	 */
-	extends: defaultTeekConfig,
+	extends: defineTeekConfig(defaultTeekConfig),
 
 	title: "请填写有意义的标题",
 	description: "请填写有意义的描述",
@@ -207,12 +208,12 @@ export function handlePlugins(userConfig: UserConfig<DefaultTheme.Config>, extra
  * 根据用户的额外配置 设置`文档配置`的 teek 主题配置
  * @description
  */
-export function handleTeekConfig(userConfig: UserConfig<DefaultTheme.Config>, extraConfig?: ExtraConfig) {
-	const { teekConfig = defaultTeekConfig } = extraConfig ?? {};
+// export function handleTeekConfig(userConfig: UserConfig<DefaultTheme.Config>, extraConfig?: ExtraConfig) {
+// 	const { teekConfig = defaultTeekConfig } = extraConfig ?? {};
 
-	// @ts-ignore
-	userConfig.extends = merge({}, cloneDeep(defaultTeekConfig), teekConfig);
-}
+// 	// @ts-ignore
+// 	userConfig.extends = merge({}, cloneDeep(defaultTeekConfig), teekConfig);
+// }
 
 /** 设置vitepress主配置 */
 export function setUserConfig(
