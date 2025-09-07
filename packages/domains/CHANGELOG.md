@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.1.1
+
+### Patch Changes
+
+- 处理导入依赖找不到变量的故障。更新依赖包的导出范围，补充导出 `src/**/*.ts` 下面的全部 ts 文件。 ([`8c0b8b2`](https://github.com/ruan-cat/monorepo/commit/8c0b8b2632037b77b8e9ec8b0de1636b6d4b7619))
+
 ## 1.1.0
 
 ### Minor Changes
