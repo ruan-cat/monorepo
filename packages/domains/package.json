@@ -62,6 +62,7 @@
 		"@ruan-cat/vitepress-preset-config": "workspace:^",
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
 		"automd": "^0.4.0",
+		"consola": "^3.4.2",
 		"tsup": "^8.5.0",
 		"vitepress": "^1.6.4"
 	}

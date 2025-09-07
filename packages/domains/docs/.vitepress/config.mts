@@ -5,10 +5,10 @@ import {
 	copyReadmeMd,
 } from "@ruan-cat/vitepress-preset-config/config";
 
-import { printFormat } from "@ruan-cat/utils";
+import { projects } from "../../src/types";
 
-// TODO:
-import { merge } from "lodash-es";
+import { printFormat } from "@ruan-cat/utils";
+import consola from "consola";
 
 copyReadmeMd("./docs");
 
@@ -32,26 +32,6 @@ const userConfig = setUserConfig(
 					link: "https://github.com/ruan-cat/monorepo/tree/main/packages/domains",
 				},
 			],
-
-			// TODO: 更改成动态的代码写法
-			// sidebar: [
-			// 	{
-			// 		text: "动态域名测试Domain",
-			// 		items: [
-			// 			{ text: "全部 index Domain", link: "/domain" },
-			// 			{ text: "09oa", link: "/domain/09oa" },
-			// 			{ text: "10wms", link: "/domain/10wms" },
-			// 			{ text: "10wms-doc", link: "/domain/10wms-doc" },
-			// 			{ text: "11comm", link: "/domain/11comm" },
-			// 			{ text: "11comm-doc", link: "/domain/11comm-doc" },
-			// 			{ text: "01s-doc", link: "/domain/01s-doc" },
-			// 			{ text: "utils", link: "/domain/utils" },
-			// 			{ text: "vitepress-preset", link: "/domain/vitepress-preset" },
-			// 			{ text: "domain", link: "/domain/domain" },
-			// 			{ text: "vercel-deploy-tool", link: "/domain/vercel-deploy-tool" },
-			// 		],
-			// 	},
-			// ],
 		},
 	},
 
@@ -80,36 +60,29 @@ const userConfig = setUserConfig(
 	},
 );
 
-// TODO: 更改成动态的代码写法
-const sidebarT = [
+/** 动态域名的侧边栏 手写手动实现 */
+const sidebarDomain = [
 	{
 		text: "域名集",
 		collapsed: true,
-		items: [
-			{ text: "09oa", link: "/domain/09oa" },
-			{ text: "10wms", link: "/domain/10wms" },
-			{ text: "10wms-doc", link: "/domain/10wms-doc" },
-			{ text: "11comm", link: "/domain/11comm" },
-			{ text: "11comm-doc", link: "/domain/11comm-doc" },
-			{ text: "01s-doc", link: "/domain/01s-doc" },
-			{ text: "utils", link: "/domain/utils" },
-			{ text: "vitepress-preset", link: "/domain/vitepress-preset" },
-			{ text: "domain", link: "/domain/domain" },
-			{ text: "vercel-deploy-tool", link: "/domain/vercel-deploy-tool" },
-		],
+		// 生成形如 { text: "09oa", link: "/domain/09oa" }, 格式的数组
+		items: projects.map((project) => {
+			// 目录在 /domain/ 下
+			return { text: project.name, link: `/domain/${project.name}` };
+		}),
 	},
 ];
 
+/** 自动生成的侧边栏 */
 const sidebarAuto = setGenerateSidebar({
 	documentRootPath: "./docs",
 	excludeFilesByFrontmatterFieldName: "exclude",
 	excludeByGlobPattern: ["domain/**"],
 });
 
-// @ts-ignore
-userConfig.themeConfig.sidebar = sidebarT.concat(sidebarAuto);
+// @ts-ignore 合并侧边栏 先展示域名列表 再展示自动生成的侧边栏
+userConfig.themeConfig.sidebar = sidebarDomain.concat(sidebarAuto);
 
-// @ts-ignore
-console.log(printFormat(userConfig.themeConfig.sidebar));
+consola.log(printFormat(userConfig?.themeConfig?.sidebar));
 
 export default userConfig;
