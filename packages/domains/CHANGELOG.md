@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.1.0
+
+### Minor Changes
+
+- 增加杂项项目，用来存储各种不常用的域名。 ([`652862c`](https://github.com/ruan-cat/monorepo/commit/652862ce9bf378beb996663444068b72e693eea5))
+
 ## 1.0.0
 
 ### Major Changes
