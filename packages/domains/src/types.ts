@@ -49,51 +49,18 @@ export interface Project {
 export const projects = [
 	{ name: "09oa", description: "大项目 09OA项目" },
 	{ name: "10wms", description: "大项目 10WMS项目" },
-	{
-		name: "10wms-doc",
-		description: "大项目 10WMS项目 前端文档",
-	},
+	{ name: "10wms-doc", description: "大项目 10WMS项目 前端文档" },
 	{ name: "11comm", description: "大项目 11智慧社区项目" },
-	{
-		name: "11comm-doc",
-		description: "大项目 11智慧社区项目 前端文档",
-	},
-	{
-		name: "01s-doc",
-		description: "大项目 01星球文档",
-	},
-	{
-		name: "utils",
-		description: "工具包项目",
-	},
-	{
-		name: "vitepress-preset",
-		description: "vitepress配置预设",
-	},
-	{
-		name: "domain",
-		description: "域名列表",
-	},
-	{
-		name: "vercel-deploy-tool",
-		description: "vercel部署工具",
-	},
-	{
-		name: "ruan-cat-notes",
-		description: "阮喵喵笔记",
-	},
-	{
-		name: "rmmv-notes",
-		description: "rmmv笔记项目",
-	},
-	{
-		name: "drill-doc",
-		description: "钻头文档",
-	},
-	{
-		name: "rmmv-api-doc",
-		description: "rmmv api文档",
-	},
+	{ name: "11comm-doc", description: "大项目 11智慧社区项目 前端文档" },
+	{ name: "01s-doc", description: "大项目 01星球文档" },
+	{ name: "utils", description: "工具包项目" },
+	{ name: "vitepress-preset", description: "vitepress配置预设" },
+	{ name: "domain", description: "域名列表" },
+	{ name: "vercel-deploy-tool", description: "vercel部署工具" },
+	{ name: "ruan-cat-notes", description: "阮喵喵笔记" },
+	{ name: "rmmv-notes", description: "rmmv笔记项目" },
+	{ name: "drill-doc", description: "钻头文档" },
+	{ name: "rmmv-api-doc", description: "rmmv api文档" },
 ] as const;
 
 /** 项目名称列表 */
