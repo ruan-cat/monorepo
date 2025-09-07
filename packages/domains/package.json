@@ -55,7 +55,7 @@
 	"files": [
 		"!**/.vercel/**",
 		"dist",
-		"main.ts",
+		"src/**/*.ts",
 		"tsconfig.json"
 	],
 	"devDependencies": {
