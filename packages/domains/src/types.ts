@@ -61,6 +61,7 @@ export const projects = [
 	{ name: "rmmv-notes", description: "rmmv笔记项目" },
 	{ name: "drill-doc", description: "钻头文档" },
 	{ name: "rmmv-api-doc", description: "rmmv api文档" },
+	{ name: "sundry", description: "杂项项目" },
 ] as const;
 
 /** 项目名称列表 */
