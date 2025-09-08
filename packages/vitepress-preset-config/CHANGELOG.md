@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 2.2.0
+
+### Minor Changes
+
+- 优化代码块的展示效果。使用 teek 主题的 [codeBlock](https://vp.teek.top/reference/config/global-config.html#codeblock) 配置实现优化。 ([`30feea8`](https://github.com/ruan-cat/monorepo/commit/30feea8f726faff982deabc0faec288e0bea5514))
+
 ## 2.1.0
 
 ### Minor Changes
