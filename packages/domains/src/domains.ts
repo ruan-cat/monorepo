@@ -147,7 +147,13 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "juejin",
 			order: 1,
-			description: "重定向到掘金文章主页。",
+			description: "重定向到掘金文章主页。在cloudflare内用cloudflare worker函数实现301重定向配置。",
+		},
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "rmmv-api-doc",
+			order: 2,
+			description: "rmmv的api文档，用工具生成的文档。由于仓库庞大，故选择用vercel工作流克隆并部署文档。",
 		},
 	],
 };
