@@ -1,5 +1,7 @@
 # 阮喵喵的单仓
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ruan-cat/monorepo)
+
 这里存放了阮喵喵分装的依赖包，以 monorepo 的形式存储。
 
 ## `@ruan-cat/utils`
