@@ -1,5 +1,17 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 2.3.0
+
+### Minor Changes
+
+- 使用 vitepress-theme-teek 主题提供的[样式增强](https://vp.teek.top/guide/styles-plus.html#样式增强)效果。增强的效果包括： ([`c4d782a`](https://github.com/ruan-cat/monorepo/commit/c4d782a4470da313cedc51d47bfc468d63709db0))
+  - 文章一级标题渐变色
+  - 导航栏毛玻璃样式
+  - 滚动条样式
+  - 侧边栏样式
+  - 右侧目栏录文字悬停和激活样式
+  - 首次进入页面添加渐显动画
+
 ## 2.2.0
 
 ### Minor Changes
