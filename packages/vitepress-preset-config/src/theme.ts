@@ -30,6 +30,8 @@ import "vitepress-theme-teek/theme-chalk/tk-nav-blur.css";
 import "vitepress-theme-teek/theme-chalk/tk-scrollbar.css";
 // 侧边栏样式
 import "vitepress-theme-teek/theme-chalk/tk-sidebar.css";
+// 右侧目栏录文字悬停和激活样式
+import "vitepress-theme-teek/theme-chalk/tk-aside.css";
 // 首次进入页面添加渐显动画
 import "vitepress-theme-teek/theme-chalk/tk-fade-up-animation.css";
 
