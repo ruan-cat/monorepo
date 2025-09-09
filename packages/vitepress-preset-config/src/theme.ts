@@ -21,6 +21,18 @@ import CopyOrDownloadAsMarkdownButtons from "vitepress-plugin-llms/vitepress-com
 import Teek from "vitepress-theme-teek";
 import "vitepress-theme-teek/index.css";
 
+// https://vp.teek.top/guide/styles-plus.html#样式增强
+// 文章一级标题渐变色
+import "vitepress-theme-teek/theme-chalk/tk-doc-h1-gradient.css";
+// 导航栏毛玻璃样式
+import "vitepress-theme-teek/theme-chalk/tk-nav-blur.css";
+// 滚动条样式
+import "vitepress-theme-teek/theme-chalk/tk-scrollbar.css";
+// 侧边栏样式
+import "vitepress-theme-teek/theme-chalk/tk-sidebar.css";
+// 首次进入页面添加渐显动画
+import "vitepress-theme-teek/theme-chalk/tk-fade-up-animation.css";
+
 /** @see https://vitepress-ext.leelaa.cn/Mermaid.html#全局引入 */
 // @ts-ignore FIXME: 忽略类型导出的bug 避免tsup打包失败
 import { Mermaid } from "@leelaa/vitepress-plugin-extended";
