@@ -14,7 +14,7 @@
 	"scripts": {
 		"git:fetch": "git fetch -p",
 		"git:dev-2-main": "pnpm git:fetch && pnpm git:push && git rebase dev main && pnpm git:push",
-		"git:main-2-dev": "git rebase main dev",
+		"git:main-2-dev": "git rebase main dev && pnpm git:push",
 		"changeset:add": "changeset add",
 		"up-taze": "npx taze -r",
 		"format": "prettier --experimental-cli --write . --ignore-path ./.config/.prettierignore --ignore-path .gitignore",
