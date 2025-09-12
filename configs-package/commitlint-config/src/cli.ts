@@ -88,7 +88,7 @@ function initCommand(options: { force?: boolean }): void {
 
 下一步 / Next steps:
   1. 安装依赖 / Install dependencies:
-     pnpm i -D commitizen cz-git @commitlint/cli
+     pnpm i -D commitizen cz-git @ruan-cat/commitlint-config
 
   2. 开始使用 / Start using:
      git add .
