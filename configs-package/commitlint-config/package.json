@@ -17,7 +17,7 @@
 	"scripts": {
 		"prebuild": "automd",
 		"build": "tsup",
-		"test:cli": "node dist/cli.cjs"
+		"test:cli": "node dist/cli.cjs init"
 	},
 	"exports": {
 		".": {
@@ -69,6 +69,7 @@
 	},
 	"dependencies": {
 		"@ruan-cat/utils": "workspace:^",
+		"commander": "^13.1.0",
 		"consola": "^3.4.2",
 		"glob": "^11.0.3",
 		"js-yaml": "^4.1.0",
