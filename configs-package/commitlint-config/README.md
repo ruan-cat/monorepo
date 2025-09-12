@@ -7,12 +7,12 @@
 
 <!-- /automd -->
 
-阮喵喵自用的 commitlint.config.cjs 的配置，是一个 cjs 的包。
+阮喵喵自用的 `commitlint.config.cjs` 的配置，是一个 `cjs` 的包。
 
 ## 功能
 
-- 🚀 **一键初始化**：提供 CLI 命令，快速初始化项目的 commitlint 配置
-- 📦 **自动识别包**：根据 pnpm-workspace.yaml 自动识别 monorepo 项目内的全部包。如果根目录不存在 pnpm-workspace.yaml 文件，则不会扫描整个工作区。
+- 🚀 **一键初始化**：提供 CLI 命令，快速初始化项目的 `commitlint` 配置
+- 📦 **自动识别包**：根据 `pnpm-workspace.yaml` 自动识别 monorepo 项目内的全部包。如果根目录不存在 `pnpm-workspace.yaml` 文件，则不会扫描整个工作区。
 - 🎯 **自定义提交域**：用户可以自定义提交域，满足不同项目需求
 
 ## 安装
@@ -21,11 +21,13 @@
 pnpm i -D commitizen cz-git @ruan-cat/commitlint-config
 ```
 
-本库应当作为开发环境依赖。其中，commitizen 和 cz-git 为本依赖包的对等依赖。
+本库应当作为开发环境依赖。其中，`commitizen` 和 `cz-git` 为本依赖包的对等依赖。
 
-## 快速初始化 🚀
+## 快速初始化
 
 **推荐使用方式**：无需手动安装，直接使用一行命令快速初始化配置文件：
+
+> 尽管可以通过命令行的方式初始化配置，但是在具体项目应用时，还是应该安装好上述依赖。
 
 ```bash
 # 使用 pnpm
@@ -37,8 +39,8 @@ npx @ruan-cat/commitlint-config init
 
 该命令会自动在当前目录创建：
 
-- `.czrc` - commitizen 配置文件
-- `commitlint.config.cjs` - commitlint 配置文件
+- `.czrc` - `commitizen` 配置文件
+- `commitlint.config.cjs` - `commitlint` 配置文件
 
 ### 命令选项
 
@@ -59,6 +61,7 @@ pnpm dlx @ruan-cat/commitlint-config --version
 ```
 
 **选项说明：**
+
 - `-f, --force` - 强制覆盖已存在的文件，跳过覆盖警告提示
 
 > **注意**：如果目录中已存在同名配置文件，默认会显示警告信息。使用 `--force` 选项可以跳过警告直接覆盖。
@@ -445,7 +448,7 @@ export const commonScopes: ScopesItemWithDesc[] = [
 
 ## 其他参考
 
-本包经常用于给阮喵喵维护的项目初始化简单的 cz 配置，这里提供[阮喵喵常用的 cz 配置笔记](https://notes.ruan-cat.com/cz)，便于阅读。
+本包经常用于给阮喵喵维护的项目初始化简单的 `cz` 配置，这里提供[阮喵喵常用的 cz 配置笔记](https://notes.ruan-cat.com/cz)，便于阅读。
 
 ## 路线图
 
