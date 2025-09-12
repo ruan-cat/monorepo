@@ -11,8 +11,9 @@
 
 ## 功能
 
-- 根据 pnpm-workspace.yaml 自动识别 monorepo 项目内的全部包。如果根目录不存在 pnpm-workspace.yaml 文件，则不会扫描整个工作区。
-- 用户可以自定义提交域。
+- 🚀 **一键初始化**：提供 CLI 命令，快速初始化项目的 commitlint 配置
+- 📦 **自动识别包**：根据 pnpm-workspace.yaml 自动识别 monorepo 项目内的全部包。如果根目录不存在 pnpm-workspace.yaml 文件，则不会扫描整个工作区。
+- 🎯 **自定义提交域**：用户可以自定义提交域，满足不同项目需求
 
 ## 安装
 
@@ -21,6 +22,25 @@ pnpm i -D commitizen cz-git @ruan-cat/commitlint-config
 ```
 
 本库应当作为开发环境依赖。其中，commitizen 和 cz-git 为本依赖包的对等依赖。
+
+## 快速初始化 🚀
+
+**推荐使用方式**：无需手动安装，直接使用一行命令快速初始化配置文件：
+
+```bash
+# 使用 pnpm
+pnpm dlx @ruan-cat/commitlint-config init
+
+# 或使用 npm
+npx @ruan-cat/commitlint-config init
+```
+
+该命令会自动在当前目录创建：
+
+- `.czrc` - commitizen 配置文件
+- `commitlint.config.cjs` - commitlint 配置文件
+
+> **注意**：如果目录中已存在同名配置文件，将会被覆盖。
 
 ## 使用方式
 

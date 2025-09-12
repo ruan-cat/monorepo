@@ -16,7 +16,8 @@
 	},
 	"scripts": {
 		"prebuild": "automd",
-		"build": "tsup"
+		"build": "tsup",
+		"test:cli": "node dist/cli.cjs"
 	},
 	"exports": {
 		".": {
@@ -36,6 +37,9 @@
 		"url": "https://github.com/ruan-cat"
 	},
 	"license": "MIT",
+	"bin": {
+		"@ruan-cat/commitlint-config": "./dist/cli.cjs"
+	},
 	"publishConfig": {
 		"access": "public",
 		"registry": "https://registry.npmjs.org/",
