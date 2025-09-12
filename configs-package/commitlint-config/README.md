@@ -38,7 +38,9 @@ module.exports = require("@ruan-cat/commitlint-config").default;
 
 可以使用 `getUserConfig` 函数来拓展配置。
 
-```js
+<!-- automd:file src="./templates/commitlint.config.cjs" code -->
+
+```cjs [commitlint.config.cjs]
 // commitlint.config.cjs
 // @ts-check
 module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
@@ -48,6 +50,8 @@ module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
 	},
 });
 ```
+
+<!-- /automd -->
 
 ### 类型标注
 
