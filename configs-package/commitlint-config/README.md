@@ -40,7 +40,28 @@ npx @ruan-cat/commitlint-config init
 - `.czrc` - commitizen 配置文件
 - `commitlint.config.cjs` - commitlint 配置文件
 
-> **注意**：如果目录中已存在同名配置文件，将会被覆盖。
+### 命令选项
+
+```bash
+# 基本用法
+pnpm dlx @ruan-cat/commitlint-config init
+
+# 强制覆盖已存在的文件（跳过警告提示）
+pnpm dlx @ruan-cat/commitlint-config init --force
+pnpm dlx @ruan-cat/commitlint-config init -f
+
+# 查看帮助信息
+pnpm dlx @ruan-cat/commitlint-config --help
+pnpm dlx @ruan-cat/commitlint-config init --help
+
+# 查看版本号
+pnpm dlx @ruan-cat/commitlint-config --version
+```
+
+**选项说明：**
+- `-f, --force` - 强制覆盖已存在的文件，跳过覆盖警告提示
+
+> **注意**：如果目录中已存在同名配置文件，默认会显示警告信息。使用 `--force` 选项可以跳过警告直接覆盖。
 
 ## 使用方式
 
