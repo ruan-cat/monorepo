@@ -1,5 +1,11 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 2.1.1
+
+### Patch Changes
+
+- 更新 cli 命令行提示要安装的命令行。更新为正确的 `pnpm i -D commitizen cz-git @ruan-cat/commitlint-config` 命令。 ([`547b099`](https://github.com/ruan-cat/monorepo/commit/547b099b7de5507eab4c3d7d31c370fb8470a94d))
+
 ## 2.1.0
 
 ### Minor Changes
