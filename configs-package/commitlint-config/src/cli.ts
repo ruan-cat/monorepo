@@ -19,10 +19,7 @@ const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
 const { version } = packageJson;
 
 // 需要复制的模板文件列表
-const TEMPLATE_FILES = [
-	".czrc",
-	"commitlint.config.cjs",
-] as const;
+const TEMPLATE_FILES = [".czrc", "commitlint.config.cjs"] as const;
 
 /**
  * 复制模板文件到目标目录
@@ -55,14 +52,12 @@ function copyTemplateFile(filename: string, targetDir: string): void {
  */
 function initCommand(options: { force?: boolean }): void {
 	const cwd = process.cwd();
-	
+
 	consola.info("正在初始化 @ruan-cat/commitlint-config 配置文件...");
 	consola.info("Initializing @ruan-cat/commitlint-config configuration files...");
 
 	// 检查哪些文件将被覆盖
-	const existingFiles = TEMPLATE_FILES.filter(file => 
-		existsSync(join(cwd, file))
-	);
+	const existingFiles = TEMPLATE_FILES.filter((file) => existsSync(join(cwd, file)));
 
 	// 如果有文件将被覆盖且没有 --force 选项，给出警告并询问用户
 	if (existingFiles.length > 0 && !options.force) {
@@ -77,7 +72,7 @@ function initCommand(options: { force?: boolean }): void {
 
 	consola.success("配置文件初始化成功！");
 	consola.success("Configuration files initialized successfully!");
-	
+
 	// 特别提示 commitlint.config.cjs 文件被覆盖
 	if (existingFiles.includes("commitlint.config.cjs")) {
 		consola.info("注意：已覆盖现有的 commitlint.config.cjs 文件");
@@ -106,17 +101,24 @@ const program = new Command();
 // 设置程序基本信息
 program
 	.name("@ruan-cat/commitlint-config")
-	.description(`阮喵喵自用的 commitlint 配置工具
-Ruan Cat's commitlint configuration tool`)
+	.description(
+		`阮喵喵自用的 commitlint 配置工具
+Ruan Cat's commitlint configuration tool`,
+	)
 	.version(version);
 
 // 添加 init 命令
 program
 	.command("init")
-	.description(`初始化配置文件
-Initialize configuration files`)
-	.option("-f, --force", `强制覆盖已存在的文件
-Force overwrite existing files`)
+	.description(
+		`初始化配置文件
+Initialize configuration files`,
+	)
+	.option(
+		"-f, --force",
+		`强制覆盖已存在的文件
+Force overwrite existing files`,
+	)
 	.action((options) => {
 		initCommand(options);
 	});
