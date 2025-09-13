@@ -160,6 +160,25 @@ export function convertCommitTypesToCzGitFormat() {
 }
 
 /**
+ * 获取所有提交类型
+ * @description
+ * 获取所有提交类型，用于 commitlint 的 `type-enum` 规则
+ * @returns 返回提交类型数组
+ */
+export function getTypes() {
+	return commitTypes.map((commitType) => commitType.type);
+}
+
+/**
+ * 获取所有提交范围
+ * @description
+ * 获取所有提交范围，用于 commitlint 的 `scope-enum` 规则
+ * @returns 返回提交范围数组
+ */
+export function getScopes() {
+	return getPackagesNameAndDescription().map((scope) => scope.name);
+}
+/**
  * 获取包路径到范围值的映射关系
  */
 function getPackagePathToScopeMapping(): Map<string, string> {

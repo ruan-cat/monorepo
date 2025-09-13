@@ -139,7 +139,7 @@ module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
 
 ```ts [config.ts]
 import { type UserConfig } from "cz-git";
-import { convertCommitTypesToCzGitFormat, getDefaultScope } from "./utils.ts";
+import { convertCommitTypesToCzGitFormat, getDefaultScope, getScopes, getTypes } from "./utils.ts";
 
 /**
  * @description
@@ -151,9 +151,18 @@ import { convertCommitTypesToCzGitFormat, getDefaultScope } from "./utils.ts";
  * @see https://cz-git.qbb.sh/zh/recipes/#
  */
 export const config: UserConfig = {
+	/**
+	 * @see https://blog.csdn.net/gitblog_00135/article/details/150699293
+	 * @see https://commitlint.js.org/#/reference-rules
+	 */
 	rules: {
-		// @see: https://commitlint.js.org/#/reference-rules
+		// 提交类型做报错
+		"type-enum": [2, "always", getTypes()],
+
+		// 提交范围做警告
+		"scope-enum": [1, "always", getScopes()],
 	},
+
 	prompt: {
 		alias: { fd: "docs: fix typos" },
 
