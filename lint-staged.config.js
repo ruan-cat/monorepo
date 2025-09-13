@@ -5,5 +5,5 @@
  * @see https://github.com/lint-staged/lint-staged/blob/main/README.md#typescript
  */
 export default {
-	"*": "prettier --write",
+	// "*": "prettier --write",
 };
