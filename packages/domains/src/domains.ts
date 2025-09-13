@@ -36,11 +36,23 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 	"11comm-doc": [{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm-doc", order: 1 }],
 	/** 01星球文档 */
 	"01s-doc": [
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "docs-01-star", order: 1 },
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "01s-doc",
+			order: 1,
+			description: "本域名是主域名，作为主要的域名使用。在cloudflare worker内配置了自动部署。",
+		},
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "docs-01-star",
+			order: 2,
+			description: "本域名是别名。在cloudflare worker内指向同一个内容。不属于301重定向写法。",
+		},
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "docs-01-star", order: 3 },
 		{
 			topLevelDomain: "ruancat6312.top",
 			secondLevelDomain: "01s-doc",
-			order: 2,
+			order: 4,
 			description: "本域名是别名。旨在于统一域名的编写格式。",
 		},
 	],
