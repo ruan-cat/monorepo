@@ -15,9 +15,6 @@
 		"//#deploy-vercel": {
 			"dependsOn": ["^build:docs"]
 		},
-		"vp-update": {
-			"dependsOn": []
-		},
 		"//#changeset:publish": {
 			"cache": false,
 			"dependsOn": ["^build"]
