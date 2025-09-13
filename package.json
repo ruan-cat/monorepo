@@ -72,6 +72,7 @@
 		"codess": "^1.1.10",
 		"commander": "^13.1.0",
 		"commitizen": "^4.3.1",
+		"commitlint": "^19.8.1",
 		"consola": "^3.4.2",
 		"cross-env": "^7.0.3",
 		"cz-git": "^1.12.0",
