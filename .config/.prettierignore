@@ -24,3 +24,6 @@ dist
 
 # 不对这里的文档做格式化
 **/snippets/*.md
+snippets/annotation.md
+snippets/md.md
+snippets/vue3.md
