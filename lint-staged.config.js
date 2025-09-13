@@ -5,5 +5,6 @@
  * @see https://github.com/lint-staged/lint-staged/blob/main/README.md#typescript
  */
 export default {
-	"**/*.{js,jsx,ts,tsx,mts,mjs,json,css,scss,yml,yaml,html}": "prettier --experimental-cli --write",
+	/** @see https://github.com/lint-staged/lint-staged/blob/main/README.md#automatically-fix-code-style-with-prettier-for-any-format-prettier-supports */
+	"*": "prettier --ignore-unknown --experimental-cli --write",
 };
