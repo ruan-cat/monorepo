@@ -31,6 +31,8 @@
 		"automd:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- automd",
 		"preinstall": "npx only-allow pnpm && npm run corepack:pnpm",
 		"corepack:pnpm": "corepack enable && corepack install",
+		"postinstall": "pnpm run init-git-hooks",
+		"init-git-hooks": "simple-git-hooks",
 		"commit": "git-cz",
 		"git:push": "git push --follow-tags",
 		"clear-2": "pnpm run clear:deps && pnpm run clear:cache",
