@@ -7,7 +7,7 @@
 	"description": "这是单仓架构项目的根目录。",
 	"main": "index.js",
 	"type": "module",
-	"packageManager": "pnpm@10.15.1",
+	"packageManager": "pnpm@10.16.0",
 	"engines": {
 		"node": ">=22.14.0"
 	},
