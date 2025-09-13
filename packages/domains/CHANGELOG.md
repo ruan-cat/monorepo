@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.2.0
+
+### Minor Changes
+
+- 设置语义化的，统一规范的，便于记忆的域名。`https://01s-doc.ruan-cat.com/` 。 ([`69d3aae`](https://github.com/ruan-cat/monorepo/commit/69d3aaecaa634fc954bdf9cdfce04088a5456a8c))
+
 ## 1.1.1
 
 ### Patch Changes
