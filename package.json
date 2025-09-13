@@ -17,7 +17,7 @@
 		"git:main-2-dev": "git rebase main dev && pnpm git:push",
 		"changeset:add": "changeset add",
 		"up-taze": "npx taze -r",
-		"format": "prettier --experimental-cli --write . '!**/snippets/**' --ignore-path ./.config/.prettierignore --ignore-path .gitignore",
+		"format": "prettier --experimental-cli --write '**/*.{js,jsx,ts,tsx,mts,json,css,scss,md,yml,yaml,html}' '!**/snippets/**' --ignore-path ./.config/.prettierignore --ignore-path .gitignore",
 		"build": "turbo build",
 		"test": "vitest --ui --watch --api.port=4000",
 		"build:docs": "turbo build:docs",
