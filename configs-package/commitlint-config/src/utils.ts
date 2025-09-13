@@ -1,4 +1,5 @@
 import { commitTypes } from "./commit-types.ts";
+import { execSync } from "node:child_process";
 
 /**
  * 将 commitTypes 转换为 cz-git 格式
@@ -22,4 +23,21 @@ export function convertCommitTypesToCzGitFormat() {
 			name: `${commitType.emoji} ${commitType.type}:${spaces}${commitType.description}`,
 		};
 	});
+}
+
+/**
+ * 根据 git 状态，获取默认的提交范围
+ * @see https://cz-git.qbb.sh/zh/recipes/default-scope
+ */
+export function getDefaultScope() {
+	// precomputed scope
+	const scopeComplete = execSync("git status --porcelain || true")
+		.toString()
+		.trim()
+		.split("\n")
+		.find((r) => ~r.indexOf("M  src"))
+		?.replace(/(\/)/g, "%%")
+		?.match(/src%%((\w|-)*)/)?.[1];
+
+	return scopeComplete;
 }

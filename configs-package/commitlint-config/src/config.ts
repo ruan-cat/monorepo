@@ -1,5 +1,5 @@
 import { type UserConfig } from "cz-git";
-import { convertCommitTypesToCzGitFormat } from "./utils.ts";
+import { convertCommitTypesToCzGitFormat, getDefaultScope } from "./utils.ts";
 
 /**
  * @description
@@ -75,7 +75,7 @@ export const config: UserConfig = {
 		scopeOverrides: undefined,
 		defaultBody: "",
 		defaultIssues: "",
-		defaultScope: "",
+		defaultScope: getDefaultScope() || "",
 		defaultSubject: "",
 	},
 };
