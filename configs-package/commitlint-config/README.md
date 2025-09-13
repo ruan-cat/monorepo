@@ -139,7 +139,7 @@ module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
 
 ```ts [config.ts]
 import { type UserConfig } from "cz-git";
-import { convertCommitTypesToCzGitFormat } from "./utils.ts";
+import { convertCommitTypesToCzGitFormat, getDefaultScope } from "./utils.ts";
 
 /**
  * @description
@@ -215,7 +215,7 @@ export const config: UserConfig = {
 		scopeOverrides: undefined,
 		defaultBody: "",
 		defaultIssues: "",
-		defaultScope: "",
+		defaultScope: getDefaultScope() || "",
 		defaultSubject: "",
 	},
 };
@@ -449,5 +449,3 @@ export const commonScopes: ScopesItemWithDesc[] = [
 ## 其他参考
 
 本包经常用于给阮喵喵维护的项目初始化简单的 `cz` 配置，这里提供[阮喵喵常用的 cz 配置笔记](https://notes.ruan-cat.com/cz)，便于阅读。
-
-## 路线图
