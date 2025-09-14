@@ -1,11 +1,14 @@
 import { join } from "node:path";
 import * as fs from "node:fs";
 import { sync } from "glob";
+import { minimatch } from "minimatch";
 import { load } from "js-yaml";
 import { isUndefined } from "lodash-es";
 import { type PnpmWorkspace } from "@ruan-cat/utils";
 import { type PackageJson } from "pkg-types";
+
 import { createPackagescopes } from "./utils.ts";
+import { commonScopes } from "./common-scopes.ts";
 
 import { execSync } from "node:child_process";
 import consola from "consola";
@@ -75,6 +78,7 @@ export function getDefaultScope(): string | string[] | undefined {
 	try {
 		// 1. 获取包路径到范围的映射
 		const pathToScopeMapping = getPackagePathToScopeMapping();
+		// consola.warn("pathToScopeMapping", pathToScopeMapping);
 
 		// 2. 获取 git 修改的文件列表
 		const gitStatusOutput = execSync("git status --porcelain || true").toString().trim();
@@ -96,7 +100,10 @@ export function getDefaultScope(): string | string[] | undefined {
 			})
 			.filter((filePath) => filePath.length > 0);
 
-		consola.info(`检测到 ${modifiedFiles.length} 个修改的文件:`, modifiedFiles);
+		// 美化输出修改的文件列表
+		const filesText = modifiedFiles.map((file, index) => `${index + 1}. ${file}`).join("\n");
+		console.info(`检测到 ${modifiedFiles.length} 个修改的文件:\n`);
+		consola.box(`\n${filesText}`);
 
 		// 4. 匹配文件路径到包范围
 		const affectedScopes = new Set<string>();
@@ -128,11 +135,30 @@ export function getDefaultScope(): string | string[] | undefined {
 				}
 			}
 
+			// 添加基于包路径匹配的范围
 			affectedScopes.add(matchedScope);
+
+			// 新增：基于 commonScopes 的 glob 匹配
+			const normalizedFilePath = filePath.replace(/\\/g, "/");
+			commonScopes.forEach((scopeItem) => {
+				// 检查是否存在 glob 字段
+				if (scopeItem.glob && scopeItem.glob.length > 0) {
+					// 遍历每个 glob 模式
+					scopeItem.glob.forEach((globPattern) => {
+						// 使用 minimatch 进行 glob 匹配
+						if (minimatch(normalizedFilePath, globPattern)) {
+							// 匹配成功，添加该范围的 value 到集合中
+							affectedScopes.add(scopeItem.value);
+						}
+					});
+				}
+			});
 		});
 
 		const scopesArray = Array.from(affectedScopes);
-		consola.info(`影响的包范围:`, scopesArray);
+		// 美化输出影响的包范围
+		const scopesText = scopesArray.map((scope, index) => `${index + 1}. ${scope}`).join("\n");
+		consola.box(`影响的包范围:\n\n${scopesText}`);
 
 		// 5. 返回结果
 		if (scopesArray.length === 0) {

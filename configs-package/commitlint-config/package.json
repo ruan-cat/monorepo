@@ -15,9 +15,11 @@
 		"directory": "configs-package/commitlint-config"
 	},
 	"scripts": {
-		"prebuild": "automd",
 		"build": "tsup",
-		"test:cli": "node dist/cli.cjs init"
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:cli": "node dist/cli.cjs init",
+		"prebuild": "automd"
 	},
 	"exports": {
 		".": {
@@ -73,6 +75,7 @@
 		"consola": "^3.4.2",
 		"glob": "^11.0.3",
 		"js-yaml": "^4.1.0",
-		"lodash": "^4.17.21"
+		"lodash": "^4.17.21",
+		"minimatch": "^10.0.3"
 	}
 }
