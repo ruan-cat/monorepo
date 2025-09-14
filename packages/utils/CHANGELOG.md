@@ -1,5 +1,17 @@
 # @ruan-cat/utils 更新日志
 
+## 4.11.0
+
+### Minor Changes
+
+- 新增 `printList` 函数，用于格式化输出字符串数组。该函数提供： ([`dffc0bf`](https://github.com/ruan-cat/monorepo/commit/dffc0bf29bf4be5f7f419a36e6882b1a6332d89b))
+  - 自动生成编号列表格式
+  - 支持字符串标题或动态标题函数
+  - 使用 consola.box 美化输出显示
+  - 完整的 TypeScript 类型支持
+
+  该功能主要用于在开发工具和测试场景中美化列表数据的输出显示。
+
 ## 4.10.0
 
 ### Minor Changes
