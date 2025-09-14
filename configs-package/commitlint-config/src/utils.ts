@@ -176,7 +176,11 @@ export function getTypes() {
  * @returns 返回提交范围数组
  */
 export function getScopes() {
-	return getPackagesNameAndDescription().map((scope) => scope.name);
+	return getPackagesNameAndDescription().map(
+		(scope) =>
+			// 优先从 value 取值，如果 value 不存在，则从 name 取值。 value 才是包名，才是 scope 提交范围。
+			scope.value ?? scope.name,
+	);
 }
 /**
  * 获取包路径到范围值的映射关系
