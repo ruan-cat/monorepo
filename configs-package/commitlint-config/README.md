@@ -23,6 +23,10 @@ pnpm i -D commitizen cz-git @ruan-cat/commitlint-config
 
 本库应当作为开发环境依赖。其中，`commitizen` 和 `cz-git` 为本依赖包的对等依赖。
 
+## 侧重点
+
+本包的侧重点，在于面向 `commitizen` 和 `cz-git` 提供交互式配置，未来会逐步增加针对 `commitlint` 的配置。
+
 ## 快速初始化
 
 **推荐使用方式**：无需手动安装，直接使用一行命令快速初始化配置文件：
