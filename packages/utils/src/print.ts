@@ -1,5 +1,6 @@
 import { isPlainObject, isArray } from "lodash-es";
 import { isConditionsSome } from "./conditions";
+import consola from "consola";
 
 /**
  * 一个简单的格式化函数
@@ -20,4 +21,30 @@ export function printFormat(params: any) {
 	const res = boolRes ? JSON.stringify(params, null, 2) : params;
 
 	return res;
+}
+
+export interface PrintListParams {
+	/** 标题，可以是字符串或根据列表生成标题的函数 */
+	title: ((stringList: string[]) => string) | string;
+	/** 要显示的字符串列表 */
+	stringList: string[];
+}
+
+/**
+ * 输出字符串列表
+ * @description
+ * 1. 生成编号列表文本
+ * 2. 生成标题文本
+ * 3. 输出标题和列表
+ */
+export function printList({ title, stringList }: PrintListParams): void {
+	// 生成编号列表文本
+	const listText = stringList.map((item, index) => `${index + 1}. ${item}`).join("\n");
+
+	// 生成标题文本
+	const titleText = typeof title === "function" ? title(stringList) : title;
+
+	// 输出标题和列表
+	consola.info(titleText);
+	consola.box(listText);
 }
