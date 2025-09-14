@@ -15,6 +15,12 @@
 - 📦 **自动识别包**：根据 `pnpm-workspace.yaml` 自动识别 monorepo 项目内的全部包。如果根目录不存在 `pnpm-workspace.yaml` 文件，则不会扫描整个工作区。
 - 🎯 **自定义提交域**：用户可以自定义提交域，满足不同项目需求
 
+### 自动识别包功能
+
+根据提交内容的路径，组装出提交范围。如下图所示：
+
+![2025-09-14-15-26-38](https://s2.loli.net/2025/09/14/9bYhej5cNnBPzdA.png)
+
 ## 安装
 
 ```bash
@@ -143,7 +149,8 @@ module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
 
 ```ts [config.ts]
 import { type UserConfig } from "cz-git";
-import { convertCommitTypesToCzGitFormat, getDefaultScope, getScopes, getTypes } from "./utils.ts";
+import { convertCommitTypesToCzGitFormat, getScopes, getTypes } from "./utils.ts";
+import { getDefaultScope } from "./get-default-scope.ts";
 
 /**
  * @description
