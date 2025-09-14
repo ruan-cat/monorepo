@@ -1,8 +1,10 @@
 export * from "./commit-types.ts";
 export * from "./common-scopes.ts";
 export * from "./config.ts";
+export * from "./get-default-scope.ts";
 export * from "./utils.ts";
 export * from "./type.ts";
+
 import { getPackagesNameAndDescription } from "./utils.ts";
 import type { ScopesTypeItem } from "./utils.ts";
 

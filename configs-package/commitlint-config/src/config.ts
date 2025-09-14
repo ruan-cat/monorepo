@@ -1,5 +1,6 @@
 import { type UserConfig } from "cz-git";
-import { convertCommitTypesToCzGitFormat, getDefaultScope, getScopes, getTypes } from "./utils.ts";
+import { convertCommitTypesToCzGitFormat, getScopes, getTypes } from "./utils.ts";
+import { getDefaultScope } from "./get-default-scope.ts";
 
 /**
  * @description
