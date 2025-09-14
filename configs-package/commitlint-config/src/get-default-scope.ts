@@ -17,6 +17,36 @@ import { execSync } from "node:child_process";
 import consola from "consola";
 
 /**
+ * 解析 git status --porcelain 输出，提取暂存区文件路径
+ * @description
+ * 1. 按行分割输出
+ * 2. 过滤空行
+ * 3. 只保留暂存区文件（第一个字符不是空格且不是?）
+ * 4. 提取文件路径（从第3个字符开始）
+ * @param gitStatusOutput - git status --porcelain 命令的输出
+ * @returns 暂存区文件路径数组
+ */
+export function parseGitStatusOutput(gitStatusOutput: string): string[] {
+	return gitStatusOutput
+		.split("\n")
+		.filter((line) => line.length > 0)
+		.filter((line) => {
+			// git status --porcelain 格式：XY filename
+			// X: 索引状态（暂存区），Y: 工作目录状态
+			// 只处理暂存区的文件（第一个字符不是空格且不是?）
+			const indexStatus = line[0];
+			return indexStatus !== " " && indexStatus !== "?";
+		})
+		.map((line) => {
+			// git status --porcelain 格式：XY filename
+			// 从第3个字符开始是文件名，但需要去掉可能的前导空格
+			let filePath = line.substring(2).trim();
+			return filePath;
+		})
+		.filter((filePath) => filePath.length > 0);
+}
+
+/**
  * 获取包路径到范围值的映射关系
  */
 function getPackagePathToScopeMapping(): Map<string, string> {
@@ -84,7 +114,11 @@ export function getDefaultScope(): string | string[] | undefined {
 		// consola.warn("pathToScopeMapping", pathToScopeMapping);
 
 		// 2. 获取 git 修改的文件列表
-		const gitStatusOutput = execSync("git status --porcelain || true").toString().trim();
+		const gitStatusOutput = execSync("git status --porcelain || true").toString();
+		// printList({
+		// 	title: (files) => `输出 git status --porcelain || true 命令的输出:`,
+		// 	stringList: gitStatusOutput.split("\n"),
+		// });
 
 		if (!gitStatusOutput) {
 			consola.info("没有检测到文件修改");
@@ -92,20 +126,10 @@ export function getDefaultScope(): string | string[] | undefined {
 		}
 
 		// 3. 解析修改的文件路径
-		const modifiedFiles = gitStatusOutput
-			.split("\n")
-			.map((line) => line.trim())
-			.filter((line) => line.length > 0)
-			.map((line) => {
-				// git status --porcelain 格式：XY filename
-				// 提取文件名（跳过前两个状态字符和空格）
-				return line.substring(3);
-			})
-			.filter((filePath) => filePath.length > 0);
-
-		// 美化输出修改的文件列表
+		const modifiedFiles = parseGitStatusOutput(gitStatusOutput);
+		// 输出修改的文件列表
 		printList({
-			title: (files) => `检测到 ${files.length} 个修改的文件:`,
+			title: (files) => `输出 ${files.length} 个暂存区文件路径:`,
 			stringList: modifiedFiles,
 		});
 
@@ -160,7 +184,7 @@ export function getDefaultScope(): string | string[] | undefined {
 		});
 
 		const scopesArray = Array.from(affectedScopes);
-		// 美化输出影响的包范围
+		// 输出影响的包范围
 		printList({
 			title: "影响的包范围:",
 			stringList: scopesArray,

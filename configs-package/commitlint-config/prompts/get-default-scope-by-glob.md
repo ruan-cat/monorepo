@@ -88,7 +88,7 @@
 1. 请你使用 vitest 来编写测试用例。
 2. 请你使用 vitest 的 `import { test, describe } from "vitest";` 来编写。我希望测试用例格式为 describe 和 test。
 3. 测试用例的文件格式为 `*.test.ts` 。
-4. 在 configs-package\commitlint-config\src\tests 目录内编写测试用例。
+4. 在 `configs-package\commitlint-config\src\tests` 目录内编写测试用例。
 5. 在 `本包` 内提供一个通用的测试用例调用入口。注意，整个项目是 monorepo 项目，本包是一个 monorepo 下的一个子包，请你保证在子包调用的测试用例，只使用子包的测试。不包含整个包的测试项目。
 
 ## 其他
