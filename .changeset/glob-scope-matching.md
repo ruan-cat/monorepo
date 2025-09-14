@@ -14,3 +14,7 @@
 
 - `configs-package/commitlint-config/prompts/test.md` → 匹配到 `commitlint-config` + `prompt`
 - `packages/utils/turbo.json` → 匹配到 `utils` + `config` + `turbo`
+
+## 优化输出范围的提示效果
+
+用盒子的形式输出打印效果。
