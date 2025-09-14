@@ -103,3 +103,31 @@
 consola.info(`检测到 ${modifiedFiles.length} 个修改的文件:`, modifiedFiles);
 consola.info(`影响的包范围:`, scopesArray);
 ```
+
+### 002
+
+请深度思考。
+
+阅读 configs-package\commitlint-config\src\get-default-scope.ts 文件。优化代码结构。
+
+1. 阅读以下代码片段：
+
+```ts
+// 美化输出修改的文件列表
+const filesText = modifiedFiles.map((file, index) => `${index + 1}. ${file}`).join("\n");
+consola.info(`检测到 ${modifiedFiles.length} 个修改的文件:`);
+consola.box(`${filesText}`);
+```
+
+```ts
+// 美化输出影响的包范围
+const scopesText = scopesArray.map((scope, index) => `${index + 1}. ${scope}`).join("\n");
+consola.info(`影响的包范围:`);
+consola.box(`${scopesText}`);
+```
+
+2. 请你归纳出一个公共函数，名称为 `printList` 。函数设计如下：
+
+- 入参 title 字段： ( (stringList: string[]) => string ) | string
+- 入参 stringList 字段： string[]
+- 返回值： void

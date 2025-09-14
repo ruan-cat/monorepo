@@ -4,8 +4,11 @@ import { sync } from "glob";
 import { minimatch } from "minimatch";
 import { load } from "js-yaml";
 import { isUndefined } from "lodash-es";
-import { type PnpmWorkspace } from "@ruan-cat/utils";
 import { type PackageJson } from "pkg-types";
+import { type PnpmWorkspace } from "@ruan-cat/utils";
+
+// 注意 整个 commitlint-config 包都是使用 cjs 的语法，所以需要使用 node-cjs 的语法
+import { printList } from "@ruan-cat/utils/node-cjs";
 
 import { createPackagescopes } from "./utils.ts";
 import { commonScopes } from "./common-scopes.ts";
@@ -101,9 +104,10 @@ export function getDefaultScope(): string | string[] | undefined {
 			.filter((filePath) => filePath.length > 0);
 
 		// 美化输出修改的文件列表
-		const filesText = modifiedFiles.map((file, index) => `${index + 1}. ${file}`).join("\n");
-		console.info(`检测到 ${modifiedFiles.length} 个修改的文件:\n`);
-		consola.box(`\n${filesText}`);
+		printList({
+			title: (files) => `检测到 ${files.length} 个修改的文件:`,
+			stringList: modifiedFiles,
+		});
 
 		// 4. 匹配文件路径到包范围
 		const affectedScopes = new Set<string>();
@@ -157,8 +161,10 @@ export function getDefaultScope(): string | string[] | undefined {
 
 		const scopesArray = Array.from(affectedScopes);
 		// 美化输出影响的包范围
-		const scopesText = scopesArray.map((scope, index) => `${index + 1}. ${scope}`).join("\n");
-		consola.box(`影响的包范围:\n\n${scopesText}`);
+		printList({
+			title: "影响的包范围:",
+			stringList: scopesArray,
+		});
 
 		// 5. 返回结果
 		if (scopesArray.length === 0) {
