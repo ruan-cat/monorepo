@@ -4,5 +4,15 @@
 			"path": "../../tsconfig.md.json"
 		}
 	],
-	"include": ["src/**/*.ts", "docs/**/*.ts", "docs/.vitepress/**/*.vue"]
+	"compilerOptions": {
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"allowImportingTsExtensions": true,
+		"noEmit": true,
+	},
+	"include": [
+		"src/**/*.ts",
+		"docs/**/*.ts",
+		"docs/.vitepress/**/*.vue"
+	]
 }

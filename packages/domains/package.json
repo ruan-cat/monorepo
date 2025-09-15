@@ -18,6 +18,8 @@
 		"docs:dev": "vitepress dev docs",
 		"build:docs": "vitepress build docs",
 		"build": "tsup",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"prebuild": "automd",
 		"docs:dev-vp": "vuepress-vite dev docs --clean-cache --open",
 		"build:docs-vp": "vuepress-vite build docs"
@@ -59,12 +61,15 @@
 		"!src/tests",
 		"tsconfig.json"
 	],
+	"dependencies": {
+		"consola": "^3.4.2"
+	},
 	"devDependencies": {
 		"@ruan-cat/vitepress-preset-config": "workspace:^",
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
 		"automd": "^0.4.0",
-		"consola": "^3.4.2",
 		"tsup": "^8.5.0",
-		"vitepress": "^1.6.4"
+		"vitepress": "^1.6.4",
+		"vitest": "^3.2.4"
 	}
 }

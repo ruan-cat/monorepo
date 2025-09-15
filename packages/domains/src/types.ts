@@ -103,9 +103,12 @@ export interface ProjectLikeDomain extends Domain {
 	projectAlias?: string;
 }
 
+/** 项目化的域名 不包含项目名称 */
+export type ProjectLikeDomainWithoutProjectName = Omit<ProjectLikeDomain, "projectName">;
+
 /**
  * 项目化的域名集合
  * @description
  * 设计成用项目名称作为key 便于查询阅读
  */
-export type ProjectLikeDomainSet = Record<ProjectName, Omit<ProjectLikeDomain, "projectName">[]>;
+export type ProjectLikeDomainSet = Record<ProjectName, ProjectLikeDomainWithoutProjectName[]>;
