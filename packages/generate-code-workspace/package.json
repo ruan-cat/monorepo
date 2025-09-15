@@ -60,7 +60,7 @@
 	},
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.9",
-		"automd": "^0.4.0",
+		"automd": "^0.4.1",
 		"pkg-types": "^2.3.0"
 	},
 	"peerDependencies": {

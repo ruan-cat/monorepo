@@ -49,7 +49,7 @@
 		}
 	},
 	"devDependencies": {
-		"automd": "^0.4.0",
+		"automd": "^0.4.1",
 		"taze": "^19.6.0"
 	}
 }

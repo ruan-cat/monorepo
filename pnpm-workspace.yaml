@@ -1,19 +1,20 @@
-# 写星号配置 是为了让其他工具可以读取该配置，实现匹配
-# 匹配深度仅允许一层 写一个星号
-# 如果写两个星号 会导致匹配范围过大 .vercel 内的垃圾文件也被匹配 误认为该文件夹也是工作区
 packages:
-  - "packages/*"
-  - "demos/*"
-  - "tests/*"
-  - "docs/*"
-  - "fork/*"
-  - "vite-plugins/*"
-  - "learn-create-compoents-lib/*"
-  # 配置系列的依赖包 为了实现便捷快速的配置分发
-  - "configs-package/*"
+  - packages/*
+  - demos/*
+  - tests/*
+  - docs/*
+  - fork/*
+  - vite-plugins/*
+  - learn-create-compoents-lib/*
+  - configs-package/*
 
 onlyBuiltDependencies:
   - "@parcel/watcher"
   - esbuild
+  - simple-git-hooks
   - vitepress-carbon
   - vue-demi
+
+overrides:
+  "automd@^0.4.1": "0.4.0"
+  "jiti@^2.4.2": "2.4.1"
