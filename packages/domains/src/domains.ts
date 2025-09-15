@@ -85,13 +85,13 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "notes",
 			order: 1,
-			projectAlias: "notesCloudflare",
-			description: `笔记项目 Cloudflare 流水线版本
-在 cloudflare pages 流水线内部署的域名
-这个域名会在dev分支且notes目录下有变更时重新部署
+			projectAlias: "notesVercel",
+			description: `笔记项目 Vercel 流水线版本
+在 vercel 流水线内部署的域名
+这个域名会在 vc 和 dev 分支触发的时候重新部署
 
-- 更新速度：预期是高频触发，低速部署的域名
-- cname：该域名有明确的cname配置，对接的是cloudflare pages提供的默认域名
+- 更新速度：预期是高频触发，高速部署的域名
+- cname：该域名有明确的cname配置，对接的是vercel提供的服务器ns
 - 无意义配置：本配置在此处仅仅是用来声明，目前暂时没有专门的域名配置`,
 		},
 
@@ -99,13 +99,13 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "ruan-cat-notes",
 			order: 2,
-			projectAlias: "notesVercel",
-			description: `笔记项目 Vercel 流水线版本
-在 vercel 流水线内部署的域名
-这个域名会在vc分支触发的时候重新部署
+			projectAlias: "notesCloudflare",
+			description: `笔记项目 Cloudflare 流水线版本
+在 cloudflare pages 流水线内部署的域名
+这个域名会在dev分支且notes目录下有变更时重新部署
 
-- 更新速度：预期是中频触发，高速部署的域名
-- cname：该域名有明确的cname配置，对接的是vercel提供的服务器ns
+- 更新速度：预期是高频触发，中速部署的域名
+- cname：该域名有明确的cname配置，对接的是cloudflare pages提供的默认域名
 - 无意义配置：本配置在此处仅仅是用来声明，目前暂时没有专门的域名配置`,
 		},
 
