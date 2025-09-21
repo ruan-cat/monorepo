@@ -73,8 +73,8 @@
 	},
 	"devDependencies": {
 		"@changesets/types": "^6.1.0",
-		"@types/node": "^22.18.1",
-		"automd": "^0.4.1",
+		"@types/node": "^22.18.6",
+		"automd": "^0.4.2",
 		"tsup": "^8.5.0",
 		"typescript": "^5.9.2"
 	},

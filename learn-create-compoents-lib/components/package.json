@@ -40,9 +40,9 @@
 		"gulp": "^5.0.1",
 		"gulp-autoprefixer": "^9.0.0",
 		"gulp-sass": "^6.0.1",
-		"sass": "^1.92.1",
+		"sass": "^1.93.0",
 		"shelljs": "^0.8.5",
-		"unplugin-vue-components": "^29.0.0",
+		"unplugin-vue-components": "^29.1.0",
 		"vite-plugin-autogeneration-import-file": "^3.0.0",
 		"vite-plugin-dts": "^4.5.4"
 	}
