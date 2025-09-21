@@ -47,7 +47,7 @@
 		"codess:build": "codess build"
 	},
 	"devDependencies": {
-		"@antfu/eslint-config": "^4.19.0",
+		"@antfu/eslint-config": "^5.4.1",
 		"@changesets/changelog-github": "^0.5.1",
 		"@changesets/cli": "^2.29.7",
 		"@prettier/plugin-oxc": "^0.0.4",
