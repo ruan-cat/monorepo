@@ -13,3 +13,11 @@
 - https://www.skillgroup.cn/framework/vitepress/pwa.html
 
 通过阅读代码，得知插件配置没那么简单。先暂时保留，未来再考虑实现该功能。
+
+## 更漂亮的更新日志
+
+考虑从这些模板内，照抄一个更新日志。实现更加漂亮的更新日志。
+
+- https://uni-helper.js.org/changelog
+- https://nuxt-changelog.vercel.app/
+- https://github.com/uni-helper/website/pull/23
