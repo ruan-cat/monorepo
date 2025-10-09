@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.3.1
+
+### Patch Changes
+
+- a6b2bdc: 更新文档。对 `ruan-cat-notes` 项目下的域名做更新说明。
+
 ## 1.3.0
 
 ### Minor Changes

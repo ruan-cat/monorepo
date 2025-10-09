@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.12.0
+
+### Minor Changes
+
+- d24437c: 新增 `copyClaudeAgents` 函数，用于复制 `.claude/agents` 文件夹到指定目标位置。该函数模仿 `copyChangelogMd` 的设计思想实现。
+
 ## 4.11.0
 
 ### Minor Changes
