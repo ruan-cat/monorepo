@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 2.4.0
+
+### Minor Changes
+
+- fa043fb: 对外导出工具函数 copyClaudeAgents 。
+
 ## 2.3.0
 
 ### Minor Changes
