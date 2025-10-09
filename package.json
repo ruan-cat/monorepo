@@ -48,7 +48,6 @@
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^5.4.1",
-		"@changesets/changelog-git": "^0.2.1",
 		"@changesets/cli": "^2.29.7",
 		"@prettier/plugin-oxc": "^0.0.4",
 		"@ruan-cat/commitlint-config": "workspace:^",
@@ -60,6 +59,7 @@
 		"@ruan-cat/vercel-deploy-tool": "workspace:^",
 		"@ruan-cat/vitepress-preset-config": "workspace:^",
 		"@ruan-cat/vuepress-preset-config": "workspace:^",
+		"@svitejs/changesets-changelog-github-compact": "^1.2.0",
 		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/js-yaml": "^4.0.9",
 		"@types/lodash-es": "^4.17.12",
