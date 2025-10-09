@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 术语说明
+
+在我和你沟通时，我会使用以下术语，便于你理解。
+
+### 全局术语
+
+在任何沟通下，这些术语都生效。
+
+- `生成更新日志` ： 指的是在 `.changeset` 目录内，编写面向 changeset 的更新日志文件。其`发版标签`分为 `major` `minor` `patch` 这三个档次。如果我在要求你生成更新日志时，没有说明清楚`发版标签`具体发版到那个等级，请及时询问我。要求我给你说明清楚。
+- `生成发版日志` ： `生成更新日志` 的别名，是同一个意思。
+
 ## Monorepo 结构
 
 这是一个基于 **pnpm workspace** 的 monorepo 项目，包含以下工作区：
