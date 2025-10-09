@@ -1,0 +1,8 @@
+{
+	"hooks": {},
+	"statusLine": {
+		"type": "command",
+		"command": "bash .claude/statusline.sh",
+		"padding": 0
+	}
+}

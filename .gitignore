@@ -168,3 +168,6 @@ vitest.config.ts.timestamp-*.mjs
 *.codess.code-snippets
 # 忽略掉特定文件
 codess.code-snippets
+
+# 忽略掉statusline的日志文件
+statusline.log
