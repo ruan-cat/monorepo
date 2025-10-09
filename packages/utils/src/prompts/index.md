@@ -35,3 +35,7 @@
 copyClaudeAgents(target) 函数的参数，改成 copyClaudeAgents(options?) 的写法，copyClaudeAgents 函数传入一个配置对象，将 target 路径也放到 options 配置对象内。
 
 请实施该方案。
+
+### 02 发布处理 `.claude/agents` 的寻址问题的更新日志
+
+为刚才的处理 `.claude/agents` 的寻址问题，编写更新日志，发版标签为 patch。
