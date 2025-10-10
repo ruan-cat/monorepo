@@ -91,8 +91,27 @@ export function hasClaudeAgents(options?: { rootDir?: string }): boolean {
  */
 export interface CopyClaudeAgentsOptions {
 	/**
-	 * 目标文件夹路径（相对于当前工作目录）
-	 * @example 'dist', 'build/output', './public'
+	 * 目标文件夹路径（必须是相对路径，相对于当前工作目录）
+	 * @description
+	 * **重要**：此参数仅接受相对路径，不接受绝对路径（禁止以 `/` 或盘符如 `C:\` 开头）。
+	 * 使用绝对路径会抛出错误，这是为了防止意外覆盖系统目录。
+	 *
+	 * 该地址是写相对路径的 不能写绝对路径，容易导致意外。
+	 * vitepress 命令运行在 apps/admin 目录内，该地址是相对于该运行目录的。
+	 * 比如期望将 `.claude/agents` 复制到 `apps/admin/src/docs/prompts/agents` 文件夹。
+	 * 则写 `src/docs/prompts/agents` 即可。
+	 *
+	 * @throws {Error} 当传入绝对路径时抛出错误
+	 * @example
+	 * // ✅ 正确：相对路径
+	 * "src/docs/prompts/agents"
+	 * "dist/agents"
+	 * "./public/claude"
+	 *
+	 * @example
+	 * // ❌ 错误：绝对路径（会抛出错误）
+	 * "/var/www/agents"           // Unix 绝对路径
+	 * "C:\\Users\\agents"         // Windows 绝对路径
 	 */
 	target: string;
 
@@ -115,26 +134,47 @@ export interface CopyClaudeAgentsOptions {
 /**
  * 将 .claude/agents 文件夹复制到指定位置
  * @param options - 配置选项
+ * @throws {Error} 当 `options.target` 为绝对路径时抛出错误
  * @description
  * 该函数相当于实现 `cpx .claude/agents <target>` 命令。
  * 从根目录的 .claude/agents 复制到目标位置。
+ *
+ * **安全限制**：`target` 参数必须是相对路径，禁止使用绝对路径，以防止意外覆盖系统目录。
+ *
  * @example
- * // 自动检测 monorepo 根目录，复制到当前目录的 dist 文件夹
+ * // ✅ 自动检测 monorepo 根目录，复制到当前目录的 dist 文件夹
  * copyClaudeAgents({ target: 'dist' })
  *
- * // 手动指定根目录为向上三级，复制到 build 文件夹
+ * // ✅ 手动指定根目录为向上三级，复制到 build 文件夹
  * copyClaudeAgents({
  *   target: 'build',
  *   rootDir: '../../../'
  * })
  *
- * // 使用绝对路径指定根目录
+ * // ✅ 使用绝对路径指定根目录（rootDir 允许绝对路径）
  * copyClaudeAgents({
- *   target: 'dist',
- *   rootDir: '/absolute/path/to/monorepo'
+ *   target: 'dist',  // target 必须是相对路径
+ *   rootDir: '/absolute/path/to/monorepo'  // rootDir 可以是绝对路径
  * })
+ *
+ * @example
+ * // ❌ 错误用法：target 使用绝对路径会抛出错误
+ * copyClaudeAgents({ target: '/var/www/agents' })  // 抛出 Error
+ * copyClaudeAgents({ target: 'C:\\Windows\\agents' })  // 抛出 Error
  */
 export function copyClaudeAgents(options: CopyClaudeAgentsOptions): void {
+	// 验证 target 不能是绝对路径
+	if (path.isAbsolute(options.target)) {
+		const errorMessage = [
+			`target 参数不允许使用绝对路径，这可能导致意外的文件覆盖。`,
+			`当前传入的路径: "${options.target}"`,
+			`请使用相对路径，例如: "src/docs/prompts/agents"`,
+		].join("\n");
+
+		consola.error(errorMessage);
+		throw new Error(errorMessage);
+	}
+
 	// 检查源目录是否存在
 	if (!hasClaudeAgents({ rootDir: options.rootDir })) {
 		return;
