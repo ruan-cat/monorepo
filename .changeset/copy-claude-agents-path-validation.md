@@ -1,5 +1,5 @@
 ---
-"@ruan-cat/utils": patch
+"@ruan-cat/utils": minor
 ---
 
 **安全增强**：为 `copyClaudeAgents` 函数添加路径安全验证
