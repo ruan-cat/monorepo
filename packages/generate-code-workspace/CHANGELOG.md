@@ -1,5 +1,12 @@
 # @ruan-cat/generate-code-workspace 更新日志
 
+## 0.4.14
+
+### Patch Changes
+
+- Updated dependencies [[`896d2eb`](https://github.com/ruan-cat/monorepo/commit/896d2eb7677b7887e36074a24146784377663e04)]:
+  - @ruan-cat/utils@4.13.0
+
 ## 0.4.13
 
 ### Patch Changes
