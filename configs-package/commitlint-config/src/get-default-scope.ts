@@ -10,7 +10,7 @@ import { type PnpmWorkspace } from "@ruan-cat/utils";
 // 注意 整个 commitlint-config 包都是使用 cjs 的语法，所以需要使用 node-cjs 的语法
 import { printList } from "@ruan-cat/utils/node-cjs";
 
-import { createPackagescopes } from "./utils.ts";
+import { createPackagescopes, isMonorepoProject } from "./utils.ts";
 import { commonScopes } from "./common-scopes.ts";
 
 import { execSync } from "node:child_process";
@@ -52,23 +52,24 @@ export function parseGitStatusOutput(gitStatusOutput: string): string[] {
 function getPackagePathToScopeMapping(): Map<string, string> {
 	const mapping = new Map<string, string>();
 
+	// 判断是否是 monorepo 项目
+	if (!isMonorepoProject()) {
+		// 如果不是 monorepo，添加默认的 root 映射
+		mapping.set("", "root");
+		return mapping;
+	}
+
 	// 读取 pnpm-workspace.yaml 文件
 	const workspaceConfigPath = join(process.cwd(), "pnpm-workspace.yaml");
-
-	if (!fs.existsSync(workspaceConfigPath)) {
-		// 如果没有workspace配置，添加默认的root映射
-		mapping.set("", "root");
-		return mapping;
-	}
-
 	const workspaceFile = fs.readFileSync(workspaceConfigPath, "utf8");
 	const workspaceConfig = <PnpmWorkspace>load(workspaceFile);
-	const pkgPatterns = workspaceConfig.packages;
 
-	if (isUndefined(pkgPatterns)) {
-		mapping.set("", "root");
-		return mapping;
-	}
+	/**
+	 * packages配置 包的匹配语法
+	 * @description
+	 * 此时已经通过 isMonorepoProject() 验证，packages 一定存在且有效
+	 */
+	const pkgPatterns = workspaceConfig.packages!;
 
 	// 根据每个模式匹配相应的目录
 	pkgPatterns.forEach((pkgPattern) => {
