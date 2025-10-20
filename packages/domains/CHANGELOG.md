@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.4.0
+
+### Minor Changes
+
+- 新增域名 [01s-11comm-doc.ruan-cat.com](https://01s-11comm-doc.ruan-cat.com/) 。 ([`81d522e`](https://github.com/ruan-cat/monorepo/commit/81d522e84bb8d39c77e2b4c0ed812aa2cc4609af))
+
 ## 1.3.1
 
 ### Patch Changes
