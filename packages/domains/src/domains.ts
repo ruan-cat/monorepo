@@ -33,7 +33,15 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 		},
 	],
 	/** 大项目 11智慧社区项目 前端文档 */
-	"11comm-doc": [{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm-doc", order: 1 }],
+	"11comm-doc": [
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "01s-11comm-doc",
+			order: 1,
+			description: "本域名主要用于 cloudflare worker 部署，与 ruancat6312.top 域名的内容并不完全等价。是高频更新的。",
+		},
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm-doc", order: 2 },
+	],
 	/** 01星球文档 */
 	"01s-doc": [
 		{
