@@ -8,5 +8,6 @@
 		"email": "1219043956@qq.com"
 	},
 	"license": "MIT",
-	"commands": "./commands/"
+	"commands": "./commands/",
+	"agents": "./agents/"
 }
