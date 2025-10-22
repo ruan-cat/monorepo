@@ -13,6 +13,8 @@
 		".github/**/*.md",
 		// 匹配变更集的md文件
 		".changeset/**/*.md",
+		// 匹配claude-plugin文件夹内的全部md文件
+		"**/.claude-plugin/**/*.md",
 		"./tests/**/.vitepress/*.md",
 		"**/.vitepress/**/*.vue"
 	],
@@ -25,6 +27,8 @@
 		声明全部md文件至此vue编译选项
 	*/
 	"vueCompilerOptions": {
-		"vitePressExtensions": [".md"]
+		"vitePressExtensions": [
+			".md"
+		]
 	}
 }
