@@ -1,23 +1,28 @@
 {
 	"name": "ruan-cat-tools",
 	"description": "阮喵喵自用的一整套claude code插件",
-	"version": "0.1.0",
 	"repository": "https://github.com/ruan-cat/monorepo",
 	"owner": {
 		"name": "ruan-cat",
-		"email": "1219043956@qq.com"
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
 	},
 	"metadata": {
-		"description": "阮喵喵自用的一整套claude code插件"
+		"description": "阮喵喵自用的一整套claude code插件",
+		"version": "0.1.0"
 	},
 	"plugins": [
 		{
 			"name": "common-tools",
 			"source": "./claude-code-marketplace/common-tools",
 			"description": "阮喵喵开发时常用的一些通用工具",
+			"repository": "https://github.com/ruan-cat/monorepo",
 			"version": "0.1.0",
+			"license": "MIT",
 			"author": {
-				"name": "ruan-cat"
+				"name": "ruan-cat",
+				"email": "1219043956@qq.com",
+				"url": "https://github.com/ruan-cat"
 			}
 		}
 	]
