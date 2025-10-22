@@ -1,0 +1,10 @@
+{
+	"name": "close-window-port",
+	"version": "1.0.0",
+	"description": "关闭 window 系统内指定端口的进程",
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com"
+	},
+	"license": "MIT"
+}

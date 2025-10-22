@@ -12,9 +12,9 @@
 	},
 	"plugins": [
 		{
-			"name": "close-window-port",
-			"source": "./claude-code-marketplace/close-window-port",
-			"description": "关闭 window 系统内指定端口的进程",
+			"name": "common-tools",
+			"source": "./claude-code-marketplace/common-tools",
+			"description": "阮喵喵开发时常用的一些通用工具",
 			"version": "0.1.0",
 			"author": {
 				"name": "ruan-cat"
