@@ -2,7 +2,7 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ruan-cat/monorepo)
 
-这里存放了阮喵喵分装的依赖包，以 monorepo 的形式存储。
+这里存放了阮喵喵封装的`依赖包`和`各种小工具`，以 monorepo 的形式存储。
 
 ## `@ruan-cat/utils`
 
@@ -102,3 +102,7 @@ taze 配置。
 [![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/vite-plugin-ts-alias?color=yellow)](https://npm.chart.dev/@ruan-cat/vite-plugin-ts-alias)
 
 <!-- /automd -->
+
+## claude code 插件市场
+
+点此[阅读详情](./.claude-plugin/README.md)。
