@@ -20,6 +20,9 @@ const userConfig = setUserConfig({
 	title: "阮喵喵工具包",
 	description,
 	themeConfig: {
+		editLink: {
+			pattern: "https://github.com/ruan-cat/monorepo/blob/dev/packages/utils/src/:path",
+		},
 		socialLinks: [
 			{
 				icon: "github",

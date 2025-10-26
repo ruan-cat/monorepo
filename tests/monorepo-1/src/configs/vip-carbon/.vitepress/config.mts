@@ -30,6 +30,10 @@ export default defineConfig({
 	themeConfig: {
 		i18nRouting: true,
 
+		editLink: {
+			pattern: "https://github.com/ruan-cat/monorepo/blob/dev/tests/monorepo-1/docs/:path",
+		},
+
 		sidebar: generateSidebar({
 			documentRootPath: "docs",
 			collapsed: true,

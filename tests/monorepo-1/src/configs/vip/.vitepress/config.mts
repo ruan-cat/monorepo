@@ -32,6 +32,10 @@ const userConfig = setUserConfig({
 			level: "deep",
 		},
 
+		editLink: {
+			pattern: "https://github.com/ruan-cat/monorepo/blob/dev/tests/monorepo-1/docs/:path",
+		},
+
 		socialLinks: [
 			{
 				icon: "github",

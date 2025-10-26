@@ -26,6 +26,9 @@ const userConfig = setUserConfig(
 	{
 		title: "阮喵喵域名文档",
 		themeConfig: {
+			editLink: {
+				pattern: "https://github.com/ruan-cat/monorepo/blob/dev/packages/domains/docs/:path",
+			},
 			socialLinks: [
 				{
 					icon: "github",

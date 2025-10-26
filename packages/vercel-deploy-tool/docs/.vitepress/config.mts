@@ -20,6 +20,9 @@ addChangelog2doc({
 const userConfig = setUserConfig({
 	title: "阮喵喵的 Vercel 部署工具",
 	themeConfig: {
+		editLink: {
+			pattern: "https://github.com/ruan-cat/monorepo/blob/dev/packages/vercel-deploy-tool/docs/:path",
+		},
 		socialLinks: [
 			{
 				icon: "github",
