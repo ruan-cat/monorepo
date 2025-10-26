@@ -21,9 +21,12 @@ const thisDocUserConfig = setUserConfig({
 		socialLinks: [
 			{
 				icon: "github",
-				link: "https://github.com/ruan-cat/monorepo/tree/main/packages/vitepress-preset-config",
+				link: "https://github.com/ruan-cat/monorepo/tree/dev/packages/vitepress-preset-config",
 			},
 		],
+		editLink: {
+			pattern: "https://github.com/ruan-cat/monorepo/blob/dev/packages/vitepress-preset-config/src/docs/:path",
+		},
 	},
 });
 
