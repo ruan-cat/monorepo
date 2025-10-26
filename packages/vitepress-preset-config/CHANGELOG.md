@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 2.5.1
+
+### Patch Changes
+
+- vitepress 预设配置，更新正确的默认定向文档。`themeConfig.editLink.pattern` 现在默认指向[该地址](https://github.com/ruan-cat/monorepo/blob/dev/packages/vitepress-preset-config/src/docs/please-reset-themeConfig-editLink.md)。 ([`c0913c8`](https://github.com/ruan-cat/monorepo/commit/c0913c82923eb283f7379632de2ade82b0562a6b))
+
 ## 2.5.0
 
 ### Minor Changes
