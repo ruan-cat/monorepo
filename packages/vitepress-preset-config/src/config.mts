@@ -118,7 +118,7 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 
 		editLink: {
 			pattern:
-				"https://github.com/ruan-cat/monorepo/blob/dev/packages/vitepress-preset-config/src/docs/lesson/index.md",
+				"https://github.com/ruan-cat/monorepo/blob/dev/packages/vitepress-preset-config/src/docs/please-reset-themeConfig-editLink.md",
 			text: "在 github 上打开此页面以预览原版 markdown 文档",
 		},
 	},
