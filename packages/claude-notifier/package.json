@@ -2,10 +2,53 @@
 	"name": "@ruan-cat/claude-notifier",
 	"version": "0.1.0",
 	"description": "在 Claude Code 任务完成后，发送所在操作系统的全局通知",
+	"type": "module",
+	"main": "./dist/TODO: 需要打包",
+	"types": "./dist/TODO: 需要打包",
+	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/packages/claude-notifier",
+	"bugs": {
+		"url": "https://github.com/ruan-cat/monorepo/issues"
+	},
 	"scripts": {
 		"setup": "tsx ./src/setup.ts",
 		"notify": "tsx ./src/notify.ts"
 	},
+	"exports": {
+		".": {
+			"require": "./dist/TODO: 需要打包",
+			"types": "./dist/TODO: 需要打包"
+		},
+		"./src/*": "./src/*"
+	},
+	"keywords": [
+		"claude code",
+		"notifier",
+		"global notification"
+	],
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	},
+	"license": "MIT",
+	"bin": {
+		"@ruan-cat/claude-notifier": "./dist/cli.cjs"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
+	},
+	"files": [
+		"!**/.vercel/**",
+		"src",
+		"templates/**",
+		"dist/*",
+		"!src/tests",
+		"!src/**/tests",
+		"!src/**/*.md",
+		"tsconfig.json"
+	],
 	"dependencies": {
 		"fs-extra": "^11.2.0",
 		"node-notifier": "^10.0.1",
