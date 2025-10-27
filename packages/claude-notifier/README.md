@@ -2,6 +2,9 @@
 
 <!-- automd:badges color="yellow" name="@ruan-cat/claude-notifier" -->
 
+[![npm version](https://img.shields.io/npm/v/@ruan-cat/claude-notifier?color=yellow)](https://npmjs.com/package/@ruan-cat/claude-notifier)
+[![npm downloads](https://img.shields.io/npm/dm/@ruan-cat/claude-notifier?color=yellow)](https://npm.chart.dev/@ruan-cat/claude-notifier)
+
 <!-- /automd -->
 
 Claude Code 通知工具 - 在 Claude Code 任务完成后，发送 Windows 系统通知。
