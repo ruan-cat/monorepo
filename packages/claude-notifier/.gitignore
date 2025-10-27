@@ -1,3 +1,3 @@
 # 忽略自动复制过来的文件
-docs/CHANGELOG.md
-docs/index.md
+src/docs/CHANGELOG.md
+src/docs/index.md
