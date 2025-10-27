@@ -55,6 +55,7 @@ export const projects = [
 	{ name: "01s-doc", description: "大项目 01星球文档" },
 	{ name: "utils", description: "工具包项目" },
 	{ name: "vitepress-preset", description: "vitepress配置预设" },
+	{ name: "claude-notifier", description: "claude code 通知工具" },
 	{ name: "domain", description: "域名列表" },
 	{ name: "vercel-deploy-tool", description: "vercel部署工具" },
 	{ name: "ruan-cat-notes", description: "阮喵喵笔记" },

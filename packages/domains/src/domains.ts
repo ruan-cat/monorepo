@@ -75,6 +75,23 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "vitepress", order: 2 },
 		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "vitepress-preset", order: 3 },
 	],
+	/** claude code 通知工具 */
+	"claude-notifier": [
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "ccntf",
+			order: 1,
+			description: "本域名在cloudflare CDN 内配置了二级域名。由 github workflow + vercel 流水线完成部署。低频更新。",
+		},
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "claude-notifier",
+			order: 2,
+			description: "和 ccntf 域名指向同一个内容，使用相同的配置。",
+		},
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "ccntf", order: 3 },
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "claude-notifier", order: 4 },
+	],
 	/** 域名列表 */
 	domain: [
 		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "dm", order: 1 },
