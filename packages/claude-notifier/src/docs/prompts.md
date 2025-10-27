@@ -1,3 +1,8 @@
+<!--
+	一次性提示词
+	正在开发
+ -->
+
 # 制作基于 node npx 的通知工具
 
 我需要做一个基于 node-notifier 包的通知工具，以 claude code hooks 配置的形式，在 claude code 完成一个任务后，就使用基于 node-notifier 的工具，实现在 window 系统内使用系统弹框，提示用户已完成 claude code 任务。
@@ -72,3 +77,20 @@
 - packages\claude-notifier\src\docs\how-to-add-assets.md 如何添加静态资源的文档，请你适当的拆分，精简 `packages\claude-notifier\src\assets\README.md` 文件的说明。
 
 请适当地拆分 packages\claude-notifier\README.md ，将主 README.md 的内容拆分到上述的文件内，并补充上述文档的例子说明。
+
+### 04 处理故障
+
+针对 `packages\claude-notifier\package.json` 的命令：
+
+- 生产环境命令 test:cli:task-complete:alice-icon:prod
+- 开发环境命令 test:cli:task-complete:alice-icon
+
+在运行生产环境命令时，会出现无法找到图片和音频的错误。请注意控制台输出的结果，判别清楚故障原因，并修复该故障。确保运行生产环境命令时，能够正常使用 assets 内的资源。
+
+### 05 将默认的图标设置成小爱丽丝版本
+
+<!-- TODO: -->
+
+将 icon 输出的结果，设置成 packages\claude-notifier\src\assets\icons\alice 目录下提供的动态图。
+
+在使用通知时，如果不提供任何 icon 参数时，就默认使用 alice 预设。
