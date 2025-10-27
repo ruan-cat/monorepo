@@ -1,4 +1,8 @@
-# @ruan-cat/claude-notifier
+# @ruan-cat/claude-notifier Claude Code 通知工具
+
+<!-- automd:badges color="yellow" name="@ruan-cat/claude-notifier" -->
+
+<!-- /automd -->
 
 Claude Code 通知工具 - 在 Claude Code 任务完成后，发送 Windows 系统通知。
 
