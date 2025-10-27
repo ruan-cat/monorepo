@@ -86,6 +86,13 @@ export default <Config>{
 			// userCommands: ["pnpm -C=./packages/vitepress-preset-config build:docs"],
 		},
 
+		// claude code 通知工具文档
+		{
+			type: "static",
+			targetCWD: "./packages/claude-notifier/src/docs/.vitepress/dist",
+			url: getDomains("claude-notifier"),
+		},
+
 		// 域名列表
 		{
 			type: "static",
