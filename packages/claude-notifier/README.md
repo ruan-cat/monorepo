@@ -93,35 +93,95 @@ npx @ruan-cat/claude-notifier error \
 
 ### 音频预设
 
-| 预设值    | 说明                   |
-| --------- | ---------------------- |
-| `default` | Windows 系统默认通知音 |
-| `success` | 成功提示音             |
-| `warning` | 警告提示音             |
-| `error`   | 错误提示音             |
-| `manbo`   | 自定义预设（曼波音效） |
-| `none`    | 静音                   |
+音频资源采用**文件夹方式**组织，每个预设对应一个文件夹，可以包含多个音频文件。
 
-也可以通过 `--sound` 参数指定自定义音频文件路径：
+| 预设值    | 说明                   | 默认文件路径              |
+| --------- | ---------------------- | ------------------------- |
+| `default` | Windows 系统默认通知音 | 系统音                    |
+| `success` | 成功提示音             | `sounds/success/main.mp3` |
+| `warning` | 警告提示音             | `sounds/warning/main.mp3` |
+| `error`   | 错误提示音             | `sounds/error/main.mp3`   |
+| `manbo`   | 自定义预设（曼波音效） | `sounds/manbo/main.mp3`   |
+| `none`    | 静音                   | 无音频                    |
+
+**使用方式**：
 
 ```bash
-npx @ruan-cat/claude-notifier task-complete --sound "C:\sounds\custom.wav"
+# 1. 使用预设（自动查找 manbo/main.mp3）
+npx @ruan-cat/claude-notifier task-complete --sound manbo
+
+# 2. 指定预设文件夹内的具体文件
+npx @ruan-cat/claude-notifier task-complete --sound manbo/01.mp3
+
+# 3. 使用自定义路径（绝对路径）
+npx @ruan-cat/claude-notifier task-complete --sound "C:\sounds\custom.mp3"
+
+# 4. 使用相对于 sounds/ 目录的路径
+npx @ruan-cat/claude-notifier task-complete --sound "my-custom/audio.mp3"
 ```
+
+**文件查找规则**：
+
+- 当使用预设名称（如 `manbo`）时，自动查找该文件夹下的默认文件
+- 默认文件优先级：`main.mp3` > `index.mp3` > `default.mp3`
+- 推荐使用 `.mp3` 格式，也支持 `.wav` 等格式
 
 ### 图标预设
 
-| 预设值    | 说明                   |
-| --------- | ---------------------- |
-| `success` | 成功图标（绿色对勾）   |
-| `warning` | 警告图标（黄色警告）   |
-| `error`   | 错误图标（红色错误）   |
-| `info`    | 信息图标（蓝色信息）   |
-| `clock`   | 时钟图标（长任务专用） |
+图标资源同样采用**文件夹方式**组织，每个预设对应一个文件夹。
 
-也可以通过 `--icon` 参数指定自定义图标文件路径：
+| 预设值    | 说明                   | 默认文件路径             |
+| --------- | ---------------------- | ------------------------ |
+| `success` | 成功图标（绿色对勾）   | `icons/success/icon.png` |
+| `warning` | 警告图标（黄色警告）   | `icons/warning/icon.png` |
+| `error`   | 错误图标（红色错误）   | `icons/error/icon.png`   |
+| `info`    | 信息图标（蓝色信息）   | `icons/info/icon.png`    |
+| `clock`   | 时钟图标（长任务专用） | `icons/clock/icon.png`   |
+
+**使用方式**：
 
 ```bash
+# 1. 使用预设（自动查找 success/icon.png）
+npx @ruan-cat/claude-notifier task-complete --icon success
+
+# 2. 指定预设文件夹内的具体文件
+npx @ruan-cat/claude-notifier task-complete --icon success/custom.png
+
+# 3. 使用自定义路径（绝对路径）
 npx @ruan-cat/claude-notifier task-complete --icon "C:\icons\custom.png"
+
+# 4. 使用相对于 icons/ 目录的路径
+npx @ruan-cat/claude-notifier task-complete --icon "my-custom/icon.png"
+```
+
+**文件查找规则**：
+
+- 当使用预设名称（如 `success`）时，自动查找该文件夹下的默认文件
+- 默认文件优先级：`icon.png` > `index.png` > `default.png` > `main.png`
+- 推荐使用 `.png` 格式，也支持 `.jpg`、`.ico` 等格式
+
+### 如何添加自定义资源
+
+详细的资源文件组织说明，请查看 [`src/assets/README.md`](./src/assets/README.md)。
+
+**快速开始**：
+
+```bash
+# 1. 创建自定义音频预设
+mkdir -p src/assets/sounds/my-sound
+cp /path/to/your/audio.mp3 src/assets/sounds/my-sound/main.mp3
+
+# 2. 创建自定义图标预设
+mkdir -p src/assets/icons/my-icon
+cp /path/to/your/icon.png src/assets/icons/my-icon/icon.png
+
+# 3. 重新构建
+pnpm build
+
+# 4. 使用自定义预设
+npx @ruan-cat/claude-notifier task-complete \
+  --sound my-sound \
+  --icon my-icon
 ```
 
 ## 在 Claude Code Hooks 中使用
