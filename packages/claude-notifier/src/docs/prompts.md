@@ -37,7 +37,7 @@
 6. 要求使用**参数**的方式，来满足不同通知场景的提示。在运行命令时，通过传递不同的参数，实现不同的通知框样式调整。
 7. 关于项目的整体架构，你可以参考目录 `configs-package\commitlint-config` ，可以参考这个包的实现方式。请你先整体性的阅读这个包，以这个包为参考，做整体性的架构设计。
 
-## 回答 AI 问题
+## 后续跟踪修改需求
 
 ### 01
 
@@ -60,3 +60,15 @@
 1. 音频文件的组织方式： B. 文件夹方式
 2. 如何选择使用哪个文件： C. 允许指定
 3. 音频文件格式： 我偏好 .mp3 格式。
+
+### 03 重构编写文档
+
+请帮我重构文档，便于后续阅读
+
+- packages\claude-notifier\src\docs\architecture.md 编写整个项目的文件架构体系，便于阅读了解整个架构体系。
+- packages\claude-notifier\src\docs\use\api.md 以 api 形式使用 `@ruan-cat/claude-notifier` 包的完整例子。
+- packages\claude-notifier\src\docs\use\cli.md 以 cli 命令行的形式使用本包的完整例子。
+- packages\claude-notifier\src\docs\use\claude-code.md 在 claude code 相关的配置文件，配置本包的完整例子。
+- packages\claude-notifier\src\docs\how-to-add-assets.md 如何添加静态资源的文档，请你适当的拆分，精简 `packages\claude-notifier\src\assets\README.md` 文件的说明。
+
+请适当地拆分 packages\claude-notifier\README.md ，将主 README.md 的内容拆分到上述的文件内，并补充上述文档的例子说明。
