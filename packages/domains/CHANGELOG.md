@@ -1,5 +1,15 @@
 # 更新日志
 
+## 1.5.0
+
+### Minor Changes
+
+- 增加新的项目 `claude-notifier` ，claude code 通知工具。预期提供以下几个可用域名，优先级按**先后顺序**排列： ([`0bd0582`](https://github.com/ruan-cat/monorepo/commit/0bd0582cfd804ab3041c6399bf70d53f502a3fbf))
+  1. [ccntf.ruan-cat.com](https://ccntf.ruan-cat.com/)
+  2. [claude-notifier.ruan-cat.com](https://claude-notifier.ruan-cat.com/)
+  3. [ccntf.ruancat6312.top](https://ccntf.ruancat6312.top/)
+  4. [claude-notifier.ruancat6312.top](https://claude-notifier.ruancat6312.top/)
+
 ## 1.4.0
 
 ### Minor Changes
