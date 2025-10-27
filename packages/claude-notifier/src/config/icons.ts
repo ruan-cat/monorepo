@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
 import { IconPreset } from "../types/index.ts";
+import { findResourceDir } from "./utils.ts";
 
 // 获取当前文件的目录
 const __filename = fileURLToPath(import.meta.url);
@@ -10,7 +11,7 @@ const __dirname = path.dirname(__filename);
 /**
  * 图标文件目录
  */
-export const ICONS_DIR = path.join(__dirname, "..", "assets", "icons");
+export const ICONS_DIR = findResourceDir(__dirname, "icons");
 
 /**
  * 默认图标文件名（在文件夹预设中使用）

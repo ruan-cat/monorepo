@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
 import consola from "consola";
 import { SoundPreset } from "../types/index.ts";
+import { findResourceDir } from "./utils.ts";
 
 // 获取当前文件的目录
 const __filename = fileURLToPath(import.meta.url);
@@ -11,7 +12,7 @@ const __dirname = path.dirname(__filename);
 /**
  * 音频文件目录
  */
-export const SOUNDS_DIR = path.join(__dirname, "..", "assets", "sounds");
+export const SOUNDS_DIR = findResourceDir(__dirname, "sounds");
 
 /**
  * 默认音频文件名（在文件夹预设中使用）

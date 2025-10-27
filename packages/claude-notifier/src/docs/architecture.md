@@ -38,7 +38,8 @@ packages/claude-notifier/
 │   │
 │   ├── config/                   # 配置模块
 │   │   ├── sounds.ts             # 音频配置
-│   │   └── icons.ts              # 图标配置
+│   │   ├── icons.ts              # 图标配置
+│   │   └── utils.ts              # 配置工具函数（路径查找等）
 │   │
 │   ├── assets/                   # 静态资源
 │   │   ├── sounds/               # 音频（分预设文件夹）
@@ -144,6 +145,34 @@ export async function quickNotify(message: string, title?: string): Promise<void
 - 支持指定具体文件（如 `manbo/01.mp3`）
 - 查找默认文件的优先级（`main.mp3` > `index.mp3` > `default.mp3`）
 
+#### 5.1 配置工具模块 (`src/config/utils.ts`)
+
+**职责**：提供统一的资源路径查找逻辑，解决开发环境和生产环境的路径差异问题。
+
+**核心函数**：
+
+```typescript
+export function findResourceDir(currentDirname: string, resourceType: string): string;
+```
+
+**路径查找策略**（按优先级）：
+
+1. `dist/{resourceType}` - 生产环境（tsup publicDir 直接复制）
+2. `dist/config/../{resourceType}` - 生产环境备用
+3. `src/assets/{resourceType}` - 开发环境
+4. `src/config/../assets/{resourceType}` - 开发环境备用
+5. `dist/../../src/assets/{resourceType}` - 降级备用
+
+**为什么需要多路径查找？**
+
+在使用 tsup 打包时遇到的问题：
+
+- tsup 的 `publicDir` 配置将 `src/assets/` 内容直接复制到 `dist/` （不是 `dist/assets/`）
+- tsup 将 ESM 转 CJS 时，所有 `import.meta.url` 都指向入口文件的 URL
+- 导致所有模块的 `__dirname` 都指向 `dist/` 而不是 `dist/config/`
+
+通过多路径尝试，确保在各种环境下都能找到正确的资源目录。
+
 ## 设计决策
 
 ### 为什么使用文件夹预设方式？
@@ -184,7 +213,11 @@ task-complete.ts 处理参数
   ↓
 notifier.ts 核心逻辑
   ↓
-resolveSoundConfig("manbo") 解析出 sounds/manbo/main.mp3
+resolveSoundConfig("manbo") 调用
+  ↓
+findResourceDir(__dirname, "sounds") 查找资源目录
+  ↓
+解析出 sounds/manbo/main.mp3 的完整路径
   ↓
 node-notifier 发送系统通知
 ```
