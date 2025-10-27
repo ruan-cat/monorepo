@@ -1,7 +1,7 @@
 {
 	"name": "@ruan-cat/claude-notifier",
 	"version": "0.1.0",
-	"description": "在 Claude Code 任务完成后，发送所在操作系统的全局通知",
+	"description": "在 Claude Code 任务完成后，发送 Windows 系统的全局通知。",
 	"type": "module",
 	"main": "./dist/index.cjs",
 	"types": "./dist/index.d.cts",
@@ -12,7 +12,14 @@
 	"scripts": {
 		"build": "tsup",
 		"dev": "tsup --watch",
-		"test:cli": "node dist/cli.cjs --help"
+		"pack": "pnpm pack",
+		"test:cli:prod": "node dist/cli.cjs --help",
+		"test:cli:task-complete:alice-icon:prod": "node dist/cli.cjs task-complete -s manbo -i alice/timeout.gif",
+		"test:cli:task-complete": "tsx src/cli.ts task-complete -s manbo -i success --message=任务完成",
+		"test:cli:task-complete:alice-icon": "tsx src/cli.ts task-complete -s manbo -i alice/timeout.gif",
+		"test:cli:error": "tsx src/cli.ts error -i error",
+		"test:cli:timeout": "tsx src/cli.ts timeout -i info",
+		"test:cli:task-complete:help": "tsx src/cli.ts task-complete -h"
 	},
 	"exports": {
 		".": {
