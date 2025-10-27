@@ -94,3 +94,5 @@
 将 icon 输出的结果，设置成 packages\claude-notifier\src\assets\icons\alice 目录下提供的动态图。
 
 在使用通知时，如果不提供任何 icon 参数时，就默认使用 alice 预设。
+
+请你更改 packages\claude-notifier 包相关的逻辑。
