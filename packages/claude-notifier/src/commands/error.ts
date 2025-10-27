@@ -13,7 +13,7 @@ export function createErrorCommand(): Command {
 		.option("-m, --message <message>", "自定义通知消息", "发生错误 ❌")
 		.option("-t, --title <title>", "自定义通知标题", "Claude Code - 错误")
 		.option("-s, --sound <sound>", "音频预设或自定义音频路径", SoundPreset.ERROR)
-		.option("-i, --icon <icon>", "图标预设或自定义图标路径", IconPreset.ERROR)
+		.option("-i, --icon <icon>", "图标预设或自定义图标路径", IconPreset.ALICE_ERROR)
 		.option("-e, --error-details <details>", "错误详情")
 		.action(async (options: ErrorOptions & { title?: string }) => {
 			try {

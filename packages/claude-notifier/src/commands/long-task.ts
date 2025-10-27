@@ -12,7 +12,7 @@ export function createLongTaskCommand(): Command {
 		.description("启动长任务定时提醒")
 		.option("-i, --intervals <intervals>", "提醒时间点（分钟），逗号分隔", "6,10,18,25,45")
 		.option("-s, --sound <sound>", "音频预设或自定义音频路径", SoundPreset.WARNING)
-		.option("--icon <icon>", "图标预设或自定义图标路径", IconPreset.CLOCK)
+		.option("--icon <icon>", "图标预设或自定义图标路径", IconPreset.ALICE_TIMEOUT)
 		.option("-d, --task-description <description>", "任务描述信息")
 		.option("--stop", "停止当前运行的长任务定时器")
 		.option("--status", "查看当前定时器状态")

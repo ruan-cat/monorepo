@@ -20,7 +20,7 @@ const DEFAULT_ICON_FILES = ["icon.png", "index.png", "default.png", "main.png"];
 
 /**
  * 图标预设映射表
- * 将预设名称映射到实际的图标文件夹路径
+ * 将预设名称映射到实际的图标文件夹路径或文件路径
  */
 export const ICON_PRESET_MAP: Record<IconPreset, string> = {
 	[IconPreset.SUCCESS]: path.join(ICONS_DIR, "success"),
@@ -28,6 +28,9 @@ export const ICON_PRESET_MAP: Record<IconPreset, string> = {
 	[IconPreset.ERROR]: path.join(ICONS_DIR, "error"),
 	[IconPreset.INFO]: path.join(ICONS_DIR, "info"),
 	[IconPreset.CLOCK]: path.join(ICONS_DIR, "clock"),
+	[IconPreset.ALICE_SUCCESS]: path.join(ICONS_DIR, "alice", "success.gif"),
+	[IconPreset.ALICE_ERROR]: path.join(ICONS_DIR, "alice", "error.gif"),
+	[IconPreset.ALICE_TIMEOUT]: path.join(ICONS_DIR, "alice", "timeout.gif"),
 };
 
 /**

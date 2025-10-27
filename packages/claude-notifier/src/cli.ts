@@ -68,11 +68,14 @@ program.on("--help", () => {
 	console.log("  none     - 静音");
 	console.log("");
 	console.log("图标预设 / Icon Presets:");
-	console.log("  success  - 成功图标");
-	console.log("  warning  - 警告图标");
-	console.log("  error    - 错误图标");
-	console.log("  info     - 信息图标");
-	console.log("  clock    - 时钟图标");
+	console.log("  success        - 成功图标");
+	console.log("  warning        - 警告图标");
+	console.log("  error          - 错误图标");
+	console.log("  info           - 信息图标");
+	console.log("  clock          - 时钟图标");
+	console.log("  alice/success.gif  - Alice 成功图标（默认）");
+	console.log("  alice/error.gif    - Alice 错误图标");
+	console.log("  alice/timeout.gif  - Alice 超时图标");
 	console.log("");
 });
 

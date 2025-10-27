@@ -14,7 +14,7 @@ export function createTaskCompleteCommand(): Command {
 		.option("-m, --message <message>", "自定义通知消息", "任务已完成 ✅")
 		.option("-t, --title <title>", "自定义通知标题", "Claude Code")
 		.option("-s, --sound <sound>", "音频预设或自定义音频路径", SoundPreset.SUCCESS)
-		.option("-i, --icon <icon>", "图标预设或自定义图标路径", IconPreset.SUCCESS)
+		.option("-i, --icon <icon>", "图标预设或自定义图标路径", IconPreset.ALICE_SUCCESS)
 		.option("-d, --task-description <description>", "任务描述信息")
 		.action(async (options: TaskCompleteOptions & { title?: string }) => {
 			try {

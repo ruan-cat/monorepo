@@ -30,6 +30,12 @@ export enum IconPreset {
 	INFO = "info",
 	/** 时钟图标（长任务） */
 	CLOCK = "clock",
+	/** Alice 成功图标（默认） */
+	ALICE_SUCCESS = "alice/success.gif",
+	/** Alice 错误图标 */
+	ALICE_ERROR = "alice/error.gif",
+	/** Alice 超时图标 */
+	ALICE_TIMEOUT = "alice/timeout.gif",
 }
 
 /**

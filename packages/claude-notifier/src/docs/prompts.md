@@ -89,10 +89,23 @@
 
 ### 05 将默认的图标设置成小爱丽丝版本
 
-<!-- TODO: -->
+~~将 icon 输出的结果，设置成 packages\claude-notifier\src\assets\icons\alice 目录下提供的动态图。~~
 
-将 icon 输出的结果，设置成 packages\claude-notifier\src\assets\icons\alice 目录下提供的动态图。
+~~在使用通知时，如果不提供任何 icon 参数时，就默认使用 alice 预设。~~
 
-在使用通知时，如果不提供任何 icon 参数时，就默认使用 alice 预设。
+~~请你更改 packages\claude-notifier 包相关的逻辑。~~
 
-请你更改 packages\claude-notifier 包相关的逻辑。
+**✅ 已完成 (2025-10-28)**
+
+已将默认图标设置为 Alice 版本：
+
+- task-complete: 默认使用 `alice/success.gif`
+- error: 默认使用 `alice/error.gif`
+- timeout: 默认使用 `alice/timeout.gif`
+- long-task: 默认使用 `alice/timeout.gif`
+
+相关变更：
+
+1. 在 `IconPreset` 枚举中添加了 `ALICE_SUCCESS`, `ALICE_ERROR`, `ALICE_TIMEOUT` 三个新预设
+2. 更新了所有命令的默认图标参数
+3. 更新了 CLI 帮助文档，添加了 alice 图标预设说明

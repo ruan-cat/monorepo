@@ -13,7 +13,7 @@ export function createTimeoutCommand(): Command {
 		.option("-m, --message <message>", "自定义通知消息", "连接超时 ⏱️")
 		.option("-t, --title <title>", "自定义通知标题", "Claude Code - 超时")
 		.option("-s, --sound <sound>", "音频预设或自定义音频路径", SoundPreset.ERROR)
-		.option("-i, --icon <icon>", "图标预设或自定义图标路径", IconPreset.ERROR)
+		.option("-i, --icon <icon>", "图标预设或自定义图标路径", IconPreset.ALICE_TIMEOUT)
 		.option("--timeout-details <details>", "超时详情")
 		.action(async (options: TimeoutOptions & { title?: string }) => {
 			try {
