@@ -48,6 +48,13 @@ vuepress 预设。
 
 <!-- /automd -->
 
+## `@ruan-cat/claude-notifier`
+
+在 Claude Code 任务完成后，发送 Windows 系统通知。
+
+<!-- automd:badges color="yellow" name="@ruan-cat/claude-notifier" -->
+<!-- /automd -->
+
 ## `@ruan-cat/release-toolkit`
 
 基于 changelogen 增强 changesets 工作流的发布工具包，提供语义化提交解析和 GitHub Release 同步功能。
