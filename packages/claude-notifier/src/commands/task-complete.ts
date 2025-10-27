@@ -1,4 +1,5 @@
 import { Command } from "commander";
+import consola from "consola";
 import { sendNotification } from "../core/notifier.ts";
 import { TaskCompleteOptions, SoundPreset, IconPreset } from "../types/index.ts";
 
@@ -20,6 +21,8 @@ export function createTaskCompleteCommand(): Command {
 				const message = options.taskDescription
 					? `${options.message}\n任务: ${options.taskDescription}`
 					: options.message || "任务已完成 ✅";
+
+				consola.log("task-complete: options", options);
 
 				await sendNotification({
 					title: options.title || "Claude Code",

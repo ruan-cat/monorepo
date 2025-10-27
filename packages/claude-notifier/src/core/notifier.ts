@@ -1,6 +1,7 @@
 import notifier from "node-notifier";
 import os from "node:os";
 import { existsSync } from "node:fs";
+import consola from "consola";
 import { NotificationOptions } from "../types/index.ts";
 import { resolveSoundConfig } from "../config/sounds.ts";
 import { resolveIconConfig } from "../config/icons.ts";
@@ -9,6 +10,8 @@ import { resolveIconConfig } from "../config/icons.ts";
  * 默认通知配置
  */
 const DEFAULT_CONFIG = {
+	// timeout: 1.0,
+	// 有疑惑 实际测试下来无效 感觉不是按照时间来计算的
 	timeout: 2.5,
 	wait: false,
 };
@@ -38,6 +41,9 @@ export async function sendNotification(options: NotificationOptions): Promise<vo
 
 	// 解析图标配置
 	const iconPath = resolveIconConfig(icon);
+
+	consola.log("查看 soundConfig", soundConfig);
+	consola.log("查看 iconPath", iconPath);
 
 	// 验证图标文件是否存在
 	if (iconPath && !existsSync(iconPath)) {

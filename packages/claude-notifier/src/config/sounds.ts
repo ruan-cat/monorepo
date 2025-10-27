@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
+import consola from "consola";
 import { SoundPreset } from "../types/index.ts";
 
 // 获取当前文件的目录
