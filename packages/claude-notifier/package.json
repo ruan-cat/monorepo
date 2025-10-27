@@ -17,11 +17,11 @@
 		"pack": "pnpm pack",
 		"prebuild": "automd",
 		"test:cli:prod": "node dist/cli.cjs --help",
-		"test:cli:task-complete:alice-icon:prod": "node dist/cli.cjs task-complete -s manbo -i alice/timeout.gif",
-		"test:cli:task-complete": "tsx src/cli.ts task-complete -s manbo -i success --message=任务完成",
-		"test:cli:task-complete:alice-icon": "tsx src/cli.ts task-complete -s manbo -i alice/timeout.gif",
-		"test:cli:error": "tsx src/cli.ts error -i error",
-		"test:cli:timeout": "tsx src/cli.ts timeout -i info",
+		"test:cli:task-complete:with-icon:prod": "node dist/cli.cjs task-complete -s manbo -i alice/timeout.gif",
+		"test:cli:task-complete:with-icon": "tsx src/cli.ts task-complete -s manbo -i alice/timeout.gif",
+		"test:cli:task-complete": "tsx src/cli.ts task-complete",
+		"test:cli:error": "tsx src/cli.ts error",
+		"test:cli:timeout": "tsx src/cli.ts timeout",
 		"test:cli:task-complete:help": "tsx src/cli.ts task-complete -h"
 	},
 	"exports": {
