@@ -3,20 +3,21 @@
 	"version": "0.1.0",
 	"description": "在 Claude Code 任务完成后，发送所在操作系统的全局通知",
 	"type": "module",
-	"main": "./dist/TODO: 需要打包",
-	"types": "./dist/TODO: 需要打包",
+	"main": "./dist/index.cjs",
+	"types": "./dist/index.d.cts",
 	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/packages/claude-notifier",
 	"bugs": {
 		"url": "https://github.com/ruan-cat/monorepo/issues"
 	},
 	"scripts": {
-		"setup": "tsx ./src/setup.ts",
-		"notify": "tsx ./src/notify.ts"
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"test:cli": "node dist/cli.cjs --help"
 	},
 	"exports": {
 		".": {
-			"require": "./dist/TODO: 需要打包",
-			"types": "./dist/TODO: 需要打包"
+			"require": "./dist/index.cjs",
+			"types": "./dist/index.d.cts"
 		},
 		"./src/*": "./src/*"
 	},
@@ -50,14 +51,14 @@
 		"tsconfig.json"
 	],
 	"dependencies": {
-		"fs-extra": "^11.2.0",
-		"node-notifier": "^10.0.1",
-		"tsx": "^4.7.0"
+		"commander": "^13.1.0",
+		"consola": "^3.4.2",
+		"node-notifier": "^10.0.1"
 	},
 	"devDependencies": {
-		"@types/fs-extra": "^11.0.4",
 		"@types/node": "^20.11.0",
 		"@types/node-notifier": "^8.0.5",
+		"tsup": "^8.5.0",
 		"typescript": "^5.3.3"
 	}
 }
