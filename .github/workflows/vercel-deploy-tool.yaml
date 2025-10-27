@@ -27,6 +27,10 @@ on:
       - "**/README.md"
       # 当任何 .vitepress 文件夹下面的文件被更改时触发
       - "**/.vitepress/**"
+      # 该配置文件本身被更新时 也触发一次文档部署
+      - ".github/workflows/vercel-deploy-tool.yaml"
+      # 文档文件夹下面的任何文件被更新时 触发文档部署
+      - "**/docs/**/*.md"
   repository_dispatch:
     types: [deploy-after-release]
 
