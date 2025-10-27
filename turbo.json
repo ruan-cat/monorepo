@@ -8,12 +8,12 @@
 			"dependsOn": ["^build"]
 		},
 		"build:docs": {
-			"cache": false,
+			"cache": true,
 			"outputs": ["**/.vitepress/dist/**", "**/.vuepress/dist/**"],
 			"dependsOn": ["^build"]
 		},
 		"//#deploy-vercel": {
-			"cache": false,
+			"cache": true,
 			"dependsOn": ["^build:docs"]
 		},
 		"//#changeset:publish": {
