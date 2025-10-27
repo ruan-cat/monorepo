@@ -15,6 +15,8 @@
 		".changeset/**/*.md",
 		// 匹配claude-plugin文件夹内的全部md文件
 		"**/.claude-plugin/**/*.md",
+		// 匹配claude文件夹内的全部md文件 主要是子代理和命令
+		"./.claude/**/*.md",
 		"./tests/**/.vitepress/*.md",
 		"**/.vitepress/**/*.vue"
 	],
