@@ -76,7 +76,7 @@ npx @ruan-cat/claude-notifier task-complete \
 - `-t, --title <title>` - 自定义通知标题（默认：`Claude Code`）
 - `-m, --message <message>` - 自定义通知消息（默认：`任务完成 ✓`）
 - `-s, --sound <sound>` - 音频预设或自定义音频（默认：`success`）
-- `-i, --icon <icon>` - 图标预设或自定义图标（默认：`success`）
+- `-i, --icon <icon>` - 图标预设或自定义图标（默认：`alice/success.gif` ✨）
 - `-d, --task-description <description>` - 任务描述消息
 
 **示例**：
@@ -134,7 +134,7 @@ npx @ruan-cat/claude-notifier long-task \
 
 - `-i, --intervals <intervals>` - 提醒时间点（分钟），逗号分隔（默认：`6,10,18,25,45`）
 - `-s, --sound <sound>` - 音频预设（默认：`warning`）
-- `--icon <icon>` - 图标预设（默认：`clock`）
+- `--icon <icon>` - 图标预设（默认：`alice/timeout.gif` ✨）
 - `-d, --task-description <description>` - 任务描述消息
 - `--stop` - 停止当前正在运行的定时器
 - `--status` - 查看当前正在运行的定时器状态
@@ -208,7 +208,7 @@ npx @ruan-cat/claude-notifier timeout \
 - `-m, --message <message>` - 自定义通知消息（默认：`连接超时 ⏱️`）
 - `--timeout-details <details>` - 超时详情
 - `-s, --sound <sound>` - 音频预设（默认：`error`）
-- `-i, --icon <icon>` - 图标预设（默认：`error`）
+- `-i, --icon <icon>` - 图标预设（默认：`alice/timeout.gif` ✨）
 
 **示例**：
 
@@ -258,7 +258,7 @@ npx @ruan-cat/claude-notifier error \
 - `-m, --message <message>` - 自定义通知消息（默认：`发生错误 ✗`）
 - `-e, --error-details <details>` - 错误详情
 - `-s, --sound <sound>` - 音频预设（默认：`error`）
-- `-i, --icon <icon>` - 图标预设（默认：`error`）
+- `-i, --icon <icon>` - 图标预设（默认：`alice/error.gif` ✨）
 
 **示例**：
 
@@ -296,16 +296,25 @@ npx @ruan-cat/claude-notifier error \
 
 ### 图标预设
 
-| 预设值    | 说明                   | 使用方式                       |
-| --------- | ---------------------- | ------------------------------ |
-| `success` | 成功图标（绿色对勾）   | `--icon success`               |
-| `warning` | 警告图标（黄色警告）   | `--icon warning`               |
-| `error`   | 错误图标（红色错误）   | `--icon error`                 |
-| `info`    | 信息图标（蓝色信息）   | `--icon info`                  |
-| `clock`   | 时钟图标（长任务专用） | `--icon clock`                 |
-| 具体文件  | 指定具体图标文件       | `--icon success/custom.png`    |
-| 绝对路径  | 自定义图标路径         | `--icon "C:\icons\custom.png"` |
-| 相对路径  | 相对 icons/ 的路径     | `--icon "my-custom/icon.png"`  |
+| 预设值              | 说明                      | 使用方式                       |
+| ------------------- | ------------------------- | ------------------------------ |
+| `alice/success.gif` | ✨ Alice 成功图标（默认） | `--icon alice/success.gif`     |
+| `alice/error.gif`   | ✨ Alice 错误图标（默认） | `--icon alice/error.gif`       |
+| `alice/timeout.gif` | ✨ Alice 超时图标（默认） | `--icon alice/timeout.gif`     |
+| `success`           | 成功图标（绿色对勾）      | `--icon success`               |
+| `warning`           | 警告图标（黄色警告）      | `--icon warning`               |
+| `error`             | 错误图标（红色错误）      | `--icon error`                 |
+| `info`              | 信息图标（蓝色信息）      | `--icon info`                  |
+| `clock`             | 时钟图标（长任务专用）    | `--icon clock`                 |
+| 具体文件            | 指定具体图标文件          | `--icon success/custom.png`    |
+| 绝对路径            | 自定义图标路径            | `--icon "C:\icons\custom.png"` |
+| 相对路径            | 相对 icons/ 的路径        | `--icon "my-custom/icon.png"`  |
+
+**✨ Alice 图标系列（新增）**：
+
+- Alice 图标是动态 GIF 格式，更加生动可爱
+- 所有命令默认使用 Alice 图标，提供更好的视觉体验
+- 保留传统静态图标，可通过参数选择使用
 
 ## 实际场景
 

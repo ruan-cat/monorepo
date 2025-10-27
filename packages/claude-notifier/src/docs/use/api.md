@@ -90,7 +90,25 @@ await sendNotification({
 ```typescript
 import { sendNotification, IconPreset } from "@ruan-cat/claude-notifier";
 
-// 使用成功图标
+// ✨ 使用 Alice 成功图标（默认，动态 GIF）
+await sendNotification({
+	message: "操作成功",
+	icon: IconPreset.ALICE_SUCCESS,
+});
+
+// ✨ 使用 Alice 错误图标（动态 GIF）
+await sendNotification({
+	message: "操作失败",
+	icon: IconPreset.ALICE_ERROR,
+});
+
+// ✨ 使用 Alice 超时图标（动态 GIF）
+await sendNotification({
+	message: "任务超时",
+	icon: IconPreset.ALICE_TIMEOUT,
+});
+
+// 使用传统成功图标（静态）
 await sendNotification({
 	message: "操作成功",
 	icon: IconPreset.SUCCESS,
@@ -121,17 +139,24 @@ await sendNotification({
 });
 ```
 
+**✨ Alice 图标系列（推荐）**：
+
+- `IconPreset.ALICE_SUCCESS` - Alice 成功图标（动态 GIF）
+- `IconPreset.ALICE_ERROR` - Alice 错误图标（动态 GIF）
+- `IconPreset.ALICE_TIMEOUT` - Alice 超时图标（动态 GIF）
+- 更加生动可爱，提供更好的视觉体验
+
 ### 组合使用音效和图标
 
 ```typescript
 import { sendNotification, SoundPreset, IconPreset } from "@ruan-cat/claude-notifier";
 
-// 成功通知（音效 + 图标）
+// ✨ 成功通知（音效 + Alice 图标）
 await sendNotification({
 	title: "任务完成",
 	message: "项目构建完成，耗时 2分30秒",
 	sound: SoundPreset.SUCCESS,
-	icon: IconPreset.SUCCESS,
+	icon: IconPreset.ALICE_SUCCESS,
 });
 
 // 错误通知（音效 + 图标）

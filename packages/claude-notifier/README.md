@@ -119,6 +119,10 @@ npx @ruan-cat/claude-notifier --help
 ### task-complete - 任务完成通知
 
 ```bash
+# 使用默认 Alice 成功图标
+npx @ruan-cat/claude-notifier task-complete --message "构建完成"
+
+# 使用传统图标
 npx @ruan-cat/claude-notifier task-complete \
   --message "构建完成" \
   --sound success \
@@ -180,13 +184,23 @@ npx @ruan-cat/claude-notifier error --message "构建失败"
 
 ### 图标预设（文件夹方式）
 
-| 预设      | 说明     | 使用方式         |
-| --------- | -------- | ---------------- |
-| `success` | 成功图标 | `--icon success` |
-| `warning` | 警告图标 | `--icon warning` |
-| `error`   | 错误图标 | `--icon error`   |
-| `info`    | 信息图标 | `--icon info`    |
-| `clock`   | 时钟图标 | `--icon clock`   |
+| 预设                | 说明                      | 使用方式                   |
+| ------------------- | ------------------------- | -------------------------- |
+| `alice/success.gif` | ✨ Alice 成功图标（默认） | `--icon alice/success.gif` |
+| `alice/error.gif`   | ✨ Alice 错误图标         | `--icon alice/error.gif`   |
+| `alice/timeout.gif` | ✨ Alice 超时图标         | `--icon alice/timeout.gif` |
+| `success`           | 成功图标                  | `--icon success`           |
+| `warning`           | 警告图标                  | `--icon warning`           |
+| `error`             | 错误图标                  | `--icon error`             |
+| `info`              | 信息图标                  | `--icon info`              |
+| `clock`             | 时钟图标                  | `--icon clock`             |
+
+**✨ 新增 Alice 图标系列**：
+
+- 所有命令现在默认使用 Alice 风格的动态 GIF 图标
+- Alice 图标更加生动可爱，提供更好的视觉体验
+- `task-complete` 默认使用 `alice/success.gif`
+- `error` 和 `timeout` 默认使用对应的 `alice` 版本
 
 **文件查找规则**：`icon.png` > `index.png` > `default.png` > `main.png`
 
