@@ -1,5 +1,40 @@
 # @ruan-cat/claude-notifier
 
+## 0.2.0
+
+### Minor Changes
+
+- 将默认图标更改为 Alice 版本 ([`4ab0797`](https://github.com/ruan-cat/monorepo/commit/4ab0797e04fe189b4b51b2d6e90ed391852a2885))
+
+  **新功能**：
+  - 添加了三个新的图标预设：`alice/success.gif`, `alice/error.gif`, `alice/timeout.gif`
+  - 所有命令现在默认使用 Alice 风格的动态图标
+
+  **具体变更**：
+  - `task-complete` 命令：默认图标从 `success` 改为 `alice/success.gif`
+  - `error` 命令：默认图标从 `error` 改为 `alice/error.gif`
+  - `timeout` 命令：默认图标从 `error` 改为 `alice/timeout.gif`
+  - `long-task` 命令：默认图标从 `clock` 改为 `alice/timeout.gif`
+
+  **用户影响**：
+  - 用户在不指定 `-i, --icon` 参数时，将自动使用 Alice 风格的动态 GIF 图标
+  - 仍然支持通过 `-i` 参数指定其他预设图标或自定义图标路径
+  - 旧的图标预设（success, warning, error, info, clock）仍然可用
+
+### Patch Changes
+
+- 修复云端环境中文档构建失败的问题 ([`590984f`](https://github.com/ruan-cat/monorepo/commit/590984f774e84b62869d81a42a95bb07e07092b4))
+
+  在根包的 package.json 中添加 @ruan-cat/claude-notifier 作为 devDependencies，确保 turbo deploy-vercel 命令能够正确识别并执行该包的 build:docs 任务。
+
+  **技术细节**：
+  - Turbo 的 `^build:docs` 依赖解析基于 package.json 的依赖声明
+  - 只有在根包中声明的工作区包才会被包含在根任务的依赖图中
+  - 本次修复确保 GitHub Actions 工作流能够正确部署 claude-notifier 的文档站点
+
+  **相关文档**：
+  - 详细事故报告：docs/incident-reports/2025-10-28-claude-notifier-build-docs-failure.md
+
 ## 0.1.1
 
 ### Patch Changes
