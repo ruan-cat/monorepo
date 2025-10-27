@@ -14,7 +14,6 @@
 		"docs:dev": "vitepress dev src/docs --port 8080",
 		"build:docs": "vitepress build src/docs",
 		"dev": "tsup --watch",
-		"pack": "pnpm pack",
 		"prebuild": "automd",
 		"test:cli:prod": "node dist/cli.cjs --help",
 		"test:cli:task-complete:alice-icon:prod": "node dist/cli.cjs task-complete -s manbo -i alice/timeout.gif",
