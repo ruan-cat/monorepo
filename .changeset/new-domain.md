@@ -1,5 +1,5 @@
 ---
-"@ruan-cat/domain": minor
+"@ruan-cat/domains": minor
 ---
 
 增加新的项目 `claude-notifier` ，claude code 通知工具。预期提供以下几个可用域名，优先级按**先后顺序**排列：
