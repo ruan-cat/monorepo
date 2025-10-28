@@ -3,7 +3,7 @@
 import { type UserConfig, type DefaultTheme } from "vitepress";
 import consola from "consola";
 import { isUndefined } from "lodash-es";
-import { hasChangelogMd } from "@ruan-cat/utils/node-esm";
+import { hasChangelogMd } from "../utils/copy-changelog";
 
 /**
  * 设置导航栏的变更日志
