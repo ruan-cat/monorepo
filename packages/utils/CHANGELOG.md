@@ -1,5 +1,52 @@
 # @ruan-cat/utils 更新日志
 
+## 4.14.0
+
+### Minor Changes
+
+- 重构：移除 VitePress 文档管理相关函数 ([`bad3e51`](https://github.com/ruan-cat/monorepo/commit/bad3e51e4d6c914663032e93cc5cdcd9500233d0))
+
+  将所有用于支持 VitePress 预设包的文档管理工具函数迁移至 `@ruan-cat/vitepress-preset-config` 包，实现更合理的职责分离：
+
+  **删除的函数**：
+  - `addChangelog2doc` - 将变更日志添加到文档目录
+  - `copyChangelogMd` / `hasChangelogMd` - 复制和检查 CHANGELOG.md 文件
+  - `copyClaudeAgents` / `hasClaudeAgents` - 复制 .claude/agents 文件夹到文档目录
+  - `copyReadmeMd` / `hasReadmeMd` / `hasCapitalReadmeMd` / `hasLowerCaseReadmeMd` - README 文件复制和检查相关函数
+
+  **结构优化**：
+  - 将 `yaml-to-md.ts` 从 `scripts/` 子目录提升至 `node-esm/` 目录
+  - 移除了大量注释代码，保持代码整洁
+
+  **影响范围**：
+  这些函数现已迁移到 `@ruan-cat/vitepress-preset-config` 包中，原有使用这些函数的项目需要从新的包中导入。
+
+  **迁移指南**：
+
+  ```typescript
+  // 旧导入方式（已废弃）
+  import { addChangelog2doc, copyReadmeMd } from "@ruan-cat/utils/node-esm";
+
+  // 新导入方式
+  import { addChangelog2doc, copyReadmeMd } from "@ruan-cat/vitepress-preset-config";
+  ```
+
+### Patch Changes
+
+- 修复 package.json 中 types 字段路径拼写错误 ([`3cd2148`](https://github.com/ruan-cat/monorepo/commit/3cd2148ad896203508cc5e1ddc185683a7edaf83))
+
+  ## 问题描述
+
+  在 `exports` 字段中，主入口的 `types` 路径存在拼写错误，导致 TypeScript 编译器无法正确定位类型声明文件。
+
+  ## 修复内容
+
+  将 `types` 字段路径从 `./dsit/index.d.ts` 更正为 `./dist/index.d.ts`
+
+  ## 影响范围
+
+  此修复解决了依赖 `@ruan-cat/utils` 包的其他包（如 `@ruan-cat/vitepress-preset-config`）在构建时出现的类型声明文件找不到的错误。
+
 ## 4.13.0
 
 ### Minor Changes
