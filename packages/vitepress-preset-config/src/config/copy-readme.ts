@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import consola from "consola";
 
-import { isConditionsSome } from "@ruan-cat/utils/src/conditions.ts";
+import { isConditionsSome } from "@ruan-cat/utils";
 
 /** 大写字母的文件 */
 const capitalReadmeMd = "README.md" as const;
