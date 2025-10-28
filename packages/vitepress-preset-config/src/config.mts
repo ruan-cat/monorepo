@@ -9,8 +9,9 @@ import { merge, isUndefined, cloneDeep } from "lodash-es";
 import consola from "consola";
 import type { ExtraConfig } from "./types.ts";
 
-import { addChangelog2doc, copyReadmeMd, copyClaudeAgents, copyChangelogMd } from "@ruan-cat/utils/node-esm";
-export { addChangelog2doc, copyReadmeMd, copyClaudeAgents, copyChangelogMd };
+// import { addChangelog2doc, copyReadmeMd, copyClaudeAgents } from "@ruan-cat/utils/node-esm";
+import { addChangelog2doc, copyReadmeMd, copyClaudeAgents } from "./config/index.ts";
+export { addChangelog2doc, copyReadmeMd, copyClaudeAgents };
 
 import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
