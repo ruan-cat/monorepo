@@ -8,6 +8,8 @@
 - 文档排序配置内部处理，函数减少手动配置。函数以后不需要手动编写排序值了。
 - 顶部导航栏，增加【提示词】一栏，便于整理复盘。
 
+- 制作统一的 automd 运行命令。在 build 命令之前就无条件运行。
+
 ## 01 统一设置 `themeConfig.editLink.pattern` 的取值
 
 1. 阅读 `packages\vitepress-preset-config\src\docs\.vitepress\config.mts` 文件，以该配置文件的 `themeConfig.editLink.pattern` 为例子，重新设置整个项目全部的 `.vitepress\config.mts` 配置文件。
