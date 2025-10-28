@@ -9,20 +9,14 @@ import { merge, isUndefined, cloneDeep } from "lodash-es";
 import consola from "consola";
 import type { ExtraConfig } from "./types.ts";
 
-import {
-	addChangelog2doc,
-	hasChangelogMd,
-	copyReadmeMd,
-	copyClaudeAgents,
-	copyChangelogMd,
-} from "@ruan-cat/utils/node-esm";
+import { addChangelog2doc, copyReadmeMd, copyClaudeAgents, copyChangelogMd } from "@ruan-cat/utils/node-esm";
 export { addChangelog2doc, copyReadmeMd, copyClaudeAgents, copyChangelogMd };
 
 import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt, { copyOrDownloadAsMarkdownButtons } from "vitepress-plugin-llms";
 
-import { defaultTeekConfig, handleTeekConfig, handlePlugins } from "./config/index.ts";
+import { defaultTeekConfig, handleTeekConfig, handlePlugins, handleChangeLog } from "./config/index.ts";
 
 /** @see https://vitepress-ext.leelaa.cn/Mermaid.html#扩展-md-插件 */
 import { MermaidPlugin } from "@leelaa/vitepress-plugin-extended";
@@ -179,30 +173,6 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 		},
 	},
 };
-
-/**
- * 设置导航栏的变更日志
- * @description
- * 在导航栏内添加一行 变更日志 的入口
- *
- * 直接修改外部传递进来的配置对象即可
- * @private 内部使用即可
- */
-function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
-	if (!hasChangelogMd()) {
-		consola.warn(` 未找到变更日志文件，不添加变更日志导航栏。 `);
-		return;
-	}
-
-	const nav = userConfig?.themeConfig?.nav;
-
-	if (isUndefined(nav)) {
-		consola.error(` 当前的用户配置为： `, userConfig);
-		throw new Error(` nav 默认提供的导航栏配置为空。不符合默认配置，请检查。 `);
-	}
-
-	nav.push({ text: "更新日志", link: "/CHANGELOG.md" });
-}
 
 /** 设置vitepress主配置 */
 export function setUserConfig(
