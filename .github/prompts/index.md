@@ -1,5 +1,13 @@
 # 本项目的杂项提示词
 
+## 本项目待办任务
+
+- 测试，并制作有意义的 claude code hooks 配置。
+- 分发到 claude code 插件仓库内。
+
+- 文档排序配置内部处理，函数减少手动配置。函数以后不需要手动编写排序值了。
+- 顶部导航栏，增加【提示词】一栏，便于整理复盘。
+
 ## 01 统一设置 `themeConfig.editLink.pattern` 的取值
 
 1. 阅读 `packages\vitepress-preset-config\src\docs\.vitepress\config.mts` 文件，以该配置文件的 `themeConfig.editLink.pattern` 为例子，重新设置整个项目全部的 `.vitepress\config.mts` 配置文件。
