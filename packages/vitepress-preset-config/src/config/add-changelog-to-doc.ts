@@ -1,7 +1,7 @@
 import path from "node:path";
 
 import { copyChangelogMd, hasChangelogMd } from "../utils/copy-changelog";
-import { writeYaml2md } from "../utils/yaml-to-md";
+import { writeYaml2md } from "@ruan-cat/utils/node-esm";
 
 export interface AddChangelog2docOptions<T = Record<string, any>> {
 	/** 目标文件夹 */
