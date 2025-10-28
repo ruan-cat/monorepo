@@ -2,8 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import consola from "consola";
 
-// 有疑惑 这个写法都不对么？
-import { isConditionsSome } from "@ruan-cat/utils/src/conditions.ts";
+// 有疑惑 这个写法都不对么？ 这个写法对于 vitepress 文档构建来说 是会引发报错的
+// import { isConditionsSome } from "@ruan-cat/utils/src/conditions.ts";
+import { isConditionsSome } from "@ruan-cat/utils";
 
 /** 大写字母的文件 */
 const capitalReadmeMd = "README.md" as const;
