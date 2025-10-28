@@ -1,6 +1,5 @@
 // 工具包文档项目 直接导入生成文档配置 避免出现循环依赖
-import { setUserConfig, setGenerateSidebar } from "../../../vitepress-preset-config";
-import { addChangelog2doc, copyReadmeMd } from "@ruan-cat/utils/node-esm";
+import { setUserConfig, setGenerateSidebar, addChangelog2doc, copyReadmeMd } from "../../../vitepress-preset-config";
 
 import { description } from "../../package.json";
 

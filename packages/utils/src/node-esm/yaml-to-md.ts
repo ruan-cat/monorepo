@@ -4,19 +4,6 @@ import { consola } from "consola";
 import { isUndefined } from "lodash-es";
 import yaml from "js-yaml";
 
-// import { program } from "commander";
-// import prettier from "prettier";
-// import prettierConfig from "../prettier.config.js";
-// program
-// 	.name("yaml-in-md")
-// 	// 环境变量的地址
-// 	.option("--md <path>", "目标md文件的地址，目前仅考虑单个文件")
-// 	.parse();
-// const options = program.opts();
-// consola.info(" 查看命令行提供的参数 ", options);
-// /** md文件的地址 */
-// const defMdPath: string = options?.md;
-
 export interface WriteYaml2mdParams<T = Record<string, any>> {
 	/** 目标md文件地址 */
 	mdPath: string;
