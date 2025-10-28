@@ -1,1 +1,1 @@
-import { addChangelog2doc, hasChangelogMd } from "@ruan-cat/utils/node-esm";
+import { writeYaml2md } from "@ruan-cat/utils/node-esm";
