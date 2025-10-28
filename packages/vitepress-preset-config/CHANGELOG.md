@@ -1,5 +1,40 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 2.6.0
+
+### Minor Changes
+
+- ## 1. 文件重构 ([`bcc918d`](https://github.com/ruan-cat/monorepo/commit/bcc918deea3a5e9a45de4cfdfa015c0531197d88))
+
+  重构变更日志导航栏配置模块的代码组织结构
+
+  ### 主要变更
+  - 将 `handleChangeLog` 函数从主配置文件 `config.mts` 中抽离到独立的 `config/changelog-nav.ts` 模块
+  - 优化了代码文件的职责划分，提升了代码的可维护性和可读性
+  - 移除了主配置文件中不必要的 `hasChangelogMd` 导入，该工具函数现在仅在 `changelog-nav.ts` 模块内部使用
+
+  ### 技术细节
+
+  此次重构将变更日志导航栏的处理逻辑从主配置文件中分离，形成独立的功能模块。这种模块化的组织方式有助于：
+  - 降低主配置文件的复杂度
+  - 提高代码的内聚性
+  - 便于后续维护和功能扩展
+
+  **注意**：此次重构不涉及任何功能性变更，仅调整内部代码排布方式。对外暴露的 API 保持完全兼容。
+
+  ## 2. 增加新的配置文件 `pageOrderConfig`
+
+  用来统一控制部分固定页面的页面排序。
+
+  ## 3. 将 utils 包专供 vitepress 文档预设的工具函数全部迁移整合到本包
+
+  以后就再也不需要再 utils 包内使用本应该是 vitepress 负责的函数了。提高可读性。
+
+### Patch Changes
+
+- Updated dependencies [[`3cd2148`](https://github.com/ruan-cat/monorepo/commit/3cd2148ad896203508cc5e1ddc185683a7edaf83), [`bad3e51`](https://github.com/ruan-cat/monorepo/commit/bad3e51e4d6c914663032e93cc5cdcd9500233d0)]:
+  - @ruan-cat/utils@4.14.0
+
 ## 2.5.1
 
 ### Patch Changes
