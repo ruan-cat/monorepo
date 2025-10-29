@@ -7,12 +7,6 @@ copyReadmeMd("./src");
 
 addChangelog2doc({
 	target: "./src",
-	data: {
-		order: 2000,
-		dir: {
-			order: 2000,
-		},
-	},
 });
 
 const userConfig = setUserConfig({
@@ -33,6 +27,6 @@ const userConfig = setUserConfig({
 
 // @ts-ignore
 userConfig.themeConfig.sidebar = setGenerateSidebar({
-	documentRootPath: "src",
+	documentRootPath: "./src",
 });
 export default userConfig;

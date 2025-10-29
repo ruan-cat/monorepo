@@ -2,17 +2,7 @@
 // import { defineRuanCatVuepressConfig } from "@ruan-cat/vuepress-preset-config";
 import { defineRuanCatVuepressConfig } from "../../../vuepress-preset-config";
 
-import { addChangelog2doc } from "@ruan-cat/utils/node-esm";
-
-addChangelog2doc({
-	target: "./src",
-	data: {
-		order: 940,
-		dir: {
-			order: 940,
-		},
-	},
-});
+// 注意：这里没有使用 addChangelog2doc ， 反正 vuepress 我后续也不用了
 
 export default defineRuanCatVuepressConfig({
 	title: "阮喵喵工具包",

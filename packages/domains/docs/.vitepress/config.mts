@@ -14,12 +14,6 @@ copyReadmeMd("./docs");
 
 addChangelog2doc({
 	target: "./docs",
-	data: {
-		order: 1000,
-		dir: {
-			order: 1000,
-		},
-	},
 });
 
 const userConfig = setUserConfig(
