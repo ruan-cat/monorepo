@@ -17,6 +17,7 @@
 		"@ruan-cat/utils": "workspace:^",
 		"@shikijs/vitepress-twoslash": "^3.13.0",
 		"consola": "^3.4.2",
+		"gray-matter": "^4.0.3",
 		"js-yaml": "^4.1.0",
 		"lodash-es": "^4.17.21",
 		"markdown-it-async": "^2.2.0",

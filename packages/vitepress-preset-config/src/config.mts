@@ -17,7 +17,7 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt, { copyOrDownloadAsMarkdownButtons } from "vitepress-plugin-llms";
 
-import { defaultTeekConfig, handleTeekConfig, handlePlugins, handleChangeLog } from "./config/index.ts";
+import { defaultTeekConfig, handleTeekConfig, handlePlugins, handleChangeLog, handlePrompts } from "./config/index.ts";
 
 /** @see https://vitepress-ext.leelaa.cn/Mermaid.html#扩展-md-插件 */
 import { MermaidPlugin } from "@leelaa/vitepress-plugin-extended";
@@ -183,7 +183,10 @@ export function setUserConfig(
 	/** 最终的用户数据 */
 	const resUserConfig = merge({}, cloneDeep(defaultUserConfig), isUndefined(config) ? {} : config);
 
-	// 增加导航栏
+	// 处理提示词导航栏
+	handlePrompts(resUserConfig);
+
+	// 处理变更日志导航栏
 	handleChangeLog(resUserConfig);
 
 	// 设置插件
