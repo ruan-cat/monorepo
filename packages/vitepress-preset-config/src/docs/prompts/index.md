@@ -59,3 +59,7 @@ order: 8000
 4. 如果没有 yaml 信息，就写入顶部头 yaml 信息。
 
 这个函数请使用 gray-matter 这个 node 库来实现相关的更改，不使用 `writeYaml2md` 函数了。
+
+## 02 重构 addChangelog2doc 函数的 markdown 数据写入 yaml 的实现方式
+
+针对 `packages\vitepress-preset-config\src\config\add-changelog-to-doc.ts` 的 addChangelog2doc ，请你阅读 `packages\vitepress-preset-config\src\config\prompts-nav.ts` writeYaml2PromptsIndexMd 函数，用 writeYaml2PromptsIndexMd 函数的 gray-matter 库，实现 addChangelog2doc 写法的重构。
