@@ -14,6 +14,8 @@ export interface WriteYaml2mdParams<T = Record<string, any>> {
 
 /**
  * 将YAML数据写入到MD文件内
+ * @deprecated
+ * 请使用 gray-matter 库来实现相关的更改，不使用 `writeYaml2md` 函数了。
  */
 export function writeYaml2md<T>(params: WriteYaml2mdParams<T>) {
 	consola.info(` 当前运行的地址为： ${process.cwd()} `);
