@@ -29,7 +29,7 @@ type VitePressSidebarOptions = Parameters<typeof generateSidebar>[0];
 
 /** 默认侧边栏配置 */
 const defaultSidebarOptions: VitePressSidebarOptions = {
-	// documentRootPath: "src",
+	// documentRootPath: "./src",
 
 	// 侧边栏需要折叠
 	collapsed: true,

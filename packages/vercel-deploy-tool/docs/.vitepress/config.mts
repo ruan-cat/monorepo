@@ -28,6 +28,6 @@ const userConfig = setUserConfig({
 
 // @ts-ignore
 userConfig.themeConfig.sidebar = setGenerateSidebar({
-	documentRootPath: "docs",
+	documentRootPath: "./docs",
 });
 export default userConfig;
