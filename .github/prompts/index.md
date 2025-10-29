@@ -5,6 +5,8 @@
 - 测试，并制作有意义的 claude code hooks 配置。
 - 分发到 claude code 插件仓库内。
 
+- 准备重构 @ruan-cat/vercel-deploy-tool 包的文档存储架构，对齐基本的文件忽略配置。
+
 ## 01 统一设置 `themeConfig.editLink.pattern` 的取值
 
 1. 阅读 `packages\vitepress-preset-config\src\docs\.vitepress\config.mts` 文件，以该配置文件的 `themeConfig.editLink.pattern` 为例子，重新设置整个项目全部的 `.vitepress\config.mts` 配置文件。
