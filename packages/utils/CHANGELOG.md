@@ -1,5 +1,11 @@
 # @ruan-cat/utils 更新日志
 
+## 4.15.0
+
+### Minor Changes
+
+- 标记 writeYaml2md 被废弃。未来应该独立使用 gray-matter 库来实现相关的更改。 ([`32c6493`](https://github.com/ruan-cat/monorepo/commit/32c6493b38c6daf8ab4d1497fdaefdc2e785e8e1))
+
 ## 4.14.0
 
 ### Minor Changes
