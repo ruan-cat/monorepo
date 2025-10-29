@@ -5,6 +5,7 @@ addChangelog2doc({
 	// 设置changelog的目标文件夹
 	target: "./docs",
 	// 设置changelog顶部的yaml数据。通常是排序
+	// 通常意义来说 是不需要主动设置该值的 该排序值有内部维护的默认值
 	data: {
 		order: 1000,
 		dir: {
