@@ -15,7 +15,7 @@
 		"directory": "configs-package/taze-config"
 	},
 	"scripts": {
-		"notuse-build-for-now": "automd"
+		"prebuild": "automd"
 	},
 	"exports": {
 		".": {

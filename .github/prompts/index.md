@@ -21,3 +21,7 @@
 `@ruan-cat/vitepress-preset-config` 包的 build 命令会出现错误，请帮我修复该错误。
 
 你也可以运行根包的 build 命令来检查错误。
+
+## 03 制作基于 turbo 的 prebuild 命令，统一封装全体子包的 automd 运行命令
+
+请你在 turbo.json 内，为全部的 "prebuild" 命令，制作一个全局的 turbo 任务，预期在运行 turbo 的 build 任务前，先完成 turbo 的 prebuild 任务。

@@ -2,10 +2,14 @@
 	"$schema": "https://turbo.build/schema.json",
 	"ui": "tui",
 	"tasks": {
+		"prebuild": {
+			"cache": false,
+			"outputs": ["README.md", "*.md"]
+		},
 		"build": {
 			"cache": true,
 			"outputs": ["**/dist/**", "**/.output/**"],
-			"dependsOn": ["^build"]
+			"dependsOn": ["^prebuild", "^build"]
 		},
 		"build:docs": {
 			"cache": true,
