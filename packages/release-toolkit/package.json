@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/release-toolkit",
-	"version": "0.1.7",
+	"version": "0.2.0",
 	"description": "基于 changelogen 增强 changesets 工作流的发布工具包，提供语义化提交解析和 GitHub Release 同步功能。",
 	"type": "module",
 	"main": "./src/index.ts",
