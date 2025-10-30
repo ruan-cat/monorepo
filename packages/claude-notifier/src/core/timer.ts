@@ -11,11 +11,6 @@ import { sendNotification } from "./notifier.ts";
 const TIMER_STATE_FILE = path.join(os.tmpdir(), ".claude-notifier-timer.json");
 
 /**
- * 默认提醒时间点（分钟）
- */
-const DEFAULT_INTERVALS = [6, 10, 18, 25, 45];
-
-/**
  * 启动长任务定时器
  * @param options - 长任务配置选项
  */

@@ -1,8 +1,19 @@
 {
-	"hooks": {},
 	"statusLine": {
 		"type": "command",
 		"command": "bash .claude/statusline.sh",
 		"padding": 0
+	},
+	"hooks": {
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message \"Claude Code 任务已完成\""
+					}
+				]
+			}
+		]
 	}
 }
