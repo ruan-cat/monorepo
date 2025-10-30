@@ -36,14 +36,6 @@
 		"registry": "https://registry.npmjs.org/",
 		"tag": "beta"
 	},
-	"typesVersions": {
-		"*": {
-			"*": [
-				"./dist/*",
-				"./*"
-			]
-		}
-	},
 	"files": [
 		"dist"
 	],
