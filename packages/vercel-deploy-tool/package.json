@@ -46,8 +46,13 @@
 	},
 	"files": [
 		"!**/.vercel/**",
+		"dist",
 		"src",
-		"tsconfig.json"
+		"!src/docs/**",
+		"!src/**/tests",
+		"!src/**/*.md",
+		"!src/.vitepress/cache",
+		"!src/.vitepress/dist"
 	],
 	"dependencies": {
 		"@dotenvx/dotenvx": "^1.50.1",
