@@ -17,7 +17,7 @@
 ## 主要改进
 
 - 优化 `files` 字段配置，更精确地控制发布到 npm 的文件列表
-- 统一排除不必要的构建产物和缓存文件（如 `.vitepress/cache`、`.vitepress/dist` 等）
+- 统一排除不必要的构建产物和缓存文件（如 `.vitepress/cache`、`.vitepress/dist` 等），统一排除掉 `.vitepress` 文件夹
 - 排除测试文件和文档文件（`**/tests/**`、`**/docs/**` 等）
 - 使用 `dist/**` 替代 `dist/*` 以确保包含所有构建输出子目录
 - 统一各包的文件排除规则格式
