@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/vite-plugin-ts-alias",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "将 tsconfig.paths 配置转换成 vite 的 alias 路径别名。",
 	"type": "module",
 	"main": "./dist/index.js",
