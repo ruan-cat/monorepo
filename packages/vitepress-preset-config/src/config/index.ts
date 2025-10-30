@@ -2,7 +2,7 @@
 
 export * from "./page-order-config";
 export * from "./copy-readme";
-export * from "./copy-claude-agents";
+export * from "./copy-claude-files";
 export * from "./add-changelog-to-doc";
 export * from "./plugins";
 export * from "./changelog-nav";

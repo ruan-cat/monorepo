@@ -63,3 +63,30 @@ order: 8000
 ## 02 重构 addChangelog2doc 函数的 markdown 数据写入 yaml 的实现方式
 
 针对 `packages\vitepress-preset-config\src\config\add-changelog-to-doc.ts` 的 addChangelog2doc ，请你阅读 `packages\vitepress-preset-config\src\config\prompts-nav.ts` writeYaml2PromptsIndexMd 函数，用 writeYaml2PromptsIndexMd 函数的 gray-matter 库，实现 addChangelog2doc 写法的重构。
+
+## 03 增加新的被处理文件 `.claude/commands`
+
+我需要你系统性的重构调整 `packages\vitepress-preset-config\src\config\copy-claude-agents.ts` 文件，增加新的被处理文件夹。
+
+业务要求是： 和处理 `.claude/agents` 的逻辑相同，我需要你也一起处理 `.claude/commands` 文件。实现文件目录的统一移动。
+技术性要求：
+
+1. 文件重命名，重命名为语义化更准确的 `packages\vitepress-preset-config\src\config\copy-claude-files.ts` 。
+2. 设计常量 `.claude/commands` 和 `.claude/agents` 。并减少重复使用代码，一律使用常量。
+3. 对外导出唯一的函数 `copyClaudeFiles` 。
+4. `copyClaudeFiles` 函数保持和原来相同的逻辑，同时处理 `.claude/commands` 和 `.claude/agents` 的文件。一起复制粘贴文件。
+5. 请你适当的重构 `hasClaudeAgents` 函数，在判断文件夹目录是否存在时，确保和具体的文件夹解耦，做一个能够满足两个甚至是多个 `.claude` 目录文件夹是否存在的判别函数。做好提前量，为后续修改提供余量。
+
+其他要求：
+
+1. 由于文件改名了，请你及时的更改其他相关文件的路径导入写法。
+2. 编写更新日志，发版标签为 minor。重点说明 api 改名和新增的功能。
+3. 有疑问请及时询问我。要求我做出完整的回答后再继续开始你的修改。
+
+### 01 回答 AI 问题
+
+1. 关于 hasClaudeAgents 函数的重构：
+   - 方案 A：内部通用函数（不对外暴露）
+2. 关于复制目标位置:
+   - 方式 A：单一 target，自动创建子文件夹
+3. 关于常量设计： 符合预期。
