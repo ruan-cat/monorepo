@@ -43,8 +43,7 @@
 	},
 	"files": [
 		"!**/.vercel/**",
-		"!**/.vitepress/cache",
-		"!**/.vitepress/dist",
+		"!**/.vitepress/**",
 		"dist/**",
 		"tsconfig.json",
 		"README.md",

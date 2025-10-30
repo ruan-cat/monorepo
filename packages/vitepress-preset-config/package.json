@@ -93,8 +93,7 @@
 	},
 	"files": [
 		"!**/.vercel/**",
-		"!**/.vitepress/cache",
-		"!**/.vitepress/dist",
+		"!**/.vitepress/**",
 		"src",
 		"dist/**",
 		"tsconfig.json",
