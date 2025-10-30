@@ -46,8 +46,17 @@
 		}
 	},
 	"files": [
-		"dist",
-		"src"
+		"!**/.vercel/**",
+		"!**/.vitepress/cache",
+		"!**/.vitepress/dist",
+		"src",
+		"dist/**",
+		"tsconfig.json",
+		"README.md",
+		"!src/**/docs/**",
+		"!src/**/tests/**",
+		"!*.test.*",
+		"!src/**/*.md"
 	],
 	"dependencies": {
 		"@ruan-cat/utils": "workspace:^",

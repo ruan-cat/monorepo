@@ -58,12 +58,16 @@
 	},
 	"files": [
 		"!**/.vercel/**",
+		"!**/.vitepress/cache",
+		"!**/.vitepress/dist",
 		"src",
-		"dist/*",
-		"!src/tests",
-		"!src/**/tests",
-		"!src/**/*.md",
-		"tsconfig.json"
+		"dist/**",
+		"tsconfig.json",
+		"README.md",
+		"!src/**/docs/**",
+		"!src/**/tests/**",
+		"!*.test.*",
+		"!src/**/*.md"
 	],
 	"dependencies": {
 		"@octokit/rest": "^21.1.1",

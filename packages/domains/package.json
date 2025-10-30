@@ -56,10 +56,16 @@
 	},
 	"files": [
 		"!**/.vercel/**",
-		"dist",
-		"src/**/*.ts",
-		"!src/tests",
-		"tsconfig.json"
+		"!**/.vitepress/cache",
+		"!**/.vitepress/dist",
+		"src",
+		"dist/**",
+		"tsconfig.json",
+		"README.md",
+		"!src/**/docs/**",
+		"!src/**/tests/**",
+		"!*.test.*",
+		"!src/**/*.md"
 	],
 	"dependencies": {
 		"consola": "^3.4.2"
