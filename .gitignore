@@ -171,3 +171,6 @@ codess.code-snippets
 
 # 忽略掉statusline的日志文件
 statusline.log
+
+# 忽略掉自动生成的发包文件数目 报告文件
+docs/reports/all-packages-pack.md

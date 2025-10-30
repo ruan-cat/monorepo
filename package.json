@@ -28,6 +28,7 @@
 		"deploy-vercel": "tsx ./scripts/vercel-deploy-tool.ts",
 		"automd": "automd",
 		"automd:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- automd",
+		"pack:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- pnpm pack >docs/reports/all-packages-pack.md",
 		"preinstall": "npx only-allow pnpm && npm run corepack:pnpm",
 		"corepack:pnpm": "corepack enable && corepack install",
 		"postinstall": "pnpm run init-git-hooks",
