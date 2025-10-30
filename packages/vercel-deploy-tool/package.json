@@ -17,10 +17,9 @@
 	"scripts": {
 		"docs:dev": "vitepress dev docs --port 8080",
 		"build:docs": "vitepress build docs",
-		"—build-not-use-for-now": "tsc",
 		"prebuild": "automd",
-		"start": "node ./dist/index.js",
-		"run": "tsx ./src/index.ts --env-path=.env.test",
+		"test:prod": "node ./dist/index.js",
+		"test:dev": "tsx ./src/index.ts --env-path=.env.test",
 		"test:config": "dotenvx run -f .env.test -f .env.test-2 -- tsx ./tests/config.test.ts"
 	},
 	"exports": {
