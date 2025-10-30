@@ -5,10 +5,10 @@ import {
 	copyReadmeMd,
 } from "@ruan-cat/vitepress-preset-config/config";
 
-copyReadmeMd("./docs");
+copyReadmeMd("./src/docs");
 
 addChangelog2doc({
-	target: "./docs",
+	target: "./src/docs",
 });
 
 const userConfig = setUserConfig({
@@ -28,6 +28,6 @@ const userConfig = setUserConfig({
 
 // @ts-ignore
 userConfig.themeConfig.sidebar = setGenerateSidebar({
-	documentRootPath: "./docs",
+	documentRootPath: "./src/docs",
 });
 export default userConfig;
