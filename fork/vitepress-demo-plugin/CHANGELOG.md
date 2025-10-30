@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-demo-plugin 更新日志
 
+## 0.2.0
+
+### Minor Changes
+
+- 发包配置不提供 `typesVersions` ，不再对外提供该配置。类型导出由其他的配置实现。 ([`57f5fb8`](https://github.com/ruan-cat/monorepo/commit/57f5fb89ad4ede261820547821c903461c783281))
+
 ## 0.1.2
 
 ### Patch Changes
