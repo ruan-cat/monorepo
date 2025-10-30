@@ -6,6 +6,11 @@ import { TimerState, LongTaskOptions, IconPreset, SoundPreset } from "../types/i
 import { sendNotification } from "./notifier.ts";
 
 /**
+ * 默认提醒时间点（分钟）
+ */
+const DEFAULT_INTERVALS = [6, 10, 18, 25, 45];
+
+/**
  * 定时器状态文件路径
  */
 const TIMER_STATE_FILE = path.join(os.tmpdir(), ".claude-notifier-timer.json");
