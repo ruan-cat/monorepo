@@ -75,6 +75,7 @@ jobs:
           title: "📢 publish: release package(s)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: 同步GitHub Release
         if: steps.changesets.outputs.published == 'true'
