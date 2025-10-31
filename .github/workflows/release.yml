@@ -40,7 +40,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: corepack手动再安装一次pnpm
-        run: corepack enable && corepack prepare pnpm@9.5.0 --activate
+        run: corepack enable && corepack install
 
       - name: 安装整个项目的依赖
         run: pnpm i
