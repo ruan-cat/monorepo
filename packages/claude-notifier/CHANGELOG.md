@@ -1,5 +1,11 @@
 # @ruan-cat/claude-notifier
 
+## 0.3.1
+
+### Patch Changes
+
+- 修复 timer.ts 中的类型错误，添加缺失的 DEFAULT_INTERVALS 常量定义 ([`c840569`](https://github.com/ruan-cat/monorepo/commit/c840569c61fa4fa2773af57a1ae09794bbd7dde3))
+
 ## 0.3.0
 
 ### Minor Changes
