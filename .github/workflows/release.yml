@@ -77,14 +77,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: 同步GitHub Release
-        if: steps.changesets.outputs.published == 'true'
-        run: tsx scripts/sync-github-release.ts
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          PUBLISHED_PACKAGES: ${{ toJson(steps.changesets.outputs.publishedPackages) }}
-
       - name: 触发部署工作流
         if: steps.changesets.outputs.published == 'true'
         uses: peter-evans/repository-dispatch@v3
