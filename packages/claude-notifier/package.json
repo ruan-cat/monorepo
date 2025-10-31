@@ -9,6 +9,11 @@
 	"bugs": {
 		"url": "https://github.com/ruan-cat/monorepo/issues"
 	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ruan-cat/monorepo.git",
+		"directory": "packages/claude-notifier"
+	},
 	"scripts": {
 		"build": "tsup",
 		"docs:dev": "vitepress dev src/docs --port 8080",
