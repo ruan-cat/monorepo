@@ -51,6 +51,14 @@ jobs:
       - name: turbo link 链接远程项目
         run: turbo link --token=${{env.TURBO_TOKEN}} --scope=${{env.TURBO_TEAM}} --yes
 
+      - name: 在 .npmrc 内写入token
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+            //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: 构建项目
         run: pnpm run build
 
