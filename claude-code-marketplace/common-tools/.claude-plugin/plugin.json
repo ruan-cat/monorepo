@@ -1,6 +1,6 @@
 {
 	"name": "common-tools",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "阮喵喵开发时常用的一些通用工具",
 	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/claude-code-marketplace/common-tools",
 	"author": {
@@ -9,5 +9,6 @@
 	},
 	"license": "MIT",
 	"commands": ["./commands/markdown-title-order.md", "./commands/close-window-port.md"],
-	"agents": ["./agents/format-markdown.md"]
+	"agents": ["./agents/format-markdown.md"],
+	"hooks": ["./hooks/hooks.json"]
 }

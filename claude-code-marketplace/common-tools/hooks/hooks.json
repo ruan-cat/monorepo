@@ -1,0 +1,15 @@
+{
+	"description": "在 Claude Code 任务完成后，发送通知",
+	"hooks": {
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message \"Claude Code 任务已完成\""
+					}
+				]
+			}
+		]
+	}
+}
