@@ -21,4 +21,18 @@
 
 请你在 turbo.json 内，为全部的 "prebuild" 命令，制作一个全局的 turbo 任务，预期在运行 turbo 的 build 任务前，先完成 turbo 的 prebuild 任务。
 
-## 04
+## 04 处理 claude code 钩子错误 `task-complete-notifier.sh` 缺失 CLAUDE_PROJECT_DIR 的报错
+
+<!-- TODO: 待处理 -->
+
+```log
+  ⎿ Stop says: Plugin hook error:
+    C:\Users\pc\.claude\plugins\marketplaces\ruan-cat-tools\claude-code-marketplace\common-tools/scripts/task-complete-notifier.sh: line 72:
+    CLAUDE_PROJECT_DIR: unbound variable
+
+  ⎿ Stop says: Plugin hook error:
+    C:\Users\pc\.claude\plugins\marketplaces\ruan-cat-tools\claude-code-marketplace\common-tools/scripts/task-complete-notifier.sh: line 72:
+    CLAUDE_PROJECT_DIR: unbound variable
+```
+
+这些报错是来自于 C 盘的，其本质就是本项目的配置出错了。请你检查本项目的 `scripts/task-complete-notifier.sh` ，修复该故障，并确保 claude code 插件使用本 hooks 时，不会再出现以上的错误。
