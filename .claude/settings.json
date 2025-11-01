@@ -10,7 +10,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message \"Claude Code 任务已完成\""
+						"command": "pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message \"本地settings.json配置：任务完成\""
 					}
 				]
 			}
