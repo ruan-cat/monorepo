@@ -6,14 +6,8 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message \"Claude Code 任务已完成\""
-					}
-				]
-			}
-		],
-		"SubagentStop": [
-			{
-				"hooks": [
+						"command": "pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message \"非gemini总结：任务完成\""
+					},
 					{
 						"type": "command",
 						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh",
