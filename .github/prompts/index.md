@@ -23,8 +23,6 @@
 
 ## 04 处理 claude code 钩子错误 `task-complete-notifier.sh` 缺失 CLAUDE_PROJECT_DIR 的报错
 
-<!-- TODO: 待处理 -->
-
 ```log
   ⎿ Stop says: Plugin hook error:
     C:\Users\pc\.claude\plugins\marketplaces\ruan-cat-tools\claude-code-marketplace\common-tools/scripts/task-complete-notifier.sh: line 72:

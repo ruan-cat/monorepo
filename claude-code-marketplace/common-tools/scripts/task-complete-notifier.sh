@@ -68,8 +68,31 @@ elif [ $SUMMARY_LENGTH -gt 20 ]; then
   SUMMARY="${SUMMARY:0:20}..."
 fi
 
+# 检测项目根目录
+# 优先使用环境变量 CLAUDE_PROJECT_DIR，如果未设置则自动检测
+if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
+  PROJECT_DIR="$CLAUDE_PROJECT_DIR"
+else
+  # 通过向上查找 pnpm-workspace.yaml 来检测 monorepo 根目录
+  CURRENT_DIR=$(pwd)
+  PROJECT_DIR=""
+
+  while [ "$CURRENT_DIR" != "/" ] && [ "$CURRENT_DIR" != "" ]; do
+    if [ -f "$CURRENT_DIR/pnpm-workspace.yaml" ]; then
+      PROJECT_DIR="$CURRENT_DIR"
+      break
+    fi
+    CURRENT_DIR=$(dirname "$CURRENT_DIR")
+  done
+
+  # 如果找不到 monorepo 根目录，使用当前工作目录
+  if [ -z "$PROJECT_DIR" ]; then
+    PROJECT_DIR=$(pwd)
+  fi
+fi
+
 # 使用生成的摘要调用通知器
-cd "$CLAUDE_PROJECT_DIR"
+cd "$PROJECT_DIR"
 pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message "$SUMMARY"
 
 # 向 Claude Code 输出成功信息
