@@ -1,5 +1,5 @@
 {
-	"description": "在 Claude Code 任务完成后，发送通知",
+	"description": "在 Claude Code 任务完成后，发送通知。支持通过 Gemini AI 智能生成任务摘要。",
 	"hooks": {
 		"Stop": [
 			{
@@ -7,6 +7,17 @@
 					{
 						"type": "command",
 						"command": "pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message \"Claude Code 任务已完成\""
+					}
+				]
+			}
+		],
+		"SubagentStop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh",
+						"timeout": 10
 					}
 				]
 			}
