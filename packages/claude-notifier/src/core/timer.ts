@@ -1,8 +1,14 @@
-import { readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import os from "node:os";
-import { spawn } from "node:child_process";
-import { TimerState, LongTaskOptions, IconPreset, SoundPreset } from "../types/index.ts";
+import {
+	TimerStateFile,
+	SessionTimerState,
+	LongTaskOptions,
+	IconPreset,
+	SoundPreset,
+	HookInputData,
+} from "../types/index.ts";
 import { sendNotification } from "./notifier.ts";
 
 /**
@@ -16,174 +22,265 @@ const DEFAULT_INTERVALS = [6, 10, 18, 25, 45];
 const TIMER_STATE_FILE = path.join(os.tmpdir(), ".claude-notifier-timer.json");
 
 /**
- * 启动长任务定时器
- * @param options - 长任务配置选项
+ * 最大任务存活时间（毫秒）- 8 小时
  */
-export async function startLongTaskTimer(options: LongTaskOptions): Promise<void> {
-	const {
-		intervals = DEFAULT_INTERVALS,
-		sound = SoundPreset.WARNING,
-		icon = IconPreset.CLOCK,
-		taskDescription,
-	} = options;
-
-	// 检查是否已有定时器在运行
-	if (existsSync(TIMER_STATE_FILE)) {
-		const state = loadTimerState();
-		if (state && isProcessRunning(state.pid)) {
-			console.log("长任务定时器已在运行中");
-			return;
-		}
-	}
-
-	// 创建定时器状态
-	const state: TimerState = {
-		pid: process.pid,
-		startTime: Date.now(),
-		intervals: intervals.sort((a, b) => a - b), // 确保时间点是排序的
-		triggeredIndexes: [],
-		sound,
-		icon,
-		taskDescription,
-	};
-
-	// 保存状态
-	saveTimerState(state);
-
-	// 启动后台监控进程
-	runTimerLoop(state);
-}
+const MAX_TASK_AGE = 8 * 60 * 60 * 1000;
 
 /**
- * 停止长任务定时器
+ * 最小检查间隔（毫秒）- 10 秒
+ * 防止在很短时间内重复检查同一任务
  */
-export function stopLongTaskTimer(): void {
-	if (existsSync(TIMER_STATE_FILE)) {
-		const state = loadTimerState();
-		if (state && isProcessRunning(state.pid)) {
-			try {
-				process.kill(state.pid);
-			} catch (error) {
-				// 进程可能已经结束
-			}
-		}
-		// 删除状态文件
-		unlinkSync(TIMER_STATE_FILE);
-		console.log("长任务定时器已停止");
-	} else {
-		console.log("没有运行中的长任务定时器");
-	}
-}
+const MIN_CHECK_INTERVAL = 10 * 1000;
 
 /**
- * 获取当前定时器状态
+ * 加载所有会话状态
+ * @returns 状态文件对象
  */
-export function getTimerState(): TimerState | null {
-	if (existsSync(TIMER_STATE_FILE)) {
-		return loadTimerState();
-	}
-	return null;
-}
-
-/**
- * 运行定时器循环（后台进程）
- * @param state - 定时器状态
- */
-function runTimerLoop(state: TimerState): void {
-	const checkInterval = 30 * 1000; // 每 30 秒检查一次
-
-	const intervalId = setInterval(() => {
-		const currentState = loadTimerState();
-		if (!currentState) {
-			// 状态文件被删除，停止定时器
-			clearInterval(intervalId);
-			return;
-		}
-
-		const elapsedMinutes = (Date.now() - currentState.startTime) / 1000 / 60;
-
-		// 检查是否需要发送通知
-		for (let i = 0; i < currentState.intervals.length; i++) {
-			const intervalMinute = currentState.intervals[i];
-
-			// 如果已触发过，跳过
-			if (currentState.triggeredIndexes.includes(i)) {
-				continue;
-			}
-
-			// 如果已达到该时间点
-			if (elapsedMinutes >= intervalMinute) {
-				// 发送通知
-				const message = currentState.taskDescription
-					? `任务 "${currentState.taskDescription}" 已执行 ${intervalMinute} 分钟`
-					: `当前任务已执行 ${intervalMinute} 分钟`;
-
-				sendNotification({
-					title: "Claude Code - 长任务提醒",
-					message,
-					sound: currentState.sound,
-					icon: currentState.icon,
-				}).catch((err) => {
-					console.error("发送通知失败:", err);
-				});
-
-				// 标记为已触发
-				currentState.triggeredIndexes.push(i);
-				saveTimerState(currentState);
-			}
-		}
-
-		// 如果所有时间点都已触发，停止定时器
-		if (currentState.triggeredIndexes.length >= currentState.intervals.length) {
-			clearInterval(intervalId);
-			// 删除状态文件
-			if (existsSync(TIMER_STATE_FILE)) {
-				unlinkSync(TIMER_STATE_FILE);
-			}
-			console.log("所有长任务提醒已完成，定时器已停止");
-		}
-	}, checkInterval);
-
-	// 防止进程退出
-	intervalId.unref();
-}
-
-/**
- * 保存定时器状态到文件
- * @param state - 定时器状态
- */
-function saveTimerState(state: TimerState): void {
-	writeFileSync(TIMER_STATE_FILE, JSON.stringify(state, null, 2), "utf-8");
-}
-
-/**
- * 从文件加载定时器状态
- * @returns 定时器状态或 null
- */
-function loadTimerState(): TimerState | null {
+export function loadAllSessions(): TimerStateFile {
 	try {
 		if (!existsSync(TIMER_STATE_FILE)) {
-			return null;
+			return { sessions: {} };
 		}
 		const content = readFileSync(TIMER_STATE_FILE, "utf-8");
-		return JSON.parse(content) as TimerState;
+		const data = JSON.parse(content);
+
+		// 兼容性检查：确保数据格式正确
+		if (!data || typeof data !== "object") {
+			return { sessions: {} };
+		}
+
+		// 如果是旧格式（直接是 TimerState），忽略并返回空
+		if ("pid" in data || !("sessions" in data)) {
+			return { sessions: {} };
+		}
+
+		// 确保 sessions 字段存在且是对象
+		if (!data.sessions || typeof data.sessions !== "object") {
+			return { sessions: {} };
+		}
+
+		return data as TimerStateFile;
 	} catch (error) {
 		console.error("加载定时器状态失败:", error);
-		return null;
+		return { sessions: {} };
 	}
 }
 
 /**
- * 检查进程是否在运行
- * @param pid - 进程 ID
- * @returns 是否在运行
+ * 保存所有会话状态
+ * @param stateFile - 状态文件对象
  */
-function isProcessRunning(pid: number): boolean {
+export function saveAllSessions(stateFile: TimerStateFile): void {
 	try {
-		// 发送信号 0 来检查进程是否存在
-		process.kill(pid, 0);
-		return true;
+		writeFileSync(TIMER_STATE_FILE, JSON.stringify(stateFile, null, 2), "utf-8");
 	} catch (error) {
-		return false;
+		console.error("保存定时器状态失败:", error);
 	}
+}
+
+/**
+ * 添加或更新会话
+ * @param sessionId - 会话 ID
+ * @param options - 长任务配置选项
+ */
+export function addOrUpdateSession(sessionId: string, options?: LongTaskOptions): void {
+	const stateFile = loadAllSessions();
+	const now = Date.now();
+
+	// 如果会话已存在，只更新配置（但不重置时间）
+	if (stateFile.sessions[sessionId]) {
+		const existingSession = stateFile.sessions[sessionId];
+		if (options) {
+			existingSession.intervals = options.intervals || existingSession.intervals;
+			existingSession.sound = options.sound || existingSession.sound;
+			existingSession.icon = options.icon || existingSession.icon;
+			existingSession.taskDescription = options.taskDescription || existingSession.taskDescription;
+		}
+	} else {
+		// 创建新会话
+		stateFile.sessions[sessionId] = {
+			sessionId,
+			addedTime: now,
+			startTime: now,
+			lastCheckTime: 0,
+			intervals: options?.intervals || DEFAULT_INTERVALS,
+			triggeredIndexes: [],
+			sound: options?.sound || SoundPreset.WARNING,
+			icon: options?.icon || IconPreset.CLOCK,
+			taskDescription: options?.taskDescription,
+		};
+	}
+
+	saveAllSessions(stateFile);
+}
+
+/**
+ * 删除会话
+ * @param sessionId - 会话 ID
+ */
+export function removeSession(sessionId: string): void {
+	const stateFile = loadAllSessions();
+	if (stateFile.sessions[sessionId]) {
+		delete stateFile.sessions[sessionId];
+		saveAllSessions(stateFile);
+	}
+}
+
+/**
+ * 清理超过 8 小时的会话
+ * @returns 清理的会话数量
+ */
+export function cleanupExpiredSessions(): number {
+	const stateFile = loadAllSessions();
+	const now = Date.now();
+	let cleanedCount = 0;
+
+	for (const [sessionId, session] of Object.entries(stateFile.sessions)) {
+		const age = now - session.addedTime;
+		if (age > MAX_TASK_AGE) {
+			delete stateFile.sessions[sessionId];
+			cleanedCount++;
+		}
+	}
+
+	if (cleanedCount > 0) {
+		saveAllSessions(stateFile);
+	}
+
+	return cleanedCount;
+}
+
+/**
+ * 检查单个会话并发送通知
+ * @param sessionId - 会话 ID
+ * @returns 发送的通知数量
+ */
+export async function checkAndNotifySession(sessionId: string): Promise<number> {
+	const stateFile = loadAllSessions();
+	const session = stateFile.sessions[sessionId];
+
+	if (!session) {
+		return 0;
+	}
+
+	const now = Date.now();
+
+	// 检查是否距离上次检查太近（防止重复通知）
+	if (now - session.lastCheckTime < MIN_CHECK_INTERVAL) {
+		return 0;
+	}
+
+	// 更新上次检查时间
+	session.lastCheckTime = now;
+
+	const elapsedMinutes = (now - session.startTime) / 1000 / 60;
+	let notificationsSent = 0;
+
+	// 检查是否需要发送通知
+	for (let i = 0; i < session.intervals.length; i++) {
+		const intervalMinute = session.intervals[i];
+
+		// 如果已触发过，跳过
+		if (session.triggeredIndexes.includes(i)) {
+			continue;
+		}
+
+		// 如果已达到该时间点
+		if (elapsedMinutes >= intervalMinute) {
+			// 发送通知
+			const message = session.taskDescription
+				? `任务 "${session.taskDescription}" 已执行 ${intervalMinute} 分钟`
+				: `当前任务已执行 ${intervalMinute} 分钟`;
+
+			try {
+				await sendNotification({
+					title: "Claude Code - 长任务提醒",
+					message,
+					sound: session.sound,
+					icon: session.icon,
+				});
+				notificationsSent++;
+			} catch (err) {
+				console.error("发送通知失败:", err);
+			}
+
+			// 标记为已触发
+			session.triggeredIndexes.push(i);
+		}
+	}
+
+	// 保存更新后的状态
+	saveAllSessions(stateFile);
+
+	return notificationsSent;
+}
+
+/**
+ * 检查所有会话并发送通知
+ * @returns 发送的通知总数
+ */
+export async function checkAndNotifyAll(): Promise<number> {
+	const stateFile = loadAllSessions();
+	let totalNotifications = 0;
+
+	for (const sessionId of Object.keys(stateFile.sessions)) {
+		const count = await checkAndNotifySession(sessionId);
+		totalNotifications += count;
+	}
+
+	return totalNotifications;
+}
+
+/**
+ * 获取会话状态
+ * @param sessionId - 会话 ID
+ * @returns 会话状态或 null
+ */
+export function getSessionState(sessionId: string): SessionTimerState | null {
+	const stateFile = loadAllSessions();
+	return stateFile.sessions[sessionId] || null;
+}
+
+/**
+ * 获取所有会话状态
+ * @returns 所有会话状态
+ */
+export function getAllSessionStates(): Record<string, SessionTimerState> {
+	const stateFile = loadAllSessions();
+	return stateFile.sessions;
+}
+
+/**
+ * 从 stdin 读取 Hook 输入数据
+ * @returns Promise<HookInputData | null>
+ */
+export function readHookInput(): Promise<HookInputData | null> {
+	return new Promise((resolve) => {
+		let data = "";
+
+		process.stdin.setEncoding("utf-8");
+
+		process.stdin.on("data", (chunk) => {
+			data += chunk;
+		});
+
+		process.stdin.on("end", () => {
+			try {
+				if (!data.trim()) {
+					resolve(null);
+					return;
+				}
+				const parsed = JSON.parse(data) as HookInputData;
+				resolve(parsed);
+			} catch (error) {
+				console.error("解析 stdin JSON 失败:", error);
+				resolve(null);
+			}
+		});
+
+		process.stdin.on("error", (error) => {
+			console.error("读取 stdin 失败:", error);
+			resolve(null);
+		});
+	});
 }

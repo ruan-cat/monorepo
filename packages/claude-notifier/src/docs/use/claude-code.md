@@ -11,7 +11,55 @@ Windows: %USERPROFILE%\.claude\settings.json
 macOS/Linux: ~/.claude/settings.json
 ```
 
-## 完整配置示例
+## 推荐配置（使用 check-and-notify）
+
+**最简配置**：自动管理长任务通知
+
+```json
+{
+	"hooks": {
+		"Stop": [
+			{
+				"matcher": "os == 'windows'",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx @ruan-cat/claude-notifier check-and-notify"
+					},
+					{
+						"type": "command",
+						"command": "npx @ruan-cat/claude-notifier task-complete --message \"任务完成\""
+					}
+				]
+			}
+		],
+		"BeforeToolUse": [
+			{
+				"matcher": "os == 'windows'",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx @ruan-cat/claude-notifier check-and-notify"
+					}
+				]
+			}
+		]
+	}
+}
+```
+
+**工作机制**：
+
+- `check-and-notify` 自动从 stdin 读取 session_id
+- 首次调用时自动创建任务，默认在 6, 10, 18, 25, 45 分钟时提醒
+- `BeforeToolUse` 钩子高频调用，自动检查是否到期
+- `Stop` 钩子触发时自动清理会话数据
+- 支持多个 Claude Code 对话同时运行
+- 自动清理超过 8 小时的过期任务
+
+## 完整配置示例（旧版，仍然可用）
+
+如果你想手动管理长任务定时器（不推荐），可以使用这个配置：
 
 ```json
 {
@@ -26,25 +74,48 @@ macOS/Linux: ~/.claude/settings.json
 					}
 				]
 			}
-		],
-		"SessionStart": [
+		]
+	}
+}
+```
+
+**注意**：旧版的 `long-task` 命令已改为基于 session_id 的管理方式，不再使用后台进程。推荐使用 `check-and-notify` 命令。
+
+## check-and-notify 命令详解
+
+`check-and-notify` 是一个专为 Claude Code hooks 设计的高频调用命令，提供自动化的长任务管理。
+
+### 核心功能
+
+1. **自动创建任务**：首次检测到新的 session_id 时，自动创建长任务记录
+2. **自动删除任务**：当 `stop_hook_active = true` 时，自动删除对应会话
+3. **清理过期任务**：自动删除超过 8 小时的任务
+4. **定时通知**：检查所有任务，到期时发送通知
+5. **防重复通知**：10 秒内不会重复检查同一任务
+
+### 使用示例
+
+```json
+{
+	"hooks": {
+		"BeforeToolUse": [
 			{
 				"matcher": "os == 'windows'",
 				"hooks": [
 					{
 						"type": "command",
-						"command": "npx @ruan-cat/claude-notifier long-task --task-description \"Claude 会话\" &"
+						"command": "npx @ruan-cat/claude-notifier check-and-notify"
 					}
 				]
 			}
 		],
-		"SessionEnd": [
+		"Stop": [
 			{
 				"matcher": "os == 'windows'",
 				"hooks": [
 					{
 						"type": "command",
-						"command": "npx @ruan-cat/claude-notifier long-task --stop"
+						"command": "npx @ruan-cat/claude-notifier check-and-notify"
 					}
 				]
 			}
@@ -52,6 +123,40 @@ macOS/Linux: ~/.claude/settings.json
 	}
 }
 ```
+
+### 命令选项
+
+```bash
+# 静默模式（默认）
+npx @ruan-cat/claude-notifier check-and-notify
+
+# 查看详细日志
+npx @ruan-cat/claude-notifier check-and-notify --verbose
+
+# 禁用自动清理过期任务
+npx @ruan-cat/claude-notifier check-and-notify --no-cleanup
+
+# 禁用自动创建新任务
+npx @ruan-cat/claude-notifier check-and-notify --no-auto-create
+```
+
+### 工作流程
+
+```plain
+1. Hook 触发 → 从 stdin 读取 session_id
+2. 检查是否为新会话 → 是：创建任务记录
+3. 检查 stop_hook_active → true：删除任务，结束
+4. 清理过期任务（超过 8 小时）
+5. 遍历所有任务，检查是否到提醒时间
+6. 发送到期通知（6, 10, 18, 25, 45 分钟）
+```
+
+### 适用场景
+
+- ✅ 多个 Claude Code 对话同时运行
+- ✅ 长时间运行的会话需要定时提醒
+- ✅ 自动化管理，无需手动开启/关闭
+- ✅ 防止状态文件无限增长
 
 ## Hook 类型详解
 
@@ -99,22 +204,22 @@ macOS/Linux: ~/.claude/settings.json
 }
 ```
 
-### 2. SessionStart - 会话启动
+### 2. BeforeToolUse - 工具使用前（推荐用于 check-and-notify）
 
-当 Claude Code 会话启动时触发，可用于启动长任务监控。
+在 Claude 使用工具前触发，是 `check-and-notify` 的理想触发点。
 
-**配置示例**：
+**推荐配置**：
 
 ```json
 {
 	"hooks": {
-		"SessionStart": [
+		"BeforeToolUse": [
 			{
 				"matcher": "os == 'windows'",
 				"hooks": [
 					{
 						"type": "command",
-						"command": "npx @ruan-cat/claude-notifier long-task --intervals \"10,20,30\" --task-description \"Claude 会话\" &"
+						"command": "npx @ruan-cat/claude-notifier check-and-notify"
 					}
 				]
 			}
@@ -123,28 +228,28 @@ macOS/Linux: ~/.claude/settings.json
 }
 ```
 
-**注意事项**：
+**为什么推荐使用 BeforeToolUse**：
 
-- 命令末尾加 `&` 符号让定时器在后台运行
-- 定时器会在周期性时间间隔发送提醒会话
-- 需要在 SessionEnd 中停止定时器
+- 高频触发，确保及时检查任务状态
+- 自动从 stdin 获取 session_id
+- 不会阻塞其他操作（快速返回）
 
-### 3. SessionEnd - 会话结束
+### 3. AfterToolUse - 工具使用后
 
-当 Claude Code 会话结束时触发，用于停止长任务定时器。
+在 Claude 使用工具后触发，也可用于 `check-and-notify`。
 
 **配置示例**：
 
 ```json
 {
 	"hooks": {
-		"SessionEnd": [
+		"AfterToolUse": [
 			{
 				"matcher": "os == 'windows'",
 				"hooks": [
 					{
 						"type": "command",
-						"command": "npx @ruan-cat/claude-notifier long-task --stop"
+						"command": "npx @ruan-cat/claude-notifier check-and-notify"
 					}
 				]
 			}

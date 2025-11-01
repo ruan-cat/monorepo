@@ -12,9 +12,13 @@ Claude Code 通知工具 - 在 Claude Code 任务完成后发送 Windows 系统�
 ## 功能特性
 
 - ✅ 任务完成通知
-- ⏰ 长任务定时提醒（6, 10, 18, 25, 45 分钟）
+- ⏰ 长任务定时提醒（基于 session_id 的多会话管理）
+  - 支持多个 Claude Code 对话同时运行
+  - 自动清理过期任务（超过 8 小时）
+  - 防重复通知机制
 - ⏱️ 连接超时提醒
 - ❌ 错误通知
+- 🔄 check-and-notify 高频调用命令（推荐用于 hooks）
 - 🔊 可自定义音频预设（文件夹方式组织）
 - 🎨 可自定义图标预设（文件夹方式组织）
 - 🪟 支持 Windows 系统
@@ -49,7 +53,7 @@ npx @ruan-cat/claude-notifier --help
 
 ### Claude Code Hooks 集成
 
-在 `~/.claude/settings.json` 中配置：
+推荐配置：使用 `check-and-notify` 命令实现自动长任务管理
 
 ```json
 {
@@ -60,7 +64,22 @@ npx @ruan-cat/claude-notifier --help
 				"hooks": [
 					{
 						"type": "command",
+						"command": "npx @ruan-cat/claude-notifier check-and-notify"
+					},
+					{
+						"type": "command",
 						"command": "npx @ruan-cat/claude-notifier task-complete --message \"任务完成\""
+					}
+				]
+			}
+		],
+		"BeforeToolUse": [
+			{
+				"matcher": "os == 'windows'",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx @ruan-cat/claude-notifier check-and-notify"
 					}
 				]
 			}
@@ -68,6 +87,13 @@ npx @ruan-cat/claude-notifier --help
 	}
 }
 ```
+
+**工作机制**：
+
+- `check-and-notify` 会自动从 stdin 读取 session_id
+- 首次调用时自动创建任务，开始计时
+- 到达预设时间点时（6, 10, 18, 25, 45 分钟）自动发送通知
+- 会话结束后自动清理任务数据
 
 ## 📚 使用文档
 
@@ -131,16 +157,37 @@ npx @ruan-cat/claude-notifier task-complete \
 
 ### long-task - 长任务监控
 
-```bash
-# 启动监控（默认 6,10,18,25,45 分钟提醒）
-npx @ruan-cat/claude-notifier long-task
+基于 session_id 的多会话管理系统，支持同时管理多个 Claude Code 对话。
 
-# 查看状态
+```bash
+# 从 stdin 读取 session_id 并注册任务
+echo '{"session_id":"my-session"}' | npx @ruan-cat/claude-notifier long-task
+
+# 查看所有会话状态
 npx @ruan-cat/claude-notifier long-task --status
 
-# 停止监控
-npx @ruan-cat/claude-notifier long-task --stop
+# 手动指定 session_id（测试用途）
+npx @ruan-cat/claude-notifier long-task --session-id "test-123"
 ```
+
+### check-and-notify - 定时检查和通知（推荐用于 hooks）
+
+高频调用命令，用于 Claude Code hooks 集成。自动管理会话任务、清理过期数据、发送到期通知。
+
+```bash
+# 从 stdin 读取 hook 数据并自动处理
+npx @ruan-cat/claude-notifier check-and-notify
+
+# 查看详细日志
+npx @ruan-cat/claude-notifier check-and-notify --verbose
+```
+
+**特性**：
+
+- ✅ 自动创建新会话任务
+- ✅ 自动清理超过 8 小时的任务
+- ✅ 防重复通知（10 秒内不重复）
+- ✅ 支持多个 Claude Code 对话同时运行
 
 ### timeout - 超时通知
 

@@ -8,6 +8,7 @@ import { createTaskCompleteCommand } from "./commands/task-complete.ts";
 import { createLongTaskCommand } from "./commands/long-task.ts";
 import { createTimeoutCommand } from "./commands/timeout.ts";
 import { createErrorCommand } from "./commands/error.ts";
+import { createCheckAndNotifyCommand } from "./commands/check-and-notify.ts";
 
 // 获取当前文件的目录
 const __filename = fileURLToPath(import.meta.url);
@@ -33,6 +34,7 @@ program
 // 注册所有子命令
 program.addCommand(createTaskCompleteCommand());
 program.addCommand(createLongTaskCommand());
+program.addCommand(createCheckAndNotifyCommand());
 program.addCommand(createTimeoutCommand());
 program.addCommand(createErrorCommand());
 
@@ -44,14 +46,14 @@ program.on("--help", () => {
 	console.log("  # 任务完成通知");
 	console.log('  npx @ruan-cat/claude-notifier task-complete --message "任务已完成"');
 	console.log("");
-	console.log("  # 启动长任务监控（6, 10, 18, 25, 45 分钟提醒）");
-	console.log("  npx @ruan-cat/claude-notifier long-task");
+	console.log("  # 启动长任务监控（从 stdin 读取 session_id）");
+	console.log('  echo \'{"session_id":"test-123"}\' | npx @ruan-cat/claude-notifier long-task');
 	console.log("");
-	console.log("  # 查看长任务定时器状态");
+	console.log("  # 查看所有长任务定时器状态");
 	console.log("  npx @ruan-cat/claude-notifier long-task --status");
 	console.log("");
-	console.log("  # 停止长任务定时器");
-	console.log("  npx @ruan-cat/claude-notifier long-task --stop");
+	console.log("  # 检查并通知所有长任务（配置到 hooks 使用）");
+	console.log("  npx @ruan-cat/claude-notifier check-and-notify");
 	console.log("");
 	console.log("  # 连接超时通知");
 	console.log('  npx @ruan-cat/claude-notifier timeout --message "连接超时"');

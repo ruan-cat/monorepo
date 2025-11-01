@@ -10,7 +10,19 @@ export * from "./types/index.ts";
 
 // 导出核心功能
 export { sendNotification, quickNotify } from "./core/notifier.ts";
-export { startLongTaskTimer, stopLongTaskTimer, getTimerState } from "./core/timer.ts";
+export {
+	// 新的基于 session_id 的 API
+	addOrUpdateSession,
+	removeSession,
+	cleanupExpiredSessions,
+	checkAndNotifySession,
+	checkAndNotifyAll,
+	getSessionState,
+	getAllSessionStates,
+	readHookInput,
+	loadAllSessions,
+	saveAllSessions,
+} from "./core/timer.ts";
 
 // 导出配置
 export { SOUND_PRESET_MAP, resolveSoundConfig } from "./config/sounds.ts";
@@ -19,5 +31,6 @@ export { ICON_PRESET_MAP, resolveIconConfig } from "./config/icons.ts";
 // 导出命令（供编程式使用）
 export { createTaskCompleteCommand } from "./commands/task-complete.ts";
 export { createLongTaskCommand } from "./commands/long-task.ts";
+export { createCheckAndNotifyCommand } from "./commands/check-and-notify.ts";
 export { createTimeoutCommand } from "./commands/timeout.ts";
 export { createErrorCommand } from "./commands/error.ts";

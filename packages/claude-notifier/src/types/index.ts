@@ -113,7 +113,7 @@ export interface ErrorOptions {
 }
 
 /**
- * 定时器状态
+ * 定时器状态（旧版，保留用于兼容性）
  */
 export interface TimerState {
 	/** 进程 ID */
@@ -130,4 +130,58 @@ export interface TimerState {
 	icon?: string;
 	/** 任务描述 */
 	taskDescription?: string;
+}
+
+/**
+ * 单个会话的定时器状态
+ */
+export interface SessionTimerState {
+	/** 会话 ID */
+	sessionId: string;
+	/** 任务添加到状态文件的时间戳 */
+	addedTime: number;
+	/** 会话启动时间戳 */
+	startTime: number;
+	/** 上次检查时间戳（用于防止重复通知） */
+	lastCheckTime: number;
+	/** 提醒时间点（分钟） */
+	intervals: number[];
+	/** 已触发的提醒索引 */
+	triggeredIndexes: number[];
+	/** 音频预设 */
+	sound?: string;
+	/** 图标预设 */
+	icon?: string;
+	/** 任务描述 */
+	taskDescription?: string;
+}
+
+/**
+ * 所有会话的定时器状态文件结构
+ */
+export interface TimerStateFile {
+	/** 所有会话的状态，键为 session_id */
+	sessions: Record<string, SessionTimerState>;
+}
+
+/**
+ * Claude Code Hooks 输入数据
+ */
+export interface HookInputData {
+	/** 会话 ID */
+	session_id: string;
+	/** 对话记录路径 */
+	transcript_path?: string;
+	/** 当前工作目录 */
+	cwd?: string;
+	/** 权限模式 */
+	permission_mode?: string;
+	/** Hook 事件名称 */
+	hook_event_name?: string;
+	/** Stop Hook 是否激活（用于防止无限循环） */
+	stop_hook_active?: boolean;
+	/** 工具名称 */
+	tool_name?: string;
+	/** 工具输入 */
+	tool_input?: unknown;
 }
