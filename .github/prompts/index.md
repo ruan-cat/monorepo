@@ -2,9 +2,6 @@
 
 ## 本项目待办任务
 
-- 测试，并制作有意义的 claude code hooks 配置。
-- 分发到 claude code 插件仓库内。
-
 - @ruan-cat/vercel-deploy-tool 运行时增加 dry 模式，干燥运行整个流程，不实际真的部署。模仿【turbo run build:docs --dry-run】的方式。
 - 编写掘金文章，说明对 dry 模式的思考与设计。
 
