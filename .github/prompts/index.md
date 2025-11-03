@@ -72,3 +72,13 @@
 
 1. 为本次修改及时更新说明文档。
 2. 更新 claude code 插件的版本号。
+
+## 07 排查为什么电脑有那么多未关闭的 npx
+
+如下图所示：
+
+![2025-11-03-22-36-12](https://s2.loli.net/2025/11/03/aZN7IuxryEofFnY.png)
+
+自从我使用了 `@ruan-cat/claude-notifier` 包，以 `pnpm dlx @ruan-cat/claude-notifier ...` 的方式高强度调用该工具时，我 window 电脑就出现了好多未关闭的 npx 。
+
+这是怎么一回事呢？为什么会出现这种情况？多个未关闭的 npx 确定和 `@ruan-cat/claude-notifier` 包有关系么？

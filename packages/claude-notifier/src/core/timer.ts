@@ -280,11 +280,30 @@ export function getAllTaskStates(): Record<string, TaskState> {
 
 /**
  * 从 stdin 读取 Hook 输入数据
+ *
+ * 添加超时机制防止进程挂起：
+ * - 如果 stdin 在 500ms 内没有数据或未关闭，自动返回 null
+ * - 防止进程永久挂起导致大量未关闭的 npx 进程累积
+ *
  * @returns Promise<HookInputData | null>
  */
 export function readHookInput(): Promise<HookInputData | null> {
 	return new Promise((resolve) => {
 		let data = "";
+		let resolved = false;
+
+		// 设置超时时间（500ms）
+		// 如果 stdin 没有数据或未正确关闭，在超时后自动返回 null
+		const timeout = setTimeout(() => {
+			if (!resolved) {
+				resolved = true;
+				// 清理事件监听器，避免内存泄漏
+				process.stdin.removeAllListeners("data");
+				process.stdin.removeAllListeners("end");
+				process.stdin.removeAllListeners("error");
+				resolve(null);
+			}
+		}, 500);
 
 		process.stdin.setEncoding("utf-8");
 
@@ -293,22 +312,30 @@ export function readHookInput(): Promise<HookInputData | null> {
 		});
 
 		process.stdin.on("end", () => {
-			try {
-				if (!data.trim()) {
+			if (!resolved) {
+				resolved = true;
+				clearTimeout(timeout);
+				try {
+					if (!data.trim()) {
+						resolve(null);
+						return;
+					}
+					const parsed = JSON.parse(data) as HookInputData;
+					resolve(parsed);
+				} catch (error) {
+					console.error("解析 stdin JSON 失败:", error);
 					resolve(null);
-					return;
 				}
-				const parsed = JSON.parse(data) as HookInputData;
-				resolve(parsed);
-			} catch (error) {
-				console.error("解析 stdin JSON 失败:", error);
-				resolve(null);
 			}
 		});
 
 		process.stdin.on("error", (error) => {
-			console.error("读取 stdin 失败:", error);
-			resolve(null);
+			if (!resolved) {
+				resolved = true;
+				clearTimeout(timeout);
+				console.error("读取 stdin 失败:", error);
+				resolve(null);
+			}
 		});
 	});
 }
