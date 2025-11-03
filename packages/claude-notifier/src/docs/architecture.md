@@ -103,7 +103,8 @@ program.parse();
 **导出内容**：
 
 - 所有 TypeScript 类型定义
-- 核心函数（sendNotification, quickNotify, startLongTaskTimer 等）
+- 核心函数（sendNotification, quickNotify）
+- 长任务管理 API（addOrResetTask, removeTask, checkAndNotifyTask 等）
 - 配置模块（resolveSoundConfig, resolveIconConfig）
 - 子命令创建函数（供高级用户使用）
 
@@ -125,17 +126,41 @@ export async function quickNotify(message: string, title?: string): Promise<void
 - 处理文件不存在的容错逻辑
 - 仅支持 Windows 平台
 
-### 4. 长任务定时器 (`src/core/timer.ts`)
+### 4. 长任务管理器 (`src/core/timer.ts`)
 
-**职责**：管理后台监控和周期性提醒。
+**职责**：基于 cwd 管理长任务的定时提醒。
 
 **工作机制**：
 
-- 在 JSON 文件中保存定时器状态
-- 每 30 秒检查一次时间间隔
-- 所有时间间隔触发后自动停止
+- 使用当前工作目录（cwd）作为任务唯一标识
+- 在 JSON 文件中保存所有任务状态
+- 通过 `check-and-notify` 命令进行高频检查（由 Claude Code hooks 触发）
+- 根据 `hook_event_name` 智能处理不同事件：
+  - SessionStart: 跳过通知
+  - UserPromptSubmit: 无条件删除旧任务并创建新任务
+  - SessionEnd: 删除任务
+  - Stop/SubagentStop: 删除任务
+  - 其他事件: 检查并通知
+- 自动清理超过 8 小时的过期任务
+- lastCheckTime 立即保存，防止重复通知（10 秒内不重复检查）
 
-**状态文件位置**：`os.tmpdir() + ".claude-notifier-timer.json"`
+**状态文件位置**：`os.tmpdir() + "/.claude-notifier-timer.json"`
+
+**状态文件格式**（基于 cwd）：
+
+```json
+{
+	"tasks": {
+		"D:\\code\\project1": {
+			"cwd": "D:\\code\\project1",
+			"addedTime": "2025-01-15 10:30:00",
+			"startTime": "2025-01-15 10:30:00",
+			"lastCheckTime": "2025-01-15 10:35:00",
+			"triggeredIndexes": [6]
+		}
+	}
+}
+```
 
 ### 5. 资源配置 (`src/config/`)
 
@@ -181,11 +206,20 @@ export function findResourceDir(currentDirname: string, resourceType: string): s
 - 允许用户自定义预设并指定文件
 - 允许灵活扩展
 
-### 为什么长任务定时器在后台运行？
+### 为什么使用基于 cwd 的任务管理？
 
-- Claude Code hooks 不支持定时触发
-- hooks 的执行有 60 秒超时限制
-- 需要独立进程长时间监控
+- 支持多个工作目录同时运行独立任务
+- 通过 Claude Code hooks 的高频触发实现检查（避免后台进程）
+- 使用 hook_event_name 智能判断当前应该执行的操作
+- 更简单的状态管理，无需管理 session_id
+- 防止重复通知：lastCheckTime 立即保存，10 秒内不重复检查
+
+### 为什么删除了基于 session_id 的旧 API？
+
+- 旧的基于 session_id 的设计已被基于 cwd 的设计完全替代
+- 新设计更简洁、更可靠，避免了 session_id 管理的复杂性
+- 移除废弃代码减少维护成本
+- 用户应该迁移到新的 API（addOrResetTask、checkAndNotifyTask 等）
 
 ### 为什么默认格式是 MP3？
 

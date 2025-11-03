@@ -160,12 +160,14 @@ long-task 命令现在是一个纯样式化的通知命令，类似于 `task-com
 **核心功能**：
 
 - ✅ 基于 cwd 区分任务，支持多工作目录
-- ✅ **UserPromptSubmit 事件**：添加/重置任务（删除旧任务，创建新任务）
+- ✅ **SessionStart 事件**：跳过通知，避免会话启动时的干扰
+- ✅ **UserPromptSubmit 事件**：无条件删除旧任务并创建新任务，确保每次用户输入都重新计时
+- ✅ **SessionEnd 事件**：删除任务，不做通知，确保会话结束时清理任务
 - ✅ **Stop/SubagentStop 事件**：删除任务（当 stop_hook_active=true 时）
 - ✅ **其他事件**：检查任务并发送通知
 - ✅ 清理超过 8 小时的过期任务
 - ✅ 精确时间差计算（显示"X 分 Y 秒"）
-- ✅ 防重复通知（10 秒内不重复检查）
+- ✅ 防重复通知（10 秒内不重复检查，lastCheckTime 立即保存）
 
 **基本使用**：
 
@@ -209,9 +211,11 @@ npx @ruan-cat/claude-notifier check-and-notify --no-auto-create
    ↓
    解析 cwd, hook_event_name, stop_hook_active 等字段
    ↓
-2. 根据 hook_event_name 处理
+2. 根据 hook_event_name 智能处理
    ↓
-   UserPromptSubmit: 添加/重置任务 → 结束
+   SessionStart: 跳过通知 → 结束
+   UserPromptSubmit: 无条件删除旧任务并创建新任务 → 结束
+   SessionEnd: 删除任务 → 结束
    Stop/SubagentStop (stop_hook_active=true): 删除任务 → 结束
    其他事件: 继续执行后续流程
    ↓
@@ -221,6 +225,8 @@ npx @ruan-cat/claude-notifier check-and-notify --no-auto-create
    ↓
 4. 检查并通知
    ↓
+   检查是否距离上次检查太近（10秒内）
+   立即更新并保存 lastCheckTime（防止重复通知）
    遍历所有任务，检查是否到提醒时间
    发送精确时间差通知（"X分Y秒"）
    标题显示阶段（如"长任务提醒：6分钟阶段"）
@@ -494,10 +500,12 @@ npm run build && \
 
 **效果**：
 
-- 会话开始后自动创建长任务记录
+- SessionStart 时不做任何通知，避免干扰
+- UserPromptSubmit 时自动创建长任务记录（无条件删除旧任务）
 - 到达 6, 10, 18, 25, 45 分钟时自动提醒
-- 会话结束后自动清理任务数据
+- SessionEnd 和 Stop 时自动清理任务数据
 - 支持多个 Claude Code 对话同时运行
+- 防止重复通知（lastCheckTime 立即保存）
 
 ### 场景 4：查看长任务状态
 

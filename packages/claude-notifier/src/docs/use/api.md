@@ -196,52 +196,80 @@ await sendNotification({
 });
 ```
 
-## 长任务监控
+## 长任务管理（基于 cwd）
 
-### 启动长任务定时器
+### 添加或重置任务
 
 ```typescript
-import { startLongTaskTimer, SoundPreset, IconPreset } from "@ruan-cat/claude-notifier";
+import { addOrResetTask } from "@ruan-cat/claude-notifier";
 
-// 使用默认时间点（6, 10, 18, 25, 45 分钟）
-await startLongTaskTimer({
-	taskDescription: "数据处理任务",
-});
-
-// 自定义时间点
-await startLongTaskTimer({
-	intervals: [5, 10, 15], // 在 5、10、15 分钟提醒
-	sound: SoundPreset.WARNING,
-	icon: IconPreset.CLOCK,
-	taskDescription: "长时间运行的任务",
-});
+// 为当前工作目录添加或重置任务
+const cwd = process.cwd();
+addOrResetTask(cwd);
 ```
 
-### 停止长任务定时器
+### 删除任务
 
 ```typescript
-import { stopLongTaskTimer } from "@ruan-cat/claude-notifier";
+import { removeTask } from "@ruan-cat/claude-notifier";
 
-// 停止当前运行的定时器
-stopLongTaskTimer();
+// 删除指定 cwd 的任务
+const cwd = process.cwd();
+removeTask(cwd);
 ```
 
-### 查询定时器状态
+### 查询任务状态
 
 ```typescript
-import { getTimerState } from "@ruan-cat/claude-notifier";
+import { getTaskState, getAllTaskStates, formatTimeDiff } from "@ruan-cat/claude-notifier";
 
-// 获取当前定时器状态
-const state = getTimerState();
+// 获取指定 cwd 的任务状态
+const cwd = process.cwd();
+const state = getTaskState(cwd);
 
 if (state) {
-	const elapsedMinutes = Math.floor((Date.now() - state.startTime) / 1000 / 60);
-	console.log(`定时器已运行: ${elapsedMinutes} 分钟`);
-	console.log(`提醒间隔: ${state.intervals.join(", ")} 分钟`);
-	console.log(`已完成: ${state.triggeredIndexes.length}/${state.intervals.length} 次`);
+	const timeDiff = formatTimeDiff(state.startTime);
+	console.log(`任务已运行: ${timeDiff}`);
+	console.log(`已触发的提醒: ${state.triggeredIndexes.join(", ")} 分钟`);
 } else {
-	console.log("当前无运行中的定时器");
+	console.log("当前无运行中的任务");
 }
+
+// 获取所有任务状态
+const allTasks = getAllTaskStates();
+for (const [cwd, task] of Object.entries(allTasks)) {
+	console.log(`CWD: ${cwd}`);
+	console.log(`  运行时长: ${formatTimeDiff(task.startTime)}`);
+	console.log(`  已触发: ${task.triggeredIndexes.length} 次`);
+}
+```
+
+### 检查并通知任务
+
+```typescript
+import { checkAndNotifyTask, checkAndNotifyAllTasks } from "@ruan-cat/claude-notifier";
+
+// 检查并通知指定 cwd 的任务
+const cwd = process.cwd();
+const notificationsSent = await checkAndNotifyTask(cwd);
+console.log(`发送了 ${notificationsSent} 条通知`);
+
+// 检查并通知所有任务
+const totalNotifications = await checkAndNotifyAllTasks();
+console.log(`总共发送了 ${totalNotifications} 条通知`);
+
+// 自定义提醒间隔
+const customNotifications = await checkAndNotifyAllTasks([5, 10, 15, 20]);
+```
+
+### 清理过期任务
+
+```typescript
+import { cleanupExpiredTasks } from "@ruan-cat/claude-notifier";
+
+// 清理超过 8 小时的任务
+const cleanedCount = cleanupExpiredTasks();
+console.log(`已清理 ${cleanedCount} 个过期任务`);
 ```
 
 ## 完整示例
@@ -309,31 +337,30 @@ async function runTests() {
 runTests();
 ```
 
-### 示例 3：长任务监控
+### 示例 3：长任务管理（基于 cwd）
 
 ```typescript
 import {
-	startLongTaskTimer,
-	stopLongTaskTimer,
+	addOrResetTask,
+	removeTask,
+	checkAndNotifyAllTasks,
 	sendNotification,
 	SoundPreset,
 	IconPreset,
 } from "@ruan-cat/claude-notifier";
 
 async function processLargeDataset() {
-	// 启动定时器
-	await startLongTaskTimer({
-		intervals: [5, 10, 20, 30], // 5, 10, 20, 30 分钟提醒
-		taskDescription: "正在处理大数据集",
-		sound: SoundPreset.WARNING,
-	});
+	const cwd = process.cwd();
+
+	// 添加任务
+	addOrResetTask(cwd);
 
 	try {
 		// 执行长时间任务
 		await processData();
 
-		// 任务完成，停止定时器
-		stopLongTaskTimer();
+		// 任务完成，删除任务
+		removeTask(cwd);
 
 		// 发送完成通知
 		await sendNotification({
@@ -343,8 +370,8 @@ async function processLargeDataset() {
 			icon: IconPreset.SUCCESS,
 		});
 	} catch (error) {
-		// 出错，停止定时器
-		stopLongTaskTimer();
+		// 出错，删除任务
+		removeTask(cwd);
 
 		// 发送错误通知
 		await sendNotification({
@@ -356,8 +383,15 @@ async function processLargeDataset() {
 	}
 }
 
+// 在后台定期检查并通知
+setInterval(async () => {
+	await checkAndNotifyAllTasks([5, 10, 20, 30]);
+}, 30000); // 每 30 秒检查一次
+
 processLargeDataset();
 ```
+
+**注意**：对于 Claude Code hooks 场景，推荐使用 `check-and-notify` 命令，它会自动处理任务的创建、检查和删除。
 
 ### 示例 4：文件监控器
 
@@ -466,10 +500,35 @@ import type {
 	TaskCompleteOptions,
 	TimeoutOptions,
 	ErrorOptions,
-	TimerState,
+	TaskState,
+	TimerStateFile,
+	HookInputData,
 	SoundPreset,
 	IconPreset,
 } from "@ruan-cat/claude-notifier";
+
+// TaskState - 单个任务的状态
+interface TaskState {
+	cwd: string;
+	addedTime: string; // 语义化时间字符串
+	startTime: string; // 语义化时间字符串
+	lastCheckTime: string; // 语义化时间字符串
+	triggeredIndexes: number[]; // 已触发的分钟值数组
+}
+
+// TimerStateFile - 定时器状态文件结构
+interface TimerStateFile {
+	tasks: Record<string, TaskState>;
+}
+
+// HookInputData - Claude Code hooks 输入数据
+interface HookInputData {
+	session_id: string;
+	cwd?: string;
+	hook_event_name?: string;
+	stop_hook_active?: boolean;
+	// ... 其他字段
+}
 ```
 
 ## 最佳实践

@@ -51,12 +51,15 @@ macOS/Linux: ~/.claude/settings.json
 **工作机制**：
 
 - `check-and-notify` 从 stdin 读取 hook 数据（cwd、hook_event_name 等）
-- **UserPromptSubmit**: 开始新任务，删除该 cwd 下的旧任务
+- **SessionStart**: 跳过通知，避免会话启动时的干扰
+- **UserPromptSubmit**: 无条件删除旧任务并创建新任务，确保每次用户输入都重新计时
+- **SessionEnd**: 删除任务，不做通知，确保会话结束时清理任务
 - **Stop/SubagentStop**: 删除任务（当 stop_hook_active=true 时）
 - **其他事件**: 检查任务，到达时间点时自动通知（默认：6, 10, 18, 25, 45 分钟）
 - 通知文本精确显示"X 分 Y 秒"，标题显示阶段（如"长任务提醒：6 分钟阶段"）
 - 基于 cwd 区分任务，支持多工作目录同时运行
 - 自动清理超过 8 小时的过期任务
+- 防止重复通知（lastCheckTime 立即保存，10 秒内不重复检查）
 
 ## 完整配置示例（旧版，仍然可用）
 
@@ -89,13 +92,15 @@ macOS/Linux: ~/.claude/settings.json
 ### 核心功能
 
 1. **智能事件处理**：根据 `hook_event_name` 自动决定操作
-   - UserPromptSubmit: 添加/重置任务
+   - SessionStart: 跳过通知
+   - UserPromptSubmit: 无条件删除旧任务并创建新任务
+   - SessionEnd: 删除任务
    - Stop/SubagentStop: 删除任务
    - 其他事件: 检查并通知
 2. **基于 cwd 管理**：使用当前工作目录区分不同任务
 3. **精确时间计算**：通知显示"X 分 Y 秒"格式的精确时间差
 4. **清理过期任务**：自动删除超过 8 小时的任务
-5. **防重复通知**：10 秒内不会重复检查同一任务
+5. **防重复通知**：lastCheckTime 立即保存，10 秒内不会重复检查同一任务
 
 ### 使用示例
 
@@ -148,13 +153,18 @@ npx @ruan-cat/claude-notifier check-and-notify --no-auto-create
 
 ```plain
 1. Hook 触发 → 从 stdin 读取 cwd, hook_event_name, stop_hook_active
-2. 根据 hook_event_name 处理：
-   - UserPromptSubmit: 添加/重置任务 → 结束
+2. 根据 hook_event_name 智能处理：
+   - SessionStart: 跳过通知 → 结束
+   - UserPromptSubmit: 无条件删除旧任务并创建新任务 → 结束
+   - SessionEnd: 删除任务 → 结束
    - Stop/SubagentStop (stop_hook_active=true): 删除任务 → 结束
    - 其他事件: 继续后续流程
 3. 清理过期任务（超过 8 小时）
-4. 遍历所有任务，检查是否到提醒时间
-5. 发送精确时间差通知（"X分Y秒"，标题显示阶段）
+4. 检查并通知：
+   - 检查是否距离上次检查太近（10秒内）
+   - 立即更新并保存 lastCheckTime（防止重复通知）
+   - 遍历所有任务，检查是否到提醒时间
+   - 发送精确时间差通知（"X分Y秒"，标题显示阶段）
 ```
 
 ### 适用场景
