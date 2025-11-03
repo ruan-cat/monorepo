@@ -1,5 +1,8 @@
 name: Release
 
+# 该文件的文件名和后缀名与 npm 的 OIPC 配置高度耦合
+# npm 的可信任发布 高度耦合该文件，所以不能随意修改
+
 env:
   # https://turborepo.com/docs/crafting-your-repository/constructing-ci#enabling-remote-caching
   # https://vercel.com/docs/monorepos/remote-caching#use-remote-caching-from-external-ci/cd
