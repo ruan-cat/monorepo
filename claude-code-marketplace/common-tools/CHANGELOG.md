@@ -5,6 +5,85 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.5.1] - 2025-11-03
+
+### Fixed
+
+- **🐞 Stop hook 阻塞问题**: 修复了 `● Stop hook prevented continuation` 导致 Claude Code 无法继续执行的严重问题
+  - **问题原因 1**：`tee` 命令导致 I/O 管道阻塞
+    - 在 Gemini API 调用中使用 `2>&1 | tee -a "$LOG_FILE"` 同时记录日志和捕获输出
+    - 管道操作在 Windows Git Bash 环境中可能挂起
+  - **问题原因 2**：`pnpm dlx` 调用挂起
+    - 通知器使用 `pnpm dlx` 可能需要下载包，时间不可控
+    - Windows 环境下 `timeout` 命令对进程组的控制不可靠
+  - **问题原因 3**：缺少全局错误处理
+    - 没有错误陷阱确保脚本总是返回成功
+    - 异常情况下会阻塞 Claude Code
+
+- **修复方案**：
+  1. 移除 `tee` 命令，改用分离的日志记录方式
+     - 先捕获完整输出到变量
+     - 再分别写入日志文件和提取结果
+     - 避免管道阻塞
+  2. 通知器后台运行
+     - 使用子进程 `(...)&` 在后台执行
+     - 不等待通知器完成，主脚本立即继续
+     - 添加 8 秒超时保护
+  3. 添加错误陷阱
+     - 使用 `trap` 捕获 `ERR` 和 `EXIT` 信号
+     - 确保脚本总是返回 `{"decision": "proceed"}`
+     - 防止异常导致 hook 阻塞
+  4. 优化超时时间
+     - Gemini flash: 5s（快速响应）
+     - Gemini pro: 5s（从 8s 优化）
+     - Default model: 4s（更短超时）
+     - 通知器: 8s（后台运行）
+
+- **测试结果**：
+  - ✅ 脚本在约 17 秒内完成（包括 3 次 Gemini 调用）
+  - ✅ 返回有效的 JSON 输出：`{"decision": "proceed", "additionalContext": "..."}`
+  - ✅ 即使 Gemini 和通知器失败，也能正常返回
+  - ✅ 不再阻塞 Claude Code
+
+### Technical Details
+
+#### 修复前的代码（会阻塞）
+
+```bash
+# 问题 1: tee 命令导致管道阻塞
+SUMMARY=$(timeout 5s gemini ... 2>&1 | tee -a "$LOG_FILE" | head -n 1)
+
+# 问题 2: pnpm dlx 可能挂起，且等待完成
+NOTIFIER_OUTPUT=$(pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message "$SUMMARY" 2>&1)
+
+# 问题 3: 缺少错误处理
+# 如果任何步骤失败，脚本就会挂起或返回错误
+```
+
+#### 修复后的代码（不阻塞）
+
+```bash
+# 修复 1: 分离日志记录和输出捕获
+GEMINI_OUTPUT=$(timeout 5s gemini ... 2>&1 || echo "")
+echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
+SUMMARY=$(echo "$GEMINI_OUTPUT" | head -n 1 | tr -d '\n')
+
+# 修复 2: 通知器后台运行
+(
+  cd "$PROJECT_DIR" 2>/dev/null || cd /
+  timeout 8s pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message "$SUMMARY" >> "$LOG_FILE" 2>&1
+) &
+log "Notifier started in background (PID: $!)"
+
+# 修复 3: 错误陷阱确保总是成功返回
+trap 'log "Script interrupted, returning success"; echo "{\"decision\": \"proceed\"}"; exit 0' ERR EXIT
+```
+
+### References
+
+- 问题分析：参见 `.github/prompts/index.md` 第 86-151 行
+- 修复代码：`scripts/task-complete-notifier.sh`
+
 ## [0.5.0] - 2025-11-03
 
 ### Added

@@ -82,3 +82,73 @@
 自从我使用了 `@ruan-cat/claude-notifier` 包，以 `pnpm dlx @ruan-cat/claude-notifier ...` 的方式高强度调用该工具时，我 window 电脑就出现了好多未关闭的 npx 。
 
 这是怎么一回事呢？为什么会出现这种情况？多个未关闭的 npx 确定和 `@ruan-cat/claude-notifier` 包有关系么？
+
+## 08 ~~处理 `● Stop hook prevented continuation` 故障提示~~ ✅ 已解决
+
+**问题描述：**
+
+在使用 claude code 插件时，出现提示 `● Stop hook prevented continuation`，导致 Claude Code 无法继续执行。
+
+![2025-11-03-23-03-59](https://s2.loli.net/2025/11/03/gDTIvcAUodlhQup.png)
+
+**根本原因分析：**
+
+1. **`tee` 命令导致 I/O 阻塞**
+   - 在 Gemini API 调用中使用 `2>&1 | tee -a "$LOG_FILE"` 同时记录日志和捕获输出
+   - 管道阻塞导致脚本挂起
+
+2. **`pnpm dlx` 调用挂起**
+   - 通知器调用使用 `pnpm dlx` 可能需要下载包
+   - Windows Git Bash 中 `timeout` 命令不可靠
+
+3. **缺少全局错误处理**
+   - 没有错误陷阱确保脚本总是返回成功
+   - 异常时阻塞 Stop hook
+
+**修复方案（已实施）：**
+
+1. **移除 `tee` 命令，改用分离的日志记录方式**
+
+   ```bash
+   # 修复前（会阻塞）
+   SUMMARY=$(timeout 5s gemini ... 2>&1 | tee -a "$LOG_FILE" | head -n 1)
+
+   # 修复后（不阻塞）
+   GEMINI_OUTPUT=$(timeout 5s gemini ... 2>&1 || echo "")
+   echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
+   SUMMARY=$(echo "$GEMINI_OUTPUT" | head -n 1 | tr -d '\n')
+   ```
+
+2. **通知器后台运行，避免阻塞主流程**
+
+   ```bash
+   # 修复后：后台运行，不等待完成
+   (
+     cd "$PROJECT_DIR" 2>/dev/null || cd /
+     timeout 8s pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message "$SUMMARY" >> "$LOG_FILE" 2>&1
+   ) &
+   log "Notifier started in background (PID: $!)"
+   ```
+
+3. **添加错误陷阱，确保总是返回成功**
+
+   ```bash
+   trap 'log "Script interrupted, returning success"; echo "{\"decision\": \"proceed\"}"; exit 0' ERR EXIT
+   ```
+
+4. **优化超时时间，确保快速返回**
+   - Gemini flash: 5s
+   - Gemini pro: 5s
+   - Default model: 4s
+   - 通知器: 8s（后台）
+
+**测试结果：**
+
+- ✅ 脚本能在约 17 秒内完成
+- ✅ 返回有效的 JSON 输出：`{"decision": "proceed", "additionalContext": "..."}`
+- ✅ 即使 Gemini 和通知器失败，也能正常返回
+- ✅ 不再阻塞 Claude Code
+
+**相关文件：**
+
+- claude-code-marketplace/common-tools/scripts/task-complete-notifier.sh:6-273

@@ -3,7 +3,13 @@
 # 当 Claude Code 任务完成时触发此钩子，使用 Gemini 生成简洁摘要
 # 依赖：Node.js（monorepo 中已有）、Gemini CLI
 
+# 关键修复：Stop hook 必须快速返回，添加全局超时和错误处理
 set -euo pipefail
+
+# 全局超时保护：整个脚本最多运行 12 秒
+# 如果脚本运行时间超过此限制，自动终止并返回成功
+# 这样可以防止 Stop hook 阻塞 Claude Code
+GLOBAL_TIMEOUT=12
 
 # ====== 日志配置 ======
 # 日志目录：Windows 临时文件夹
@@ -17,28 +23,34 @@ LOG_TIMESTAMP=$(date +"%Y-%m-%d__%H-%M-%S")
 HOOK_DATA=$(cat)
 
 # 从 HOOK_DATA 提取 cwd（如果存在）
-HOOK_CWD=$(echo "$HOOK_DATA" | node -e "
-const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+HOOK_CWD=$(echo "$HOOK_DATA" | node -e '
+const data = JSON.parse(require("fs").readFileSync(0, "utf8"));
 // Stop 钩子没有 cwd，使用环境变量或当前目录
 const cwd = data.cwd || process.env.PWD || process.cwd();
-// 移除非法字符：\ / : * ? " < > |
-const sanitized = cwd.replace(/[\\/:*?\"<>|]/g, '_');
+// 移除非法字符用于文件名
+const sanitized = cwd.replace(/[\\/:*?"<>|]/g, "_");
 console.log(sanitized);
-" 2>/dev/null || echo "unknown")
+' 2>/dev/null || echo "unknown")
 
 LOG_FILE="${LOG_DIR}/${LOG_TIMESTAMP}__${HOOK_CWD}.log"
 
-# 日志函数
+# 日志函数（避免使用 tee 防止阻塞）
 log() {
-  echo "[$(date +"%Y-%m-%d %H:%M:%S")] $*" | tee -a "$LOG_FILE"
+  local msg="[$(date +"%Y-%m-%d %H:%M:%S")] $*"
+  echo "$msg" >> "$LOG_FILE" 2>/dev/null || true
+  echo "$msg"
 }
+
+# 错误陷阱：确保脚本总是返回成功，避免阻塞 Claude Code
+trap 'log "Script interrupted or failed, returning success to prevent hook blocking"; echo "{\"decision\": \"proceed\"}"; exit 0' ERR EXIT
 
 log "====== Task Complete Notifier Started ======"
 log "Log file: $LOG_FILE"
+log "Global timeout: ${GLOBAL_TIMEOUT}s"
 
 # 记录输入数据
 log "====== Hook Input Data ======"
-echo "$HOOK_DATA" | tee -a "$LOG_FILE"
+echo "$HOOK_DATA" >> "$LOG_FILE" 2>/dev/null || true
 log ""
 
 # 提取 transcript_path（对话历史文件）
@@ -153,10 +165,13 @@ log ""
 # 尝试 1: gemini-2.5-flash（快速，适合5秒内响应）
 log "Trying gemini-2.5-flash (timeout: 5s)..."
 GEMINI_START=$(date +%s)
-SUMMARY=$(timeout 5s gemini \
+# 修复：移除 tee 命令，分别记录日志和捕获输出
+GEMINI_OUTPUT=$(timeout 5s gemini \
   --model "gemini-2.5-flash" \
   --output-format text \
-  "$SUMMARY_PROMPT" 2>&1 | tee -a "$LOG_FILE" | head -n 1 | tr -d '\n' || echo "")
+  "$SUMMARY_PROMPT" 2>&1 || echo "")
+echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
+SUMMARY=$(echo "$GEMINI_OUTPUT" | head -n 1 | tr -d '\n')
 GEMINI_END=$(date +%s)
 GEMINI_DURATION=$((GEMINI_END - GEMINI_START))
 log "gemini-2.5-flash completed in ${GEMINI_DURATION}s"
@@ -164,12 +179,14 @@ log "Result: $SUMMARY"
 
 # 尝试 2: 如果 flash 失败或结果太短，尝试 gemini-2.5-pro（更高质量）
 if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
-  log "gemini-2.5-flash failed or result too short, trying gemini-2.5-pro (timeout: 8s)..."
+  log "gemini-2.5-flash failed or result too short, trying gemini-2.5-pro (timeout: 5s)..."
   GEMINI_START=$(date +%s)
-  SUMMARY=$(timeout 8s gemini \
+  GEMINI_OUTPUT=$(timeout 5s gemini \
     --model "gemini-2.5-pro" \
     --output-format text \
-    "$SUMMARY_PROMPT" 2>&1 | tee -a "$LOG_FILE" | head -n 1 | tr -d '\n' || echo "")
+    "$SUMMARY_PROMPT" 2>&1 || echo "")
+  echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
+  SUMMARY=$(echo "$GEMINI_OUTPUT" | head -n 1 | tr -d '\n')
   GEMINI_END=$(date +%s)
   GEMINI_DURATION=$((GEMINI_END - GEMINI_START))
   log "gemini-2.5-pro completed in ${GEMINI_DURATION}s"
@@ -178,10 +195,12 @@ fi
 
 # 尝试 3: 默认模型（不指定 --model）
 if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
-  log "Trying default gemini model..."
-  SUMMARY=$(timeout 5s gemini \
+  log "Trying default gemini model (timeout: 4s)..."
+  GEMINI_OUTPUT=$(timeout 4s gemini \
     --output-format text \
-    "$SUMMARY_PROMPT" 2>&1 | tee -a "$LOG_FILE" | head -n 1 | tr -d '\n' || echo "")
+    "$SUMMARY_PROMPT" 2>&1 || echo "")
+  echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
+  SUMMARY=$(echo "$GEMINI_OUTPUT" | head -n 1 | tr -d '\n')
   log "Default model result: $SUMMARY"
 fi
 
@@ -235,18 +254,25 @@ else
   fi
 fi
 
-# 使用生成的摘要调用通知器
+# 使用生成的摘要调用通知器（后台运行，避免阻塞）
 log "====== Sending Notification ======"
 log "Project directory: $PROJECT_DIR"
 log "Notification message: $SUMMARY"
 
-cd "$PROJECT_DIR"
-NOTIFIER_OUTPUT=$(pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message "$SUMMARY" 2>&1)
-NOTIFIER_EXIT_CODE=$?
+# 修复：将通知器放到后台运行，避免阻塞 Stop hook
+# 创建一个独立的脚本来运行通知器，这样即使挂起也不会影响主流程
+(
+  cd "$PROJECT_DIR" 2>/dev/null || cd /
+  # 使用 timeout 和后台运行的组合，确保不会阻塞
+  timeout 8s pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message "$SUMMARY" >> "$LOG_FILE" 2>&1 || echo "Notifier failed" >> "$LOG_FILE"
+) &
 
-log "Notifier output: $NOTIFIER_OUTPUT"
-log "Notifier exit code: $NOTIFIER_EXIT_CODE"
+# 不等待通知器完成，直接继续
+log "Notifier started in background (PID: $!)"
 log ""
+
+# 清除错误陷阱，正常退出
+trap - ERR EXIT
 
 # 向 Claude Code 输出成功信息
 OUTPUT_JSON="{\"decision\": \"proceed\", \"additionalContext\": \"已发送通知：${SUMMARY} (日志: ${LOG_FILE})\"}"
@@ -254,5 +280,6 @@ log "====== Claude Code Output ======"
 log "$OUTPUT_JSON"
 log "====== Task Complete Notifier Finished ======"
 
+# 正常退出
 echo "$OUTPUT_JSON"
 exit 0

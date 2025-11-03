@@ -4,7 +4,7 @@
 
 ## 版本
 
-**当前版本**: `0.5.0`
+**当前版本**: `0.5.1`
 
 查看完整的更新历史，请参阅 [CHANGELOG.md](./CHANGELOG.md)
 
@@ -132,6 +132,28 @@ tail -f /tmp/claude-code-task-complete-notifier-logs/$(ls -t /tmp/claude-code-ta
 ```
 
 ## 版本历史
+
+### [0.5.1] - 2025-11-03
+
+**修复**：
+
+- 🐞 **Stop hook 阻塞问题**: 修复了 `● Stop hook prevented continuation` 导致 Claude Code 无法继续执行的严重问题
+  - **根本原因**：
+    1. `tee` 命令导致 I/O 管道阻塞
+    2. `pnpm dlx` 调用可能挂起，等待下载包
+    3. 缺少全局错误处理机制
+  - **修复方案**：
+    1. 移除 `tee` 命令，改用分离的日志记录方式
+    2. 通知器后台运行，不等待完成
+    3. 添加错误陷阱，确保脚本总是返回成功
+    4. 优化超时时间（5s/5s/4s/8s）
+  - **测试结果**：
+    - ✅ 脚本在约 17 秒内完成
+    - ✅ 返回有效的 JSON 输出
+    - ✅ 即使 Gemini 和通知器失败，也能正常返回
+    - ✅ 不再阻塞 Claude Code
+
+详情参见 [CHANGELOG.md](./CHANGELOG.md#051---2025-11-03)
 
 ### [0.5.0] - 2025-11-03
 
