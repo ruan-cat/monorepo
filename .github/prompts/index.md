@@ -34,3 +34,11 @@
 ```
 
 这些报错是来自于 C 盘的，其本质就是本项目的配置出错了。请你检查本项目的 `scripts/task-complete-notifier.sh` ，修复该故障，并确保 claude code 插件使用本 hooks 时，不会再出现以上的错误。
+
+## 05 处理 claude code 通知钩子每次都重复运行两次的故障
+
+请阅读 `claude-code-marketplace\common-tools\hooks\hooks.json` 配置。这是一个 claude code 的插件商城的插件，用于实现定时执行通知，我注意到每次执行钩子的时候，都会执行两次钩子。请问多余的钩子是哪里来的？claude code 是怎么合并我安装的插件商城的钩子的？
+
+我在运行 claude code 时，经常会出现这样的情况。这是怎么一回事啊？
+
+`Running PostToolUse hooks… (1/2 done)`
