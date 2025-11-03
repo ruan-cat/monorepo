@@ -5,68 +5,212 @@
 
 set -euo pipefail
 
+# ====== 日志配置 ======
+# 日志目录：Windows 临时文件夹
+LOG_DIR="${TEMP:-${TMP:-/tmp}}/claude-code-task-complete-notifier-logs"
+mkdir -p "$LOG_DIR" 2>/dev/null || true
+
+# 日志文件名：YYYY-MM-DD__HH-mm-ss__工作目录（无非法字符）
+LOG_TIMESTAMP=$(date +"%Y-%m-%d__%H-%M-%S")
+
 # 从标准输入读取钩子上下文数据
 HOOK_DATA=$(cat)
 
-# 使用 Node.js 从钩子数据中提取任务描述（无需 jq 依赖）
-TASK_DESCRIPTION=$(echo "$HOOK_DATA" | node -e "
+# 从 HOOK_DATA 提取 cwd（如果存在）
+HOOK_CWD=$(echo "$HOOK_DATA" | node -e "
 const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
-console.log(data.tool_input?.description || '任务');
-" 2>/dev/null || echo "任务")
+// Stop 钩子没有 cwd，使用环境变量或当前目录
+const cwd = data.cwd || process.env.PWD || process.cwd();
+// 移除非法字符：\ / : * ? " < > |
+const sanitized = cwd.replace(/[\\/:*?\"<>|]/g, '_');
+console.log(sanitized);
+" 2>/dev/null || echo "unknown")
 
-TASK_PROMPT=$(echo "$HOOK_DATA" | node -e "
+LOG_FILE="${LOG_DIR}/${LOG_TIMESTAMP}__${HOOK_CWD}.log"
+
+# 日志函数
+log() {
+  echo "[$(date +"%Y-%m-%d %H:%M:%S")] $*" | tee -a "$LOG_FILE"
+}
+
+log "====== Task Complete Notifier Started ======"
+log "Log file: $LOG_FILE"
+
+# 记录输入数据
+log "====== Hook Input Data ======"
+echo "$HOOK_DATA" | tee -a "$LOG_FILE"
+log ""
+
+# 提取 transcript_path（对话历史文件）
+TRANSCRIPT_PATH=$(echo "$HOOK_DATA" | node -e "
 const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
-console.log(data.tool_input?.prompt || '');
+console.log(data.transcript_path || '');
 " 2>/dev/null || echo "")
 
-# 创建给 Gemini 的简洁总结请求
-SUMMARY_PROMPT="请将以下任务总结为5-20字的简短标题，只输出标题文本，不要其他内容：
+log "Transcript path: $TRANSCRIPT_PATH"
 
-任务描述：${TASK_DESCRIPTION}
-${TASK_PROMPT:+详细内容：$TASK_PROMPT}
+# 使用 Node.js 从对话历史中提取最近的消息作为上下文
+CONVERSATION_CONTEXT=$(node -e "
+const fs = require('fs');
+const path = require('path');
+
+try {
+  const transcriptPath = process.argv[1];
+  if (!transcriptPath || !fs.existsSync(transcriptPath)) {
+    console.log('无法读取对话历史');
+    process.exit(0);
+  }
+
+  // 读取 JSONL 文件（每行一个 JSON 对象）
+  const content = fs.readFileSync(transcriptPath, 'utf8');
+  const lines = content.trim().split('\n').filter(l => l.trim());
+
+  // 解析最后几条消息
+  const messages = lines.slice(-5).map(line => {
+    try {
+      return JSON.parse(line);
+    } catch {
+      return null;
+    }
+  }).filter(Boolean);
+
+  // 提取用户消息和助手响应
+  const userMessages = [];
+  const assistantMessages = [];
+
+  messages.forEach(msg => {
+    if (msg.role === 'user' && msg.content) {
+      if (Array.isArray(msg.content)) {
+        const textContent = msg.content
+          .filter(c => c.type === 'text')
+          .map(c => c.text)
+          .join(' ');
+        if (textContent) userMessages.push(textContent);
+      } else if (typeof msg.content === 'string') {
+        userMessages.push(msg.content);
+      }
+    } else if (msg.role === 'assistant' && msg.content) {
+      if (Array.isArray(msg.content)) {
+        const textContent = msg.content
+          .filter(c => c.type === 'text')
+          .map(c => c.text)
+          .join(' ');
+        if (textContent) assistantMessages.push(textContent);
+      } else if (typeof msg.content === 'string') {
+        assistantMessages.push(msg.content);
+      }
+    }
+  });
+
+  // 生成简洁的上下文摘要（限制长度以避免 prompt 过长）
+  const lastUserMsg = userMessages[userMessages.length - 1] || '';
+  const lastAssistantMsg = assistantMessages[assistantMessages.length - 1] || '';
+
+  const summary = [
+    lastUserMsg.substring(0, 500),
+    lastAssistantMsg.substring(0, 500)
+  ].filter(Boolean).join('\\n\\n');
+
+  console.log(summary || '任务处理完成');
+} catch (error) {
+  console.log('解析对话历史出错');
+}
+" "$TRANSCRIPT_PATH" 2>/dev/null || echo "任务处理完成")
+
+log "====== Extracted Conversation Context ======"
+log "$CONVERSATION_CONTEXT"
+log ""
+
+# 创建给 Gemini 的简洁总结请求（使用实际对话内容）
+SUMMARY_PROMPT="你是一个任务总结助手。请根据以下对话内容，生成一个5-20字的简短任务标题。
+
+对话内容：
+${CONVERSATION_CONTEXT}
 
 要求：
-1. 只输出标题，不要解释
+1. 只输出标题文本，不要任何解释或多余内容
 2. 5-20个汉字
-3. 简洁明了，突出核心动作"
+3. 简洁明了，突出核心动作和结果
+4. 如果内容涉及代码或技术，请突出关键技术点
 
-# 调用 Gemini 快速模型（兼顾速度和稳定性）
-# 尝试多个模型名称，确保兼容性
-# 5 秒超时以确保快速响应
+示例格式：
+- 修复登录验证bug
+- 实现用户权限管理功能
+- 优化数据库查询性能
+- 添加API文档
+
+请直接输出标题："
+
+# 调用 Gemini 模型生成总结
+# 策略：优先使用 gemini-2.5-flash（速度快），失败则尝试 gemini-2.5-pro（质量高）
 SUMMARY=""
+GEMINI_ERROR=""
 
-# 尝试 1: gemini-2.5-flash
-if [ -z "$SUMMARY" ]; then
-  SUMMARY=$(timeout 5s gemini \
-    --model "gemini-2.5-flash" \
+log "====== Gemini Summary Prompt ======"
+log "$SUMMARY_PROMPT"
+log ""
+
+# 尝试 1: gemini-2.5-flash（快速，适合5秒内响应）
+log "Trying gemini-2.5-flash (timeout: 5s)..."
+GEMINI_START=$(date +%s)
+SUMMARY=$(timeout 5s gemini \
+  --model "gemini-2.5-flash" \
+  --output-format text \
+  "$SUMMARY_PROMPT" 2>&1 | tee -a "$LOG_FILE" | head -n 1 | tr -d '\n' || echo "")
+GEMINI_END=$(date +%s)
+GEMINI_DURATION=$((GEMINI_END - GEMINI_START))
+log "gemini-2.5-flash completed in ${GEMINI_DURATION}s"
+log "Result: $SUMMARY"
+
+# 尝试 2: 如果 flash 失败或结果太短，尝试 gemini-2.5-pro（更高质量）
+if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
+  log "gemini-2.5-flash failed or result too short, trying gemini-2.5-pro (timeout: 8s)..."
+  GEMINI_START=$(date +%s)
+  SUMMARY=$(timeout 8s gemini \
+    --model "gemini-2.5-pro" \
     --output-format text \
-    "$SUMMARY_PROMPT" 2>/dev/null | head -n 1 | tr -d '\n' || echo "")
+    "$SUMMARY_PROMPT" 2>&1 | tee -a "$LOG_FILE" | head -n 1 | tr -d '\n' || echo "")
+  GEMINI_END=$(date +%s)
+  GEMINI_DURATION=$((GEMINI_END - GEMINI_START))
+  log "gemini-2.5-pro completed in ${GEMINI_DURATION}s"
+  log "Result: $SUMMARY"
 fi
 
-# 尝试 2: 默认模型（不指定 --model）
-if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 3 ]; then
+# 尝试 3: 默认模型（不指定 --model）
+if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
+  log "Trying default gemini model..."
   SUMMARY=$(timeout 5s gemini \
     --output-format text \
-    "$SUMMARY_PROMPT" 2>/dev/null | head -n 1 | tr -d '\n' || echo "")
+    "$SUMMARY_PROMPT" 2>&1 | tee -a "$LOG_FILE" | head -n 1 | tr -d '\n' || echo "")
+  log "Default model result: $SUMMARY"
 fi
 
-# 尝试 3: 使用位置参数语法
-if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 3 ]; then
-  SUMMARY=$(timeout 5s gemini "$SUMMARY_PROMPT" 2>/dev/null | head -n 1 | tr -d '\n' || echo "")
+# 如果所有 Gemini 尝试都失败，使用降级策略
+if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
+  log "All Gemini attempts failed, using fallback strategy"
+  # 从对话上下文中提取关键词作为摘要
+  SUMMARY=$(echo "$CONVERSATION_CONTEXT" | head -c 50 | tr '\n' ' ' || echo "任务处理完成")
 fi
 
-# 如果 Gemini 失败或超时，使用降级策略
-if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 3 ]; then
-  SUMMARY="${TASK_DESCRIPTION:0:20}"
-fi
+# 清理和规范化摘要
+# 移除多余的空白和换行
+SUMMARY=$(echo "$SUMMARY" | tr -s ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
-# 确保摘要在 5-20 字符范围内
+# 确保摘要在合理范围内
 SUMMARY_LENGTH=${#SUMMARY}
+log "Summary length: $SUMMARY_LENGTH characters"
+
 if [ $SUMMARY_LENGTH -lt 5 ]; then
-  SUMMARY="${SUMMARY}已完成"
-elif [ $SUMMARY_LENGTH -gt 20 ]; then
-  SUMMARY="${SUMMARY:0:20}..."
+  SUMMARY="任务处理完成"
+  log "Summary too short, using default"
+elif [ $SUMMARY_LENGTH -gt 50 ]; then
+  SUMMARY="${SUMMARY:0:50}..."
+  log "Summary too long, truncated"
 fi
+
+log "====== Final Summary ======"
+log "$SUMMARY"
+log ""
 
 # 检测项目根目录
 # 优先使用环境变量 CLAUDE_PROJECT_DIR，如果未设置则自动检测
@@ -92,9 +236,23 @@ else
 fi
 
 # 使用生成的摘要调用通知器
+log "====== Sending Notification ======"
+log "Project directory: $PROJECT_DIR"
+log "Notification message: $SUMMARY"
+
 cd "$PROJECT_DIR"
-pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message "$SUMMARY"
+NOTIFIER_OUTPUT=$(pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message "$SUMMARY" 2>&1)
+NOTIFIER_EXIT_CODE=$?
+
+log "Notifier output: $NOTIFIER_OUTPUT"
+log "Notifier exit code: $NOTIFIER_EXIT_CODE"
+log ""
 
 # 向 Claude Code 输出成功信息
-echo "{\"decision\": \"proceed\", \"additionalContext\": \"已发送通知：${SUMMARY}\"}"
+OUTPUT_JSON="{\"decision\": \"proceed\", \"additionalContext\": \"已发送通知：${SUMMARY} (日志: ${LOG_FILE})\"}"
+log "====== Claude Code Output ======"
+log "$OUTPUT_JSON"
+log "====== Task Complete Notifier Finished ======"
+
+echo "$OUTPUT_JSON"
 exit 0

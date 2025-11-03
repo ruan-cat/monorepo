@@ -42,3 +42,33 @@
 我在运行 claude code 时，经常会出现这样的情况。这是怎么一回事啊？
 
 `Running PostToolUse hooks… (1/2 done)`
+
+## 06 检查无头模式下 gemini 的输入数据，和输出结果，并排查为什么 gemini 每次总结时，总结文本都只有五个字：`任务已完成`
+
+阅读：
+
+- claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh
+- claude-code-marketplace\common-tools\hooks\hooks.json 的 `bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh` 部分
+
+这是一个 claude code 插件，这个插件预期在 Stop 钩子执行时，收集对话和思考的全部上下文，并交给本地的 gemini 执行总结，以无头形式完成总结。
+
+1. 帮我制作一个机制，确保每次输入的数据都能够写入到当前电脑合适的日志存储位置，以日志的形式，存储 `task-complete-notifier.sh` 运行时的全部数据。
+   - 这些数据包括：
+     - 输入的上下文
+     - 运行时的日志
+     - 输出的结果
+2. 请你帮我在当前用户电脑的 `C:\Users\pc\AppData\Local\Temp` ，即用户的 `AppData\Local\Temp` 文件夹内，新建一个名为 `claude-code-task-complete-notifier-logs` 的文件夹。在这个文件夹内存储 `task-complete-notifier.sh` 产出的日志文件。
+3. 日志文件的名称命名格式： `YYYY-MM-DD__HH:mm:ss__当前运行hooks的目录地址，且不包含非法字符的地址` 。
+4. 从 claude code 的 hooks 的 stdin 的 JSON 数据内获取到，cwd 数据，进而帮助你拼接目录地址。请阅读文档： https://docs.claude.com/en/docs/claude-code/hooks 了解输入数据 stdin 的格式。
+5. 帮我认真排查一下，为什么我在以无头模式运行 gemini 时，总结的文本总是只有五个字：`任务已完成` 。这个很不符合我的期望，总结效果很差。
+6. 帮我认真调研思考一下，为了完成短时间内的总结与通知效果，使用 `gemini-2.5-flash` 模型合适么？我可以换成别的 `gemini-2.5-pro` 模型么？运行速度会不会太慢？请你确保在 5 秒的时间预算内，使用合适的模型，取得最好的模型总结效果。
+
+### 更改文档
+
+适当阅读：
+
+- claude-code-marketplace\common-tools\README.md
+- claude-code-marketplace\common-tools\CHANGELOG.md
+
+1. 为本次修改及时更新说明文档。
+2. 更新 claude code 插件的版本号。

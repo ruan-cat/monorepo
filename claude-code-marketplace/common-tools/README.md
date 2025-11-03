@@ -4,7 +4,7 @@
 
 ## 版本
 
-**当前版本**: `0.4.1`
+**当前版本**: `0.5.0`
 
 查看完整的更新历史，请参阅 [CHANGELOG.md](./CHANGELOG.md)
 
@@ -24,12 +24,27 @@
 提供基于 Claude Code 各个生命周期事件的通知系统：
 
 - `Stop`: 任务完成时触发通知，支持 Gemini AI 智能生成任务摘要
+  - ✨ **智能总结**: 从对话历史中提取上下文，生成有意义的任务摘要
+  - 📝 **完整日志**: 自动记录所有输入、处理过程和输出结果
+  - 🚀 **多模型策略**: 优先使用 gemini-2.5-flash（快速），备用 gemini-2.5-pro（高质量）
+  - 🔍 **调试支持**: 详细日志存储在 `%TEMP%\claude-code-task-complete-notifier-logs\`
 - `SessionStart` / `SessionEnd`: 会话开始/结束时的定时检查通知
 - `UserPromptSubmit`: 用户提交消息时的定时检查通知
 - `PreToolUse` / `PostToolUse`: 工具使用前后的定时检查通知
 - `SubagentStop`: 子代理停止时的定时检查通知
 
 通知功能由 [`@ruan-cat/claude-notifier`](../../packages/claude-notifier) 包提供支持。
+
+#### 任务总结功能详情
+
+**Stop 钩子**现在包含强大的智能总结能力：
+
+- **对话历史解析**: 自动从 Claude Code 会话历史中提取最近的对话内容
+- **智能摘要生成**: 使用 Gemini AI 生成 5-20 字的简洁任务标题
+- **完整日志记录**: 所有执行过程都会记录到日志文件，方便调试
+- **多层级容错**: flash → pro → 默认模型 → 降级策略，确保总结始终可用
+
+详细说明请参阅：[scripts/TASK_COMPLETE_NOTIFIER_README.md](./scripts/TASK_COMPLETE_NOTIFIER_README.md)
 
 ## 安装
 
@@ -97,7 +112,45 @@
 - [通知包文档](../../packages/claude-notifier/README.md)
 - [通知包配置指南](../../packages/claude-notifier/src/docs/use/cli.md)
 
+### 日志查看
+
+任务总结功能会生成详细的日志文件，位于：
+
+**Windows**: `C:\Users\<用户名>\AppData\Local\Temp\claude-code-task-complete-notifier-logs\`
+**Linux/Mac**: `/tmp/claude-code-task-complete-notifier-logs/`
+
+日志文件命名格式：`YYYY-MM-DD__HH-mm-ss__工作目录.log`
+
+查看最新日志：
+
+```powershell
+# Windows PowerShell
+Get-Content (Get-ChildItem "$env:TEMP\claude-code-task-complete-notifier-logs" | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+
+# Linux/Mac
+tail -f /tmp/claude-code-task-complete-notifier-logs/$(ls -t /tmp/claude-code-task-complete-notifier-logs | head -1)
+```
+
 ## 版本历史
+
+### [0.5.0] - 2025-11-03
+
+**新增**：
+
+- 🎯 **智能总结系统重构**: 完全修复 Gemini 总结功能，现在可以生成有意义的任务摘要
+- 📝 **完整日志记录**: 新增自动日志记录机制，记录所有输入、处理过程和输出
+- 🚀 **多模型策略**: 实现 flash → pro → 默认模型的智能降级策略
+- 🔍 **调试支持**: 详细日志文件帮助排查问题
+
+**修复**：
+
+- 🐞 **核心问题修复**: 修复了 Stop 钩子无法获取任务描述的根本问题
+  - 原因：Stop 钩子不包含 `tool_input` 字段
+  - 解决方案：从 `transcript_path` 读取对话历史并提取上下文
+- 📊 **对话解析**: 实现了完整的 JSONL 格式对话历史解析
+- ⚡ **性能优化**: 优化了 Gemini 调用超时策略（flash: 5s, pro: 8s）
+
+详情参见 [CHANGELOG.md](./CHANGELOG.md#050---2025-11-03) 和 [scripts/TASK_COMPLETE_NOTIFIER_README.md](./scripts/TASK_COMPLETE_NOTIFIER_README.md)
 
 ### [0.4.1] - 2025-11-03
 
@@ -107,16 +160,6 @@
 - 将 `plugin.json` 中的 `hooks` 字段从不受支持的数组格式改为字符串格式
 
 详情参见 [CHANGELOG.md](./CHANGELOG.md#041---2025-11-03)
-
-### [0.4.0] - 2025-11-03
-
-**新增**：
-
-- 完整的钩子系统，支持所有 Claude Code 生命周期事件
-- 集成 Gemini AI 智能任务摘要功能
-- 任务完成通知脚本
-
-详情参见 [CHANGELOG.md](./CHANGELOG.md#040---2025-11-03)
 
 ## 问题报告
 
@@ -132,20 +175,21 @@
 ```plain
 common-tools/
 ├── .claude-plugin/
-│   └── plugin.json         # 插件配置清单
-├── commands/               # 命令定义
+│   └── plugin.json                      # 插件配置清单
+├── commands/                            # 命令定义
 │   ├── markdown-title-order.md
 │   └── close-window-port.md
-├── agents/                 # 代理定义
+├── agents/                              # 代理定义
 │   └── format-markdown.md
-├── hooks/                  # 钩子配置
+├── hooks/                               # 钩子配置
 │   ├── hooks.json
 │   └── README.md
-├── scripts/                # 辅助脚本
-│   └── task-complete-notifier.sh
-├── CHANGELOG.md            # 版本更新日志
-├── README.md               # 本文件
-└── TEST-REPORT.md          # 测试报告
+├── scripts/                             # 辅助脚本
+│   ├── task-complete-notifier.sh        # 任务完成通知脚本
+│   └── TASK_COMPLETE_NOTIFIER_README.md # 详细功能说明
+├── CHANGELOG.md                         # 版本更新日志
+├── README.md                            # 本文件
+└── TEST-REPORT.md                       # 测试报告
 ```
 
 ### 参考资源
