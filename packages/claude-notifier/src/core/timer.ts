@@ -191,8 +191,9 @@ export async function checkAndNotifyTask(cwd: string, intervals: number[] = DEFA
 		return 0;
 	}
 
-	// 更新上次检查时间
+	// 更新上次检查时间并立即保存（防止重复通知）
 	task.lastCheckTime = formatTime(now);
+	saveAllTasks(stateFile);
 
 	const startTime = parseTime(task.startTime);
 	const elapsedSeconds = Math.floor((now - startTime) / 1000);
@@ -233,7 +234,7 @@ export async function checkAndNotifyTask(cwd: string, intervals: number[] = DEFA
 		}
 	}
 
-	// 保存更新后的状态
+	// 如果发送了通知，再次保存状态（更新 triggeredIndexes）
 	if (notificationsSent > 0) {
 		saveAllTasks(stateFile);
 	}
@@ -310,69 +311,4 @@ export function readHookInput(): Promise<HookInputData | null> {
 			resolve(null);
 		});
 	});
-}
-
-// ========== 旧版兼容性函数（已废弃） ==========
-
-/**
- * @deprecated 请使用 loadAllTasks
- */
-export function loadAllSessions() {
-	return { sessions: {} };
-}
-
-/**
- * @deprecated 请使用 saveAllTasks
- */
-export function saveAllSessions() {
-	// 空实现
-}
-
-/**
- * @deprecated 请使用 addOrResetTask
- */
-export function addOrUpdateSession() {
-	// 空实现
-}
-
-/**
- * @deprecated 请使用 removeTask
- */
-export function removeSession() {
-	// 空实现
-}
-
-/**
- * @deprecated 请使用 cleanupExpiredTasks
- */
-export function cleanupExpiredSessions() {
-	return 0;
-}
-
-/**
- * @deprecated 请使用 checkAndNotifyTask
- */
-export async function checkAndNotifySession() {
-	return 0;
-}
-
-/**
- * @deprecated 请使用 checkAndNotifyAllTasks
- */
-export async function checkAndNotifyAll() {
-	return 0;
-}
-
-/**
- * @deprecated 请使用 getTaskState
- */
-export function getSessionState() {
-	return null;
-}
-
-/**
- * @deprecated 请使用 getAllTaskStates
- */
-export function getAllSessionStates() {
-	return {};
 }

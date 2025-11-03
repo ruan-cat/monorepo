@@ -113,26 +113,6 @@ export interface ErrorOptions {
 }
 
 /**
- * 定时器状态（旧版，保留用于兼容性）
- */
-export interface TimerState {
-	/** 进程 ID */
-	pid: number;
-	/** 启动时间戳 */
-	startTime: number;
-	/** 提醒时间点（分钟） */
-	intervals: number[];
-	/** 已触发的提醒索引 */
-	triggeredIndexes: number[];
-	/** 音频预设 */
-	sound?: string;
-	/** 图标预设 */
-	icon?: string;
-	/** 任务描述 */
-	taskDescription?: string;
-}
-
-/**
  * 单个任务的定时器状态（基于 cwd）
  */
 export interface TaskState {
@@ -154,31 +134,6 @@ export interface TaskState {
 export interface TimerStateFile {
 	/** 所有任务的状态，键为 cwd */
 	tasks: Record<string, TaskState>;
-}
-
-/**
- * 单个会话的定时器状态（已废弃，保留用于兼容性）
- * @deprecated 请使用 TaskState
- */
-export interface SessionTimerState {
-	/** 会话 ID */
-	sessionId: string;
-	/** 任务添加到状态文件的时间戳 */
-	addedTime: number;
-	/** 会话启动时间戳 */
-	startTime: number;
-	/** 上次检查时间戳（用于防止重复通知） */
-	lastCheckTime: number;
-	/** 提醒时间点（分钟） */
-	intervals: number[];
-	/** 已触发的提醒索引 */
-	triggeredIndexes: number[];
-	/** 音频预设 */
-	sound?: string;
-	/** 图标预设 */
-	icon?: string;
-	/** 任务描述 */
-	taskDescription?: string;
 }
 
 /**

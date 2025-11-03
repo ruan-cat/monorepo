@@ -44,7 +44,9 @@ export function createCheckAndNotifyCommand(): Command {
 			`检查并通知长任务（配置到 Claude Code hooks 使用）
 
 这是一个高频调用的命令，根据 hook_event_name 执行不同逻辑：
-- UserPromptSubmit: 开始新任务
+- SessionStart: 跳过通知
+- UserPromptSubmit: 开始新任务（无条件删除旧任务并创建新任务）
+- SessionEnd: 删除任务
 - Stop/SubagentStop: 删除任务
 - 其他事件: 检查并通知`,
 		)
@@ -84,8 +86,16 @@ export function createCheckAndNotifyCommand(): Command {
 					}
 
 					// 2. 根据 hook_event_name 处理不同逻辑
+					if (hook_event_name === "SessionStart") {
+						// SessionStart: 不做任何通知，直接返回
+						if (verbose) {
+							console.log("ℹ️ SessionStart 事件，跳过通知");
+						}
+						return;
+					}
+
+					// UserPromptSubmit: 无条件删除旧任务并创建新任务
 					if (hook_event_name === "UserPromptSubmit") {
-						// UserPromptSubmit: 添加或重置任务
 						if (cwd) {
 							addOrResetTask(cwd);
 							if (verbose) {
@@ -93,6 +103,17 @@ export function createCheckAndNotifyCommand(): Command {
 							}
 						}
 						// UserPromptSubmit 阶段不做任何通知
+						return;
+					}
+
+					// SessionEnd: 删除任务，不做通知
+					if (hook_event_name === "SessionEnd") {
+						if (cwd) {
+							removeTask(cwd);
+							if (verbose) {
+								console.log(`🗑️  SessionEnd - 已删除任务 (cwd: ${cwd})`);
+							}
+						}
 						return;
 					}
 

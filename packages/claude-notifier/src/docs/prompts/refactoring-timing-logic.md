@@ -157,4 +157,13 @@ check-and-notify 应该根据 hook_event_name 所体现的不同的生命周期�
 7. triggeredIndexes 和间隔数组的对应关系
    - 换一个标记方式。
    - triggeredIndexes = [6] 表示已触发 6 分钟提醒
-   - triggeredIndexes = [6，,10] 表示已触发 6 分钟和 10 分钟提醒
+   - triggeredIndexes = [6,10] 表示已触发 6 分钟和 10 分钟提醒
+
+## 持续迭代通知逻辑
+
+1. 旧的基于 session_id 的 API（已废弃，保留用于兼容性）。把旧的 api 接口全部删掉，不做兼容处理了。
+2. 针对 `packages\claude-notifier\src\commands\check-and-notify.ts` 的 createCheckAndNotifyCommand 函数。
+   - 多增加对 SessionEnd 事件的处理，在 SessionEnd 事件，不做通知，删除任务。当 Claude Code 会话结束时运行。
+   - 增加对 UserPromptSubmit 和 SessionStart 事件的处理。在这个节点，不要做长任务提醒。刚刚打开界面时，不应该做提醒的。
+   - 在 UserPromptSubmit 事件运行时，就开始更新长任务了。无条件的删除掉本 cwd 对应的长任务，开始一轮新的长任务计时了。
+   - 每次运行 createCheckAndNotifyCommand 时，运行 check-and-notify 命令时，你应该及时的更新该 lastCheckTime 值，这个值更新不及时，导致了打开 claude code 对话后，出现了多次提醒。
