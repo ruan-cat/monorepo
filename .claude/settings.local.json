@@ -4,7 +4,7 @@
 		"deny": [],
 		"additionalDirectories": []
 	},
-	"hooks": {
+	"not-use-now-hooks": {
 		"Stop": [
 			{
 				"hooks": [
