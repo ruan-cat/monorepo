@@ -12,6 +12,70 @@
 						"type": "command",
 						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh",
 						"timeout": 10
+					},
+					{
+						"type": "command",
+						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+					}
+				]
+			}
+		],
+		"UserPromptSubmit": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+					}
+				]
+			}
+		],
+		"PreToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+					}
+				]
+			}
+		],
+		"SessionStart": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+					}
+				]
+			}
+		],
+		"SessionEnd": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+					}
+				]
+			}
+		],
+		"SubagentStop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
 					}
 				]
 			}
