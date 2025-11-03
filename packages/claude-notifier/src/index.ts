@@ -11,7 +11,22 @@ export * from "./types/index.ts";
 // 导出核心功能
 export { sendNotification, quickNotify } from "./core/notifier.ts";
 export {
-	// 新的基于 session_id 的 API
+	// 新的基于 cwd 的 API
+	addOrResetTask,
+	removeTask,
+	cleanupExpiredTasks,
+	checkAndNotifyTask,
+	checkAndNotifyAllTasks,
+	getTaskState,
+	getAllTaskStates,
+	readHookInput,
+	loadAllTasks,
+	saveAllTasks,
+	formatTime,
+	parseTime,
+	formatTimeDiff,
+	DEFAULT_INTERVALS,
+	// 旧的基于 session_id 的 API（已废弃，保留用于兼容性）
 	addOrUpdateSession,
 	removeSession,
 	cleanupExpiredSessions,
@@ -19,7 +34,6 @@ export {
 	checkAndNotifyAll,
 	getSessionState,
 	getAllSessionStates,
-	readHookInput,
 	loadAllSessions,
 	saveAllSessions,
 } from "./core/timer.ts";

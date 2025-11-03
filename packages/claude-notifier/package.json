@@ -70,6 +70,7 @@
 	"dependencies": {
 		"commander": "^13.1.0",
 		"consola": "^3.4.2",
+		"dayjs": "^1.11.19",
 		"node-notifier": "^10.0.1"
 	},
 	"devDependencies": {

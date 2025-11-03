@@ -1,21 +1,40 @@
 import { Command } from "commander";
 import {
 	readHookInput,
-	addOrUpdateSession,
-	removeSession,
-	cleanupExpiredSessions,
-	checkAndNotifyAll,
+	addOrResetTask,
+	removeTask,
+	cleanupExpiredTasks,
+	checkAndNotifyAllTasks,
+	DEFAULT_INTERVALS,
 } from "../core/timer.ts";
+
+/**
+ * 检查并通知命令选项
+ */
+interface CheckAndNotifyOptions {
+	/** 显示详细日志 */
+	verbose?: boolean;
+	/** 跳过清理过期任务 */
+	cleanup?: boolean;
+	/** 自定义提醒时间点（分钟），逗号分隔 */
+	intervals?: string;
+}
 
 /**
  * 检查并通知命令
  *
- * 这是一个高频调用的命令，用于配置到 Claude Code hooks 中
+ * 这是一个高频调用的命令，用于配置到 Claude Code hooks 中。
+ * 根据 hook_event_name 的不同，执行不同的逻辑：
+ *
+ * 1. UserPromptSubmit: 添加或重置任务（删除旧任务，创建新任务）
+ * 2. Stop/SubagentStop (stop_hook_active=true): 删除任务
+ * 3. 其他事件: 检查并通知长任务
+ *
  * 主要功能：
- * 1. 自动创建新会话任务（当检测到新 session_id 时）
- * 2. 删除已完成的任务（当 stop_hook_active 为 true 时）
- * 3. 清理过期任务（超过 8 小时）
- * 4. 检查所有任务并发送到期通知
+ * - 基于 cwd 区分任务
+ * - 自动管理任务生命周期
+ * - 清理过期任务（超过 8 小时）
+ * - 精确计算时间差并发送通知
  */
 export function createCheckAndNotifyCommand(): Command {
 	const command = new Command("check-and-notify");
@@ -24,69 +43,85 @@ export function createCheckAndNotifyCommand(): Command {
 		.description(
 			`检查并通知长任务（配置到 Claude Code hooks 使用）
 
-这是一个高频调用的命令，主要用于：
-- 自动管理会话任务
-- 清理过期任务（8小时）
-- 发送到期通知`,
+这是一个高频调用的命令，根据 hook_event_name 执行不同逻辑：
+- UserPromptSubmit: 开始新任务
+- Stop/SubagentStop: 删除任务
+- 其他事件: 检查并通知`,
 		)
 		.option("--verbose", "显示详细日志")
 		.option("--no-cleanup", "跳过清理过期任务")
-		.option("--no-auto-create", "禁用自动创建新会话任务")
-		.action(async (options: { verbose?: boolean; cleanup?: boolean; autoCreate?: boolean }) => {
+		.option("-i, --intervals <intervals>", "提醒时间点（分钟），逗号分隔", "6,10,18,25,45")
+		.action(async (options: CheckAndNotifyOptions) => {
 			try {
 				const verbose = options.verbose || false;
 				const shouldCleanup = options.cleanup !== false;
-				const shouldAutoCreate = options.autoCreate !== false;
+
+				// 解析时间间隔
+				let intervals: number[] = DEFAULT_INTERVALS;
+				if (typeof options.intervals === "string") {
+					intervals = options.intervals
+						.split(",")
+						.map((s) => parseInt(s.trim()))
+						.filter((n) => !isNaN(n));
+				}
 
 				// 1. 读取 stdin 获取 hook 数据
 				const hookInput = await readHookInput();
 
 				if (!hookInput) {
 					if (verbose) {
-						console.log("ℹ️ 未接收到 stdin 数据，跳过会话管理");
+						console.log("ℹ️ 未接收到 stdin 数据，跳过任务管理");
 					}
+					// 即使没有 stdin 数据，也可能需要清理过期任务和检查通知
 				} else {
-					const { session_id, stop_hook_active } = hookInput;
+					const { cwd, hook_event_name, stop_hook_active } = hookInput;
 
 					if (verbose) {
-						console.log(`📥 接收到会话数据:`);
-						console.log(`   - session_id: ${session_id}`);
+						console.log(`📥 接收到 hook 数据:`);
+						console.log(`   - cwd: ${cwd}`);
+						console.log(`   - hook_event_name: ${hook_event_name}`);
 						console.log(`   - stop_hook_active: ${stop_hook_active || false}`);
 					}
 
-					// 2. 处理 stop_hook_active
-					if (stop_hook_active === true) {
-						// 删除对应的会话任务
-						removeSession(session_id);
-						if (verbose) {
-							console.log(`🗑️  已删除会话 ${session_id} 的任务（stop_hook_active = true）`);
+					// 2. 根据 hook_event_name 处理不同逻辑
+					if (hook_event_name === "UserPromptSubmit") {
+						// UserPromptSubmit: 添加或重置任务
+						if (cwd) {
+							addOrResetTask(cwd);
+							if (verbose) {
+								console.log(`✅ 已添加/重置任务 (cwd: ${cwd})`);
+							}
 						}
-						// 停止任务后直接返回，不继续执行后续检查
+						// UserPromptSubmit 阶段不做任何通知
 						return;
 					}
 
-					// 3. 自动创建新会话任务
-					if (shouldAutoCreate && session_id) {
-						// addOrUpdateSession 会自动判断是否为新会话
-						// 如果是新会话，会使用默认配置创建
-						// 如果是已存在的会话，不会重置时间
-						addOrUpdateSession(session_id);
-						if (verbose) {
-							console.log(`✅ 会话 ${session_id} 已注册/更新`);
+					if ((hook_event_name === "Stop" || hook_event_name === "SubagentStop") && stop_hook_active === true) {
+						// Stop/SubagentStop: 删除任务
+						if (cwd) {
+							removeTask(cwd);
+							if (verbose) {
+								console.log(`🗑️  已删除任务 (cwd: ${cwd})`);
+							}
 						}
+						// Stop 阶段不做任何通知
+						return;
 					}
+
+					// 3. 其他事件: 检查并通知
+					// 不做特殊处理，继续执行后续的检查和通知逻辑
 				}
 
 				// 4. 清理过期任务
 				if (shouldCleanup) {
-					const cleanedCount = cleanupExpiredSessions();
+					const cleanedCount = cleanupExpiredTasks();
 					if (verbose && cleanedCount > 0) {
 						console.log(`🧹 已清理 ${cleanedCount} 个过期任务（超过 8 小时）`);
 					}
 				}
 
 				// 5. 检查所有任务并发送通知
-				const notificationsSent = await checkAndNotifyAll();
+				const notificationsSent = await checkAndNotifyAllTasks(intervals);
 				if (verbose && notificationsSent > 0) {
 					console.log(`📬 已发送 ${notificationsSent} 条通知`);
 				}

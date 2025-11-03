@@ -133,7 +133,32 @@ export interface TimerState {
 }
 
 /**
- * 单个会话的定时器状态
+ * 单个任务的定时器状态（基于 cwd）
+ */
+export interface TaskState {
+	/** 当前工作目录（唯一标识） */
+	cwd: string;
+	/** 任务添加到状态文件的时间（语义化时间字符串：YYYY-MM-DD HH:mm:ss） */
+	addedTime: string;
+	/** 任务启动时间（语义化时间字符串：YYYY-MM-DD HH:mm:ss） */
+	startTime: string;
+	/** 上次检查时间（语义化时间字符串：YYYY-MM-DD HH:mm:ss） */
+	lastCheckTime: string;
+	/** 已触发的提醒时间点（分钟值数组，如 [6, 10] 表示已触发 6 分钟和 10 分钟提醒） */
+	triggeredIndexes: number[];
+}
+
+/**
+ * 定时器状态文件结构（基于 cwd）
+ */
+export interface TimerStateFile {
+	/** 所有任务的状态，键为 cwd */
+	tasks: Record<string, TaskState>;
+}
+
+/**
+ * 单个会话的定时器状态（已废弃，保留用于兼容性）
+ * @deprecated 请使用 TaskState
  */
 export interface SessionTimerState {
 	/** 会话 ID */
@@ -154,14 +179,6 @@ export interface SessionTimerState {
 	icon?: string;
 	/** 任务描述 */
 	taskDescription?: string;
-}
-
-/**
- * 所有会话的定时器状态文件结构
- */
-export interface TimerStateFile {
-	/** 所有会话的状态，键为 session_id */
-	sessions: Record<string, SessionTimerState>;
 }
 
 /**

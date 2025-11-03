@@ -50,11 +50,12 @@ macOS/Linux: ~/.claude/settings.json
 
 **工作机制**：
 
-- `check-and-notify` 自动从 stdin 读取 session_id
-- 首次调用时自动创建任务，默认在 6, 10, 18, 25, 45 分钟时提醒
-- `BeforeToolUse` 钩子高频调用，自动检查是否到期
-- `Stop` 钩子触发时自动清理会话数据
-- 支持多个 Claude Code 对话同时运行
+- `check-and-notify` 从 stdin 读取 hook 数据（cwd、hook_event_name 等）
+- **UserPromptSubmit**: 开始新任务，删除该 cwd 下的旧任务
+- **Stop/SubagentStop**: 删除任务（当 stop_hook_active=true 时）
+- **其他事件**: 检查任务，到达时间点时自动通知（默认：6, 10, 18, 25, 45 分钟）
+- 通知文本精确显示"X 分 Y 秒"，标题显示阶段（如"长任务提醒：6 分钟阶段"）
+- 基于 cwd 区分任务，支持多工作目录同时运行
 - 自动清理超过 8 小时的过期任务
 
 ## 完整配置示例（旧版，仍然可用）
@@ -87,10 +88,13 @@ macOS/Linux: ~/.claude/settings.json
 
 ### 核心功能
 
-1. **自动创建任务**：首次检测到新的 session_id 时，自动创建长任务记录
-2. **自动删除任务**：当 `stop_hook_active = true` 时，自动删除对应会话
-3. **清理过期任务**：自动删除超过 8 小时的任务
-4. **定时通知**：检查所有任务，到期时发送通知
+1. **智能事件处理**：根据 `hook_event_name` 自动决定操作
+   - UserPromptSubmit: 添加/重置任务
+   - Stop/SubagentStop: 删除任务
+   - 其他事件: 检查并通知
+2. **基于 cwd 管理**：使用当前工作目录区分不同任务
+3. **精确时间计算**：通知显示"X 分 Y 秒"格式的精确时间差
+4. **清理过期任务**：自动删除超过 8 小时的任务
 5. **防重复通知**：10 秒内不会重复检查同一任务
 
 ### 使用示例
@@ -143,19 +147,22 @@ npx @ruan-cat/claude-notifier check-and-notify --no-auto-create
 ### 工作流程
 
 ```plain
-1. Hook 触发 → 从 stdin 读取 session_id
-2. 检查是否为新会话 → 是：创建任务记录
-3. 检查 stop_hook_active → true：删除任务，结束
-4. 清理过期任务（超过 8 小时）
-5. 遍历所有任务，检查是否到提醒时间
-6. 发送到期通知（6, 10, 18, 25, 45 分钟）
+1. Hook 触发 → 从 stdin 读取 cwd, hook_event_name, stop_hook_active
+2. 根据 hook_event_name 处理：
+   - UserPromptSubmit: 添加/重置任务 → 结束
+   - Stop/SubagentStop (stop_hook_active=true): 删除任务 → 结束
+   - 其他事件: 继续后续流程
+3. 清理过期任务（超过 8 小时）
+4. 遍历所有任务，检查是否到提醒时间
+5. 发送精确时间差通知（"X分Y秒"，标题显示阶段）
 ```
 
 ### 适用场景
 
-- ✅ 多个 Claude Code 对话同时运行
+- ✅ 多个工作目录（cwd）同时运行独立任务
 - ✅ 长时间运行的会话需要定时提醒
-- ✅ 自动化管理，无需手动开启/关闭
+- ✅ 自动化管理，根据 hook 事件智能处理
+- ✅ 精确的时间差显示（分钟+秒）
 - ✅ 防止状态文件无限增长
 
 ## Hook 类型详解

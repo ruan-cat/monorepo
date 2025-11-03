@@ -1,8 +1,6 @@
-<!-- TODO: 等待开始 -->
-
 <!--
 	一次性提示词
-	TODO 未完成
+	已完成重构
  -->
 
 # 重新定位 long-task 命令，重构整个长命令通知逻辑
@@ -132,3 +130,31 @@ check-and-notify 应该根据 hook_event_name 所体现的不同的生命周期�
 ## 主动询问咨询你不明确的细节
 
 请你先思考一下，以 ultrathink 模式认真思考。有疑问疑惑的，请你立刻询问我。我与你共同完善设计一个合适的长任务计时的新增、删除、通知机制。
+
+## 回答 AI 的疑问
+
+1. 长任务通知间隔频率数组的完整配置
+   - 完整的间隔配置数组，就是 packages\claude-notifier\src\core\timer.ts 的 `DEFAULT_INTERVALS` 数组。
+   - 这是一个常量，允许用户在外部自己配置提醒间隔。默认的时间间隔数组就是 [6, 10, 18, 25, 45] 。
+   - 绝大多数情况下，我几乎不会去设置这个间隔数组。但是你仍然要保留这个接口设计。
+2. 时间格式的具体字符串
+   - 存储格式： YYYY-MM-DD HH:mm:ss
+   - 通知文本格式： 仅显示"X 分 Y 秒"
+3. 状态文件的存储位置和数据结构
+   - 状态文件存储在 os.tmpdir()/.claude-notifier-timer.json ，只是 key 值是基于 cwd，文件并不是存储在 hooks 钩子返回的 cwd 内。
+   - 文件内应该是 { [cwd: string]: TaskState } 的结构
+   - 你设计的数据结构 TaskState 和 TimerStateFile 满足我的需求。就这样设计。
+4. long-task 命令的新职责
+   - 只是输出一个样式化的通知消息。
+   - 不需要从任何地方读取 stdin 数据。
+   - 通知内容就是现在已经设计好的通知内容，icon 是预设的长时间 icon，即 `iconPreset.ALICE_TIMEOUT`。文本是动态计算的出来的通知文本。
+5. cwd 唯一性的确认
+   - 现阶段接受这个限制。
+   - 至于未来要怎么更改，我也说不准。按照你的方案来吧。
+6. 关于 hook_event_name 的其他事件处理
+   - SessionStart、SessionEnd 等事件也会触发 check-and-notify。
+   - 所有事件都应该检查并通知（除了 UserPromptSubmit 和 Stop/SubagentStop）
+7. triggeredIndexes 和间隔数组的对应关系
+   - 换一个标记方式。
+   - triggeredIndexes = [6] 表示已触发 6 分钟提醒
+   - triggeredIndexes = [6，,10] 表示已触发 6 分钟和 10 分钟提醒
