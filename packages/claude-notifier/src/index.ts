@@ -26,16 +26,6 @@ export {
 	parseTime,
 	formatTimeDiff,
 	DEFAULT_INTERVALS,
-	// 旧的基于 session_id 的 API（已废弃，保留用于兼容性）
-	addOrUpdateSession,
-	removeSession,
-	cleanupExpiredSessions,
-	checkAndNotifySession,
-	checkAndNotifyAll,
-	getSessionState,
-	getAllSessionStates,
-	loadAllSessions,
-	saveAllSessions,
 } from "./core/timer.ts";
 
 // 导出配置
