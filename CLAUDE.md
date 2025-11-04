@@ -40,6 +40,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 3. 测试用例的目录一般情况下为 `**/tests/` ，`**/src/tests/` 格式。
 4. 在 对应 monorepo 的 tests 目录内，编写测试用例。如果你无法独立识别清楚到底在那个具体的 monorepo 子包内编写测试用例，请直接咨询我应该在那个目录下编写测试用例。
 
+## 报告编写规范
+
+在大多数情况下，你的更改是**不需要**编写任何说明报告的。但是每当你需要编写报告时，请你首先遵循以下要求：
+
+- 报告地址： 默认在 `docs\reports` 文件夹内编写报告。
+- 报告文件格式： `*.md` 通常是 markdown 文件格式。
+- 报告文件名称命名要求：
+  1. 前缀以日期命名。包括年月日。日期格式 `YYYY-MM-DD` 。
+  2. 用小写英文加短横杠的方式命名。
+- 报告语言： 默认用简体中文。
+
 ## Monorepo 结构
 
 这是一个基于 **pnpm workspace** 的 monorepo 项目，包含以下工作区：
