@@ -57,5 +57,5 @@ SESSION_ENV="${LOG_DIR}/.session_${SESSION_ID}"
 # ====== 快速返回 ======
 # UserPromptSubmit 钩子的输出会添加到 Claude 的上下文中
 # 这里可以添加一些有用的上下文信息
-echo "{\"decision\": \"proceed\"}"
+echo "{\"decision\": \"approve\"}"
 exit 0

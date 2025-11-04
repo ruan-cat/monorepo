@@ -203,3 +203,25 @@
 1. 将本次更改，编写简单简要的更新日志，写入 claude-code-marketplace\common-tools\CHANGELOG.md 文件内。
 2. 对于 claude code 插件 claude-code-marketplace\common-tools 和 .claude-plugin\marketplace.json 文件，请你按照本次更新的内容，更新版本号。
 3. 将你的设计，思考，经验教训，编写成一份简要明晰的文档，写入到 docs\reports 内。报告 markdown 文件名称，要加上日期，小写英文名。报告用中文编写。
+
+## 10 修复 claude code 钩子出现的故障
+
+阅读以下日志：
+
+```log
+This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). The promise rejected with the reason:
+Error: Unknown hook decision type: proceed. Valid types are: approve, block
+    at gc2 (file:///C:/Users/pc/AppData/Local/pnpm/global/5/.pnpm/@anthropic-ai+claude-code@2.0.32/node_modules/@anthropic-ai/claude-code/cli.js:3460:1222)
+    at An5 (file:///C:/Users/pc/AppData/Local/pnpm/global/5/.pnpm/@anthropic-ai+claude-code@2.0.32/node_modules/@anthropic-ai/claude-code/cli.js:3467:238)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+```
+
+该错误是在 claude code 钩子使用了新的脚本后出现的。对于 `claude-code-marketplace\common-tools\hooks\hooks.json` 的 UserPromptSubmit 钩子而言，现在确实实现了记录对话的信息，日志文件夹内也出现了期望的用户对话文本，也确实写入到日志内了。
+
+但是这导致 claude code 内部出现故障了，请你分析故障日志，并帮我修复该故障。
+
+请你重点处理以下文件，避免出现该错误：
+
+- claude-code-marketplace\common-tools\scripts\user-prompt-logger.sh
+- claude-code-marketplace\common-tools\scripts\transcript-reader.js
+- claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh

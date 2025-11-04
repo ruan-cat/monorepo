@@ -5,6 +5,67 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.6.1] - 2025-11-04
+
+### Fixed
+
+- **🐞 钩子决策类型错误**: 修复了钩子返回值导致 Claude Code 内部故障的严重问题
+  - **问题原因**: 钩子脚本返回了 `{"decision": "proceed"}`，但 Claude Code 只接受 `approve` 或 `block` 两种决策类型
+  - **错误信息**: `Error: Unknown hook decision type: proceed. Valid types are: approve, block`
+  - **影响范围**:
+    - `user-prompt-logger.sh`: UserPromptSubmit 钩子无法正常工作
+    - `task-complete-notifier.sh`: Stop 钩子导致 Claude Code 崩溃
+  - **修复方案**: 将所有钩子脚本的返回值从 `"proceed"` 改为 `"approve"`
+    - `user-prompt-logger.sh:60`: 快速返回时的决策类型
+    - `task-complete-notifier.sh:48`: 错误陷阱中的决策类型
+    - `task-complete-notifier.sh:247`: 正常输出时的决策类型
+
+### Technical Details
+
+#### 修复前的代码（导致崩溃）
+
+```bash
+# user-prompt-logger.sh:60
+echo "{\"decision\": \"proceed\"}"  # ❌ 错误的决策类型
+
+# task-complete-notifier.sh:48
+trap 'echo "{\"decision\": \"proceed\"}"; exit 0' ERR EXIT  # ❌ 错误的决策类型
+
+# task-complete-notifier.sh:247
+OUTPUT_JSON="{\"decision\": \"proceed\", ...}"  # ❌ 错误的决策类型
+```
+
+#### 修复后的代码（正常工作）
+
+```bash
+# user-prompt-logger.sh:60
+echo "{\"decision\": \"approve\"}"  # ✅ 正确的决策类型
+
+# task-complete-notifier.sh:48
+trap 'echo "{\"decision\": \"approve\"}"; exit 0' ERR EXIT  # ✅ 正确的决策类型
+
+# task-complete-notifier.sh:247
+OUTPUT_JSON="{\"decision\": \"approve\", ...}"  # ✅ 正确的决策类型
+```
+
+#### 钩子决策类型规范
+
+根据 Claude Code 官方文档，钩子返回的 JSON 必须包含 `decision` 字段，且只支持两种值：
+
+| 决策类型  | 说明                       | 使用场景                     |
+| --------- | -------------------------- | ---------------------------- |
+| `approve` | 允许操作继续               | 正常执行，不阻塞 Claude Code |
+| `block`   | 阻止操作继续，显示阻塞消息 | 需要用户确认或满足特定条件   |
+
+**重要**: `proceed` 不是有效的决策类型，会导致 Claude Code 抛出异常并崩溃。
+
+### References
+
+- 修复的脚本：
+  - `scripts/user-prompt-logger.sh`
+  - `scripts/task-complete-notifier.sh`
+- 官方文档：[Claude Code Hooks Reference](https://docs.claude.com/en/docs/claude-code/hooks)
+
 ## [0.6.0] - 2025-11-04
 
 ### Added
