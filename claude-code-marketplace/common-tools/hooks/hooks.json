@@ -11,7 +11,7 @@
 					{
 						"type": "command",
 						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh",
-						"timeout": 10
+						"timeout": 15
 					},
 					{
 						"type": "command",
@@ -23,6 +23,11 @@
 		"UserPromptSubmit": [
 			{
 				"hooks": [
+					{
+						"type": "command",
+						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/user-prompt-logger.sh",
+						"timeout": 3
+					},
 					{
 						"type": "command",
 						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"

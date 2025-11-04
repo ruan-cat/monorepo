@@ -152,3 +152,54 @@
 **相关文件：**
 
 - claude-code-marketplace/common-tools/scripts/task-complete-notifier.sh:6-273
+
+## 09 修复上下文缺少的故障
+
+阅读：
+
+- `claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh`
+- `C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs` 目录内的全部日志文件。
+
+我希望 `task-complete-notifier.sh` 作为 claude code 的插件，实现运行完毕后根据完整的对话上下文
+
+1. 帮我调研一下，怎么利用 claude code 的钩子系统，获取到足量的，全部的上下文，并写入到日志内？请帮我调研这个机制。
+2. 请帮我设计好一个合适的机制，如果你需要设计出多个 sh 脚本协作完成任务，请说明你的设计。
+3. 如果你需要再 claude code 钩子的不同阶段内，获取到全量足量的上下文，请跟我说明你的想法和设计。
+4. 我的最终需求是，在一轮完整的 claude code 对话内，你实现一个对话上下文记录机制，写入到日志文件内，并最终调用 gemini，或者是其他 cli 机制的无头调用的本地模型，实现短时间内简短的内容总结。
+
+### 01 回答 AI 的问题
+
+改进的钩子入口机制：
+
+1. 在 UserPromptSubmit 钩子记录用户输入，和初始化会话日志。
+2. 在 Stop 钩子记录 agent 响应，并生成 gemini 总结。
+
+适当的压缩合并你设计的 sh 脚本。
+
+使用多钩子方案，但是你只使用这两个钩子。
+
+问题：
+
+1. 怎么利用钩子系统获取全量上下文？
+   - 使用 transcript_path 字段读取 JSONL 文件
+   - 提取用户输入、Agent 响应
+2. 需要多个脚本协作。是的。
+3. 在哪个钩子阶段获取上下文？
+   - 仅仅两个钩子： UserPromptSubmit 和 Stop 。
+4. 调用模型生成总结的机制？
+   - Gemini CLI（优先）
+   - 关键词提取（兜底）
+   - 不考虑本地的 Ollama/LM 。因为不是大多数人本地都准备好了 Ollama/LM 。
+
+### 02
+
+1. 仅保留一个 README.md 文件。将 `claude-code-marketplace\common-tools\scripts\README.md` 相关的介绍，适当的迁移，删减，移动到 `claude-code-marketplace\common-tools\README.md` 文件内。最后删除掉 `claude-code-marketplace\common-tools\scripts\README.md` 文件。
+2. 去添加钩子，而不是删改原本就配置好的钩子。对于 `claude-code-marketplace\common-tools\hooks\hooks.json` 钩子配置文件，本来就准备好一些钩子了，你只增加需要的钩子。
+3. 对于 `claude-code-marketplace\common-tools\hooks\hooks.json` 钩子配置文件，其说明文本，我不想看到关于什么 V2 版本的说明。我不喜欢看到专门划定出来的 V2 版本。
+4. 不要新增加一个独立的 `task-complete-notifier-v2.sh` 文件。你就直接删改原本就有的 `task-complete-notifier.sh` 文件即可。不需要你增加新的脚本。
+
+### 03 做好 claude code 插件版本更新准备
+
+1. 将本次更改，编写简单简要的更新日志，写入 claude-code-marketplace\common-tools\CHANGELOG.md 文件内。
+2. 对于 claude code 插件 claude-code-marketplace\common-tools 和 .claude-plugin\marketplace.json 文件，请你按照本次更新的内容，更新版本号。
+3. 将你的设计，思考，经验教训，编写成一份简要明晰的文档，写入到 docs\reports 内。报告 markdown 文件名称，要加上日期，小写英文名。报告用中文编写。

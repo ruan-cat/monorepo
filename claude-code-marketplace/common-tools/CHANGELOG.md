@@ -5,6 +5,111 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.6.0] - 2025-11-04
+
+### Added
+
+- **完整对话历史读取**: 新增 `transcript-reader.js` JSONL 解析器
+  - 读取完整的对话历史，不再限制消息数量
+  - 支持三种输出格式：summary（摘要）、full（完整）、keywords（关键词）
+  - 智能提取用户消息、Agent 响应、工具调用信息
+  - 智能截断长文本，避免超过 Gemini token 限制
+
+- **双钩子协作机制**: 实现 UserPromptSubmit 和 Stop 钩子协作
+  - `user-prompt-logger.sh`: 在 UserPromptSubmit 钩子中初始化会话日志，记录用户输入
+  - `task-complete-notifier.sh`: 在 Stop 钩子中读取完整上下文，生成总结
+  - 快速返回（UserPromptSubmit < 1s，Stop < 15s），不阻塞 Claude Code
+
+- **增强的总结生成**: 改进 Gemini 总结策略
+  - 基于完整对话历史生成上下文（不再只读取最后 5 条）
+  - 三级降级策略：gemini-2.5-flash → gemini-2.5-pro → 关键词提取
+  - 提取第一个用户请求、最近交互、最后响应，构建结构化上下文
+  - 更准确的总结结果，显著减少"任务处理完成"的空洞摘要
+
+### Changed
+
+- **上下文提取优化**: 从"读取最后 5 条，每条 500 字符"改为"读取全部，智能截断"
+  - 旧实现：`lines.slice(-5)` + `substring(0, 500)`
+  - 新实现：读取所有消息，按重要性智能截断（第一个请求 800 字符，最近交互 600 字符，最后响应 800 字符）
+  - 总上下文限制：3000 字符（可配置）
+
+- **日志记录增强**: 更详细的日志信息
+  - 记录提取的上下文长度
+  - 记录 Gemini 原始输出（便于调试）
+  - 记录每次尝试的结果和耗时
+
+- **钩子配置更新**: 在 hooks.json 中添加 UserPromptSubmit 钩子
+  - 保留原有的所有钩子配置
+  - 添加 `user-prompt-logger.sh` 到 UserPromptSubmit
+  - 更新 Stop 钩子超时时间为 15 秒
+
+### Fixed
+
+- **上下文缺失问题**: 修复 Gemini 总结总是生成"任务处理完成"的根本原因
+  - 问题原因：只读取最后 5 条消息且每条只截取 500 字符，导致上下文不足
+  - 解决方案：读取完整对话历史，智能提取关键部分
+  - 结果：Gemini 现在能基于完整上下文生成有意义的总结
+
+- **关键词提取改进**: 优化降级策略中的关键词提取
+  - 移除常见停用词（中文和英文）
+  - 统计词频，返回前 10 个高频关键词
+  - 作为 Gemini 失败时的兜底方案
+
+### Technical Details
+
+#### 新增文件
+
+1. **transcript-reader.js** - 对话历史解析器
+
+   ```javascript
+   // 使用方式
+   node transcript-reader.js /path/to/transcript.jsonl --format=summary
+   ```
+
+2. **user-prompt-logger.sh** - UserPromptSubmit 钩子
+   ```bash
+   # 记录到会话日志
+   session_{SESSION_ID}_{TIMESTAMP}.log
+   ```
+
+#### 核心改进对比
+
+| 对比项     | v0.5.1                   | v0.6.0                          |
+| ---------- | ------------------------ | ------------------------------- |
+| 上下文读取 | 最后 5 条，每条 500 字符 | 完整历史，智能截断 3000 字符    |
+| 钩子数量   | 1 个（Stop）             | 2 个（UserPromptSubmit + Stop） |
+| 解析方式   | 内联 Node.js 脚本        | 独立 transcript-reader.js       |
+| 总结质量   | 经常返回"任务处理完成"   | 基于完整上下文的有意义总结      |
+
+#### 架构设计
+
+```plain
+UserPromptSubmit  ──→  user-prompt-logger.sh
+                        ├─ 初始化会话日志
+                        └─ 记录用户输入
+
+[Claude Code 处理中...]
+
+Stop              ──→  task-complete-notifier.sh
+                        ├─ 调用 transcript-reader.js
+                        ├─ 生成 Gemini 总结
+                        └─ 发送桌面通知
+```
+
+### Migration Guide
+
+无需手动迁移。更新到 0.6.0 后，所有改进将自动生效：
+
+1. UserPromptSubmit 钩子会自动开始记录用户输入
+2. Stop 钩子会自动使用新的解析器读取完整上下文
+3. Gemini 总结质量将显著提升
+
+### References
+
+- 设计文档：`docs/reports/2025-11-04-claude-code-conversation-context-improvement.md`
+- 核心脚本：`scripts/transcript-reader.js`, `scripts/user-prompt-logger.sh`
+- 改进的 Stop 钩子：`scripts/task-complete-notifier.sh`
+
 ## [0.5.1] - 2025-11-03
 
 ### Fixed

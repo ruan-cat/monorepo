@@ -1,140 +1,100 @@
 #!/bin/bash
-# Claude Code 任务完成通知器（集成 Gemini 总结功能）
-# 当 Claude Code 任务完成时触发此钩子，使用 Gemini 生成简洁摘要
-# 依赖：Node.js（monorepo 中已有）、Gemini CLI
+# Claude Code Stop 钩子 - 任务完成通知器
+# 在 Agent 响应完成后触发，生成 Gemini 总结并发送通知
+# 关键：必须快速返回（15秒内），避免阻塞 Claude Code
 
-# 关键修复：Stop hook 必须快速返回，添加全局超时和错误处理
 set -euo pipefail
 
-# 全局超时保护：整个脚本最多运行 12 秒
-# 如果脚本运行时间超过此限制，自动终止并返回成功
-# 这样可以防止 Stop hook 阻塞 Claude Code
-GLOBAL_TIMEOUT=12
+# ====== 全局超时保护 ======
+GLOBAL_TIMEOUT=15
 
 # ====== 日志配置 ======
-# 日志目录：Windows 临时文件夹
 LOG_DIR="${TEMP:-${TMP:-/tmp}}/claude-code-task-complete-notifier-logs"
 mkdir -p "$LOG_DIR" 2>/dev/null || true
 
-# 日志文件名：YYYY-MM-DD__HH-mm-ss__工作目录（无非法字符）
-LOG_TIMESTAMP=$(date +"%Y-%m-%d__%H-%M-%S")
-
-# 从标准输入读取钩子上下文数据
+# ====== 读取钩子输入 ======
 HOOK_DATA=$(cat)
 
-# 从 HOOK_DATA 提取 cwd（如果存在）
-HOOK_CWD=$(echo "$HOOK_DATA" | node -e '
-const data = JSON.parse(require("fs").readFileSync(0, "utf8"));
-// Stop 钩子没有 cwd，使用环境变量或当前目录
+# ====== 提取关键信息 ======
+SESSION_ID=$(echo "$HOOK_DATA" | node -e "
+const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+console.log(data.session_id || 'unknown');
+" 2>/dev/null || echo "unknown")
+
+TRANSCRIPT_PATH=$(echo "$HOOK_DATA" | node -e "
+const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+console.log(data.transcript_path || '');
+" 2>/dev/null || echo "")
+
+CWD=$(echo "$HOOK_DATA" | node -e "
+const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
 const cwd = data.cwd || process.env.PWD || process.cwd();
-// 移除非法字符用于文件名
-const sanitized = cwd.replace(/[\\/:*?"<>|]/g, "_");
+const sanitized = cwd.replace(/[\\\\/:*?\"<>|]/g, '_');
 console.log(sanitized);
-' 2>/dev/null || echo "unknown")
+" 2>/dev/null || echo "unknown")
 
-LOG_FILE="${LOG_DIR}/${LOG_TIMESTAMP}__${HOOK_CWD}.log"
+# ====== 生成日志文件 ======
+LOG_TIMESTAMP=$(date +"%Y-%m-%d__%H-%M-%S")
+LOG_FILE="${LOG_DIR}/${LOG_TIMESTAMP}__${CWD}.log"
 
-# 日志函数（避免使用 tee 防止阻塞）
+# ====== 日志函数 ======
 log() {
   local msg="[$(date +"%Y-%m-%d %H:%M:%S")] $*"
   echo "$msg" >> "$LOG_FILE" 2>/dev/null || true
   echo "$msg"
 }
 
-# 错误陷阱：确保脚本总是返回成功，避免阻塞 Claude Code
-trap 'log "Script interrupted or failed, returning success to prevent hook blocking"; echo "{\"decision\": \"proceed\"}"; exit 0' ERR EXIT
+# ====== 错误陷阱 ======
+trap 'log "Script interrupted, returning success to prevent blocking"; echo "{\"decision\": \"proceed\"}"; exit 0' ERR EXIT
 
 log "====== Task Complete Notifier Started ======"
-log "Log file: $LOG_FILE"
-log "Global timeout: ${GLOBAL_TIMEOUT}s"
+log "Session ID: $SESSION_ID"
+log "Transcript Path: $TRANSCRIPT_PATH"
+log "Log File: $LOG_FILE"
+log "Global Timeout: ${GLOBAL_TIMEOUT}s"
+log ""
 
-# 记录输入数据
+# ====== 记录钩子输入数据 ======
 log "====== Hook Input Data ======"
 echo "$HOOK_DATA" >> "$LOG_FILE" 2>/dev/null || true
 log ""
 
-# 提取 transcript_path（对话历史文件）
-TRANSCRIPT_PATH=$(echo "$HOOK_DATA" | node -e "
-const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
-console.log(data.transcript_path || '');
-" 2>/dev/null || echo "")
+# ====== 检查 transcript 文件 ======
+if [ -z "$TRANSCRIPT_PATH" ] || [ ! -f "$TRANSCRIPT_PATH" ]; then
+  log "ERROR: Transcript file not found: $TRANSCRIPT_PATH"
+  SUMMARY="任务处理完成"
+else
+  # ====== 使用 transcript-reader.js 提取完整上下文 ======
+  log "====== Extracting Conversation Context ======"
 
-log "Transcript path: $TRANSCRIPT_PATH"
+  # 获取脚本所在目录
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  TRANSCRIPT_READER="$SCRIPT_DIR/transcript-reader.js"
 
-# 使用 Node.js 从对话历史中提取最近的消息作为上下文
-CONVERSATION_CONTEXT=$(node -e "
-const fs = require('fs');
-const path = require('path');
+  if [ ! -f "$TRANSCRIPT_READER" ]; then
+    log "ERROR: transcript-reader.js not found at $TRANSCRIPT_READER"
+    SUMMARY="任务处理完成"
+  else
+    log "Using transcript-reader: $TRANSCRIPT_READER"
 
-try {
-  const transcriptPath = process.argv[1];
-  if (!transcriptPath || !fs.existsSync(transcriptPath)) {
-    console.log('无法读取对话历史');
-    process.exit(0);
-  }
+    # 提取对话摘要（用于 Gemini）
+    CONVERSATION_CONTEXT=$(timeout 3s node "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=summary 2>&1 || echo "")
 
-  // 读取 JSONL 文件（每行一个 JSON 对象）
-  const content = fs.readFileSync(transcriptPath, 'utf8');
-  const lines = content.trim().split('\n').filter(l => l.trim());
+    if [ -z "$CONVERSATION_CONTEXT" ]; then
+      log "WARNING: Failed to extract context, trying keywords fallback"
+      CONVERSATION_CONTEXT=$(timeout 2s node "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=keywords 2>&1 || echo "任务处理完成")
+    fi
 
-  // 解析最后几条消息
-  const messages = lines.slice(-5).map(line => {
-    try {
-      return JSON.parse(line);
-    } catch {
-      return null;
-    }
-  }).filter(Boolean);
+    log "Extracted Context Length: ${#CONVERSATION_CONTEXT} characters"
+    log ""
+    log "====== Conversation Context ======"
+    echo "$CONVERSATION_CONTEXT" >> "$LOG_FILE" 2>/dev/null || true
+    log ""
 
-  // 提取用户消息和助手响应
-  const userMessages = [];
-  const assistantMessages = [];
+    # ====== 调用 Gemini 生成总结 ======
+    log "====== Generating Gemini Summary ======"
 
-  messages.forEach(msg => {
-    if (msg.role === 'user' && msg.content) {
-      if (Array.isArray(msg.content)) {
-        const textContent = msg.content
-          .filter(c => c.type === 'text')
-          .map(c => c.text)
-          .join(' ');
-        if (textContent) userMessages.push(textContent);
-      } else if (typeof msg.content === 'string') {
-        userMessages.push(msg.content);
-      }
-    } else if (msg.role === 'assistant' && msg.content) {
-      if (Array.isArray(msg.content)) {
-        const textContent = msg.content
-          .filter(c => c.type === 'text')
-          .map(c => c.text)
-          .join(' ');
-        if (textContent) assistantMessages.push(textContent);
-      } else if (typeof msg.content === 'string') {
-        assistantMessages.push(msg.content);
-      }
-    }
-  });
-
-  // 生成简洁的上下文摘要（限制长度以避免 prompt 过长）
-  const lastUserMsg = userMessages[userMessages.length - 1] || '';
-  const lastAssistantMsg = assistantMessages[assistantMessages.length - 1] || '';
-
-  const summary = [
-    lastUserMsg.substring(0, 500),
-    lastAssistantMsg.substring(0, 500)
-  ].filter(Boolean).join('\\n\\n');
-
-  console.log(summary || '任务处理完成');
-} catch (error) {
-  console.log('解析对话历史出错');
-}
-" "$TRANSCRIPT_PATH" 2>/dev/null || echo "任务处理完成")
-
-log "====== Extracted Conversation Context ======"
-log "$CONVERSATION_CONTEXT"
-log ""
-
-# 创建给 Gemini 的简洁总结请求（使用实际对话内容）
-SUMMARY_PROMPT="你是一个任务总结助手。请根据以下对话内容，生成一个5-20字的简短任务标题。
+    SUMMARY_PROMPT="你是一个任务总结助手。请根据以下对话内容，生成一个5-20字的简短任务标题。
 
 对话内容：
 ${CONVERSATION_CONTEXT}
@@ -153,69 +113,80 @@ ${CONVERSATION_CONTEXT}
 
 请直接输出标题："
 
-# 调用 Gemini 模型生成总结
-# 策略：优先使用 gemini-2.5-flash（速度快），失败则尝试 gemini-2.5-pro（质量高）
-SUMMARY=""
-GEMINI_ERROR=""
+    log "Gemini Prompt Preview:"
+    echo "$SUMMARY_PROMPT" | head -n 10 >> "$LOG_FILE" 2>/dev/null || true
+    log "..."
+    log ""
 
-log "====== Gemini Summary Prompt ======"
-log "$SUMMARY_PROMPT"
-log ""
+    # 尝试 1: gemini-2.5-flash（快速）
+    SUMMARY=""
+    log "Trying gemini-2.5-flash (timeout: 5s)..."
+    GEMINI_START=$(date +%s)
 
-# 尝试 1: gemini-2.5-flash（快速，适合5秒内响应）
-log "Trying gemini-2.5-flash (timeout: 5s)..."
-GEMINI_START=$(date +%s)
-# 修复：移除 tee 命令，分别记录日志和捕获输出
-GEMINI_OUTPUT=$(timeout 5s gemini \
-  --model "gemini-2.5-flash" \
-  --output-format text \
-  "$SUMMARY_PROMPT" 2>&1 || echo "")
-echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
-SUMMARY=$(echo "$GEMINI_OUTPUT" | head -n 1 | tr -d '\n')
-GEMINI_END=$(date +%s)
-GEMINI_DURATION=$((GEMINI_END - GEMINI_START))
-log "gemini-2.5-flash completed in ${GEMINI_DURATION}s"
-log "Result: $SUMMARY"
+    GEMINI_OUTPUT=$(timeout 5s gemini \
+      --model "gemini-2.5-flash" \
+      --output-format text \
+      "$SUMMARY_PROMPT" 2>&1 || echo "")
 
-# 尝试 2: 如果 flash 失败或结果太短，尝试 gemini-2.5-pro（更高质量）
-if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
-  log "gemini-2.5-flash failed or result too short, trying gemini-2.5-pro (timeout: 5s)..."
-  GEMINI_START=$(date +%s)
-  GEMINI_OUTPUT=$(timeout 5s gemini \
-    --model "gemini-2.5-pro" \
-    --output-format text \
-    "$SUMMARY_PROMPT" 2>&1 || echo "")
-  echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
-  SUMMARY=$(echo "$GEMINI_OUTPUT" | head -n 1 | tr -d '\n')
-  GEMINI_END=$(date +%s)
-  GEMINI_DURATION=$((GEMINI_END - GEMINI_START))
-  log "gemini-2.5-pro completed in ${GEMINI_DURATION}s"
-  log "Result: $SUMMARY"
+    GEMINI_END=$(date +%s)
+    GEMINI_DURATION=$((GEMINI_END - GEMINI_START))
+
+    # 记录完整输出到日志
+    log "Gemini raw output:"
+    echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
+    log ""
+
+    # 提取第一行作为总结
+    SUMMARY=$(echo "$GEMINI_OUTPUT" | grep -v "^$" | head -n 1 | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || echo "")
+
+    log "gemini-2.5-flash completed in ${GEMINI_DURATION}s"
+    log "Result: '$SUMMARY'"
+    log ""
+
+    # 尝试 2: 如果结果为空或太短，尝试 gemini-2.5-pro
+    if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
+      log "gemini-2.5-flash failed, trying gemini-2.5-pro (timeout: 5s)..."
+      GEMINI_START=$(date +%s)
+
+      GEMINI_OUTPUT=$(timeout 5s gemini \
+        --model "gemini-2.5-pro" \
+        --output-format text \
+        "$SUMMARY_PROMPT" 2>&1 || echo "")
+
+      GEMINI_END=$(date +%s)
+      GEMINI_DURATION=$((GEMINI_END - GEMINI_START))
+
+      echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
+      SUMMARY=$(echo "$GEMINI_OUTPUT" | grep -v "^$" | head -n 1 | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || echo "")
+
+      log "gemini-2.5-pro completed in ${GEMINI_DURATION}s"
+      log "Result: '$SUMMARY'"
+      log ""
+    fi
+
+    # 尝试 3: 降级到关键词提取
+    if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
+      log "Gemini failed, using keyword extraction fallback"
+
+      KEYWORDS=$(timeout 2s node "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=keywords 2>&1 || echo "")
+
+      if [ -n "$KEYWORDS" ] && [ ${#KEYWORDS} -gt 5 ]; then
+        # 从关键词生成简短标题
+        SUMMARY=$(echo "$KEYWORDS" | head -c 50 | tr ',' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        log "Keyword-based summary: '$SUMMARY'"
+      else
+        SUMMARY="任务处理完成"
+        log "Using default summary"
+      fi
+    fi
+  fi
 fi
 
-# 尝试 3: 默认模型（不指定 --model）
-if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
-  log "Trying default gemini model (timeout: 4s)..."
-  GEMINI_OUTPUT=$(timeout 4s gemini \
-    --output-format text \
-    "$SUMMARY_PROMPT" 2>&1 || echo "")
-  echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
-  SUMMARY=$(echo "$GEMINI_OUTPUT" | head -n 1 | tr -d '\n')
-  log "Default model result: $SUMMARY"
-fi
+# ====== 清理和规范化总结 ======
+# 移除多余的空白、引号、标点
+SUMMARY=$(echo "$SUMMARY" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tr -s ' ' | sed 's/^["'\'']*//;s/["'\'']*$//')
 
-# 如果所有 Gemini 尝试都失败，使用降级策略
-if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
-  log "All Gemini attempts failed, using fallback strategy"
-  # 从对话上下文中提取关键词作为摘要
-  SUMMARY=$(echo "$CONVERSATION_CONTEXT" | head -c 50 | tr '\n' ' ' || echo "任务处理完成")
-fi
-
-# 清理和规范化摘要
-# 移除多余的空白和换行
-SUMMARY=$(echo "$SUMMARY" | tr -s ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-
-# 确保摘要在合理范围内
+# 确保长度合理
 SUMMARY_LENGTH=${#SUMMARY}
 log "Summary length: $SUMMARY_LENGTH characters"
 
@@ -224,15 +195,14 @@ if [ $SUMMARY_LENGTH -lt 5 ]; then
   log "Summary too short, using default"
 elif [ $SUMMARY_LENGTH -gt 50 ]; then
   SUMMARY="${SUMMARY:0:50}..."
-  log "Summary too long, truncated"
+  log "Summary truncated to 50 characters"
 fi
 
 log "====== Final Summary ======"
-log "$SUMMARY"
+log "'$SUMMARY'"
 log ""
 
-# 检测项目根目录
-# 优先使用环境变量 CLAUDE_PROJECT_DIR，如果未设置则自动检测
+# ====== 检测项目根目录 ======
 if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
   PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 else
@@ -254,32 +224,30 @@ else
   fi
 fi
 
-# 使用生成的摘要调用通知器（后台运行，避免阻塞）
-log "====== Sending Notification ======"
 log "Project directory: $PROJECT_DIR"
-log "Notification message: $SUMMARY"
 
-# 修复：将通知器放到后台运行，避免阻塞 Stop hook
-# 创建一个独立的脚本来运行通知器，这样即使挂起也不会影响主流程
+# ====== 发送通知（后台运行） ======
+log "====== Sending Notification ======"
+log "Message: $SUMMARY"
+
+# 后台运行通知器，避免阻塞
 (
   cd "$PROJECT_DIR" 2>/dev/null || cd /
-  # 使用 timeout 和后台运行的组合，确保不会阻塞
-  timeout 8s pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message "$SUMMARY" >> "$LOG_FILE" 2>&1 || echo "Notifier failed" >> "$LOG_FILE"
+  timeout 8s pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message "$SUMMARY" >> "$LOG_FILE" 2>&1 || echo "Notifier failed or timed out" >> "$LOG_FILE"
 ) &
 
-# 不等待通知器完成，直接继续
-log "Notifier started in background (PID: $!)"
+NOTIFIER_PID=$!
+log "Notifier started in background (PID: $NOTIFIER_PID)"
 log ""
 
-# 清除错误陷阱，正常退出
+# ====== 清除错误陷阱，正常退出 ======
 trap - ERR EXIT
 
-# 向 Claude Code 输出成功信息
-OUTPUT_JSON="{\"decision\": \"proceed\", \"additionalContext\": \"已发送通知：${SUMMARY} (日志: ${LOG_FILE})\"}"
+# ====== 向 Claude Code 输出成功信息 ======
+OUTPUT_JSON="{\"decision\": \"proceed\", \"additionalContext\": \"✅ 任务总结: ${SUMMARY}\"}"
 log "====== Claude Code Output ======"
 log "$OUTPUT_JSON"
 log "====== Task Complete Notifier Finished ======"
 
-# 正常退出
 echo "$OUTPUT_JSON"
 exit 0

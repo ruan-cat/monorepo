@@ -37,14 +37,46 @@
 
 #### 任务总结功能详情
 
-**Stop 钩子**现在包含强大的智能总结能力：
+**钩子系统架构**：
 
-- **对话历史解析**: 自动从 Claude Code 会话历史中提取最近的对话内容
-- **智能摘要生成**: 使用 Gemini AI 生成 5-20 字的简洁任务标题
-- **完整日志记录**: 所有执行过程都会记录到日志文件，方便调试
-- **多层级容错**: flash → pro → 默认模型 → 降级策略，确保总结始终可用
+```plain
+UserPromptSubmit  ──→  user-prompt-logger.sh
+                        ├─ 初始化会话日志
+                        └─ 记录用户输入
 
-详细说明请参阅：[scripts/TASK_COMPLETE_NOTIFIER_README.md](./scripts/TASK_COMPLETE_NOTIFIER_README.md)
+[Claude Code 处理中...]
+
+Stop              ──→  task-complete-notifier.sh
+                        ├─ 读取完整对话历史 (transcript-reader.js)
+                        ├─ 生成 Gemini 总结
+                        └─ 发送桌面通知
+```
+
+**核心脚本**：
+
+1. **transcript-reader.js** - JSONL 对话历史解析器
+   - 完整读取 Claude Code 的对话历史
+   - 提取用户消息、Agent 响应、工具调用
+   - 支持三种输出格式：summary（摘要）、full（完整）、keywords（关键词）
+
+2. **user-prompt-logger.sh** - UserPromptSubmit 钩子
+   - 初始化会话日志
+   - 记录用户输入和会话信息
+   - 快速返回（< 1 秒），不阻塞
+
+3. **task-complete-notifier.sh** - Stop 钩子
+   - 调用 transcript-reader.js 读取完整上下文
+   - 三级降级策略：gemini-2.5-flash → gemini-2.5-pro → 关键词提取
+   - 后台发送通知，避免阻塞
+   - 详细日志记录
+
+**功能特性**：
+
+- **完整上下文读取**: 读取完整的 JSONL 对话历史，不再只截取最后几条消息
+- **智能总结生成**: 优先使用 Gemini AI，失败时降级到关键词提取
+- **双钩子协作**: UserPromptSubmit 记录输入，Stop 生成总结
+- **详细日志记录**: 所有操作都记录到日志文件，方便调试
+- **快速返回**: 不阻塞 Claude Code 执行（15 秒超时保护）
 
 ## 安装
 
@@ -130,6 +162,51 @@ Get-Content (Get-ChildItem "$env:TEMP\claude-code-task-complete-notifier-logs" |
 # Linux/Mac
 tail -f /tmp/claude-code-task-complete-notifier-logs/$(ls -t /tmp/claude-code-task-complete-notifier-logs | head -1)
 ```
+
+### 调试指南
+
+#### 问题：Gemini 调用失败
+
+**排查步骤**：
+
+1. 检查 Gemini CLI 是否安装：
+
+   ```bash
+   which gemini
+   gemini --version
+   ```
+
+2. 检查 API Key 是否配置：
+
+   ```bash
+   echo $GEMINI_API_KEY
+   ```
+
+3. 手动测试 Gemini 调用：
+
+   ```bash
+   gemini --model "gemini-2.5-flash" --output-format text "测试总结"
+   ```
+
+4. 查看详细错误日志：
+   ```bash
+   grep "Gemini" $TEMP/claude-code-task-complete-notifier-logs/*.log
+   ```
+
+#### 问题：上下文提取为空
+
+**排查步骤**：
+
+1. 手动运行 transcript-reader.js：
+
+   ```bash
+   node scripts/transcript-reader.js "$TRANSCRIPT_PATH" --format=full
+   ```
+
+2. 检查 JSONL 格式是否正确：
+   ```bash
+   head -1 "$TRANSCRIPT_PATH" | jq .
+   ```
 
 ## 版本历史
 
