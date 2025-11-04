@@ -2,15 +2,19 @@
 
 这是一个多次性的提示词，虽然被定为成 `.claude\agents` 的子代理，但是当你阅读该文件时，绝大多数情况是不需要以子代理的形式运行的。
 
-## 主要面向对象
+## 1. 主要面向对象
 
 所服务的 claude code 插件是 `claude-code-marketplace\common-tools` 的 `common-tools` 插件。
 
-## 编写更新日志
+## 2. 编写更新日志
 
 将本次对话的更改，编写**简单**、**简要**的更新日志，写入 `claude-code-marketplace\common-tools\CHANGELOG.md` 文件内。
 
-## 更新版本号
+## 3. 适当的更新文档
+
+对于 `common-tools` 插件，请适当的更新 `claude-code-marketplace\common-tools\README.md` 文件，并确保整个文档的长度不会太长。
+
+## 4. 更新版本号
 
 对于 claude code 插件 `claude-code-marketplace\common-tools`。
 
@@ -19,7 +23,7 @@
 1. `.claude-plugin\marketplace.json`
 2. `claude-code-marketplace\common-tools\.claude-plugin\plugin.json`
 
-## 编写报告
+## 5. 编写报告
 
 将你的设计，思考，经验教训，编写成一份简要明晰的文档。
 
