@@ -225,3 +225,24 @@ Error: Unknown hook decision type: proceed. Valid types are: approve, block
 - claude-code-marketplace\common-tools\scripts\user-prompt-logger.sh
 - claude-code-marketplace\common-tools\scripts\transcript-reader.js
 - claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh
+
+## 11 修复 claude code 钩子无法阅读有效的上下文日志的故障
+
+<!-- TODO: 等待网络恢复了就开始处理 -->
+
+请阅读以下日志的信息：
+
+- `C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs\2025-11-04__23-45-38__D__code_github-desktop-store_001-Smart-Community(nwt-q).log`
+- `C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs\2025-11-04__23-57-41__D__code_github-desktop-store_001-Smart-Community(nwt-q).log`
+- `C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs\2025-11-05__00-04-06__D__code_github-desktop-store_gh.ruancat.monorepo.log`
+
+对于 `claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh` 命令，在执行 `bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh` 时，出现故障，导致没办法阅读完整的上下文信息，进而导致 gemini 总结失败。
+
+请你认真阅读相关逻辑，并确保运行 `claude-code-marketplace\common-tools\scripts\transcript-reader.js` 时不会出现类似的错误。
+
+我希望你更改工具脚本代码的运行方式，在 `claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh` 内：
+
+1. transcript-reader.js 改写成纯 transcript-reader.ts 文件，改换成纯 typescript 文件。
+2. 用当前机器预装好的全局 node 库 tsx 来运行 typescript 文件。
+3. 通过直接运行 `tsx transcript-reader.ts` 的方式来运行 typescript 脚本文件。
+4. 如果本机不存在 tsx 这个全局 node 包，请你直接放弃该方案，就当做是读取文件失败。并且将不存在全局 tsx 包的情况，写入到日志文件内，供未来复盘排查。
