@@ -4,7 +4,7 @@
 
 ## 版本
 
-**当前版本**: `0.6.3`
+**当前版本**: `0.6.4`
 
 查看完整的更新历史，请参阅 [CHANGELOG.md](./CHANGELOG.md)
 
@@ -234,104 +234,6 @@ pnpm add -g tsx
 ```
 
 脚本会在 tsx 不可用时自动降级到使用 grep/sed 提取，但功能会受限。
-
-## 版本历史
-
-### [0.6.3] - 2025-11-07
-
-**修复**：
-
-- 🐞 **对话历史解析格式错误**: 修复了 transcript-reader.ts 无法正确解析 Claude Code transcript.jsonl 文件格式的关键问题
-  - **根本原因**：解析逻辑期望的消息格式与 Claude Code 实际生成的格式不匹配
-    - 期望格式：`{role: "user", content: "..."}`（顶层直接包含 role）
-    - 实际格式：`{type: "user", message: {role: "user", content: "..."}}`（消息嵌套在 message 字段中）
-  - **修复方案**：
-    1. 新增 `TranscriptLine` 接口定义真实的 JSONL 格式
-    2. 修改 `readTranscript` 函数正确解析嵌套的消息结构
-    3. 从 `transcriptLine.message` 提取真正的消息对象
-  - **测试结果**：
-    - ✅ 成功提取用户消息和 Agent 响应
-    - ✅ 上下文长度从 6 字符（默认文本）提升到完整对话内容
-    - ✅ Gemini 能够基于真实对话生成有意义的总结
-    - ✅ 关键词提取功能正常工作
-
-详情参见 [CHANGELOG.md](./CHANGELOG.md#063---2025-11-07)
-
-### [0.6.2] - 2025-11-06
-
-**修复**：
-
-- 🐞 **钩子上下文读取失败**: 修复了 transcript-reader.js 因 ES Module 错误无法读取对话上下文的问题
-  - **根本原因**：JavaScript 文件使用 `require()` 语法，但父级 package.json 设置了 `"type": "module"`
-  - **修复方案**：
-    1. 迁移到 TypeScript (transcript-reader.ts)
-    2. 新增 parse-hook-data.ts 处理 JSON 解析和 Windows 路径转义
-    3. 使用全局 `tsx` 运行 TypeScript 文件
-  - **测试结果**：
-    - ✅ JSON 解析正常
-    - ✅ 对话上下文正确提取
-    - ✅ Gemini 总结功能恢复
-    - ✅ Windows 路径正确处理
-
-详情参见 [CHANGELOG.md](./CHANGELOG.md#062---2025-11-06)
-
-### [0.6.1] - 2025-11-04
-
-**修复**：
-
-- 修复了钩子返回值类型错误（`proceed` → `approve`）导致 Claude Code 崩溃的问题
-
-详情参见 [CHANGELOG.md](./CHANGELOG.md#061---2025-11-04)
-
-### [0.5.1] - 2025-11-03
-
-**修复**：
-
-- 🐞 **Stop hook 阻塞问题**: 修复了 `● Stop hook prevented continuation` 导致 Claude Code 无法继续执行的严重问题
-  - **根本原因**：
-    1. `tee` 命令导致 I/O 管道阻塞
-    2. `pnpm dlx` 调用可能挂起，等待下载包
-    3. 缺少全局错误处理机制
-  - **修复方案**：
-    1. 移除 `tee` 命令，改用分离的日志记录方式
-    2. 通知器后台运行，不等待完成
-    3. 添加错误陷阱，确保脚本总是返回成功
-    4. 优化超时时间（5s/5s/4s/8s）
-  - **测试结果**：
-    - ✅ 脚本在约 17 秒内完成
-    - ✅ 返回有效的 JSON 输出
-    - ✅ 即使 Gemini 和通知器失败，也能正常返回
-    - ✅ 不再阻塞 Claude Code
-
-详情参见 [CHANGELOG.md](./CHANGELOG.md#051---2025-11-03)
-
-### [0.5.0] - 2025-11-03
-
-**新增**：
-
-- 🎯 **智能总结系统重构**: 完全修复 Gemini 总结功能，现在可以生成有意义的任务摘要
-- 📝 **完整日志记录**: 新增自动日志记录机制，记录所有输入、处理过程和输出
-- 🚀 **多模型策略**: 实现 flash → pro → 默认模型的智能降级策略
-- 🔍 **调试支持**: 详细日志文件帮助排查问题
-
-**修复**：
-
-- 🐞 **核心问题修复**: 修复了 Stop 钩子无法获取任务描述的根本问题
-  - 原因：Stop 钩子不包含 `tool_input` 字段
-  - 解决方案：从 `transcript_path` 读取对话历史并提取上下文
-- 📊 **对话解析**: 实现了完整的 JSONL 格式对话历史解析
-- ⚡ **性能优化**: 优化了 Gemini 调用超时策略（flash: 5s, pro: 8s）
-
-详情参见 [CHANGELOG.md](./CHANGELOG.md#050---2025-11-03) 和 [scripts/TASK_COMPLETE_NOTIFIER_README.md](./scripts/TASK_COMPLETE_NOTIFIER_README.md)
-
-### [0.4.1] - 2025-11-03
-
-**修复**：
-
-- 修复了插件钩子重复运行两次的严重 bug
-- 将 `plugin.json` 中的 `hooks` 字段从不受支持的数组格式改为字符串格式
-
-详情参见 [CHANGELOG.md](./CHANGELOG.md#041---2025-11-03)
 
 ## 问题报告
 

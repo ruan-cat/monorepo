@@ -5,6 +5,12 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.6.4] - 2025-11-07
+
+### Changed
+
+- **任务总结提示词优化**: 新增强制中文输出要求，确保 Gemini 生成的任务摘要始终使用中文，避免出现英文或其他语言
+
 ## [0.6.3] - 2025-11-07
 
 ### Fixed
