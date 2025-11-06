@@ -39,6 +39,14 @@ interface Message {
 	content: string | ContentItem[];
 }
 
+// Claude Code transcript.jsonl 实际格式
+interface TranscriptLine {
+	type: string;
+	message?: Message;
+	// 其他字段可选
+	[key: string]: any;
+}
+
 interface ToolCallInfo {
 	tool: string;
 	input: Record<string, any>;
@@ -189,8 +197,12 @@ function readTranscript(transcriptPath: string): Message[] {
 	const messages: Message[] = [];
 	for (const line of lines) {
 		try {
-			const msg = JSON.parse(line) as Message;
-			messages.push(msg);
+			const transcriptLine = JSON.parse(line) as TranscriptLine;
+
+			// 只处理 user 和 assistant 类型的消息
+			if ((transcriptLine.type === "user" || transcriptLine.type === "assistant") && transcriptLine.message) {
+				messages.push(transcriptLine.message);
+			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : "Unknown error";
 			console.error(`Failed to parse line: ${line.substring(0, 50)}...`, errorMessage);

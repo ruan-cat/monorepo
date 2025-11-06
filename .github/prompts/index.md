@@ -244,3 +244,20 @@ Error: Unknown hook decision type: proceed. Valid types are: approve, block
 2. 用当前机器预装好的全局 node 库 tsx 来运行 typescript 文件。
 3. 通过直接运行 `tsx transcript-reader.ts` 的方式来运行 typescript 脚本文件。
 4. 如果本机不存在 tsx 这个全局 node 包，请你直接放弃该方案，就当做是读取文件失败。并且将不存在全局 tsx 包的情况，写入到日志文件内，供未来复盘排查。
+
+## 12 修复 claude code 钩子无法阅读有效的上下文日志的故障，每次阅读的都是固定的`任务处理完成`文本
+
+请你阅读：
+
+- claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh
+- claude-code-marketplace\common-tools\scripts\transcript-reader.ts
+
+请你阅读以下日志：
+
+- C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs\2025-11-07**00-03-46**D\_\_code_01s_202510-12psi_yunxiao-code_zero-one-12psi_psi-frontend.log
+- C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs\2025-11-07**05-05-43**D\_\_my-docs_personal-data.log
+- C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs\2025-11-07**05-06-31**D\_\_my-docs_personal-data.log
+- C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs\2025-11-07**05-06-59**D\_\_my-docs_personal-data.log
+- C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs\2025-11-07**05-11-16**D\_\_my-docs_personal-data.log
+
+从这几个日志可以得出，每次阅读上下文时，都无法获取到需要的数据。请看看 generateSummary 函数，为什么 `userMessages.length === 0 && assistantMessages.length === 0` 获取不到有效的文本呢？每次获取都失败，只能返回 `任务处理完成` 文本。

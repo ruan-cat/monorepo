@@ -4,7 +4,7 @@
 
 ## 版本
 
-**当前版本**: `0.6.2`
+**当前版本**: `0.6.3`
 
 查看完整的更新历史，请参阅 [CHANGELOG.md](./CHANGELOG.md)
 
@@ -236,6 +236,26 @@ pnpm add -g tsx
 脚本会在 tsx 不可用时自动降级到使用 grep/sed 提取，但功能会受限。
 
 ## 版本历史
+
+### [0.6.3] - 2025-11-07
+
+**修复**：
+
+- 🐞 **对话历史解析格式错误**: 修复了 transcript-reader.ts 无法正确解析 Claude Code transcript.jsonl 文件格式的关键问题
+  - **根本原因**：解析逻辑期望的消息格式与 Claude Code 实际生成的格式不匹配
+    - 期望格式：`{role: "user", content: "..."}`（顶层直接包含 role）
+    - 实际格式：`{type: "user", message: {role: "user", content: "..."}}`（消息嵌套在 message 字段中）
+  - **修复方案**：
+    1. 新增 `TranscriptLine` 接口定义真实的 JSONL 格式
+    2. 修改 `readTranscript` 函数正确解析嵌套的消息结构
+    3. 从 `transcriptLine.message` 提取真正的消息对象
+  - **测试结果**：
+    - ✅ 成功提取用户消息和 Agent 响应
+    - ✅ 上下文长度从 6 字符（默认文本）提升到完整对话内容
+    - ✅ Gemini 能够基于真实对话生成有意义的总结
+    - ✅ 关键词提取功能正常工作
+
+详情参见 [CHANGELOG.md](./CHANGELOG.md#063---2025-11-07)
 
 ### [0.6.2] - 2025-11-06
 

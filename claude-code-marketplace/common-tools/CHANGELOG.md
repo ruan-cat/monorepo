@@ -5,6 +5,107 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.6.3] - 2025-11-07
+
+### Fixed
+
+- **🐞 对话历史解析格式错误**: 修复了 transcript-reader.ts 无法正确解析 Claude Code transcript.jsonl 文件格式的关键问题
+  - **问题原因**: 解析逻辑期望的消息格式与 Claude Code 实际生成的格式不匹配
+    - **期望格式**: 每行直接是 `{role: "user", content: "..."}`
+    - **实际格式**: 每行是 `{type: "user", message: {role: "user", content: "..."}}`
+  - **影响范围**:
+    - `analyzeConversation` 函数无法找到任何有效消息
+    - `userMessages` 和 `assistantMessages` 数组始终为空
+    - `generateSummary` 总是返回默认值 "任务处理完成"
+    - 钩子无法提取有效的对话上下文供 Gemini 使用
+  - **修复方案**:
+    1. 新增 `TranscriptLine` 接口定义真实的 JSONL 格式
+    2. 修改 `readTranscript` 函数正确解析嵌套的消息结构
+    3. 只提取 `type === "user"` 或 `type === "assistant"` 的行
+    4. 从 `transcriptLine.message` 中获取真正的消息对象
+
+### Technical Details
+
+#### 修复前的解析逻辑
+
+```typescript
+// 错误：直接解析为 Message，期望顶层就有 role 字段
+const msg = JSON.parse(line) as Message;
+messages.push(msg);
+
+// analyzeConversation 检查
+if (msg.role === "user") { ... }  // ❌ role 不在顶层
+```
+
+#### 修复后的解析逻辑
+
+```typescript
+// 正确：先解析为 TranscriptLine，再提取嵌套的 message
+const transcriptLine = JSON.parse(line) as TranscriptLine;
+
+if ((transcriptLine.type === "user" || transcriptLine.type === "assistant") && transcriptLine.message) {
+	messages.push(transcriptLine.message); // ✅ 提取真正的消息对象
+}
+```
+
+#### Claude Code 实际的 transcript.jsonl 格式
+
+```json
+{
+  "type": "user",
+  "message": {
+    "role": "user",
+    "content": "你好？你是什么模型啊？"
+  },
+  "uuid": "3c37859f-a9f2-40aa-a98c-9edc831847d9",
+  "timestamp": "2025-11-06T21:06:26.835Z"
+}
+
+{
+  "type": "assistant",
+  "message": {
+    "role": "assistant",
+    "content": [
+      {"type": "text", "text": "你好！我是 Claude Code..."}
+    ],
+    "model": "kimi-k2-turbo-preview"
+  },
+  "uuid": "5ff8f34b-b284-4229-970b-bab98195825a"
+}
+```
+
+### Testing
+
+测试结果确认修复成功：
+
+**测试文件 1**: `d2de3058-8439-4374-803c-0db866cb1ede.jsonl`
+
+```plain
+✅ 修复前: "任务处理完成" (6 字符)
+✅ 修复后: "你好？你是什么模型啊？\n\n我是 Claude Code，使用的是 Claude 3.5 Sonnet 模型。"
+```
+
+**测试文件 2**: `300b35d9-f468-4005-9811-2f6edf73b351.jsonl`
+
+```plain
+✅ 修复前: "任务处理完成" (6 字符)
+✅ 修复后: "运行 vue-tsc --build 命令...\n\n已完成类型检查，发现 403 个类型错误..."
+```
+
+**关键词提取测试**:
+
+```bash
+tsx transcript-reader.ts <file> --format=keywords
+✅ 输出: "Claude, 你好, 我是, Code, Sonnet, 模型, ..."
+```
+
+### References
+
+- 修复的脚本：`scripts/transcript-reader.ts:43-48, 186-213`
+- 相关日志分析：
+  - `C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs\2025-11-07__00-03-46__*.log`
+  - 所有日志显示 "Extracted Context Length: 6 characters" (仅包含默认文本)
+
 ## [0.6.2] - 2025-11-06
 
 ### Fixed
