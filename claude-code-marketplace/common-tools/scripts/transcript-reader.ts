@@ -1,10 +1,10 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 /**
  * Claude Code 对话历史解析器
  * 读取 transcript.jsonl 文件，提取完整的用户输入和 Agent 响应
  *
  * 使用方式：
- *   node transcript-reader.js <transcript_path> [--format=summary|full|keywords]
+ *   tsx transcript-reader.ts <transcript_path> [--format=summary|full|keywords]
  *
  * 输出格式：
  *   - summary: 结构化的对话摘要（默认）
@@ -12,19 +12,51 @@
  *   - keywords: 关键词提取
  */
 
-const fs = require("fs");
-const path = require("path");
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 // ====== 配置参数 ======
 const MAX_CONTEXT_LENGTH = 3000; // 最大上下文长度（字符数）
 const MAX_MESSAGES_TO_INCLUDE = 20; // 最多包含的消息数量
+
+// ====== 类型定义 ======
+
+interface TextContent {
+	type: "text";
+	text: string;
+}
+
+interface ToolUse {
+	type: "tool_use";
+	name: string;
+	input: Record<string, any>;
+}
+
+type ContentItem = TextContent | ToolUse;
+
+interface Message {
+	role: "user" | "assistant" | "system";
+	content: string | ContentItem[];
+}
+
+interface ToolCallInfo {
+	tool: string;
+	input: Record<string, any>;
+}
+
+interface ConversationAnalysis {
+	userMessages: string[];
+	assistantMessages: string[];
+	toolCalls: ToolCallInfo[];
+	totalMessages: number;
+}
 
 // ====== 工具函数 ======
 
 /**
  * 从消息中提取文本内容
  */
-function extractTextContent(message) {
+function extractTextContent(message: Message): string {
 	if (!message || !message.content) return "";
 
 	if (typeof message.content === "string") {
@@ -33,7 +65,7 @@ function extractTextContent(message) {
 
 	if (Array.isArray(message.content)) {
 		return message.content
-			.filter((c) => c && c.type === "text")
+			.filter((c): c is TextContent => c && c.type === "text")
 			.map((c) => c.text || "")
 			.join("\n");
 	}
@@ -44,13 +76,13 @@ function extractTextContent(message) {
 /**
  * 从消息中提取工具调用信息
  */
-function extractToolUses(message) {
+function extractToolUses(message: Message): ToolCallInfo[] {
 	if (!message || !message.content || !Array.isArray(message.content)) {
 		return [];
 	}
 
 	return message.content
-		.filter((c) => c && c.type === "tool_use")
+		.filter((c): c is ToolUse => c && c.type === "tool_use")
 		.map((c) => ({
 			tool: c.name || "unknown",
 			input: c.input || {},
@@ -60,7 +92,7 @@ function extractToolUses(message) {
 /**
  * 智能截断文本，保留关键部分
  */
-function smartTruncate(text, maxLength) {
+function smartTruncate(text: string, maxLength: number): string {
 	if (!text || text.length <= maxLength) return text;
 
 	// 优先保留开头和结尾
@@ -76,7 +108,7 @@ function smartTruncate(text, maxLength) {
 /**
  * 提取关键词（简单实现）
  */
-function extractKeywords(text) {
+function extractKeywords(text: string): string[] {
 	if (!text) return [];
 
 	// 移除常见的停用词
@@ -123,7 +155,7 @@ function extractKeywords(text) {
 	const words = text.match(/[\u4e00-\u9fa5]{2,}|[a-zA-Z]{3,}/g) || [];
 
 	// 统计词频
-	const wordCount = {};
+	const wordCount: Record<string, number> = {};
 	words.forEach((word) => {
 		const normalized = word.toLowerCase();
 		if (!stopWords.has(normalized)) {
@@ -143,7 +175,7 @@ function extractKeywords(text) {
 /**
  * 读取并解析 JSONL 文件
  */
-function readTranscript(transcriptPath) {
+function readTranscript(transcriptPath: string): Message[] {
 	if (!transcriptPath || !fs.existsSync(transcriptPath)) {
 		throw new Error(`Transcript file not found: ${transcriptPath}`);
 	}
@@ -154,13 +186,14 @@ function readTranscript(transcriptPath) {
 		.split("\n")
 		.filter((l) => l.trim());
 
-	const messages = [];
+	const messages: Message[] = [];
 	for (const line of lines) {
 		try {
-			const msg = JSON.parse(line);
+			const msg = JSON.parse(line) as Message;
 			messages.push(msg);
 		} catch (err) {
-			console.error(`Failed to parse line: ${line.substring(0, 50)}...`, err.message);
+			const errorMessage = err instanceof Error ? err.message : "Unknown error";
+			console.error(`Failed to parse line: ${line.substring(0, 50)}...`, errorMessage);
 		}
 	}
 
@@ -170,10 +203,10 @@ function readTranscript(transcriptPath) {
 /**
  * 分析对话历史，提取关键信息
  */
-function analyzeConversation(messages) {
-	const userMessages = [];
-	const assistantMessages = [];
-	const toolCalls = [];
+function analyzeConversation(messages: Message[]): ConversationAnalysis {
+	const userMessages: string[] = [];
+	const assistantMessages: string[] = [];
+	const toolCalls: ToolCallInfo[] = [];
 
 	messages.forEach((msg) => {
 		if (msg.role === "user") {
@@ -199,7 +232,7 @@ function analyzeConversation(messages) {
 /**
  * 生成对话摘要（用于 Gemini）
  */
-function generateSummary(analysis) {
+function generateSummary(analysis: ConversationAnalysis): string {
 	const { userMessages, assistantMessages, toolCalls } = analysis;
 
 	if (userMessages.length === 0 && assistantMessages.length === 0) {
@@ -245,7 +278,7 @@ function generateSummary(analysis) {
 /**
  * 生成完整对话历史
  */
-function generateFullContext(analysis) {
+function generateFullContext(analysis: ConversationAnalysis): string {
 	const { userMessages, assistantMessages } = analysis;
 
 	let context = "===== 完整对话历史 =====\n\n";
@@ -268,7 +301,7 @@ function generateFullContext(analysis) {
 /**
  * 生成关键词摘要
  */
-function generateKeywordSummary(analysis) {
+function generateKeywordSummary(analysis: ConversationAnalysis): string {
 	const { userMessages, assistantMessages } = analysis;
 
 	const allText = [...userMessages, ...assistantMessages].join(" ");
@@ -284,7 +317,7 @@ function main() {
 
 	if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
 		console.log(`
-用法: node transcript-reader.js <transcript_path> [--format=summary|full|keywords]
+用法: tsx transcript-reader.ts <transcript_path> [--format=summary|full|keywords]
 
 参数:
   transcript_path    JSONL 格式的对话历史文件路径
@@ -294,9 +327,9 @@ function main() {
                     - keywords: 关键词提取
 
 示例:
-  node transcript-reader.js /path/to/transcript.jsonl
-  node transcript-reader.js /path/to/transcript.jsonl --format=full
-  node transcript-reader.js /path/to/transcript.jsonl --format=keywords
+  tsx transcript-reader.ts /path/to/transcript.jsonl
+  tsx transcript-reader.ts /path/to/transcript.jsonl --format=full
+  tsx transcript-reader.ts /path/to/transcript.jsonl --format=keywords
 `);
 		process.exit(0);
 	}
@@ -313,7 +346,7 @@ function main() {
 		const analysis = analyzeConversation(messages);
 
 		// 根据格式输出
-		let output;
+		let output: string;
 		switch (format) {
 			case "full":
 				output = generateFullContext(analysis);
@@ -330,19 +363,14 @@ function main() {
 		console.log(output);
 		process.exit(0);
 	} catch (error) {
-		console.error(`ERROR: ${error.message}`);
+		const errorMessage = error instanceof Error ? error.message : "Unknown error";
+		console.error(`ERROR: ${errorMessage}`);
 		process.exit(1);
 	}
 }
 
 // 运行
-if (require.main === module) {
-	main();
-}
+main();
 
-module.exports = {
-	readTranscript,
-	analyzeConversation,
-	generateSummary,
-	extractKeywords,
-};
+// 导出供其他模块使用
+export { readTranscript, analyzeConversation, generateSummary, extractKeywords };

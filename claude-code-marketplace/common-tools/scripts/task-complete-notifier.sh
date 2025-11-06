@@ -15,23 +15,23 @@ mkdir -p "$LOG_DIR" 2>/dev/null || true
 # ====== 读取钩子输入 ======
 HOOK_DATA=$(cat)
 
+# ====== 获取脚本所在目录（用于解析工具） ======
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PARSE_HOOK_DATA="$SCRIPT_DIR/parse-hook-data.ts"
+
 # ====== 提取关键信息 ======
-SESSION_ID=$(echo "$HOOK_DATA" | node -e "
-const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
-console.log(data.session_id || 'unknown');
-" 2>/dev/null || echo "unknown")
-
-TRANSCRIPT_PATH=$(echo "$HOOK_DATA" | node -e "
-const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
-console.log(data.transcript_path || '');
-" 2>/dev/null || echo "")
-
-CWD=$(echo "$HOOK_DATA" | node -e "
-const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
-const cwd = data.cwd || process.env.PWD || process.cwd();
-const sanitized = cwd.replace(/[\\\\/:*?\"<>|]/g, '_');
-console.log(sanitized);
-" 2>/dev/null || echo "unknown")
+# 检查 tsx 是否可用
+if command -v tsx &> /dev/null && [ -f "$PARSE_HOOK_DATA" ]; then
+  SESSION_ID=$(echo "$HOOK_DATA" | tsx "$PARSE_HOOK_DATA" session_id 2>/dev/null || echo "unknown")
+  TRANSCRIPT_PATH=$(echo "$HOOK_DATA" | tsx "$PARSE_HOOK_DATA" transcript_path 2>/dev/null || echo "")
+  CWD=$(echo "$HOOK_DATA" | tsx "$PARSE_HOOK_DATA" cwd_sanitized 2>/dev/null || echo "unknown")
+else
+  # 降级：使用简单的 grep/sed 提取（不完美但可用）
+  SESSION_ID=$(echo "$HOOK_DATA" | grep -oP '"session_id"\s*:\s*"\K[^"]+' 2>/dev/null || echo "unknown")
+  TRANSCRIPT_PATH=$(echo "$HOOK_DATA" | grep -oP '"transcript_path"\s*:\s*"\K[^"]+' 2>/dev/null || echo "")
+  CWD_RAW=$(echo "$HOOK_DATA" | grep -oP '"cwd"\s*:\s*"\K[^"]+' 2>/dev/null || echo "unknown")
+  CWD=$(echo "$CWD_RAW" | sed 's/[\\/:*?"<>|]/_/g')
+fi
 
 # ====== 生成日志文件 ======
 LOG_TIMESTAMP=$(date +"%Y-%m-%d__%H-%M-%S")
@@ -64,25 +64,30 @@ if [ -z "$TRANSCRIPT_PATH" ] || [ ! -f "$TRANSCRIPT_PATH" ]; then
   log "ERROR: Transcript file not found: $TRANSCRIPT_PATH"
   SUMMARY="任务处理完成"
 else
-  # ====== 使用 transcript-reader.js 提取完整上下文 ======
+  # ====== 使用 transcript-reader.ts 提取完整上下文 ======
   log "====== Extracting Conversation Context ======"
 
-  # 获取脚本所在目录
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  TRANSCRIPT_READER="$SCRIPT_DIR/transcript-reader.js"
+  # 使用前面已定义的 SCRIPT_DIR
+  TRANSCRIPT_READER="$SCRIPT_DIR/transcript-reader.ts"
 
-  if [ ! -f "$TRANSCRIPT_READER" ]; then
-    log "ERROR: transcript-reader.js not found at $TRANSCRIPT_READER"
+  # 检查 tsx 是否存在
+  if ! command -v tsx &> /dev/null; then
+    log "ERROR: tsx command not found. Please install tsx globally: npm install -g tsx"
+    log "Falling back to default summary due to missing tsx"
+    SUMMARY="任务处理完成"
+  elif [ ! -f "$TRANSCRIPT_READER" ]; then
+    log "ERROR: transcript-reader.ts not found at $TRANSCRIPT_READER"
     SUMMARY="任务处理完成"
   else
     log "Using transcript-reader: $TRANSCRIPT_READER"
+    log "Using tsx to run TypeScript file"
 
     # 提取对话摘要（用于 Gemini）
-    CONVERSATION_CONTEXT=$(timeout 3s node "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=summary 2>&1 || echo "")
+    CONVERSATION_CONTEXT=$(timeout 3s tsx "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=summary 2>&1 || echo "")
 
     if [ -z "$CONVERSATION_CONTEXT" ]; then
       log "WARNING: Failed to extract context, trying keywords fallback"
-      CONVERSATION_CONTEXT=$(timeout 2s node "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=keywords 2>&1 || echo "任务处理完成")
+      CONVERSATION_CONTEXT=$(timeout 2s tsx "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=keywords 2>&1 || echo "任务处理完成")
     fi
 
     log "Extracted Context Length: ${#CONVERSATION_CONTEXT} characters"
@@ -168,7 +173,13 @@ ${CONVERSATION_CONTEXT}
     if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
       log "Gemini failed, using keyword extraction fallback"
 
-      KEYWORDS=$(timeout 2s node "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=keywords 2>&1 || echo "")
+      # 检查 tsx 是否可用
+      if command -v tsx &> /dev/null; then
+        KEYWORDS=$(timeout 2s tsx "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=keywords 2>&1 || echo "")
+      else
+        log "WARNING: tsx not available for keywords extraction, using empty keywords"
+        KEYWORDS=""
+      fi
 
       if [ -n "$KEYWORDS" ] && [ ${#KEYWORDS} -gt 5 ]; then
         # 从关键词生成简短标题

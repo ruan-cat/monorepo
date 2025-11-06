@@ -4,7 +4,7 @@
 
 ## 版本
 
-**当前版本**: `0.5.1`
+**当前版本**: `0.6.2`
 
 查看完整的更新历史，请参阅 [CHANGELOG.md](./CHANGELOG.md)
 
@@ -47,25 +47,31 @@ UserPromptSubmit  ──→  user-prompt-logger.sh
 [Claude Code 处理中...]
 
 Stop              ──→  task-complete-notifier.sh
-                        ├─ 读取完整对话历史 (transcript-reader.js)
+                        ├─ 读取完整对话历史 (transcript-reader.ts)
                         ├─ 生成 Gemini 总结
                         └─ 发送桌面通知
 ```
 
 **核心脚本**：
 
-1. **transcript-reader.js** - JSONL 对话历史解析器
+1. **transcript-reader.ts** - JSONL 对话历史解析器（TypeScript）
    - 完整读取 Claude Code 的对话历史
    - 提取用户消息、Agent 响应、工具调用
    - 支持三种输出格式：summary（摘要）、full（完整）、keywords（关键词）
+   - 使用 `tsx` 运行，确保与 ES Module 环境兼容
 
-2. **user-prompt-logger.sh** - UserPromptSubmit 钩子
+2. **parse-hook-data.ts** - JSON 钩子数据解析器
+   - 解析 Claude Code 钩子传入的 JSON 数据
+   - 支持 Windows 路径自动转义
+   - 提取 session_id、transcript_path、cwd 等字段
+
+3. **user-prompt-logger.sh** - UserPromptSubmit 钩子
    - 初始化会话日志
    - 记录用户输入和会话信息
    - 快速返回（< 1 秒），不阻塞
 
-3. **task-complete-notifier.sh** - Stop 钩子
-   - 调用 transcript-reader.js 读取完整上下文
+4. **task-complete-notifier.sh** - Stop 钩子
+   - 调用 transcript-reader.ts 读取完整上下文
    - 三级降级策略：gemini-2.5-flash → gemini-2.5-pro → 关键词提取
    - 后台发送通知，避免阻塞
    - 详细日志记录
@@ -197,18 +203,65 @@ tail -f /tmp/claude-code-task-complete-notifier-logs/$(ls -t /tmp/claude-code-ta
 
 **排查步骤**：
 
-1. 手动运行 transcript-reader.js：
+1. 检查 tsx 是否已安装：
 
    ```bash
-   node scripts/transcript-reader.js "$TRANSCRIPT_PATH" --format=full
+   which tsx
+   tsx --version
    ```
 
-2. 检查 JSONL 格式是否正确：
+2. 手动运行 transcript-reader.ts：
+
+   ```bash
+   tsx scripts/transcript-reader.ts "$TRANSCRIPT_PATH" --format=full
+   ```
+
+3. 检查 JSONL 格式是否正确：
    ```bash
    head -1 "$TRANSCRIPT_PATH" | jq .
    ```
 
+#### 问题：tsx 未安装
+
+**解决方案**：
+
+安装全局 tsx 包：
+
+```bash
+npm install -g tsx
+# 或使用 pnpm
+pnpm add -g tsx
+```
+
+脚本会在 tsx 不可用时自动降级到使用 grep/sed 提取，但功能会受限。
+
 ## 版本历史
+
+### [0.6.2] - 2025-11-06
+
+**修复**：
+
+- 🐞 **钩子上下文读取失败**: 修复了 transcript-reader.js 因 ES Module 错误无法读取对话上下文的问题
+  - **根本原因**：JavaScript 文件使用 `require()` 语法，但父级 package.json 设置了 `"type": "module"`
+  - **修复方案**：
+    1. 迁移到 TypeScript (transcript-reader.ts)
+    2. 新增 parse-hook-data.ts 处理 JSON 解析和 Windows 路径转义
+    3. 使用全局 `tsx` 运行 TypeScript 文件
+  - **测试结果**：
+    - ✅ JSON 解析正常
+    - ✅ 对话上下文正确提取
+    - ✅ Gemini 总结功能恢复
+    - ✅ Windows 路径正确处理
+
+详情参见 [CHANGELOG.md](./CHANGELOG.md#062---2025-11-06)
+
+### [0.6.1] - 2025-11-04
+
+**修复**：
+
+- 修复了钩子返回值类型错误（`proceed` → `approve`）导致 Claude Code 崩溃的问题
+
+详情参见 [CHANGELOG.md](./CHANGELOG.md#061---2025-11-04)
 
 ### [0.5.1] - 2025-11-03
 

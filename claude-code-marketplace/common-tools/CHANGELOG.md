@@ -5,6 +5,117 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.6.2] - 2025-11-06
+
+### Fixed
+
+- **🐞 钩子上下文读取失败**: 修复了 transcript-reader.js 因 ES Module 错误无法读取对话上下文的问题
+  - **问题原因**: `transcript-reader.js` 使用 CommonJS 的 `require()` 语法，但父级 package.json 设置了 `"type": "module"`
+  - **错误信息**: `ReferenceError: require is not defined in ES module scope`
+  - **影响范围**:
+    - `task-complete-notifier.sh`: 无法提取对话上下文，导致 Gemini 总结失败
+    - 所有日志显示错误信息而非有效的任务摘要
+  - **修复方案**:
+    1. 将 `transcript-reader.js` 改为 `transcript-reader.ts`，使用 TypeScript + ES Module
+    2. 创建 `parse-hook-data.ts` 解析钩子 JSON 输入（支持 Windows 路径转义）
+    3. 使用全局 `tsx` 命令运行 TypeScript 文件
+    4. 添加降级机制：tsx 不存在时使用 grep/sed 提取
+
+### Changed
+
+- **脚本迁移至 TypeScript**:
+  - `transcript-reader.js` → `transcript-reader.ts`
+  - 新增 `parse-hook-data.ts` 用于 JSON 解析
+  - 添加完整的 TypeScript 类型定义
+  - 改进错误处理和日志记录
+
+- **Windows 路径支持增强**:
+  - 修复 JSON 解析器无法处理 Windows 路径中的反斜杠问题
+  - 实现智能转义：自动将单反斜杠转为双反斜杠
+  - 兼容 Git Bash 和 PowerShell 环境
+
+### Technical Details
+
+#### 修复前的错误
+
+日志显示的错误信息：
+
+```plain
+file:///C:/Users/pc/.claude/plugins/.../transcript-reader.js:15
+const fs = require("fs");
+           ^
+ReferenceError: require is not defined in ES module scope
+```
+
+Gemini 收到的是错误信息而非上下文，导致总结失败。
+
+#### 修复后的实现
+
+**新文件结构**：
+
+- `transcript-reader.ts` - TypeScript 版本，使用 `import` 语法
+- `parse-hook-data.ts` - JSON 解析器，处理 Windows 路径转义
+
+**运行方式**：
+
+```bash
+# 使用 tsx 运行 TypeScript 文件
+tsx transcript-reader.ts "$TRANSCRIPT_PATH" --format=summary
+tsx parse-hook-data.ts session_id < hook-data.json
+```
+
+**降级策略**：
+
+```bash
+# 检查 tsx 是否可用
+if command -v tsx &> /dev/null; then
+  # 使用 TypeScript 版本
+  tsx transcript-reader.ts "$TRANSCRIPT_PATH" --format=summary
+else
+  # 记录 tsx 不存在的情况到日志
+  log "WARNING: tsx not available, using default summary"
+  SUMMARY="任务处理完成"
+fi
+```
+
+#### Windows 路径转义问题
+
+**问题**：钩子传入的 JSON 包含未转义的反斜杠
+
+```json
+{ "transcript_path": "C:\Users\pc\.claude\projects\..." }
+```
+
+**解决方案**：智能转义算法
+
+```typescript
+// 1. 暂存已转义的双反斜杠
+input = input.replace(/\\\\/g, "\x00");
+// 2. 将所有单反斜杠转为双反斜杠
+input = input.replace(/\\/g, "\\\\");
+// 3. 恢复双反斜杠
+input = input.replace(/\x00/g, "\\\\");
+```
+
+### Testing
+
+测试结果确认修复成功：
+
+- ✅ JSON 解析正常（Session ID、Transcript Path 正确提取）
+- ✅ transcript-reader.ts 成功执行
+- ✅ 对话上下文正确提取
+- ✅ Gemini 总结功能恢复正常
+- ✅ Windows 路径正确处理
+
+### References
+
+- 修复的脚本：
+  - `scripts/transcript-reader.ts` (新)
+  - `scripts/parse-hook-data.ts` (新)
+  - `scripts/task-complete-notifier.sh` (更新)
+- 删除的文件：
+  - `scripts/transcript-reader.js` (已废弃)
+
 ## [0.6.1] - 2025-11-04
 
 ### Fixed

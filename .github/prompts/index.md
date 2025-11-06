@@ -228,8 +228,6 @@ Error: Unknown hook decision type: proceed. Valid types are: approve, block
 
 ## 11 修复 claude code 钩子无法阅读有效的上下文日志的故障
 
-<!-- TODO: 等待网络恢复了就开始处理 -->
-
 请阅读以下日志的信息：
 
 - `C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs\2025-11-04__23-45-38__D__code_github-desktop-store_001-Smart-Community(nwt-q).log`

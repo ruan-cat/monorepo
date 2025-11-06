@@ -1,6 +1,6 @@
 {
 	"name": "common-tools",
-	"version": "0.6.1",
+	"version": "0.6.2",
 	"description": "阮喵喵开发时常用的一些通用工具",
 	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/claude-code-marketplace/common-tools",
 	"author": {
