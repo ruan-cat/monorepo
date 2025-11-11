@@ -268,12 +268,14 @@ export const commitTypes: CommitType[] = [
 	{
 		emoji: "✨",
 		type: "feat",
+		semver: "minor",
 		description: "新增功能",
 		longDescription: "A new feature",
 	},
 	{
 		emoji: "🐞",
 		type: "fix",
+		semver: "patch",
 		description: "修复缺陷",
 		longDescription: "A bug fix",
 	},
@@ -286,6 +288,7 @@ export const commitTypes: CommitType[] = [
 	{
 		emoji: "📦",
 		type: "deps",
+		semver: "patch",
 		description: "依赖更新",
 	},
 	{
@@ -297,6 +300,7 @@ export const commitTypes: CommitType[] = [
 	{
 		emoji: "🔨",
 		type: "build",
+		semver: "patch",
 		description: "构建相关",
 		longDescription: "Changes that affect the build system or external dependencies",
 	},
@@ -315,30 +319,35 @@ export const commitTypes: CommitType[] = [
 	{
 		emoji: "🦄",
 		type: "refactor",
+		semver: "patch",
 		description: "代码重构",
 		longDescription: "A code change that neither fixes a bug nor adds a feature",
 	},
 	{
 		emoji: "🎈",
 		type: "perf",
+		semver: "patch",
 		description: "性能提升",
 		longDescription: "A code change that improves performance",
 	},
 	{
 		emoji: "🎉",
 		type: "init",
+		semver: "patch",
 		description: "初始化项目",
 		longDescription: "项目初始化。",
 	},
 	{
 		emoji: "🔧",
 		type: "config",
+		semver: "patch",
 		description: "更新配置",
 		longDescription: "配置更新。通用性的配置更新。",
 	},
 	{
 		emoji: "🐳",
 		type: "chore",
+		semver: "patch",
 		description: "其他修改",
 		longDescription: "Other changes that do not modify src or test files",
 	},
