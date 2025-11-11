@@ -15,22 +15,22 @@
 		"@leelaa/vitepress-plugin-extended": "^1.0.7",
 		"@nolebase/vitepress-plugin-git-changelog": "^2.18.2",
 		"@ruan-cat/utils": "workspace:^",
-		"@shikijs/vitepress-twoslash": "^3.13.0",
+		"@shikijs/vitepress-twoslash": "^3.15.0",
 		"consola": "^3.4.2",
 		"gray-matter": "^4.0.3",
 		"lodash-es": "^4.17.21",
 		"markdown-it-async": "^2.2.0",
 		"markdown-it-mathjax3": "^4.3.2",
-		"vitepress-demo-plugin": "^1.4.7",
-		"vitepress-plugin-llms": "^1.7.5",
+		"vitepress-demo-plugin": "^1.5.0",
+		"vitepress-plugin-llms": "^1.9.1",
 		"vitepress-sidebar": "^1.33.0",
 		"vitepress-theme-teek": "^1.5.2",
-		"vue": "^3.5.21"
+		"vue": "^3.5.24"
 	},
 	"devDependencies": {
 		"@types/lodash-es": "^4.17.12",
 		"automd": "^0.4.2",
-		"element-plus": "^2.11.3",
+		"element-plus": "^2.11.7",
 		"tsup": "^8.5.0",
 		"vitepress": "^1.6.4"
 	},

@@ -75,11 +75,11 @@
 	},
 	"devDependencies": {
 		"@ruan-cat/vitepress-preset-config": "workspace:^",
-		"@types/node": "^20.11.0",
+		"@types/node": "^20.19.24",
 		"@types/node-notifier": "^8.0.5",
 		"automd": "^0.4.2",
 		"tsup": "^8.5.0",
-		"typescript": "^5.3.3",
+		"typescript": "^5.9.3",
 		"vitepress": "^1.6.4"
 	}
 }
