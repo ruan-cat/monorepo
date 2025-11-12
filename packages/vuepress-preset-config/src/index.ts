@@ -10,9 +10,6 @@ export { hopeTheme } from "vuepress-theme-hope";
 export type { ThemeOptions } from "vuepress-theme-hope";
 // const __dirname = getDirname(import.meta.url);
 
-import { addChangelog2doc } from "@ruan-cat/utils/node-esm";
-export { addChangelog2doc };
-
 function getYaer() {
 	return new Date().getFullYear();
 }
@@ -66,7 +63,7 @@ export const ruancatHopeThemeConfig: ThemeOptions = {
 		tabs: true,
 		tasklist: true,
 		vPre: true,
-		// TODO: 有疑惑 不知道怎么实现默认的 twoslash 支持？
+		// 有疑惑 不知道怎么实现默认的 twoslash 支持？
 		highlighter: {
 			type: "shiki",
 		},
@@ -106,10 +103,10 @@ const defaultConfig: UserConfig = {
 	bundler: viteBundler({
 		viteOptions: {
 			plugins: [
-				// TODO: 不提供 没必要输出打包报告
+				// 不提供 没必要输出打包报告
 				// visualizer({
 				// 	// filename: "dist/visualizer/index.html",
-				// 	// TODO: 未来这里需要考虑实现vuepress的路由配置，在vuepress内加上一个路由来导航。
+				// 	// 未来这里需要考虑实现vuepress的路由配置，在vuepress内加上一个路由来导航。
 				// 	// 我们本地生成了一大堆html静态页面，如何对接接洽vuepress的路由？
 				// 	// typedoc好像有类似的实现方案。
 				// 	filename: "src/.vuepress/dist/visualizer/index.html",
