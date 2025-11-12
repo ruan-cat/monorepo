@@ -1,5 +1,11 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 4.3.0
+
+### Minor Changes
+
+- 优化没有包范围时的输出效果。 ([`ac9c8e6`](https://github.com/ruan-cat/monorepo/commit/ac9c8e697ed28cf28c7da5af9aeb358335b91e11))
+
 ## 4.2.0
 
 ### Minor Changes
