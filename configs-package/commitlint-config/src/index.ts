@@ -5,7 +5,7 @@ export * from "./get-default-scope.ts";
 export * from "./utils.ts";
 export * from "./type.ts";
 
-import { getPackagesNameAndDescription } from "./utils.ts";
+import { getPackagesNameAndDescription, defScopes } from "./utils.ts";
 import type { ScopesTypeItem } from "./utils.ts";
 
 import { consola } from "consola";
@@ -54,21 +54,6 @@ function ScopesItemWithDesc_To_ScopesTypeItem(item: ScopesItemWithDesc): ScopesT
 		value: item.value,
 	};
 }
-
-const defScopes: ScopesTypeItem[] = [
-	{
-		name: "root | 根目录",
-		value: "root",
-	},
-	{
-		name: "utils | 工具包",
-		value: "utils",
-	},
-	{
-		name: "demo | 测试项目",
-		value: "demo",
-	},
-];
 
 /**
  * 获得初始化后的 scopes 范围数组

@@ -54,8 +54,7 @@ function getPackagePathToScopeMapping(): Map<string, string> {
 
 	// 判断是否是 monorepo 项目
 	if (!isMonorepoProject()) {
-		// 如果不是 monorepo，添加默认的 root 映射
-		mapping.set("", "root");
+		// 如果不是 monorepo，不添加默认映射，依赖 glob 匹配来确定范围
 		return mapping;
 	}
 
@@ -93,8 +92,7 @@ function getPackagePathToScopeMapping(): Map<string, string> {
 		});
 	});
 
-	// 添加根目录映射
-	mapping.set("", "root");
+	// 不再默认添加根目录映射，root 范围应该通过 glob 匹配来确定
 
 	return mapping;
 }
@@ -138,7 +136,7 @@ export function getDefaultScope(): string | string[] | undefined {
 		const affectedScopes = new Set<string>();
 
 		modifiedFiles.forEach((filePath) => {
-			let matchedScope = "root"; // 默认为root范围
+			let matchedScope: string | undefined = undefined; // 不设置默认值，只有真正匹配时才设置
 			let maxMatchLength = 0;
 
 			// 找到最长匹配的包路径
@@ -164,8 +162,10 @@ export function getDefaultScope(): string | string[] | undefined {
 				}
 			}
 
-			// 添加基于包路径匹配的范围
-			affectedScopes.add(matchedScope);
+			// 只有当真正匹配到包路径时才添加范围
+			if (matchedScope !== undefined) {
+				affectedScopes.add(matchedScope);
+			}
 
 			// 新增：基于 commonScopes 的 glob 匹配
 			const normalizedFilePath = filePath.replace(/\\/g, "/");

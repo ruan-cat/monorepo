@@ -93,6 +93,74 @@ describe("getDefaultScope glob matching", () => {
 			});
 		});
 
+		test("应该正确匹配 root 范围的文件（根目录配置文件）", () => {
+			const testFiles = [
+				".gitignore",
+				".gitattributes",
+				".czrc",
+				".nvmrc",
+				".npmrc",
+				".editorconfig",
+				".prettierrc",
+				".prettierrc.js",
+				".eslintrc.json",
+				"README.md",
+				"LICENSE",
+				"CHANGELOG.md",
+				"Makefile",
+				"Dockerfile",
+			];
+
+			testFiles.forEach((filePath) => {
+				const rootScope = commonScopes.find((scope) => scope.value === "root");
+				expect(rootScope).toBeDefined();
+				expect(rootScope?.glob).toBeDefined();
+
+				const matched = rootScope?.glob?.some((globPattern) => minimatch(filePath, globPattern));
+
+				expect(matched).toBe(true);
+			});
+		});
+
+		test("不应该将子包中的配置文件匹配为 root 范围", () => {
+			const testFiles = [
+				"packages/utils/.gitignore",
+				"configs-package/commitlint-config/.prettierrc",
+				"apps/web/README.md",
+				"packages/core/LICENSE",
+			];
+
+			testFiles.forEach((filePath) => {
+				const rootScope = commonScopes.find((scope) => scope.value === "root");
+				expect(rootScope).toBeDefined();
+
+				const matched = rootScope?.glob?.some((globPattern) => minimatch(filePath, globPattern));
+
+				// 子包中的文件不应该匹配 root 范围
+				expect(matched).toBe(false);
+			});
+		});
+
+		test("不应该将 .XXX 文件夹下的文件匹配为 root 范围", () => {
+			const testFiles = [
+				".vscode/extensions.json",
+				".github/workflows/ci.yaml",
+				".claude/agents/package-linter.md",
+				".changeset/config.json",
+				".husky/pre-commit",
+			];
+
+			testFiles.forEach((filePath) => {
+				const rootScope = commonScopes.find((scope) => scope.value === "root");
+				expect(rootScope).toBeDefined();
+
+				const matched = rootScope?.glob?.some((globPattern) => minimatch(filePath, globPattern));
+
+				// .XXX 文件夹下的文件不应该匹配 root 范围
+				expect(matched).toBe(false);
+			});
+		});
+
 		test("不应该匹配不符合 glob 模式的文件", () => {
 			const filePath = "src/components/Button.vue";
 			const matchedScopes: string[] = [];

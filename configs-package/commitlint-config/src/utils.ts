@@ -11,7 +11,7 @@ import { type ScopesType } from "cz-git";
 
 export type ScopesTypeItem = Exclude<ScopesType[number], string>;
 
-const defScopes: ScopesTypeItem[] = [
+export const defScopes: ScopesTypeItem[] = [
 	{
 		name: "root | 根目录",
 		value: "root",

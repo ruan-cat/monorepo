@@ -34,6 +34,69 @@ export type ScopesItemWithDesc = {
  * 这些配置范围，大多数是从具体项目中 不断提炼出来的常用范围
  */
 export const commonScopes: ScopesItemWithDesc[] = [
+	// 根目录
+	{
+		code: "root",
+		value: "root",
+		desc: "根目录",
+		glob: [
+			// === 基础点配置文件 ===
+			".gitignore",
+			".gitattributes",
+			".czrc",
+			".nvmrc",
+			".npmrc",
+			".editorconfig",
+
+			// Prettier 配置
+			".prettierrc",
+			".prettierrc.js",
+			".prettierrc.cjs",
+			".prettierrc.mjs",
+			".prettierrc.json",
+			".prettierrc.yaml",
+			".prettierrc.yml",
+			".prettierignore",
+
+			// ESLint 配置（根目录的）
+			".eslintrc",
+			".eslintrc.js",
+			".eslintrc.cjs",
+			".eslintrc.json",
+			".eslintrc.yaml",
+			".eslintrc.yml",
+			".eslintignore",
+
+			// === 文档文件 ===
+			"README",
+			"README.md",
+			"README.txt",
+			"LICENSE",
+			"LICENSE.md",
+			"LICENSE.txt",
+			"CHANGELOG",
+			"CHANGELOG.md",
+			"CONTRIBUTING",
+			"CONTRIBUTING.md",
+			"CODE_OF_CONDUCT",
+			"CODE_OF_CONDUCT.md",
+			"SECURITY",
+			"SECURITY.md",
+
+			// === 根目录脚本 ===
+			"*.sh", // Shell 脚本
+			"*.bat", // Windows 批处理
+			"*.ps1", // PowerShell 脚本
+			"*.cmd", // Windows 命令脚本
+
+			// === 其他常见根目录配置 ===
+			"Makefile",
+			"Dockerfile",
+			".dockerignore",
+		],
+	},
+
+	// 配置文件
 	{
 		code: "config",
 		value: "config",
@@ -48,59 +111,72 @@ export const commonScopes: ScopesItemWithDesc[] = [
 			"**/turbo.json",
 		],
 	},
+
+	// 任务调度器
 	{
 		code: "turbo",
 		value: "turbo",
 		desc: "任务调度器",
 		glob: ["**/turbo.json"],
 	},
-	{
-		code: "root",
-		value: "root",
-		desc: "根目录",
-	},
+
+	// 包配置
 	{
 		code: "package.json",
 		value: "package.json",
 		desc: "包配置",
 		glob: ["**/package.json", "pnpm-workspace.yaml"],
 	},
+
+	// vite打包工具配置
 	{
 		code: "vite.config.js/ts",
 		value: "vite",
 		desc: "vite打包工具配置",
 		glob: ["**/vite.config.js", "**/vite.config.ts"],
 	},
+
+	// vitepress文档工具配置
 	{
 		code: "vitepress",
-		value: "文档配置",
+		value: "vitepress",
 		desc: "vitepress文档工具配置",
 		glob: ["**/.vitepress/config.mts", "**/.vitepress/theme/index.ts"],
 	},
+
+	// cz配置，即git提交工具的配置
 	{
 		code: "commitlint.config.cjs",
 		value: "commitlint",
 		desc: "cz配置，即git提交工具的配置",
 		glob: ["**/commitlint.config.cjs"],
 	},
+
+	// typescript项目配置
 	{
 		code: "tsconfig",
 		value: "tsc",
 		desc: "typescript项目配置",
 		glob: ["**/tsconfig*.json"],
 	},
+
+	// 路由配置
 	{
 		code: "router",
 		value: "router",
 		desc: "路由配置",
 		glob: ["**/router/**/*.ts", "**/routers/**/*.ts"],
 	},
+
+	// vscode配置
 	{
 		code: "vscode/settings.json",
 		value: "vsc",
 		desc: "vscode配置",
 		glob: ["**/.vscode/**"],
 	},
+
+	// 国际化
 	{
 		code: "i18n",
 		value: "i18n",
@@ -108,17 +184,23 @@ export const commonScopes: ScopesItemWithDesc[] = [
 		// TODO: 国际化配置的 glob 匹配路径。 需要先去看看 i18n 常见的路径配置才能得知。
 		// glob: ["**/i18n/**"],
 	},
+
+	// 提示词
 	{
 		code: "prompt",
 		value: "prompt",
 		desc: "提示词。特指和AI协作使用的提示词文件。",
 		glob: ["**/prompts/**/*.md", ".github/prompts/**/*.md"],
 	},
+
+	// API接口
 	{
 		code: "api",
 		value: "api",
 		desc: "API接口",
 	},
+
+	// claude code的配置
 	{
 		code: "claude",
 		value: "claude",

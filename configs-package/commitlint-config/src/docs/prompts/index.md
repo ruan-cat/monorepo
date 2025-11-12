@@ -45,3 +45,44 @@
 2. 提交类型。即来自 commitTypes 数组的 type 字段。
 3. description 描述字段。
 4. longDescription 长描述字段。该字段前缀有竖线 `|` ，便于间隔区分。使得整个效果更加美观。
+
+## 02 避免滥用 root 范围
+
+包 `configs-package\commitlint-config` 会生成 git commit 提交规范中常见的提交范围，而 root 字符串，作为一个提交范围，被滥用了。我希望在针对性的场景下，使用 root 范围。
+
+### commonScopes 为 root 配置增加合理的，常见的 glob 匹配
+
+`configs-package\commitlint-config\src\common-scopes.ts` 的 commonScopes，**至少增加**这一款 glob 匹配语法：
+
+#### 不属于 root 范围的文件
+
+凡是在 `.XXX` 开头的文件夹下面的更改，都不算做在 root 范围内更改。比如以下范围内的文件修改，就不能被认定为 root 范围：
+
+- `.vscode\extensions.json` 因为开头的文件夹 `.vscode` 包括点号。
+- `.github\workflows\ci.yaml` 因为开头的文件夹 `.github` 包括点号。
+- `.claude-plugin\marketplace.json` 因为开头的文件夹 `.claude-plugin` 包括点号。
+- `.claude\agents\package-linter.md` 因为开头的文件夹 `.claude` 包括点号。
+- `.changeset\config.json` 因为开头的文件夹 `.changeset` 包括点号。
+
+还有很多类似的例子，这里就不枚举。
+
+#### 在一般意义下属于 root 范围的文件
+
+以下文件被认定为属于 root 范围：
+
+- `.gitattributes`
+- `.gitignore`
+- `.czrc`
+- `.nvmrc`
+- `.npmrc`
+
+#### 根据文件修改路径来判断 root 范围，而不是根据文件名
+
+请不要根据具体的文件名来判断目标文件的修改路径是否是 root 范围，比如以下例子：
+
+- `.gitignore` 属于 root 范围
+- `packages\utils\.gitignore` 不属于 root 范围
+
+### getPackagePathToScopeMapping 函数不要随便的就增加 root 范围
+
+`configs-package\commitlint-config\src\get-default-scope.ts` 的 getPackagePathToScopeMapping 函数，和 getDefaultScope 或者是其他相关的范围处理函数，不要随意的，简单的增加默认的 root 范围。root 范围应该是根据 glob 匹配，匹配出来的。而不是滥用的，总是默认提供的 root 范围。
