@@ -185,18 +185,19 @@ export function getDefaultScope(): string | string[] | undefined {
 		});
 
 		const scopesArray = Array.from(affectedScopes);
-		// 输出影响的包范围
-		printList({
-			title: "影响的包范围:",
-			stringList: scopesArray,
-		});
 
 		// 5. 返回结果
 		if (scopesArray.length === 0) {
+			consola.info("本次修改没有影响任何包范围");
 			return undefined;
 		} else if (scopesArray.length === 1) {
 			return scopesArray[0];
 		} else {
+			// 输出影响的包范围
+			printList({
+				title: "影响的包范围:",
+				stringList: scopesArray,
+			});
 			return scopesArray;
 		}
 	} catch (error) {
