@@ -93,7 +93,11 @@ order: 8000
 
 ## 04 处理 `vitepress-plugin-llms` 更新导致的构建错误
 
-<!-- TODO: 等待完成 -->
+<!--
+	跳过 无需处理 这是该依赖包本身的问题 已经提交pr
+	https://github.com/okineadev/vitepress-plugin-llms/pull/104
+	已经合并到主分支 未来会发包发版出来
+-->
 
 - https://github.com/okineadev/vitepress-plugin-llms/releases/tag/v1.9.2
 
