@@ -262,11 +262,11 @@ Error: Unknown hook decision type: proceed. Valid types are: approve, block
 
 从这几个日志可以得出，每次阅读上下文时，都无法获取到需要的数据。请看看 generateSummary 函数，为什么 `userMessages.length === 0 && assistantMessages.length === 0` 获取不到有效的文本呢？每次获取都失败，只能返回 `任务处理完成` 文本。
 
-<!-- TODO: 设计任务 -->
-
 ## 13 修复错误 `● Stop hook failed: The operation was aborted`
 
 1. 请完整阅读 `claude-code-marketplace\common-tools` 内全部 claude code 插件。
 2. 我在使用这些 claude code 插件时，总是出现 `● Stop hook failed: The operation was aborted` 的报错。
 3. 我在升级 claude code 后，就出现这些错误了。但我无法确定具体是哪个 claude code 版本做出了变化，导致我的 claude code 插件运行有故障。
 4. 请帮我调研分析，并解决这个故障。
+
+## 14

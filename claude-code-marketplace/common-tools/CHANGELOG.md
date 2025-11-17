@@ -5,6 +5,105 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.6.5] - 2025-11-17
+
+### Fixed
+
+- **🐞 Hook 输出格式兼容性问题**: 修复了 Claude Code 版本升级后导致的 `● Stop hook failed: The operation was aborted` 错误
+  - **问题原因**: Claude Code 新版本改变了 Hook 输出格式规范
+    - **旧格式**: 使用 `{"decision": "approve"}` 表示允许继续
+    - **新规范**: `decision` 字段只接受 `"block"` 或不设置（undefined）
+    - **结果**: 使用 `"approve"` 导致 hook 被中止并报错
+  - **影响范围**:
+    - `task-complete-notifier.sh` (Stop hook): 2 处返回格式错误
+    - `user-prompt-logger.sh` (UserPromptSubmit hook): 1 处返回格式错误
+    - 所有使用这些 hooks 的功能都会失败
+  - **修复方案**: 更新为符合新规范的输出格式
+    - 错误陷阱: `{"decision": "approve"}` → `{}`（空 JSON）
+    - 正常输出: `{"decision": "approve", "additionalContext": "..."}` → `{"continue": true, "stopReason": "..."}`
+    - UserPromptSubmit: `{"decision": "approve"}` → `{}`
+
+### Technical Details
+
+#### Hook 输出格式规范变更
+
+根据 Claude Code 最新文档（https://code.claude.com/docs/en/hooks.md）：
+
+**Stop/SubagentStop 事件**:
+
+```json
+{
+  "decision": "block" | undefined,  // 只接受 "block" 或不设置
+  "reason": "阻塞原因"               // decision 为 "block" 时必需
+}
+```
+
+**通用字段**（所有事件适用）:
+
+```json
+{
+	"continue": true, // 明确指示是否继续执行
+	"stopReason": "string" // 可选的停止原因说明
+}
+```
+
+**要点**:
+
+- ❌ `"approve"` 和 `"proceed"` 不再是有效的 decision 值
+- ✅ 允许继续时应该不设置 `decision` 字段，或使用 `{"continue": true}`
+- ✅ 返回空 JSON `{}` 或 exit code 0 也表示允许继续
+
+#### 修复前后对比
+
+**修复前** (task-complete-notifier.sh:48, 259):
+
+```bash
+# 错误陷阱
+trap 'echo "{\"decision\": \"approve\"}"; exit 0' ERR EXIT  # ❌
+
+# 正常输出
+OUTPUT_JSON="{\"decision\": \"approve\", \"additionalContext\": \"✅ 任务总结: ${SUMMARY}\"}"  # ❌
+```
+
+**修复后**:
+
+```bash
+# 错误陷阱
+trap 'echo "{}"; exit 0' ERR EXIT  # ✅ 返回空 JSON
+
+# 正常输出
+OUTPUT_JSON="{\"continue\": true, \"stopReason\": \"✅ 任务总结: ${SUMMARY}\"}"  # ✅ 使用新格式
+```
+
+**修复前** (user-prompt-logger.sh:60):
+
+```bash
+echo "{\"decision\": \"approve\"}"  # ❌
+```
+
+**修复后**:
+
+```bash
+echo "{}"  # ✅ 返回空 JSON，允许继续处理
+```
+
+### Testing
+
+修复后应该验证：
+
+1. Stop hook 正常执行，不再出现 "operation was aborted" 错误
+2. UserPromptSubmit hook 正常执行
+3. 任务完成通知功能正常工作
+4. Gemini 总结功能正常工作
+5. 日志正常记录
+
+### References
+
+- Claude Code Hooks 文档: https://code.claude.com/docs/en/hooks.md
+- 修复的脚本:
+  - `scripts/task-complete-notifier.sh` (2 处修复)
+  - `scripts/user-prompt-logger.sh` (1 处修复)
+
 ## [0.6.4] - 2025-11-07
 
 ### Changed

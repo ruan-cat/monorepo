@@ -45,7 +45,7 @@ log() {
 }
 
 # ====== 错误陷阱 ======
-trap 'log "Script interrupted, returning success to prevent blocking"; echo "{\"decision\": \"approve\"}"; exit 0' ERR EXIT
+trap 'log "Script interrupted, returning success to prevent blocking"; echo "{}"; exit 0' ERR EXIT
 
 log "====== Task Complete Notifier Started ======"
 log "Session ID: $SESSION_ID"
@@ -256,7 +256,7 @@ log ""
 trap - ERR EXIT
 
 # ====== 向 Claude Code 输出成功信息 ======
-OUTPUT_JSON="{\"decision\": \"approve\", \"additionalContext\": \"✅ 任务总结: ${SUMMARY}\"}"
+OUTPUT_JSON="{\"continue\": true, \"stopReason\": \"✅ 任务总结: ${SUMMARY}\"}"
 log "====== Claude Code Output ======"
 log "$OUTPUT_JSON"
 log "====== Task Complete Notifier Finished ======"
