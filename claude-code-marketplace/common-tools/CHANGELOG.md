@@ -5,6 +5,15 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.6.6] - 2025-11-17
+
+### Added
+
+- **新增 Agent**: `migrate-iconify-use-pure-admin` - 用于将 pure-admin 的 iconify 图标方案迁移到任意 vite+vue3 项目
+  - 帮助项目快速集成在线和离线的 iconify 图标系统
+  - 提供完整的迁移指南和最佳实践建议
+  - 支持离线图标预加载、在线图标和 useRenderIcon Hook
+
 ## [0.6.5] - 2025-11-17
 
 ### Fixed

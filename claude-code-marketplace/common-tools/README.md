@@ -4,7 +4,7 @@
 
 ## 版本
 
-**当前版本**: `0.6.5`
+**当前版本**: `0.6.6`
 
 查看完整的更新历史，请参阅 [CHANGELOG.md](./CHANGELOG.md)
 
@@ -18,6 +18,7 @@
 ### Agents (代理)
 
 - **format-markdown**: 格式化 Markdown 文档的专用子代理
+- **migrate-iconify-use-pure-admin**: 将 pure-admin 的 iconify 图标方案迁移到 vite+vue3 项目
 
 ### Hooks (钩子)
 

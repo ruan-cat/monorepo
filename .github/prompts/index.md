@@ -269,4 +269,22 @@ Error: Unknown hook decision type: proceed. Valid types are: approve, block
 3. 我在升级 claude code 后，就出现这些错误了。但我无法确定具体是哪个 claude code 版本做出了变化，导致我的 claude code 插件运行有故障。
 4. 请帮我调研分析，并解决这个故障。
 
-## 14
+## 14 升级 claude code 插件的版本，编写更新日志
+
+针对 `claude-code-marketplace\common-tools` 这款 claude code 插件，我增加了一个新的子代理，`claude-code-marketplace\common-tools\agents\migrate-iconify-use-pure-admin.md`
+
+1. 简单阅读子代理。
+2. 编写简单的 claude code 插件更新日志。务必简单扼要。
+3. 及时更新 claude code 插件以及 claude code 商城的版本号。
+
+## 15
+
+```log
+ Plugin Errors
+ └ 1 plugin error(s) detected:
+   └ common-tools@ruan-cat-tools [common-tools]: Hook load failed: Duplicate hooks file
+ detected: ./hooks/hooks.json resolves to already-loaded file C:\Users\pc\.claude\plugins\mar
+ ketplaces\ruan-cat-tools\claude-code-marketplace\common-tools\hooks\hooks.json. The standard
+  hooks/hooks.json is loaded automatically, so manifest.hooks should only reference
+ additional hook files.
+```
