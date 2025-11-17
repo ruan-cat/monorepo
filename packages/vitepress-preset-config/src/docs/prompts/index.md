@@ -90,3 +90,42 @@ order: 8000
 2. 关于复制目标位置:
    - 方式 A：单一 target，自动创建子文件夹
 3. 关于常量设计： 符合预期。
+
+## 04 处理 `vitepress-plugin-llms` 更新导致的构建错误
+
+<!-- TODO: 等待完成 -->
+
+- https://github.com/okineadev/vitepress-plugin-llms/releases/tag/v1.9.2
+
+vitepress-plugin-llms 插件在最近更新了最新的 `v1.9.2` 版本，这导致我的工作流出现以下构建错误：
+
+```log
+llmstxt »   vitepress-plugin-llms initialized (client build) with workDir: /home/runner/work/monorepo/monorepo/packages/vercel-deploy-tool/src/docs
+@nolebase/vitepress-plugin-git-changelog: Prepare to gather git logs...
+llmstxt »   Build started, file collection cleared
+@nolebase/vitepress-plugin-git-changelog: Done. (284ms)
+x Build failed in 2.44s
+✖ building client + server bundles...
+build error:
+[vite]: Rollup failed to resolve import "vitepress-plugin-llms/vitepress-components/CopyOrDownloadAsMarkdownButtons.vue" from "/home/runner/work/monorepo/monorepo/packages/vitepress-preset-config/src/theme.ts".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`
+[vite]: Rollup failed to resolve import "vitepress-plugin-llms/vitepress-components/CopyOrDownloadAsMarkdownButtons.vue" from "/home/runner/work/monorepo/monorepo/packages/vitepress-preset-config/src/theme.ts".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`
+    at viteWarn (file:///home/runner/work/monorepo/monorepo/node_modules/.pnpm/vite@5.4.21_@types+node@22.19.1_less@4.4.2_sass-embedded@1.93.3_sass@1.94.0/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65855:17)
+    at onRollupWarning (file:///home/runner/work/monorepo/monorepo/node_modules/.pnpm/vite@5.4.21_@types+node@22.19.1_less@4.4.2_sass-embedded@1.93.3_sass@1.94.0/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65887:5)
+    at onwarn (file:///home/runner/work/monorepo/monorepo/node_modules/.pnpm/vite@5.4.21_@types+node@22.19.1_less@4.4.2_sass-embedded@1.93.3_sass@1.94.0/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65550:7)
+    at file:///home/runner/work/monorepo/monorepo/node_modules/.pnpm/rollup@4.53.2/node_modules/rollup/dist/es/shared/node-entry.js:20961:13
+    at Object.logger [as onLog] (file:///home/runner/work/monorepo/monorepo/node_modules/.pnpm/rollup@4.53.2/node_modules/rollup/dist/es/shared/node-entry.js:22834:9)
+    at ModuleLoader.handleInvalidResolvedId (file:///home/runner/work/monorepo/monorepo/node_modules/.pnpm/rollup@4.53.2/node_modules/rollup/dist/es/shared/node-entry.js:21578:26)
+    at file:///home/runner/work/monorepo/monorepo/node_modules/.pnpm/rollup@4.53.2/node_modules/rollup/dist/es/shared/node-entry.js:21536:26
+ ELIFECYCLE  Command failed with exit code 1.
+Error:  command finished with error: command (/home/runner/work/monorepo/monorepo/packages/vercel-deploy-tool) /home/runner/setup-pnpm/node_modules/.bin/pnpm run build:docs exited (1)
+```
+
+1. 请帮我调研一下，为什么这个插件在 `v1.9.2` 版本会出现故障？
+2. 如果这个 `vitepress-plugin-llms` 包存在故障，请使用降低包版本的方式，实现问题解决。
+3. 生成问题报告，便于我复盘了解。
