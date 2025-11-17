@@ -277,7 +277,11 @@ Error: Unknown hook decision type: proceed. Valid types are: approve, block
 2. 编写简单的 claude code 插件更新日志。务必简单扼要。
 3. 及时更新 claude code 插件以及 claude code 商城的版本号。
 
-## 15
+## 15 处理 claude code 关于 `hooks/hooks.json` 的导入路径错误
+
+<!-- TODO: 修复错误 -->
+
+我在使用 claude code 时，检测到以下故障：
 
 ```log
  Plugin Errors
@@ -288,3 +292,7 @@ Error: Unknown hook decision type: proceed. Valid types are: approve, block
   hooks/hooks.json is loaded automatically, so manifest.hooks should only reference
  additional hook files.
 ```
+
+1. 请完整阅读 `claude-code-marketplace\common-tools` 内全部 claude code 插件。
+2. 我不清楚是否是 claude code 的插件商城更改的插件 hooks 的导入语法，还是什么缘故，出现了上述错误。
+3. 请帮我调研分析，并解决这个故障。并提供关于 claude code 插件商城关于 hooks 配置的要求。
