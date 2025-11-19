@@ -12,7 +12,8 @@ mkdir -p "$LOG_DIR" 2>/dev/null || true
 LOG_FILE="${LOG_DIR}/cleanup-$(date +"%Y-%m-%d__%H-%M-%S").log"
 
 # 最大清理时间（秒）- 必须在 hooks.json 设置的 timeout 内完成
-MAX_CLEANUP_TIME=8
+# 优化后预计 3-5 秒完成，设置为 6 秒以便检测异常情况
+MAX_CLEANUP_TIME=6
 
 # ====== 日志函数 ======
 log() {
@@ -83,20 +84,27 @@ if [ "$IS_WINDOWS" = true ]; then
     log "Searching for long-running npx processes..."
 
     # 使用 PowerShell 查找运行时间超过 60 秒的 npx 进程
+    # 优化：限制最多处理 10 个进程，避免耗时过长
     if command -v powershell.exe &> /dev/null; then
       LONG_NPX=$(powershell.exe -Command "
         Get-Process | Where-Object {
           \$_.ProcessName -eq 'npx' -and
           ((Get-Date) - \$_.StartTime).TotalSeconds -gt 60
-        } | Select-Object -ExpandProperty Id
+        } | Select-Object -First 10 -ExpandProperty Id
       " 2>/dev/null || echo "")
 
       if [ -n "$LONG_NPX" ]; then
-        log "Found long-running npx processes: $LONG_NPX"
+        NPX_COUNT=$(echo "$LONG_NPX" | wc -w)
+        log "Found $NPX_COUNT long-running npx processes (limited to 10)"
+
+        # 批量杀死进程，使用后台并行执行，不等待每个进程
         for pid in $LONG_NPX; do
-          log "Terminating npx process $pid..."
-          taskkill.exe //F //PID "$pid" >> "$LOG_FILE" 2>&1 || log "Failed to kill $pid (may have already exited)"
+          (taskkill.exe //F //PID "$pid" > /dev/null 2>&1 &)
         done
+
+        # 等待 1 秒让 taskkill 命令完成
+        sleep 1
+        log "Cleanup completed for npx processes"
       else
         log "No long-running npx processes found"
       fi

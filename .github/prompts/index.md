@@ -351,11 +351,20 @@ Plugin Loading Errors:
 4. 运行 claude code 时，经常出现 `running stop hooks… 3/4` 的情况，证明肯定有一款钩子没办法及时关闭。请帮我排查。
 5. 请问是不是 `claude-notifier check-and-notify` 在运行 `check-and-notify` 命令时，无法解析正确的上下文导致的错误？请你从 `packages\claude-notifier\src\commands\check-and-notify.ts` 开始阅读，一步一步阅读相关的配置，看看是不是这个处理逻辑导致 claude code 插件总是出现故障？
 
+### 由 `check-and-notify.ts` 提供的报错日志
+
+`check-and-notify.ts` 在 `os.tmpdir(), "claude-notifier-debug"` 内提供了报错日志，在 `%TEMP%/claude-notifier-debug` 目录内，相关的 Stop 钩子日志文件为：
+
+- check-and-notify-1763536566681.log
+- check-and-notify-1763536590286.log
+- check-and-notify-1763536718857.log
+- check-and-notify-1763536719133.log
+
+这些日志的行为内，都没有出现明显的执行超时的情况。
+
 ### 01 将超时日志记录提供出来
 
 ## 19 处理 claude code 插件故障
-
-<!-- TODO: -->
 
 阅读以下报错：
 
@@ -367,6 +376,4 @@ Plugin Loading Errors:
 
 请阅读 `claude-code-marketplace\common-tools` 这款 claude code 插件，并处理该故障。
 
-## 20 为 `@ruan-cat/claude-notifier` 更新更新日志
-
-阅读 `packages\claude-notifier\src\commands\check-and-notify.ts` 的本次修改日志和上一次修改记录。为 `@ruan-cat/claude-notifier` 更新相关的使用说明文档，并编写更新日志，发版标签为 minor 。
+## 20

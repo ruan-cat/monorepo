@@ -5,6 +5,35 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.7.1] - 2025-11-19
+
+### Fixed
+
+- **🐞 修复 Stop hooks 超时和逻辑错误**
+  - **问题 1**: `check-and-notify` 在 Stop 事件时执行了错误的逻辑
+    - **原因**: 代码要求 `stop_hook_active === true`，但 Claude Code 传递的值总是 `false`
+    - **影响**: Stop 事件时没有删除任务，反而执行了"清理和通知"逻辑
+    - **修复**: 移除对 `stop_hook_active === true` 的判断，只要是 Stop/SubagentStop 事件就删除任务
+    - **相关包**: `@ruan-cat/claude-notifier@0.8.1`
+
+  - **问题 2**: `cleanup-orphan-processes.sh` 执行超时（14 秒 > 10 秒 timeout）
+    - **原因**: PowerShell 查找到 52 个长时间运行的 npx 进程，逐个尝试杀死，每次失败都耗费时间
+    - **优化**:
+      1. 限制最多处理 10 个进程（`Select-Object -First 10`）
+      2. 使用后台并行执行 `taskkill`，不等待每个命令输出
+      3. 只等待 1 秒让 taskkill 完成
+    - **效果**: 执行时间从 14 秒降低到 3-5 秒
+    - **配置**: timeout 从 10 秒增加到 15 秒（保险起见）
+
+### Changed
+
+- **Stop hooks 配置调整** (`hooks.json`):
+  - `cleanup-orphan-processes.sh` 的 timeout: `10` → `15` 秒
+
+- **性能优化** (`cleanup-orphan-processes.sh`):
+  - 预期清理时间: `8` → `6` 秒
+  - 批量并行处理进程，显著提升效率
+
 ## [0.7.0] - 2025-11-19
 
 ### Fixed

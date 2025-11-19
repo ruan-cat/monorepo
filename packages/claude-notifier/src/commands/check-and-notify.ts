@@ -157,9 +157,12 @@ export function createCheckAndNotifyCommand(): Command {
 						return;
 					}
 
-					if ((hook_event_name === "Stop" || hook_event_name === "SubagentStop") && stop_hook_active === true) {
-						log(`====== Stop/SubagentStop 事件 (stop_hook_active=true) ======`);
-						// Stop/SubagentStop: 删除任务
+					// Stop/SubagentStop: 删除任务（移除 stop_hook_active 判断，因为它总是 false）
+					if (hook_event_name === "Stop" || hook_event_name === "SubagentStop") {
+						log(`====== Stop/SubagentStop 事件 ======`);
+						log(`stop_hook_active: ${stop_hook_active || false}`);
+
+						// 删除任务
 						if (cwd) {
 							log(`开始删除任务 (cwd: ${cwd})`);
 							const removeStartTime = Date.now();

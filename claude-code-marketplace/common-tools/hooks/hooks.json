@@ -17,7 +17,7 @@
 					{
 						"type": "command",
 						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-orphan-processes.sh",
-						"timeout": 10
+						"timeout": 15
 					},
 					{
 						"type": "command",
