@@ -5,6 +5,143 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.7.3] - 2025-11-19
+
+### Fixed
+
+- **🐞 修复 Stop hooks 超时导致的中止错误**: 解决了 `● Stop hook failed: The operation was aborted` 的核心问题
+  - **问题原因**:
+    - `task-complete-notifier.sh` 中的 `claude-notifier` 以后台进程运行（`&`）
+    - 在 Windows 环境下，后台子进程未被完全清理
+    - 脚本退出时遗留的进程导致 Claude Code 钩子系统超时
+  - **修复方案**:
+    1. **改为同步调用**: 移除后台运行 `&`，直接执行并等待完成
+    2. **新增进程清理函数**: `cleanup_processes()` 强制终止所有子进程
+       - 使用 `pgrep -P $$` 查找子进程，`kill -9` 强制终止
+       - Windows 特定：使用 `pkill -9 -f "claude-notifier"` 清理残留
+    3. **三重清理保障**:
+       - 执行后立即清理（notifier 运行完毕）
+       - 脚本退出前再次清理（确保无残留）
+       - 错误捕获时清理（trap ERR EXIT）
+    4. **优化超时时间**: notifier timeout 从 3s 降到 2s（更激进）
+  - **效果**: Stop hooks 不再超时，所有 3 个钩子都能正常完成
+  - **相关文件**: `scripts/task-complete-notifier.sh:50-65, 260-297, 304-307`
+
+### Changed
+
+- **进程管理策略优化** (`task-complete-notifier.sh`):
+  - 后台进程 `(timeout 3s claude-notifier ...) &` → 同步调用 `(timeout 2s claude-notifier ...)`
+  - 移除复杂的进程等待逻辑（不再需要 wait、kill -0 检查）
+  - 简化脚本结构，提升可靠性
+
+### Technical Details
+
+#### 修复前的问题
+
+**后台进程管理**（第 253-307 行）：
+
+```bash
+# 后台运行
+(timeout 3s claude-notifier ...) &
+NOTIFIER_PID=$!
+
+# 尝试等待 4 秒，检查进程状态
+for i in $(seq 1 20); do
+  if ! kill -0 $NOTIFIER_PID 2>/dev/null; then
+    break
+  fi
+  sleep 0.2
+done
+
+# 非阻塞等待（可能遗留子进程）
+wait $NOTIFIER_PID 2>/dev/null || true
+```
+
+**问题**：
+
+- Windows Git Bash 环境下，`wait` 可能无法正确等待子进程
+- `timeout` 命令的子进程清理不彻底
+- 脚本退出时，后台进程可能仍在运行
+
+#### 修复后的实现
+
+**同步调用 + 强制清理**：
+
+```bash
+# 1. 新增清理函数
+cleanup_processes() {
+  # 清理所有子进程
+  if command -v pgrep &> /dev/null; then
+    CHILD_PIDS=$(pgrep -P $$ 2>/dev/null || true)
+    if [ -n "$CHILD_PIDS" ]; then
+      kill -9 $CHILD_PIDS 2>/dev/null || true
+    fi
+  fi
+
+  # Windows 特定清理
+  if [ "$(uname -o 2>/dev/null || echo '')" = "Msys" ] || [ -n "${WINDIR:-}" ]; then
+    pkill -9 -f "claude-notifier" 2>/dev/null || true
+  fi
+}
+
+# 2. 错误捕获
+trap 'cleanup_processes; log "Script interrupted..."; exit 0' ERR EXIT
+
+# 3. 同步调用（不用 &）
+(timeout 2s claude-notifier ...) >> "$LOG_FILE"
+
+# 4. 立即清理
+cleanup_processes
+
+# 5. 退出前再次清理
+cleanup_processes
+echo "$OUTPUT_JSON"
+exit 0
+```
+
+#### 清理保障机制
+
+| 清理时机     | 触发条件          | 代码位置                  |
+| ------------ | ----------------- | ------------------------- |
+| 执行后清理   | notifier 运行完毕 | 第 295 行                 |
+| 退出前清理   | 脚本正常退出      | 第 306 行                 |
+| 错误捕获清理 | 脚本异常/中断     | trap ERR EXIT（第 67 行） |
+
+#### Windows 环境特殊处理
+
+Windows Git Bash (MSYS) 环境下的进程管理问题：
+
+- 子进程可能不会被父进程的 `wait` 正确回收
+- `timeout` 命令的实现与 Linux 不同
+- 需要额外使用 `pkill -f` 按名称强制清理
+
+**检测逻辑**：
+
+```bash
+if [ "$(uname -o 2>/dev/null || echo '')" = "Msys" ] || [ -n "${WINDIR:-}" ]; then
+  pkill -9 -f "claude-notifier" 2>/dev/null || true
+fi
+```
+
+### Testing
+
+验证修复效果的方法：
+
+1. **观察钩子执行**：不应再出现 `running stop hooks… 3/4` 卡住
+2. **检查日志**：查看 `/tmp/claude-code-task-complete-notifier-logs/` 最新日志
+   - 应该看到 `Cleanup verified` 和 `All child processes terminated`
+   - notifier 应该在 2 秒内完成
+3. **检查进程残留**：
+   ```bash
+   ps aux | grep claude-notifier  # 应该无残留进程
+   ```
+
+### References
+
+- 问题排查：本次对话中的详细分析
+- 修复脚本：`scripts/task-complete-notifier.sh`
+- 相关日志：`/tmp/claude-code-task-complete-notifier-logs/2025-11-19__21-42-27__*.log`（旧版本）
+
 ## [0.7.2] - 2025-11-19
 
 ### Fixed

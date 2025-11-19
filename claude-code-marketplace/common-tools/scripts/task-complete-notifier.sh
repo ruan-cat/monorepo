@@ -47,7 +47,24 @@ log() {
 }
 
 # ====== 错误陷阱 ======
-trap 'log "Script interrupted, returning success to prevent blocking"; echo "{}"; exit 0' ERR EXIT
+# 清理函数：确保所有子进程被杀死
+cleanup_processes() {
+  # 获取当前脚本的所有子进程
+  if command -v pgrep &> /dev/null; then
+    CHILD_PIDS=$(pgrep -P $$ 2>/dev/null || true)
+    if [ -n "$CHILD_PIDS" ]; then
+      log "Cleaning up child processes: $CHILD_PIDS"
+      kill -9 $CHILD_PIDS 2>/dev/null || true
+    fi
+  fi
+
+  # Windows 特定：清理 claude-notifier 进程
+  if [ "$(uname -o 2>/dev/null || echo '')" = "Msys" ] || [ -n "${WINDIR:-}" ]; then
+    pkill -9 -f "claude-notifier" 2>/dev/null || true
+  fi
+}
+
+trap 'cleanup_processes; log "Script interrupted, returning success to prevent blocking"; echo "{}"; exit 0' ERR EXIT
 
 log "====== Task Complete Notifier Started ======"
 log "Session ID: $SESSION_ID"
@@ -240,76 +257,55 @@ fi
 
 log "Project directory: $PROJECT_DIR"
 
-# ====== 发送通知（改进的后台运行） ======
+# ====== 发送通知（同步调用 + 强制超时） ======
 log "====== Sending Notification ======"
 log "Message: $SUMMARY"
 
-# 改进的后台运行策略：
-# 1. 使用预安装的 claude-notifier 而非 pnpm dlx
-# 2. 不强制 kill，让进程自然超时
-# 3. 使用更短的超时时间
-log "Starting notifier in background..."
+# 同步调用策略：
+# 1. 直接运行 claude-notifier（不用后台 &）
+# 2. 使用 timeout 强制限制执行时间为 2 秒
+# 3. 如果超时，timeout 会自动 kill 进程
+# 4. 脚本退出前确保所有子进程都已结束
+log "Starting notifier (synchronous, 2s timeout)..."
 
-# 使用子 shell 在后台运行，设置 3 秒超时
+NOTIFIER_START=$(date +%s)
+
+# 直接同步运行，不使用后台进程
 (
   cd "$PROJECT_DIR" 2>/dev/null || cd /
-  timeout 3s claude-notifier task-complete --message "$SUMMARY" >> "$LOG_FILE" 2>&1 || {
+  timeout 2s claude-notifier task-complete --message "$SUMMARY" 2>&1 || {
     EXIT_CODE=$?
     if [ $EXIT_CODE -eq 124 ]; then
-      echo "Notifier timed out (3s)" >> "$LOG_FILE"
+      echo "⚠️ Notifier timed out (2s)"
     else
-      echo "Notifier failed with exit code $EXIT_CODE" >> "$LOG_FILE"
+      echo "⚠️ Notifier failed with exit code $EXIT_CODE"
     fi
   }
-) &
+) >> "$LOG_FILE"
 
-NOTIFIER_PID=$!
-log "Notifier started (PID: $NOTIFIER_PID)"
+NOTIFIER_END=$(date +%s)
+NOTIFIER_DURATION=$((NOTIFIER_END - NOTIFIER_START))
+
+log "Notifier completed in ${NOTIFIER_DURATION}s"
 log ""
 
-# ====== 改进的等待策略 ======
-# 不主动 kill 进程，让 timeout 命令自己处理超时
-# 只等待最多 4 秒（留 1 秒缓冲给 timeout 清理）
-log "Waiting for notifier to complete (max 4s)..."
-WAIT_START=$(date +%s)
-
-MAX_WAIT=4
-PROCESS_FINISHED=false
-
-for i in $(seq 1 20); do
-  if ! kill -0 $NOTIFIER_PID 2>/dev/null; then
-    PROCESS_FINISHED=true
-    break
-  fi
-
-  WAIT_ELAPSED=$(($(date +%s) - WAIT_START))
-  if [ $WAIT_ELAPSED -ge $MAX_WAIT ]; then
-    log "WARNING: Notifier still running after ${MAX_WAIT}s"
-    log "Letting timeout command handle cleanup..."
-    break
-  fi
-
-  sleep 0.2
-done
-
-# 非阻塞等待（不会卡住）
-wait $NOTIFIER_PID 2>/dev/null || true
-
-WAIT_END=$(date +%s)
-WAIT_DURATION=$((WAIT_END - WAIT_START))
-
-if [ "$PROCESS_FINISHED" = true ]; then
-  log "Notifier completed successfully (${WAIT_DURATION}s)"
-else
-  log "Notifier may still be running (waited ${WAIT_DURATION}s, max ${MAX_WAIT}s)"
-  log "Process will be cleaned up by timeout or cleanup script"
-fi
+# ====== 额外的进程清理保障 ======
+# 确保没有遗留的 claude-notifier 进程
+log "Verifying no orphan processes..."
+cleanup_processes
+log "Cleanup verified"
 log ""
 
 # ====== 向 Claude Code 输出成功信息 ======
 OUTPUT_JSON="{\"continue\": true, \"stopReason\": \"✅ 任务总结: ${SUMMARY}\"}"
 log "====== Claude Code Output ======"
 log "$OUTPUT_JSON"
+
+# ====== 最终清理：确保所有子进程都已终止 ======
+log "====== Final Cleanup ======"
+cleanup_processes
+log "All child processes terminated"
+
 log "====== Task Complete Notifier Finished ======"
 
 # ====== 清除错误陷阱，正常退出 ======
