@@ -7,7 +7,7 @@
 					{
 						"type": "command",
 						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh",
-						"timeout": 20
+						"timeout": 45
 					}
 				]
 			}
@@ -73,16 +73,6 @@
 			}
 		],
 		"Notification": [
-			{
-				"matcher": "idle_prompt",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "claude-notifier interaction-needed",
-						"timeout": 10
-					}
-				]
-			},
 			{
 				"matcher": "elicitation_dialog",
 				"hooks": [

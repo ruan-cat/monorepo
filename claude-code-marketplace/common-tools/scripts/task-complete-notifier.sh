@@ -1,14 +1,14 @@
 #!/bin/bash
 # Claude Code Stop 钩子 - 任务完成通知器
 # 在 Agent 响应完成后触发，生成 Gemini 总结并发送通知
-# 关键：必须在 18 秒内完成（hooks.json 设置为 20 秒超时）
+# 关键：必须在 43 秒内完成（hooks.json 设置为 45 秒超时）
 
 set -euo pipefail
 
 # ====== 全局超时保护 ======
-# 注意：hooks.json 中配置的 timeout 为 20 秒
-# 脚本应在 18 秒内完成，留 2 秒缓冲
-GLOBAL_TIMEOUT=18
+# 注意：hooks.json 中配置的 timeout 为 45 秒
+# 脚本应在 43 秒内完成，留 2 秒缓冲
+GLOBAL_TIMEOUT=43
 
 # ====== 日志配置 ======
 LOG_DIR="${TEMP:-${TMP:-/tmp}}/claude-code-task-complete-notifier-logs"
@@ -84,13 +84,13 @@ log "发送立即通知: 非gemini总结：任务完成"
 
 IMMEDIATE_START=$(date +%s)
 
-# 同步调用，1 秒超时
+# 同步调用，8 秒超时
 (
   cd "$PROJECT_DIR" 2>/dev/null || cd /
-  timeout 1s claude-notifier task-complete --message "非gemini总结：任务完成" 2>&1 || {
+  timeout 8s claude-notifier task-complete --message "非gemini总结：任务完成" 2>&1 || {
     EXIT_CODE=$?
     if [ $EXIT_CODE -eq 124 ]; then
-      echo "⚠️ Immediate notifier timed out (1s)"
+      echo "⚠️ Immediate notifier timed out (8s)"
     else
       echo "⚠️ Immediate notifier failed with exit code $EXIT_CODE"
     fi
@@ -288,20 +288,20 @@ log "Message: $SUMMARY"
 
 # 同步调用策略：
 # 1. 直接运行 claude-notifier（不用后台 &）
-# 2. 使用 timeout 强制限制执行时间为 2 秒
+# 2. 使用 timeout 强制限制执行时间为 8 秒
 # 3. 如果超时，timeout 会自动 kill 进程
 # 4. 脚本退出前确保所有子进程都已结束
-log "Starting notifier (synchronous, 2s timeout)..."
+log "Starting notifier (synchronous, 8s timeout)..."
 
 NOTIFIER_START=$(date +%s)
 
 # 直接同步运行，不使用后台进程
 (
   cd "$PROJECT_DIR" 2>/dev/null || cd /
-  timeout 2s claude-notifier task-complete --message "$SUMMARY" 2>&1 || {
+  timeout 8s claude-notifier task-complete --message "$SUMMARY" 2>&1 || {
     EXIT_CODE=$?
     if [ $EXIT_CODE -eq 124 ]; then
-      echo "⚠️ Notifier timed out (2s)"
+      echo "⚠️ Notifier timed out (8s)"
     else
       echo "⚠️ Notifier failed with exit code $EXIT_CODE"
     fi

@@ -5,6 +5,18 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.8.2] - 2025-11-20
+
+### Changed
+
+- **通知超时时间优化**: 调整通知弹框的超时时间以确保完整显示
+  - 立即通知超时：1s → 8s（`task-complete-notifier.sh:90`）
+  - Gemini 总结后通知超时：2s → 8s（`task-complete-notifier.sh:301`）
+  - Stop 钩子总超时：20s → 45s（`hooks.json:10`）
+  - 脚本全局超时：18s → 43s（`task-complete-notifier.sh:11`）
+  - **原因**: 通知弹框从打开到完全关闭至少需要 8 秒
+  - **效果**: 确保通知有足够时间完整显示，不会被过早中断
+
 ## [0.8.1] - 2025-11-20
 
 ### Fixed

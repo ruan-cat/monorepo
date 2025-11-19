@@ -343,7 +343,7 @@ Plugin Loading Errors:
 
 立即修复、短期修复、和长期修复都要做。
 
-## 18 <!-- TODO: 继续重新修复 --> 针对 Stop hooks 处理 `● Stop hook failed: The operation was aborted` 的故障
+## 18 针对 Stop hooks 处理 `● Stop hook failed: The operation was aborted` 的故障
 
 1. 请针对性阅读 `claude-code-marketplace\common-tools\hooks\hooks.json` 的 Stop hooks 钩子配置。
 2. 重点看清楚这里面的这几个钩子。每次我运行时，总有同一个钩子运行失败了，报错误 `● Stop hook failed: The operation was aborted` 。
@@ -420,4 +420,9 @@ Stop hook 呢？
 
 请阅读 `claude-code-marketplace\common-tools` 这款 claude code 插件，并处理该故障。
 
-## 20
+## 20 处理超时逻辑
+
+我注意到现在的 claude code 插件，没有实现及时的通知功能。
+
+1. 在 claude code 插件的 `claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh` 中，我注意到 `claude-notifier task-complete` 所允许的超时时间太短了，请增加到 8 秒。因为弹框打开到完全关闭，至少需要 8 秒。
+2. 请适当的更新 `claude-code-marketplace\common-tools\hooks\hooks.json` 所允许的 Stop 钩子超时时间。
