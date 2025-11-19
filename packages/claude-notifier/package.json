@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/claude-notifier",
-	"version": "0.8.2",
+	"version": "0.9.0",
 	"description": "在 Claude Code 任务完成后，发送 Windows 系统的全局通知。",
 	"type": "module",
 	"main": "./dist/index.cjs",
