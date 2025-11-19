@@ -351,6 +351,10 @@ Plugin Loading Errors:
 4. 运行 claude code 时，经常出现 `running stop hooks… 3/4` 的情况，证明肯定有一款钩子没办法及时关闭。请帮我排查。
 5. 请问是不是 `claude-notifier check-and-notify` 在运行 `check-and-notify` 命令时，无法解析正确的上下文导致的错误？请你从 `packages\claude-notifier\src\commands\check-and-notify.ts` 开始阅读，一步一步阅读相关的配置，看看是不是这个处理逻辑导致 claude code 插件总是出现故障？
 
+### 注意到完成 gemini 总结后就出现报错
+
+我注意到当完成 `scripts/task-complete-notifier.sh` 的 gemini 总结提示后，就出现了 `● Stop hook failed: The operation was aborted` 的错误。你可以仔细的看看 `scripts/task-complete-notifier.sh` 的实现逻辑么？看看是不是无头模式运行 gemini 相关的情况，导致了 claude code 钩子退出失败的故障？
+
 ### 由 `check-and-notify.ts` 提供的报错日志
 
 `check-and-notify.ts` 在 `os.tmpdir(), "claude-notifier-debug"` 内提供了报错日志，在 `%TEMP%/claude-notifier-debug` 目录内，相关的 Stop 钩子日志文件为：

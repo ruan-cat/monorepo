@@ -11,18 +11,13 @@
 					},
 					{
 						"type": "command",
-						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh",
-						"timeout": 20
-					},
-					{
-						"type": "command",
-						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-orphan-processes.sh",
-						"timeout": 15
-					},
-					{
-						"type": "command",
 						"command": "claude-notifier check-and-notify",
 						"timeout": 5
+					},
+					{
+						"type": "command",
+						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh",
+						"timeout": 20
 					}
 				]
 			}

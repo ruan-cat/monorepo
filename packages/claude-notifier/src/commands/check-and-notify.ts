@@ -115,7 +115,9 @@ export function createCheckAndNotifyCommand(): Command {
 				if (!hookInput) {
 					log("⚠️  未接收到 stdin 数据 (hookInput = null)");
 					log("可能原因：stdin 已被前面的钩子消费，或 stdin 在 500ms 内未提供数据");
-					// 即使没有 stdin 数据，也可能需要清理过期任务和检查通知
+					log("====== 提前返回，避免执行不必要的逻辑 ======", true);
+					log(`====== 总耗时: ${Date.now() - startTime}ms ======`, true);
+					return;
 				} else {
 					const { cwd, hook_event_name, stop_hook_active } = hookInput;
 

@@ -5,6 +5,28 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.7.2] - 2025-11-19
+
+### Fixed
+
+- **🐞 修复 `check-and-notify` 在 Stop 事件的逻辑错误**
+  - **问题**: 当 hookInput 为 null 时，仍然执行后续逻辑，导致不必要的处理
+  - **修复**: 添加提前返回逻辑，当 hookInput 为 null 时立即返回，避免执行无效操作
+  - **效果**: 提升 Stop hooks 的执行性能和稳定性
+  - **相关包**: `@ruan-cat/claude-notifier@0.8.2`
+
+### Changed
+
+- **Stop hooks 配置优化** (`hooks.json`):
+  - 调整钩子执行顺序：`check-and-notify` 现在在 `task-complete-notifier.sh` 之前执行
+  - 移除 `cleanup-orphan-processes.sh`（已不再需要）
+
+### Removed
+
+- **移除进程清理脚本**: 删除 `cleanup-orphan-processes.sh`
+  - `@ruan-cat/claude-notifier` 的改进已解决进程清理问题
+  - 简化 Stop hooks 配置，减少不必要的复杂性
+
 ## [0.7.1] - 2025-11-19
 
 ### Fixed
