@@ -289,6 +289,75 @@ NOTIFIER_DURATION=$((NOTIFIER_END - NOTIFIER_START))
 log "Notifier completed in ${NOTIFIER_DURATION}s"
 log ""
 
+# ====== 删除任务（避免重复通知） ======
+log "====== Removing Task to Prevent Duplicate Notifications ======"
+
+# 确定 remove-task.ts 脚本的路径
+# 假设脚本在 monorepo 根目录的 packages/claude-notifier/src/scripts/remove-task.ts
+MONOREPO_ROOT=""
+
+# 尝试找到 monorepo 根目录（向上查找 pnpm-workspace.yaml）
+CURRENT_SEARCH_DIR="$PROJECT_DIR"
+while [ "$CURRENT_SEARCH_DIR" != "/" ] && [ "$CURRENT_SEARCH_DIR" != "" ]; do
+  if [ -f "$CURRENT_SEARCH_DIR/pnpm-workspace.yaml" ]; then
+    MONOREPO_ROOT="$CURRENT_SEARCH_DIR"
+    break
+  fi
+  CURRENT_SEARCH_DIR=$(dirname "$CURRENT_SEARCH_DIR")
+done
+
+# 如果找不到 monorepo 根目录，尝试使用相对路径
+if [ -z "$MONOREPO_ROOT" ]; then
+  # 从当前脚本位置向上查找
+  SCRIPT_PARENT_DIR=$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")
+  if [ -f "$SCRIPT_PARENT_DIR/pnpm-workspace.yaml" ]; then
+    MONOREPO_ROOT="$SCRIPT_PARENT_DIR"
+  fi
+fi
+
+if [ -n "$MONOREPO_ROOT" ]; then
+  REMOVE_TASK_SCRIPT="$MONOREPO_ROOT/packages/claude-notifier/src/scripts/remove-task.ts"
+  log "Monorepo root found: $MONOREPO_ROOT"
+  log "Remove task script path: $REMOVE_TASK_SCRIPT"
+
+  # 检查 tsx 和脚本文件是否存在
+  if command -v tsx &> /dev/null; then
+    if [ -f "$REMOVE_TASK_SCRIPT" ]; then
+      log "Executing remove-task.ts with cwd: $PROJECT_DIR"
+      REMOVE_START=$(date +%s)
+
+      # 执行删除任务脚本，设置 2 秒超时
+      REMOVE_OUTPUT=$(timeout 2s tsx "$REMOVE_TASK_SCRIPT" "$PROJECT_DIR" 2>&1 || {
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 124 ]; then
+          echo "⚠️ Remove task timed out (2s)"
+        else
+          echo "⚠️ Remove task failed with exit code $EXIT_CODE"
+        fi
+      })
+
+      REMOVE_END=$(date +%s)
+      REMOVE_DURATION=$((REMOVE_END - REMOVE_START))
+
+      log "Remove task output:"
+      echo "$REMOVE_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
+      log "Remove task completed in ${REMOVE_DURATION}s"
+    else
+      log "⚠️ remove-task.ts not found at: $REMOVE_TASK_SCRIPT"
+      log "⚠️ Task will NOT be removed, may receive duplicate notifications in 6+ minutes"
+    fi
+  else
+    log "⚠️ tsx command not found, cannot execute TypeScript script"
+    log "⚠️ Please install tsx globally: npm install -g tsx"
+    log "⚠️ Task will NOT be removed, may receive duplicate notifications in 6+ minutes"
+  fi
+else
+  log "⚠️ Could not locate monorepo root (no pnpm-workspace.yaml found)"
+  log "⚠️ Task will NOT be removed, may receive duplicate notifications in 6+ minutes"
+fi
+
+log ""
+
 # ====== 额外的进程清理保障 ======
 # 确保没有遗留的 claude-notifier 进程
 log "Verifying no orphan processes..."

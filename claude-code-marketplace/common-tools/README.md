@@ -4,9 +4,12 @@
 
 ## 版本
 
-**当前版本**: `0.7.3`
+**当前版本**: `0.8.0`
 
-⚠️ **v0.7.3 最新修复**: 修复了 Stop hooks 超时导致的中止错误 `The operation was aborted`，改进了进程管理机制。
+⚠️ **v0.8.0 重要修复**:
+
+- 修复了 Stop hooks 的 stdin 竞争问题，解决任务删除失败和重复通知
+- **破坏性变更**: 不再在 Stop 钩子中使用 `check-and-notify`，详见 [CHANGELOG.md](./CHANGELOG.md#080---2025-11-19)
 
 ⚠️ **v0.7.0 重要变更**: 本版本修复了进程堆积问题，**需要手动安装全局依赖**。详见[安装要求](#安装要求)。
 
@@ -33,16 +36,19 @@
   - 📝 **完整日志**: 自动记录所有输入、处理过程和输出结果
   - 🚀 **多模型策略**: 优先使用 gemini-2.5-flash（快速），备用 gemini-2.5-pro（高质量）
   - 🔍 **调试支持**: 详细日志存储在 `%TEMP%\claude-code-task-complete-notifier-logs\`
+  - 🔧 **自动任务清理**: v0.8.0+ 自动删除已完成任务，避免误报通知
 - `SessionStart` / `SessionEnd`: 会话开始/结束时的定时检查通知
 - `UserPromptSubmit`: 用户提交消息时的定时检查通知
-- `PreToolUse` / `PostToolUse`: 工具使用前后的定时检查通知
+- `PreToolUse`: 工具使用前的定时检查通知
 - `SubagentStop`: 子代理停止时的定时检查通知
 
 通知功能由 [`@ruan-cat/claude-notifier`](../../packages/claude-notifier) 包提供支持。
 
+⚠️ **v0.8.0 架构变更**: Stop 钩子不再使用 `check-and-notify`，改为在 `task-complete-notifier.sh` 中直接删除任务，避免 stdin 竞争问题。
+
 #### 任务总结功能详情
 
-**钩子系统架构**：
+**钩子系统架构**（v0.8.0）：
 
 ```plain
 UserPromptSubmit  ──→  user-prompt-logger.sh
@@ -54,8 +60,15 @@ UserPromptSubmit  ──→  user-prompt-logger.sh
 Stop              ──→  task-complete-notifier.sh
                         ├─ 读取完整对话历史 (transcript-reader.ts)
                         ├─ 生成 Gemini 总结
+                        ├─ 删除已完成任务 (remove-task.ts) [NEW in v0.8.0]
                         └─ 发送桌面通知
 ```
+
+**关键改进**（v0.8.0）：
+
+- ✅ Stop 钩子现在直接删除任务，不再依赖 `check-and-notify`
+- ✅ 避免了 stdin 流竞争问题
+- ✅ 消除了任务删除失败导致的误报通知
 
 **核心脚本**：
 

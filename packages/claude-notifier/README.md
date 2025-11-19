@@ -54,7 +54,14 @@ npx @ruan-cat/claude-notifier --help
 
 ### Claude Code Hooks 集成
 
-推荐配置：使用 `check-and-notify` 命令实现自动长任务管理
+> ⚠️ **重要变更（v0.9.0+）**：不再在 Stop hooks 中使用 `check-and-notify`
+>
+> 由于多个钩子竞争读取 stdin 流的问题，`check-and-notify` 现在会自动跳过 Stop/SubagentStop 事件。
+> 任务删除现在由 `task-complete-notifier.sh` 或其他脚本直接调用 `remove-task.ts` 完成。
+>
+> 详见：[破坏性变更说明](#破坏性变更-stop-hooks-配置)
+
+**推荐配置**：使用 `check-and-notify` 命令实现自动长任务管理
 
 ```json
 {
@@ -65,16 +72,34 @@ npx @ruan-cat/claude-notifier --help
 				"hooks": [
 					{
 						"type": "command",
-						"command": "npx @ruan-cat/claude-notifier check-and-notify"
-					},
-					{
-						"type": "command",
 						"command": "npx @ruan-cat/claude-notifier task-complete --message \"任务完成\""
 					}
 				]
 			}
 		],
-		"BeforeToolUse": [
+		"UserPromptSubmit": [
+			{
+				"matcher": "os == 'windows'",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx @ruan-cat/claude-notifier check-and-notify"
+					}
+				]
+			}
+		],
+		"PreToolUse": [
+			{
+				"matcher": "os == 'windows'",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx @ruan-cat/claude-notifier check-and-notify"
+					}
+				]
+			}
+		],
+		"SessionEnd": [
 			{
 				"matcher": "os == 'windows'",
 				"hooks": [
@@ -91,14 +116,32 @@ npx @ruan-cat/claude-notifier --help
 
 **工作机制**：
 
-- `check-and-notify` 从 stdin 读取 hook 数据（cwd、hook_event_name 等）
+- `check-and-notify` 优先从环境变量读取数据，fallback 到 stdin（避免 stdin 竞争）
 - **SessionStart**: 跳过通知，避免会话启动时的干扰
 - **UserPromptSubmit**: 无条件删除旧任务并创建新任务，确保每次用户输入都重新计时
 - **SessionEnd**: 删除任务，不做通知，确保会话结束时清理任务
-- **Stop/SubagentStop**: 删除任务（当 stop_hook_active=true 时）
+- **Stop/SubagentStop**: ⚠️ **自动跳过**（v0.9.0+），不执行任何逻辑（避免 stdin 竞争问题）
 - **其他事件**: 检查任务，到达时间点时自动通知（默认：6, 10, 18, 25, 45 分钟）
 - 通知文本精确显示"X 分 Y 秒"，标题显示阶段（如"长任务提醒：6 分钟阶段"）
 - 详细的日志记录和性能监控（日志文件：`%TEMP%\claude-notifier-debug\`）
+
+**环境变量支持（v0.9.0+）**：
+
+`check-and-notify` 现在支持通过环境变量传递数据，避免 stdin 竞争：
+
+```json
+{
+	"type": "command",
+	"command": "npx @ruan-cat/claude-notifier check-and-notify",
+	"env": {
+		"CLAUDE_CWD": "${cwd}",
+		"CLAUDE_HOOK_EVENT": "${hook_event_name}",
+		"CLAUDE_STOP_HOOK_ACTIVE": "${stop_hook_active}"
+	}
+}
+```
+
+数据获取优先级：环境变量 > stdin
 
 ## 📚 使用文档
 
@@ -193,12 +236,30 @@ npx @ruan-cat/claude-notifier check-and-notify --intervals "6,10,15,20,30"
 **特性**：
 
 - ✅ 基于 cwd 区分任务，支持多工作目录
-- ✅ 智能事件处理（SessionStart/UserPromptSubmit/SessionEnd/Stop/SubagentStop）
+- ✅ 智能事件处理（SessionStart/UserPromptSubmit/SessionEnd）
+- ✅ **环境变量优先支持**（v0.9.0+）：优先读取环境变量，fallback 到 stdin
+- ✅ **自动跳过 Stop 事件**（v0.9.0+）：检测到 Stop/SubagentStop 时立即返回，避免 stdin 竞争
 - ✅ 精确时间差计算（显示"X 分 Y 秒"）
 - ✅ 自动清理超过 8 小时的任务
 - ✅ 防重复通知（10 秒内不重复）
 - ✅ 详细的日志记录和性能监控
 - ✅ 超时警告（总耗时接近 5 秒时警告）
+
+**环境变量支持**（v0.9.0+）：
+
+- `CLAUDE_CWD` - 当前工作目录
+- `CLAUDE_HOOK_EVENT` - Hook 事件名称
+- `CLAUDE_STOP_HOOK_ACTIVE` - Stop hook 是否激活
+
+**事件处理逻辑**：
+
+| 事件                  | 行为          | 说明                             |
+| --------------------- | ------------- | -------------------------------- |
+| SessionStart          | 跳过          | 避免会话启动时干扰               |
+| UserPromptSubmit      | 创建/重置任务 | 无条件删除旧任务并创建新任务     |
+| SessionEnd            | 删除任务      | 不做通知，仅清理                 |
+| **Stop/SubagentStop** | **立即返回**  | v0.9.0+ 自动跳过，不执行任何逻辑 |
+| PreToolUse 等其他事件 | 检查并通知    | 到达时间点时自动通知             |
 
 ### timeout - 超时通知
 
@@ -328,6 +389,165 @@ pnpm test:cli
 ### 🏗️ 项目信息
 
 - [架构文档](./src/docs/architecture.md) - 项目架构和设计
+
+## 破坏性变更：Stop Hooks 配置
+
+### 问题背景（v0.9.0 之前）
+
+在 v0.9.0 之前，推荐在 Stop hooks 中使用 `check-and-notify` 来自动删除任务：
+
+```json
+{
+	"Stop": [
+		{
+			"hooks": [
+				{
+					"command": "bash scripts/task-complete-notifier.sh"
+				},
+				{
+					"command": "claude-notifier check-and-notify" // ❌ 有问题
+				}
+			]
+		}
+	]
+}
+```
+
+**问题**：多个钩子竞争读取 stdin 流
+
+1. 第一个钩子（`task-complete-notifier.sh`）读取 stdin 成功
+2. 第二个钩子（`check-and-notify`）尝试读取 stdin，但流已被消费
+3. `check-and-notify` 500ms 超时后返回 `null`
+4. 检测到 `null` 后提前返回，删除任务的代码永远不会执行
+5. 已完成的任务持续存在，6 分钟后触发误报通知
+
+### 解决方案（v0.9.0+）
+
+#### 方案 1：从 Stop hooks 中移除 check-and-notify
+
+```json
+{
+	"Stop": [
+		{
+			"hooks": [
+				{
+					"command": "bash scripts/task-complete-notifier.sh" // 此脚本内部调用 remove-task.ts
+				},
+				{
+					"command": "claude-notifier task-complete --message \"任务完成\"" // 独立通知
+				}
+			]
+		}
+	]
+}
+```
+
+**说明**：
+
+- ✅ `task-complete-notifier.sh` 读取 stdin，生成 Gemini 总结，然后调用 `tsx remove-task.ts` 删除任务
+- ✅ `task-complete` 不需要 stdin，独立发送通知
+- ✅ 没有 stdin 竞争，任务能够正确删除
+
+#### 方案 2：使用环境变量（如果 Claude Code 支持）
+
+```json
+{
+	"type": "command",
+	"command": "claude-notifier check-and-notify",
+	"env": {
+		"CLAUDE_CWD": "${cwd}",
+		"CLAUDE_HOOK_EVENT": "${hook_event_name}"
+	}
+}
+```
+
+**说明**：
+
+- ✅ 不依赖 stdin，完全避免竞争
+- ⚠️ 需要确认 Claude Code 是否支持 hooks 环境变量注入
+
+### 新增工具脚本
+
+**`src/scripts/remove-task.ts`**（v0.9.0+）
+
+可被 tsx 直接调用，用于在 Bash 脚本中删除任务：
+
+```bash
+# 在 task-complete-notifier.sh 中使用
+tsx packages/claude-notifier/src/scripts/remove-task.ts /path/to/project
+```
+
+**特性**：
+
+- ✅ 不依赖 stdin
+- ✅ 2 秒超时保护
+- ✅ 详细的成功/失败日志
+
+### 迁移指南
+
+#### 步骤 1：检查你的 hooks 配置
+
+查找是否在 Stop hooks 中使用了 `check-and-notify`：
+
+```bash
+# 查找配置文件
+find . -name "hooks.json" -o -name ".claude/hooks.json"
+
+# 检查是否包含问题配置
+grep -A 10 '"Stop"' your-hooks.json
+```
+
+#### 步骤 2：移除 check-and-notify
+
+如果找到了，从 Stop hooks 中移除 `check-and-notify`：
+
+```diff
+{
+  "Stop": [
+    {
+      "hooks": [
+        {
+          "command": "bash scripts/task-complete-notifier.sh"
+        },
+-       {
+-         "command": "claude-notifier check-and-notify"
+-       }
+      ]
+    }
+  ]
+}
+```
+
+#### 步骤 3：确保任务删除逻辑
+
+确保你的 `task-complete-notifier.sh` 或其他脚本调用了 `remove-task.ts`：
+
+```bash
+# 在脚本末尾添加
+tsx "$MONOREPO_ROOT/packages/claude-notifier/src/scripts/remove-task.ts" "$PROJECT_DIR"
+```
+
+#### 步骤 4：验证修复
+
+1. 启动 Claude Code 对话
+2. 提交任务并等待完成
+3. 等待 6 分钟
+4. 确认不再收到长任务通知 ✅
+
+### 其他 Hooks 不受影响
+
+以下 hooks 仍然可以正常使用 `check-and-notify`：
+
+- ✅ **UserPromptSubmit** - 创建/重置任务
+- ✅ **PreToolUse** - 检查长任务并通知
+- ✅ **SessionEnd** - 清理任务
+
+### 技术细节
+
+详见：
+
+- [Stop Hooks 故障深度分析报告](../../docs/reports/2025-11-19-stop-hooks-failure-analysis.md)
+- [v0.8.0 发布报告](../../docs/reports/2025-11-19-common-tools-v0.8.0-release.md)
 
 ## License
 

@@ -105,26 +105,64 @@ export function createCheckAndNotifyCommand(): Command {
 				}
 				log(`提醒间隔: ${intervals.join(", ")} 分钟`);
 
-				// 1. 读取 stdin 获取 hook 数据
+				// 1. 优先从环境变量读取数据（方案3：避免 stdin 竞争）
+				const envCwd = process.env.CLAUDE_CWD;
+				const envHookEvent = process.env.CLAUDE_HOOK_EVENT;
+				const envStopHookActive = process.env.CLAUDE_STOP_HOOK_ACTIVE === "true";
+
+				log("====== 检查环境变量 ======");
+				log(`CLAUDE_CWD: ${envCwd || "(未设置)"}`);
+				log(`CLAUDE_HOOK_EVENT: ${envHookEvent || "(未设置)"}`);
+				log(`CLAUDE_STOP_HOOK_ACTIVE: ${envStopHookActive || "(未设置)"}`);
+
+				// 2. 如果环境变量中有 hook_event_name，检查是否是 Stop 事件
+				if (envHookEvent === "Stop" || envHookEvent === "SubagentStop") {
+					log("⚠️  检测到 Stop/SubagentStop 事件（来自环境变量）", true);
+					log("⚠️  check-and-notify 不应该在 Stop 钩子中被调用", true);
+					log("⚠️  任务删除应由 task-complete-notifier.sh 直接调用 remove-task.ts 完成", true);
+					log("⚠️  立即返回，不执行任何逻辑", true);
+					log(`====== 总耗时: ${Date.now() - startTime}ms ======`, true);
+					return;
+				}
+
+				// 3. 读取 stdin 获取 hook 数据（fallback）
 				log("====== 开始读取 stdin ======");
 				const readStartTime = Date.now();
 				const hookInput = await readHookInput();
 				const readElapsed = Date.now() - readStartTime;
 				log(`stdin 读取完成，耗时: ${readElapsed}ms`);
 
-				if (!hookInput) {
-					log("⚠️  未接收到 stdin 数据 (hookInput = null)");
-					log("可能原因：stdin 已被前面的钩子消费，或 stdin 在 500ms 内未提供数据");
+				// 4. 合并环境变量和 stdin 数据（环境变量优先）
+				let cwd = envCwd || hookInput?.cwd || "";
+				let hook_event_name = envHookEvent || hookInput?.hook_event_name || "";
+				let stop_hook_active = envStopHookActive || hookInput?.stop_hook_active || false;
+
+				// 5. 如果既没有环境变量也没有 stdin 数据，提前返回
+				if (!hookInput && !envCwd && !envHookEvent) {
+					log("⚠️  未接收到任何数据（环境变量和 stdin 都为空）");
+					log("可能原因：stdin 已被前面的钩子消费，且未设置环境变量");
 					log("====== 提前返回，避免执行不必要的逻辑 ======", true);
 					log(`====== 总耗时: ${Date.now() - startTime}ms ======`, true);
 					return;
-				} else {
-					const { cwd, hook_event_name, stop_hook_active } = hookInput;
+				}
 
-					log(`📥 接收到 hook 数据:`);
-					log(`   - cwd: ${cwd}`);
-					log(`   - hook_event_name: ${hook_event_name}`);
-					log(`   - stop_hook_active: ${stop_hook_active || false}`);
+				log(`📥 最终使用的数据（环境变量优先）:`);
+				log(`   - cwd: ${cwd}`);
+				log(`   - hook_event_name: ${hook_event_name}`);
+				log(`   - stop_hook_active: ${stop_hook_active}`);
+
+				// 6. 再次检查是否是 Stop 事件（从 stdin 读取的情况）
+				if (hook_event_name === "Stop" || hook_event_name === "SubagentStop") {
+					log("⚠️  检测到 Stop/SubagentStop 事件（来自 stdin）", true);
+					log("⚠️  check-and-notify 不应该在 Stop 钩子中被调用", true);
+					log("⚠️  任务删除应由 task-complete-notifier.sh 直接调用 remove-task.ts 完成", true);
+					log("⚠️  立即返回，不执行任何逻辑", true);
+					log(`====== 总耗时: ${Date.now() - startTime}ms ======`, true);
+					return;
+				}
+
+				if (hookInput) {
+					log(`📥 从 stdin 接收到 hook 数据（已被环境变量覆盖的部分不再使用）`);
 
 					// 2. 根据 hook_event_name 处理不同逻辑
 					if (hook_event_name === "SessionStart") {
@@ -159,23 +197,10 @@ export function createCheckAndNotifyCommand(): Command {
 						return;
 					}
 
-					// Stop/SubagentStop: 删除任务（移除 stop_hook_active 判断，因为它总是 false）
-					if (hook_event_name === "Stop" || hook_event_name === "SubagentStop") {
-						log(`====== Stop/SubagentStop 事件 ======`);
-						log(`stop_hook_active: ${stop_hook_active || false}`);
-
-						// 删除任务
-						if (cwd) {
-							log(`开始删除任务 (cwd: ${cwd})`);
-							const removeStartTime = Date.now();
-							removeTask(cwd);
-							const removeElapsed = Date.now() - removeStartTime;
-							log(`🗑️  已删除任务，耗时: ${removeElapsed}ms`);
-						}
-						log(`Stop 阶段不做任何通知，立即返回`);
-						log(`====== 总耗时: ${Date.now() - startTime}ms ======`, true);
-						return;
-					}
+					// ====== 已移除 Stop/SubagentStop 逻辑 ======
+					// 说明：Stop/SubagentStop 事件现在在脚本开始处就被拦截并返回（第118-126行和154-162行）
+					// 任务删除现在由 task-complete-notifier.sh 直接调用 remove-task.ts 完成
+					// 这样避免了 stdin 竞争问题，确保任务能够被正确删除
 
 					// 3. 其他事件: 检查并通知
 					log("ℹ️ 其他事件，继续执行清理和通知逻辑");

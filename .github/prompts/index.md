@@ -346,20 +346,39 @@ Plugin Loading Errors:
 ## 18 <!-- TODO: 继续重新修复 --> 针对 Stop hooks 处理 `● Stop hook failed: The operation was aborted` 的故障
 
 1. 请针对性阅读 `claude-code-marketplace\common-tools\hooks\hooks.json` 的 Stop hooks 钩子配置。
-2. 重点看清楚这里面的这 4 款钩子。每次我运行时，总有同一个钩子运行失败了，报错误 `● Stop hook failed: The operation was aborted` 。
+2. 重点看清楚这里面的这几个钩子。每次我运行时，总有同一个钩子运行失败了，报错误 `● Stop hook failed: The operation was aborted` 。
 3. `⎿ Stop says: Plugin hook error:` `● Stop hook failed: The operation was aborted`
 4. 运行 claude code 时，经常出现 `running stop hooks… 3/4` 的情况，证明肯定有一款钩子没办法及时关闭。请帮我排查。
 
+### 注意这两个 hooks 配置
+
+```json
+[
+	{
+		"type": "command",
+		"command": "claude-notifier task-complete --message \"非gemini总结：任务完成\"",
+		"timeout": 10
+	},
+	{
+		"type": "command",
+		"command": "claude-notifier check-and-notify",
+		"timeout": 5
+	}
+]
+```
+
+现在，我在 `claude-code-marketplace\common-tools\hooks\hooks.json` 内手动移除了这两款钩子，并且注意到我长期运行的钩子确实有正常关闭了。所以问题定性为这两款钩子导致了 `● Stop hook failed: The operation was aborted` 。请帮我分析这两款钩子出现的问题。
+
 ### 注意到完成 gemini 总结后就出现报错
 
-我注意到当完成 `scripts/task-complete-notifier.sh` 的 gemini 总结提示后，就出现了 `● Stop hook failed: The operation was aborted` 的错误。你可以仔细的看看 `scripts/task-complete-notifier.sh` 的实现逻辑么？看看是不是无头模式运行 gemini 相关的情况，导致了 claude code 钩子退出失败的故障？
+在和上面这两个钩子一起使用 gemini 总结钩子时，我注意到当完成 `scripts/task-complete-notifier.sh` 的 gemini 总结提示后，就出现了 `● Stop hook failed: The operation was aborted` 的错误。你可以仔细的看看 `scripts/task-complete-notifier.sh` 的实现逻辑么？看看是不是无头模式运行 gemini 相关的情况，导致了 claude code 钩子退出失败的故障？
 
 ### 从一开始就触发了 Stop hook
 
-我注意到开始和 claude code 对话后，就直接触发了 `running stop hooks… 2/3` 的提示，至少有一个 Stop 钩子还没来得及结束。为什么一开始对话的时候，就能触发
+在和上面这两个钩子一起使用 gemini 总结钩子时，我注意到开始和 claude code 对话后，就直接触发了 `running stop hooks… 2/3` 的提示，至少有一个 Stop 钩子还没来得及结束。为什么一开始对话的时候，就能触发
 Stop hook 呢？
 
-这个 Stop hook 从对话一开始到一轮对话结束后，都一直没有被关闭，没有被正常完成，请帮我分析清楚是哪款 hooks 没办法实现正常关闭？
+这个 Stop hook 从对话一开始到一轮对话结束后，都一直没有被关闭，没有被正常完成，请帮我分析清楚是哪个 hooks 没办法实现正常关闭？
 
 ### 关注分析 `claude-notifier check-and-notify` 的逻辑
 
@@ -376,7 +395,16 @@ Stop hook 呢？
 
 这些日志的行为内，都没有出现明显的执行超时的情况。
 
-### 01 将超时日志记录提供出来
+### 01
+
+1. 先请输出你的问题分析报告。输出到 `docs\reports` 文件夹内。
+2. 在 task-complete-notifier.sh 内做出修改，按照方案 1 的做法，在 task-complete-notifier.sh 内完成删除任务的逻辑。删除掉本次处理的多余任务。
+3. 没办法在所有 hooks 中移除 check-and-notify 。其他的 hooks 都需要多次调用，触发相关的文件更新修改时间。所以没办法执行方案 2，保留其他 hooks 继续执行 check-and-notify 。但是务必确保 Stop hook 不再执行 check-and-notify 的逻辑。
+4. 也使用方案 3，使用环境变量传递 cwd。
+5. 为 check-and-notify.ts 做出修改，避免该脚本在 Stop 相关的钩子内执行逻辑了。因为我未来不会在 Stop 钩子内执行 `claude-notifier check-and-notify` 逻辑。
+6. 以后在 Stop 钩子会有来两个钩子，一个是 `task-complete-notifier.sh` ，且只有这个 `task-complete-notifier.sh` 会读取唯一的 stdin 流，避免冲突。另外一个钩子时单纯的，独立的 `claude-notifier task-complete --message \"非gemini总结：任务完成\"` 命令。这个命令不会竞争读取 stdin 流。
+7. 请你务必更改`task-complete-notifier.sh`的逻辑，实现任务删除逻辑，因为 `check-and-notify.ts` 未来不会继续在 Stop 相关钩子内执行，也不会竞争读取 stdin 流了。
+8. 请你适当的更改 `@ruan-cat/claude-notifier` 包的逻辑，确保`@ruan-cat/claude-notifier` 对外暴露出一个直接能用的 typescript 代码，实现任务删除。确保可以在 `task-complete-notifier.sh` 直接以 tsx 的方式调用 typescript 脚本，实现任务删除功能，避免被重复通知。不要在 `task-complete-notifier.sh` 内以 cjs 的方式调用函数。
 
 ## 19 处理 claude code 插件故障
 
@@ -384,8 +412,7 @@ Stop hook 呢？
 
 ```log
  System Diagnostics
-  ⚠ Installation config mismatch: running unknown but config says
-    global
+  ⚠ Installation config mismatch: running unknown but config says global
 ```
 
 请阅读 `claude-code-marketplace\common-tools` 这款 claude code 插件，并处理该故障。

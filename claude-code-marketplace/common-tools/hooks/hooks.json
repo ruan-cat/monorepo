@@ -8,6 +8,11 @@
 						"type": "command",
 						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh",
 						"timeout": 20
+					},
+					{
+						"type": "command",
+						"command": "claude-notifier task-complete --message \"非gemini总结：任务完成\"",
+						"timeout": 5
 					}
 				]
 			}

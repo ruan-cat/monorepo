@@ -5,6 +5,113 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.8.0] - 2025-11-19
+
+### Fixed
+
+- **🔧 修复 Stop hooks 的 stdin 竞争问题**: 解决了任务删除失败和重复通知的根本原因
+  - **核心问题**: 多个钩子竞争读取单一 stdin 流，导致 `check-and-notify` 无法获取事件数据
+  - **解决方案**:
+    1. 创建 `remove-task.ts` 脚本用于直接删除任务（不依赖 stdin）
+    2. 在 `task-complete-notifier.sh` 中添加任务删除逻辑
+    3. 从 Stop hooks 中移除 `check-and-notify`（避免 stdin 竞争）
+  - **修复文件**:
+    - 新增：`packages/claude-notifier/src/scripts/remove-task.ts`
+    - 修改：`scripts/task-complete-notifier.sh`（添加删除任务逻辑）
+    - 修改：`hooks/hooks.json`（移除 Stop 中的 check-and-notify）
+  - **效果**:
+    - ✅ 任务完成后正确删除，不再产生误报通知
+    - ✅ Stop hooks 不再超时或失败
+    - ✅ 避免 6 分钟、10 分钟的错误长任务提醒
+
+### Changed
+
+- **Stop hooks 架构优化**: 重新设计 Stop hooks 的钩子组成
+  - 移除：`claude-notifier check-and-notify`（避免 stdin 竞争）
+  - 保留：`task-complete-notifier.sh`（读取 stdin，生成总结，删除任务）
+  - 保留：`claude-notifier task-complete`（发送独立通知）
+  - 环境变量支持：`check-and-notify` 新增环境变量降级策略（`CLAUDE_CWD`, `CLAUDE_HOOK_EVENT`）
+
+### Breaking Changes
+
+⚠️ **重要变更**: Stop hooks 配置方式变更
+
+**旧配置**（v0.7.3 及之前）：
+
+```json
+"Stop": [
+  {
+    "hooks": [
+      {"command": "bash .../task-complete-notifier.sh", "timeout": 20},
+      {"command": "claude-notifier task-complete ...", "timeout": 5},
+      {"command": "claude-notifier check-and-notify", "timeout": 5}  // ❌ 已移除
+    ]
+  }
+]
+```
+
+**新配置**（v0.8.0）：
+
+```json
+"Stop": [
+  {
+    "hooks": [
+      {"command": "bash .../task-complete-notifier.sh", "timeout": 20},
+      {"command": "claude-notifier task-complete ...", "timeout": 5}
+    ]
+  }
+]
+```
+
+**迁移指南**:
+
+- 如果你自定义了 Stop hooks 配置，请**移除** `claude-notifier check-and-notify`
+- `task-complete-notifier.sh` 现在会自动删除任务，无需额外配置
+- 其他 hooks（UserPromptSubmit, PreToolUse 等）仍保留 `check-and-notify`
+
+### Technical Details
+
+#### stdin 竞争问题分析
+
+**问题机制**：
+
+1. Claude Code 向每个钩子传递相同的 stdin 数据
+2. Node.js stdin 流只能被消费一次（流式读取特性）
+3. 第一个钩子（`task-complete-notifier.sh`）读取 stdin 成功
+4. 第三个钩子（`check-and-notify`）尝试读取 stdin，但流已被消费
+5. `readHookInput()` 500ms 超时后返回 `null`
+6. `check-and-notify` 提前返回，删除任务的代码永远不会执行
+
+**新架构**：
+
+```plain
+Stop Event
+    ↓
+┌─────────────────────────────────────────────────────┐
+│ Hook 1: task-complete-notifier.sh                  │
+│   ✅ 读取 stdin（Session ID, Transcript Path）       │
+│   ✅ 提取对话上下文（transcript-reader.ts）          │
+│   ✅ 生成 Gemini 总结                                │
+│   ✅ 删除任务（tsx remove-task.ts）                  │
+├─────────────────────────────────────────────────────┤
+│ Hook 2: claude-notifier task-complete              │
+│   ✅ 发送独立通知（不依赖 stdin）                    │
+└─────────────────────────────────────────────────────┘
+```
+
+**对比旧架构**：
+
+- ❌ 第三个钩子无法读取 stdin → 任务无法删除 → 误报通知
+- ✅ 现在只有一个钩子读取 stdin → 避免竞争 → 任务正确删除
+
+### References
+
+- 详细分析：`docs/reports/2025-11-19-stop-hooks-failure-analysis.md`
+- 修复脚本：
+  - `packages/claude-notifier/src/scripts/remove-task.ts`（新增）
+  - `scripts/task-complete-notifier.sh`（修改）
+  - `hooks/hooks.json`（修改）
+
 ## [0.7.3] - 2025-11-19
 
 ### Fixed
