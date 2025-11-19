@@ -92,10 +92,13 @@ npx @ruan-cat/claude-notifier --help
 **工作机制**：
 
 - `check-and-notify` 从 stdin 读取 hook 数据（cwd、hook_event_name 等）
-- **UserPromptSubmit**: 开始新任务，删除该 cwd 下的旧任务
+- **SessionStart**: 跳过通知，避免会话启动时的干扰
+- **UserPromptSubmit**: 无条件删除旧任务并创建新任务，确保每次用户输入都重新计时
+- **SessionEnd**: 删除任务，不做通知，确保会话结束时清理任务
 - **Stop/SubagentStop**: 删除任务（当 stop_hook_active=true 时）
-- **其他事件**: 检查任务，到达时间点时自动通知（6, 10, 18, 25, 45 分钟）
+- **其他事件**: 检查任务，到达时间点时自动通知（默认：6, 10, 18, 25, 45 分钟）
 - 通知文本精确显示"X 分 Y 秒"，标题显示阶段（如"长任务提醒：6 分钟阶段"）
+- 详细的日志记录和性能监控（日志文件：`%TEMP%\claude-notifier-debug\`）
 
 ## 📚 使用文档
 
@@ -190,10 +193,12 @@ npx @ruan-cat/claude-notifier check-and-notify --intervals "6,10,15,20,30"
 **特性**：
 
 - ✅ 基于 cwd 区分任务，支持多工作目录
-- ✅ 根据 hook_event_name 智能处理（UserPromptSubmit 创建任务、Stop 删除任务）
+- ✅ 智能事件处理（SessionStart/UserPromptSubmit/SessionEnd/Stop/SubagentStop）
 - ✅ 精确时间差计算（显示"X 分 Y 秒"）
 - ✅ 自动清理超过 8 小时的任务
 - ✅ 防重复通知（10 秒内不重复）
+- ✅ 详细的日志记录和性能监控
+- ✅ 超时警告（总耗时接近 5 秒时警告）
 
 ### timeout - 超时通知
 

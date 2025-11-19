@@ -1,4 +1,7 @@
 import { Command } from "commander";
+import { writeFileSync, appendFileSync, existsSync, mkdirSync } from "node:fs";
+import path from "node:path";
+import os from "node:os";
 import {
 	readHookInput,
 	addOrResetTask,
@@ -54,8 +57,42 @@ export function createCheckAndNotifyCommand(): Command {
 		.option("--no-cleanup", "跳过清理过期任务")
 		.option("-i, --intervals <intervals>", "提醒时间点（分钟），逗号分隔", "6,10,18,25,45")
 		.action(async (options: CheckAndNotifyOptions) => {
+			// ====== 计时和日志配置 ======
+			const startTime = Date.now();
+			const verbose = options.verbose || false;
+
+			// 日志目录
+			const logDir = path.join(os.tmpdir(), "claude-notifier-debug");
+			if (!existsSync(logDir)) {
+				mkdirSync(logDir, { recursive: true });
+			}
+
+			const logFile = path.join(logDir, `check-and-notify-${Date.now()}.log`);
+
+			// 日志函数
+			const log = (message: string, forceOutput = false) => {
+				const timestamp = new Date().toISOString();
+				const elapsed = Date.now() - startTime;
+				const logLine = `[${timestamp}] [+${elapsed}ms] ${message}\n`;
+
+				// 写入日志文件
+				try {
+					appendFileSync(logFile, logLine);
+				} catch {
+					// 忽略写入失败
+				}
+
+				// 输出到控制台
+				if (verbose || forceOutput) {
+					console.log(logLine.trim());
+				}
+			};
+
 			try {
-				const verbose = options.verbose || false;
+				log("====== check-and-notify 开始执行 ======", true);
+				log(`日志文件: ${logFile}`);
+				log(`verbose: ${verbose}`);
+
 				const shouldCleanup = options.cleanup !== false;
 
 				// 解析时间间隔
@@ -66,92 +103,116 @@ export function createCheckAndNotifyCommand(): Command {
 						.map((s) => parseInt(s.trim()))
 						.filter((n) => !isNaN(n));
 				}
+				log(`提醒间隔: ${intervals.join(", ")} 分钟`);
 
 				// 1. 读取 stdin 获取 hook 数据
+				log("====== 开始读取 stdin ======");
+				const readStartTime = Date.now();
 				const hookInput = await readHookInput();
+				const readElapsed = Date.now() - readStartTime;
+				log(`stdin 读取完成，耗时: ${readElapsed}ms`);
 
 				if (!hookInput) {
-					if (verbose) {
-						console.log("ℹ️ 未接收到 stdin 数据，跳过任务管理");
-					}
+					log("⚠️  未接收到 stdin 数据 (hookInput = null)");
+					log("可能原因：stdin 已被前面的钩子消费，或 stdin 在 500ms 内未提供数据");
 					// 即使没有 stdin 数据，也可能需要清理过期任务和检查通知
 				} else {
 					const { cwd, hook_event_name, stop_hook_active } = hookInput;
 
-					if (verbose) {
-						console.log(`📥 接收到 hook 数据:`);
-						console.log(`   - cwd: ${cwd}`);
-						console.log(`   - hook_event_name: ${hook_event_name}`);
-						console.log(`   - stop_hook_active: ${stop_hook_active || false}`);
-					}
+					log(`📥 接收到 hook 数据:`);
+					log(`   - cwd: ${cwd}`);
+					log(`   - hook_event_name: ${hook_event_name}`);
+					log(`   - stop_hook_active: ${stop_hook_active || false}`);
 
 					// 2. 根据 hook_event_name 处理不同逻辑
 					if (hook_event_name === "SessionStart") {
-						// SessionStart: 不做任何通知，直接返回
-						if (verbose) {
-							console.log("ℹ️ SessionStart 事件，跳过通知");
-						}
+						log("ℹ️ SessionStart 事件，跳过通知并立即返回");
+						log(`====== 总耗时: ${Date.now() - startTime}ms ======`, true);
 						return;
 					}
 
 					// UserPromptSubmit: 无条件删除旧任务并创建新任务
 					if (hook_event_name === "UserPromptSubmit") {
 						if (cwd) {
+							log(`开始添加/重置任务 (cwd: ${cwd})`);
+							const taskStartTime = Date.now();
 							addOrResetTask(cwd);
-							if (verbose) {
-								console.log(`✅ 已添加/重置任务 (cwd: ${cwd})`);
-							}
+							const taskElapsed = Date.now() - taskStartTime;
+							log(`✅ 已添加/重置任务，耗时: ${taskElapsed}ms`);
 						}
-						// UserPromptSubmit 阶段不做任何通知
+						log(`====== 总耗时: ${Date.now() - startTime}ms ======`, true);
 						return;
 					}
 
 					// SessionEnd: 删除任务，不做通知
 					if (hook_event_name === "SessionEnd") {
 						if (cwd) {
+							log(`开始删除任务 (cwd: ${cwd})`);
+							const removeStartTime = Date.now();
 							removeTask(cwd);
-							if (verbose) {
-								console.log(`🗑️  SessionEnd - 已删除任务 (cwd: ${cwd})`);
-							}
+							const removeElapsed = Date.now() - removeStartTime;
+							log(`🗑️  SessionEnd - 已删除任务，耗时: ${removeElapsed}ms`);
 						}
+						log(`====== 总耗时: ${Date.now() - startTime}ms ======`, true);
 						return;
 					}
 
 					if ((hook_event_name === "Stop" || hook_event_name === "SubagentStop") && stop_hook_active === true) {
+						log(`====== Stop/SubagentStop 事件 (stop_hook_active=true) ======`);
 						// Stop/SubagentStop: 删除任务
 						if (cwd) {
+							log(`开始删除任务 (cwd: ${cwd})`);
+							const removeStartTime = Date.now();
 							removeTask(cwd);
-							if (verbose) {
-								console.log(`🗑️  已删除任务 (cwd: ${cwd})`);
-							}
+							const removeElapsed = Date.now() - removeStartTime;
+							log(`🗑️  已删除任务，耗时: ${removeElapsed}ms`);
 						}
-						// Stop 阶段不做任何通知
+						log(`Stop 阶段不做任何通知，立即返回`);
+						log(`====== 总耗时: ${Date.now() - startTime}ms ======`, true);
 						return;
 					}
 
 					// 3. 其他事件: 检查并通知
-					// 不做特殊处理，继续执行后续的检查和通知逻辑
+					log("ℹ️ 其他事件，继续执行清理和通知逻辑");
 				}
 
 				// 4. 清理过期任务
+				log("====== 开始清理过期任务 ======");
 				if (shouldCleanup) {
+					const cleanupStartTime = Date.now();
 					const cleanedCount = cleanupExpiredTasks();
-					if (verbose && cleanedCount > 0) {
-						console.log(`🧹 已清理 ${cleanedCount} 个过期任务（超过 8 小时）`);
-					}
+					const cleanupElapsed = Date.now() - cleanupStartTime;
+					log(`🧹 清理完成，清理了 ${cleanedCount} 个过期任务，耗时: ${cleanupElapsed}ms`);
+				} else {
+					log("⏭️  跳过清理过期任务");
 				}
 
 				// 5. 检查所有任务并发送通知
+				log("====== 开始检查并通知所有任务 ======");
+				const notifyStartTime = Date.now();
 				const notificationsSent = await checkAndNotifyAllTasks(intervals);
-				if (verbose && notificationsSent > 0) {
-					console.log(`📬 已发送 ${notificationsSent} 条通知`);
-				}
+				const notifyElapsed = Date.now() - notifyStartTime;
+				log(`📬 检查完成，发送了 ${notificationsSent} 条通知，耗时: ${notifyElapsed}ms`);
 
-				// 静默模式下不输出任何内容
-				if (!verbose && notificationsSent === 0) {
-					// 什么都不做
+				// 总结
+				const totalElapsed = Date.now() - startTime;
+				log(`====== check-and-notify 执行完成 ======`, true);
+				log(`总耗时: ${totalElapsed}ms`, true);
+				log(`各阶段耗时:`, true);
+				log(`  - stdin 读取: ${readElapsed}ms`, true);
+				log(`  - 清理任务: ${shouldCleanup ? "已执行" : "已跳过"}`, true);
+				log(`  - 检查通知: ${notifyElapsed}ms`, true);
+				log(`日志文件: ${logFile}`, true);
+
+				// 如果总耗时接近或超过 5 秒（hooks.json 中配置的 timeout），给出警告
+				if (totalElapsed >= 4500) {
+					log(`⚠️  警告：总耗时 ${totalElapsed}ms 接近或超过 timeout 限制（5000ms）`, true);
+					log(`⚠️  建议增加 hooks.json 中 check-and-notify 的 timeout 设置`, true);
 				}
 			} catch (error) {
+				const totalElapsed = Date.now() - startTime;
+				log(`❌ check-and-notify 命令执行失败: ${error}`, true);
+				log(`失败时已耗时: ${totalElapsed}ms`, true);
 				console.error("❌ check-and-notify 命令执行失败:", error);
 				process.exit(1);
 			}

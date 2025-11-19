@@ -184,9 +184,19 @@ npx @ruan-cat/claude-notifier check-and-notify --intervals "6,10,15,20,30"
 
 **选项说明**：
 
-- `--verbose` - 显示详细日志输出
+- `--verbose` - 显示详细日志输出（同时输出到控制台和日志文件）
 - `--no-cleanup` - 跳过清理过期任务
 - `-i, --intervals <intervals>` - 提醒时间点（分钟），逗号分隔（默认：`6,10,18,25,45`）
+
+**日志功能**：
+
+命令会在临时目录创建详细的日志文件，记录执行过程和性能信息：
+
+- 日志目录：`%TEMP%\claude-notifier-debug\`（Windows）
+- 日志文件：`check-and-notify-{timestamp}.log`
+- 日志内容：包含时间戳、耗时、各阶段执行情况
+- 性能监控：记录 stdin 读取、任务清理、通知检查等各阶段耗时
+- 超时警告：当总耗时接近或超过 5 秒时发出警告
 
 **示例**：
 

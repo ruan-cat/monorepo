@@ -262,8 +262,6 @@ Error: Unknown hook decision type: proceed. Valid types are: approve, block
 
 从这几个日志可以得出，每次阅读上下文时，都无法获取到需要的数据。请看看 generateSummary 函数，为什么 `userMessages.length === 0 && assistantMessages.length === 0` 获取不到有效的文本呢？每次获取都失败，只能返回 `任务处理完成` 文本。
 
-<!-- TODO: 继续重新修复 -->
-
 ## 13 修复错误 `● Stop hook failed: The operation was aborted`
 
 1. 请完整阅读 `claude-code-marketplace\common-tools` 内全部 claude code 插件。
@@ -344,3 +342,31 @@ Plugin Loading Errors:
 4. 添加进程清理脚本。并在 Stop 钩子内执行进程清理脚本。
 
 立即修复、短期修复、和长期修复都要做。
+
+## 18 <!-- TODO: 继续重新修复 --> 针对 Stop hooks 处理 `● Stop hook failed: The operation was aborted` 的故障
+
+1. 请针对性阅读 `claude-code-marketplace\common-tools\hooks\hooks.json` 的 Stop hooks 钩子配置。
+2. 重点看清楚这里面的这 4 款钩子。每次我运行时，总有同一个钩子运行失败了，报错误 `● Stop hook failed: The operation was aborted` 。
+3. `⎿ Stop says: Plugin hook error:` `● Stop hook failed: The operation was aborted`
+4. 运行 claude code 时，经常出现 `running stop hooks… 3/4` 的情况，证明肯定有一款钩子没办法及时关闭。请帮我排查。
+5. 请问是不是 `claude-notifier check-and-notify` 在运行 `check-and-notify` 命令时，无法解析正确的上下文导致的错误？请你从 `packages\claude-notifier\src\commands\check-and-notify.ts` 开始阅读，一步一步阅读相关的配置，看看是不是这个处理逻辑导致 claude code 插件总是出现故障？
+
+### 01 将超时日志记录提供出来
+
+## 19 处理 claude code 插件故障
+
+<!-- TODO: -->
+
+阅读以下报错：
+
+```log
+ System Diagnostics
+  ⚠ Installation config mismatch: running unknown but config says
+    global
+```
+
+请阅读 `claude-code-marketplace\common-tools` 这款 claude code 插件，并处理该故障。
+
+## 20 为 `@ruan-cat/claude-notifier` 更新更新日志
+
+阅读 `packages\claude-notifier\src\commands\check-and-notify.ts` 的本次修改日志和上一次修改记录。为 `@ruan-cat/claude-notifier` 更新相关的使用说明文档，并编写更新日志，发版标签为 minor 。
