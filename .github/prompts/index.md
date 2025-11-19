@@ -426,3 +426,8 @@ Stop hook 呢？
 
 1. 在 claude code 插件的 `claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh` 中，我注意到 `claude-notifier task-complete` 所允许的超时时间太短了，请增加到 8 秒。因为弹框打开到完全关闭，至少需要 8 秒。
 2. 请适当的更新 `claude-code-marketplace\common-tools\hooks\hooks.json` 所允许的 Stop 钩子超时时间。
+
+## 21 处理 claude code 插件的 Stop 钩子没有触发任何一个 `claude-notifier task-complete` 通知的故障
+
+1. 在 claude code 插件的 `claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh` 中，我注意到 `claude-notifier task-complete` 没有被启动。没有任何通知框被吊起。这是为什么？
+2. 请帮我调研故障，并处理问题。

@@ -84,6 +84,30 @@ log "发送立即通知: 非gemini总结：任务完成"
 
 IMMEDIATE_START=$(date +%s)
 
+# 检测项目根目录
+if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
+  PROJECT_DIR="$CLAUDE_PROJECT_DIR"
+else
+  # 通过向上查找 pnpm-workspace.yaml 来检测 monorepo 根目录
+  CURRENT_DIR=$(pwd)
+  PROJECT_DIR=""
+
+  while [ "$CURRENT_DIR" != "/" ] && [ "$CURRENT_DIR" != "" ]; do
+    if [ -f "$CURRENT_DIR/pnpm-workspace.yaml" ]; then
+      PROJECT_DIR="$CURRENT_DIR"
+      break
+    fi
+    CURRENT_DIR=$(dirname "$CURRENT_DIR")
+  done
+
+  # 如果找不到 monorepo 根目录，使用当前工作目录
+  if [ -z "$PROJECT_DIR" ]; then
+    PROJECT_DIR=$(pwd)
+  fi
+fi
+
+log "Detected project directory: $PROJECT_DIR"
+
 # 同步调用，8 秒超时
 (
   cd "$PROJECT_DIR" 2>/dev/null || cd /
@@ -258,28 +282,7 @@ log "====== Final Summary ======"
 log "'$SUMMARY'"
 log ""
 
-# ====== 检测项目根目录 ======
-if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
-  PROJECT_DIR="$CLAUDE_PROJECT_DIR"
-else
-  # 通过向上查找 pnpm-workspace.yaml 来检测 monorepo 根目录
-  CURRENT_DIR=$(pwd)
-  PROJECT_DIR=""
-
-  while [ "$CURRENT_DIR" != "/" ] && [ "$CURRENT_DIR" != "" ]; do
-    if [ -f "$CURRENT_DIR/pnpm-workspace.yaml" ]; then
-      PROJECT_DIR="$CURRENT_DIR"
-      break
-    fi
-    CURRENT_DIR=$(dirname "$CURRENT_DIR")
-  done
-
-  # 如果找不到 monorepo 根目录，使用当前工作目录
-  if [ -z "$PROJECT_DIR" ]; then
-    PROJECT_DIR=$(pwd)
-  fi
-fi
-
+# PROJECT_DIR 已在脚本前面定义，这里直接使用
 log "Project directory: $PROJECT_DIR"
 
 # ====== 发送通知（同步调用 + 强制超时） ======

@@ -5,6 +5,16 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.8.3] - 2025-11-20
+
+### Changed
+
+- **项目根目录检测逻辑优化**: 优化了 `task-complete-notifier.sh` 脚本中的项目根目录检测逻辑
+  - 将项目根目录检测逻辑移动到脚本前面，在立即通知阶段就完成检测
+  - 避免了在脚本末尾重复执行相同的检测逻辑
+  - 添加了 `Detected project directory: $PROJECT_DIR` 日志记录，便于调试
+  - 提升了脚本执行效率，减少了重复代码
+
 ## [0.8.2] - 2025-11-20
 
 ### Changed
