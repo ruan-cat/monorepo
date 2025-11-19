@@ -393,6 +393,56 @@ npx @ruan-cat/claude-notifier error \
   --sound warning
 ```
 
+### 6. interaction-needed - 需要交互通知
+
+发送需要交互通知，适用于 Claude Code 的 Notification 钩子事件。
+
+**基本使用**：
+
+```bash
+# 使用默认消息
+npx @ruan-cat/claude-notifier interaction-needed
+
+# 自定义消息
+npx @ruan-cat/claude-notifier interaction-needed --message "请确认操作"
+```
+
+**完整示例**：
+
+```bash
+npx @ruan-cat/claude-notifier interaction-needed \
+  --title "需要确认" \
+  --message "请确认操作" \
+  --interaction-details "Claude 正在等待您的输入" \
+  --sound warning \
+  --icon alice/timeout.gif
+```
+
+**选项说明**：
+
+- `-t, --title <title>` - 自定义通知标题（默认：`Claude Code - 需要交互`）
+- `-m, --message <message>` - 自定义通知消息（默认：`需要您的交互 🔔`）
+- `--interaction-details <details>` - 交互详情
+- `-s, --sound <sound>` - 音频预设（默认：`warning`）
+- `-i, --icon <icon>` - 图标预设（默认：`alice/timeout.gif` ✨）
+
+**示例**：
+
+```bash
+# 1. 基本交互通知
+npx @ruan-cat/claude-notifier interaction-needed
+
+# 2. 带交互详情
+npx @ruan-cat/claude-notifier interaction-needed \
+  --message "请回答问题" \
+  --interaction-details "Claude 需要您的输入来继续任务"
+
+# 3. 自定义音效
+npx @ruan-cat/claude-notifier interaction-needed \
+  --sound manbo \
+  --message "请注意"
+```
+
 ## 资源配置
 
 ### 音频预设

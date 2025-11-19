@@ -9,6 +9,7 @@ import { createLongTaskCommand } from "./commands/long-task.ts";
 import { createTimeoutCommand } from "./commands/timeout.ts";
 import { createErrorCommand } from "./commands/error.ts";
 import { createCheckAndNotifyCommand } from "./commands/check-and-notify.ts";
+import { createInteractionNeededCommand } from "./commands/interaction-needed.ts";
 
 // 获取当前文件的目录
 const __filename = fileURLToPath(import.meta.url);
@@ -37,6 +38,7 @@ program.addCommand(createLongTaskCommand());
 program.addCommand(createCheckAndNotifyCommand());
 program.addCommand(createTimeoutCommand());
 program.addCommand(createErrorCommand());
+program.addCommand(createInteractionNeededCommand());
 
 // 自定义帮助信息
 program.on("--help", () => {

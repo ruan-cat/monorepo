@@ -26,6 +26,7 @@
 		"test:cli:task-complete": "tsx src/cli.ts task-complete",
 		"test:cli:error": "tsx src/cli.ts error",
 		"test:cli:timeout": "tsx src/cli.ts timeout",
+		"test:cli:interaction-needed": "tsx src/cli.ts interaction-needed",
 		"test:cli:task-complete:help": "tsx src/cli.ts task-complete -h"
 	},
 	"exports": {

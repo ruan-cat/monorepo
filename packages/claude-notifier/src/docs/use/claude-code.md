@@ -323,6 +323,56 @@ npx @ruan-cat/claude-notifier check-and-notify --no-auto-create
 }
 ```
 
+### 6. Notification - 需要用户交互时
+
+当 Claude 需要用户的输入或交互时触发，例如使用 AskUserQuestion 工具时。
+
+**推荐配置**：
+
+```json
+{
+	"hooks": {
+		"Notification": [
+			{
+				"matcher": "os == 'windows'",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx @ruan-cat/claude-notifier interaction-needed --message \"Claude 需要您的回应\""
+					}
+				]
+			}
+		]
+	}
+}
+```
+
+**进阶示例**：
+
+```json
+{
+	"hooks": {
+		"Notification": [
+			{
+				"matcher": "os == 'windows'",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx @ruan-cat/claude-notifier interaction-needed --title \"注意\" --message \"Claude 正在等待您的输入\" --sound manbo"
+					}
+				]
+			}
+		]
+	}
+}
+```
+
+**使用场景**：
+
+- Claude 使用 AskUserQuestion 工具询问问题时
+- 需要用户确认某些操作时
+- Claude 等待用户输入时
+
 ## Matcher 语法
 
 ### 操作系统匹配

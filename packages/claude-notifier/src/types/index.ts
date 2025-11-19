@@ -113,6 +113,20 @@ export interface ErrorOptions {
 }
 
 /**
+ * 需要交互通知选项
+ */
+export interface InteractionNeededOptions {
+	/** 自定义消息 */
+	message?: string;
+	/** 交互详情 */
+	interactionDetails?: string;
+	/** 音频预设 */
+	sound?: SoundPreset | string;
+	/** 图标预设 */
+	icon?: IconPreset | string;
+}
+
+/**
  * 单个任务的定时器状态（基于 cwd）
  */
 export interface TaskState {
