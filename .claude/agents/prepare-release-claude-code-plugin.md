@@ -1,3 +1,9 @@
+---
+name: prepare-release-claude-code-plugin
+description: 做好 claude code 插件版本更新准备。在每次更新claude code的插件时，就更新插件商城的相关配置。
+color: blue
+---
+
 # 做好 claude code 插件版本更新准备
 
 这是一个多次性的提示词，虽然被定为成 `.claude\agents` 的子代理，但是当你阅读该文件时，绝大多数情况是不需要以子代理的形式运行的。

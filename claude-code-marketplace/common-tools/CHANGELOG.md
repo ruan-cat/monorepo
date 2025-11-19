@@ -5,6 +5,21 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.6.7] - 2025-11-19
+
+### Fixed
+
+- **🐞 Plugin Hooks 重复加载错误**: 修复了 `Duplicate hooks file detected` 错误
+  - **问题原因**: Claude Code 会自动加载标准位置的 `hooks/hooks.json`，无需在 `plugin.json` 中显式引用
+  - **错误表现**:
+    - `Hook load failed: Duplicate hooks file detected`
+    - 插件加载失败，所有 hooks 功能无法使用
+  - **修复方案**: 删除 `plugin.json` 中的 `"hooks": "./hooks/hooks.json"` 配置
+  - **技术说明**:
+    - Claude Code 插件系统会**自动加载** `hooks/hooks.json`
+    - `plugin.json` 的 `hooks` 字段仅用于引用**额外的** hooks 文件（非标准位置）
+    - 引用标准位置的 hooks 文件会导致重复加载
+
 ## [0.6.6] - 2025-11-17
 
 ### Added

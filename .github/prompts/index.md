@@ -279,8 +279,6 @@ Error: Unknown hook decision type: proceed. Valid types are: approve, block
 
 ## 15 处理 claude code 关于 `hooks/hooks.json` 的导入路径错误
 
-<!-- TODO: 修复错误 -->
-
 我在使用 claude code 时，检测到以下故障：
 
 ```log
@@ -291,6 +289,20 @@ Error: Unknown hook decision type: proceed. Valid types are: approve, block
  ketplaces\ruan-cat-tools\claude-code-marketplace\common-tools\hooks\hooks.json. The standard
   hooks/hooks.json is loaded automatically, so manifest.hooks should only reference
  additional hook files.
+```
+
+同时检查状态时，出现以下报错：
+
+```log
+Plugin Loading Errors:
+
+  ✘ Plugin common-tools from common-tools@ruan-cat-tools
+     Failed to load hooks from C:\Users\pc\.claude\plugins\marketplaces\ruan-cat-tools\cl     aude-code-marketplace\common-tools\hooks\hooks.json: Duplicate hooks file detected:
+     ./hooks/hooks.json resolves to already-loaded file C:\Users\pc\.claude\plugins\marke     tplaces\ruan-cat-tools\claude-code-marketplace\common-tools\hooks\hooks.json. The
+     standard hooks/hooks.json is loaded automatically, so manifest.hooks should only
+     reference additional hook files.
+
+     → Check hooks.json file syntax and structure
 ```
 
 1. 请完整阅读 `claude-code-marketplace\common-tools` 内全部 claude code 插件。
