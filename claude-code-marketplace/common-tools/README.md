@@ -4,7 +4,9 @@
 
 ## 版本
 
-**当前版本**: `0.6.7`
+**当前版本**: `0.7.0`
+
+⚠️ **v0.7.0 重要变更**: 本版本修复了进程堆积问题，**需要手动安装全局依赖**。详见[安装要求](#安装要求)。
 
 查看完整的更新历史，请参阅 [CHANGELOG.md](./CHANGELOG.md)
 
@@ -87,6 +89,39 @@ Stop              ──→  task-complete-notifier.sh
 
 ## 安装
 
+### 安装要求
+
+⚠️ **从 v0.7.0 开始，插件需要预安装全局依赖**（解决进程堆积问题）
+
+**必需依赖**：
+
+```bash
+# 1. 安装 claude-notifier（必需）
+pnpm add -g @ruan-cat/claude-notifier
+# 或使用 npm
+npm install -g @ruan-cat/claude-notifier
+
+# 2. 安装 tsx（必需）
+pnpm add -g tsx
+# 或使用 npm
+npm install -g tsx
+```
+
+**可选依赖**：
+
+```bash
+# 安装 gemini CLI（用于 AI 智能摘要，可选）
+npm install -g @google/generative-ai-cli
+```
+
+**验证安装**：
+
+```bash
+claude-notifier --version
+tsx --version
+gemini --version  # 如果安装了 gemini
+```
+
 ### 通过插件市场安装
 
 1. 添加插件市场（如果尚未添加）：
@@ -110,6 +145,20 @@ Stop              ──→  task-complete-notifier.sh
 /plugin uninstall common-tools
 /plugin install common-tools@ruan-cat-tools
 ```
+
+### 从旧版本升级
+
+如果从 v0.6.x 升级到 v0.7.0，请按照以下步骤：
+
+1. 安装全局依赖（见上方[安装要求](#安装要求)）
+2. 更新插件到最新版本
+3. 重启 Claude Code
+4. （可选）手动清理现有僵尸进程：
+   ```bash
+   # Windows 任务管理器：结束包含 "claude-notifier" 或 "gemini" 的 node.exe/npx.exe 进程
+   # 或运行清理脚本（如果已安装插件）
+   bash claude-code-marketplace/common-tools/scripts/cleanup-orphan-processes.sh
+   ```
 
 ## 使用方法
 

@@ -1,12 +1,14 @@
 #!/bin/bash
 # Claude Code Stop 钩子 - 任务完成通知器
 # 在 Agent 响应完成后触发，生成 Gemini 总结并发送通知
-# 关键：必须快速返回（15秒内），避免阻塞 Claude Code
+# 关键：必须在 18 秒内完成（hooks.json 设置为 20 秒超时）
 
 set -euo pipefail
 
 # ====== 全局超时保护 ======
-GLOBAL_TIMEOUT=15
+# 注意：hooks.json 中配置的 timeout 为 20 秒
+# 脚本应在 18 秒内完成，留 2 秒缓冲
+GLOBAL_TIMEOUT=18
 
 # ====== 日志配置 ======
 LOG_DIR="${TEMP:-${TMP:-/tmp}}/claude-code-task-complete-notifier-logs"
@@ -238,28 +240,80 @@ fi
 
 log "Project directory: $PROJECT_DIR"
 
-# ====== 发送通知（后台运行） ======
+# ====== 发送通知（改进的后台运行） ======
 log "====== Sending Notification ======"
 log "Message: $SUMMARY"
 
-# 后台运行通知器，避免阻塞
+# 改进的后台运行策略：
+# 1. 使用预安装的 claude-notifier 而非 pnpm dlx
+# 2. 不强制 kill，让进程自然超时
+# 3. 使用更短的超时时间
+log "Starting notifier in background..."
+
+# 使用子 shell 在后台运行，设置 3 秒超时
 (
   cd "$PROJECT_DIR" 2>/dev/null || cd /
-  timeout 8s pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message "$SUMMARY" >> "$LOG_FILE" 2>&1 || echo "Notifier failed or timed out" >> "$LOG_FILE"
+  timeout 3s claude-notifier task-complete --message "$SUMMARY" >> "$LOG_FILE" 2>&1 || {
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -eq 124 ]; then
+      echo "Notifier timed out (3s)" >> "$LOG_FILE"
+    else
+      echo "Notifier failed with exit code $EXIT_CODE" >> "$LOG_FILE"
+    fi
+  }
 ) &
 
 NOTIFIER_PID=$!
-log "Notifier started in background (PID: $NOTIFIER_PID)"
+log "Notifier started (PID: $NOTIFIER_PID)"
 log ""
 
-# ====== 清除错误陷阱，正常退出 ======
-trap - ERR EXIT
+# ====== 改进的等待策略 ======
+# 不主动 kill 进程，让 timeout 命令自己处理超时
+# 只等待最多 4 秒（留 1 秒缓冲给 timeout 清理）
+log "Waiting for notifier to complete (max 4s)..."
+WAIT_START=$(date +%s)
+
+MAX_WAIT=4
+PROCESS_FINISHED=false
+
+for i in $(seq 1 20); do
+  if ! kill -0 $NOTIFIER_PID 2>/dev/null; then
+    PROCESS_FINISHED=true
+    break
+  fi
+
+  WAIT_ELAPSED=$(($(date +%s) - WAIT_START))
+  if [ $WAIT_ELAPSED -ge $MAX_WAIT ]; then
+    log "WARNING: Notifier still running after ${MAX_WAIT}s"
+    log "Letting timeout command handle cleanup..."
+    break
+  fi
+
+  sleep 0.2
+done
+
+# 非阻塞等待（不会卡住）
+wait $NOTIFIER_PID 2>/dev/null || true
+
+WAIT_END=$(date +%s)
+WAIT_DURATION=$((WAIT_END - WAIT_START))
+
+if [ "$PROCESS_FINISHED" = true ]; then
+  log "Notifier completed successfully (${WAIT_DURATION}s)"
+else
+  log "Notifier may still be running (waited ${WAIT_DURATION}s, max ${MAX_WAIT}s)"
+  log "Process will be cleaned up by timeout or cleanup script"
+fi
+log ""
 
 # ====== 向 Claude Code 输出成功信息 ======
 OUTPUT_JSON="{\"continue\": true, \"stopReason\": \"✅ 任务总结: ${SUMMARY}\"}"
 log "====== Claude Code Output ======"
 log "$OUTPUT_JSON"
 log "====== Task Complete Notifier Finished ======"
+
+# ====== 清除错误陷阱，正常退出 ======
+trap - ERR EXIT
 
 echo "$OUTPUT_JSON"
 exit 0

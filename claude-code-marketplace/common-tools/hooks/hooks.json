@@ -6,16 +6,23 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "pnpm dlx @ruan-cat/claude-notifier@latest task-complete --message \"非gemini总结：任务完成\""
+						"command": "claude-notifier task-complete --message \"非gemini总结：任务完成\"",
+						"timeout": 10
 					},
 					{
 						"type": "command",
 						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh",
-						"timeout": 15
+						"timeout": 20
 					},
 					{
 						"type": "command",
-						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-orphan-processes.sh",
+						"timeout": 10
+					},
+					{
+						"type": "command",
+						"command": "claude-notifier check-and-notify",
+						"timeout": 5
 					}
 				]
 			}
@@ -30,7 +37,8 @@
 					},
 					{
 						"type": "command",
-						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+						"command": "claude-notifier check-and-notify",
+						"timeout": 5
 					}
 				]
 			}
@@ -40,17 +48,8 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
-					}
-				]
-			}
-		],
-		"PostToolUse": [
-			{
-				"hooks": [
-					{
-						"type": "command",
-						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+						"command": "claude-notifier check-and-notify",
+						"timeout": 5
 					}
 				]
 			}
@@ -60,7 +59,8 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+						"command": "claude-notifier check-and-notify",
+						"timeout": 5
 					}
 				]
 			}
@@ -70,7 +70,8 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+						"command": "claude-notifier check-and-notify",
+						"timeout": 5
 					}
 				]
 			}
@@ -80,7 +81,8 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "pnpm dlx @ruan-cat/claude-notifier@latest check-and-notify"
+						"command": "claude-notifier check-and-notify",
+						"timeout": 5
 					}
 				]
 			}

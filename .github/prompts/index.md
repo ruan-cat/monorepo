@@ -262,12 +262,19 @@ Error: Unknown hook decision type: proceed. Valid types are: approve, block
 
 从这几个日志可以得出，每次阅读上下文时，都无法获取到需要的数据。请看看 generateSummary 函数，为什么 `userMessages.length === 0 && assistantMessages.length === 0` 获取不到有效的文本呢？每次获取都失败，只能返回 `任务处理完成` 文本。
 
+<!-- TODO: 继续重新修复 -->
+
 ## 13 修复错误 `● Stop hook failed: The operation was aborted`
 
 1. 请完整阅读 `claude-code-marketplace\common-tools` 内全部 claude code 插件。
 2. 我在使用这些 claude code 插件时，总是出现 `● Stop hook failed: The operation was aborted` 的报错。
 3. 我在升级 claude code 后，就出现这些错误了。但我无法确定具体是哪个 claude code 版本做出了变化，导致我的 claude code 插件运行有故障。
-4. 请帮我调研分析，并解决这个故障。
+4. 我运行时，经常出现 `esc to interrupt · running stop hooks… 2/3` 的情况，疑似有 hooks 对应的 Stop 脚本，未能够及时的关闭掉。
+5. 请帮我调研分析，并解决这个故障。
+
+### 01
+
+stop 钩子必须为 3 个内容，必须保留。
 
 ## 14 升级 claude code 插件的版本，编写更新日志
 
@@ -308,3 +315,34 @@ Plugin Loading Errors:
 1. 请完整阅读 `claude-code-marketplace\common-tools` 内全部 claude code 插件。
 2. 我不清楚是否是 claude code 的插件商城更改的插件 hooks 的导入语法，还是什么缘故，出现了上述错误。
 3. 请帮我调研分析，并解决这个故障。并提供关于 claude code 插件商城关于 hooks 配置的要求。
+
+<!-- TODO: 增加新的通知类型 先完成新版本发包 -->
+
+## 16 claude code 插件的 `Notification` 钩子，增加 `@ruan-cat/claude-notifier` 包提供的通知类型
+
+请在 `claude-code-marketplace\common-tools\hooks\hooks.json` 内，增加 `Notification` 钩子，匹配到 `idle_prompt` 和 `elicitation_dialog` 情况后，就执行 `pnpm dlx @ruan-cat/claude-notifier@latest interaction-needed` 命令。
+
+请适当的阅读 https://code.claude.com/docs/en/hooks.md 文档，阅读清楚关于 `Notification` 钩子的写法。
+
+我希望在每次 claude code 向我提出`交互式的询问`时，都打开提示框，提示我需要给 claude code 做出回复。
+
+## 17 处理大量的 node 和 npx 进程
+
+请访问以下地址，务必用图像阅读能力，阅读以下截图：
+
+![2025-11-19-10-07-23](https://s2.loli.net/2025/11/19/2UXkq1ZaV7dchp8.png)
+
+当我高强度的使用来自 `claude-code-marketplace\common-tools\hooks\hooks.json` 和 `claude-code-marketplace\common-tools\scripts` 提供的 claude code 通知功能和无头模式 gemini 通知功能后，我的电脑总是出现大量的 node 和 npx 进程。
+
+请问是不是 `claude-code-marketplace\common-tools\scripts` 文件夹内的处理逻辑有问题？导致有大量的 node 进程未能够及时的关闭？请帮我排查故障。
+
+### 01 处理方案
+
+我要求你同时使用多款方案：
+
+1. 移除掉 PostToolUse 钩子的使用。但是保留 PreToolUse 钩子。只移除掉一个钩子。
+2. 全部的钩子函数都是用预先安装的全局包 claude-notifier 。避免每次都使用 dlx 。
+3. 改进后台进程管理。
+4. 添加进程清理脚本。并在 Stop 钩子内执行进程清理脚本。
+
+立即修复、短期修复、和长期修复都要做。

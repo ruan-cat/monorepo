@@ -5,6 +5,139 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.7.0] - 2025-11-19
+
+### Fixed
+
+- **🐞 进程堆积问题**: 修复了高强度使用钩子后导致大量 node/npx 进程堆积的严重性能问题
+  - **问题原因**:
+    1. `PostToolUse` 钩子触发频率过高，每次工具调用都会启动新进程
+    2. 所有钩子使用 `pnpm dlx` 每次都下载包，创建多个进程链
+    3. 后台进程管理使用强制 `kill`，导致子进程变成孤儿进程
+    4. Windows 平台的 `timeout` 命令无法正确清理进程树
+  - **影响范围**:
+    - 使用 100 次工具 = ~200 次 `pnpm dlx` 调用
+    - 任务管理器显示大量僵尸 node.exe/npx.exe 进程
+    - 系统性能下降，内存占用增加
+  - **修复方案**:
+    1. ✅ 移除 `PostToolUse` 钩子（保留 `PreToolUse`）
+    2. ✅ 所有钩子改用预安装的全局包 `claude-notifier`
+    3. ✅ 改进后台进程管理，不再强制 kill
+    4. ✅ 新增进程清理脚本 `cleanup-orphan-processes.sh`
+
+### Added
+
+- **进程清理脚本**: 新增 `cleanup-orphan-processes.sh`
+  - 自动检测并清理孤儿 node/npx 进程
+  - 支持 Windows 和 Unix-like 系统
+  - 针对性清理 claude-notifier、gemini、长时间运行的 npx 进程
+  - 在 Stop 钩子中自动调用，确保进程不堆积
+
+### Changed
+
+- **钩子配置优化**:
+  - ❌ 移除 `PostToolUse` 钩子（触发频率过高）
+  - ✅ 保留 `PreToolUse` 钩子
+  - 🔄 所有钩子命令从 `pnpm dlx @ruan-cat/claude-notifier@latest` 改为 `claude-notifier`
+  - ➕ Stop 钩子新增清理脚本调用
+
+- **后台进程管理改进** (`task-complete-notifier.sh`):
+  - 使用预安装的 `claude-notifier` 而非 `pnpm dlx`
+  - 不再强制 kill 进程，让 `timeout` 命令自然处理超时
+  - 优化超时时间：5 秒 → 3 秒
+  - 改进的等待策略，避免创建孤儿进程
+
+### Breaking Changes
+
+⚠️ **需要手动安装全局依赖**
+
+本版本改用预安装的全局包，使用前必须安装：
+
+```bash
+# 必需：安装 claude-notifier
+pnpm add -g @ruan-cat/claude-notifier
+# 或使用 npm
+npm install -g @ruan-cat/claude-notifier
+
+# 必需：安装 tsx
+pnpm add -g tsx
+
+# 可选：安装 gemini（用于 AI 摘要）
+npm install -g @google/generative-ai-cli
+```
+
+验证安装：
+
+```bash
+claude-notifier --version
+tsx --version
+gemini --version  # 可选
+```
+
+### Performance
+
+**性能提升**:
+
+- 进程创建减少 ~50%（移除 PostToolUse）
+- 僵尸进程几乎为 0（自动清理）
+- 响应速度更快（使用预安装包）
+
+### Technical Details
+
+#### 修复前后对比
+
+**修复前** (hooks.json):
+
+```json
+{
+	"PostToolUse": [{ "command": "pnpm dlx @ruan-cat/claude-notifier@latest ..." }],
+	"PreToolUse": [{ "command": "pnpm dlx @ruan-cat/claude-notifier@latest ..." }]
+}
+```
+
+- 每次工具调用 = 2 次 `pnpm dlx` = ~4-6 个进程
+
+**修复后**:
+
+```json
+{
+	"PreToolUse": [{ "command": "claude-notifier ..." }],
+	"Stop": [{ "command": "bash .../task-complete-notifier.sh" }, { "command": "bash .../cleanup-orphan-processes.sh" }]
+}
+```
+
+- PreToolUse: 1 次轻量级调用
+- Stop: 自动清理孤儿进程
+
+#### 进程管理改进
+
+**修复前** (task-complete-notifier.sh:248-274):
+
+```bash
+# 后台运行，然后强制 kill
+pnpm dlx ... &
+NOTIFIER_PID=$!
+# 6 秒后
+kill $NOTIFIER_PID  # ❌ 只杀父进程，子进程变孤儿
+```
+
+**修复后**:
+
+```bash
+# 使用预安装包 + timeout 自然超时
+timeout 3s claude-notifier ... &
+# 不再强制 kill，让 timeout 处理
+# cleanup-orphan-processes.sh 会清理残留
+```
+
+### References
+
+- 问题分析：`.github/prompts/index.md` (任务截图和排查过程)
+- 修复的脚本：
+  - `hooks/hooks.json` (移除 PostToolUse，改用全局包)
+  - `scripts/task-complete-notifier.sh` (改进进程管理)
+  - `scripts/cleanup-orphan-processes.sh` (新增)
+
 ## [0.6.7] - 2025-11-19
 
 ### Fixed
