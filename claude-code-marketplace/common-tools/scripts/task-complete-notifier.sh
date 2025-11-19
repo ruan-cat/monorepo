@@ -78,6 +78,31 @@ log "====== Hook Input Data ======"
 echo "$HOOK_DATA" >> "$LOG_FILE" 2>/dev/null || true
 log ""
 
+# ====== 立即发送初始通知（无需等待 Gemini） ======
+log "====== Sending Immediate Notification ======"
+log "发送立即通知: 非gemini总结：任务完成"
+
+IMMEDIATE_START=$(date +%s)
+
+# 同步调用，1 秒超时
+(
+  cd "$PROJECT_DIR" 2>/dev/null || cd /
+  timeout 1s claude-notifier task-complete --message "非gemini总结：任务完成" 2>&1 || {
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -eq 124 ]; then
+      echo "⚠️ Immediate notifier timed out (1s)"
+    else
+      echo "⚠️ Immediate notifier failed with exit code $EXIT_CODE"
+    fi
+  }
+) >> "$LOG_FILE"
+
+IMMEDIATE_END=$(date +%s)
+IMMEDIATE_DURATION=$((IMMEDIATE_END - IMMEDIATE_START))
+
+log "立即通知已发送，耗时: ${IMMEDIATE_DURATION}s"
+log ""
+
 # ====== 检查 transcript 文件 ======
 if [ -z "$TRANSCRIPT_PATH" ] || [ ! -f "$TRANSCRIPT_PATH" ]; then
   log "ERROR: Transcript file not found: $TRANSCRIPT_PATH"

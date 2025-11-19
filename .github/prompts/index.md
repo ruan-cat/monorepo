@@ -348,7 +348,8 @@ Plugin Loading Errors:
 1. 请针对性阅读 `claude-code-marketplace\common-tools\hooks\hooks.json` 的 Stop hooks 钩子配置。
 2. 重点看清楚这里面的这几个钩子。每次我运行时，总有同一个钩子运行失败了，报错误 `● Stop hook failed: The operation was aborted` 。
 3. `⎿ Stop says: Plugin hook error:` `● Stop hook failed: The operation was aborted`
-4. 运行 claude code 时，经常出现 `running stop hooks… 3/4` 的情况，证明肯定有一款钩子没办法及时关闭。请帮我排查。
+
+这个问题已经持续了很久了，已经修复很多次了。还是诱发该故障。
 
 ### 注意这两个 hooks 配置
 
@@ -394,6 +395,8 @@ Stop hook 呢？
 - check-and-notify-1763536719133.log
 
 这些日志的行为内，都没有出现明显的执行超时的情况。
+
+<!-- 6. 运行 claude code 时，经常出现 `running stop hooks… 3/4` 的情况，证明肯定有一款钩子没办法及时关闭。请帮我排查。 -->
 
 ### 01
 

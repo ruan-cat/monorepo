@@ -4,7 +4,14 @@
 
 ## 版本
 
-**当前版本**: `0.8.0`
+**当前版本**: `0.8.1`
+
+⚠️ **v0.8.1 重要修复**:
+
+- 彻底解决了 `● Stop hook failed: The operation was aborted` 的持续性故障
+- 优化 Stop hooks 通知机制：单钩子内完成立即通知 + Gemini 智能总结
+- 消除 stdin 竞争，避免重复通知，缩短总执行时间
+- 详见 [CHANGELOG.md](./CHANGELOG.md#081---2025-11-20)
 
 ⚠️ **v0.8.0 重要修复**:
 

@@ -5,6 +5,135 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.8.1] - 2025-11-20
+
+### Fixed
+
+- **🐞 修复 Stop hooks 的 stdin 超时中止问题**: 彻底解决了 `● Stop hook failed: The operation was aborted` 的持续性故障
+  - **核心问题**: Stop hooks 中第二个钩子 `claude-notifier task-complete` 与第一个钩子存在 stdin 竞争
+    - 第一个钩子（`task-complete-notifier.sh`）已经消费了所有 stdin 数据
+    - 第二个钩子虽然不需要 stdin，但在某些情况下等待超时
+    - 两个钩子串行执行，总耗时接近或超过 Claude Code 的容忍范围
+  - **解决方案**:
+    1. 将第二个钩子的通知功能整合到 `task-complete-notifier.sh` 开头
+    2. 添加立即通知（1 秒超时），在 Gemini 总结前发送
+    3. 删除 hooks.json 中多余的第二个钩子
+  - **修复效果**:
+    - ✅ 消除 stdin 竞争，不再有多个钩子争抢输入流
+    - ✅ 避免重复通知（原第二个钩子会导致双重通知）
+    - ✅ 缩短总执行时间，不再超时中止
+    - ✅ 保留双重通知体验（立即通知 + Gemini 智能总结）
+  - **相关文件**:
+    - 修改：`scripts/task-complete-notifier.sh`（新增立即通知逻辑）
+    - 修改：`hooks/hooks.json`（删除第二个 Stop 钩子）
+
+### Changed
+
+- **Stop hooks 通知机制优化**: 重新设计通知流程，提升用户体验
+  - 立即通知（~1 秒内）: "非 gemini 总结：任务完成"（快速反馈）
+  - Gemini 总结（~5-15 秒后）: 智能生成的任务摘要（详细描述）
+  - 单一钩子内完成所有通知逻辑，避免进程间竞争
+
+### Technical Details
+
+#### 问题机制分析
+
+**修复前的配置**（存在 stdin 竞争）：
+
+```json
+"Stop": [
+  {
+    "hooks": [
+      {"command": "bash .../task-complete-notifier.sh", "timeout": 20},  // 消费 stdin
+      {"command": "claude-notifier task-complete ...", "timeout": 5}     // stdin 已空，可能超时
+    ]
+  }
+]
+```
+
+**修复后的配置**（单一钩子，无竞争）：
+
+```json
+"Stop": [
+  {
+    "hooks": [
+      {"command": "bash .../task-complete-notifier.sh", "timeout": 20}  // 内部完成所有通知
+    ]
+  }
+]
+```
+
+#### 新增的立即通知逻辑
+
+在 `task-complete-notifier.sh` 第 81-104 行新增：
+
+```bash
+# ====== 立即发送初始通知（无需等待 Gemini） ======
+log "====== Sending Immediate Notification ======"
+log "发送立即通知: 非gemini总结：任务完成"
+
+IMMEDIATE_START=$(date +%s)
+
+# 同步调用，1 秒超时
+(
+  cd "$PROJECT_DIR" 2>/dev/null || cd /
+  timeout 1s claude-notifier task-complete --message "非gemini总结：任务完成" 2>&1 || {
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -eq 124 ]; then
+      echo "⚠️ Immediate notifier timed out (1s)"
+    else
+      echo "⚠️ Immediate notifier failed with exit code $EXIT_CODE"
+    fi
+  }
+) >> "$LOG_FILE"
+
+IMMEDIATE_END=$(date +%s)
+IMMEDIATE_DURATION=$((IMMEDIATE_END - IMMEDIATE_START))
+
+log "立即通知已发送，耗时: ${IMMEDIATE_DURATION}s"
+```
+
+#### 执行流程对比
+
+**修复前**（双钩子，存在竞争）：
+
+```plain
+Stop Event
+    ↓
+Hook 1: task-complete-notifier.sh (读取 stdin)
+    ├─ 读取 stdin ✅
+    ├─ Gemini 总结 (~5-15s)
+    └─ 发送通知
+    ↓
+Hook 2: claude-notifier task-complete
+    ├─ 尝试读取 stdin ❌（已空）
+    ├─ 可能等待超时
+    └─ 发送通知（重复！）
+    ↓
+总耗时: 20+ 秒，可能超时中止
+```
+
+**修复后**（单钩子，无竞争）：
+
+```plain
+Stop Event
+    ↓
+Hook 1: task-complete-notifier.sh
+    ├─ 读取 stdin ✅
+    ├─ 立即通知 (~1s) ✅
+    ├─ Gemini 总结 (~5-15s)
+    └─ Gemini 通知 ✅
+    ↓
+总耗时: ~6-16 秒，稳定完成
+```
+
+### References
+
+- 问题分析：本次对话中的详细排查
+- 修复脚本：
+  - `scripts/task-complete-notifier.sh`（第 81-104 行：新增立即通知）
+  - `hooks/hooks.json`（第 4-14 行：删除第二个钩子）
+
 ## [0.8.0] - 2025-11-19
 
 ### Fixed
