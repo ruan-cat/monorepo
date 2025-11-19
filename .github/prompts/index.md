@@ -316,8 +316,6 @@ Plugin Loading Errors:
 2. 我不清楚是否是 claude code 的插件商城更改的插件 hooks 的导入语法，还是什么缘故，出现了上述错误。
 3. 请帮我调研分析，并解决这个故障。并提供关于 claude code 插件商城关于 hooks 配置的要求。
 
-<!-- TODO: 增加新的通知类型 先完成新版本发包 -->
-
 ## 16 claude code 插件的 `Notification` 钩子，增加 `@ruan-cat/claude-notifier` 包提供的通知类型
 
 请在 `claude-code-marketplace\common-tools\hooks\hooks.json` 内，增加 `Notification` 钩子，匹配到 `idle_prompt` 和 `elicitation_dialog` 情况后，就执行 `pnpm dlx @ruan-cat/claude-notifier@latest interaction-needed` 命令。

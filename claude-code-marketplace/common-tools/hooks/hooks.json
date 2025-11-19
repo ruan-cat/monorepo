@@ -86,6 +86,28 @@
 					}
 				]
 			}
+		],
+		"Notification": [
+			{
+				"matcher": "idle_prompt",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "claude-notifier interaction-needed",
+						"timeout": 10
+					}
+				]
+			},
+			{
+				"matcher": "elicitation_dialog",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "claude-notifier interaction-needed",
+						"timeout": 10
+					}
+				]
+			}
 		]
 	}
 }
