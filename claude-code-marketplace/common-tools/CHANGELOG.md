@@ -5,6 +5,21 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.8.4] - 2025-11-28
+
+### Added
+
+- **新增 Agent**: `add-git-mcp` - 用于在 `.mcp.json` 文件内配置满足 git-mcp 格式的 MCP 服务器
+  - 支持通过 GitHub 仓库地址自动生成 git-mcp 配置
+  - 实现对 GitHub 仓库源码和文件的精准索引，避免代码幻觉
+  - 提供标准化的 MCP 服务器命名格式：`gitmcp__{repo}__{owner}`
+  - 支持命令行和手动配置两种添加方式
+
+### Changed
+
+- **插件配置更新**: 在 `plugin.json` 中新增 `add-git-mcp.md` agent 引用
+- **文档优化**: 更新 README.md 中的 agents 列表，包含新增的 git-mcp 配置代理
+
 ## [0.8.3] - 2025-11-20
 
 ### Changed

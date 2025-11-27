@@ -4,7 +4,7 @@
 
 ## 版本
 
-**当前版本**: `0.8.3`
+**当前版本**: `0.8.4`
 
 ⚠️ **v0.8.3 优化改进**:
 
@@ -45,6 +45,7 @@
 
 - **format-markdown**: 格式化 Markdown 文档的专用子代理
 - **migrate-iconify-use-pure-admin**: 将 pure-admin 的 iconify 图标方案迁移到 vite+vue3 项目
+- **add-git-mcp**: 在 `.mcp.json` 文件中配置 git-mcp 服务器，实现对 GitHub 仓库的精准索引
 
 ### Hooks (钩子)
 
