@@ -25,7 +25,9 @@
 			"@/*": ["src/*"],
 			"src/*": ["src/*"],
 			"tests/*": ["tests/*"]
-		}
+		},
+		"composite": false,
+		"incremental": false
 	},
 	"include": [
 		"./src/**/*.ts",
