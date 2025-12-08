@@ -1,5 +1,12 @@
 # @ruan-cat/release-toolkit 更新日志
 
+## 0.2.5
+
+### Patch Changes
+
+- Updated dependencies [[`0d708cc`](https://github.com/ruan-cat/monorepo/commit/0d708cc9971d63f330efef2998d9fbf6768260d3)]:
+  - @ruan-cat/commitlint-config@4.4.0
+
 ## 0.2.4
 
 ### Patch Changes

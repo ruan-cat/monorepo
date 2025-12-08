@@ -1,5 +1,19 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 4.4.0
+
+### Minor Changes
+
+- 内部代码重构 ([`0d708cc`](https://github.com/ruan-cat/monorepo/commit/0d708cc9971d63f330efef2998d9fbf6768260d3))
+  - 将 `isMonorepoProject` 函数迁移至 `@ruan-cat/utils` 包
+  - 现在从 `@ruan-cat/utils/node-cjs` 导入 `isMonorepoProject` 函数
+  - 相关测试用例也已迁移至 `@ruan-cat/utils` 包
+
+### Patch Changes
+
+- Updated dependencies [[`0d708cc`](https://github.com/ruan-cat/monorepo/commit/0d708cc9971d63f330efef2998d9fbf6768260d3)]:
+  - @ruan-cat/utils@4.17.0
+
 ## 4.3.0
 
 ### Minor Changes
