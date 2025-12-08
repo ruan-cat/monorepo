@@ -18,7 +18,7 @@
 		},
 		"//#deploy-vercel": {
 			"cache": true,
-			"dependsOn": ["^build:docs"]
+			"dependsOn": ["^build:docs", "packages/vercel-deploy-tool#build"]
 		},
 		"//#changeset:publish": {
 			"cache": false,
