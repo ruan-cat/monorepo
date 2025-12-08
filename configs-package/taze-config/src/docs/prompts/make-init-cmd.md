@@ -1,6 +1,6 @@
 <!--
 	一次性提示词
-	未完成
+	已完成
  -->
 
 # 模仿 `@ruan-cat/commitlint-config` ，为 `@ruan-cat/taze-config` 制作相同的 init 初始化命令
