@@ -50,5 +50,12 @@ program.on("--help", () => {
 	console.log("");
 });
 
-// 解析命令行参数
-program.parse();
+async function main() {
+	// 解析命令行参数（异步，确保子命令的 async action 被执行并正确传递异常）
+	await program.parseAsync();
+}
+
+main().catch((error) => {
+	console.error(error);
+	process.exit(1);
+});

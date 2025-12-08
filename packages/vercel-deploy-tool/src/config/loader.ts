@@ -1,5 +1,4 @@
 import { loadConfig as c12LoadConfig } from "c12";
-import { resolve } from "pathe";
 import { consola } from "consola";
 import { isUndefined } from "lodash-es";
 import { config as dotenvxConfig } from "@dotenvx/dotenvx";
@@ -21,7 +20,7 @@ const DEFAULT_CONFIG: VercelDeployConfig = {
 /**
  * 异步加载配置（工厂函数模式）
  * @description
- * 从约定俗成的配置处，获得用户配置文件
+ * 从约定俗成的配置处，获得用户配置文件。不会在模块导入时自动执行，避免 top-level await 引起的执行时警告。
  *
  * 环境变量优先级：
  * 1) 命令行传入的 env-path（通过 VERCEL_DEPLOY_TOOL_ENV_PATH 或 deploy 命令参数注入）
@@ -34,18 +33,25 @@ const DEFAULT_CONFIG: VercelDeployConfig = {
  * ```
  */
 export async function loadConfig(): Promise<VercelDeployConfig> {
+	consola.start("开始读取配置文件 vercel-deploy-tool.config.* ...");
+
 	// 兼容 CLI 的 --env-path，允许指定自定义 dotenv 文件
 	const envPath = process.env.VERCEL_DEPLOY_TOOL_ENV_PATH;
 	if (envPath) {
 		dotenvxConfig({ path: envPath });
+		consola.info(`已从 VERCEL_DEPLOY_TOOL_ENV_PATH 加载 dotenv: ${envPath}`);
 	}
 
-	const { config } = await c12LoadConfig<VercelDeployConfig>({
-		cwd: resolve("."),
+	let config: VercelDeployConfig | undefined;
+
+	const loaded = await c12LoadConfig<VercelDeployConfig>({
+		cwd: process.cwd(),
 		name: CONFIG_NAME,
 		dotenv: true,
 		defaults: DEFAULT_CONFIG,
 	});
+
+	config = loaded.config;
 
 	// 环境变量覆盖
 	const vercelOrgId = process.env.VERCEL_ORG_ID;
@@ -68,30 +74,22 @@ export async function loadConfig(): Promise<VercelDeployConfig> {
 	return config;
 }
 
-/**
- * 默认导出：已初始化的配置实例（top-level await）
- * @description
- * 这是混合模式的一部分，提供默认的配置实例
- *
- * @example
- * ```ts
- * import { config } from "@ruan-cat/vercel-deploy-tool/config/loader";
- * console.log(config.vercelProjectName);
- * ```
- */
-export const config = await loadConfig();
+let cachedConfigPromise: Promise<VercelDeployConfig> | null = null;
 
 /**
- * 导出配置获取函数
+ * 导出配置获取函数（带缓存）
  * @description
- * 获取已加载的配置实例
+ * 首次调用会触发加载，后续复用结果。避免 top-level await。
  *
  * @example
  * ```ts
  * import { getConfig } from "@ruan-cat/vercel-deploy-tool";
- * const config = getConfig();
+ * const config = await getConfig();
  * ```
  */
-export function getConfig(): VercelDeployConfig {
-	return config;
+export async function getConfig(): Promise<VercelDeployConfig> {
+	if (!cachedConfigPromise) {
+		cachedConfigPromise = loadConfig();
+	}
+	return cachedConfigPromise;
 }

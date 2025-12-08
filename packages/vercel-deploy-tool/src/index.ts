@@ -39,7 +39,7 @@ export { defineConfig } from "./config/define-config";
  * const config = await loadConfig();
  * ```
  */
-export { loadConfig, getConfig, config } from "./config/loader";
+export { loadConfig, getConfig } from "./config/loader";
 
 // ==================== 类型定义 ====================
 
