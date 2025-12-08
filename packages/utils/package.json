@@ -82,7 +82,7 @@
 		"@vueuse/integrations": "^13.9.0",
 		"axios": "^1.13.2",
 		"consola": "^3.4.2",
-		"glob": "^11.0.3",
+		"tinyglobby": "^0.2.15",
 		"lodash-es": "^4.17.21"
 	},
 	"devDependencies": {

@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import * as fs from "node:fs";
-import { sync } from "glob";
+import { globSync } from "tinyglobby";
 import { minimatch } from "minimatch";
 import { load } from "js-yaml";
 import { isUndefined } from "lodash-es";
@@ -73,9 +73,9 @@ function getPackagePathToScopeMapping(): Map<string, string> {
 	// 根据每个模式匹配相应的目录
 	pkgPatterns.forEach((pkgPattern) => {
 		const globPattern = `${pkgPattern}/package.json`;
-		const matchedPaths = sync(globPattern, {
+		const matchedPaths = globSync(globPattern, {
 			cwd: process.cwd(),
-			ignore: "**/node_modules/**",
+			ignore: ["**/node_modules/**"],
 		});
 
 		matchedPaths.forEach((relativePkgPath) => {

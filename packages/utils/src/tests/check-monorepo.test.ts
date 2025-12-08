@@ -2,22 +2,23 @@ import { describe, test, expect, beforeEach, afterEach } from "vitest";
 import { isMonorepoProject } from "../monorepo";
 import * as fs from "node:fs";
 import { load } from "js-yaml";
-import { sync } from "glob";
-import { join } from "node:path";
+import { globSync } from "tinyglobby";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const monorepoRoot = join(__dirname, "../../../..");
 
 describe("isMonorepoProject", () => {
-	// 保存原始的 cwd
 	let originalCwd: string;
-	const monorepoRoot = join(process.cwd(), "../..");
 
 	beforeEach(() => {
 		originalCwd = process.cwd();
-		// 切换到 monorepo 根目录
 		process.chdir(monorepoRoot);
 	});
 
 	afterEach(() => {
-		// 恢复原始的工作目录
 		process.chdir(originalCwd);
 	});
 
@@ -47,9 +48,9 @@ describe("isMonorepoProject", () => {
 
 			let totalMatches = 0;
 			workspaceConfig.packages?.forEach((pattern) => {
-				const matches = sync(`${pattern}/package.json`, {
+				const matches = globSync(`${pattern}/package.json`, {
 					cwd: process.cwd(),
-					ignore: "**/node_modules/**",
+					ignore: ["**/node_modules/**"],
 				});
 				totalMatches += matches.length;
 			});
@@ -91,9 +92,9 @@ describe("isMonorepoProject", () => {
 				// 验证至少有一个模式能匹配到文件
 				let hasMatch = false;
 				workspaceConfig.packages?.forEach((pattern) => {
-					const matches = sync(`${pattern}/package.json`, {
+					const matches = globSync(`${pattern}/package.json`, {
 						cwd: process.cwd(),
-						ignore: "**/node_modules/**",
+						ignore: ["**/node_modules/**"],
 					});
 					if (matches.length > 0) {
 						hasMatch = true;
@@ -144,9 +145,9 @@ describe("isMonorepoProject", () => {
 
 				let totalMatches = 0;
 				workspaceConfig.packages?.forEach((pattern) => {
-					const matches = sync(`${pattern}/package.json`, {
+					const matches = globSync(`${pattern}/package.json`, {
 						cwd: process.cwd(),
-						ignore: "**/node_modules/**",
+						ignore: ["**/node_modules/**"],
 					});
 					totalMatches += matches.length;
 				});

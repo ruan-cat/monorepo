@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import * as fs from "node:fs";
-import { sync } from "glob";
+import { globSync } from "tinyglobby";
 import { load } from "js-yaml";
 import { isUndefined } from "lodash-es";
 import type { PnpmWorkspace } from "./types/pnpm-workspace.yaml.shim";
@@ -55,8 +55,8 @@ export function isMonorepoProject(): boolean {
 	// 4. 检查是否至少能匹配到一个 package.json
 	for (const pkgPattern of pkgPatterns) {
 		const matchedPath = pathChange(join(process.cwd(), pkgPattern, "package.json"));
-		const matchedPaths = sync(matchedPath, {
-			ignore: "**/node_modules/**",
+		const matchedPaths = globSync(matchedPath, {
+			ignore: ["**/node_modules/**"],
 		});
 
 		// 只要有一个模式能匹配到文件，就认为是有效的 monorepo

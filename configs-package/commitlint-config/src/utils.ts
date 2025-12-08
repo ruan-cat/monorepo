@@ -1,7 +1,7 @@
 import { commitTypes } from "./commit-types.ts";
 import { join } from "node:path";
 import * as fs from "node:fs";
-import { sync } from "glob";
+import { globSync } from "tinyglobby";
 import { load } from "js-yaml";
 import { isUndefined } from "lodash";
 import { pathChange, isMonorepoProject } from "@ruan-cat/utils/node-cjs";
@@ -87,8 +87,8 @@ export function getPackagesNameAndDescription() {
 		// 在进程运行的根目录下，执行匹配。 一般来说是项目的根目录
 		const matchedPath = pathChange(join(process.cwd(), pkgPattern, "package.json"));
 
-		const matchedPaths = sync(matchedPath, {
-			ignore: "**/node_modules/**",
+		const matchedPaths = globSync(matchedPath, {
+			ignore: ["**/node_modules/**"],
 		});
 
 		// 找到包路径，就按照顺序逐个填充准备

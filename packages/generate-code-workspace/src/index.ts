@@ -5,7 +5,7 @@ import * as fs from "node:fs";
 import { consola } from "consola";
 import { isNil } from "lodash-es";
 import { program } from "commander";
-import { sync } from "glob";
+import { globSync } from "tinyglobby";
 import yaml from "js-yaml";
 import { parse as parseJSONC } from "jsonc-parser";
 import { pathChange } from "@ruan-cat/utils/node-cjs";
@@ -92,8 +92,8 @@ function getFolders() {
 	pkgPatterns!.map((pkgPattern) => {
 		const matchedPath = pathChange(join(process.cwd(), pkgPattern, "package.json"));
 		// console.log(" 检查拼接出来的路径： ", matchedPath);
-		const matchedPaths = sync(matchedPath, {
-			ignore: "**/node_modules/**",
+		const matchedPaths = globSync(matchedPath, {
+			ignore: ["**/node_modules/**"],
 		});
 
 		// 找到包路径，就按照顺序逐个填充准备

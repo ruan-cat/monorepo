@@ -284,3 +284,7 @@ VitePress 配置预设：
 - Node.js >= 22.14.0
 - pnpm 10.17.0（通过 packageManager 字段指定）
 - 仅允许使用 pnpm（通过 `preinstall` 脚本强制）
+
+## 代码规范
+
+- 要使用 `tinyglobby` ，而不是 `glob` 。
