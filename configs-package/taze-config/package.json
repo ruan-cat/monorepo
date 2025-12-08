@@ -15,7 +15,14 @@
 		"directory": "configs-package/taze-config"
 	},
 	"scripts": {
+		"build": "tsup",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:cli": "node dist/cli.js init",
 		"prebuild": "automd"
+	},
+	"bin": {
+		"@ruan-cat/taze-config": "./dist/cli.js"
 	},
 	"exports": {
 		".": {
@@ -47,7 +54,8 @@
 		"!src/**/docs/**",
 		"!src/**/tests/**",
 		"!*.test.*",
-		"!src/**/*.md"
+		"!src/**/*.md",
+		"templates/**"
 	],
 	"peerDependencies": {
 		"taze": ">=19"
@@ -57,8 +65,14 @@
 			"optional": true
 		}
 	},
+	"dependencies": {
+		"@ruan-cat/utils": "workspace:^",
+		"commander": "^13.1.0",
+		"consola": "^3.4.2"
+	},
 	"devDependencies": {
 		"automd": "^0.4.2",
-		"taze": "^19.9.0"
+		"taze": "^19.9.0",
+		"tsup": "^8.5.0"
 	}
 }

@@ -9,7 +9,55 @@
 
 阮喵喵自用的 taze.config.ts 的配置。目的是用预设的 taze 配置，实现依赖升级。
 
-本依赖包仅仅是对外单纯地导出一个 ts 配置文件。
+## 功能
+
+- 🚀 **一键初始化**：提供 CLI 命令，快速初始化项目的 taze 配置
+- 📦 **智能识别项目类型**：自动识别 monorepo 项目，并提供对应的 `up-taze` 命令
+- ⚙️ **预设配置**：提供经过优化的 taze 配置，开箱即用
+
+## 快速初始化
+
+**推荐使用方式**：无需手动安装，直接使用一行命令快速初始化配置文件：
+
+> 尽管可以通过命令行的方式初始化配置，但是在具体项目应用时，还是应该安装好相关依赖。
+
+```bash
+# 使用 pnpm
+pnpm dlx @ruan-cat/taze-config init
+
+# 或使用 npm
+npx @ruan-cat/taze-config init
+```
+
+该命令会自动：
+
+- 创建 `taze.config.ts` 配置文件
+- 根据项目类型（monorepo 或标准项目）在 `package.json` 中添加对应的 `up-taze` 脚本
+- 将 `up-taze` 命令插入到 `scripts` 的第一行
+
+### 命令选项
+
+```bash
+# 基本用法
+pnpm dlx @ruan-cat/taze-config init
+
+# 强制覆盖已存在的文件（跳过警告提示）
+pnpm dlx @ruan-cat/taze-config init --force
+pnpm dlx @ruan-cat/taze-config init -f
+
+# 查看帮助信息
+pnpm dlx @ruan-cat/taze-config --help
+pnpm dlx @ruan-cat/taze-config init --help
+
+# 查看版本号
+pnpm dlx @ruan-cat/taze-config --version
+```
+
+**选项说明：**
+
+- `-f, --force` - 强制覆盖已存在的文件，跳过覆盖警告提示
+
+> **注意**：如果目录中已存在同名配置文件，默认会显示警告信息。使用 `--force` 选项可以跳过警告直接覆盖。
 
 ## 安装
 
