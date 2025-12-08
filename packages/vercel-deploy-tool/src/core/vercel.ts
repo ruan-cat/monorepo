@@ -1,11 +1,12 @@
 import type { VercelDeployConfig, DeployTarget } from "../config/schema";
 import { VERCEL_NULL_CONFIG_PATH } from "../utils/vercel-null-config";
+import type { SpawnSyncOptions } from "node:child_process";
 
 /**
  * 获取 Vercel 项目名称参数
  */
 export function getVercelProjectNameArg(config: VercelDeployConfig): string[] {
-	return ["--name", config.vercelProjectName];
+	return ["--project", config.vercelProjectName];
 }
 
 /**
@@ -34,4 +35,21 @@ export function getVercelLocalConfigArg(): string[] {
  */
 export function getTargetCWDArg(target: DeployTarget): string[] {
 	return ["--cwd", target.targetCWD];
+}
+
+/**
+ * 统一的 Vercel CLI spawn 配置
+ * @param stdoutMode stdout 行为，默认继承终端；需要读取 stdout 时传入 "pipe"
+ */
+export function createVercelSpawnOptions(stdoutMode: "inherit" | "pipe" = "inherit"): SpawnSyncOptions {
+	const base: SpawnSyncOptions = {
+		encoding: "utf8",
+		shell: process.platform === "win32",
+	};
+
+	if (stdoutMode === "pipe") {
+		return { ...base, stdio: ["inherit", "pipe", "inherit"] };
+	}
+
+	return { ...base, stdio: "inherit" };
 }

@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { concat } from "lodash-es";
 import { consola } from "consola";
 import type { VercelDeployConfig } from "../../config/schema";
-import { getVercelTokenArg, getVercelScopeArg } from "../vercel";
+import { createVercelSpawnOptions, getVercelTokenArg, getVercelScopeArg } from "../vercel";
 
 /**
  * 创建 Alias 任务
@@ -21,10 +21,7 @@ export function createAliasTask(config: VercelDeployConfig, vercelUrl: string, u
 
 			consola.start(`开始别名任务: ${userUrl}`);
 
-			const result = spawnSync("vercel", args, {
-				encoding: "utf-8",
-				stdio: "inherit",
-			});
+			const result = spawnSync("vercel", args, createVercelSpawnOptions());
 
 			if (result.error) {
 				consola.error(`别名任务失败: ${userUrl}`);

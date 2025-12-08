@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { resolve } from "node:path";
 import { consola } from "consola";
 import { task, executeSequential } from "../executor";
 import type { VercelDeployConfig } from "../../config/schema";
@@ -40,17 +41,34 @@ export async function executeDeploymentWorkflow(config: VercelDeployConfig) {
 
 	const { deployTargets } = config;
 
+	// 过滤不存在的目标目录，避免后续 Vercel CLI 抛出 ENOENT
+	const availableTargets = deployTargets.filter((target) => {
+		const targetPath = resolve(target.targetCWD);
+
+		if (!fs.existsSync(targetPath)) {
+			consola.warn(`目标目录不存在，已跳过: ${target.targetCWD}`);
+			return false;
+		}
+
+		return true;
+	});
+
+	if (availableTargets.length === 0) {
+		consola.error("没有可用的部署目标，请先构建产物");
+		return;
+	}
+
 	await task("Vercel 部署工作流", async ({ task }) => {
 		// 1. Link 阶段（并行）
 		await task("1. Link 项目", async () => {
-			const linkTasks = deployTargets.map((target) => createLinkTask(config, target));
+			const linkTasks = availableTargets.map((target) => createLinkTask(config, target));
 
 			await task.group((task) => linkTasks.map((t) => task(t.name, t.fn)));
 		});
 
 		// 2. Build 阶段（并行）
 		await task("2. 构建项目", async () => {
-			const buildTasks = deployTargets.filter(isNeedVercelBuild).map((target) => createBuildTask(config, target));
+			const buildTasks = availableTargets.filter(isNeedVercelBuild).map((target) => createBuildTask(config, target));
 
 			if (buildTasks.length === 0) {
 				consola.warn("没有需要执行 build 的目标");
@@ -69,7 +87,7 @@ export async function executeDeploymentWorkflow(config: VercelDeployConfig) {
 
 		// 4. UserCommands + CopyDist 阶段（并行目标，串行步骤）
 		await task("4. 执行用户命令与文件复制", async () => {
-			const targetTasks = deployTargets.map((target) => ({
+			const targetTasks = availableTargets.map((target) => ({
 				name: `处理目标: ${target.targetCWD}`,
 				fn: async () => {
 					// 如果不是 userCommands 类型，跳过
@@ -98,7 +116,7 @@ export async function executeDeploymentWorkflow(config: VercelDeployConfig) {
 
 		// 5. Deploy + Alias 阶段（并行目标，串行步骤）
 		await task("5. 部署与设置别名", async () => {
-			const deployAliasTasks = deployTargets.map((target) => ({
+			const deployAliasTasks = availableTargets.map((target) => ({
 				name: `部署与别名: ${target.targetCWD}`,
 				fn: async () => {
 					// 5.1 部署
