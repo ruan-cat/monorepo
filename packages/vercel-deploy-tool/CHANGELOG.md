@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool 更新日志
 
+## 1.2.1
+
+### Patch Changes
+
+- 修复包导出：恢复 main/types 指向构建产物并为 require/default 提供入口，避免 `No "exports" main defined` 导致的部署失败。 ([`8318c8a`](https://github.com/ruan-cat/monorepo/commit/8318c8aab317378902188797e232098aea403d99))
+
 ## 1.2.0
 
 ### Minor Changes
