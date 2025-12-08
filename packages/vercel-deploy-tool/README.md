@@ -1,4 +1,4 @@
-# 阮喵喵自用的 vercel 部署工具
+# 阮喵喵自用的 Vercel 部署工具
 
 <!-- automd:badges color="yellow" name="@ruan-cat/vercel-deploy-tool" -->
 
@@ -7,137 +7,423 @@
 
 <!-- /automd -->
 
-生成满足 [Vercel Output API （v3）](https://vercel.com/docs/build-output-api)规范的目录结构，并推送到 vercel 平台内。
+一个功能完善的 Vercel 部署工具，支持 **CLI 命令行** 和 **API 编程式** 两种使用方式。
 
-目前仅考虑简单的静态页面，没有实现云函数等功能。
+生成满足 [Vercel Output API (v3)](https://vercel.com/docs/build-output-api) 规范的目录结构，并自动部署到 Vercel 平台。
 
-## 设计初衷
+## ✨ 特性
 
-- 优化冗长的 github action 写法。
-- 同时支持 monorepo 和单体项目的部署。
-- 自动实现文件移动，避免用户自写文件移动命令。
-- 实现复杂部署任务的并列执行，提高运行性能。
-- 配置实现类型提示，对用户友好。
-- 实现单一 vercel 项目的多项目部署，绕开 vercel 针对 monorepo 项目的部署限制。
+- 🚀 **CLI 工具**：提供 `deploy` 和 `init` 命令，开箱即用
+- 📦 **API 导出**：支持编程式调用，灵活集成到自定义工作流
+- 🏗️ **Monorepo 支持**：完美支持 monorepo 和单体项目
+- ⚡ **并行执行**：使用 [tasuku](https://github.com/privatenumber/tasuku) 实现任务可视化和并行调度
+- 🎯 **类型安全**：导出 `defineConfig` 提供完整的 TypeScript 类型提示
+- 🔧 **灵活配置**：基于 [c12](https://github.com/unjs/c12) 支持多种配置文件格式
+- 🎨 **多命令别名**：支持 `vercel-deploy-tool`、`vdt`、`@ruan-cat/vercel-deploy-tool`
 
-## 安装
+## 📦 安装
 
 ```bash
-pnpm i -D @ruan-cat/vercel-deploy-tool@latest
+pnpm add -D @ruan-cat/vercel-deploy-tool
 ```
 
-## 环境要求
+## 🔧 环境要求
 
-- node >=20.15.1
-- pnpm >=9
+- Node.js >= 18
+- pnpm >= 9 (推荐)
 
-## 使用教程
+## 🚀 快速开始
 
-### 增加 .gitignore 配置
+### 方式一：使用 CLI（推荐）
 
-本工具会在根目录内默认生成一个全空配置的 vercel.null.def.json 文件，这个文件应该被忽略。
-
-后续的使用会不可避免的使用 vercel 的 api，会在你的项目内生成一个或多个.vercel 文件夹，故.vercel 文件夹也应该被忽略。
+#### 1. 初始化配置
 
 ```bash
-# 忽略vercel本地打包生成的文件
-.vercel
-# 忽略自动生成vercel部署配置文件
-vercel.null.def.json
+npx vercel-deploy-tool init
 ```
 
-如果你使用环境变量文件，推荐你加上 dotenv 推荐的环境变量文件忽略。
+这将在项目根目录生成 `vercel-deploy-tool.config.ts` 配置文件，并自动更新 `package.json` 添加部署脚本。
+
+#### 2. 配置 Vercel 凭据
+
+获取 Vercel 项目凭据（使用 `vc link` 命令）：
 
 ```bash
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+npx vercel link
 ```
 
-### 获取 vercel 提供的 id
-
-用 [`vc link`](https://vercel.com/guides/how-can-i-use-github-actions-with-vercel) 命令获取 vercelOrgId 和 vercelProjectId。
-
-你可以明文地写在配置上面，也可以考虑放在环境变量，放在 github secrets 环境变量内。
-
-### 放在项目内的 .env 环境变量文件内（可选）
-
-举例如下：
+将凭据添加到环境变量（推荐）或配置文件：
 
 ```bash
-VERCEL_PROJECT_ID=prj_your_vercel_projectId
-VERCEL_ORG_ID=team_your_vercel_orgId
+# .env
 VERCEL_TOKEN=your_vercel_token
+VERCEL_ORG_ID=team_your_vercel_orgId
+VERCEL_PROJECT_ID=prj_your_vercel_projectId
 ```
 
-环境变量必须写成大写，名称很严格。如果你使用环境变量的方式提供这些值，请务必使用例子提供的变量名。
+#### 3. 编辑配置文件
 
-### 编写部署配置文件
+```typescript
+// vercel-deploy-tool.config.ts
+import { defineConfig } from "@ruan-cat/vercel-deploy-tool";
 
-```ts
-// .config/vercel-deploy-tool.ts
-import { type Config } from "@ruan-cat/vercel-deploy-tool/src/config.ts";
-
-const config: Config = {
-	vercelProjetName: "prj_your_vercel_projectName",
-	vercelOrgId: "team_your_vercel_orgId",
-	vercelProjectId: "prj_your_vercel_projectId",
-	// 默认留空即可
-	vercelToken: "",
+export default defineConfig({
+	vercelProjectName: "my-awesome-project",
+	vercelToken: process.env.VERCEL_TOKEN || "",
+	vercelOrgId: process.env.VERCEL_ORG_ID || "",
+	vercelProjectId: process.env.VERCEL_PROJECT_ID || "",
 
 	deployTargets: [
 		{
 			type: "userCommands",
-			outputDirectory: "docs/.vuepress/dist/**/*",
-			targetCWD: "./",
-			url: ["small-alice-web-dev.ruancat6312.top", "small-alice-web.ruan-cat.com"],
-			userCommands: ["pnpm -C=./ vuepress-vite build docs"],
+			targetCWD: "./packages/docs",
+			url: ["docs.example.com"],
+			userCommands: ["pnpm build:docs"],
+			outputDirectory: "docs/.vitepress/dist",
+			isCopyDist: true, // 默认为 true
 		},
 	],
-};
 
-export default config;
+	// 可选：在所有构建完成后执行的全局任务
+	afterBuildTasks: [
+		// "echo 'All builds completed!'",
+	],
+});
 ```
 
-### 编写运行文件
+#### 4. 运行部署
 
-```ts
+```bash
+pnpm run deploy-vercel
+# 或直接使用 CLI
+npx vercel-deploy-tool deploy
+# 或使用短别名
+npx vdt deploy
+```
+
+### 方式二：使用 API
+
+适用于需要在代码中编程式调用部署功能的场景。
+
+```typescript
+import { defineConfig, executeDeploymentWorkflow } from "@ruan-cat/vercel-deploy-tool";
+
+const config = defineConfig({
+	vercelProjectName: "my-project",
+	vercelToken: process.env.VERCEL_TOKEN || "",
+	vercelOrgId: process.env.VERCEL_ORG_ID || "",
+	vercelProjectId: process.env.VERCEL_PROJECT_ID || "",
+	deployTargets: [
+		{
+			type: "userCommands",
+			targetCWD: "./apps/web",
+			url: ["app.example.com"],
+			userCommands: ["pnpm build"],
+			outputDirectory: "dist",
+		},
+	],
+});
+
+// 执行部署工作流
+await executeDeploymentWorkflow(config);
+```
+
+## 📝 配置说明
+
+### 主配置项
+
+```typescript
+interface VercelDeployConfig {
+	/** Vercel 项目名称 */
+	vercelProjectName: string;
+
+	/** Vercel Token（推荐使用环境变量） */
+	vercelToken: string;
+
+	/** Vercel 组织 ID */
+	vercelOrgId: string;
+
+	/** Vercel 项目 ID */
+	vercelProjectId: string;
+
+	/** 可选：自定义 Vercel 配置文件路径 */
+	vercelJsonPath?: string;
+
+	/** 可选：在所有构建完成后执行的全局任务 */
+	afterBuildTasks?: string[];
+
+	/** 部署目标列表 */
+	deployTargets: DeployTarget[];
+}
+```
+
+### 部署目标配置
+
+#### 基础配置
+
+```typescript
+interface DeployTargetBase {
+	/** 目标类型 */
+	type: "static" | "userCommands";
+
+	/** 目标工作目录（相对于项目根目录） */
+	targetCWD: `./${string}`;
+
+	/** 部署后的自定义域名列表 */
+	url: string[];
+
+	/** 是否需要执行 vercel build（默认 true） */
+	isNeedVercelBuild?: boolean;
+}
+```
+
+#### 用户命令配置
+
+当 `type: "userCommands"` 时，额外支持：
+
+```typescript
+interface DeployTargetWithUserCommands extends DeployTargetBase {
+	type: "userCommands";
+
+	/** 构建命令列表（按顺序执行） */
+	userCommands: string[];
+
+	/** 构建产物目录 */
+	outputDirectory: string;
+
+	/** 是否复制构建产物到部署目录（默认 true） */
+	isCopyDist?: boolean;
+}
+```
+
+### 配置示例
+
+#### Monorepo 多项目部署
+
+```typescript
+import { defineConfig } from "@ruan-cat/vercel-deploy-tool";
+
+export default defineConfig({
+	vercelProjectName: "my-monorepo",
+	vercelToken: process.env.VERCEL_TOKEN || "",
+	vercelOrgId: process.env.VERCEL_ORG_ID || "",
+	vercelProjectId: process.env.VERCEL_PROJECT_ID || "",
+
+	deployTargets: [
+		// VitePress 文档站点
+		{
+			type: "userCommands",
+			targetCWD: "./packages/docs",
+			url: ["docs.example.com"],
+			userCommands: ["pnpm build:docs"],
+			outputDirectory: "docs/.vitepress/dist",
+		},
+
+		// VuePress 文档站点
+		{
+			type: "userCommands",
+			targetCWD: "./apps/blog",
+			url: ["blog.example.com"],
+			userCommands: ["pnpm build"],
+			outputDirectory: ".vuepress/dist",
+		},
+
+		// 静态站点（无需自定义构建命令）
+		{
+			type: "static",
+			targetCWD: "./apps/landing",
+			url: ["www.example.com"],
+			isNeedVercelBuild: true,
+		},
+	],
+
+	// 全局后置任务（在所有构建完成后执行）
+	afterBuildTasks: ["echo 'Deployment completed!'", "curl -X POST https://api.example.com/notify"],
+});
+```
+
+## 🔄 部署工作流
+
+工具会按以下顺序执行任务：
+
+1. **Link 阶段**（并行）：将所有目标与 Vercel 项目关联
+2. **Build 阶段**（并行）：执行所有需要构建的目标
+3. **AfterBuild 阶段**（串行）：执行全局后置任务
+4. **UserCommands + CopyDist 阶段**（并行目标，串行步骤）：
+   - 执行用户自定义构建命令
+   - 复制构建产物到部署目录
+5. **Deploy + Alias 阶段**（并行目标，串行步骤）：
+   - 部署到 Vercel
+   - 设置自定义域名别名
+
+## 📋 .gitignore 配置
+
+添加以下内容到 `.gitignore`：
+
+```bash
+# Vercel 本地文件
+.vercel
+vercel.null.def.json
+
+# 环境变量文件（如果使用 .env）
+.env
+.env.local
+.env.*.local
+```
+
+## 🎯 CLI 命令
+
+### `deploy`
+
+执行部署工作流：
+
+```bash
+vercel-deploy-tool deploy
+# 或
+vdt deploy
+# 或
+@ruan-cat/vercel-deploy-tool deploy
+```
+
+### `init`
+
+初始化配置文件：
+
+```bash
+vercel-deploy-tool init [options]
+
+Options:
+  -f, --force  强制覆盖已存在的配置文件
+```
+
+## 📚 API 导出
+
+### 配置系统
+
+```typescript
+import { defineConfig, loadConfig, getConfig } from "@ruan-cat/vercel-deploy-tool";
+
+// 定义配置（提供类型提示）
+export const config = defineConfig({
+	/* ... */
+});
+
+// 加载配置（异步工厂函数）
+const config = await loadConfig();
+
+// 获取配置（同步获取）
+const config = getConfig();
+```
+
+### 类型定义
+
+```typescript
+import type {
+	VercelDeployConfig,
+	DeployTarget,
+	DeployTargetBase,
+	DeployTargetWithUserCommands,
+	DeployTargetType,
+} from "@ruan-cat/vercel-deploy-tool";
+```
+
+### 核心功能
+
+```typescript
+import { executeDeploymentWorkflow } from "@ruan-cat/vercel-deploy-tool";
+
+// 执行完整的部署工作流
+await executeDeploymentWorkflow(config);
+```
+
+### 命令工厂（高级用法）
+
+```typescript
+import { createDeployCommand, createInitCommand } from "@ruan-cat/vercel-deploy-tool";
+import { Command } from "commander";
+
+const program = new Command();
+program.addCommand(createDeployCommand());
+program.addCommand(createInitCommand());
+program.parse();
+```
+
+## 🔧 环境变量
+
+工具会自动读取以下环境变量（优先级高于配置文件）：
+
+| 环境变量            | 说明             | 示例                        |
+| ------------------- | ---------------- | --------------------------- |
+| `VERCEL_TOKEN`      | Vercel API Token | `your_vercel_token`         |
+| `VERCEL_ORG_ID`     | Vercel 组织 ID   | `team_your_vercel_orgId`    |
+| `VERCEL_PROJECT_ID` | Vercel 项目 ID   | `prj_your_vercel_projectId` |
+
+推荐使用 `.env` 文件管理环境变量（确保已添加到 `.gitignore`）。
+
+## 📖 从 v0.x 迁移到 v1.0
+
+v1.0 是一个**破坏性更新**，请参考 [迁移指南](./src/docs/migration-guide.md) 了解详细的迁移步骤。
+
+### 主要变更
+
+- ❌ 移除：直接运行 TypeScript 脚本的方式
+- ✅ 新增：CLI 命令（`vercel-deploy-tool deploy`）
+- ✅ 新增：`defineConfig` 类型安全配置
+- ✅ 新增：`init` 命令生成配置模板
+- 🔄 变更：配置字段重命名（`vercelProjetName` → `vercelProjectName`）
+- 🔄 变更：API 导入路径
+
+### 快速迁移
+
+**旧版本 (v0.x)**：
+
+```typescript
 // bin/vercel-deploy-tool.ts
-// 执行部署任务
 import "@ruan-cat/vercel-deploy-tool/src/index.ts";
 ```
 
-### 封装运行命令
-
-在 package.json 内提供命令
-
 ```json
+// package.json
 {
-	"engines": {
-		"node": ">=22.6.0",
-		"pnpm": ">=9"
-	},
 	"scripts": {
 		"deploy-vercel": "tsx ./bin/vercel-deploy-tool.ts"
 	}
 }
 ```
 
-这里采用直接运行 typescript 文件的方案运行部署工具，你需要额外多安装 tsx 依赖：
+**新版本 (v1.0)**：
 
 ```bash
-pnpm i -D tsx
+# 初始化配置
+npx vercel-deploy-tool init
 ```
 
-运行 `pnpm run deploy-vercel` 命令就能部署项目到 vercel 了。
+```json
+// package.json
+{
+	"scripts": {
+		"deploy-vercel": "vercel-deploy-tool deploy"
+	}
+}
+```
 
-## 路线图
+## 🛠️ 设计初衷
 
-- [x] 封装打包命令，`vc deploy` 命令，并赋予生产环境 url。
-- [x] 拆分配置文件到项目根目录，并实现文件读取。
-- [x] github action 运行产物。
-- [x] github action 全局安装新开发的包，实现纯工作流的部署。
-- [x] 去其他项目，自主完成配置与部署。
+- ✅ 优化冗长的 GitHub Actions 写法
+- ✅ 同时支持 monorepo 和单体项目的部署
+- ✅ 自动实现文件移动，避免用户手写文件操作命令
+- ✅ 实现复杂部署任务的并行执行，提高运行性能
+- ✅ 配置实现类型提示，对用户友好
+- ✅ 实现单一 Vercel 项目的多目标部署，绕开 Vercel 针对 monorepo 的部署限制
+- ✅ 提供 CLI 和 API 双模式，适应不同使用场景
+
+## 📜 许可证
+
+ISC
+
+## 🔗 相关链接
+
+- [Vercel CLI 文档](https://vercel.com/docs/cli)
+- [Vercel Output API](https://vercel.com/docs/build-output-api)
+- [tasuku - 任务执行器](https://github.com/privatenumber/tasuku)
+- [c12 - 配置加载器](https://github.com/unjs/c12)

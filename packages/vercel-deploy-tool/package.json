@@ -3,8 +3,8 @@
 	"version": "0.12.2",
 	"description": "阮喵喵自用的vercel部署工具，用于实现复杂项目的部署。",
 	"type": "module",
-	"main": "./src/index.ts",
-	"types": "./src/index.ts",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"homepage": "https://vercel-deploy-tool.ruancat6312.top",
 	"bugs": {
 		"url": "https://github.com/ruan-cat/monorepo/issues"
@@ -14,18 +14,25 @@
 		"url": "git+https://github.com/ruan-cat/monorepo.git",
 		"directory": "packages/vercel-deploy-tool"
 	},
+	"bin": {
+		"vercel-deploy-tool": "./dist/cli.js",
+		"vdt": "./dist/cli.js",
+		"@ruan-cat/vercel-deploy-tool": "./dist/cli.js"
+	},
 	"scripts": {
+		"build": "tsup",
 		"docs:dev": "vitepress dev src/docs",
 		"build:docs": "vitepress build src/docs",
 		"prebuild": "automd",
+		"test:cli": "node dist/cli.js deploy",
 		"test:prod": "node ./dist/index.js",
-		"test:dev": "tsx ./src/index.ts --env-path=.env.test",
+		"test:dev": "tsx ./src/cli.ts deploy",
 		"test:config": "dotenvx run -f .env.test -f .env.test-2 -- tsx ./tests/config.test.ts"
 	},
 	"exports": {
 		".": {
-			"import": "./src/index.ts",
-			"types": "./src/index.ts"
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
 		},
 		"./src/*": "./src/*"
 	},
@@ -66,6 +73,7 @@
 		"lodash-es": "^4.17.21",
 		"pathe": "^2.0.3",
 		"rimraf": "^6.1.0",
+		"tasuku": "^2.0.4",
 		"vercel": "^41.7.8"
 	},
 	"devDependencies": {

@@ -25,7 +25,7 @@
 		"clear": "tsx ./scripts/clean.ts",
 		"create-code-workspace": "tsx ./scripts/generate.code-workspace.ts",
 		"deploy": "turbo deploy-vercel",
-		"deploy-vercel": "tsx ./scripts/vercel-deploy-tool.ts",
+		"deploy-vercel": "vercel-deploy-tool deploy",
 		"automd": "automd",
 		"automd:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- automd",
 		"pack:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- pnpm pack >docs/reports/all-packages-pack.md",
