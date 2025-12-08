@@ -1,5 +1,11 @@
 # @ruan-cat/vercel-deploy-tool 更新日志
 
+## 1.2.0
+
+### Minor Changes
+
+- 调整包入口 main/types 指向源码 `src/index.ts`，与类型定义保持一致。 ([`4ca3723`](https://github.com/ruan-cat/monorepo/commit/4ca3723485c4cd1609a213eb24db8f89ca8bebed))
+
 ## 1.1.0
 
 ### Minor Changes
