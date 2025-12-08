@@ -1,5 +1,15 @@
 # @ruan-cat/vercel-deploy-tool 更新日志
 
+## 1.1.0
+
+### Minor Changes
+
+- - 恢复 deploy 命令 `--env-path` 支持，允许显式指定 dotenv 文件并通过 `VERCEL_DEPLOY_TOOL_ENV_PATH` 参与配置加载。 ([`3a43560`](https://github.com/ruan-cat/monorepo/commit/3a435605e5dfdb1fbaaadabcd87ba9db2ddf5bfe))
+  - 在配置加载流程中整合 dotenvx 与 c12 的优先级，完善多环境变量合并策略。
+  - 新增/完善架构与运行流程文档（含 mermaid 流程与引用图），指导使用与环境变量策略。
+
+- 统一 Vercel CLI 调用配置，抽取公共 spawn 选项（含 Windows shell/编码/stdout 管理），并将 link 命令改用 `--project` 参数，提升跨平台和 CLI 兼容性。 ([`eb875f9`](https://github.com/ruan-cat/monorepo/commit/eb875f93d692e37bf48bef486870e836b5ba5c12))
+
 ## 1.0.0
 
 ### Major Changes
