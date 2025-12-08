@@ -99,6 +99,13 @@ pnpm run deploy-vercel
 npx vercel-deploy-tool deploy
 # 或使用短别名
 npx vdt deploy
+
+# 如需指定自定义 dotenv 文件
+npx vdt deploy --env-path .env.production
+# 等价：设置环境变量再运行
+VERCEL_DEPLOY_TOOL_ENV_PATH=.env.production npx vdt deploy
+# 多文件场景（依赖 dotenvx）
+dotenvx run -f .env.test -f .env.test-2 -- vdt deploy
 ```
 
 ### 方式二：使用 API
@@ -255,6 +262,13 @@ export default defineConfig({
 5. **Deploy + Alias 阶段**（并行目标，串行步骤）：
    - 部署到 Vercel
    - 设置自定义域名别名
+
+### 环境变量优先级
+
+- `--env-path` / `VERCEL_DEPLOY_TOOL_ENV_PATH` 指定的 dotenv（如 `.env.production`）
+- 现有 `process.env`
+- c12 自动加载的 `.env*`
+- 配置默认值
 
 ## 📋 .gitignore 配置
 

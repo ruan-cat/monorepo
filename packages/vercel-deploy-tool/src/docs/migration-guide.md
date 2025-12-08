@@ -130,10 +130,10 @@ import type { VercelDeployConfig } from "@ruan-cat/vercel-deploy-tool";
 - **旧版本**：使用 `definePromiseTasks`（来自 `@ruan-cat/utils`）
 - **新版本**：使用 `tasuku`（更好的可视化和性能）
 
-#### 6. 移除的功能
+#### 6. 运行方式变更
 
 - ❌ 不再支持直接运行 TypeScript 脚本
-- ❌ 移除 `--env-path` 参数（请使用标准的 `.env` 文件或 `dotenvx`）
+- ✅ `--env-path` 参数已恢复（可指定 dotenv 路径，内部通过 dotenvx/c12 合并环境变量）
 
 ## 🚀 迁移步骤
 
@@ -278,9 +278,22 @@ import { defineConfig } from "@ruan-cat/vercel-deploy-tool";
 import type { VercelDeployConfig } from "@ruan-cat/vercel-deploy-tool";
 ```
 
-### Q3: 为什么移除了 `--env-path` 参数？
+### Q3: 如何指定自定义的 dotenv 路径？
 
-**A**: 新版本使用标准的 `.env` 文件和 [c12](https://github.com/unjs/c12) 配置加载器，会自动读取 `.env` 文件。如需更复杂的环境变量管理，推荐使用 [dotenvx](https://dotenvx.com/)。
+**A**: v1.x 恢复了 `--env-path` 支持，可用以下任一方式：
+
+```bash
+# 指定单个文件
+vdt deploy --env-path .env.production
+
+# 通过环境变量指定
+VERCEL_DEPLOY_TOOL_ENV_PATH=.env.production vdt deploy
+
+# 多文件（依赖 dotenvx）
+dotenvx run -f .env.test -f .env.test-2 -- vdt deploy
+```
+
+优先级：`--env-path` / `VERCEL_DEPLOY_TOOL_ENV_PATH` > 现有 `process.env` > c12 自动加载的 `.env*` > 配置默认值。
 
 ### Q4: 我的 TypeScript 脚本不能运行了？
 
