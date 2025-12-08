@@ -86,3 +86,14 @@
 ### getPackagePathToScopeMapping 函数不要随便的就增加 root 范围
 
 `configs-package\commitlint-config\src\get-default-scope.ts` 的 getPackagePathToScopeMapping 函数，和 getDefaultScope 或者是其他相关的范围处理函数，不要随意的，简单的增加默认的 root 范围。root 范围应该是根据 glob 匹配，匹配出来的。而不是滥用的，总是默认提供的 root 范围。
+
+## 03 迁移 isMonorepoProject 函数到 `@ruan-cat/utils` 包内
+
+1. 请你将 configs-package\commitlint-config\src\utils.ts 的 isMonorepoProject 函数，迁移到 `@ruan-cat/utils` 包内。新建一个专门的 monorepo.ts 文件，存放该函数。
+2. 在 packages\utils\src\node-cjs\index.ts 内对外导出 monorepo.ts 文件提供的工具。
+3. 在 packages\utils\src\index.ts 内对外导出 monorepo.ts 文件提供的工具。
+4. 将 configs-package\commitlint-config\src\tests\check-monorepo.test.ts 剪切迁移到 `@ruan-cat/utils` 包内，迁移测试用例。
+5. 及时构建一次 `@ruan-cat/utils` 包。确保生成一次完整的类型信息，便于 `@ruan-cat/commitlint-config` 使用。
+6. 让 `@ruan-cat/commitlint-config` 正确的使用来自 `@ruan-cat/utils` 包的 isMonorepoProject 函数。注意从 `node-cjs` 路径内导入 isMonorepoProject 函数。至此完成对 isMonorepoProject 函数的重构。
+7. 为 `@ruan-cat/utils` 编写独立的发版日志，重点说明新增了一款在默认环境下以及 cjs 环境内均可以使用的 isMonorepoProject monorepo 检测工具。发版标签为 minor。
+8. 为 `@ruan-cat/commitlint-config` 编写独立的发版日志，说明内部完成了代码重构。发版标签为 minor 。

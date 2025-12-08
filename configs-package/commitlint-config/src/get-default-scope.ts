@@ -8,9 +8,9 @@ import { type PackageJson } from "pkg-types";
 import { type PnpmWorkspace } from "@ruan-cat/utils";
 
 // 注意 整个 commitlint-config 包都是使用 cjs 的语法，所以需要使用 node-cjs 的语法
-import { printList } from "@ruan-cat/utils/node-cjs";
+import { printList, isMonorepoProject } from "@ruan-cat/utils/node-cjs";
 
-import { createPackagescopes, isMonorepoProject } from "./utils.ts";
+import { createPackagescopes } from "./utils.ts";
 import { commonScopes } from "./common-scopes.ts";
 
 import { execSync } from "node:child_process";

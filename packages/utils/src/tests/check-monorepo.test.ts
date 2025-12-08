@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
-import { isMonorepoProject } from "../utils.ts";
+import { isMonorepoProject } from "../monorepo";
 import * as fs from "node:fs";
 import { load } from "js-yaml";
 import { sync } from "glob";
