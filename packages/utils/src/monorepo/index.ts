@@ -3,7 +3,7 @@ import * as fs from "node:fs";
 import { globSync } from "tinyglobby";
 import { load } from "js-yaml";
 import { isUndefined } from "lodash-es";
-import type { PnpmWorkspace } from "./types/pnpm-workspace.yaml.shim";
+import type { PnpmWorkspace } from "../types/pnpm-workspace.yaml.shim";
 
 /**
  * 路径转换工具
