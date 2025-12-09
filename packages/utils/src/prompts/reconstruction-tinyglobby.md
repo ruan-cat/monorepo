@@ -1,3 +1,8 @@
+<!--
+	一次性提示词
+	已完成
+ -->
+
 # 重构对 `tinyglobby` 以及对 `isMonorepoProject` 的使用
 
 1. 请你阅读 `https://01s-11comm-doc.ruan-cat.com/docs/reports/2025-12-09-nitro-build-ruan-cat-utils-version-fix.md` 文档，了解清楚 `@ruan-cat/utils` 包在正常情况下导致的严重故障。
