@@ -10,3 +10,5 @@
 6. 在 `@ruan-cat/commitlint-config` 内，应该以 `node-cjs` 路径导入该依赖包。
 7. 重构完成后，请及时地 build 构建产物，检查在 `packages\utils\dist\index.js` 目录内不要出现直接使用 `tinyglobby` 的情况。
 8. 在 `packages\utils\src\monorepo\index.md` 内编写文档，确保其可以正确使用。
+9. 为 `@ruan-cat/utils` 编写更新日志，说明清楚为什么会导致 bug，以及 isMonorepoProject 未来要如何使用。发版标签为 minor 。
+10. 为其他被修改的包，也编写更新日志，说明内部的工具包如何使用 isMonorepoProject 。发版标签为 patch 。

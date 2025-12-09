@@ -5,7 +5,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import consola from "consola";
-import { isMonorepoProject } from "@ruan-cat/utils";
+import { isMonorepoProject } from "@ruan-cat/utils/node-esm";
 
 // 获取当前模块的文件名和目录名
 const __filename = fileURLToPath(import.meta.url);
