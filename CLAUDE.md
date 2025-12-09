@@ -49,6 +49,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 报告文件名称命名要求：
   1. 前缀以日期命名。包括年月日。日期格式 `YYYY-MM-DD` 。
   2. 用小写英文加短横杠的方式命名。
+- 报告的一级标题： 必须是日期`YYYY-MM-DD`+报告名的格式。
+  - 好的例子： `2025-12-09 修复 @ruan-cat/commitlint-config 包的 negation pattern 处理错误` 。前缀包含有 `YYYY-MM-DD` 日期。
+  - 糟糕的例子： `构建与 fdir/Vite 事件复盘报告` 。前缀缺少 `YYYY-MM-DD` 日期。
+- 报告日志信息的代码块语言： 一律用 `log` 作为日志信息的代码块语言。如下例子：
+
+  ````markdown
+  日志如下：
+
+  ```log
+  日志信息……
+  ```
+  ````
+
 - 报告语言： 默认用简体中文。
 
 ## Monorepo 结构
