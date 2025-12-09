@@ -1,5 +1,12 @@
 # @ruan-cat/generate-code-workspace 更新日志
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies [[`bbaba45`](https://github.com/ruan-cat/monorepo/commit/bbaba45d4e98338eabb84088e14dfcfbb67c8a66)]:
+  - @ruan-cat/utils@4.19.0
+
 ## 0.7.0
 
 ### Minor Changes
