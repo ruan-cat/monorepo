@@ -1,5 +1,14 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 4.5.1
+
+### Patch Changes
+
+- 添加 cz-git 配置验证测试用例，确保配置能正常加载和序列化，防止 JSON 解析错误 ([`ee135ad`](https://github.com/ruan-cat/monorepo/commit/ee135adccc5a83d5845db8b7f576e3b91b59869d))
+
+- Updated dependencies [[`bbaba45`](https://github.com/ruan-cat/monorepo/commit/bbaba45d4e98338eabb84088e14dfcfbb67c8a66)]:
+  - @ruan-cat/utils@4.19.0
+
 ## 4.5.0
 
 ### Minor Changes
