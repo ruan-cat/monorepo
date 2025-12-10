@@ -8,6 +8,7 @@ import { pathChange, isMonorepoProject } from "@ruan-cat/utils/node-cjs";
 import { type PackageJson } from "pkg-types";
 import { type PnpmWorkspace } from "@ruan-cat/utils";
 import { type ScopesType } from "cz-git";
+import consola from "consola";
 
 export type ScopesTypeItem = Exclude<ScopesType[number], string>;
 
@@ -78,12 +79,24 @@ export function getPackagesNameAndDescription() {
 	const pkgPatterns = workspaceConfig.packages!;
 
 	/**
+	 * 过滤后的包匹配模式
+	 * @description
+	 * 过滤掉 negation patterns（以 ! 开头）和空字符串
+	 * negation patterns 由 pnpm 自身处理，不应传递给 glob 工具
+	 */
+	const filteredPkgPatterns = pkgPatterns.filter((pattern) => {
+		if (pattern.startsWith("!")) return false; // 排除 negation patterns
+		if (pattern.trim() === "") return false; // 排除空字符串
+		return true;
+	});
+
+	/**
 	 * 全部的 package.json 文件路径
 	 */
 	let pkgPaths: string[] = [];
 
 	// 根据每个模式匹配相应的目录
-	pkgPatterns.map((pkgPattern) => {
+	filteredPkgPatterns.map((pkgPattern) => {
 		// 在进程运行的根目录下，执行匹配。 一般来说是项目的根目录
 		const matchedPath = pathChange(join(process.cwd(), pkgPattern, "package.json"));
 
@@ -98,26 +111,48 @@ export function getPackagesNameAndDescription() {
 
 	// console.log("pkgPaths :>> ", pkgPaths);
 
-	const czGitScopesType = pkgPaths.map(function (pkgJsonPath) {
-		// 如果确实存在该文件，就处理。否则不管了。
-		if (fs.existsSync(pkgJsonPath)) {
-			/**
-			 * 包配置文件数据
-			 */
-			const pkgJson = <PackageJson>JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
-			return <ScopesTypeItem>{
-				// 标签名称 对外展示的标签名称
-				name: createLabelName(pkgJson),
-				// 取值
-				value: createPackagescopes(pkgJson),
-			};
-		}
+	const czGitScopesType = pkgPaths
+		.map(function (pkgJsonPath) {
+			// 如果确实存在该文件，就处理。否则不管了。
+			if (fs.existsSync(pkgJsonPath)) {
+				// 防御性检查1: 验证文件路径确实以 package.json 结尾
+				if (!pkgJsonPath.endsWith("package.json")) {
+					consola.warn(`跳过非 package.json 文件: ${pkgJsonPath}`);
+					return null;
+				}
 
-		return <ScopesTypeItem>{
-			name: "警告，没找到包名，请查看这个包路径是不是故障了：",
-			value: "pkgJsonPath",
-		};
-	});
+				try {
+					// 读取文件内容
+					const fileContent = fs.readFileSync(pkgJsonPath, "utf-8");
+
+					// 防御性检查2: 验证文件内容以 { 开头，确认为有效 JSON
+					const trimmedContent = fileContent.trim();
+					if (!trimmedContent.startsWith("{")) {
+						consola.warn(`跳过无效的 JSON 文件（内容不以 { 开头）: ${pkgJsonPath}`);
+						return null;
+					}
+
+					/**
+					 * 包配置文件数据
+					 */
+					const pkgJson = <PackageJson>JSON.parse(fileContent);
+					return <ScopesTypeItem>{
+						// 标签名称 对外展示的标签名称
+						name: createLabelName(pkgJson),
+						// 取值
+						value: createPackagescopes(pkgJson),
+					};
+				} catch (error) {
+					// 防御性检查3: 捕获 JSON.parse 错误
+					consola.error(`解析 package.json 失败: ${pkgJsonPath}`, error);
+					return null;
+				}
+			}
+
+			consola.warn(`文件不存在: ${pkgJsonPath}`);
+			return null;
+		})
+		.filter((item): item is ScopesTypeItem => item !== null);
 
 	// console.log("czGitScopesType :>> ", czGitScopesType);
 

@@ -15,3 +15,27 @@
    - `7.3 长期行动（建议）`
    - `10.2 改进建议`
 2. 编写简要的更新日志，发版标签为 minor 。
+
+## 01 处理故障
+
+我提交代码时，出现以下错误：
+
+```log
+✔ Backed up original state in git stash (2baf736)
+⚠ Running tasks for staged files...
+  ❯ lint-staged.config.js — 4 files
+    ❯ * — 4 files
+      ✖ prettier --experimental-cli --write [FAILED]
+↓ Skipped because of errors from tasks.
+✔ Reverting to original state because of errors...
+✔ Cleaning up temporary files...
+
+✖ prettier --experimental-cli --write:
+[error] configs-package/commitlint-config/src/get-default-scope.ts: TypeError: Cannot read properties of undefined (reading 'value')
+[error] configs-package/commitlint-config/src/tests/negation-pattern.test.ts:
+TypeError: Cannot read properties of undefined (reading 'value')
+[error] configs-package/commitlint-config/src/utils.ts: TypeError: Cannot read properties of undefined (reading 'value')
+git exited with error code 1
+```
+
+执行 `lint-staged.config.js` 的 `prettier --experimental-cli --write` 回调命令时，出现错误，请帮我处理。

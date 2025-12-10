@@ -70,8 +70,20 @@ function getPackagePathToScopeMapping(): Map<string, string> {
 	 */
 	const pkgPatterns = workspaceConfig.packages!;
 
+	/**
+	 * 过滤后的包匹配模式
+	 * @description
+	 * 过滤掉 negation patterns（以 ! 开头）和空字符串
+	 * negation patterns 由 pnpm 自身处理，不应传递给 glob 工具
+	 */
+	const filteredPkgPatterns = pkgPatterns.filter((pattern) => {
+		if (pattern.startsWith("!")) return false; // 排除 negation patterns
+		if (pattern.trim() === "") return false; // 排除空字符串
+		return true;
+	});
+
 	// 根据每个模式匹配相应的目录
-	pkgPatterns.forEach((pkgPattern) => {
+	filteredPkgPatterns.forEach((pkgPattern) => {
 		const globPattern = `${pkgPattern}/package.json`;
 		const matchedPaths = globSync(globPattern, {
 			cwd: process.cwd(),
@@ -81,13 +93,34 @@ function getPackagePathToScopeMapping(): Map<string, string> {
 		matchedPaths.forEach((relativePkgPath) => {
 			const fullPkgJsonPath = join(process.cwd(), relativePkgPath);
 			if (fs.existsSync(fullPkgJsonPath)) {
-				const pkgJson = <PackageJson>JSON.parse(fs.readFileSync(fullPkgJsonPath, "utf-8"));
-				const scope = createPackagescopes(pkgJson);
+				// 防御性检查1: 验证文件路径确实以 package.json 结尾
+				if (!relativePkgPath.endsWith("package.json")) {
+					consola.warn(`跳过非 package.json 文件: ${relativePkgPath}`);
+					return;
+				}
 
-				// 获取包的目录路径（移除 package.json）
-				const packageRelativePath = relativePkgPath.replace(/[/\\]package\.json$/, "").replace(/\\/g, "/");
+				try {
+					// 读取文件内容
+					const fileContent = fs.readFileSync(fullPkgJsonPath, "utf-8");
 
-				mapping.set(packageRelativePath, scope);
+					// 防御性检查2: 验证文件内容以 { 开头，确认为有效 JSON
+					const trimmedContent = fileContent.trim();
+					if (!trimmedContent.startsWith("{")) {
+						consola.warn(`跳过无效的 JSON 文件（内容不以 { 开头）: ${relativePkgPath}`);
+						return;
+					}
+
+					const pkgJson = <PackageJson>JSON.parse(fileContent);
+					const scope = createPackagescopes(pkgJson);
+
+					// 获取包的目录路径（移除 package.json）
+					const packageRelativePath = relativePkgPath.replace(/[/\\]package\.json$/, "").replace(/\\/g, "/");
+
+					mapping.set(packageRelativePath, scope);
+				} catch (error) {
+					// 防御性检查3: 捕获 JSON.parse 错误
+					consola.error(`解析 package.json 失败: ${relativePkgPath}`, error);
+				}
 			}
 		});
 	});
