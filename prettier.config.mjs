@@ -1,4 +1,5 @@
 import * as prettierPluginOxc from "@prettier/plugin-oxc";
+import prettierPluginLintMd from "prettier-plugin-lint-md";
 
 // @ts-check
 /** @type {import("prettier").Config} */
@@ -7,7 +8,7 @@ const config = {
 	// 错误: Cannot read properties of undefined (reading 'value')
 	// 参考: https://github.com/prettier/plugin-oxc/issues
 	/* prettierPluginOxc */
-	plugins: ["prettier-plugin-lint-md"],
+	// plugins: ["prettier-plugin-lint-md"],
 
 	/** @see https://github.com/prettier/prettier/tree/main/packages/plugin-oxc */
 	overrides: [
@@ -20,6 +21,10 @@ const config = {
 			files: ["**/*.{ts,mts,cts,tsx}"],
 			parser: "oxc-ts",
 			plugins: [prettierPluginOxc],
+		},
+		{
+			files: ["**/*.md"],
+			plugins: [prettierPluginLintMd],
 		},
 	],
 
