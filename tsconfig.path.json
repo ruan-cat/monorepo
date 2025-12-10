@@ -6,8 +6,12 @@
 		// 路径别名设置
 		"moduleResolution": "bundler",
 		"paths": {
-			"@packages/*": ["./packages/*/src"],
-			"@packages-docs/*": ["./packages/*/docs"]
+			"@packages/*": [
+				"./packages/*/src"
+			],
+			"@packages-docs/*": [
+				"./packages/*/docs"
+			]
 			// 提供两种路径 该路径允许独立查询里面的子模块
 			// FIXME: 失效，该配置无法实现查询子模块。
 			// "utils/*": [
@@ -27,8 +31,12 @@
 		"./types/**/*.ts",
 		// 为配置文件提供来自其他地方准备的类型
 		"./commitlint.config.cjs",
-		"./prettier.config.js",
+		"prettier.config.mjs",
 		"./scripts"
 	],
-	"exclude": ["**/dist", "tests/monorepo-3/typedoc.config.js", "./eslint.config.js"]
+	"exclude": [
+		"**/dist",
+		"tests/monorepo-3/typedoc.config.js",
+		"./eslint.config.js"
+	]
 }
