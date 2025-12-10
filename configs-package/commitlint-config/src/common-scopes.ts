@@ -141,7 +141,7 @@ export const commonScopes: ScopesItemWithDesc[] = [
 		code: "vitepress",
 		value: "vitepress",
 		desc: "vitepress文档工具配置",
-		glob: ["**/.vitepress/config.mts", "**/.vitepress/theme/index.ts"],
+		glob: ["**/.vitepress/config.mts", "**/.vitepress/config.ts", "**/.vitepress/theme/index.ts"],
 	},
 
 	// cz配置，即git提交工具的配置
@@ -200,11 +200,19 @@ export const commonScopes: ScopesItemWithDesc[] = [
 		desc: "API接口",
 	},
 
+	// openspec 提示词文档配置
+	{
+		code: "openspec",
+		value: "openspec",
+		desc: "openspec提示词文档配置。特指高强度在 openspec 目录内迭代更新的任务说明文档。",
+		glob: ["**/openspec/**/*.md"],
+	},
+
 	// claude code的配置
 	{
 		code: "claude",
 		value: "claude",
 		desc: "claude code的配置。特指在claude code生成或使用的文件。包括配置、提示词、代理、记忆文件等。",
-		glob: ["**/.claude/**", "CLAUDE.md"],
+		glob: ["**/.claude/**", "**/.claude-plugin/**", "**/CLAUDE*.md"],
 	},
 ];
