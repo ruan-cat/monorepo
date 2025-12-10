@@ -99,7 +99,7 @@ export default defineConfig({
 		// vercel部署工具
 		{
 			type: "static",
-			targetCWD: "./packages/vercel-deploy-tool/docs/.vitepress/dist",
+			targetCWD: "./packages/vercel-deploy-tool/src/docs/.vitepress/dist",
 			url: getDomains("vercel-deploy-tool"),
 		},
 	],
