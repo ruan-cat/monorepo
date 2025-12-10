@@ -31,6 +31,8 @@ on:
       - ".github/workflows/vercel-deploy-tool.yaml"
       # 文档文件夹下面的任何文件被更新时 触发文档部署
       - "**/docs/**/*.md"
+      # 任何形式的 vercel-deploy-tool.config.ts 部署配置文件被更新时 触发文档部署
+      - "**/vercel-deploy-tool.config.{ts,mts,cts,json}"
   repository_dispatch:
     types: [deploy-after-release]
 
