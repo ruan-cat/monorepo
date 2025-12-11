@@ -1,287 +1,792 @@
 ---
 name: openspec
-description: OpenSpec 中文版规范助手 - 帮助初始化、创建提案、编写规格、校验格式并归档变更
-trigger: 当用户提及 openspec、规范文档、需求管理、变更提案等关键词时主动调用
+description: OpenSpec 中文版规范助手 - 规范驱动的 AI 编程开发，帮助初始化、创建提案、编写规格、校验格式并归档变更
+trigger: 当用户提及 openspec、规范文档、需求管理、变更提案、spec-driven development 等关键词时主动调用
 ---
 
 # OpenSpec 中文版规范助手
 
-这是一个专门用于辅助使用 OpenSpec 中文版（`@org-hex/openspec-chinese`）的技能。
+OpenSpec 是一个 CLI 工具，通过**规范驱动的开发流程**帮助开发者与 AI 编码助手建立明确的需求共识。核心理念是：**在编写代码前，先将需求文档化并达成一致**，从而消除 AI 工具仅依赖对话历史产生的不可预测输出。
 
-## 核心职责
+## 什么是 OpenSpec
 
-1. 指导用户正确使用 OpenSpec 中文版工具
-2. 帮助创建和管理规范变更提案
-3. 协助编写符合格式要求的规格文档
-4. 校验规格文档格式并提供修复建议
-5. 管理规格文档的全生命周期
+### 核心价值
 
-## 环境与安装要求
+- **准确性**：需求明确后大幅减少返工，避免 AI 理解偏差
+- **可追溯性**：每个技术决策都有完整的文档记录
+- **文档化**：自动生成的规范与代码保持同步，形成活文档
+- **团队友好**：清晰的提案便于多人协作和 Code Review
 
-### 基本环境
+### 适用场景
 
-- Node.js >= 20.19.0（项目本身使用 Node 22 也兼容）
-- 推荐全局安装：`pnpm install -g @org-hex/openspec-chinese@latest`
+✅ **最适合**：
 
-### 校验安装
+- 改进现有项目（1→n 开发，棕地项目）
+- 需要高质量实现的关键功能
+- 团队协作开发
+- 使用 Claude Code、Cursor、Cline 等 AI 工具
+- 需要长期维护的项目
 
-```bash
-openspec-chinese --version
-openspec-chinese --help
+❌ **不适合**：
+
+- 快速原型验证（0→1 探索阶段）
+- 一次性小脚本
+- 需求极度不明确的创新性探索
+
+### 实践价值
+
+前期多花 10-15 分钟与 AI 澄清需求、编写规范，能节省数小时的返工时间。规范文档会随着项目演进不断积累，最终形成完整的系统文档。
+
+## 双文件夹模型
+
+OpenSpec 使用独特的**双文件夹模型**，将"事实"与"提案"分离：
+
+```plain
+openspec/
+├── specs/          # 📚 事实：已实施并归档的规范（source-of-truth）
+│   ├── auth.md
+│   ├── api.md
+│   └── database.md
+└── changes/        # 💡 提案：待实施的变更（明确的差异管理）
+    ├── add-oauth-login/
+    │   ├── proposal.md
+    │   ├── tasks.md
+    │   └── specs/
+    │       └── auth-delta.md
+    └── optimize-api-cache/
+        ├── proposal.md
+        └── specs/
+            └── api-delta.md
 ```
 
-### 临时使用
+**设计理念**：
 
-如果不想全局安装，可以使用：
+- `specs/` 是系统的当前状态
+- `changes/` 是即将到来的变化
+- 这种分离让"差异明确且可管理"，特别适合修改现有系统
+
+## 环境与安装
+
+### 基本要求
+
+- **Node.js** >= 20.19.0（Node 22 也兼容）
+- **无需 API 密钥**：完全本地执行，与现有开发工具集成
+
+### 安装方式
+
+**全局安装（推荐）**：
+
+```bash
+npm install -g @org-hex/openspec-chinese@latest
+# 或使用 pnpm
+pnpm install -g @org-hex/openspec-chinese@latest
+```
+
+**临时使用**（不安装）：
 
 ```bash
 pnpm dlx @org-hex/openspec-chinese init
 pnpm dlx @org-hex/openspec-chinese proposal "功能描述"
 ```
 
-## OpenSpec 项目结构
-
-初始化后会生成以下核心结构：
-
-```plain
-openspec/
-├── project.md      # 项目上下文（技术栈、约定等）
-├── AGENTS.md       # AI 助手指令
-├── specs/          # 现行规范（已归档的事实）
-└── changes/        # 变更提案（待实施的建议）
-    └── <change-name>/
-        ├── proposal.md    # 提案说明（Why/What/Impact）
-        ├── tasks.md       # 实施任务清单
-        └── specs/         # 增量规范文档
-```
-
-## 常用命令速查
-
-### 初始化项目
+**验证安装**：
 
 ```bash
-# 在全新项目中初始化 OpenSpec
+openspec-chinese --version
+openspec-chinese --help
+```
+
+### 支持的 AI 工具
+
+OpenSpec 支持 **20+ AI 编程助手**，包括：
+
+- **原生斜杠命令**：Claude Code, Cursor, CodeBuddy, Cline 等
+- **AGENTS.md 回退**：所有支持自定义指令的工具（通用兼容）
+
+无需额外配置，安装后即可在所有支持的工具中使用。
+
+## 项目初始化
+
+### 初始化结构
+
+```bash
+# 在全新项目中初始化
 openspec-chinese init
 
-# 在现有 OpenSpec 项目中更新/切换到中文版
+# 在现有 OpenSpec 项目中切换到中文版
 openspec-chinese update
 ```
 
-**注意**：初始化后如果 IDE 里斜杠命令未出现，请重启 IDE/AI 编程工具。
+生成的完整结构：
 
-### 创建变更提案
+```plain
+openspec/
+├── project.md      # 项目上下文（技术栈、架构、团队约定）
+├── AGENTS.md       # AI 助手通用指令（20+ 工具兼容）
+├── specs/          # 现行规范库（已归档的事实）
+├── changes/        # 变更提案目录
+└── templates/      # 自定义模板（可选）
+```
+
+**重要**：初始化后如果 IDE 里斜杠命令未出现，请重启 IDE/AI 工具。
+
+### 补全 project.md
+
+生成 `project.md` 后，应立即向 AI 提出：
+
+```markdown
+请阅读 openspec/project.md 并帮助我填写：
+
+1. 项目的核心技术栈
+2. 架构设计约定
+3. 编码规范和最佳实践
+4. 团队协作流程
+```
+
+完善的 `project.md` 能让 AI 助手更好地理解项目上下文，生成更符合实际的规范文档。
+
+## 五阶段完整工作流程
+
+### 阶段 1：起草提案（Draft Proposal）
+
+**目标**：创建变更文件夹，初步定义需求
 
 ```bash
 # 命令行方式
-openspec-chinese proposal "功能描述"
+openspec-chinese proposal "添加 OAuth 登录功能"
 
-# 或在支持的 AI 工具中使用斜杠命令
+# AI 工具斜杠命令
 /openspec-proposal
 ```
 
-### 查看和管理变更
+**输出**：
 
-```bash
-# 查看所有变更列表
-openspec-chinese list
-
-# 查看特定变更的详情
-openspec-chinese show <change-name>
+```plain
+openspec/changes/add-oauth-login/
+├── proposal.md     # AI 生成的初步提案
+├── tasks.md        # 任务分解清单
+└── specs/          # 增量规范（空）
 ```
 
-### 校验规格文档
+**交互要点**：
+
+- AI 会提出澄清问题（例如："使用哪些 OAuth 提供商？"）
+- 回答问题后，AI 生成详细的 `proposal.md` 和 `tasks.md`
+
+### 阶段 2：审查对齐（Review & Align）
+
+**目标**：人和 AI 共同审查，反复迭代直到需求明确
 
 ```bash
-# 校验特定变更的格式
-openspec-chinese validate <change-name> --strict
+# 查看提案详情
+openspec-chinese show add-oauth-login
 
-# 中文格式专项校验（需要在项目中配置）
-npm run validate:chinese
+# 在 AI 工具中交互
+"请根据我的反馈修改 proposal.md：
+1. 只支持 GitHub 和 Google OAuth
+2. 需要处理现有用户的账号合并逻辑
+3. 增加 OAuth 失败时的降级方案"
 ```
 
-### 归档变更
+**迭代过程**：
+
+1. 审查 `proposal.md` 的 Why/What/Impact
+2. 检查 `tasks.md` 的任务拆解是否合理
+3. 提出修改建议，让 AI 更新文档
+4. 重复直到完全对齐
+
+**关键**：这个阶段多花时间，后续实施会快很多。
+
+### 阶段 3：编写规格（Write Specs）
+
+**目标**：在 `specs/` 目录下编写符合格式的增量规范
 
 ```bash
-# 完成实施后，将变更合并到主规范
-openspec-chinese archive <change-name> --yes
+# AI 工具中请求
+"请为 add-oauth-login 变更编写规格文档，放在 specs/ 目录"
 ```
 
-## 规格文档格式要求
-
-这是 OpenSpec 中文版最关键的格式规范，必须严格遵守：
-
-### 1. Delta 分区（必填）
-
-必须使用以下**英文标题**作为一级分区：
+**规范格式**（详见下文"规格文档格式要求"）：
 
 ```markdown
 ## ADDED Requirements
 
+### Requirement: OAuth 登录支持
+
+系统 MUST 支持通过 GitHub 和 Google 进行 OAuth 登录。
+
+#### Scenario: GitHub OAuth 登录成功
+
+- **WHEN** 用户点击"使用 GitHub 登录"按钮
+- **THEN** 系统跳转到 GitHub OAuth 授权页面
+- **AND** 授权成功后返回并创建会话
+```
+
+### 阶段 4：校验与实施（Validate & Implement）
+
+**校验格式**：
+
+```bash
+# 严格格式校验
+openspec-chinese validate add-oauth-login --strict
+
+# 中文格式专项校验（需配置）
+npm run validate:chinese
+```
+
+**实施开发**：
+
+```bash
+# AI 工具中参考规范实施
+"请参考 openspec/changes/add-oauth-login/specs/ 中的规范，
+按照 tasks.md 的任务清单逐步实施功能"
+```
+
+**任务追踪**：
+
+- 在 `tasks.md` 中勾选已完成的任务
+- AI 会自动参考规范，减少理解偏差
+
+### 阶段 5：归档与文档化（Archive & Document）
+
+**目标**：将完成的变更合并到主规范库
+
+```bash
+# 查看所有变更
+openspec-chinese list
+
+# 归档已完成的变更
+openspec-chinese archive add-oauth-login --yes
+```
+
+**效果**：
+
+- `changes/add-oauth-login/` 的规范合并到 `specs/`
+- 变更记录自动保存
+- 形成活文档，与代码同步
+
+### 流程图总览
+
+```mermaid
+flowchart TD
+  A[1. 起草提案<br/>AI 澄清问题] --> B[2. 审查对齐<br/>迭代完善需求]
+  B --> C[3. 编写规格<br/>Delta + Scenarios]
+  C --> D[4. 校验格式<br/>validate --strict]
+  D --> E{格式正确?}
+  E -- 否 --> C
+  E -- 是 --> F[5. 实施开发<br/>按规范编码]
+  F --> G[6. 归档文档<br/>archive --yes]
+  G --> H[规范库更新<br/>活文档形成]
+```
+
+## 规格文档格式要求
+
+OpenSpec 使用**严格的格式规范**，确保 AI 和人都能准确理解需求。
+
+### 核心原则
+
+1. **Delta 分区**：使用英文标题标识变更类型
+2. **强制关键词**：需求必须包含 MUST/SHALL/SHOULD
+3. **Gherkin 场景**：使用英文关键字描述验收标准
+4. **中英混合**：结构英文，描述中文
+
+### 1. Delta 分区（必填）
+
+**三种变更类型**：
+
+```markdown
+## ADDED Requirements
+
+# 新增的能力
+
 ## MODIFIED Requirements
 
+# 修改现有行为
+
 ## REMOVED Requirements
+
+# 废弃的功能（需说明原因和迁移路径）
 ```
 
 ### 2. Requirement 语句规范
 
-每个需求必须包含强制关键词（MUST/SHALL/SHOULD 等）：
+**格式**：
+
+```markdown
+### Requirement: [需求名称]
+
+系统 [MUST/SHALL/SHOULD] [能力描述]。
+```
+
+**强制关键词**：
+
+- **MUST** / **SHALL**：强制要求，不可妥协
+- **SHOULD**：建议要求，可协商
+- **MAY**：可选要求
+
+**示例**：
 
 ```markdown
 ### Requirement: 用户搜索功能
 
 系统 MUST 提供用户搜索功能，支持按用户名、邮箱、手机号进行模糊查询。
+
+系统 SHOULD 在搜索结果中高亮匹配的关键词。
 ```
 
-### 3. Scenario 场景描述
+### 3. Scenario 场景描述（验收标准）
 
-使用**英文 Gherkin 关键字**，描述可以是中文：
+**格式**：
 
 ```markdown
-#### Scenario: 用户按邮箱搜索
+#### Scenario: [场景名称]
 
-- **WHEN** 用户在搜索框输入邮箱地址
-- **THEN** 系统应该返回匹配的用户列表
-- **AND** 列表应该按照相关度排序
+- **WHEN** [前置条件]
+- **THEN** [预期结果]
+- **AND** [额外条件/结果]
+```
+
+**要求**：
+
+- 每个 Requirement 至少有一个 Scenario
+- 使用**英文 Gherkin 关键字**（WHEN/THEN/AND/GIVEN）
+- 描述内容可以是中文
+
+**示例**：
+
+```markdown
+#### Scenario: 按邮箱搜索用户
+
+- **WHEN** 用户在搜索框输入 "test@example.com"
+- **THEN** 系统返回邮箱包含该字符串的用户列表
+- **AND** 列表按相关度排序
+- **AND** 邮箱中的匹配部分高亮显示
+
+#### Scenario: 搜索无结果
+
+- **WHEN** 用户输入不存在的邮箱
+- **THEN** 系统显示"未找到匹配用户"
+- **AND** 提示用户检查输入或尝试其他搜索条件
 ```
 
 ### 4. 删除需求的特殊要求
 
-删除需求时必须附上原因和迁移指南：
+删除需求时**必须**提供 Reason 和 Migration：
 
 ```markdown
 ## REMOVED Requirements
 
-### Requirement: 旧的登录方式
+### Requirement: 用户密码明文存储
 
-- Reason: 不再符合安全标准，已被新的 OAuth 2.0 方式替代
-- Migration: 请参考 `docs/oauth-migration.md` 进行迁移
+- **Reason**: 严重的安全隐患，违反 OWASP 安全规范
+- **Migration**:
+  1. 所有密码已迁移到 bcrypt 加密存储
+  2. 用户首次登录时会自动升级密码加密方式
+  3. 详细迁移指南：`docs/password-migration.md`
 ```
 
-### 5. 完整示例模板
+### 5. 修改需求的说明
+
+修改现有功能时应说明变化：
 
 ```markdown
-## ADDED Requirements
-
-### Requirement: 用户导出功能
-
-系统 MUST 提供用户数据导出功能。
-
-#### Scenario: 导出为 CSV 格式
-
-- **WHEN** 管理员点击"导出"按钮
-- **THEN** 系统生成包含所有用户数据的 CSV 文件
-- **AND** 文件应包含用户名、邮箱、注册时间等字段
-
-#### Scenario: 导出权限检查
-
-- **WHEN** 非管理员用户尝试导出
-- **THEN** 系统应该返回 403 错误
-- **AND** 显示权限不足提示
-
 ## MODIFIED Requirements
 
 ### Requirement: 用户列表分页
 
-- 变化说明：将每页默认显示数量从 20 条调整为 50 条
-- 原因：用户反馈 20 条太少，增加到 50 条可以减少翻页次数
+- **变化说明**: 将每页默认显示数量从 20 条调整为 50 条
+- **原因**: 用户反馈每页 20 条过少，频繁翻页影响体验
+- **影响范围**:
+  - 前端分页组件
+  - 后端 API 默认参数
+  - 性能测试基准需重新评估
+
+#### Scenario: 默认分页数量
+
+- **WHEN** 用户访问用户列表页面
+- **THEN** 系统默认每页显示 50 条记录
+- **AND** 用户可以在设置中自定义每页条数（10/20/50/100）
+```
+
+### 6. 完整示例模板
+
+```markdown
+## ADDED Requirements
+
+### Requirement: 用户数据导出功能
+
+系统 MUST 提供用户数据导出功能，支持 CSV 和 JSON 两种格式。
+
+#### Scenario: 导出为 CSV 格式
+
+- **WHEN** 管理员点击"导出为 CSV"按钮
+- **THEN** 系统生成包含所有用户数据的 CSV 文件
+- **AND** 文件包含字段：用户名、邮箱、注册时间、最后登录时间、状态
+- **AND** 文件名格式为 `users_export_YYYYMMDD_HHmmss.csv`
+
+#### Scenario: 导出权限检查
+
+- **WHEN** 非管理员用户尝试导出
+- **THEN** 系统返回 403 Forbidden 错误
+- **AND** 前端显示"权限不足"提示
+
+#### Scenario: 大数据量导出
+
+- **GIVEN** 系统有超过 10000 条用户记录
+- **WHEN** 管理员点击导出
+- **THEN** 系统显示"正在生成导出文件"进度提示
+- **AND** 导出任务在后台异步执行
+- **AND** 完成后通过邮件发送下载链接
+
+## MODIFIED Requirements
+
+### Requirement: 用户列表查询性能
+
+- **变化说明**: 为用户表添加邮箱和手机号索引
+- **原因**: 当前搜索性能在 10 万用户以上明显下降
+- **预期效果**: 搜索响应时间从 2-3 秒降低到 < 500ms
 
 ## REMOVED Requirements
 
 ### Requirement: 用户密码明文存储
 
-- Reason: 严重的安全隐患，必须移除
-- Migration: 所有密码已迁移到 bcrypt 加密存储，参考 `docs/password-migration.md`
+- **Reason**: 严重安全隐患，必须移除
+- **Migration**:
+  1. 所有密码已迁移到 bcrypt 加密（cost=10）
+  2. 用户下次登录时自动完成迁移
+  3. 详细文档：`docs/security/password-migration.md`
 ```
 
-## 规格全生命周期流程
+## 常用命令速查
 
-建议按照以下流程使用 OpenSpec：
+### 项目管理
 
-```mermaid
-flowchart TD
-  A[Init/Update 中文版] --> B[Proposal 创建变更]
-  B --> C[tasks.md 拆任务]
-  C --> D[specs/ 编写增量规范<br/>Delta+MUST/SHALL+Scenario]
-  D --> E[validate --strict<br/>validate:chinese]
-  E --> F{校验通过?}
-  F -- 否 --> D
-  F -- 是 --> G[实施开发/勾选任务]
-  G --> H[评审]
-  H --> I[archive --yes 合并主规范]
-  I --> J[后续变更重新走 Proposal]
+```bash
+# 初始化全新项目
+openspec-chinese init
+
+# 更新/切换到中文版
+openspec-chinese update
+
+# 查看版本
+openspec-chinese --version
 ```
 
-## 补全 project.md 文件
+### 变更管理
 
-在生成完 `openspec/project.md` 文件后，应该向大模型提出以下要求：
+```bash
+# 创建新提案
+openspec-chinese proposal "功能描述"
+
+# 查看所有变更
+openspec-chinese list
+
+# 查看特定变更详情
+openspec-chinese show <change-name>
+
+# 校验格式（严格模式）
+openspec-chinese validate <change-name> --strict
+
+# 归档已完成的变更
+openspec-chinese archive <change-name> --yes
+```
+
+### AI 工具斜杠命令
+
+在支持的 AI 工具（Claude Code, Cursor 等）中：
+
+```bash
+/openspec-proposal          # 创建新提案
+/openspec-validate          # 校验当前变更
+/openspec-archive           # 归档变更
+```
+
+## 自定义模板
+
+### 创建模板
+
+在 `openspec/templates/` 目录下创建自定义模板：
+
+```bash
+# 创建功能规格模板
+openspec/templates/feature-spec.md
+
+# 创建 API 规格模板
+openspec/templates/api-spec.md
+
+# 创建数据库变更模板
+openspec/templates/db-migration-spec.md
+```
+
+### 模板示例
 
 ```markdown
-请阅读 openspec/project.md 并帮助我填写关于我的项目、技术栈和约定的详细信息
+<!-- openspec/templates/feature-spec.md -->
+
+## ADDED Requirements
+
+### Requirement: [功能名称]
+
+系统 MUST [功能描述]。
+
+#### Scenario: [主要场景]
+
+- **WHEN** [前置条件]
+- **THEN** [预期结果]
+- **AND** [额外条件]
+
+#### Scenario: [错误场景]
+
+- **WHEN** [异常情况]
+- **THEN** [错误处理]
+- **AND** [用户提示]
+
+## MODIFIED Requirements
+
+（如有修改现有功能，在此说明）
+
+## REMOVED Requirements
+
+（如有废弃功能，在此说明原因和迁移路径）
 ```
 
-这将帮助 AI 助手更好地理解项目上下文，生成更符合项目实际情况的规范文档。
+### 使用模板
+
+```bash
+# 创建新变更时，从模板复制
+cp openspec/templates/feature-spec.md openspec/changes/new-feature/specs/feature.md
+
+# 然后填充具体内容
+```
+
+## 最佳实践
+
+### 1. 提案阶段多花时间
+
+- ✅ 与 AI 充分沟通，澄清所有疑问
+- ✅ 详细拆解任务到可执行的粒度
+- ✅ 确保 proposal.md 中的 Why/What/Impact 清晰
+- ❌ 不要急于开始编码，需求不明会导致大量返工
+
+### 2. 规格要具体可验证
+
+- ✅ 每个需求至少有 1-2 个 Scenario
+- ✅ Scenario 要具体，可直接转化为测试用例
+- ✅ 包含正常流程和异常流程
+- ❌ 避免模糊描述，如"系统应该快速响应"
+
+### 3. 利用 validate 命令
+
+```bash
+# 每次编辑规格后立即校验
+openspec-chinese validate <change> --strict
+
+# 配置 Git pre-commit hook
+npm run validate:chinese
+```
+
+### 4. 保持规范与代码同步
+
+- ✅ 代码实现后，确保规范准确反映最终结果
+- ✅ 如有偏差，更新规范或代码使其一致
+- ✅ 归档前再次审查规范的准确性
+
+### 5. 利用 project.md
+
+```markdown
+<!-- openspec/project.md -->
+
+# 项目上下文
+
+## 技术栈
+
+- 前端: React 18 + TypeScript
+- 后端: Node.js + Express
+- 数据库: PostgreSQL 14
+
+## 架构约定
+
+- RESTful API 设计
+- JWT 认证
+- 统一错误处理中间件
+
+## 编码规范
+
+- ESLint + Prettier
+- 函数式组件优先
+- 使用 React Query 管理服务端状态
+```
+
+完善的 `project.md` 能让 AI 生成更符合项目规范的代码。
+
+### 6. 版本兼容
+
+OpenSpec 中文版与英文版**完全兼容**：
+
+```bash
+# 切换到中文版
+openspec-chinese update
+
+# 切换回英文版
+openspec update
+```
+
+两个版本可以在团队中并存，规范文件格式完全一致。
 
 ## 常见问题排查
 
 ### 命令不可用
 
-- 确认全局安装是否生效：`which openspec-chinese` 或 `where openspec-chinese`
-- 检查 npm 全局 bin 是否在 PATH 中
-- 尝试重装：`pnpm install -g @org-hex/openspec-chinese@latest`
+**症状**：`openspec-chinese: command not found`
 
-### 斜杠命令未刷新
-
-- 执行 `openspec-chinese update`
-- 重启 IDE 或 AI 编程工具
-
-### 校验报错常见原因
-
-1. 缺少 MUST/SHALL 等强制关键词
-2. Scenario 层级错误（应该在 Requirement 之下）
-3. 未填写必需的 Delta 分区
-4. Gherkin 关键字使用了中文（应该用英文 WHEN/THEN/AND）
-
-### 切换回英文版
-
-如果需要回到英文版 OpenSpec，在项目根目录执行：
+**解决方案**：
 
 ```bash
-openspec update
+# 检查是否在 PATH 中
+which openspec-chinese  # Mac/Linux
+where openspec-chinese  # Windows
+
+# 检查 npm 全局 bin 路径
+npm config get prefix
+
+# 重新安装
+npm uninstall -g @org-hex/openspec-chinese
+npm install -g @org-hex/openspec-chinese@latest
 ```
 
-OpenSpec 中文版与英文版完全兼容。
+### 斜杠命令未出现
 
-## 自定义模板
+**症状**：AI 工具中看不到 `/openspec-*` 命令
 
-建议在 `openspec/templates/` 目录下创建自定义模板：
+**解决方案**：
 
-1. 创建模板文件（如 `openspec/templates/feature-spec.md`）
-2. 填充符合格式要求的骨架结构
-3. 新需求时复制到 `openspec/changes/<change>/specs/` 再填充具体内容
+```bash
+# 执行更新命令
+openspec-chinese update
 
-模板要点：
+# 重启 IDE/AI 工具
+# 检查是否生成了 AGENTS.md
+ls openspec/AGENTS.md
+```
 
-- 保持 Delta 分区英文标题
-- Requirement 使用 MUST/SHALL
-- Scenario 使用英文 Gherkin 关键字
-- 描述可以使用中文
+### 校验报错
+
+**常见错误**：
+
+1. **缺少 Delta 分区**
+
+   ```
+   Error: Missing required Delta sections (ADDED/MODIFIED/REMOVED)
+   ```
+
+   解决：确保至少有一个 Delta 分区
+
+2. **缺少 MUST/SHALL 关键词**
+
+   ```
+   Error: Requirement missing mandatory keywords
+   ```
+
+   解决：在需求描述中添加 MUST/SHALL/SHOULD
+
+3. **Scenario 层级错误**
+
+   ```
+   Error: Scenario must be under a Requirement
+   ```
+
+   解决：确保 `#### Scenario:` 在 `### Requirement:` 之下
+
+4. **Gherkin 关键字使用中文**
+   ```
+   Error: Gherkin keywords must be in English
+   ```
+   解决：使用 WHEN/THEN/AND 而非"当/那么/并且"
+
+### 归档失败
+
+**症状**：`openspec-chinese archive` 报错
+
+**可能原因**：
+
+- 变更未通过校验
+- specs/ 目录为空
+- Git 冲突
+
+**解决方案**：
+
+```bash
+# 先校验格式
+openspec-chinese validate <change> --strict
+
+# 检查 specs/ 目录
+ls openspec/changes/<change>/specs/
+
+# 解决 Git 冲突后重试
+git status
+```
 
 ## 触发场景
 
-本技能应在以下场景主动调用：
+本技能应在以下场景**主动调用**：
 
-1. 用户需要初始化项目规范
-2. 要创建新的功能提案
-3. 需要编写规格文档
-4. 遇到格式校验错误
-5. 需要归档已完成的变更
-6. 询问 OpenSpec 相关问题
-7. 提及"openspec"、"规范"、"需求文档"、"变更提案"等关键词
+### 明确触发
+
+1. 用户提及 "openspec"
+2. 用户提及 "规范文档"、"需求文档"
+3. 用户提及 "spec-driven development"
+4. 用户询问如何管理需求
+
+### 上下文触发
+
+5. 用户开始新功能开发前（建议使用 OpenSpec）
+6. 用户抱怨 AI 理解偏差或频繁返工
+7. 用户询问如何让 AI 更准确理解需求
+8. 用户需要生成技术文档
+
+### 项目阶段触发
+
+9. 项目初始化阶段（建议配置 OpenSpec）
+10. 准备重大重构时（建议先写规范）
+11. 团队协作场景（提供统一的需求描述）
 
 ## 注意事项
 
-1. 所有 Delta 分区标题必须使用英文
-2. Gherkin 关键字（WHEN/THEN/AND）必须使用英文
-3. 需求描述中必须包含 MUST/SHALL/SHOULD 等关键词
-4. 删除需求时必须提供 Reason 和 Migration
-5. 校验失败时要仔细检查格式，不要忽略警告
+### 格式要求（严格遵守）
+
+1. ✅ Delta 分区标题必须使用**英文**（ADDED/MODIFIED/REMOVED）
+2. ✅ Gherkin 关键字必须使用**英文**（WHEN/THEN/AND/GIVEN）
+3. ✅ 需求描述中必须包含 MUST/SHALL/SHOULD 等**强制关键词**
+4. ✅ 删除需求时必须提供 **Reason** 和 **Migration**
+5. ✅ 每个 Requirement 至少有**一个 Scenario**
+
+### 工作流建议
+
+1. ⏰ 提案阶段多花时间，实施阶段会快很多
+2. 📝 规格要具体可验证，能直接转化为测试用例
+3. ✅ 每次编辑后立即运行 `validate --strict`
+4. 🔄 保持规范与代码同步，归档前再次审查
+5. 📚 善用 `project.md` 提供项目上下文
+
+### 团队协作
+
+1. 👥 规范文件适合 Code Review
+2. 📖 `changes/` 目录中的提案可作为 PR 描述
+3. 🔍 归档后的 `specs/` 成为团队共识
+4. 🌍 中英文版本可并存，格式完全兼容
+
+### 工具集成
+
+1. 🤖 支持 20+ AI 编程工具，无缝集成
+2. 🔒 完全本地执行，无需 API 密钥
+3. 📂 AGENTS.md 提供通用兼容性
+4. ⚡ 斜杠命令提供快捷操作
+
+---
+
+## 参考资源
+
+- **OpenSpec 中文版仓库**: https://github.com/hex-novaflow-ai/OpenSpec-Chinese
+- **OpenSpec 原版仓库**: https://github.com/Fission-AI/OpenSpec
+- **介绍教程**: https://www.aivi.fyi/llms/introduce-OpenSpec
+- **官方文档**: 项目 README 和 docs 目录

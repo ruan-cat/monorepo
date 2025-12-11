@@ -9,18 +9,19 @@
 
 ### Added
 
-- **新增 Agent**: `openspec` - OpenSpec 中文版规范助手
+- **新增 Skill**: `openspec` - OpenSpec 中文版规范助手技能
+  - 位置：`skills/openspec/SKILL.md`
   - 帮助用户使用 OpenSpec 中文版（`@org-hex/openspec-chinese`）工具
   - 提供项目初始化、创建提案、编写规格文档的完整指导
   - 包含规格文档格式要求（Delta 分区、Requirement 语句、Scenario 场景）
   - 提供常用命令速查和问题排查指南
   - 支持规格全生命周期流程管理
-  - 当用户提及 `openspec` 关键词时自动激活
+  - 当用户提及 `openspec`、规范文档、需求管理等关键词时自动激活
 
 ### Changed
 
-- **插件配置更新**: 在 `plugin.json` 中新增 `openspec.md` agent 引用
-- **文档优化**: 将在 README.md 中添加新增的 OpenSpec 规范助手说明
+- **插件结构优化**: 新增 `skills/` 目录用于存放技能文件
+- **文档优化**: 在 README.md 中新增 Skills 部分，说明 OpenSpec 规范助手技能
 
 ## [0.8.4] - 2025-11-28
 

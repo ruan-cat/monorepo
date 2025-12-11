@@ -446,3 +446,12 @@ Stop hook 呢？
    - https://code.claude.com/docs/zh-CN/skills#插件-skills
    - https://code.claude.com/docs/zh-CN/skills#编写-skill-md
 3. 我们新建的是claude code插件商城内的skills技能文件。
+
+### 02 细化增强 `claude-code-marketplace\common-tools\skills\openspec\SKILL.md` 文档
+
+1. `claude-code-marketplace\common-tools\skills\openspec\SKILL.md` 文档是关于openspec的使用技能文档。
+2. 请阅读以下仓库和文档教程，学习了解核心工具 `OpenSpec-Chinese` 和 `OpenSpec` 的使用。
+   - https://github.com/hex-novaflow-ai/OpenSpec-Chinese
+   - https://github.com/Fission-AI/OpenSpec
+   - https://www.aivi.fyi/llms/introduce-OpenSpec
+3. 我希望你通过上面的文档和知识，增强现在现有的openspec技能文档。
