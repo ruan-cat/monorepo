@@ -1,5 +1,14 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 4.7.0
+
+### Minor Changes
+
+- 为 `commitlint` 范围规则添加更多匹配项。 ([`cae58ce`](https://github.com/ruan-cat/monorepo/commit/cae58ce56de4b10332ce0c64a0ada7daf8f5cc93))
+  - 为 `openspec` 提示词文档配置添加新的范围支持（glob: `**/openspec/**/*.md`）
+  - 为 `vitepress` 配置增加 `config.ts` 文件匹配（之前只支持 `config.mts`）
+  - 为 `claude` 配置增加 `.claude-plugin/**` 和 `CLAUDE*.md` 匹配规则（之前只支持 `.claude/**` 和 `CLAUDE.md`）
+
 ## 4.6.0
 
 ### Minor Changes
