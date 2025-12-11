@@ -435,23 +435,23 @@ Stop hook 呢？
 ## 022 新增一个 claude code skill
 
 1. 完整阅读 `docs\reports\2025-12-08-openspec-quickstart.md` 文档。
-2. 将这份 `openspec-quickstart` 文档，变成一份 claude code 插件的 skill。我希望以后我在使用claude code时，触发到`openspec`关键词时，就能够主动使用这份skills提供的能力。
-3. 为本次claude code插件商城的更改，变更插件商城的版本号，并编写更新日志。
+2. 将这份 `openspec-quickstart` 文档，变成一份 claude code 插件的 skill。我希望以后我在使用 claude code 时，触发到`openspec`关键词时，就能够主动使用这份 skills 提供的能力。
+3. 为本次 claude code 插件商城的更改，变更插件商城的版本号，并编写更新日志。
 
-### 01 skills的格式不对
+### 01 skills 的格式不对
 
-1. 我有疑问，请问在插件商城内，新增skills的目录是agents目录么？
-2. 请你阅读以下文档，使用官方文档的要求，新建正确目录格式下的skills技能文件。
+1. 我有疑问，请问在插件商城内，新增 skills 的目录是 agents 目录么？
+2. 请你阅读以下文档，使用官方文档的要求，新建正确目录格式下的 skills 技能文件。
    - https://code.claude.com/docs/zh-CN/plugins-reference#技能
    - https://code.claude.com/docs/zh-CN/skills#插件-skills
    - https://code.claude.com/docs/zh-CN/skills#编写-skill-md
-3. 我们新建的是claude code插件商城内的skills技能文件。
+3. 我们新建的是 claude code 插件商城内的 skills 技能文件。
 
 ### 02 细化增强 `claude-code-marketplace\common-tools\skills\openspec\SKILL.md` 文档
 
-1. `claude-code-marketplace\common-tools\skills\openspec\SKILL.md` 文档是关于openspec的使用技能文档。
+1. `claude-code-marketplace\common-tools\skills\openspec\SKILL.md` 文档是关于 openspec 的使用技能文档。
 2. 请阅读以下仓库和文档教程，学习了解核心工具 `OpenSpec-Chinese` 和 `OpenSpec` 的使用。
    - https://github.com/hex-novaflow-ai/OpenSpec-Chinese
    - https://github.com/Fission-AI/OpenSpec
    - https://www.aivi.fyi/llms/introduce-OpenSpec
-3. 我希望你通过上面的文档和知识，增强现在现有的openspec技能文档。
+3. 我希望你通过上面的文档和知识，增强现在现有的 openspec 技能文档。
