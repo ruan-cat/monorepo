@@ -8,7 +8,7 @@ const config = {
 	// 错误: Cannot read properties of undefined (reading 'value')
 	// 参考: https://github.com/prettier/plugin-oxc/issues
 	/* prettierPluginOxc */
-	// plugins: ["prettier-plugin-lint-md"],
+	plugins: ["prettier-plugin-lint-md"],
 
 	/** @see https://github.com/prettier/prettier/tree/main/packages/plugin-oxc */
 	overrides: [
@@ -22,10 +22,10 @@ const config = {
 			parser: "oxc-ts",
 			plugins: [prettierPluginOxc],
 		},
-		{
-			files: ["**/*.md"],
-			plugins: [prettierPluginLintMd],
-		},
+		// {
+		// 	files: ["**/*.md"],
+		// 	plugins: [prettierPluginLintMd],
+		// },
 	],
 
 	singleQuote: false,
