@@ -4,7 +4,11 @@
 
 ## 版本
 
-**当前版本**: `0.8.4`
+**当前版本**: `0.9.0`
+
+⚠️ **v0.9.0 新增功能**:
+
+- 新增 OpenSpec 中文版规范助手技能，帮助管理项目规范和需求文档
 
 ⚠️ **v0.8.3 优化改进**:
 
@@ -46,6 +50,10 @@
 - **format-markdown**: 格式化 Markdown 文档的专用子代理
 - **migrate-iconify-use-pure-admin**: 将 pure-admin 的 iconify 图标方案迁移到 vite+vue3 项目
 - **add-git-mcp**: 在 `.mcp.json` 文件中配置 git-mcp 服务器，实现对 GitHub 仓库的精准索引
+
+### Skills (技能)
+
+- **openspec**: OpenSpec 中文版规范助手，帮助管理项目规范、需求文档和变更提案
 
 ### Hooks (钩子)
 

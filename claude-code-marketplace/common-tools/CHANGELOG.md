@@ -5,6 +5,23 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.9.0] - 2025-12-11
+
+### Added
+
+- **新增 Agent**: `openspec` - OpenSpec 中文版规范助手
+  - 帮助用户使用 OpenSpec 中文版（`@org-hex/openspec-chinese`）工具
+  - 提供项目初始化、创建提案、编写规格文档的完整指导
+  - 包含规格文档格式要求（Delta 分区、Requirement 语句、Scenario 场景）
+  - 提供常用命令速查和问题排查指南
+  - 支持规格全生命周期流程管理
+  - 当用户提及 `openspec` 关键词时自动激活
+
+### Changed
+
+- **插件配置更新**: 在 `plugin.json` 中新增 `openspec.md` agent 引用
+- **文档优化**: 将在 README.md 中添加新增的 OpenSpec 规范助手说明
+
 ## [0.8.4] - 2025-11-28
 
 ### Added

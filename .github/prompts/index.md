@@ -431,3 +431,18 @@ Stop hook 呢？
 
 1. 在 claude code 插件的 `claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh` 中，我注意到 `claude-notifier task-complete` 没有被启动。没有任何通知框被吊起。这是为什么？
 2. 请帮我调研故障，并处理问题。
+
+## 022 新增一个 claude code skill
+
+1. 完整阅读 `docs\reports\2025-12-08-openspec-quickstart.md` 文档。
+2. 将这份 `openspec-quickstart` 文档，变成一份 claude code 插件的 skill。我希望以后我在使用claude code时，触发到`openspec`关键词时，就能够主动使用这份skills提供的能力。
+3. 为本次claude code插件商城的更改，变更插件商城的版本号，并编写更新日志。
+
+### 01 skills的格式不对
+
+1. 我有疑问，请问在插件商城内，新增skills的目录是agents目录么？
+2. 请你阅读以下文档，使用官方文档的要求，新建正确目录格式下的skills技能文件。
+   - https://code.claude.com/docs/zh-CN/plugins-reference#技能
+   - https://code.claude.com/docs/zh-CN/skills#插件-skills
+   - https://code.claude.com/docs/zh-CN/skills#编写-skill-md
+3. 我们新建的是claude code插件商城内的skills技能文件。
