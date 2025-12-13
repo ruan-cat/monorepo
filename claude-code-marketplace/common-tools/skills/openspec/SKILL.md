@@ -619,7 +619,11 @@ npm run validate:chinese
 
 完善的 `project.md` 能让 AI 生成更符合项目规范的代码。
 
-### 6. 版本兼容
+### 6. 主动使用多个并行的子代理拆分长任务
+
+在实际执行 openspec 的 `tasks.md` 任务时，当你意识到这是一个长任务时，你应该主动的拆分出多个并行的子任务。用子代理的方式，新建多个并行运行的子任务。以确保主代理的上下文清晰干净，更好的实现单一主代理完成长时间任务的目标。
+
+### 7. 版本兼容
 
 OpenSpec 中文版与英文版**完全兼容**：
 
@@ -675,7 +679,7 @@ ls openspec/AGENTS.md
 
 1. **缺少 Delta 分区**
 
-   ```
+   ```plain
    Error: Missing required Delta sections (ADDED/MODIFIED/REMOVED)
    ```
 
@@ -683,7 +687,7 @@ ls openspec/AGENTS.md
 
 2. **缺少 MUST/SHALL 关键词**
 
-   ```
+   ```plain
    Error: Requirement missing mandatory keywords
    ```
 
@@ -691,14 +695,14 @@ ls openspec/AGENTS.md
 
 3. **Scenario 层级错误**
 
-   ```
+   ```plain
    Error: Scenario must be under a Requirement
    ```
 
    解决：确保 `#### Scenario:` 在 `### Requirement:` 之下
 
 4. **Gherkin 关键字使用中文**
-   ```
+   ```plain
    Error: Gherkin keywords must be in English
    ```
    解决：使用 WHEN/THEN/AND 而非"当/那么/并且"
@@ -759,6 +763,10 @@ git status
 3. ✅ 需求描述中必须包含 MUST/SHALL/SHOULD 等**强制关键词**
 4. ✅ 删除需求时必须提供 **Reason** 和 **Migration**
 5. ✅ 每个 Requirement 至少有**一个 Scenario**
+
+### 按照严格顺序来执行 `tasks.md` 任务清单所列举的任务
+
+在执行 openspec 的 。。。
 
 ### 工作流建议
 
