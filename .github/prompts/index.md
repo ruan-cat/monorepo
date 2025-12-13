@@ -455,3 +455,25 @@ Stop hook 呢？
    - https://github.com/Fission-AI/OpenSpec
    - https://www.aivi.fyi/llms/introduce-OpenSpec
 3. 我希望你通过上面的文档和知识，增强现在现有的 openspec 技能文档。
+
+## 023 <!-- TODO: --> 更新迭代 `.npmrc` 文件的配置，以便避免出现警告
+
+1. 你可以阅读 `C:\Users\pc\.npmrc` 文件，了解上述配置使用了那些全局配置。
+2. 阅读本项目全部的 `.npmrc` 文件。
+3. 请阅读以下的 log 警告日志，帮我用合适的方案，实现配置信息的迁移。
+4. 最后请为我生成一份研究报告，告诉我为什么会出现这些警告？以及如何避免上述的警告信息？
+
+```log
+npm warn Unknown project config "link-workspace-packages". This will stop working in the next
+major version of npm.
+npm warn Unknown project config "shamefully-hoist". This will stop working in the next major version of npm.
+npm warn Unknown project config "public-hoist-pattern". This will stop working in the next major version of npm.
+npm warn Unknown project config "ignore-workspace-root-check". This will stop working in the next major version of npm.
+npm warn Unknown user config "COREPACK_NPM_REGISTRY". This will stop working in the next major version of npm.
+npm warn Unknown user config "COREPACK_INTEGRITY_KEYS". This will stop working in the next major version of npm.
+npm warn Unknown user config "NODE_TLS_REJECT_UNAUTHORIZED". This will stop working in the next major version of npm.
+npm warn Unknown user config "store-dir". This will stop working in the next major version of
+npm.
+npm warn Unknown user config "cache-dir". This will stop working in the next major version of
+npm.
+```
