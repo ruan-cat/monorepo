@@ -64,6 +64,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - 报告语言： 默认用简体中文。
 
+## 生成发版日志的操作规范
+
+在你生成发版日志时，按照以下规范来完成：
+
+1. 新建文件： 运行命令 `pnpm dlx @changesets/cli add --empty` ，该命令会在 `.changeset` 目录下，新建一个空的 markdown 文件，这个文件就是你要写入的发版日志。
+2. 发版日志文件重命名： 这个命令会新建一个随机名称的发版日志文件，请你按照报告的规格，换成日期加语义化更新内容的名称。比如 `2025-12-15-add-pnpm-workspace-yaml.md` 就是有意义的命名。
+3. yaml 区域写入 changeset 规格的发版信息： 写入发版包名，和`发版标签`的等级。
+4. 写入更新日志： 在正文内编写更新日志。
+5. 编写更新日志正文的行文规范：
+   - 禁止使用任何等级的 markdown 标题： 编写任何`发版标签`的更新日志时，不允许使用任何等级的 markdown 标题，比如一级标题、二级标题等。这会影响自动合并的 `CHANGELOG.md` 文档的美观度。必须使用 markdown 的序号语法。
+   - major： 详细，清晰。说明清楚 major 版本的重大变更。
+   - minor： 用有序序号，简明扼要的说明清楚更新日志即可。
+   - patch： 用有序序号，简明扼要的说明清楚更新日志即可。
+
 ## Monorepo 结构
 
 这是一个基于 **pnpm workspace** 的 monorepo 项目，包含以下工作区：
