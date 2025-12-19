@@ -1,5 +1,12 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 4.8.0
+
+### Minor Changes
+
+- 1. 在 commonScopes 中新增 `server`（服务端接口）提交范围，支持匹配 `**/server/**/*.ts` 和 `**/servers/**/*.ts` 文件路径。 ([`4ab6b57`](https://github.com/ruan-cat/monorepo/commit/4ab6b5714614eab4e33ca1640bfb92003c5c0285))
+  2. 简化 `router` 范围的描述注释，从"路由配置"改为"路由"。
+
 ## 4.7.1
 
 ### Patch Changes

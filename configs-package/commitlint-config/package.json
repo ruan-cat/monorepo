@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/commitlint-config",
-	"version": "4.7.1",
+	"version": "4.8.0",
 	"description": "阮喵喵自用的 commitlint.config.cjs 配置。",
 	"type": "module",
 	"main": "./dist/index.cjs",
