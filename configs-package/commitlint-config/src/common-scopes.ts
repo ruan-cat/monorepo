@@ -160,7 +160,15 @@ export const commonScopes: ScopesItemWithDesc[] = [
 		glob: ["**/tsconfig*.json"],
 	},
 
-	// 路由配置
+	// server 服务端接口
+	{
+		code: "server",
+		value: "server",
+		desc: "服务端接口",
+		glob: ["**/server/**/*.ts", "**/servers/**/*.ts"],
+	},
+
+	// 路由
 	{
 		code: "router",
 		value: "router",
