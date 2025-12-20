@@ -4,6 +4,7 @@ export * from "./config.ts";
 export * from "./get-default-scope.ts";
 export * from "./utils.ts";
 export * from "./type.ts";
+export * from "./changelogen-use-types.ts";
 
 import { getPackagesNameAndDescription, defScopes } from "./utils.ts";
 import type { ScopesTypeItem } from "./utils.ts";
