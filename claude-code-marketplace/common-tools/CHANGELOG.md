@@ -5,6 +5,15 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.9.1] - 2025-12-20
+
+### Changed
+
+- **SubagentStop 钩子移除**: 删除了 SubagentStop 钩子配置
+  - 移除了 `claude-notifier check-and-notify` 在 SubagentStop 事件中的执行
+  - 简化了钩子配置，避免潜在的重复通知
+  - 相关文件：`hooks/hooks.json`（第 64-76 行）
+
 ## [0.9.0] - 2025-12-11
 
 ### Added

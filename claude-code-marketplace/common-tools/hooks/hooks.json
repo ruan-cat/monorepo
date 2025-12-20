@@ -61,17 +61,6 @@
 				]
 			}
 		],
-		"SubagentStop": [
-			{
-				"hooks": [
-					{
-						"type": "command",
-						"command": "claude-notifier check-and-notify",
-						"timeout": 5
-					}
-				]
-			}
-		],
 		"Notification": [
 			{
 				"matcher": "elicitation_dialog",
