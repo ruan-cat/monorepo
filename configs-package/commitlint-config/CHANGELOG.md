@@ -1,5 +1,11 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 4.9.1
+
+### Patch Changes
+
+- 移除多余的输出 ([`7a492e8`](https://github.com/ruan-cat/monorepo/commit/7a492e855342e564ad6f6c20a4ab8bbf5b7b1d0c))
+
 ## 4.9.0
 
 ### Minor Changes
