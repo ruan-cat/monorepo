@@ -21,5 +21,3 @@ export const changelogogenUseTypes: ChangelogogenUseTypes = Object.fromEntries(
 			]),
 		),
 );
-
-console.log(changelogogenUseTypes);
