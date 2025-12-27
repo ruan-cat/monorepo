@@ -1,5 +1,4 @@
 <!-- prettier-ignore-start -->
-
 ## t
 md 标题
 ```markdown
@@ -14,13 +13,21 @@ vuepress、vitepress 能是识别的折叠栏语法
 
 :::
 ```
+<!-- prettier-ignore-end -->
 
-## `ts
-ts的代码块
-```
+<!-- prettier-ignore-start -->
+## ts
+ts 的代码块
+```markdown
 	```ts
-
 	```
 ```
 
+## vue
+在 markdown 内的 vue 代码块
+```markdown
+	```vue
+	<template>{ $1 }</template>
+	```
+```
 <!-- prettier-ignore-end -->
