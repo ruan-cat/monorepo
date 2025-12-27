@@ -4,6 +4,7 @@ import { type UserConfig, type DefaultTheme } from "vitepress";
 import consola from "consola";
 import { isUndefined } from "lodash-es";
 import { hasChangelogMd } from "../utils/copy-changelog";
+import { printFormat } from "@ruan-cat/utils";
 
 /**
  * 设置导航栏的变更日志
@@ -27,4 +28,8 @@ export function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
 	}
 
 	nav.push({ text: "更新日志", link: "/CHANGELOG.md" });
+
+	// TODO: 持续完成特殊侧边栏的处理
+	// @ts-ignore
+	console.log(" 查看侧边栏数据 ", printFormat(userConfig?.themeConfig.sidebar));
 }
