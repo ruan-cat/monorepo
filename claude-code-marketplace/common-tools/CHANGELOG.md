@@ -5,6 +5,60 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.9.2] - 2026-01-05
+
+### Fixed
+
+- **🐞 Windows + WSL 环境下的 Hook 路径解析错误**: 修复了插件 hooks 在 Windows + WSL/Git Bash 环境下无法正确执行的关键问题
+  - **问题原因**: hooks.json 中的命令使用了 `bash` 前缀，导致路径解析错误
+    - 命令格式：`bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh`
+    - `bash` 被解释为 `/usr/bin/bash`（WSL 或 Git Bash 的 bash）
+    - `${CLAUDE_PLUGIN_ROOT}` 展开为 Windows 路径（`C:\Users\pc\.claude\plugins\cache\...`）
+    - WSL bash 无法正确处理 Windows 路径与 Unix 路径的混用
+  - **错误表现**:
+    - `Plugin hook error: /usr/bin/bash: C:\Users\pc\.claude\plugins\cache\ruan-cat-tools\common-tools\0.9.1/scripts/task-complete-notifier.sh: No such file or directory`
+    - Stop hook 和 UserPromptSubmit hook 完全无法执行
+    - 插件的通知功能失效
+  - **修复方案**: 移除 hooks 命令中的 `bash` 前缀
+    - 修复前：`"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh"`
+    - 修复后：`"command": "${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh"`
+    - 脚本文件已有正确的 shebang (`#!/bin/bash`)，系统会自动使用正确的解释器
+    - Claude Code 会正确处理 `${CLAUDE_PLUGIN_ROOT}` 环境变量的展开和路径转换
+  - **影响的文件**:
+    - `hooks/hooks.json:9` - Stop hook 的 task-complete-notifier.sh 调用
+    - `hooks/hooks.json:20` - UserPromptSubmit hook 的 user-prompt-logger.sh 调用
+
+### Technical Details
+
+#### 路径解析问题分析
+
+在 Windows + WSL/Git Bash 环境下，直接在命令中使用 `bash` 前缀会导致：
+
+1. **解释器选择错误**：`bash` 被解析为 `/usr/bin/bash`，这是 WSL 或 Git Bash 的 bash，而不是 Windows 原生的 shell
+2. **路径格式冲突**：`${CLAUDE_PLUGIN_ROOT}` 展开为 Windows 路径格式（`C:\...`），但 WSL bash 期望 Unix 路径格式（`/mnt/c/...` 或 `/c/...`）
+3. **斜杠混用**：错误信息显示路径混用了反斜杠和正斜杠：`C:\Users\pc\.claude\plugins\cache\ruan-cat-tools\common-tools\0.9.1/scripts/...`
+
+#### 为什么移除 bash 前缀能解决问题？
+
+1. **系统自动选择解释器**：脚本文件以 `#!/bin/bash` 开头，当直接执行时，系统会根据 shebang 自动选择正确的解释器
+2. **Claude Code 处理路径转换**：移除 `bash` 前缀后，Claude Code 会正确处理 `${CLAUDE_PLUGIN_ROOT}` 的展开，并根据当前环境自动转换路径格式
+3. **跨平台兼容性**：这种方式在 Windows、macOS 和 Linux 上都能正常工作，无需特殊处理
+
+#### Claude Code 环境变量说明
+
+根据 Claude Code 官方文档，`${CLAUDE_PLUGIN_ROOT}` 是标准的环境变量：
+
+- **Windows**: `C:\Users\<username>\.claude\plugins\cache\<marketplace>_<plugin-name>\<version>`
+- **macOS/Linux**: `~/.claude/plugins/cache/<marketplace>_<plugin-name>/<version>`
+
+这是获取插件根目录的**唯一正确方式**，在 hooks 和 MCP 配置中都应该使用此变量。
+
+### References
+
+- Claude Code Plugins Reference: https://code.claude.com/docs/en/plugins-reference.md#environment-variables
+- Claude Code Hooks Reference: https://code.claude.com/docs/en/hooks.md#plugin-hooks
+- 修复的文件：`hooks/hooks.json`（第 9 行和第 20 行）
+
 ## [0.9.1] - 2025-12-20
 
 ### Changed

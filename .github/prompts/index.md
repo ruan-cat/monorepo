@@ -478,11 +478,11 @@ npm warn Unknown user config "cache-dir". This will stop working in the next maj
 npm.
 ```
 
-## 024 <!-- TODO: 待补全 --> 处理 claude code Stop hook 的故障
+## 024 处理 claude code Stop hook 的故障
 
 ```log
 Stop says: Plugin hook error: /usr/bin/bash: C:\Users\pc\.claude\plugins\cache\ruan-cat-tools\common-tools\0.9.1/scripts/task-complete-notifier.sh: No such file
     or directory
 ```
 
-2. 针对 claude-code-marketplace\common-tools\hooks 目录内的逻辑，可以得知，现在 claude code 的插件地址，其相对根目录又改动了，变动了。且地址拼接的路径也不对。请你查询 claude code 的 skills 内，其
+2. 针对 claude-code-marketplace\common-tools\hooks 目录内的逻辑，可以得知，现在 claude code 的插件地址，其相对根目录又改动了，变动了。且地址拼接的路径也不对。请你查询 claude code 的 skills 内，其相对根路径发生了什么变化？

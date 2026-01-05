@@ -6,7 +6,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/task-complete-notifier.sh",
 						"timeout": 45
 					}
 				]
@@ -17,7 +17,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/user-prompt-logger.sh",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/user-prompt-logger.sh",
 						"timeout": 3
 					},
 					{
