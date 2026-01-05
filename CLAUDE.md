@@ -315,3 +315,10 @@ VitePress 配置预设：
 ## 代码规范
 
 - 要使用 `tinyglobby` ，而不是 `glob` 。
+
+## 16. 获取技术栈对应的上下文
+
+### 16.2. claude code skill
+
+- 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
+- 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
