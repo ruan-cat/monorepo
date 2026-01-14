@@ -27,6 +27,7 @@
 	"keywords": [
 		"vite",
 		"vite plugin",
+		"vite-plugin",
 		"tsconfig paths",
 		"alias"
 	],
