@@ -122,35 +122,75 @@ html.theme-voidzero .docs-layout {
 
 /* ============================================================================
    5. 主题切换按钮定位
+   
+   VoidZero 主题的 Header 组件没有提供 nav-bar-content-after 插槽，
+   因此我们使用 layout-top 插槽 + CSS 定位来放置主题切换按钮。
+   
+   按钮位置策略：
+   - 移动端 (<1024px)：隐藏按钮，因为导航栏空间有限
+   - 桌面端 (>=1024px)：显示在导航栏菜单和 Search 按钮之间
+   
+   导航栏高度：py-5 (20px * 2) + 内容 ≈ 81px
    ============================================================================ */
 
 html.theme-voidzero .voidzero-theme-switcher-container {
 	position: fixed;
-	top: 0;
-	right: 0;
-	z-index: 100;
-	display: flex;
+	top: var(--vp-banner-height, 0);
+	z-index: 51; /* 比导航栏 z-50 高一点 */
+	display: none; /* 默认隐藏，在响应式断点中显示 */
 	align-items: center;
-	height: 60px;
-	padding-right: 1rem;
+	height: 81px; /* 与导航栏实际高度一致 */
 }
 
+/* 移动端：隐藏主题切换按钮 */
 @media (max-width: 1023px) {
 	html.theme-voidzero .voidzero-theme-switcher-container {
-		display: none;
+		display: none !important;
 	}
 }
 
+/* 桌面端 (>=1024px)：显示在导航栏最右侧 */
 @media (min-width: 1024px) {
 	html.theme-voidzero .voidzero-theme-switcher-container {
-		right: 1rem;
+		display: flex;
+		/* 放在导航栏最右侧，GitHub 图标右边 */
+		right: 1.5rem;
 	}
 }
 
-@media (min-width: 1280px) {
-	html.theme-voidzero .voidzero-theme-switcher-container {
-		right: 2rem;
-	}
+/* 确保按钮在 wrapper 容器内居中对齐 */
+html.theme-voidzero .voidzero-theme-switcher-container .theme-switcher {
+	display: flex;
+	align-items: center;
+}
+
+/* 调整按钮样式以匹配 VoidZero 主题风格 */
+html.theme-voidzero .voidzero-theme-switcher-container .theme-switcher-button {
+	font-family: var(--font-heading, "APK Protocol", sans-serif);
+	font-size: 14px;
+	font-weight: 500;
+	padding: 6px 12px;
+	border-radius: 6px;
+	border: 1px solid var(--color-stroke, #e5e4e7);
+	background: var(--color-white, #fff);
+	color: var(--color-primary, #16171d);
+	transition: all 0.2s ease;
+}
+
+html.theme-voidzero.dark .voidzero-theme-switcher-container .theme-switcher-button {
+	border-color: var(--color-nickel, #3b3440);
+	background: var(--color-primary, #16171d);
+	color: var(--color-white, #fff);
+}
+
+html.theme-voidzero .voidzero-theme-switcher-container .theme-switcher-button:hover {
+	border-color: var(--color-electric, #6c3bff);
+	color: var(--color-electric, #6c3bff);
+}
+
+html.theme-voidzero.dark .voidzero-theme-switcher-container .theme-switcher-button:hover {
+	border-color: var(--color-vite, #b39aff);
+	color: var(--color-vite, #b39aff);
 }
 
 /* ============================================================================
