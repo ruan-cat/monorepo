@@ -15,7 +15,14 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt, { copyOrDownloadAsMarkdownButtons } from "vitepress-plugin-llms";
 
-import { defaultTeekConfig, handleTeekConfig, handlePlugins, handleChangeLog, handlePrompts } from "./config/index.ts";
+import {
+	defaultTeekConfig,
+	handleTeekConfig,
+	handlePlugins,
+	handleChangeLog,
+	handlePrompts,
+	handleThemeSwitcher,
+} from "./config/index.ts";
 
 /** @see https://vitepress-ext.leelaa.cn/Mermaid.html#扩展-md-插件 */
 import { MermaidPlugin } from "@leelaa/vitepress-plugin-extended";
@@ -192,6 +199,9 @@ export function setUserConfig(
 
 	// 设置 Teek 主题配置
 	handleTeekConfig(resUserConfig, extraConfig);
+
+	// 处理主题切换器配置
+	handleThemeSwitcher(resUserConfig, extraConfig);
 
 	return resUserConfig;
 }

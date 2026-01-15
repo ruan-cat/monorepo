@@ -16,6 +16,7 @@
 		"@nolebase/vitepress-plugin-git-changelog": "^2.18.2",
 		"@ruan-cat/utils": "workspace:^",
 		"@shikijs/vitepress-twoslash": "^3.15.0",
+		"@voidzero-dev/vitepress-theme": "^4.1.1",
 		"consola": "^3.4.2",
 		"gray-matter": "^4.0.3",
 		"lodash-es": "^4.17.21",
@@ -31,6 +32,7 @@
 		"@types/lodash-es": "^4.17.12",
 		"automd": "^0.4.2",
 		"element-plus": "^2.11.7",
+		"fast-check": "^4.5.3",
 		"tsup": "^8.5.0",
 		"vitepress": "^1.6.4"
 	},

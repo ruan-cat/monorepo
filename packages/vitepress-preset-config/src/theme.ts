@@ -39,6 +39,8 @@ import "vitepress-theme-teek/theme-chalk/tk-fade-up-animation.css";
 // @ts-ignore FIXME: 忽略类型导出的bug 避免tsup打包失败
 import { Mermaid } from "@leelaa/vitepress-plugin-extended";
 
+import type { ThemeSwitcherConfig } from "./types";
+
 /**
  * 一个回调函数 用来暴露变量 实现注册
  */
@@ -47,9 +49,18 @@ export interface EnhanceAppCallBack {
 }
 
 /**
+ * 定义主题预设的参数
+ * @see Requirements 2.2, 2.4
  */
 export interface DefineRuancatPresetThemeParams {
+	/** 增强应用回调函数 */
 	enhanceAppCallBack?: EnhanceAppCallBack;
+	/**
+	 * 主题切换器配置
+	 * @description
+	 * 启用后将在导航栏显示主题切换按钮
+	 */
+	themeSwitcher?: ThemeSwitcherConfig;
 }
 
 /**
@@ -71,6 +82,30 @@ function defaultEnhanceAppPreset({ app, router, siteData }: EnhanceAppContext) {
 	// app.component("VitepressDemoPlaceholder", VitepressDemoPlaceholder);
 }
 
+/**
+ * 注册主题切换器组件
+ * @description
+ * 当启用主题切换器时，动态导入并注册相关组件
+ * 使用动态导入避免 tsup 构建时处理 Vue 文件
+ * @param app - Vue 应用实例
+ * @param config - 主题切换器配置
+ * @private
+ */
+async function registerThemeSwitcher(app: EnhanceAppContext["app"], config?: ThemeSwitcherConfig) {
+	if (config?.enabled) {
+		// 动态导入 Vue 组件，使用变量路径避免 esbuild 静态分析
+		// @ts-ignore - 动态导入路径在运行时由 Vite 处理
+		const buttonPath = "./theme-switcher/components/ThemeSwitcherButton.vue";
+		const { default: ThemeSwitcherButton } = await import(/* @vite-ignore */ buttonPath);
+		app.component("ThemeSwitcherButton", ThemeSwitcherButton);
+
+		// @ts-ignore - 动态导入路径在运行时由 Vite 处理
+		const navPath = "./theme-switcher/components/ThemeSwitcherNav.vue";
+		const { default: ThemeSwitcherNav } = await import(/* @vite-ignore */ navPath);
+		app.component("ThemeSwitcherNav", ThemeSwitcherNav);
+	}
+}
+
 /** 默认主题配置 */
 export const defaultTheme = {
 	extends: Teek,
@@ -83,6 +118,12 @@ export const defaultTheme = {
 
 /**
  * 定义默认主题预设
+ * @description
+ * 创建一个包含默认配置的 VitePress 主题对象
+ * 支持可选的主题切换器功能
+ * @param params - 配置参数
+ * @returns VitePress 主题对象
+ * @see Requirements 2.2, 2.4
  */
 export function defineRuancatPresetTheme(params?: DefineRuancatPresetThemeParams) {
 	return {
@@ -90,6 +131,10 @@ export function defineRuancatPresetTheme(params?: DefineRuancatPresetThemeParams
 		enhanceApp({ app, router, siteData }: EnhanceAppContext) {
 			// 回调默认主题内的函数
 			defaultTheme.enhanceApp({ app, router, siteData });
+
+			// 注册主题切换器组件（如果启用）
+			registerThemeSwitcher(app, params?.themeSwitcher);
+
 			// 执行用户传入的回调函数
 			params?.enhanceAppCallBack?.({ app, router, siteData });
 		},
