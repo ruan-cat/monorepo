@@ -10,7 +10,8 @@ import type { DefaultTheme, UserConfig } from "vitepress";
 import type { ExtraConfig, ThemeSwitcherConfig } from "../types";
 
 // 同步导入 VoidZero 主题的配置函数
-import { extendConfig as extendVoidZeroConfig } from "@voidzero-dev/vitepress-theme/config";
+// 注意：必须使用 .js 扩展名，因为该包没有定义 exports 字段，ESM 需要完整路径
+import { extendConfig as extendVoidZeroConfig } from "@voidzero-dev/vitepress-theme/config.js";
 
 /**
  * 默认主题切换器配置
