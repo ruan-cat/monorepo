@@ -8,8 +8,8 @@
  * @see https://github.com/vitejs/vite-plugin-registry/pull/11/files
  */
 
-import type { ThemeDefinition } from "../../types";
-import { injectStyle, removeStyles, isStyleLoaded, markStyleLoaded } from "../style-manager";
+import type { ThemeDefinition } from "../../../types";
+import { removeStyles, isStyleLoaded, markStyleLoaded } from "../../style-manager";
 
 /**
  * VoidZero 主题 ID
@@ -48,9 +48,10 @@ async function loadVoidZeroStyles(): Promise<void> {
 	}
 
 	try {
-		// 直接动态导入 CSS 文件，让 Vite 处理所有的 @import、@layer 和 Tailwind
-		// 不使用 ?inline，这样 Vite 会正确处理 Tailwind CSS
-		await import("@voidzero-dev/vitepress-theme/src/styles/index.css");
+		// 并行加载：
+		// 1. VoidZero 主题的核心样式（包含 Tailwind CSS）
+		// 2. 适配器的备用样式（Tailwind 类备用和布局修复）
+		await Promise.all([import("@voidzero-dev/vitepress-theme/src/styles/index.css"), import("./styles.css")]);
 
 		// 标记已加载
 		markStyleLoaded(VOIDZERO_THEME_ID);

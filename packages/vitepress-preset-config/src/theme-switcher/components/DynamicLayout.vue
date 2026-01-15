@@ -74,10 +74,25 @@ async function loadLayout(themeId: string): Promise<Component> {
 
 	switch (themeId) {
 		case "voidzero": {
+			// 添加 VoidZero 主题标识类
+			if (typeof document !== "undefined") {
+				document.documentElement.classList.add("theme-voidzero");
+				document.documentElement.classList.remove("theme-teek");
+			}
+
 			// 动态导入 VoidZero 主题样式
-			// VoidZero 主题的样式在 src/styles/index.css
+			// VoidZero 主题的样式在 src/styles/index.css，包含：
+			// - tokens.css (设计令牌和 Tailwind 配置)
+			// - base.css (基础样式)
+			// - docs.css (文档样式)
+			// - marketing.css (营销页面样式)
 			// @ts-ignore - 样式模块没有类型声明
 			await import("@voidzero-dev/vitepress-theme/src/styles/index.css");
+
+			// 导入适配器的补充样式（主题切换按钮定位等）
+			// @ts-ignore - 样式模块没有类型声明
+			await import("../adapters/voidzero/styles.css");
+
 			// 动态导入 VoidZero 主题
 			const VoidZeroTheme = await import("@voidzero-dev/vitepress-theme");
 			// @ts-ignore - 类型定义可能不完整

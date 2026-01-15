@@ -61,6 +61,8 @@ async function loadThemeModule(themeId: string): Promise<{ Layout: any; enhanceA
 		const [themeModule] = await Promise.all([
 			import("@voidzero-dev/vitepress-theme/src/vite"),
 			import("@voidzero-dev/vitepress-theme/src/styles/index.css"),
+			// 导入适配器的备用样式（包含 Tailwind 响应式类备用）
+			import("../../../theme-switcher/adapters/voidzero/styles.css"),
 		]);
 
 		// 添加主题类
@@ -122,14 +124,26 @@ const DynamicLayout = defineComponent({
 
 			const isVoidZero = currentThemeId.value === "voidzero";
 
-			// 根据主题选择正确的插槽名称
-			const slotName = isVoidZero ? "nav-bar-title-after" : "nav-bar-content-after";
-
-			// 渲染当前主题的 Layout，并添加主题切换按钮
-			return h(CurrentLayout.value, null, {
-				[slotName]: () => h(ThemeSwitcherNav, { buttonText: "切换主题" }),
-				...slots,
-			});
+			if (isVoidZero) {
+				// VoidZero 主题：使用 layout-top 插槽，通过 CSS 定位到导航栏右侧
+				return h(CurrentLayout.value, null, {
+					"layout-top": () =>
+						h(
+							"div",
+							{
+								class: "voidzero-theme-switcher-container",
+							},
+							[h(ThemeSwitcherNav, { buttonText: "切换主题" })],
+						),
+					...slots,
+				});
+			} else {
+				// Teek 主题：使用 nav-bar-content-after 插槽
+				return h(CurrentLayout.value, null, {
+					"nav-bar-content-after": () => h(ThemeSwitcherNav, { buttonText: "切换主题" }),
+					...slots,
+				});
+			}
 		};
 	},
 });

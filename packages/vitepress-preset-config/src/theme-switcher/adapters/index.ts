@@ -9,7 +9,14 @@ import { ThemeRegistry, createThemeRegistry } from "../registry";
 import type { ThemeDefinition } from "../../types";
 
 // 导出 Teek 主题适配器
-export { TEEK_THEME_ID, TEEK_STYLE_ID, TEEK_STYLES, teekThemeDefinition, createTeekThemeDefinition } from "./teek";
+export {
+	TEEK_THEME_ID,
+	TEEK_STYLE_ID,
+	TEEK_STYLES,
+	teekThemeDefinition,
+	createTeekThemeDefinition,
+	getTeekTheme,
+} from "./teek";
 
 // 导出 VoidZero 主题适配器
 export {

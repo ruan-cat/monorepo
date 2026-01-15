@@ -147,28 +147,3 @@ html.theme-teek .marketing-layout,
 html.theme-teek .docs-layout > .top-banner {
 	display: none !important;
 }
-
-/**
- * VoidZero 主题：确保导航栏固定定位
- * VoidZero 主题使用不同的类名结构，需要针对性处理
- * -------------------------------------------------------------------------- */
-
-@media (min-width: 960px) {
-	/* 确保顶层导航栏容器固定定位 */
-	html.theme-voidzero header.wrapper {
-		position: fixed !important;
-		top: 0 !important;
-		left: 0 !important;
-		right: 0 !important;
-		z-index: 30 !important;
-		width: 100% !important;
-	}
-
-	/* 确保导航栏菜单也固定定位 */
-	html.theme-voidzero nav.VPNavBarMenu {
-		position: fixed !important;
-		top: 0 !important;
-		left: 0 !important;
-		z-index: 30 !important;
-	}
-}

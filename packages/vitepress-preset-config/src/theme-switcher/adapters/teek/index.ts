@@ -7,11 +7,8 @@
  * @see https://vp.teek.top/
  */
 
-import type { ThemeDefinition } from "../../types";
-import { injectStyle, removeStyles, isStyleLoaded, markStyleLoaded } from "../style-manager";
-
-// 导入 Teek 主题（仅导入 JS，不导入 CSS）
-import Teek from "vitepress-theme-teek";
+import type { ThemeDefinition } from "../../../types";
+import { removeStyles, isStyleLoaded, markStyleLoaded } from "../../style-manager";
 
 /**
  * Teek 主题 ID
@@ -99,16 +96,40 @@ function unloadTeekStyles(): void {
 }
 
 /**
+ * 延迟加载的 Teek 主题模块
+ * @description
+ * 使用动态导入避免在模块加载时就解析 vitepress-theme-teek
+ * 这样可以避免 Teek 主题自动导入 vitepress/theme 导致样式冲突
+ */
+let teekThemeModule: any = null;
+
+/**
+ * 获取 Teek 主题模块
+ * @description
+ * 延迟加载 Teek 主题，只在需要时才导入
+ * @returns Teek 主题模块
+ */
+export async function getTeekTheme(): Promise<any> {
+	if (!teekThemeModule) {
+		// 动态导入，避免构建时解析
+		teekThemeModule = await import("vitepress-theme-teek");
+	}
+	return teekThemeModule.default || teekThemeModule;
+}
+
+/**
  * Teek 主题定义
  * @description
  * 完整的 Teek 主题配置，包含主题对象、样式和动态加载/卸载函数
+ * 使用占位符主题对象，实际主题在运行时通过 getTeekTheme() 加载
  * @see Requirements 2.1, 2.4
  */
 export const teekThemeDefinition: ThemeDefinition = {
 	id: TEEK_THEME_ID,
 	name: "Teek",
 	description: "vitepress-theme-teek 主题 - 功能丰富的 VitePress 主题",
-	theme: Teek,
+	// 使用占位符，实际主题需要通过 getTeekTheme() 获取
+	theme: {} as any,
 	styles: [...TEEK_STYLES],
 	styleId: TEEK_STYLE_ID,
 	loadStyles: loadTeekStyles,
