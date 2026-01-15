@@ -4,6 +4,3 @@ export * from "./config/index.ts";
 export * from "./theme.ts";
 export * from "./config.mts";
 export * from "./types.ts";
-
-// 主题切换器模块导出
-export * from "./theme-switcher/index.ts";

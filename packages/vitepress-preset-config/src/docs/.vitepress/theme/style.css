@@ -1,19 +1,48 @@
 /**
  * Customize default theme styling by overriding CSS variables:
  * https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/vars.css
- * 
- * 注意：这些变量只在 Teek 主题下生效，避免覆盖 VoidZero 主题的设计令牌
  */
 
 /**
- * Colors (仅 Teek 主题)
+ * Colors
  *
  * Each colors have exact same color scale system with 3 levels of solid
  * colors with different brightness, and 1 soft color.
+ *
+ * - `XXX-1`: The most solid color used mainly for colored text. It must
+ *   satisfy the contrast ratio against when used on top of `XXX-soft`.
+ *
+ * - `XXX-2`: The color used mainly for hover state of the button.
+ *
+ * - `XXX-3`: The color for solid background, such as bg color of the button.
+ *   It must satisfy the contrast ratio with pure white (#ffffff) text on
+ *   top of it.
+ *
+ * - `XXX-soft`: The color used for subtle background such as custom container
+ *   or badges. It must satisfy the contrast ratio when putting `XXX-1` colors
+ *   on top of it.
+ *
+ *   The soft color must be semi transparent alpha channel. This is crucial
+ *   because it allows adding multiple "soft" colors on top of each other
+ *   to create a hierarchical visual.
+ *
+ * - `default`: The color used purely for subtle indication without any
+ *   temporary meaning. Such as background color for menu hover state.
+ *
+ * - `brand`: Used for primary brand colors, such as link text, button with
+ *   brand theme, etc.
+ *
+ * - `tip`: Used to indicate useful information. The default theme uses the
+ *   brand color for this by default.
+ *
+ * - `warning`: Used to indicate warning to the users. Used in custom
+ *   temporary blocks, badges, etc.
+ *
+ * - `danger`: Used to show error, or dangerous message to the users. Used
+ *   in custom temporary blocks, badges, etc.
  * -------------------------------------------------------------------------- */
 
-html.theme-teek:root,
-html:not(.theme-voidzero):root {
+:root {
 	--vp-c-default-1: var(--vp-c-gray-1);
 	--vp-c-default-2: var(--vp-c-gray-2);
 	--vp-c-default-3: var(--vp-c-gray-3);
@@ -41,11 +70,10 @@ html:not(.theme-voidzero):root {
 }
 
 /**
- * Component: Button (仅 Teek 主题)
+ * Component: Button
  * -------------------------------------------------------------------------- */
 
-html.theme-teek:root,
-html:not(.theme-voidzero):root {
+:root {
 	--vp-button-brand-border: transparent;
 	--vp-button-brand-text: var(--vp-c-white);
 	--vp-button-brand-bg: var(--vp-c-brand-3);
@@ -58,11 +86,10 @@ html:not(.theme-voidzero):root {
 }
 
 /**
- * Component: Home (仅 Teek 主题)
+ * Component: Home
  * -------------------------------------------------------------------------- */
 
-html.theme-teek:root,
-html:not(.theme-voidzero):root {
+:root {
 	--vp-home-hero-name-color: transparent;
 	--vp-home-hero-name-background: -webkit-linear-gradient(120deg, #bd34fe 30%, #41d1ff);
 
@@ -71,25 +98,22 @@ html:not(.theme-voidzero):root {
 }
 
 @media (min-width: 640px) {
-	html.theme-teek:root,
-	html:not(.theme-voidzero):root {
+	:root {
 		--vp-home-hero-image-filter: blur(56px);
 	}
 }
 
 @media (min-width: 960px) {
-	html.theme-teek:root,
-	html:not(.theme-voidzero):root {
+	:root {
 		--vp-home-hero-image-filter: blur(68px);
 	}
 }
 
 /**
- * Component: Custom Block (仅 Teek 主题)
+ * Component: Custom Block
  * -------------------------------------------------------------------------- */
 
-html.theme-teek:root,
-html:not(.theme-voidzero):root {
+:root {
 	--vp-custom-block-tip-border: transparent;
 	--vp-custom-block-tip-text: var(--vp-c-text-1);
 	--vp-custom-block-tip-bg: var(--vp-c-brand-soft);
@@ -102,48 +126,4 @@ html:not(.theme-voidzero):root {
 
 .DocSearch {
 	--docsearch-primary-color: var(--vp-c-brand-1) !important;
-}
-
-/**
- * Theme Switcher: 加载状态样式
- * -------------------------------------------------------------------------- */
-
-.dynamic-layout-loading {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	min-height: 100vh;
-	background-color: var(--vp-c-bg, #ffffff);
-}
-
-.dark .dynamic-layout-loading {
-	background-color: var(--vp-c-bg, #1b1b1f);
-}
-
-.loading-spinner {
-	width: 40px;
-	height: 40px;
-	border: 3px solid var(--vp-c-divider, #e2e2e3);
-	border-top-color: var(--vp-c-brand-1, #646cff);
-	border-radius: 50%;
-	animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-	to {
-		transform: rotate(360deg);
-	}
-}
-
-/**
- * Theme Switcher: 隐藏 VoidZero 主题特有的元素（当使用 Teek 主题时）
- * 这些元素可能在 VoidZero 的 enhanceApp 中被注册，需要在 Teek 主题下隐藏
- * -------------------------------------------------------------------------- */
-
-html.theme-teek .top-banner,
-html.theme-teek [data-variant="voidzero"],
-html.theme-teek [data-variant="vite"],
-html.theme-teek .marketing-layout,
-html.theme-teek .docs-layout > .top-banner {
-	display: none !important;
 }
