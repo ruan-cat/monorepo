@@ -5,6 +5,47 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.10.0] - 2026-01-20
+
+### Added
+
+- **新增 Skill**: `init-ai-md` - AI 记忆文件初始化和增量更新技能
+  - 位置：`skills/init-ai-md/SKILL.md`
+  - 用于在项目中快速初始化和增量更新 AI 记忆文件（CLAUDE.md、AGENTS.md、GEMINI.md）
+  - 将预设的通用提示词模板按顺序插入到记忆文件中
+  - 支持检测现有内容相似度，智能合并或替换
+  - 支持同步更新 AGENTS.md 和 GEMINI.md（需用户确认）
+  - 当用户提及初始化记忆文件、更新 CLAUDE.md、同步 AI 记忆等关键词时自动激活
+
+- **新增模板文件**: `skills/init-ai-md/templates/` 目录
+  - `01.主动问询实施细节.md` - 引导 AI 主动询问用户实施细节
+  - `02.编写测试用例规范.md` - Vitest 测试用例编写规范
+  - `03.报告编写规范.md` - Markdown 报告编写规范
+  - `04.生成发版日志的操作规范.md` - Changeset 发版日志规范及术语说明
+  - `05.沟通协作要求.md` - 计划模式等协作要求
+  - `99.获取技术栈对应的上下文.md` - 技术栈文档链接
+
+### Technical Details
+
+#### init-ai-md 技能执行流程
+
+1. **检查 CLAUDE.md**：检测项目根目录是否存在，如无则先执行 `/init` 命令
+2. **读取模板**：按数字前缀顺序（01→99）读取 templates 目录下的模板文件
+3. **智能合并**：检测相似内容，决定替换或在现有二级目录之前插入
+4. **同步确认**：检测 AGENTS.md/GEMINI.md，询问用户是否同步替换
+
+#### 模板文件规范
+
+- 模板文件只包含二级目录，不包含一级目录
+- 文件命名格式：`XX.描述名称.md`（XX 为两位数字）
+- 内容使用简体中文编写
+- 便于直接插入到记忆文件中
+
+### References
+
+- Claude Code Skills 文档: https://code.claude.com/docs/zh-CN/skills
+- 技能最佳实践: https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+
 ## [0.9.2] - 2026-01-05
 
 ### Fixed
