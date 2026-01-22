@@ -1,6 +1,7 @@
 ---
 name: init-ai-md
 description: 初始化和增量更新 AI 记忆文件（CLAUDE.md、AGENTS.md、GEMINI.md）。将预设的通用提示词模板按顺序插入到记忆文件中。触发条件：当用户提及初始化记忆文件、更新 CLAUDE.md、同步 AI 记忆、init-ai-md 等关键词时主动调用。
+user-invocable: true
 ---
 
 # init-ai-md 技能说明
