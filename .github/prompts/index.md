@@ -486,3 +486,22 @@ Stop says: Plugin hook error: /usr/bin/bash: C:\Users\pc\.claude\plugins\cache\r
 ```
 
 2. 针对 claude-code-marketplace\common-tools\hooks 目录内的逻辑，可以得知，现在 claude code 的插件地址，其相对根目录又改动了，变动了。且地址拼接的路径也不对。请你查询 claude code 的 skills 内，其相对根路径发生了什么变化？
+
+## 025 新建一款专门初始化当前项目的 claude code 状态栏配置的 claude code skills
+
+请在 `claude-code-marketplace\common-tools\skills` 内新建一款名为 `init-claude-code-statusline` 的 claude code skills。
+
+该技能主要职责是，初始化，更新，或全量覆盖掉下面的文件：
+
+- .claude\settings.json
+- .claude\statusline.sh
+
+请你在该技能的 `templates` 模板内，增加本项目现在就有的 `.claude\settings.json` 和 `.claude\statusline.sh` 文件，作为该技能初始化别的项目时使用的模板代码。
+
+这个技能要能够被用户主动调用，需要配置 `user-invocable` 选项。
+
+### 01 编写 claude code 插件商城相关的更新日志
+
+请你使用项目本地的 `claude-code-marketplace` 技能，并阅读 git 日志，阅读今天提交的这几个 git 提交内容和具体的修改项。编撰有意义的插件更新日志。
+
+claude code 插件商城的发版标签应该为 minor 。
