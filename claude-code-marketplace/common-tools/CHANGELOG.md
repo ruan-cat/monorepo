@@ -5,6 +5,75 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.11.0] - 2026-01-22
+
+### Added
+
+- **新增 Skill**: `init-claude-code-statusline` - Claude Code 状态栏配置初始化技能
+  - 位置：`skills/init-claude-code-statusline/SKILL.md`
+  - 用于在任何项目中快速初始化、更新或覆盖 Claude Code 状态栏配置
+  - 配置文件：`.claude/settings.json` 和 `.claude/statusline.sh`
+  - 状态栏显示内容：当前目录、Git 分支（🌿）、模型名称（🤖）、版本号、上下文窗口剩余百分比（🧠）
+  - 上下文窗口颜色编码：绿色（>40%）、黄色（20%-40%）、红色（<20%）
+  - 支持 jq 可用性检测和优雅降级
+  - 当用户提及初始化状态栏、配置 Claude Code 状态栏等关键词时自动激活
+
+- **新增 Skill**: `init-prettier-git-hooks` - Prettier + Git Hooks 格式化流程初始化技能
+  - 位置：`skills/init-prettier-git-hooks/SKILL.md`
+  - 用于在任何 Node.js 项目中快速搭建代码格式化和 git 钩子配置
+  - 集成：`lint-staged` + `simple-git-hooks` + `prettier`
+  - 模板文件：
+    - `templates/prettier.config.mjs` - Prettier 配置（含 @prettier/plugin-oxc 和 prettier-plugin-lint-md）
+    - `templates/lint-staged.config.js` - lint-staged 配置
+    - `templates/simple-git-hooks.mjs` - git hooks 配置（pre-commit 和 commit-msg）
+  - 提供完整的自检清单和工作流程说明
+
+- **新增模板文件**: `skills/init-claude-code-statusline/templates/` 目录
+  - `settings.json` - Claude Code 状态栏设置模板
+  - `statusline.sh` - 状态栏 Bash 脚本模板（100 行，功能丰富）
+
+### Changed
+
+- **Skill 配置更新**: `init-ai-md` 技能启用用户主动调用
+  - 添加 `user-invocable: true` 配置项
+  - 用户现在可以通过 `/init-ai-md` 命令直接调用此技能
+
+- **状态栏脚本优化**: 更新 `.claude/statusline.sh` 配置
+  - 改进颜色代码定义，使用更清晰的 ANSI 256 色
+  - 优化上下文窗口计算逻辑
+
+### Technical Details
+
+#### init-claude-code-statusline 技能执行流程
+
+1. **检查目标目录**：确保 `.claude/` 目录存在
+2. **处理 settings.json**：支持合并配置、全量覆盖或跳过
+3. **处理 statusline.sh**：询问用户是否覆盖现有脚本
+4. **验证配置**：确认文件格式正确
+
+#### init-prettier-git-hooks 技能执行流程
+
+1. **安装依赖**：`pnpm add -D prettier @prettier/plugin-oxc prettier-plugin-lint-md lint-staged simple-git-hooks commitlint`
+2. **创建配置文件**：复制模板到项目根目录
+3. **更新 package.json**：添加 `format` 和 `prepare` scripts
+4. **初始化 Git Hooks**：运行 `npx simple-git-hooks`
+
+#### 状态栏脚本功能
+
+|  显示项目  | 图标 |              说明               |
+| :--------: | :--: | :-----------------------------: |
+|  当前目录  |  无  | 工作目录路径（~替换用户主目录） |
+|  Git 分支  |  🌿  |        当前 Git 分支名称        |
+|  模型名称  |  🤖  |     当前使用的 Claude 模型      |
+|   版本号   |  v   |        Claude Code 版本         |
+| 上下文窗口 |  🧠  |      剩余上下文窗口百分比       |
+
+### References
+
+- Claude Code Skills 文档: https://code.claude.com/docs/zh-CN/skills
+- 技能最佳实践: https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+- Agent Skills 规范: https://agentskills.io/home
+
 ## [0.10.0] - 2026-01-20
 
 ### Added
