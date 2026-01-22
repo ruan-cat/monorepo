@@ -128,6 +128,12 @@ taze 配置。
 /plugin marketplace add ruan-cat/monorepo
 ```
 
+## 安装插件
+
+```bash
+/plugin install common-tools@ruan-cat-tools
+```
+
 **注意**，claude code 安装插件市场时，会对本仓库做一个全量的浅克隆。具体存储该插件市场的目录，会出现很多无关的文件。
 
 点此[阅读详情](./.claude-plugin/README.md)。
