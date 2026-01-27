@@ -5,6 +5,14 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.13.1] - 2026-01-28
+
+### Added
+
+- **状态栏增强**: 状态栏脚本增加了新的计费字段统计
+  - 在 `init-claude-code-statusline` 技能的 `statusline.sh` 模板中
+  - 新增计费统计显示块，帮助用户更直观地监控 API 使用成本
+
 ## [0.13.0] - 2026-01-27
 
 ### Added
