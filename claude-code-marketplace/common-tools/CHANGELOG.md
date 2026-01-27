@@ -5,6 +5,30 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.13.0] - 2026-01-27
+
+### Added
+
+- **新增 Skill**: `nitro-api-development` - Nitro v3 接口开发技能规范
+  - 位置：`skills/nitro-api-development/`
+  - 用于指导使用 Nitro v3 框架编写服务端接口，包括项目初始化、配置、接口编写规范等完整流程
+  - 适用场景：
+    - 纯后端 Nitro 项目初始化
+    - Vite 项目全栈化（赋予 Vite 项目服务端能力）
+    - 接口开发与维护
+  - 核心规范：
+    - 导入来源必须是 `nitro/h3` 而非 `h3`
+    - 使用 `defineHandler` 而非 `defineEventHandler`
+    - 统一的响应格式 `{ success, message, data }`
+  - 包含三个文档：
+    - `SKILL.md` - 主技能规范文档，包含完整的开发规范和检查清单
+    - `templates.md` - 项目初始化代码模板集合
+    - `reference.md` - 函数速查、配置选项和常用类型参考手册
+
+### References
+
+- Nitro v3 官方文档: https://v3.nitro.build/
+
 ## [0.12.0] - 2026-01-27
 
 ### Changed
