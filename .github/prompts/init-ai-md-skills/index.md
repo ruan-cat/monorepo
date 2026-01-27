@@ -51,3 +51,52 @@
 - 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
 - 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
 - 规范文档： https://agentskills.io/home
+
+---
+
+<!-- 以下内容开始持续迭代 -->
+
+## 001 迭代增强 `init-ai-md` 技能的使用效果、交互能力
+
+`claude-code-marketplace\common-tools\skills\init-ai-md` 目录的 `init-ai-md` 技能，还是有很多问题。需要你迭代处理。
+
+1. 文本更改的具体做法： 在实现 AI 文件的内容复制时，应该深度的阅读文本内容，对比文本差异。实现全局`记忆项`的补全和增加。比如以下的例子：
+
+假设目标文件 `CLAUDE.md` 存在以下内容：
+
+```markdown
+## 获取技术栈对应的上下文
+
+### claude code skill
+
+- 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
+- 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+```
+
+假设对应的通用`记忆项`文件 `claude-code-marketplace\common-tools\skills\init-ai-md\templates\99.获取技术栈对应的上下文.md` 的内容如下：
+
+```markdown
+## 获取技术栈对应的上下文
+
+在处理特定技术栈相关的问题时，你应该主动获取对应的上下文文档和最佳实践。
+
+### claude code skill
+
+- 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
+- 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+- 规范文档： https://agentskills.io/home
+```
+
+这个时候，你应该通过对比文本差异的方式，补全缺少的文本。
+
+在实现文本增补时，不允许使用任何形式的脚本来完成批处理，包括临时的 Python 脚本、typescript 脚本等。不允许一股脑的复制粘贴`记忆项`文本。
+
+2. 增加对提示词项的智能询问和清单式交互选择功能。
+
+我在使用这个 `init-ai-md` 技能时，我希望在使用的时候，按照这样的步骤做：
+
+- 先读取扫描目标 AI 文件的二级标题。明确清楚现存的`记忆项`有那些。
+- 然后阅读 `claude-code-marketplace\common-tools\skills\init-ai-md\templates` 的文件标题，明确清楚有那些可用`记忆项`。
+- 接着使用 `AskUserQuestion` 工具，生成交互式的询问，询问我
+
+我希望通过`询问`和`交互`的方式，让我能够准确选择需要的技能项。而不是一股脑的，全量的把全部模板内的`记忆项`都复制粘贴到 AI 文件内。
