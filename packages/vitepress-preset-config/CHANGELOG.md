@@ -1,5 +1,11 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 2.13.0
+
+### Minor Changes
+
+- 1. 升级 vitepress-plugin-llms 依赖，升级了按钮显示效果。 ([`41e6826`](https://github.com/ruan-cat/monorepo/commit/41e682699b91cbbc5857a566d1d047b28bc40c16))
+
 ## 2.12.4
 
 ### Patch Changes
