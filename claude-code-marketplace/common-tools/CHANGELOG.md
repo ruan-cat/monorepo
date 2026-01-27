@@ -5,6 +5,88 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.12.0] - 2026-01-27
+
+### Changed
+
+- **Skill 重大增强**: `init-ai-md` - AI 记忆文件初始化和增量更新技能
+  - **新增交互选择功能**：
+    - 新增步骤 2「扫描分析」：扫描目标文件的二级标题，建立现存记忆项清单；扫描 templates 目录，建立可用记忆项清单
+    - 新增步骤 3「交互选择」：使用 `AskUserQuestion` 工具的 `multiSelect: true` 模式，让用户选择需要处理的记忆项
+    - 选项状态标注：`[缺失]`（目标文件中不存在）、`[需更新]`（存在但内容不完整）、`[已完整]`（内容一致）
+  - **改进差异对比策略**：
+    - 将原来的「智能合并策略」改为「差异对比与增量补全」
+    - 逐行对比原则：深度阅读并逐行/逐段落对比文本差异
+    - 识别差异类型：缺失行、缺失段落、缺失子标题、内容差异
+    - 增量补全策略：仅补全缺失内容，保持用户自定义内容不变
+  - **新增核心原则**：
+    - 交互优先：处理前必须与用户交互确认，不得自动全量处理
+    - 增量补全：仅补全缺失内容，不全量替换
+    - 保护自定义：用户自定义内容不得被覆盖
+    - 禁止脚本：不得使用任何脚本进行批处理
+  - **新增禁止事项清单**：
+    - 禁止未经用户选择直接处理所有记忆项
+    - 禁止使用 Python/TypeScript/Shell 等脚本批量处理
+    - 禁止一股脑复制粘贴整个模板文件内容
+    - 禁止覆盖用户在 CLAUDE.md 中的自定义内容
+    - 禁止跳过交互选择步骤直接执行更新
+  - **新增执行示例**：场景 3「差异对比补全示例」，演示完整的差异识别和补全流程
+  - **新增详细说明**：AskUserQuestion 调用规范、选项状态标注规则、用户选择后的处理
+
+### Technical Details
+
+#### init-ai-md 技能执行流程变更
+
+**v0.11.0 流程**（4 步骤）：
+
+1. 检查 CLAUDE.md 文件
+2. 读取模板文件
+3. 智能合并策略（相似度检测 + 替换/插入）
+4. 同步其他 AI 记忆文件
+
+**v0.12.0 流程**（5 步骤）：
+
+1. 检查 CLAUDE.md 文件
+2. **扫描分析**（新增）：扫描目标文件和模板目录，对比分析
+3. **交互选择**（新增）：使用 AskUserQuestion 让用户选择
+4. **差异对比与增量补全**（改进）：逐行对比，仅补全缺失
+5. 同步其他 AI 记忆文件
+
+#### 差异对比示例
+
+假设目标文件 `CLAUDE.md` 中「获取技术栈对应的上下文」章节缺少部分内容：
+
+```markdown
+## 获取技术栈对应的上下文
+
+### claude code skill
+
+- 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
+- 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+```
+
+模板文件包含完整内容：
+
+```markdown
+## 获取技术栈对应的上下文
+
+在处理特定技术栈相关的问题时，你应该主动获取对应的上下文文档和最佳实践。
+
+### claude code skill
+
+- 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
+- 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+- 规范文档： https://agentskills.io/home
+```
+
+**正确处理方式**：识别并补全缺失的描述段落和「规范文档」链接，而非全量替换整个章节。
+
+### References
+
+- Claude Code Skills 文档: https://code.claude.com/docs/zh-CN/skills
+- 技能最佳实践: https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+- Agent Skills 规范: https://agentskills.io/home
+
 ## [0.11.0] - 2026-01-22
 
 ### Added
