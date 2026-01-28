@@ -19,22 +19,6 @@
 						"type": "command",
 						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/user-prompt-logger.sh",
 						"timeout": 3
-					},
-					{
-						"type": "command",
-						"command": "claude-notifier check-and-notify",
-						"timeout": 5
-					}
-				]
-			}
-		],
-		"PreToolUse": [
-			{
-				"hooks": [
-					{
-						"type": "command",
-						"command": "claude-notifier check-and-notify",
-						"timeout": 5
 					}
 				]
 			}

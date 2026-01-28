@@ -325,7 +325,20 @@ log "====== Removing Task to Prevent Duplicate Notifications ======"
 MONOREPO_ROOT=""
 
 # 尝试找到 monorepo 根目录（向上查找 pnpm-workspace.yaml）
-CURRENT_SEARCH_DIR="$PROJECT_DIR"
+# 优先使用 CLAUDE_PROJECT_DIR 环境变量
+if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
+  CURRENT_SEARCH_DIR="$CLAUDE_PROJECT_DIR"
+else
+  CURRENT_SEARCH_DIR="$PROJECT_DIR"
+fi
+
+# 确保 CURRENT_SEARCH_DIR 不为空
+if [ -z "$CURRENT_SEARCH_DIR" ]; then
+  CURRENT_SEARCH_DIR=$(pwd)
+fi
+
+log "Searching for monorepo root starting from: $CURRENT_SEARCH_DIR"
+
 while [ "$CURRENT_SEARCH_DIR" != "/" ] && [ "$CURRENT_SEARCH_DIR" != "" ]; do
   if [ -f "$CURRENT_SEARCH_DIR/pnpm-workspace.yaml" ]; then
     MONOREPO_ROOT="$CURRENT_SEARCH_DIR"
@@ -340,6 +353,7 @@ if [ -z "$MONOREPO_ROOT" ]; then
   SCRIPT_PARENT_DIR=$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")
   if [ -f "$SCRIPT_PARENT_DIR/pnpm-workspace.yaml" ]; then
     MONOREPO_ROOT="$SCRIPT_PARENT_DIR"
+    log "Found monorepo root via script path: $MONOREPO_ROOT"
   fi
 fi
 
@@ -373,6 +387,9 @@ if [ -n "$MONOREPO_ROOT" ]; then
     else
       log "⚠️ remove-task.ts not found at: $REMOVE_TASK_SCRIPT"
       log "⚠️ Task will NOT be removed, may receive duplicate notifications in 6+ minutes"
+
+      # 尝试 fallback：如果知道 .claude/tasks 目录结构，可以尝试直接清理
+      # 这里不做危险操作，只是记录更详细的错误
     fi
   else
     log "⚠️ tsx command not found, cannot execute TypeScript script"
@@ -382,6 +399,12 @@ if [ -n "$MONOREPO_ROOT" ]; then
 else
   log "⚠️ Could not locate monorepo root (no pnpm-workspace.yaml found)"
   log "⚠️ Task will NOT be removed, may receive duplicate notifications in 6+ minutes"
+
+  # 记录当前环境以便调试
+  log "Debug Info:"
+  log "PROJECT_DIR: $PROJECT_DIR"
+  log "CLAUDE_PROJECT_DIR: ${CLAUDE_PROJECT_DIR:-}"
+  log "PWD: $(pwd)"
 fi
 
 log ""

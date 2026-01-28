@@ -5,6 +5,29 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.13.3] - 2026-01-28
+
+### Changed
+
+- **Hooks 优化**: 进一步精简钩子配置
+  - 移除了 `UserPromptSubmit` 中的 `claude-notifier check-and-notify` 调用
+  - **原因**: 深度分析日志发现，在 Gemini 等模型下，`UserPromptSubmit` 与 `Stop` 事件之间存在竞态条件。当用户高频交互时，任务清理脚本尚未执行完毕，下一次交互的 `UserPromptSubmit` 就会触发 `check-and-notify`，导致其读取到旧的任务文件并误报"长任务已运行"。移除此检查点彻底解决了"时长计数错误"和"频繁通知"的问题，仅保留 `SessionStart` 和 `SessionEnd` 作为必要的定时检查点。
+
+## [0.13.2] - 2026-01-28
+
+### Changed
+
+- **Hooks 优化**: 移除了 `PreToolUse` 钩子
+  - 移除了在每次工具调用前执行 `claude-notifier check-and-notify` 的配置
+  - **原因**: 在使用 Gemini 等模型时，高频的工具调用会导致钩子被频繁触发，产生大量干扰性的 "Running PreToolUse hooks..." 提示，且该检查在 `UserPromptSubmit` 和 `SessionStart` 中已有覆盖，移除后不影响定时提醒功能，但能显著提升交互体验。
+
+### Fixed
+
+- **任务清理逻辑增强**: 优化 `task-complete-notifier.sh` 中的任务删除逻辑
+  - 改进了 Monorepo 根目录的查找算法，优先使用 `CLAUDE_PROJECT_DIR` 环境变量
+  - 增加了更详细的调试日志，帮助排查任务无法删除导致的 "时长计数错误" 问题
+  - 解决了在 Gemini 模型下可能因路径解析失败导致任务文件残留，进而引发通知混乱的问题
+
 ## [0.13.1] - 2026-01-28
 
 ### Added
