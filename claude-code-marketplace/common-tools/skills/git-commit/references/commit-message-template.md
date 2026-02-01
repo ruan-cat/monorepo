@@ -1,14 +1,14 @@
-# Commit message template (Conventional Commits)
+# 提交信息模板 (Conventional Commits)
 
 ```text
 <type>(<scope>): <summary>
 
-<What changed.>
-<Why it changed.>
+<变更内容>
+<变更原因>
 ```
 
-Notes:
+注意：
 
-- Keep the summary imperative and specific ("Add", "Fix", "Remove", "Refactor").
-- Avoid implementation minutiae; focus on behavior and intent.
-- If breaking: use `!` in header and/or add `BREAKING CHANGE:` footer.
+- summary 保持祈使句和具体化（"新增", "修复", "移除", "重构"）。
+- 避免实现细节；专注于行为和意图。
+- 如果是破坏性变更：在头部使用 `!` 和/或添加 `BREAKING CHANGE:`页脚。
