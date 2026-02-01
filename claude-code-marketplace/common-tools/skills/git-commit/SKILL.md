@@ -54,7 +54,7 @@ metadata:
      - (空行)
      - body (内容/原因，而非实现流水账)
      - footer (BREAKING CHANGE) 如果需要
-   - **Emoji 和 Type 规范**：必须查阅并遵循 [commit-types.ts](https://github.com/ruan-cat/monorepo/blob/dev/configs-package/commitlint-config/src/commit-types.ts) 中的定义。
+   - **Emoji 和 Type 规范**：必须查阅并遵循 [commit-types.ts](https://raw.githubusercontent.com/ruan-cat/monorepo/dev/configs-package/commitlint-config/src/commit-types.ts) 中的定义。
      - **主动查阅**：使用 `Read` 或 `WebFetch` 工具主动读取上述文件以获取最新的 Emoji 和 Type 列表。
    - 对于多行信息首选编辑器：`git commit -v`
    - 参考 `references/commit-message-template.md` 获取完整的模板和 Emoji 列表。
