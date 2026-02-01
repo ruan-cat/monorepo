@@ -2,7 +2,7 @@
 name: claude-code-marketplace
 description: 管理 claude-code-marketplace 插件商城的版本升级，包括更新版本号、编写更新日志和同步 CHANGELOG。在用户要求升级插件版本、更新插件商城、发布新版本或编写更新日志时使用。触发关键词：claude-code-marketplace、插件升级、版本更新、发布插件、更新日志。
 metadata:
-  version: "1.0.0"
+  version: "0.13.4"
 ---
 
 # Claude Code 插件商城版本升级助手

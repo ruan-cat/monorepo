@@ -3,7 +3,7 @@ name: openspec
 description: OpenSpec 中文版规范助手 - 规范驱动的 AI 编程开发，帮助初始化、创建提案、编写规格、校验格式并归档变更。触发条件： 当用户提及 openspec、规范文档、需求管理、变更提案、spec-driven development 等关键词时主动调用。
 trigger: 当用户提及 openspec、规范文档、需求管理、变更提案、spec-driven development 等关键词时主动调用
 metadata:
-  version: "1.0.0"
+  version: "0.13.4"
 ---
 
 # OpenSpec 中文版规范助手

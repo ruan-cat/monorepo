@@ -5,6 +5,34 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.13.4] - 2026-02-01
+
+### Added
+
+- **Skills 文档版本管理**: 为所有 skills 文档添加 `metadata.version` 字段
+  - 遵循 Agent Skills 规范（https://agentskills.io/specification#metadata-field）
+  - 版本号与插件商城版本保持同步
+  - 涉及的 skills 文档：
+    - `skills/openspec/SKILL.md`
+    - `skills/init-prettier-git-hooks/SKILL.md`
+    - `skills/init-claude-code-statusline/SKILL.md`
+    - `skills/init-ai-md/SKILL.md`
+    - `skills/nitro-api-development/SKILL.md`
+
+### Changed
+
+- **版本升级操作规范增强**: 更新 `claude-code-marketplace` 项目级别技能文档
+  - 新增"Skills 文档的 metadata.version 字段"章节，明确需要更新的 skills 文档列表
+  - 更新"升级流程步骤"，增加同步更新 skills 文档版本号的要求
+  - 更新"验证一致性"步骤，增加 skills 文档版本号一致性检查
+  - 更新示例，展示完整的版本升级流程
+  - 更新注意事项，强调 skills 文档同步的重要性
+
+### References
+
+- Agent Skills 规范文档: https://agentskills.io/specification#metadata-field
+- Claude Code Skills 文档: https://code.claude.com/docs/zh-CN/skills
+
 ## [0.13.3] - 2026-01-28
 
 ### Changed

@@ -3,7 +3,7 @@ name: init-claude-code-statusline
 description: 初始化、更新或覆盖 Claude Code 状态栏配置文件（.claude/settings.json 和 .claude/statusline.sh）。用于在任何项目中快速搭建 Claude Code 状态栏显示功能，展示目录、Git 分支、模型、版本和上下文窗口使用情况。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "0.13.4"
 ---
 
 # 初始化 Claude Code 状态栏配置

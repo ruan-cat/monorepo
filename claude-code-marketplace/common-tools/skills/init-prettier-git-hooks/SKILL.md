@@ -3,7 +3,7 @@ name: init-prettier-git-hooks
 description: 初始化基于 lint-staged + simple-git-hooks + prettier 的 git 提交前代码格式化流程。用于在任何 Node.js 项目中快速搭建代码格式化和 git 钩子配置。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "0.13.4"
 ---
 
 # 初始化 Prettier + Git Hooks 格式化流程

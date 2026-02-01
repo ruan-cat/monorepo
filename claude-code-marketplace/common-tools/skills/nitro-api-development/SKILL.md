@@ -2,7 +2,7 @@
 name: nitro-api-development
 description: 使用 Nitro v3 框架编写服务端接口的技能规范。适用于初始化纯后端 Nitro 项目、为 Vite 项目赋予全栈能力、编写符合规范的 Nitro 接口。当用户需要创建 Nitro 接口、初始化 Nitro 配置、或咨询 Nitro 开发规范时使用此技能。
 metadata:
-  version: "1.0.0"
+  version: "0.13.4"
 ---
 
 # Nitro v3 接口开发技能规范

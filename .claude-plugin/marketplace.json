@@ -9,7 +9,7 @@
 	},
 	"metadata": {
 		"description": "阮喵喵自用的一整套claude code插件",
-		"version": "0.13.0"
+		"version": "0.13.4"
 	},
 	"plugins": [
 		{
@@ -17,7 +17,7 @@
 			"source": "./claude-code-marketplace/common-tools",
 			"description": "阮喵喵开发时常用的一些通用工具",
 			"repository": "https://github.com/ruan-cat/monorepo",
-			"version": "0.13.1",
+			"version": "0.13.4",
 			"license": "MIT",
 			"author": {
 				"name": "ruan-cat",
