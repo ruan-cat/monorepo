@@ -505,3 +505,10 @@ Stop says: Plugin hook error: /usr/bin/bash: C:\Users\pc\.claude\plugins\cache\r
 请你使用项目本地的 `claude-code-marketplace` 技能，并阅读 git 日志，阅读今天提交的这几个 git 提交内容和具体的修改项。编撰有意义的插件更新日志。
 
 claude code 插件商城的发版标签应该为 minor 。
+
+## 026 claude code 插件商城增加 metadata.version 字段，项目级别技能增设更新该字段的操作规范
+
+1. 阅读 https://agentskills.io/specification#metadata-field 文档
+2. 给 claude-code-marketplace 目录内全部的 skills 文档，最顶部的 yaml 信息，增加 metadata.version 字段。默认版本为 1.0.0 版本。
+3. `.claude\skills\claude-code-marketplace`这款项目内的本地技能，也增加相同的 metadata.version 字段。默认版本为 1.0.0 版本。
+4. 项目级别技能 `.claude\skills\claude-code-marketplace` ，在完成版本更新时，增加新的标准。同时更新 skills 技能文档提供的 metadata.version 字段。
