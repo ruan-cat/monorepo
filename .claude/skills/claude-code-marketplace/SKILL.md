@@ -1,6 +1,8 @@
 ---
 name: claude-code-marketplace
 description: 管理 claude-code-marketplace 插件商城的版本升级，包括更新版本号、编写更新日志和同步 CHANGELOG。在用户要求升级插件版本、更新插件商城、发布新版本或编写更新日志时使用。触发关键词：claude-code-marketplace、插件升级、版本更新、发布插件、更新日志。
+metadata:
+  version: "1.0.0"
 ---
 
 # Claude Code 插件商城版本升级助手
@@ -35,6 +37,35 @@ description: 管理 claude-code-marketplace 插件商城的版本升级，包括
 
 1. `.claude-plugin\marketplace.json` - 插件商城主配置文件
 2. `claude-code-marketplace\common-tools\.claude-plugin\plugin.json` - 插件配置文件
+
+### Skills 文档的 metadata.version 字段
+
+除了上述配置文件外，每次版本升级时还**必须**同步更新所有 skills 文档的 `metadata.version` 字段：
+
+**需要更新的 skills 文档列表**：
+
+1. `claude-code-marketplace\common-tools\skills\openspec\SKILL.md`
+2. `claude-code-marketplace\common-tools\skills\init-prettier-git-hooks\SKILL.md`
+3. `claude-code-marketplace\common-tools\skills\init-claude-code-statusline\SKILL.md`
+4. `claude-code-marketplace\common-tools\skills\init-ai-md\SKILL.md`
+5. `claude-code-marketplace\common-tools\skills\nitro-api-development\SKILL.md`
+
+**metadata.version 字段格式**：
+
+```yaml
+---
+name: skill-name
+description: 技能描述
+metadata:
+  version: "X.Y.Z"
+---
+```
+
+**更新规则**：
+
+- `metadata.version` 字段值必须与插件商城版本号保持一致
+- 版本号必须使用引号包裹，如 `"1.0.0"`
+- 所有 skills 文档的 `metadata.version` 必须同时更新
 
 ### 版本号格式
 
@@ -94,7 +125,8 @@ description: 管理 claude-code-marketplace 插件商城的版本升级，包括
 2. **更新配置文件**
    - 更新 `.claude-plugin\marketplace.json` 中的 version 字段
    - 更新 `claude-code-marketplace\common-tools\.claude-plugin\plugin.json` 中的 version 字段
-   - 确保两个文件的版本号完全一致
+   - 更新所有 skills 文档的 `metadata.version` 字段（详见"Skills 文档的 metadata.version 字段"章节）
+   - 确保所有文件的版本号完全一致
 
 3. **编写更新日志**
    - 在 `CHANGELOG.md` 文件顶部添加新版本条目
@@ -103,7 +135,8 @@ description: 管理 claude-code-marketplace 插件商城的版本升级，包括
    - 添加发布日期
 
 4. **验证一致性**
-   - 检查所有文件中的版本号是否一致
+   - 检查所有配置文件中的版本号是否一致
+   - 检查所有 skills 文档的 `metadata.version` 是否与配置文件版本号一致
    - 检查 CHANGELOG 格式是否符合规范
    - 确认所有变更都已记录
 
@@ -119,8 +152,9 @@ description: 管理 claude-code-marketplace 插件商城的版本升级，包括
 
 **步骤**：
 
-1. 更新两个 JSON 文件中的 version 为 `"1.2.4"`
-2. 在 CHANGELOG.md 添加：
+1. 更新两个 JSON 配置文件中的 version 为 `"1.2.4"`
+2. 更新所有 skills 文档的 `metadata.version` 为 `"1.2.4"`
+3. 在 CHANGELOG.md 添加：
 
    ```markdown
    ## [1.2.4] - 2025-01-05
@@ -130,7 +164,7 @@ description: 管理 claude-code-marketplace 插件商城的版本升级，包括
    - 修复插件加载时的路径解析错误
    ```
 
-3. 提交：`chore(plugin): release version 1.2.4`
+4. 提交：`chore(plugin): release version 1.2.4`
 
 ### 示例 2：发布功能版本
 
@@ -138,8 +172,9 @@ description: 管理 claude-code-marketplace 插件商城的版本升级，包括
 
 **步骤**：
 
-1. 更新两个 JSON 文件中的 version 为 `"1.3.0"`
-2. 在 CHANGELOG.md 添加：
+1. 更新两个 JSON 配置文件中的 version 为 `"1.3.0"`
+2. 更新所有 skills 文档的 `metadata.version` 为 `"1.3.0"`
+3. 在 CHANGELOG.md 添加：
 
    ```markdown
    ## [1.3.0] - 2025-01-05
@@ -154,15 +189,16 @@ description: 管理 claude-code-marketplace 插件商城的版本升级，包括
    - 优化插件加载性能
    ```
 
-3. 提交：`chore(plugin): release version 1.3.0`
+4. 提交：`chore(plugin): release version 1.3.0`
 
 ## 注意事项
 
-1. **版本号一致性**：确保所有文件中的版本号完全一致，避免配置不同步
-2. **CHANGELOG 完整性**：每次发布都必须更新 CHANGELOG，不能遗漏
-3. **语义化版本**：严格遵循语义化版本规范，让用户清楚了解变更影响
-4. **日期格式**：使用 ISO 8601 格式（YYYY-MM-DD）
-5. **变更分类**：准确使用 changelog 分类，帮助用户快速定位关注的内容
+1. **版本号一致性**：确保所有配置文件和 skills 文档中的版本号完全一致，避免配置不同步
+2. **Skills 文档同步**：每次版本升级必须同步更新所有 skills 文档的 `metadata.version` 字段
+3. **CHANGELOG 完整性**：每次发布都必须更新 CHANGELOG，不能遗漏
+4. **语义化版本**：严格遵循语义化版本规范，让用户清楚了解变更影响
+5. **日期格式**：使用 ISO 8601 格式（YYYY-MM-DD）
+6. **变更分类**：准确使用 changelog 分类，帮助用户快速定位关注的内容
 
 ## 相关资源
 
