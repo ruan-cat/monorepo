@@ -57,8 +57,9 @@ async function getCommitsFromGitHistory(from?: string, to?: string): Promise<Git
 
 /**
  * 将 changelogen 的 GitCommit 转换为变更日志行
+ * @internal 仅导出用于单元测试，不作为公共 API 使用
  */
-function formatCommitToChangelogLine(commit: GitCommit, repoUrl?: string): string {
+export function formatCommitToChangelogLine(commit: GitCommit, repoUrl?: string): string {
 	let line = "- ";
 
 	// 添加 emoji (从类型映射中获取)
