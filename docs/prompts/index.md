@@ -513,7 +513,7 @@ claude code 插件商城的发版标签应该为 minor 。
 3. `.claude\skills\claude-code-marketplace`这款项目内的本地技能，也增加相同的 metadata.version 字段。默认版本为 1.0.0 版本。
 4. 项目级别技能 `.claude\skills\claude-code-marketplace` ，在完成版本更新时，增加新的标准。同时更新 skills 技能文档提供的 metadata.version 字段。
 
-## 027 <!-- TODO: --> 使用 automd 提供的 `automd:pm-install` 来优化各个 README.md 文件的安装说明文本
+## 027 使用 automd 提供的 `automd:pm-install` 来优化各个 README.md 文件的安装说明文本
 
 - 阅读 https://automd.unjs.io/generators/pm-install 文档。
 - 我们这整个 monorepo 项目，都全方位的在多个子包的 README.md 文档内，使用了 automd 来生成特定内容。我需要应用 automd 提供的这款工具来优化文档显示效果。按照以下步骤来完成批量升级：
