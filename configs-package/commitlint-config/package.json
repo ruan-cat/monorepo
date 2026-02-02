@@ -24,6 +24,7 @@
 	"exports": {
 		".": {
 			"require": "./dist/index.cjs",
+			"default": "./dist/index.cjs",
 			"types": "./dist/index.d.cts"
 		},
 		"./src/*": "./src/*"
