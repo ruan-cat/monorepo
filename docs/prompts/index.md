@@ -512,3 +512,27 @@ claude code 插件商城的发版标签应该为 minor 。
 2. 给 claude-code-marketplace 目录内全部的 skills 文档，最顶部的 yaml 信息，增加 metadata.version 字段。默认版本为 1.0.0 版本。
 3. `.claude\skills\claude-code-marketplace`这款项目内的本地技能，也增加相同的 metadata.version 字段。默认版本为 1.0.0 版本。
 4. 项目级别技能 `.claude\skills\claude-code-marketplace` ，在完成版本更新时，增加新的标准。同时更新 skills 技能文档提供的 metadata.version 字段。
+
+## 027 <!-- TODO: --> 使用 automd 提供的 `automd:pm-install` 来优化各个 README.md 文件的安装说明文本
+
+- 阅读 https://automd.unjs.io/generators/pm-install 文档。
+- 我们这整个 monorepo 项目，都全方位的在多个子包的 README.md 文档内，使用了 automd 来生成特定内容。我需要应用 automd 提供的这款工具来优化文档显示效果。按照以下步骤来完成批量升级：
+
+1. 根据 `pnpm-workspace.yaml` 配置文件，扫描出本项目内有哪些有意义的 monorepo 子包。首先明确清楚有哪些 node 包需要被处理。
+2. 检查每一个子包，是否安装了 automd 这个开发依赖。
+3. 全局升级 automd 依赖，升级到最新版。
+4. 使用 `git-commit` 技能，为依赖升级编写 git 提交信息。
+5. 为各个有意义的子包，补全 README.md 文档。确保有意义的子包都包含一个 README.md 文档。
+6. 如果增加了 README.md 文档，就使用 `git-commit` 技能，编写新建 README.md 文档的 git 提交信息。
+7. 检查全部有意义子包的 README.md 文档，特别是检查其安装的写法。我们将使用 automd 提供的 `automd:pm-install` 特殊注释，来完成安装命令的批量重写。以后 README.md 文档不再手写依赖安装命令了，而是统一用 automd 来完成批量生成。
+8. 你要仔细分别清楚，那些子包是需要写安装命令的，以及这些安装命令是安装为 dependencies 还是 devDependencies 依赖。
+
+其中 `automd:pm-install` 特殊注释的格式如下：
+
+```markdown
+<!-- automd:pm-install name="package-name" dev -->
+<!-- /automd -->
+```
+
+9. 删减写死的安装命令并替换成 `automd:pm-install` 特殊注释之后，就批量运行每个子包提供的 `prebuild` 命令。统一生成 automd 文本。
+10. 生成完毕后，就使用 `git-commit` 技能，根据本次主动补全安装命令的 markdown 文档内容，编写 git 提交信息。
