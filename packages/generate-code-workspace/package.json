@@ -53,14 +53,14 @@
 		"@ruan-cat/utils": "workspace:^",
 		"commander": "^13.1.0",
 		"consola": "^3.4.2",
-		"tinyglobby": "^0.2.15",
 		"js-yaml": "^4.1.0",
 		"jsonc-parser": "^3.3.1",
-		"lodash-es": "^4.17.21"
+		"lodash-es": "^4.17.21",
+		"tinyglobby": "^0.2.15"
 	},
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.9",
-		"automd": "^0.4.2",
+		"automd": "^0.4.3",
 		"pkg-types": "^2.3.0"
 	},
 	"peerDependencies": {

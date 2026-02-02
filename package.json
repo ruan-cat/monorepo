@@ -68,7 +68,7 @@
 		"@vitest/ui": "^3.2.4",
 		"@vuepress/bundler-vite": "2.0.0-rc.20",
 		"@vuepress/plugin-slimsearch": "2.0.0-rc.80",
-		"automd": "^0.4.2",
+		"automd": "^0.4.3",
 		"codess": "^1.1.10",
 		"commander": "^13.1.0",
 		"commitizen": "^4.3.1",

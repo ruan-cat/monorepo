@@ -71,7 +71,7 @@
 		"consola": "^3.4.2"
 	},
 	"devDependencies": {
-		"automd": "^0.4.2",
+		"automd": "^0.4.3",
 		"taze": "^19.9.0",
 		"tsup": "^8.5.0"
 	}

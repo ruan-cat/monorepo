@@ -62,7 +62,7 @@
 	"devDependencies": {
 		"@types/node": "^22.19.0",
 		"@types/rollup-plugin-visualizer": "^5.0.3",
-		"automd": "^0.4.2",
+		"automd": "^0.4.3",
 		"tsup": "^8.5.0"
 	},
 	"dependencies": {
