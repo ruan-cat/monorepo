@@ -69,6 +69,9 @@ deno install --dev npm:@ruan-cat/release-toolkit
 
 <!-- /automd -->
 
+> [!NOTE]
+> 本包需要配合 `@changesets/cli` 使用，请确保已安装。
+
 ## 快速开始
 
 ### 1. 更新 changesets 配置

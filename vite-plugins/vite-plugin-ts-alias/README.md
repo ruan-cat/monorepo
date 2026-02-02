@@ -46,6 +46,9 @@ deno install --dev npm:@ruan-cat/vite-plugin-ts-alias
 
 <!-- /automd -->
 
+> [!NOTE]
+> 需要确保项目中已安装 `vite`。
+
 ## 使用方法
 
 ### 基本用法

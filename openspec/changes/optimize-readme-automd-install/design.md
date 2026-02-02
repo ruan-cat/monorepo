@@ -26,23 +26,31 @@
 **Rationale**:
 并非所有工作区目录都需要标准的安装说明。例如，示例代码（demos）通常不需要被安装，测试代码也不发布。聚焦于库性质的包能最大化文档优化的价值。
 
-### 2. `automd:pm-install` 参数配置
+### 2. `automd:pm-install` 参数配置与增强
 
 **Decision**:
-使用如下标准格式：
+使用如下标准格式，并根据包的特性补充对等依赖和运行方式说明：
 
 ```markdown
 <!-- automd:pm-install name="<package-name>" <dev?> -->
 <!-- /automd -->
 ```
 
-其中：
+**增强规则**:
 
-- `name`: 必须与 `package.json` 中的 `name` 字段一致。
-- `dev`: 对于工具类、配置类包（如 eslint-config, vite-plugin），添加 `dev` 参数以生成 `npm install -D` 等命令；对于运行时依赖库（如 utils），不加 `dev` 参数。
+1.  **对等依赖 (Peer Dependencies)**:
+    - 对于存在 `peerDependencies` 且必须配合安装的包（如 `commitlint-config` 依赖 `commitizen`），**必须**在安装说明中显式包含这些依赖。
+    - 鉴于 `automd:pm-install` 原生不支持自动合并 peerDeps，我们需要在设计上要求：
+      - 方案 A (理想): 如果 `automd` 支持，传入额外参数 (如 `name="@ruan-cat/pkg peer-dep-a"`)。
+      - 方案 B (当前可行): 在 `automd` 块之外，或者作为 `automd` 的一部分，必须补充说明 "同时安装 peerDependencies" 的步骤。
+    - **修正**: 为了满足 "同步安装齐全足够的 peer 依赖" 的要求，我们将手动或通过配置确保安装命令包含必要的 peer deps。
+
+2.  **CLI 工具 (npx/dlx)**:
+    - 对于主要以 CLI 形式使用的包（如 `taze-config`, `commitlint-config`, `vercel-deploy-tool`），**必须**在文档中显著位置（通常是安装说明后或“快速开始”节）提供 `npx` 或 `pnpm dlx` 的使用示例。
+    - 明确区分 "安装使用" (作为依赖) 和 "一次性运行" (CLI) 的场景。
 
 **Rationale**:
-准确区分 `dependencies` 和 `devDependencies` 对用户至关重要。工具类库通常作为开发依赖安装。
+准确区分 `dependencies` 和 `devDependencies` 对用户至关重要。同时，现代前端工具链常依赖对等依赖（如 eslint config, commitlint config），若文档遗漏会导致用户配置失败。CLI 工具的 `dlx` 用法能极大降低用户试用门槛。
 
 ### 3. 批量处理脚本
 

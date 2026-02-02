@@ -536,3 +536,22 @@ claude code 插件商城的发版标签应该为 minor 。
 
 9. 删减写死的安装命令并替换成 `automd:pm-install` 特殊注释之后，就批量运行每个子包提供的 `prebuild` 命令。统一生成 automd 文本。
 10. 生成完毕后，就使用 `git-commit` 技能，根据本次主动补全安装命令的 markdown 文档内容，编写 git 提交信息。
+
+### 01 持续更新迭代 README 文档内容
+
+/opsx:apply 有部分 README 文件的处理方式，不合适。
+
+根据 git 历史记录，阅读这几个 README 文档：
+
+- configs-package\commitlint-config\README.md
+- packages\claude-notifier\README.md
+- configs-package\taze-config\README.md
+- packages\release-toolkit\README.md
+
+这几个包对应的文档。应该补全对应的 peer 依赖。需要同步安装齐全足够的 peer 依赖。另外，有部分包本身是推荐用 npx 或 pnpm dlx 的方式来安装的。现在的文档内，丢失应该要同时安装的依赖项，没有说明清楚需要安装的对等依赖。也没有体现出相关包需要使用 npx 来使用。
+
+请你帮我完成修改与补全。
+
+---
+
+请你更改 openspec 对应的规范设计文档。
