@@ -61,9 +61,29 @@ pnpm dlx @ruan-cat/taze-config --version
 
 ## 安装
 
-```bash
-pnpm i -D @ruan-cat/taze-config taze
+<!-- automd:pm-install name="@ruan-cat/taze-config" dev -->
+
+```sh
+# ✨ Auto-detect
+npx nypm install -D @ruan-cat/taze-config
+
+# npm
+npm install -D @ruan-cat/taze-config
+
+# yarn
+yarn add -D @ruan-cat/taze-config
+
+# pnpm
+pnpm add -D @ruan-cat/taze-config
+
+# bun
+bun install -D @ruan-cat/taze-config
+
+# deno
+deno install --dev npm:@ruan-cat/taze-config
 ```
+
+<!-- /automd -->
 
 taze 作为对等依赖，可以安装。
 

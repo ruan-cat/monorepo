@@ -36,9 +36,29 @@
 
 ## 安装
 
-```bash
-pnpm i -D commitizen cz-git @ruan-cat/commitlint-config
+<!-- automd:pm-install name="@ruan-cat/commitlint-config" dev -->
+
+```sh
+# ✨ Auto-detect
+npx nypm install -D @ruan-cat/commitlint-config
+
+# npm
+npm install -D @ruan-cat/commitlint-config
+
+# yarn
+yarn add -D @ruan-cat/commitlint-config
+
+# pnpm
+pnpm add -D @ruan-cat/commitlint-config
+
+# bun
+bun install -D @ruan-cat/commitlint-config
+
+# deno
+deno install --dev npm:@ruan-cat/commitlint-config
 ```
+
+<!-- /automd -->
 
 本库应当作为开发环境依赖。其中，`commitizen` 和 `cz-git` 为本依赖包的对等依赖。
 
@@ -547,7 +567,7 @@ export const commonScopes: ScopesItemWithDesc[] = [
 		code: "vitepress",
 		value: "vitepress",
 		desc: "vitepress文档工具配置",
-		glob: ["**/.vitepress/config.mts", "**/.vitepress/theme/index.ts"],
+		glob: ["**/.vitepress/config.mts", "**/.vitepress/config.ts", "**/.vitepress/theme/index.ts"],
 	},
 
 	// cz配置，即git提交工具的配置
@@ -566,7 +586,15 @@ export const commonScopes: ScopesItemWithDesc[] = [
 		glob: ["**/tsconfig*.json"],
 	},
 
-	// 路由配置
+	// server 服务端接口
+	{
+		code: "server",
+		value: "server",
+		desc: "服务端接口",
+		glob: ["**/server/**/*.ts", "**/servers/**/*.ts"],
+	},
+
+	// 路由
 	{
 		code: "router",
 		value: "router",
@@ -606,12 +634,20 @@ export const commonScopes: ScopesItemWithDesc[] = [
 		desc: "API接口",
 	},
 
+	// openspec 提示词文档配置
+	{
+		code: "openspec",
+		value: "openspec",
+		desc: "openspec提示词文档配置。特指高强度在 openspec 目录内迭代更新的任务说明文档。",
+		glob: ["**/openspec/**/*.md"],
+	},
+
 	// claude code的配置
 	{
 		code: "claude",
 		value: "claude",
 		desc: "claude code的配置。特指在claude code生成或使用的文件。包括配置、提示词、代理、记忆文件等。",
-		glob: ["**/.claude/**", "CLAUDE.md"],
+		glob: ["**/.claude/**", "**/.claude-plugin/**", "**/CLAUDE*.md"],
 	},
 ];
 ```

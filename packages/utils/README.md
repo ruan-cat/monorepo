@@ -14,3 +14,29 @@ dir:
 <!-- /automd -->
 
 这是阮喵喵开发的工具包，提供了一些工具函数。
+
+## Install
+
+<!-- automd:pm-install name="@ruan-cat/utils" -->
+
+```sh
+# ✨ Auto-detect
+npx nypm install @ruan-cat/utils
+
+# npm
+npm install @ruan-cat/utils
+
+# yarn
+yarn add @ruan-cat/utils
+
+# pnpm
+pnpm add @ruan-cat/utils
+
+# bun
+bun install @ruan-cat/utils
+
+# deno
+deno install npm:@ruan-cat/utils
+```
+
+<!-- /automd -->

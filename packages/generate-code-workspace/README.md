@@ -11,9 +11,29 @@
 
 ## 安装
 
-```bash
-pnpm i -D @ruan-cat/generate-code-workspace tsx
+<!-- automd:pm-install name="@ruan-cat/generate-code-workspace" dev -->
+
+```sh
+# ✨ Auto-detect
+npx nypm install -D @ruan-cat/generate-code-workspace
+
+# npm
+npm install -D @ruan-cat/generate-code-workspace
+
+# yarn
+yarn add -D @ruan-cat/generate-code-workspace
+
+# pnpm
+pnpm add -D @ruan-cat/generate-code-workspace
+
+# bun
+bun install -D @ruan-cat/generate-code-workspace
+
+# deno
+deno install --dev npm:@ruan-cat/generate-code-workspace
 ```
+
+<!-- /automd -->
 
 本库应当作为开发环境依赖。
 

@@ -22,13 +22,29 @@
 
 ## 安装
 
-```bash
+<!-- automd:pm-install name="@ruan-cat/vite-plugin-ts-alias" dev -->
+
+```sh
+# ✨ Auto-detect
+npx nypm install -D @ruan-cat/vite-plugin-ts-alias
+
+# npm
 npm install -D @ruan-cat/vite-plugin-ts-alias
-# 或
+
+# yarn
 yarn add -D @ruan-cat/vite-plugin-ts-alias
-# 或
+
+# pnpm
 pnpm add -D @ruan-cat/vite-plugin-ts-alias
+
+# bun
+bun install -D @ruan-cat/vite-plugin-ts-alias
+
+# deno
+deno install --dev npm:@ruan-cat/vite-plugin-ts-alias
 ```
+
+<!-- /automd -->
 
 ## 使用方法
 

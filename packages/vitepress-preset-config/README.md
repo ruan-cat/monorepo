@@ -11,13 +11,29 @@
 
 ## 安装
 
-```bash
-npm install @ruan-cat/vitepress-preset-config
-# 或
-yarn add @ruan-cat/vitepress-preset-config
-# 或
-pnpm add @ruan-cat/vitepress-preset-config
+<!-- automd:pm-install name="@ruan-cat/vitepress-preset-config" dev -->
+
+```sh
+# ✨ Auto-detect
+npx nypm install -D @ruan-cat/vitepress-preset-config
+
+# npm
+npm install -D @ruan-cat/vitepress-preset-config
+
+# yarn
+yarn add -D @ruan-cat/vitepress-preset-config
+
+# pnpm
+pnpm add -D @ruan-cat/vitepress-preset-config
+
+# bun
+bun install -D @ruan-cat/vitepress-preset-config
+
+# deno
+deno install --dev npm:@ruan-cat/vitepress-preset-config
 ```
+
+<!-- /automd -->
 
 ## 使用方法
 

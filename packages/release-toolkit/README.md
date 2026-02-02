@@ -45,9 +45,29 @@ graph TB
 
 ## 安装
 
-```bash
+<!-- automd:pm-install name="@ruan-cat/release-toolkit" dev -->
+
+```sh
+# ✨ Auto-detect
+npx nypm install -D @ruan-cat/release-toolkit
+
+# npm
+npm install -D @ruan-cat/release-toolkit
+
+# yarn
+yarn add -D @ruan-cat/release-toolkit
+
+# pnpm
 pnpm add -D @ruan-cat/release-toolkit
+
+# bun
+bun install -D @ruan-cat/release-toolkit
+
+# deno
+deno install --dev npm:@ruan-cat/release-toolkit
 ```
+
+<!-- /automd -->
 
 ## 快速开始
 

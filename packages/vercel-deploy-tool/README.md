@@ -23,9 +23,29 @@
 
 ## 📦 安装
 
-```bash
+<!-- automd:pm-install name="@ruan-cat/vercel-deploy-tool" dev -->
+
+```sh
+# ✨ Auto-detect
+npx nypm install -D @ruan-cat/vercel-deploy-tool
+
+# npm
+npm install -D @ruan-cat/vercel-deploy-tool
+
+# yarn
+yarn add -D @ruan-cat/vercel-deploy-tool
+
+# pnpm
 pnpm add -D @ruan-cat/vercel-deploy-tool
+
+# bun
+bun install -D @ruan-cat/vercel-deploy-tool
+
+# deno
+deno install --dev npm:@ruan-cat/vercel-deploy-tool
 ```
+
+<!-- /automd -->
 
 ## 🔧 环境要求
 

@@ -28,16 +28,29 @@ Claude Code 通知工具 - 在 Claude Code 任务完成后发送 Windows 系统�
 
 ### 安装
 
-```bash
-# 使用 npx（推荐，无需安装）
-npx @ruan-cat/claude-notifier
+<!-- automd:pm-install name="@ruan-cat/claude-notifier" dev -->
 
-# 使用 pnpm dlx
-pnpm dlx @ruan-cat/claude-notifier
+```sh
+# ✨ Auto-detect
+npx nypm install -D @ruan-cat/claude-notifier
 
-# 全局安装
-npm install -g @ruan-cat/claude-notifier
+# npm
+npm install -D @ruan-cat/claude-notifier
+
+# yarn
+yarn add -D @ruan-cat/claude-notifier
+
+# pnpm
+pnpm add -D @ruan-cat/claude-notifier
+
+# bun
+bun install -D @ruan-cat/claude-notifier
+
+# deno
+deno install --dev npm:@ruan-cat/claude-notifier
 ```
+
+<!-- /automd -->
 
 ### 基本使用
 
