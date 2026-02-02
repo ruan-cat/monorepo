@@ -85,7 +85,22 @@ deno install --dev npm:@ruan-cat/taze-config
 
 <!-- /automd -->
 
-taze 作为对等依赖，可以安装。
+### 安装对等依赖
+
+`taze` 是本包的对等依赖。如果需要使用配置文件方式（`taze.config.ts`），必须安装 `taze`：
+
+```sh
+# pnpm（推荐）
+pnpm add -D @ruan-cat/taze-config taze
+
+# npm
+npm install -D @ruan-cat/taze-config taze
+
+# yarn
+yarn add -D @ruan-cat/taze-config taze
+```
+
+> **注意**：如果只通过 `pnpm dlx` 或 `npx` 方式使用 CLI 命令初始化配置，可以不安装本包。但后续运行 `npx taze -r` 命令时，仍需安装 `taze` 依赖。
 
 ## 使用方式
 

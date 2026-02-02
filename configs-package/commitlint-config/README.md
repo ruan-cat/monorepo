@@ -60,7 +60,20 @@ deno install --dev npm:@ruan-cat/commitlint-config
 
 <!-- /automd -->
 
-本库应当作为开发环境依赖。其中，`commitizen` 和 `cz-git` 为本依赖包的对等依赖。
+### 安装对等依赖
+
+本库应当作为开发环境依赖。其中，`commitizen` 和 `cz-git` 为本包的**必需对等依赖**，需要同时安装：
+
+```sh
+# pnpm（推荐）
+pnpm add -D @ruan-cat/commitlint-config commitizen cz-git
+
+# npm
+npm install -D @ruan-cat/commitlint-config commitizen cz-git
+
+# yarn
+yarn add -D @ruan-cat/commitlint-config commitizen cz-git
+```
 
 ## 侧重点
 

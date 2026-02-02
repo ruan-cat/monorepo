@@ -69,8 +69,26 @@ deno install --dev npm:@ruan-cat/release-toolkit
 
 <!-- /automd -->
 
+### 安装对等依赖
+
+本包需要配合 `@changesets/cli` 使用。`typescript` 为可选依赖（用于类型检查）：
+
+```sh
+# pnpm（推荐）- 安装必需的对等依赖
+pnpm add -D @ruan-cat/release-toolkit @changesets/cli
+
+# pnpm - 同时安装可选的 typescript
+pnpm add -D @ruan-cat/release-toolkit @changesets/cli typescript
+
+# npm
+npm install -D @ruan-cat/release-toolkit @changesets/cli
+
+# yarn
+yarn add -D @ruan-cat/release-toolkit @changesets/cli
+```
+
 > [!NOTE]
-> 本包需要配合 `@changesets/cli` 使用，请确保已安装。
+> `@changesets/cli` 是必需的对等依赖，用于版本管理和发布工作流。
 
 ## 快速开始
 

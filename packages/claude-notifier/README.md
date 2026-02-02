@@ -28,6 +28,18 @@ Claude Code 通知工具 - 在 Claude Code 任务完成后发送 Windows 系统�
 
 ### 安装
 
+**推荐使用方式**：无需安装，直接使用 `npx` 或 `pnpm dlx` 运行：
+
+```bash
+# 使用 npx（推荐，无需安装）
+npx @ruan-cat/claude-notifier task-complete --message "任务完成"
+
+# 使用 pnpm dlx
+pnpm dlx @ruan-cat/claude-notifier task-complete --message "任务完成"
+```
+
+如需在项目中作为依赖安装（用于编程式调用 API），可使用以下命令：
+
 <!-- automd:pm-install name="@ruan-cat/claude-notifier" dev -->
 
 ```sh
