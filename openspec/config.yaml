@@ -8,6 +8,8 @@ schema: spec-driven
 #     Tech stack: TypeScript, React, Node.js
 #     We use conventional commits
 #     Domain: e-commerce platform
+context: |
+  语言要求：本项目内的所有 OpenSpec 任务、工件（artifacts）及回复必须使用**中文**编写。
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
