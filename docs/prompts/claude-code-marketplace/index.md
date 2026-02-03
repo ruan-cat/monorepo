@@ -470,7 +470,7 @@ claude code 插件商城的发版标签应该为 minor 。
 3. `.claude\skills\claude-code-marketplace`这款项目内的本地技能，也增加相同的 metadata.version 字段。默认版本为 1.0.0 版本。
 4. 项目级别技能 `.claude\skills\claude-code-marketplace` ，在完成版本更新时，增加新的标准。同时更新 skills 技能文档提供的 metadata.version 字段。
 
-## 23 <!-- TODO: --> 重做 `claude-code-marketplace\common-tools\skills\openspec\SKILL.md` 技能
+## 23 重做 `claude-code-marketplace\common-tools\skills\openspec\SKILL.md` 技能
 
 这个技能的做法完全过时了。请你深度调研
 
