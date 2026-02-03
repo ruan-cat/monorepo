@@ -5,6 +5,56 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [0.15.0] - 2026-02-03
+
+### Changed
+
+- **Skill 重做**: `openspec` - OpenSpec 规范驱动开发助手技能 (v1.0.0)
+  - **完全重写技能文档**，从 `@org-hex/openspec-chinese` 工具文档升级为基于 OPSX 工作流的 AI 辅助编程框架
+  - **核心理念变更**：从工具使用指南转变为规范驱动开发框架
+  - **新增核心原则**：
+    - 流动而非僵化 - 随时处理任何工件，无阶段门控
+    - 迭代而非瀑布 - 边构建边完善理解
+    - 简单而非复杂 - 最小化设置和仪式
+    - 棕地优先 - Delta 方式修改现有系统
+  - **新增工作流模式**：
+    - 快速功能流：`/opsx:new → /opsx:ff → /opsx:apply → /opsx:verify → /opsx:archive`
+    - 探索式流程：`/opsx:explore → /opsx:new → /opsx:continue → ... → /opsx:apply`
+    - 增量式流程：`/opsx:new → /opsx:continue (重复) → /opsx:apply → /opsx:archive`
+  - **新增工件系统说明**：
+    - 默认 Schema: spec-driven
+    - 工件依赖关系：proposal → specs → design → tasks → implement
+    - 工件状态转换：BLOCKED → READY → DONE
+  - **新增 Delta Specs 格式规范**：ADDED/MODIFIED/REMOVED 标记系统
+  - **新增项目配置说明**：config.yaml 配置项和 Schema 优先级
+  - **新增自定义 Schema 创建指南**
+  - **新增验证命令说明**：Completeness/Correctness/Coherence 三维度检查
+  - **新增执行长任务注意事项**：主从代理调度、并行子代理等
+  - **新增故障排除指南**
+  - **更新斜杠命令列表**：完整的 `/opsx:*` 命令速查表
+  - **更新 CLI 命令参考**
+
+### Technical Details
+
+#### openspec 技能 v1.0.0 主要变更
+
+**v0.9.0 版本**（旧版）：
+
+- 面向 `@org-hex/openspec-chinese` CLI 工具的使用指南
+- 侧重于命令行操作和规格文档格式
+
+**v1.0.0 版本**（新版）：
+
+- 完整的规范驱动开发框架文档
+- 包含工作流、工件系统、配置和自定义 Schema
+- 更强调开发理念和最佳实践
+- 与 OpenSpec 官方 OPSX 工作流保持一致
+
+### References
+
+- OpenSpec 仓库: https://github.com/Fission-AI/OpenSpec
+- OPSX 工作流文档: https://github.com/Fission-AI/OpenSpec/blob/main/docs/opsx.md
+
 ## [0.14.0] - 2026-02-01
 
 ### Added
