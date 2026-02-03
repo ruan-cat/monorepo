@@ -5,6 +5,67 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [1.0.0] - 2026-02-03
+
+### Breaking Changes
+
+⚠️ **重大变更**: Gemini 智能总结功能现默认关闭
+
+本版本将 Gemini AI 智能总结功能从默认启用改为默认禁用，这是一个破坏性变更。
+
+**变更原因**：
+
+- 减少对外部 API 的依赖
+- 提升任务完成通知的响应速度
+- 降低网络请求失败导致的通知延迟
+
+**迁移指南**：
+
+如需继续使用 Gemini 智能总结功能，请设置环境变量：
+
+```bash
+export GEMINI_SUMMARY_ENABLED=true
+```
+
+### Changed
+
+- **Gemini 总结功能开关**: 新增 `ENABLE_GEMINI_SUMMARY` 配置开关
+  - 默认值：`false`（关闭 Gemini 总结）
+  - 可通过环境变量 `GEMINI_SUMMARY_ENABLED=true` 启用
+  - 开关位置：`scripts/task-complete-notifier.sh:8-11`
+
+- **通知消息优化**: 简化任务完成通知的消息内容
+  - 修改前：`非gemini总结：任务完成`
+  - 修改后：`已完成任务`
+  - 更简洁、更专业的通知文案
+
+### Technical Details
+
+#### 开关实现机制
+
+```bash
+# scripts/task-complete-notifier.sh
+
+# ====== Gemini 总结功能开关 ======
+# 设置为 true 启用 Gemini AI 智能总结，设置为 false 禁用
+# 可通过环境变量 GEMINI_SUMMARY_ENABLED 覆盖此设置
+ENABLE_GEMINI_SUMMARY="${GEMINI_SUMMARY_ENABLED:-false}"
+```
+
+#### 行为对比
+
+| 场景        | v0.15.0                      | v1.0.0                               |
+| ----------- | ---------------------------- | ------------------------------------ |
+| 默认行为    | 调用 Gemini API 生成智能摘要 | 直接显示"已完成任务"                 |
+| 立即通知    | "非 gemini 总结：任务完成"   | "已完成任务"                         |
+| 启用 Gemini | 默认启用                     | 需设置 `GEMINI_SUMMARY_ENABLED=true` |
+| 禁用 Gemini | 需修改脚本                   | 默认禁用                             |
+
+### References
+
+- 相关脚本：`scripts/task-complete-notifier.sh`
+- 相关配置：环境变量 `GEMINI_SUMMARY_ENABLED`
+
 ## [0.15.0] - 2026-02-03
 
 ### Changed
