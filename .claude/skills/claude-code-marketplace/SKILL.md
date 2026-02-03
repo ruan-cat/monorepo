@@ -23,6 +23,7 @@ metadata:
 1. **版本号管理**：确保所有相关文件中的版本号保持一致
 2. **更新日志维护**：编写符合规范的版本更新说明
 3. **文件同步**：自动更新所有必要的配置文件
+4. **README 同步**：确保插件商城的 README.md 包含最新的技能列表和安装命令
 
 ## 相关文件目录
 
@@ -82,6 +83,21 @@ metadata:
 - MINOR：向下兼容的功能性新增
 - PATCH：向下兼容的问题修正
 
+## README 同步规则
+
+在发布新版本前，必须检查 `.claude-plugin/README.md` 文件：
+
+1. **扫描技能目录**：遍历 `claude-code-marketplace/common-tools/skills/` 下的所有子目录。
+2. **验证条目存在性**：确保每个技能在 README 的"可用技能列表"中都有对应的条目。
+3. **格式规范**：
+   - 标题格式：`#### 技能名称 (skill-dir-name)`
+   - 描述：简要说明技能用途
+   - 安装命令：
+     ```bash
+     npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-marketplace/common-tools/skills/<skill-name>
+     ```
+4. **清理失效条目**：如果某个技能目录已被删除，必须从 README 中移除对应的介绍和安装命令。
+
 ## 更新日志文件
 
 每次版本更新的内容**必须**记录在以下文件中：
@@ -137,18 +153,25 @@ metadata:
    - 仅更新发生变更的 Skill 的 `metadata.version`
    - 如果是新增 Skill，确保其初始版本号设置正确（通常为 0.0.1 或 0.1.0）
 
-4. **编写更新日志**
+4. **同步 README 文档**
+   - 扫描所有技能目录
+   - 更新 `.claude-plugin/README.md` 中的技能列表
+   - 确保新增的技能已添加
+   - 确保废弃的技能已移除
+   - 验证所有安装链接的准确性
+
+5. **编写更新日志**
    - 在 `CHANGELOG.md` 文件顶部添加新版本条目
    - 使用标准的 changelog 分类（Added/Changed/Fixed 等）
    - 记录本次更新的所有变更内容
    - 添加发布日期
 
-5. **验证一致性**
+6. **验证一致性**
    - 检查所有配置文件中的版本号是否一致
    - 检查 CHANGELOG 格式是否符合规范
    - 确认所有变更都已记录
 
-6. **提交变更**
+7. **提交变更**
    - 使用规范的 commit message
    - 推荐格式：`chore(plugin): release version X.Y.Z`
 
