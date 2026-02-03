@@ -5,6 +5,11 @@
 
 set -euo pipefail
 
+# ====== Gemini 总结功能开关 ======
+# 设置为 true 启用 Gemini AI 智能总结，设置为 false 禁用
+# 可通过环境变量 GEMINI_SUMMARY_ENABLED 覆盖此设置
+ENABLE_GEMINI_SUMMARY="${GEMINI_SUMMARY_ENABLED:-false}"
+
 # ====== 全局超时保护 ======
 # 注意：hooks.json 中配置的 timeout 为 45 秒
 # 脚本应在 43 秒内完成，留 2 秒缓冲
@@ -80,7 +85,7 @@ log ""
 
 # ====== 立即发送初始通知（无需等待 Gemini） ======
 log "====== Sending Immediate Notification ======"
-log "发送立即通知: 非gemini总结：任务完成"
+log "发送立即通知: 已完成任务"
 
 IMMEDIATE_START=$(date +%s)
 
@@ -111,7 +116,7 @@ log "Detected project directory: $PROJECT_DIR"
 # 同步调用，8 秒超时
 (
   cd "$PROJECT_DIR" 2>/dev/null || cd /
-  timeout 8s claude-notifier task-complete --message "非gemini总结：任务完成" 2>&1 || {
+  timeout 8s claude-notifier task-complete --message "已完成任务" 2>&1 || {
     EXIT_CODE=$?
     if [ $EXIT_CODE -eq 124 ]; then
       echo "⚠️ Immediate notifier timed out (8s)"
@@ -127,47 +132,51 @@ IMMEDIATE_DURATION=$((IMMEDIATE_END - IMMEDIATE_START))
 log "立即通知已发送，耗时: ${IMMEDIATE_DURATION}s"
 log ""
 
-# ====== 检查 transcript 文件 ======
-if [ -z "$TRANSCRIPT_PATH" ] || [ ! -f "$TRANSCRIPT_PATH" ]; then
-  log "ERROR: Transcript file not found: $TRANSCRIPT_PATH"
-  SUMMARY="任务处理完成"
-else
-  # ====== 使用 transcript-reader.ts 提取完整上下文 ======
-  log "====== Extracting Conversation Context ======"
+# ====== 检查是否启用 Gemini 总结 ======
+if [ "$ENABLE_GEMINI_SUMMARY" = "true" ]; then
+  log "====== Gemini Summary Enabled ======"
 
-  # 使用前面已定义的 SCRIPT_DIR
-  TRANSCRIPT_READER="$SCRIPT_DIR/transcript-reader.ts"
-
-  # 检查 tsx 是否存在
-  if ! command -v tsx &> /dev/null; then
-    log "ERROR: tsx command not found. Please install tsx globally: npm install -g tsx"
-    log "Falling back to default summary due to missing tsx"
-    SUMMARY="任务处理完成"
-  elif [ ! -f "$TRANSCRIPT_READER" ]; then
-    log "ERROR: transcript-reader.ts not found at $TRANSCRIPT_READER"
+  # ====== 检查 transcript 文件 ======
+  if [ -z "$TRANSCRIPT_PATH" ] || [ ! -f "$TRANSCRIPT_PATH" ]; then
+    log "ERROR: Transcript file not found: $TRANSCRIPT_PATH"
     SUMMARY="任务处理完成"
   else
-    log "Using transcript-reader: $TRANSCRIPT_READER"
-    log "Using tsx to run TypeScript file"
+    # ====== 使用 transcript-reader.ts 提取完整上下文 ======
+    log "====== Extracting Conversation Context ======"
 
-    # 提取对话摘要（用于 Gemini）
-    CONVERSATION_CONTEXT=$(timeout 3s tsx "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=summary 2>&1 || echo "")
+    # 使用前面已定义的 SCRIPT_DIR
+    TRANSCRIPT_READER="$SCRIPT_DIR/transcript-reader.ts"
 
-    if [ -z "$CONVERSATION_CONTEXT" ]; then
-      log "WARNING: Failed to extract context, trying keywords fallback"
-      CONVERSATION_CONTEXT=$(timeout 2s tsx "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=keywords 2>&1 || echo "任务处理完成")
-    fi
+    # 检查 tsx 是否存在
+    if ! command -v tsx &> /dev/null; then
+      log "ERROR: tsx command not found. Please install tsx globally: npm install -g tsx"
+      log "Falling back to default summary due to missing tsx"
+      SUMMARY="任务处理完成"
+    elif [ ! -f "$TRANSCRIPT_READER" ]; then
+      log "ERROR: transcript-reader.ts not found at $TRANSCRIPT_READER"
+      SUMMARY="任务处理完成"
+    else
+      log "Using transcript-reader: $TRANSCRIPT_READER"
+      log "Using tsx to run TypeScript file"
 
-    log "Extracted Context Length: ${#CONVERSATION_CONTEXT} characters"
-    log ""
-    log "====== Conversation Context ======"
-    echo "$CONVERSATION_CONTEXT" >> "$LOG_FILE" 2>/dev/null || true
-    log ""
+      # 提取对话摘要（用于 Gemini）
+      CONVERSATION_CONTEXT=$(timeout 3s tsx "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=summary 2>&1 || echo "")
 
-    # ====== 调用 Gemini 生成总结 ======
-    log "====== Generating Gemini Summary ======"
+      if [ -z "$CONVERSATION_CONTEXT" ]; then
+        log "WARNING: Failed to extract context, trying keywords fallback"
+        CONVERSATION_CONTEXT=$(timeout 2s tsx "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=keywords 2>&1 || echo "任务处理完成")
+      fi
 
-    SUMMARY_PROMPT="你是一个任务总结助手。请根据以下对话内容，生成一个5-20字的简短任务标题。
+      log "Extracted Context Length: ${#CONVERSATION_CONTEXT} characters"
+      log ""
+      log "====== Conversation Context ======"
+      echo "$CONVERSATION_CONTEXT" >> "$LOG_FILE" 2>/dev/null || true
+      log ""
+
+      # ====== 调用 Gemini 生成总结 ======
+      log "====== Generating Gemini Summary ======"
+
+      SUMMARY_PROMPT="你是一个任务总结助手。请根据以下对话内容，生成一个5-20字的简短任务标题。
 
 对话内容：
 ${CONVERSATION_CONTEXT}
@@ -187,79 +196,85 @@ ${CONVERSATION_CONTEXT}
 
 请直接输出标题："
 
-    log "Gemini Prompt Preview:"
-    echo "$SUMMARY_PROMPT" | head -n 10 >> "$LOG_FILE" 2>/dev/null || true
-    log "..."
-    log ""
+      log "Gemini Prompt Preview:"
+      echo "$SUMMARY_PROMPT" | head -n 10 >> "$LOG_FILE" 2>/dev/null || true
+      log "..."
+      log ""
 
-    # 尝试 1: gemini-2.5-flash（快速）
-    SUMMARY=""
-    log "Trying gemini-2.5-flash (timeout: 5s)..."
-    GEMINI_START=$(date +%s)
-
-    GEMINI_OUTPUT=$(timeout 5s gemini \
-      --model "gemini-2.5-flash" \
-      --output-format text \
-      "$SUMMARY_PROMPT" 2>&1 || echo "")
-
-    GEMINI_END=$(date +%s)
-    GEMINI_DURATION=$((GEMINI_END - GEMINI_START))
-
-    # 记录完整输出到日志
-    log "Gemini raw output:"
-    echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
-    log ""
-
-    # 提取第一行作为总结
-    SUMMARY=$(echo "$GEMINI_OUTPUT" | grep -v "^$" | head -n 1 | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || echo "")
-
-    log "gemini-2.5-flash completed in ${GEMINI_DURATION}s"
-    log "Result: '$SUMMARY'"
-    log ""
-
-    # 尝试 2: 如果结果为空或太短，尝试 gemini-2.5-pro
-    if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
-      log "gemini-2.5-flash failed, trying gemini-2.5-pro (timeout: 5s)..."
+      # 尝试 1: gemini-2.5-flash（快速）
+      SUMMARY=""
+      log "Trying gemini-2.5-flash (timeout: 5s)..."
       GEMINI_START=$(date +%s)
 
       GEMINI_OUTPUT=$(timeout 5s gemini \
-        --model "gemini-2.5-pro" \
+        --model "gemini-2.5-flash" \
         --output-format text \
         "$SUMMARY_PROMPT" 2>&1 || echo "")
 
       GEMINI_END=$(date +%s)
       GEMINI_DURATION=$((GEMINI_END - GEMINI_START))
 
+      # 记录完整输出到日志
+      log "Gemini raw output:"
       echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
+      log ""
+
+      # 提取第一行作为总结
       SUMMARY=$(echo "$GEMINI_OUTPUT" | grep -v "^$" | head -n 1 | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || echo "")
 
-      log "gemini-2.5-pro completed in ${GEMINI_DURATION}s"
+      log "gemini-2.5-flash completed in ${GEMINI_DURATION}s"
       log "Result: '$SUMMARY'"
       log ""
-    fi
 
-    # 尝试 3: 降级到关键词提取
-    if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
-      log "Gemini failed, using keyword extraction fallback"
+      # 尝试 2: 如果结果为空或太短，尝试 gemini-2.5-pro
+      if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
+        log "gemini-2.5-flash failed, trying gemini-2.5-pro (timeout: 5s)..."
+        GEMINI_START=$(date +%s)
 
-      # 检查 tsx 是否可用
-      if command -v tsx &> /dev/null; then
-        KEYWORDS=$(timeout 2s tsx "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=keywords 2>&1 || echo "")
-      else
-        log "WARNING: tsx not available for keywords extraction, using empty keywords"
-        KEYWORDS=""
+        GEMINI_OUTPUT=$(timeout 5s gemini \
+          --model "gemini-2.5-pro" \
+          --output-format text \
+          "$SUMMARY_PROMPT" 2>&1 || echo "")
+
+        GEMINI_END=$(date +%s)
+        GEMINI_DURATION=$((GEMINI_END - GEMINI_START))
+
+        echo "$GEMINI_OUTPUT" >> "$LOG_FILE" 2>/dev/null || true
+        SUMMARY=$(echo "$GEMINI_OUTPUT" | grep -v "^$" | head -n 1 | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || echo "")
+
+        log "gemini-2.5-pro completed in ${GEMINI_DURATION}s"
+        log "Result: '$SUMMARY'"
+        log ""
       fi
 
-      if [ -n "$KEYWORDS" ] && [ ${#KEYWORDS} -gt 5 ]; then
-        # 从关键词生成简短标题
-        SUMMARY=$(echo "$KEYWORDS" | head -c 50 | tr ',' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        log "Keyword-based summary: '$SUMMARY'"
-      else
-        SUMMARY="任务处理完成"
-        log "Using default summary"
+      # 尝试 3: 降级到关键词提取
+      if [ -z "$SUMMARY" ] || [ ${#SUMMARY} -lt 5 ]; then
+        log "Gemini failed, using keyword extraction fallback"
+
+        # 检查 tsx 是否可用
+        if command -v tsx &> /dev/null; then
+          KEYWORDS=$(timeout 2s tsx "$TRANSCRIPT_READER" "$TRANSCRIPT_PATH" --format=keywords 2>&1 || echo "")
+        else
+          log "WARNING: tsx not available for keywords extraction, using empty keywords"
+          KEYWORDS=""
+        fi
+
+        if [ -n "$KEYWORDS" ] && [ ${#KEYWORDS} -gt 5 ]; then
+          # 从关键词生成简短标题
+          SUMMARY=$(echo "$KEYWORDS" | head -c 50 | tr ',' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+          log "Keyword-based summary: '$SUMMARY'"
+        else
+          SUMMARY="任务处理完成"
+          log "Using default summary"
+        fi
       fi
     fi
   fi
+else
+  # ====== Gemini 总结已禁用，使用默认摘要 ======
+  log "====== Gemini Summary Disabled ======"
+  log "ENABLE_GEMINI_SUMMARY=$ENABLE_GEMINI_SUMMARY (set GEMINI_SUMMARY_ENABLED=true to enable)"
+  SUMMARY="已完成任务"
 fi
 
 # ====== 清理和规范化总结 ======
