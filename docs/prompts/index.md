@@ -85,3 +85,16 @@ npm.
 ---
 
 请你更改 openspec 对应的规范设计文档。
+
+## 07 <!-- TODO: --> 重做 `claude-code-marketplace\common-tools\skills\openspec\SKILL.md` 技能
+
+这个技能的做法完全过时了。请你深度调研
+
+- https://github.com/Fission-AI/OpenSpec/blob/main/docs/opsx.md
+- https://github.com/Fission-AI/OpenSpec
+
+请你适当的使用 gemini 相关的 MCP 或者是 skills 技能来完成调研。调研完毕后对比差异，并且完全重写，重做整个 openspec 这款技能。
+
+我需要你重做这个技能，允许出现破坏性变更。因为 openspec 这个包，本身就从 0.x 版本升级到 1.x 版本，本身就有巨大的破坏性变更。
+
+该技能的 version 版本要升级到 1.0 版本。意味着出现重大变更。
