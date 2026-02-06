@@ -1,5 +1,12 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 2.14.0
+
+### Minor Changes
+
+- 1. `copyClaudeFiles` 函数新增 `skills` 文件夹复制支持，`ClaudeFolderName` 类型扩展为 `"agents" | "commands" | "skills"`。 ([`9b85305`](https://github.com/ruan-cat/monorepo/commit/9b8530533ce1879ca053b766c538247cabd7af85))
+  2. 默认复制列表从 `['agents', 'commands']` 变更为 `['agents', 'commands', 'skills']`，构建产物将自动包含 `.claude/skills` 目录。
+
 ## 2.13.0
 
 ### Minor Changes
