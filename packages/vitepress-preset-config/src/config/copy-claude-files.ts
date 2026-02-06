@@ -5,7 +5,7 @@ import consola from "consola";
 /**
  * Claude 文件夹名称类型
  */
-export type ClaudeFolderName = "agents" | "commands";
+export type ClaudeFolderName = "agents" | "commands" | "skills";
 
 /**
  * 从当前工作目录向上查找 monorepo 根目录
@@ -133,10 +133,10 @@ export interface CopyClaudeFilesOptions {
 	/**
 	 * 要复制的 Claude 文件夹列表
 	 * @description
-	 * 指定要复制的文件夹名称数组。如果不传入，默认复制所有文件夹（'agents' 和 'commands'）。
+	 * 指定要复制的文件夹名称数组。如果不传入，默认复制所有文件夹（'agents' 和 'commands' 和 'skills'）。
 	 * 对于不存在的文件夹，会打印警告并跳过，不会影响其他文件夹的复制。
 	 *
-	 * @default ['agents', 'commands']
+	 * @default ['agents', 'commands', 'skills']
 	 * @example
 	 * // 只复制 agents 文件夹
 	 * items: ['agents']
@@ -145,30 +145,30 @@ export interface CopyClaudeFilesOptions {
 	 * items: ['commands']
 	 *
 	 * // 复制所有文件夹（默认行为）
-	 * items: ['agents', 'commands']
+	 * items: ['agents', 'commands', 'skills']
 	 */
 	items?: ClaudeFolderName[];
 }
 
 /**
- * 将 .claude 相关文件夹（agents 和 commands）复制到指定位置
+ * 将 .claude 相关文件夹（agents 和 commands 和 skills）复制到指定位置
  * @param options - 配置选项
  * @throws {Error} 当 `options.target` 为绝对路径时抛出错误
  * @description
- * 该函数会将指定的 `.claude` 文件夹（默认为 `agents` 和 `commands`）复制到目标位置的子目录中。
+ * 该函数会将指定的 `.claude` 文件夹（默认为 `agents` 和 `commands` 和 `skills`）复制到目标位置的子目录中。
  * 从根目录的 .claude 文件夹复制到目标位置，自动创建对应的子文件夹。
  *
  * **安全限制**：`target` 参数必须是相对路径，禁止使用绝对路径，以防止意外覆盖系统目录。
  *
  * @example
  * // ✅ 自动检测 monorepo 根目录，复制所有文件夹到当前目录的 dist 文件夹
- * // 会生成：dist/agents/ 和 dist/commands/
+ * // 会生成：dist/agents/ 和 dist/commands/ 和 dist/skills/
  * copyClaudeFiles({ target: 'dist' })
  *
  * // ✅ 只复制 agents 文件夹
  * copyClaudeFiles({
  *   target: 'dist',
- *   items: ['agents']
+ *   items: ['agents', 'skills']
  * })
  *
  * // ✅ 手动指定根目录为向上三级，复制到 build 文件夹
@@ -204,7 +204,7 @@ export function copyClaudeFiles(options: CopyClaudeFilesOptions): void {
 	const root = resolveRootDir(options.rootDir);
 
 	// 确定要处理的文件夹列表，默认为所有文件夹
-	const itemsToProcess = options.items ?? ["agents", "commands"];
+	const itemsToProcess = options.items ?? ["agents", "commands", "skills"];
 
 	// 记录成功复制的文件夹数量
 	let successCount = 0;
