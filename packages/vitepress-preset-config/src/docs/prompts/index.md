@@ -133,3 +133,31 @@ Error:  command finished with error: command (/home/runner/work/monorepo/monorep
 1. 请帮我调研一下，为什么这个插件在 `v1.9.2` 版本会出现故障？
 2. 如果这个 `vitepress-plugin-llms` 包存在故障，请使用降低包版本的方式，实现问题解决。
 3. 生成问题报告，便于我复盘了解。
+
+## 05 <!-- TODO: 一次性任务 --> 实现基于特定文件入口的`多侧边栏`功能
+
+现在的 `@ruan-cat/vitepress-preset-config` 内，其侧边栏是包括更新日志文件，和提示词文件的。如果包含 `docs\prompts\*` 或者是 `CHANGELOG.md` 文件时，其侧边栏会显示这两个内容。
+
+这不好看。也不美观。我希望 `@ruan-cat/vitepress-preset-config` 实现对`提示词`和`更新日志`的侧边栏隐藏。一律从顶部的入口进入即可。
+
+我希望实现的时多侧边栏技术的实现。比如项目存在 `CHANGELOG.md` 文件时，就从顶部导航栏内进入这个独立的侧边栏。
+
+当项目同时具有 `docs\prompts\*` 和 `CHANGELOG.md` 目录时，此时的 vitepress 项目应该具有 3 个侧边栏，分别是`业务侧边栏`、`提示词侧边栏`、和`更新日志侧边栏`。
+
+### 你的参考框架知识
+
+- vitepress 请你主动使用 context7 MCP，主动查询关于 vitepress 实现多侧边栏的知识。
+- vitepress-sidebar： https://vitepress-sidebar.cdget.com/zhHans
+  > 这是本 `@ruan-cat/vitepress-preset-config` 实现侧边栏的框架。请你使用 vitepress-sidebar 提供的能力，实现多侧边栏的配置。
+
+### 相似的特殊文件路径处理代码
+
+本次多侧边栏的路径识别逻辑，你可以参考以下文件：
+
+- packages\vitepress-preset-config\src\config\changelog-nav.ts
+- packages\vitepress-preset-config\src\config\prompts-nav.ts
+
+### 实现的注意事项
+
+1. 对外不允许出现破坏性变更。本包 `@ruan-cat/vitepress-preset-config` 对外的 api 接口，不应该出现任何形式的变更。不应该影响用户体验。只实现内部形式的多侧边栏功能。
+2. 对内的 api 逻辑和代码整理可以出现破坏性变更： 本次更改对于 `docs\prompts\*` 和 `CHANGELOG.md` 特殊文件的路径识别，有相同的处理逻辑。你可以整合这部分的编码实现逻辑，在内部修改、重新整合本来就有的代码段。
