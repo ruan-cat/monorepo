@@ -5,6 +5,88 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.0.0] - 2026-02-13
+
+### Breaking Changes
+
+⚠️ **重大变更**: 完全移除 Gemini AI 智能总结功能
+
+本版本完全移除了 Gemini AI 智能总结相关代码，这是一个破坏性变更。
+
+**变更原因**：
+
+- 同步调用 `claude-notifier` 导致 Stop hooks 阻塞其他并行钩子
+- 出现重复通知问题（调用 2 次 `claude-notifier`）
+- 复杂的代码逻辑导致维护困难
+- 简化通知流程，只需在任务完成时发送简单通知
+
+**移除的功能**：
+
+- Gemini AI 总结生成逻辑（`gemini-2.5-flash`、`gemini-2.5-pro` 调用）
+- transcript-reader.ts 对话上下文提取
+- parse-hook-data.ts 钩子数据解析
+- remove-task.ts 任务删除逻辑
+- 重复的立即通知逻辑
+
+**迁移指南**：
+
+- 如果你需要 Gemini 智能总结功能，请继续使用 v1.0.0 版本
+- v2.0.0 版本只发送简单的"任务已完成"通知
+- 不再支持通过 `GEMINI_SUMMARY_ENABLED=true` 环境变量启用 Gemini 总结
+
+### Changed
+
+- **通知调用优化**: 从同步阻塞改为异步非阻塞
+  - 修改前：同步调用 `claude-notifier`，需等待通知关闭才能继续
+  - 修改后：使用后台进程 `&` 异步调用，脚本立即返回
+  - 效果：不再阻塞其他 Stop hooks 执行
+
+- **重复通知修复**: 从 2 次调用改为 1 次
+  - 修改前：先发送"立即通知"，再发送"总结通知"（2 次弹框）
+  - 修改后：只发送 1 次"任务已完成"通知
+  - 效果：消除重复弹框打扰
+
+- **脚本精简**: 代码量大幅减少
+  - 修改前：451 行
+  - 修改后：85 行
+  - 减少：366 行（-81%）
+
+### Technical Details
+
+#### 修复前后对比
+
+| 场景            | v1.0.0                      | v2.0.0     |
+| --------------- | --------------------------- | ---------- |
+| 通知调用次数    | 2 次（立即通知 + 总结通知） | 1 次       |
+| 调用方式        | 同步阻塞                    | 异步非阻塞 |
+| Gemini 总结     | 可通过环境变量启用          | 已移除     |
+| 脚本行数        | 451 行                      | 85 行      |
+| Stop hooks 阻塞 | 是（需手动关闭通知框）      | 否         |
+
+#### 新架构
+
+```bash
+# 使用后台进程异步调用，不阻塞
+(
+  cd "$PROJECT_DIR" 2>/dev/null || cd /
+  claude-notifier task-complete --message "任务已完成" 2>&1 || {
+    log "Notifier failed with exit code: $?"
+  }
+) &
+
+NOTIFIER_PID=$!
+log "Notifier started with PID: $NOTIFIER_PID"
+
+# 立即返回，不等待通知关闭
+echo '{"continue": true, "stopReason": "任务完成通知已发送"}'
+exit 0
+```
+
+### References
+
+- 相关脚本：`scripts/task-complete-notifier.sh`
+- 关联 Issue：修复 Stop hooks 阻塞问题
+
 ## [1.0.0] - 2026-02-03
 
 ### Breaking Changes
