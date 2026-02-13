@@ -5,6 +5,78 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.0.2] - 2026-02-13
+
+### Fixed
+
+- **🐞 修复 task-complete-notifier 后台进程阻塞 Claude Code hook 导致通知无法弹出的问题**
+  - **根因分析**: 后台进程继承了父进程的 stdout 文件描述符，Claude Code 的 hook 执行器会等待所有 stdout 关闭后才认为 hook 完毕。但 `claude-notifier` 需要 ~15 秒完成，导致 hook 超时，Claude Code 强制终止整个进程组，通知进程被杀死。
+  - **修复方案**:
+    1. 后台子 shell 完全关闭继承的 FD：`</dev/null >>"$LOG_FILE" 2>&1 &`
+       - `</dev/null`：关闭对父进程 stdin 的继承
+       - `>>"$LOG_FILE" 2>&1`：stdout/stderr 重定向到日志文件，不再持有父进程的 stdout
+       - Claude Code 可立即读取 JSON 响应并结束 hook，无需等待后台进程
+    2. 移除 `set -euo pipefail`，防止任何命令失败导致脚本在输出 JSON 前意外退出
+    3. 新增 `trap EXIT` 安全保障，确保无论脚本在何处退出都一定输出 JSON 响应
+    4. `log()` 函数只写文件不输出 stdout，保持 stdout 干净只包含 JSON
+    5. 移除不可靠的 Windows/Unix 平台分支（`start //b cmd //c`），改用跨平台统一的 `( ... ) &` 模式
+    6. 新增 `command -v claude-notifier` 检测，日志记录 notifier 是否可用及路径
+    7. 后台进程输出完整记录到日志（`[NOTIFIER START]` → 输出 → `[NOTIFIER DONE]`），便于排查问题
+  - **效果**: 通知进程完全脱离 hook 生命周期，Claude Code 立即收到 JSON 响应并结束 hook，通知在后台正常弹出
+  - **相关文件**: `scripts/task-complete-notifier.sh`
+
+### Technical Details
+
+#### 根因：后台进程 FD 继承导致 hook 超时
+
+**问题机制**：
+
+```plain
+Claude Code Hook 执行器
+    ↓ 启动脚本，等待 stdout 关闭
+task-complete-notifier.sh
+    ├─ (claude-notifier ...) &     ← 后台进程继承了父进程的 stdout
+    ├─ echo '{"continue": true}'   ← JSON 写入 stdout
+    └─ exit 0                      ← 脚本退出，但 stdout 仍被后台进程持有
+    ↓
+Claude Code 继续等待 stdout 关闭...
+    ↓ ~15 秒后（notifier 完成）或 45 秒超时
+Claude Code 终止整个进程组 → 通知被杀死
+```
+
+**修复后**：
+
+```plain
+Claude Code Hook 执行器
+    ↓ 启动脚本，等待 stdout 关闭
+task-complete-notifier.sh
+    ├─ (claude-notifier ...) </dev/null >>"$LOG_FILE" 2>&1 &
+    │                         ↑ stdin/stdout/stderr 全部重定向
+    │                         ↑ 不再持有父进程的 stdout
+    ├─ exit 0 → trap EXIT → echo '{"continue": true}'
+    └─ stdout 立即关闭 ✅
+    ↓
+Claude Code 立即读取 JSON，hook 完成 ✅
+后台 claude-notifier 独立运行 → 通知正常弹出 ✅
+```
+
+#### 脚本架构重构
+
+| 对比项        | v2.0.1                                      | v2.0.2                                         |
+| ------------- | ------------------------------------------- | ---------------------------------------------- |
+| 错误处理      | `set -euo pipefail`（脆弱）                 | 无 `set -e` + `trap EXIT`（健壮）              |
+| 平台分支      | Windows（`start //b cmd`）/ Unix（`nohup`） | 统一 `( ... ) </dev/null >>"$LOG_FILE" 2>&1 &` |
+| stdout 输出   | log 函数同时写文件和 stdout                 | log 只写文件，stdout 干净                      |
+| JSON 响应保障 | 仅在末尾 echo                               | `trap EXIT` 保障一定输出                       |
+| FD 继承       | 后台进程继承父 stdout（阻塞 hook）          | 完全关闭 FD 继承（不阻塞）                     |
+| notifier 诊断 | 无检测                                      | `command -v` + 路径日志 + 完整输出日志         |
+| 脚本行数      | 99 行                                       | 119 行                                         |
+
+### References
+
+- 修复的脚本：`scripts/task-complete-notifier.sh`
+- 诊断依据：`%TEMP%/claude-code-task-complete-notifier-logs/` 日志文件分析
+
 ## [2.0.1] - 2026-02-13
 
 ### Fixed
