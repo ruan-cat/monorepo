@@ -488,7 +488,7 @@ claude code 插件商城的发版标签应该为 minor 。
 1. 请你检查 claude-code-marketplace 的 hooks.json 对应相关的脚本，请你做一个开关，手动关闭掉 gemini 的总结能力。
 2. 对应的提示，也改写。不要写【非 gemini 总结】的字样了，就写已完成任务即可。
 
-## 025 <!-- TODO: --> 重做整个 `task-complete-notifier.sh` 通知脚本：解决 hooks 阻塞问题；删除无用代码
+## 025 重做整个 `task-complete-notifier.sh` 通知脚本：解决 hooks 阻塞问题；删除无用代码
 
 现在的通知脚本存在几个严重的问题：
 
