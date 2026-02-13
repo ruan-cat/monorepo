@@ -5,6 +5,73 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.0.1] - 2026-02-13
+
+### Fixed
+
+- **🐞 修复 task-complete-notifier 在 Windows 下异步调用 claude-notifier 无法触发的问题**
+  - **问题原因**: 原实现仅针对 Unix 使用后台进程，在 Git Bash/MSYS2 等 Windows 环境下无法正确异步执行
+  - **修复方案**:
+    1. 新增 Windows/Unix 环境检测逻辑（检测 `Msys`、`WINDIR`、`MSYSTEM` 环境变量）
+    2. Windows 分支：使用 `cygpath -w` 转换路径格式，通过 `start //b cmd //c` 启动独立进程
+    3. Unix 分支：使用 `nohup` 双 fork 模式（`( nohup ... & ) &`），确保子进程完全脱离父进程
+    4. 移除冗余的 cleanup trap，简化错误处理逻辑
+  - **效果**: Windows 环境下 claude-notifier 现在能够正确异步触发，不再阻塞 Stop hooks 执行
+  - **相关文件**: `scripts/task-complete-notifier.sh`
+
+### Technical Details
+
+#### 修复前的问题
+
+```bash
+# 仅支持 Unix 后台执行
+(
+  cd "$PROJECT_DIR" 2>/dev/null || cd /
+  claude-notifier task-complete --message "任务已完成" 2>&1 || {
+    log "Notifier failed with exit code: $?"
+  }
+) &
+```
+
+**问题**：在 Windows Git Bash/MSYS2 环境下，后台进程管理不可靠，可能导致通知无法触发。
+
+#### 修复后的实现
+
+**Windows 分支**（新增）：
+
+```bash
+# 将项目路径转换为 Windows 格式
+PROJECT_DIR_WIN=$(cygpath -w "$PROJECT_DIR" 2>/dev/null || echo "$PROJECT_DIR")
+
+# 使用 start 命令异步启动通知（完全独立进程，不等待）
+start //b cmd //c "cd /d \"$PROJECT_DIR_WIN\" && claude-notifier task-complete --message \"任务已完成\""
+```
+
+**Unix 分支**（改进）：
+
+```bash
+# 使用 nohup + 双 fork 确保进程完全独立
+(
+  cd "$PROJECT_DIR" 2>/dev/null || cd /
+  nohup claude-notifier task-complete --message "任务已完成" >> "$LOG_FILE" 2>&1 &
+) &
+```
+
+#### 跨平台兼容性
+
+| 环境            | 检测方式                                    | 执行方式            |
+| --------------- | ------------------------------------------- | ------------------- |
+| Git Bash (MSYS) | `uname -o` 返回 "Msys" 或存在 `WINDIR` 变量 | `start //b cmd //c` |
+| MSYS2           | 存在 `MSYSTEM` 环境变量                     | `start //b cmd //c` |
+| Cygwin          | 存在 `WINDIR` 环境变量                      | `start //b cmd //c` |
+| WSL             | `uname -o` 返回 "GNU/Linux"，无 `WINDIR`    | `nohup` + 双 fork   |
+| macOS/Linux     | 不满足 Windows 检测条件                     | `nohup` + 双 fork   |
+
+### References
+
+- 修复的脚本：`scripts/task-complete-notifier.sh`（第 60-89 行）
+- 相关 Commit：`9d28019`
+
 ## [2.0.0] - 2026-02-13
 
 ### Breaking Changes
