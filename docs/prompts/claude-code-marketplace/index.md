@@ -487,3 +487,18 @@ claude code 插件商城的发版标签应该为 minor 。
 
 1. 请你检查 claude-code-marketplace 的 hooks.json 对应相关的脚本，请你做一个开关，手动关闭掉 gemini 的总结能力。
 2. 对应的提示，也改写。不要写【非 gemini 总结】的字样了，就写已完成任务即可。
+
+## 025 <!-- TODO: --> 重做整个 `task-complete-notifier.sh` 通知脚本：解决 hooks 阻塞问题；删除无用代码
+
+现在的通知脚本存在几个严重的问题：
+
+1. 出现了重复通知。`claude-notifier` 脚本重复执行了 2 次。
+2. 阻塞其他的 claude code hooks 进度。目前的 `claude-code-marketplace\common-tools\scripts\task-complete-notifier.sh` 是作用在 `claude-code-marketplace\common-tools\hooks\hooks.json` 的 Stop 钩子上。这是一个完整的 claude code 插件。会和其他的 Stop 钩子一起协作。由于 `task-complete-notifier.sh` 脚本在调用 `claude-notifier` 唤起通知框时，出现了同步等待。这导致了严重的卡死情况。必须先手动的，或自动的关闭掉已经唤起的 `claude-notifier` 弹框，claude code 的其他并行的 Stop hooks 钩子才能够继续运行。请你重做整个脚本，调用 `claude-notifier` 通知窗口时，避免出现严重的阻塞其他 hooks 的情况。
+
+编写脚本时，请注意以下要求：
+
+1. 允许全面删除掉关于 gemini 总结的逻辑。
+2. 允许删除掉和 gemini 总结能力开关的逻辑。
+3. 要求你做出破坏性变更，大胆的删除，删改掉不需要的内容。
+4. task-complete-notifier.sh 就是一个单纯的通知脚本。在 Stop hooks 内触发 `claude-notifier` 唤起通知框。就这样，很简单。
+5. 有其他疑惑时，请及时询问我。
