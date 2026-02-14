@@ -147,8 +147,10 @@ Error:  command finished with error: command (/home/runner/work/monorepo/monorep
 ### 你的参考框架知识
 
 - vitepress 请你主动使用 context7 MCP，主动查询关于 vitepress 实现多侧边栏的知识。
+  > https://vitepress.dev/zh/reference/default-theme-sidebar#multiple-sidebars 多侧边栏的配置
 - vitepress-sidebar： https://vitepress-sidebar.cdget.com/zhHans
   > 这是本 `@ruan-cat/vitepress-preset-config` 实现侧边栏的框架。请你使用 vitepress-sidebar 提供的能力，实现多侧边栏的配置。
+  > https://vitepress-sidebar.cdget.com/zhHans/advanced-usage/multiple-sidebars-how-to
 
 ### 相似的特殊文件路径处理代码
 
@@ -157,7 +159,30 @@ Error:  command finished with error: command (/home/runner/work/monorepo/monorep
 - packages\vitepress-preset-config\src\config\changelog-nav.ts
 - packages\vitepress-preset-config\src\config\prompts-nav.ts
 
+### 运行本地文档项目来触发控制台信息
+
+为了便于自测，你需要触发控制台信息。你可以运行 `packages\vitepress-preset-config\package.json` 的 docs:dev 命令来运行本地文档，通过谷歌浏览器 MCP 来完成调试。
+
+为了便于你反复自测，你应该频繁地开启和关闭这个本地运行命令，便于对你的更改做出更新检查，即时检查清楚控制台输出内容。
+
+### 自主测试的构建命令
+
+你应该依次运行以下的构建命令，来完成自测：
+
+1. packages\vitepress-preset-config\package.json 的 build 命令。
+2. packages\vitepress-preset-config\package.json 的 build:docs 命令。
+3. packages\claude-notifier\package.json 的 build:docs 命令。
+4. packages\domains\package.json 的 build:docs 命令。
+
+只有这几条构建命令都成功时，才能认定为你的代码是正常可用的。否则你就应该持续的修复错误，确保代码没有出现严重的错误。
+
+你并不需要经常运行这些命令，这些构建命令非常耗时，很拖累你的进度。所以平时不要运行。除非你确定已经完成功能开发了，你才可以开始运行这些命令，检查代码的健壮性。
+
 ### 实现的注意事项
 
 1. 对外不允许出现破坏性变更。本包 `@ruan-cat/vitepress-preset-config` 对外的 api 接口，不应该出现任何形式的变更。不应该影响用户体验。只实现内部形式的多侧边栏功能。
 2. 对内的 api 逻辑和代码整理可以出现破坏性变更： 本次更改对于 `docs\prompts\*` 和 `CHANGELOG.md` 特殊文件的路径识别，有相同的处理逻辑。你可以整合这部分的编码实现逻辑，在内部修改、重新整合本来就有的代码段。
+3. 编写测试用例： 你应该编写 vitest 测试用例，来测试你写的函数。
+4. 避免写死路径： 在你获取路径时，你应该避免写死路径。不要写函数去枚举，去猜测路径。
+5. 输出数据便于调试： 你应该适当的输出内容，便于你完成调试。便于你自测。
+6. 避免出现类型故障： 你编写的代码，不应该出现任何形式的类型报错。
