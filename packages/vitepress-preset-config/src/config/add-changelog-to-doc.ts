@@ -3,10 +3,10 @@ import fs from "node:fs";
 import consola from "consola";
 import matter from "gray-matter";
 
-import { copyChangelogMd, hasChangelogMd } from "../utils/copy-changelog";
+import { copyChangelogMd } from "../utils/copy-changelog";
 import { pageOrderConfig } from "./page-order-config";
 
-export interface AddChangelog2docOptions<T extends Record<string, any> = Record<string, any>> {
+export interface AddChangelog2docOptions<T extends Record<string, unknown> = Record<string, unknown>> {
 	/** 目标文件夹 */
 	target: string;
 
@@ -14,11 +14,17 @@ export interface AddChangelog2docOptions<T extends Record<string, any> = Record<
 	data?: T;
 }
 
+/** 检查项目根目录是否存在 CHANGELOG.md */
+function hasChangelogInRoot(): boolean {
+	const changelogPath = path.resolve(process.cwd(), "CHANGELOG.md");
+	return fs.existsSync(changelogPath);
+}
+
 /** 将变更日志添加到指定的文档目录内 并提供参数 */
-export function addChangelog2doc<T extends Record<string, any>>(options: AddChangelog2docOptions<T>) {
+export function addChangelog2doc<T extends Record<string, unknown>>(options: AddChangelog2docOptions<T>) {
 	const { data = pageOrderConfig.changelog, target } = options;
 
-	if (!hasChangelogMd()) {
+	if (!hasChangelogInRoot()) {
 		return;
 	}
 

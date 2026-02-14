@@ -3,8 +3,8 @@
 import { type UserConfig, type DefaultTheme } from "vitepress";
 import consola from "consola";
 import { isUndefined } from "lodash-es";
-import { hasChangelogMd } from "../utils/copy-changelog";
-import { printFormat } from "@ruan-cat/utils";
+
+import { hasChangelogMd } from "../utils/vitepress-project.ts";
 
 /**
  * 设置导航栏的变更日志
@@ -15,7 +15,7 @@ import { printFormat } from "@ruan-cat/utils";
  * @private 内部使用即可
  */
 export function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
-	if (!hasChangelogMd()) {
+	if (!hasChangelogMd(userConfig)) {
 		consola.warn(` 未找到变更日志文件，不添加变更日志导航栏。 `);
 		return;
 	}
@@ -28,8 +28,4 @@ export function handleChangeLog(userConfig: UserConfig<DefaultTheme.Config>) {
 	}
 
 	nav.push({ text: "更新日志", link: "/CHANGELOG.md" });
-
-	// TODO: 持续完成特殊侧边栏的处理
-	// @ts-ignore
-	console.log(" 查看侧边栏数据 ", printFormat(userConfig?.themeConfig.sidebar));
 }

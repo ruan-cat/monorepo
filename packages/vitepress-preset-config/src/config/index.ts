@@ -8,3 +8,4 @@ export * from "./plugins";
 export * from "./changelog-nav";
 export * from "./prompts-nav";
 export * from "./teek";
+export * from "./multi-sidebar";

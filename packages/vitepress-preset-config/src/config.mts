@@ -15,7 +15,14 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 
 import llmstxt, { copyOrDownloadAsMarkdownButtons } from "vitepress-plugin-llms";
 
-import { defaultTeekConfig, handleTeekConfig, handlePlugins, handleChangeLog, handlePrompts } from "./config/index.ts";
+import {
+	defaultTeekConfig,
+	handleTeekConfig,
+	handlePlugins,
+	handleChangeLog,
+	handlePrompts,
+	setupMultiSidebar,
+} from "./config/index.ts";
 
 /** @see https://vitepress-ext.leelaa.cn/Mermaid.html#扩展-md-插件 */
 import { MermaidPlugin } from "@leelaa/vitepress-plugin-extended";
@@ -71,9 +78,16 @@ function getMergeSidebarOptions(options?: VitePressSidebarOptions) {
 /**
  * 设置自动生成侧边栏的配置
  * @see https://vitepress-sidebar.cdget.com/zhHans/guide/options
+ *
+ * 注意：在 Windows 环境下，必须使用相对路径（如 "./docs"）而不是绝对路径，
+ * 否则 vitepress-sidebar 内部的 path.join 会导致路径拼接错误。
  */
 export function setGenerateSidebar(options?: VitePressSidebarOptions) {
-	return generateSidebar(getMergeSidebarOptions(options));
+	const merged = getMergeSidebarOptions(options);
+	if (!Array.isArray(merged)) {
+		merged.excludeByGlobPattern = [...(merged.excludeByGlobPattern ?? []), "**/prompts/**", "**/CHANGELOG.md"];
+	}
+	return generateSidebar(merged);
 }
 
 /** 默认用户配置 */
@@ -104,8 +118,8 @@ const defaultUserConfig: UserConfig<DefaultTheme.Config> = {
 			level: "deep",
 		},
 
-		// 自动化侧边栏
-		sidebar: setGenerateSidebar(),
+		// 自动化侧边栏（多侧边栏）
+		// sidebar 在 setUserConfig 中动态生成
 
 		socialLinks: [{ icon: "github", link: "https://github.com/ruan-cat" }],
 
@@ -192,6 +206,9 @@ export function setUserConfig(
 
 	// 设置 Teek 主题配置
 	handleTeekConfig(resUserConfig, extraConfig);
+
+	// 设置多侧边栏拦截
+	setupMultiSidebar(resUserConfig);
 
 	return resUserConfig;
 }
