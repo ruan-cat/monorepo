@@ -134,7 +134,7 @@ Error:  command finished with error: command (/home/runner/work/monorepo/monorep
 2. 如果这个 `vitepress-plugin-llms` 包存在故障，请使用降低包版本的方式，实现问题解决。
 3. 生成问题报告，便于我复盘了解。
 
-## 05 <!-- TODO: 一次性任务 --> 实现基于特定文件入口的`多侧边栏`功能
+## 05 实现基于特定文件入口的`多侧边栏`功能
 
 现在的 `@ruan-cat/vitepress-preset-config` 内，其侧边栏是包括更新日志文件，和提示词文件的。如果包含 `docs\prompts\*` 或者是 `CHANGELOG.md` 文件时，其侧边栏会显示这两个内容。
 
