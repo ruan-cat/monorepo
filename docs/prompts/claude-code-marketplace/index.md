@@ -502,3 +502,22 @@ claude code 插件商城的发版标签应该为 minor 。
 3. 要求你做出破坏性变更，大胆的删除，删改掉不需要的内容。
 4. task-complete-notifier.sh 就是一个单纯的通知脚本。在 Stop hooks 内触发 `claude-notifier` 唤起通知框。就这样，很简单。
 5. 有其他疑惑时，请及时询问我。
+
+## 026 <!-- TODO: --> 拓展细化 openspec 技能的能力
+
+现在使用 openspec 技能时，其生成的 tasks.md 列表，存在很多问题：
+
+1. 任务的细粒度明显不够。
+   - 没有落实到每一个文件，没有体现出每一个文件的文件路径，以及每一个文件需要做的修改。这导致在执行层面上，经常出现缺漏缺省的情况。
+2. 大批量任务执行时，没有做试点任务的分层。
+   - 比如对大量的文件做修改时，没有设计出一个试点任务。没有划分出一个足够小的模块，完成试点任务并实现测试反馈迭代。抗风险意识不足。
+
+现在需要你迭代 `claude-code-marketplace\common-tools\skills\openspec\SKILL.md` 这款 openspec 技能，让以后执行 openspec 长任务时，可以解决掉上面的两个问题。
+
+## 027 <!-- TODO: --> 拓展 `init-prettier-git-hooks` 技能的实施细节
+
+`init-prettier-git-hooks` 技能，即 `claude-code-marketplace\common-tools\skills\init-prettier-git-hooks\SKILL.md` 文件，应该增加依赖检查的步骤。
+
+务必检查清楚是否已经安装了足量的开发环境依赖。确保不要缺省依赖。
+
+根据项目是否是 monorepo 项目，检索到根包，即根 package.json 文件。并在这个文件内检查必须要安装的 package.json 依赖包。
