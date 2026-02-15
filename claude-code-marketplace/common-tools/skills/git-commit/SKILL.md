@@ -3,7 +3,7 @@ name: git-commit
 description: "创建高质量的 git 提交：审查/暂存预期的变更，拆分为逻辑提交，并编写清晰的提交信息（遵循 Conventional Commits 规范，支持 Emoji）。当用户要求提交代码、编写提交信息、暂存变更或将工作拆分为多个提交时使用此技能。"
 user-invocable: true
 metadata:
-  version: "0.0.2"
+  version: "0.0.3"
 ---
 
 # Git Commit
@@ -56,7 +56,11 @@ metadata:
      - footer (BREAKING CHANGE) 如果需要
    - **Emoji 和 Type 规范**：必须查阅并遵循 [commit-types.ts](https://raw.githubusercontent.com/ruan-cat/monorepo/dev/configs-package/commitlint-config/src/commit-types.ts) 中的定义。
      - **主动查阅**：使用 `Read` 或 `WebFetch` 工具主动读取上述文件以获取最新的 Emoji 和 Type 列表。
-   - 对于多行信息首选编辑器：`git commit -v`
+   - **推荐使用文件方式提交**（解决 Windows/PowerShell 中文乱码问题）：
+     - 由于 Cursor IDE 的 Shell 工具在通过 `-m` 参数传递中文时存在编码问题，推荐使用 `-F` 文件方式提交
+     - 创建临时提交信息文件（如 `commit-message.txt`）
+     - 使用 `git commit -F commit-message.txt` 提交
+     - 提交完成后删除临时文件
    - 参考 `references/commit-message-template.md` 获取完整的模板和 Emoji 列表。
 7. **运行最小的相关验证**
    - 在继续之前运行仓库中最快且有意义的检查（单元测试、lint 或构建）。
