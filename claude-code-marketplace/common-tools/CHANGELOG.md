@@ -5,6 +5,24 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.0.3] - 2026-02-15
+
+### Fixed
+
+- **🐞 修复 git-commit 技能在 Windows/PowerShell 环境下中文乱码问题**
+  - **问题原因**: Cursor IDE 的 Shell 工具在通过 `-m` 参数传递中文时存在编码问题，导致中文提交信息出现乱码
+  - **修复方案**: 增加使用 `-F` 参数文件方式提交的备选方案
+    - 创建临时提交信息文件（如 `commit-message.txt`）
+    - 使用 `git commit -F commit-message.txt` 提交
+    - 提交完成后删除临时文件
+  - **效果**: 用户现在可以选择文件方式提交，解决 Windows/PowerShell 环境下的中文乱码问题
+  - **相关文件**: `skills/git-commit/SKILL.md`
+
+### Changed
+
+- **git-commit 技能版本更新**: 0.0.2 → 0.0.3
+  - 本次修复通过版本号记录此次变更
+
 ## [2.0.2] - 2026-02-13
 
 ### Fixed
