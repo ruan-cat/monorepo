@@ -514,7 +514,7 @@ claude code 插件商城的发版标签应该为 minor 。
 
 现在需要你迭代 `claude-code-marketplace\common-tools\skills\openspec\SKILL.md` 这款 openspec 技能，让以后执行 openspec 长任务时，可以解决掉上面的两个问题。
 
-## 027 <!-- TODO: --> 拓展 `init-prettier-git-hooks` 技能的实施细节
+## 027 拓展 `init-prettier-git-hooks` 技能的实施细节
 
 `init-prettier-git-hooks` 技能，即 `claude-code-marketplace\common-tools\skills\init-prettier-git-hooks\SKILL.md` 文件，应该增加依赖检查的步骤。
 
