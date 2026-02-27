@@ -5,6 +5,23 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.5.0] - 2026-02-28
+
+### Changed
+
+- **🔧 技能迭代**: `init-prettier-git-hooks` - 新增严谨的开发依赖检查步骤 (v0.13.4 → v0.14.0)
+  - **功能增强**：在初始化格式化流程前，新增了「定位根 package.json 并检查依赖」的核心步骤
+  - **Monorepo 支持**：能够智能识别 pnpm 和 npm/yarn 的 workspaces 项目架构，并确保在正确的 monorepo 根目录下执行依赖检查和安装
+  - **精准查漏补缺**：要求逐一扫描并核对 6 个必需的 Node.js 开发依赖包（`prettier`, `@prettier/plugin-oxc`, `prettier-plugin-lint-md`, `lint-staged`, `simple-git-hooks`, `commitlint`）是否已经存在
+  - **安装策略优化**：仅安装报告中缺失的依赖，不再盲目执行全量依赖安装，确保不过度污染项目环境与覆盖版本
+
+### Technical Details
+
+#### init-prettier-git-hooks 技能版本变更
+
+- **版本号**: 0.13.4 → 0.14.0
+- **变更说明**: 从单纯的「提供安装命令」升级至了具备环境感知、执行依赖检查、以及智能缺失补全的完整初始化流
+
 ## [2.4.0] - 2026-02-28
 
 ### Changed
