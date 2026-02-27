@@ -522,7 +522,7 @@ claude code 插件商城的发版标签应该为 minor 。
 
 根据项目是否是 monorepo 项目，检索到根包，即根 package.json 文件。并在这个文件内检查必须要安装的 package.json 依赖包。
 
-## 028 <!-- TODO: --> 从 11comm 项目内提取 nitro-api-development 技能
+## 028 从 11comm 项目内提取 nitro-api-development 技能
 
 针对 `claude-code-marketplace\common-tools\skills\nitro-api-development` 这款技能，请你阅读 `11comm` 项目内的相关代码，从 `11comm` 项目内提取 `nitro-api-development` 技能，并将其写入 `claude-code-marketplace\common-tools\skills\nitro-api-development`。
 
