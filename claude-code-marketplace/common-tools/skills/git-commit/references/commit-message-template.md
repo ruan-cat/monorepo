@@ -1,7 +1,20 @@
 # 提交信息模板 (Conventional Commits)
 
+### 普通提交
+
 ```text
 <emoji> <type>(<scope>): <summary>
+
+<变更内容>
+<变更原因>
+```
+
+### 破坏性变更提交 [CRITICAL]
+
+```text
+<emoji> <type>(<scope>)!: <summary>
+
+BREAKING CHANGE: <详细说明破坏性内容及迁移方式>
 
 <变更内容>
 <变更原因>
@@ -11,7 +24,10 @@
 
 - summary 保持祈使句和具体化（"新增", "修复", "移除", "重构"）。
 - 避免实现细节；专注于行为和意图。
-- 如果是破坏性变更：在头部使用 `!` 和/或添加 `BREAKING CHANGE:`页脚。
+- **破坏性变更的 `!` 位置**：`!` 必须紧跟在 `)` 之后、冒号 `:` 之前，格式为 `type(scope)!:`，`!` 两侧均不留空格。
+  - ✅ 正确：`🦄 refactor(scope)!: summary`
+  - ❌ 错误：`🦄 refactor!(scope): summary`（`!` 在 scope 之前）
+  - ❌ 错误：`🦄 refactor(scope) !: summary`（`!` 前有空格）
 - **Emoji 和 Type 必须遵循** [configs-package/commitlint-config/src/commit-types.ts](https://github.com/ruan-cat/monorepo/blob/dev/configs-package/commitlint-config/src/commit-types.ts) 中的定义。
 
 | Emoji | Type      | Description |
