@@ -29,7 +29,7 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "01s-11comm",
 			order: 4,
-			description: "本域名主要用于 cloudflare worker 部署，与 ruancat6312.top 域名的内容并不完全等价",
+			description: "本域名主要用于 vercel 部署，与 ruancat6312.top 域名的内容并不完全等价",
 		},
 	],
 	/** 大项目 11智慧社区项目 前端文档 */
