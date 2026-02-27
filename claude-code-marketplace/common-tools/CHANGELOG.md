@@ -5,6 +5,16 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.8.0] - 2026-02-28
+
+### Added
+
+- **✨ 新增技能**: `rebase2main` - 将开发分支通过 rebase 同步到 main 分支 (v0.1.0)
+  - **核心功能**：记录当前分支 → 切换到 main → `git rebase <原分支>` → `git push origin main` → 切回原分支
+  - **安全约束**：不使用 `--force` 推送；工作树必须干净；rebase 冲突时立即停止并告知用户
+  - **触发关键词**：「同步到 main」「rebase 到 main」「更新 main」「推送到主分支」
+  - **README 更新**：在 `.claude-plugin/README.md` 可用技能列表中新增 `rebase2main` 安装入口
+
 ## [2.7.0] - 2026-02-28
 
 ### Changed
