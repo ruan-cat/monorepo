@@ -503,7 +503,7 @@ claude code 插件商城的发版标签应该为 minor 。
 4. task-complete-notifier.sh 就是一个单纯的通知脚本。在 Stop hooks 内触发 `claude-notifier` 唤起通知框。就这样，很简单。
 5. 有其他疑惑时，请及时询问我。
 
-## 026 <!-- TODO: --> 拓展细化 openspec 技能的能力
+## 026 拓展细化 openspec 技能的能力
 
 现在使用 openspec 技能时，其生成的 tasks.md 列表，存在很多问题：
 
