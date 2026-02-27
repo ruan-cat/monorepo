@@ -5,6 +5,25 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.6.0] - 2026-02-28
+
+### Changed
+
+- **🔧 技能迭代**: `nitro-api-development` - 从 11comm 项目提取技能并重构为通用版本 (v0.13.4 -> v0.13.4)
+  - **文档结构重组**：彻底移除了原来的 `reference.md` 和 `templates.md`，替换为更结构化的 `references/` 和 `templates/` 子目录，极大增强了可读性和专项针对性。
+  - **核心规范增强**：重写 `SKILL.md`，融入 11comm 中沉淀的核心原则、响应返回值类型约束规范、时间字段格式化建议、类型回填方案、以及多平台数据库连接等宝贵实践经验。
+  - **类型系统泛化**：新增 `templates/types.ts` 和 `templates/format-date.ts`。原 11comm 专有的 `@01s-11comm/type`（如 `JsonVO` / `PageDTO`）全部被替换为可直接复用的通用形态 `ApiResponse<T>` 和 `PageData<T>`。
+  - **多平台配置与避坑经验**：新增 `references/cloudflare-env-database.md`，详细记录了在 Nitro v3 环境下如何适配 Cloudflare Worker 与 Vercel 环境变量及 Drizzle ORM，规避全局变量缓存等深水区大坑（源自真实排错经验）。
+  - **Mock 模式迁移至真实数据库指南**：编写了专门的 `references/mock-to-database-migration.md`，介绍如何从弃用的 Mock 方法快速丝滑迁移至诸如 Neon 这类的真实 Postgres 配置，并将旧版 Mock 模式隔离为 Legacy（`references/mock-mode.md`）。
+  - **增补全方位技术指导**：增补和梳理出 API 语法速查（`api-reference.md`）、完整 CRUD 样例（`examples.md`）、严谨的参数清洗与 Zod 校验（`request-params-handling.md`）及 Vitest 测试指南（`vitest-testing.md`）。
+
+### Technical Details
+
+#### nitro-api-development 技能更新
+
+- **版本变化**: 文件结构和架构重组，功能定位及版本号沿用 0.13.4，作为其完全体。
+- **变更说明**: 从 11comm 中实施提取，清除了所有特殊挂件、本地路径限制（如 apps/admin 等）及私有环境变量（如 comm*admin*\*），变身为适用于任意架构的纯白盒插件技能。
+
 ## [2.5.0] - 2026-02-28
 
 ### Changed
