@@ -78,6 +78,14 @@ npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-market
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-marketplace/common-tools/skills/nitro-api-development
 ```
 
+#### Rebase 同步主分支 (rebase2main)
+
+将当前开发分支通过 rebase 同步到 main 分支并推送远端。
+
+```bash
+npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-marketplace/common-tools/skills/rebase2main
+```
+
 > **注意**：如果你想使用开发版分支，请将 URL 中的 `main` 替换为 `dev`。
 
 ## 风险项
