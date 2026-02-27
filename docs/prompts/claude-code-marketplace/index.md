@@ -521,3 +521,11 @@ claude code 插件商城的发版标签应该为 minor 。
 务必检查清楚是否已经安装了足量的开发环境依赖。确保不要缺省依赖。
 
 根据项目是否是 monorepo 项目，检索到根包，即根 package.json 文件。并在这个文件内检查必须要安装的 package.json 依赖包。
+
+## 028 <!-- TODO: --> 从 11comm 项目内提取 nitro-api-development 技能
+
+针对 `claude-code-marketplace\common-tools\skills\nitro-api-development` 这款技能，请你阅读 `11comm` 项目内的相关代码，从 `11comm` 项目内提取 `nitro-api-development` 技能，并将其写入 `claude-code-marketplace\common-tools\skills\nitro-api-development`。
+
+1. 阅读目录： `D:\code\github-desktop-store\01s-11comm\.claude\skills\nitro-api-development` 下面的全部 skills 规格的文件。
+2. 全面的提取出该技能的全部内容。对比，改写，写入到本仓库的 `claude-code-marketplace\common-tools\skills\nitro-api-development` 内。
+3. 去除掉特化性质的内容，抽象出通用的内容。让该技能能够适用于任何项目。比如专属于 11comm 的环境变量，特定包路径等。如果实践起来有疑惑，请列举问题并咨询我，询问我如何处置 11comm 或者是你认为专项的，特化的配置内容。
