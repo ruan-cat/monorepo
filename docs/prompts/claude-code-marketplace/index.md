@@ -530,7 +530,7 @@ claude code 插件商城的发版标签应该为 minor 。
 2. 全面的提取出该技能的全部内容。对比，改写，写入到本仓库的 `claude-code-marketplace\common-tools\skills\nitro-api-development` 内。
 3. 去除掉特化性质的内容，抽象出通用的内容。让该技能能够适用于任何项目。比如专属于 11comm 的环境变量，特定包路径等。如果实践起来有疑惑，请列举问题并咨询我，询问我如何处置 11comm 或者是你认为专项的，特化的配置内容。
 
-## 029 <!-- TODO: --> 拓展 git-commit 技能，说明清楚破坏性变更的编写规范；让该技能优先针对 git 暂存区的文件做提交
+## 029 拓展 git-commit 技能，说明清楚破坏性变更的编写规范；让该技能优先针对 git 暂存区的文件做提交
 
 针对 `claude-code-marketplace\common-tools\skills\git-commit` 技能。
 
