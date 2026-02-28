@@ -559,7 +559,7 @@ claude code 插件商城的发版标签应该为 minor 。
 3. 按修改类型拆分
 4. 按修改的范围拆分
 
-## 030 <!-- TODO: --> 新增简单的 skills，`rebase2main` 技能
+## 030 新增简单的 skills，`rebase2main` 技能
 
 该技能就是非常简单的，更新分支内容到 main 分支的一套固定流程。千万不要复杂化。
 
