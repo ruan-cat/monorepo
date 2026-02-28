@@ -1,5 +1,12 @@
 # 更新日志
 
+## 2.0.1
+
+### Patch Changes
+
+- 1. 调整 `11comm` 项目域名条目的 `order` 排列顺序，使 `ruan-cat.com` 域名条目优先展示（order 1、2），`ruancat6312.top` 域名条目靠后展示（order 3、4）。 ([`d08a404`](https://github.com/ruan-cat/monorepo/commit/d08a404fdf7c56b69a06f0763781e7f0bc8c8c92))
+  2. 更新 `11comm` 项目中 `01s-11comm` 域名条目的 `description` 字段，将部署平台说明从 `cloudflare worker` 修改为 `vercel`，与实际部署情况保持一致。
+
 ## 2.0.0
 
 ### Major Changes
