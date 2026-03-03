@@ -566,3 +566,31 @@ claude code 插件商城的发版标签应该为 minor 。
 1. 将当前分支（通常是 dev 分支、或者是其他开发性质的分支、非 main 的分支），以 git rebase 的方式，同步提交信息到 main 分支。
 2. 在 main 分支内，直接 push 到对应的远程仓库。不需要使用强制 push 的方式来完成提交。
 3. 最后，切换回当前分支。使用 git checkout 命令切换回当前分支。
+
+## 031 <!-- TODO: --> 在 claude code 插件商城`claude-code-marketplace\common-tools`内，新建一款技能
+
+我需要你新建一款 skills 技能，名为 `use-other-model` 技能。这个技能主要是教会当前的 claude code，或者是当前正在运行的主代理：
+
+1. 指导其主代理如何在本地，根据用户提供的 claude code 环境变量信息，驱动另一个在 claude code 内运行 AI 模型，并完成一些列任务。进而达到节省 token 的目的。
+2. 指导其主代理，如何在本地驱动除开 claude code 形式的模型，比如驱动 gemini cli 而不是 claude code，使用别的 AI cli 客户端，驱动别的模型，完成其他通用任务。
+
+典型的使用场景是：让使用 Anthropic 模型的 claude code 主代理回话，驱动 minimax2.5 模型，驱动一个独立的 claude code 回话+minimax2.5 模型，按照主代理指定的一揽子计划（或者是一揽子的提示词/长任务/复杂任务），完成多文件的，需要读取 skills 的 git commit 提交任务。
+
+该技能的核心目的是为了将**简单的**，**重复的**任务，**委托**交给其他费用**廉价的** AI 大模型来完成。避免占用主代理的上下文窗口，避免消耗主代理模型的 token。
+
+核心目的：
+
+1. 避免占用主代理的上下文窗口。
+2. 避免消耗主代理模型的 token，减少开销。
+3. 将重复的，简单的，多文件的，繁琐的，写入文本数量大的任务，委托给其他廉价的 AI 模型来完成。
+
+### 新建 `use-other-model` 技能的参考资料
+
+已经有现成的方案来实现该需求了，请你认真阅读以下文件。以下报告已经成功探索了如何驱动其他的 AI 模型并完成任务。
+
+1. https://raw.githubusercontent.com/ruan-cat/11comm/refs/heads/dev/apps/admin/src/docs/reports/2026-03-04-driving-minimax-model-technical-report/2026-03-04-driving-minimax-model-technical-report.md
+2. https://raw.githubusercontent.com/ruan-cat/11comm/refs/heads/dev/apps/admin/src/docs/reports/2026-03-04-driving-minimax-model-technical-report/2026-03-04-token-savings-analysis.md
+
+### 实际执行时的注意事项
+
+1. 在执行 `use-other-model` 技能时，你应该主动使用对话工具，向用户索要敏感的大模型配置信息，便于你驱动其他的 AI 大模型。
