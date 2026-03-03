@@ -86,6 +86,14 @@ npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-market
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-marketplace/common-tools/skills/rebase2main
 ```
 
+#### 使用其他 AI 模型 (use-other-model)
+
+指导主代理如何驱动其他 AI 模型(MiniMax、Gemini)完成任务,实现 50-80% token 节省。
+
+```bash
+npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-marketplace/common-tools/skills/use-other-model
+```
+
 > **注意**：如果你想使用开发版分支，请将 URL 中的 `main` 替换为 `dev`。
 
 ## 风险项

@@ -5,6 +5,20 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.9.0] - 2026-03-04
+
+### Added
+
+- **✨ 新增技能**: `use-other-model` - 驱动其他 AI 模型完成任务,实现 50-80% token 节省 (v0.2.0)
+  - **核心功能**：智能评估任务复杂度,选择最优方案(MCP 工具 vs 独立会话)驱动 MiniMax/Gemini 等模型
+  - **两种方案**：
+    - 方案 A(MCP 工具)：适合简单任务、单次调用,token 节省 20-40%
+    - 方案 B(独立会话)：适合复杂任务、批量操作,token 节省 50-80%
+  - **关键技术**：绕过嵌套检查(`unset CLAUDECODE`)、Bash 后台任务、Heredoc 任务传递、文件通信机制
+  - **完整文档**：包含决策流程、环境变量识别、代码模板、实战案例(批量 Git 提交)、10 个常见问题解答
+  - **渐进式加载**：主 SKILL.md 297 行,详细内容分散在 7 个参考文档中(references/ 目录)
+  - **README 更新**：在 `.claude-plugin/README.md` 可用技能列表中新增 `use-other-model` 安装入口
+
 ## [2.8.0] - 2026-02-28
 
 ### Added
