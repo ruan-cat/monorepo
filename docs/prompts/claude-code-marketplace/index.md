@@ -567,7 +567,7 @@ claude code 插件商城的发版标签应该为 minor 。
 2. 在 main 分支内，直接 push 到对应的远程仓库。不需要使用强制 push 的方式来完成提交。
 3. 最后，切换回当前分支。使用 git checkout 命令切换回当前分支。
 
-## 031 <!-- TODO: --> 在 claude code 插件商城`claude-code-marketplace\common-tools`内，新建一款技能
+## 031 在 claude code 插件商城`claude-code-marketplace\common-tools`内，新建一款技能
 
 我需要你新建一款 skills 技能，名为 `use-other-model` 技能。这个技能主要是教会当前的 claude code，或者是当前正在运行的主代理：
 
