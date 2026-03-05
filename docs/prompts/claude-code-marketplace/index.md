@@ -594,3 +594,14 @@ claude code 插件商城的发版标签应该为 minor 。
 ### 实际执行时的注意事项
 
 1. 在执行 `use-other-model` 技能时，你应该主动使用对话工具，向用户索要敏感的大模型配置信息，便于你驱动其他的 AI 大模型。
+
+## 032 迭代 `init-claude-code-statusline` 技能
+
+针对 `claude-code-marketplace\common-tools\skills\init-claude-code-statusline\SKILL.md` 技能。
+
+我希望调整 `claude-code-marketplace\common-tools\skills\init-claude-code-statusline\templates\statusline.sh` 的状态栏排版布局。
+
+1. 文件目录放在单独的一行。放在第一行。
+2. 分支信息和模型信息。放在第二行。
+
+因为会出现目录地址过长、和模型信息过长的情况。导致看不清楚。需要你优化 `init-claude-code-statusline\templates\statusline.sh` 状态栏配置模版文件的显示效果。
