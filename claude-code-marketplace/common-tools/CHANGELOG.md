@@ -5,6 +5,21 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.9.2] - 2026-03-05
+
+### Added
+
+- **✨ 技能增强**: `git-commit` - 新增 Co-authored-by 协同提交能力 (v0.2.0 → v0.3.0)
+  - **核心功能**：在 git 提交时自动追加 AI 客户端和模型的 Co-authored-by 信息
+  - **获取方式**：从当前系统提示词（system prompt）内解析 AI 客户端型号和模型型号，无需专门查询
+  - **完整对照表**：涵盖主流 AI IDE（Cursor、Trae 等）、CLI 工具（Claude Code、Gemini CLI 等）、大模型系列（Claude、OpenAI、Gemini、MiniMax、GLM）
+  - **使用方式**：通过 `--trailer` 参数追加 Co-authored-by 信息，如：
+    ```bash
+    git commit -F commit-message.txt \
+      --trailer "Co-authored-by: Claude-Code <cli@anthropic.com>" \
+      --trailer "Co-authored-by: MiniMax-M2.5 <ai@minimaxi.com>"
+    ```
+
 ## [2.9.1] - 2026-03-05
 
 ### Changed

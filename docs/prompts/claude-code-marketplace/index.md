@@ -605,3 +605,57 @@ claude code 插件商城的发版标签应该为 minor 。
 2. 分支信息和模型信息。放在第二行。
 
 因为会出现目录地址过长、和模型信息过长的情况。导致看不清楚。需要你优化 `init-claude-code-statusline\templates\statusline.sh` 状态栏配置模版文件的显示效果。
+
+## 033 迭代 git commit 技能，增加 Co-authored-by 能力
+
+我希望 git commit 提交的时候，能够补全提供所使用的当前 AI 模型型号和 AI 客户端型号作为 git commit 提交信息里面的 `Co-authored-by` 字段信息。在获取 `Co-authored-by` 信息时，不应该在获取 AI 模型型号和 AI 客户端型号时花费精力，应该**从当前的系统提示词内获取型号**。而不是专门去想办法获取。
+
+AI & IDE 协同提交 (Co-authored-by) 邮箱对照表
+
+本文档记录了常用 AI 开发工具、命令行（CLI）以及大语言模型（基于 2026 年最新主流版本）的标准 `Co-authored-by` 尾注格式，方便在 Git 提交时精确追踪 AI 的协助贡献。
+
+### 一、 AI IDE 开发工具
+
+| 工具名称        | Co-authored-by 格式                                |
+| :-------------- | :------------------------------------------------- |
+| **VS Code**     | `Co-authored-by: VSCode <bot@microsoft.com>`       |
+| **Cursor**      | `Co-authored-by: Cursor <ai@cursor.com>`           |
+| **Trae**        | `Co-authored-by: Trae <ai@trae.ai>`                |
+| **Codebuddy**   | `Co-authored-by: Codebuddy <bot@codebuddy.ca>`     |
+| **Antigravity** | `Co-authored-by: Antigravity <ai@antigravity.dev>` |
+| **Qoder**       | `Co-authored-by: Qoder <bot@qoder.ai>`             |
+| **Kiro**        | `Co-authored-by: Kiro <ai@kiro.ai>`                |
+
+## 二、 AI CLI 命令行工具
+
+| 工具名称        | Co-authored-by 格式                               |
+| :-------------- | :------------------------------------------------ |
+| **Claude Code** | `Co-authored-by: Claude-Code <cli@anthropic.com>` |
+| **Gemini CLI**  | `Co-authored-by: Gemini-CLI <cli@google.com>`     |
+| **Codex CLI**   | `Co-authored-by: Codex-CLI <codex@openai.com>`    |
+
+## 三、 AI 大模型系列 (2026 最新版)
+
+| 模型系列          | 推荐的最新/流行型号 | Co-authored-by 格式                                        |
+| :---------------- | :------------------ | :--------------------------------------------------------- |
+| **Claude 系列**   | Claude Opus 4.6     | `Co-authored-by: Claude-Opus-4.6 <claude@anthropic.com>`   |
+|                   | Claude Sonnet 4.5   | `Co-authored-by: Claude-Sonnet-4.5 <claude@anthropic.com>` |
+| **OpenAI 系列**   | OpenAI GPT-4.5      | `Co-authored-by: OpenAI-GPT-4.5 <ai@openai.com>`           |
+|                   | OpenAI o3           | `Co-authored-by: OpenAI-o3 <ai@openai.com>`                |
+| **Gemini 系列**   | Gemini 3 Pro        | `Co-authored-by: Gemini-3-Pro <gemini@google.com>`         |
+|                   | Gemini 2.5 Flash    | `Co-authored-by: Gemini-2.5-Flash <gemini@google.com>`     |
+| **MiniMax 系列**  | MiniMax M2.5        | `Co-authored-by: MiniMax-M2.5 <ai@minimaxi.com>`           |
+|                   | MiniMax abab7       | `Co-authored-by: MiniMax-abab7 <ai@minimaxi.com>`          |
+| **智谱 GLM 系列** | GLM-5               | `Co-authored-by: GLM-5 <glm@zhipuai.cn>`                   |
+
+---
+
+## 附录：实战提交示例
+
+在使用 `--trailer` 参数时，可以直接从上方复制对应的值进行拼接。比如在构建全栈应用时，处理连接逻辑的提交可以这样写：
+
+```bash
+git commit -m "feat: integrate Neon DB with Drizzle ORM in Nitro API" \
+  --trailer "Co-authored-by: Cursor <ai@cursor.com>" \
+  --trailer "Co-authored-by: Gemini-3-Pro <gemini@google.com>"
+```
