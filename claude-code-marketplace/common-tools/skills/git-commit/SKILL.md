@@ -3,7 +3,7 @@ name: git-commit
 description: "创建高质量的 git 提交：审查/暂存预期的变更，拆分为逻辑提交，并编写清晰的提交信息（遵循 Conventional Commits 规范，支持 Emoji）。当用户要求提交代码、编写提交信息、暂存变更或将工作拆分为多个提交时使用此技能。当用户提及【破坏性变更】关键词时，必须按照本技能的 BREAKING CHANGE 规范使用感叹号格式编写提交信息。优先针对 git 暂存区（staged）中的文件进行提交，只有当暂存区为空时才考虑整个工作树。当用户提及【分门别类】关键词时，必须按照本技能的多提交拆分规范，从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。"
 user-invocable: true
 metadata:
-  version: "0.3.0"
+  version: "0.3.1"
 ---
 
 # Git Commit
@@ -64,14 +64,18 @@ metadata:
      - footer：破坏性变更时必须包含 `BREAKING CHANGE: <说明>` 行
    - **Emoji 和 Type 规范**：必须查阅并遵循 [commit-types.ts](https://raw.githubusercontent.com/ruan-cat/monorepo/dev/configs-package/commitlint-config/src/commit-types.ts) 中的定义。
      - **主动查阅**：使用 `Read` 或 `WebFetch` 工具主动读取上述文件以获取最新的 Emoji 和 Type 列表。
-   - **推荐使用文件方式提交**（解决 Windows/PowerShell 中文乱码问题）：
+   - **推荐使用文件方式**（解决 Windows/PowerShell 中文乱码问题）：
      - 由于 Cursor IDE 的 Shell 工具在通过 `-m` 参数传递中文时存在编码问题，推荐使用 `-F` 文件方式提交
-     - 创建临时提交信息文件（如 `commit-message.txt`）
-     - 使用 `git commit -F commit-message.txt` 提交
-     - 提交完成后删除临时文件
+     - 创建临时提交信息文件（如 `commit-message.txt`），写入提交信息内容
+     - **注意**：此步骤只创建文件，**暂不执行提交**
    - 参考 `references/commit-message-template.md` 获取完整的模板和 Emoji 列表。
 
-7. **获取 Co-authored-by 信息**
+7. **运行最小的相关验证**
+   - 在提交之前运行仓库中最快且有意义的检查（单元测试、lint 或构建）。
+   - 验证通过后再执行步骤 8 进行提交。
+   - 如果验证失败，修复问题后重新执行验证。
+
+8. **获取 Co-authored-by 信息并执行提交**
    - **获取 AI 客户端型号**：从当前对话的 system prompt 或初始化信息中查找：
      - "You are Claude Code" → 客户端 = "Claude Code"
      - "You are Cursor" → 客户端 = "Cursor"
@@ -91,9 +95,14 @@ metadata:
        --trailer "Co-authored-by: <AI模型> <邮箱>"
      ```
      如果有多个 Co-authored-by 信息，使用多个 `--trailer` 参数。
+   - **提交成功后删除临时文件**：
+     ```bash
+     rm commit-message.txt
+     ```
+   - **验证提交是否成功**：
+     - 运行 `git status` 确认工作树已干净
+     - 运行 `git log -1` 查看最终提交信息
 
-8. **运行最小的相关验证**
-   - 在继续之前运行仓库中最快且有意义的检查（单元测试、lint 或构建）。
 9. **重复下一个提交，直到工作树干净**
 
 ## 优先处理暂存区 [CRITICAL]
