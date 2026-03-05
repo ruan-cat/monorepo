@@ -3,7 +3,7 @@ name: git-commit
 description: "创建高质量的 git 提交：审查/暂存预期的变更，拆分为逻辑提交，并编写清晰的提交信息（遵循 Conventional Commits 规范，支持 Emoji）。当用户要求提交代码、编写提交信息、暂存变更或将工作拆分为多个提交时使用此技能。当用户提及【破坏性变更】关键词时，必须按照本技能的 BREAKING CHANGE 规范使用感叹号格式编写提交信息。优先针对 git 暂存区（staged）中的文件进行提交，只有当暂存区为空时才考虑整个工作树。当用户提及【分门别类】关键词时，必须按照本技能的多提交拆分规范，从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。"
 user-invocable: true
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Git Commit
@@ -70,9 +70,31 @@ metadata:
      - 使用 `git commit -F commit-message.txt` 提交
      - 提交完成后删除临时文件
    - 参考 `references/commit-message-template.md` 获取完整的模板和 Emoji 列表。
-7. **运行最小的相关验证**
+
+7. **获取 Co-authored-by 信息**
+   - **获取 AI 客户端型号**：从当前对话的 system prompt 或初始化信息中查找：
+     - "You are Claude Code" → 客户端 = "Claude Code"
+     - "You are Cursor" → 客户端 = "Cursor"
+     - "You are Gemini CLI" → 客户端 = "Gemini CLI"
+     - 其他 AI IDE / CLI 同理
+   - **获取 AI 模型型号**：从当前对话的 model 信息中查找：
+     - "MiniMax-M2.5-highspeed" → 模型 = "MiniMax-M2.5"
+     - "claude-opus-4-6" → 模型 = "Claude Opus 4.6"
+     - "claude-sonnet-4-6" → 模型 = "Claude Sonnet 4.6"
+     - 其他模型同理
+   - **转换为 Co-authored-by 格式**：根据下方的「Co-authored-by 邮箱对照表」进行转换
+   - **使用 `--trailer` 参数追加**：
+     ```bash
+     # 使用文件方式提交，并追加 Co-authored-by trailer
+     git commit -F commit-message.txt \
+       --trailer "Co-authored-by: <AI客户端> <邮箱>" \
+       --trailer "Co-authored-by: <AI模型> <邮箱>"
+     ```
+     如果有多个 Co-authored-by 信息，使用多个 `--trailer` 参数。
+
+8. **运行最小的相关验证**
    - 在继续之前运行仓库中最快且有意义的检查（单元测试、lint 或构建）。
-8. **重复下一个提交，直到工作树干净**
+9. **重复下一个提交，直到工作树干净**
 
 ## 优先处理暂存区 [CRITICAL]
 
@@ -225,6 +247,43 @@ BREAKING CHANGE: 删除了 reference.md 和 templates.md，替换为 references/
 - 新增 references/ 子目录（含 7 个专项文档）
 - 新增 templates/ 子目录（含 2 个可复用 TypeScript 文件）
 ```
+
+## Co-authored-by 邮箱对照表
+
+### AI & IDE 开发工具
+
+| 工具名称    | Co-authored-by 格式                                |
+| :---------- | :------------------------------------------------- |
+| VS Code     | `Co-authored-by: VSCode <bot@microsoft.com>`       |
+| Cursor      | `Co-authored-by: Cursor <ai@cursor.com>`           |
+| Trae        | `Co-authored-by: Trae <ai@trae.ai>`                |
+| Codebuddy   | `Co-authored-by: Codebuddy <bot@codebuddy.ca>`     |
+| Antigravity | `Co-authored-by: Antigravity <ai@antigravity.dev>` |
+| Qoder       | `Co-authored-by: Qoder <bot@qoder.ai>`             |
+| Kiro        | `Co-authored-by: Kiro <ai@kiro.ai>`                |
+
+### AI CLI 命令行工具
+
+| 工具名称    | Co-authored-by 格式                               |
+| :---------- | :------------------------------------------------ |
+| Claude Code | `Co-authored-by: Claude-Code <cli@anthropic.com>` |
+| Gemini CLI  | `Co-authored-by: Gemini-CLI <cli@google.com>`     |
+| Codex CLI   | `Co-authored-by: Codex-CLI <codex@openai.com>`    |
+
+### AI 大模型系列
+
+| 模型系列          | Co-authored-by 格式                                        |
+| :---------------- | :--------------------------------------------------------- |
+| Claude Opus 4.6   | `Co-authored-by: Claude-Opus-4.6 <claude@anthropic.com>`   |
+| Claude Sonnet 4.5 | `Co-authored-by: Claude-Sonnet-4.5 <claude@anthropic.com>` |
+| Claude Sonnet 4.6 | `Co-authored-by: Claude-Sonnet-4.6 <claude@anthropic.com>` |
+| Claude Haiku 4.5  | `Co-authored-by: Claude-Haiku-4.5 <claude@anthropic.com>`  |
+| OpenAI GPT-4.5    | `Co-authored-by: OpenAI-GPT-4.5 <ai@openai.com>`           |
+| OpenAI o3         | `Co-authored-by: OpenAI-o3 <ai@openai.com>`                |
+| Gemini 3 Pro      | `Co-authored-by: Gemini-3-Pro <gemini@google.com>`         |
+| Gemini 2.5 Flash  | `Co-authored-by: Gemini-2.5-Flash <gemini@google.com>`     |
+| MiniMax M2.5      | `Co-authored-by: MiniMax-M2.5 <ai@minimaxi.com>`           |
+| GLM-5             | `Co-authored-by: GLM-5 <glm@zhipuai.cn>`                   |
 
 ## 交付物
 
