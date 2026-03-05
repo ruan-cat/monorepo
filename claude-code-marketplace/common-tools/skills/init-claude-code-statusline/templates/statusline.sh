@@ -161,22 +161,30 @@ if [ -n "$tot_tokens" ] && [[ "$tot_tokens" =~ ^[0-9]+$ ]]; then
 fi
 
 # ---- 输出状态行 ----
-# 第一行：基本信息
+# 第一行：仅显示目录
 if [ "$use_color" -eq 1 ]; then
   printf "${C_DIR}%s${C_RESET}" "$current_dir"
-  [ -n "$git_branch" ] && printf "  ${C_GIT}%s${C_RESET}" "🌿 $git_branch"
-  printf "  ${C_MODEL}%s${C_RESET}" "🤖 $model_name"
+else
+  printf "%s" "$current_dir"
+fi
+
+# 第二行：Git分支、模型、版本、上下文窗口
+printf "\n"
+if [ "$use_color" -eq 1 ]; then
+  [ -n "$git_branch" ] && printf "${C_GIT}%s${C_RESET}" "🌿 $git_branch"
+  [ -n "$git_branch" ] && printf "  "
+  printf "${C_MODEL}%s${C_RESET}" "🤖 $model_name"
   [ -n "$cc_version" ] && printf "  ${C_VERSION}%s${C_RESET}" "v$cc_version"
   printf "  ${context_color}%s${C_RESET}" "🧠 $context_info"
 else
-  printf "%s" "$current_dir"
-  [ -n "$git_branch" ] && printf "  %s" "$git_branch"
-  printf "  %s" "$model_name"
+  [ -n "$git_branch" ] && printf "%s" "$git_branch"
+  [ -n "$git_branch" ] && printf "  "
+  printf "%s" "$model_name"
   [ -n "$cc_version" ] && printf "  v%s" "$cc_version"
   printf "  %s" "🧠 $context_info"
 fi
 
-# 第二行：成本和使用信息（如果有）
+# 第三行：成本和使用信息（如果有）
 if [ -n "$cost_info" ] || [ -n "$usage_info" ]; then
   printf "\n"
   [ -n "$cost_info" ] && printf "%b" "$cost_info"
