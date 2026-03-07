@@ -36,6 +36,8 @@ pnpm i -D @ruan-cat/vitepress-preset-config vue vitepress vitepress-demo-plugin
 
 :::
 
+如果你需要配置 `setUserConfig(_, extraConfig)` 的第二个参数，例如调整内置插件或者覆盖默认的 Teek 主题配置，请阅读 [setUserConfig 的 extraConfig 使用文档](./feat/set-user-config-extra-config.md)。
+
 ### 主题配置
 
 ::: details theme/index.ts
