@@ -28,8 +28,8 @@ import "vitepress-theme-teek/theme-chalk/tk-doc-h1-gradient.css";
 import "vitepress-theme-teek/theme-chalk/tk-nav-blur.css";
 // 滚动条样式
 import "vitepress-theme-teek/theme-chalk/tk-scrollbar.css";
-// 侧边栏样式
-import "vitepress-theme-teek/theme-chalk/tk-sidebar.css";
+// 侧边栏样式 这个侧边栏标题不好看 打算关闭掉
+// import "vitepress-theme-teek/theme-chalk/tk-sidebar.css";
 // 右侧目栏录文字悬停和激活样式
 import "vitepress-theme-teek/theme-chalk/tk-aside.css";
 // 首次进入页面添加渐显动画
