@@ -57,23 +57,25 @@ export const domains = <const>{
 	 * 在 cloudflare pages 流水线内部署的域名
 	 * 这个域名会在dev分支 且notes目录下有变更时重新部署
 	 *
-	 * - *更新速度*： 预期是`高频触发，低速部署`的域名。
+	 * - *更新速度*： 预期是`高频触发，中速部署`的域名。
 	 * - *cname*： 该域名有明确的cname配置 对接的是`cloudflare pages`提供的默认域名。
+	 * - *git日志*： 该站点没有git修改日志，因为 cloudflare worker 流水线不会提供git信息。
 	 * - *无意义配置*： 本配置在此处仅仅是用来声明 目前暂时没有专门的域名配置。
 	 */
-	notesCloudflare: ["notes.ruan-cat.com"],
+	notesCloudflare: ["ruan-cat-notes.ruan-cat.com"],
 
 	/**
 	 * 笔记项目 `vercel`流水线版本
 	 * @description
 	 * 在 vercel 流水线内部署的域名
-	 * 这个域名会在vc分支触发的时候重新部署
+	 * 这个域名会在 dev 分支触发的时候重新部署
 	 *
-	 * - *更新速度*： 预期是`中频触发，高速部署`的域名。
-	 * - *cname*： 该域名有明确的cname配置 对接的是`vercel`提供的服务器ns。
+	 * - *更新速度*： 预期是`高频触发，中速部署`的域名。
+	 * - *cname*： 该域名有明确的cname配置 对接的是`vercel`提供的cname域名。
+	 * - *git日志*： 该站点会提供git修改日志，因为 vercel 流水线会提供git信息。
 	 * - *无意义配置*： 本配置在此处仅仅是用来声明 目前暂时没有专门的域名配置。
 	 */
-	notesVercel: ["ruan-cat-notes.ruan-cat.com"],
+	notesVercel: ["notes.ruan-cat.com"],
 
 	/**
 	 * 笔记项目 `github`流水线版本

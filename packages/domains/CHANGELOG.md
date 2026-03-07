@@ -106,9 +106,15 @@
   // 新用法：带别名
   const domains3 = getDomains({
   	projectName: "ruan-cat-notes",
-  	projectAlias: "notesCloudflare",
+  	projectAlias: "notesVercel",
   });
   // 返回: ["notes.ruan-cat.com"]
+
+  const domains4 = getDomains({
+  	projectName: "ruan-cat-notes",
+  	projectAlias: "notesCloudflare",
+  });
+  // 返回: ["ruan-cat-notes.ruan-cat.com"]
   ```
 
   ## 域名 `notes.ruan-cat.com` 重返 vercel 平台

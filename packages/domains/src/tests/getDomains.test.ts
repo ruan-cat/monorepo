@@ -53,7 +53,7 @@ describe("getDomains 函数测试", () => {
 				projectAlias: "notesCloudflare",
 			};
 			const domains = getDomains(params);
-			expect(domains).toEqual(["notes.ruan-cat.com"]);
+			expect(domains).toEqual(["ruan-cat-notes.ruan-cat.com"]);
 		});
 
 		test("应该返回指定别名的域名 - notesVercel", () => {
@@ -62,7 +62,7 @@ describe("getDomains 函数测试", () => {
 				projectAlias: "notesVercel",
 			};
 			const domains = getDomains(params);
-			expect(domains).toEqual(["ruan-cat-notes.ruan-cat.com"]);
+			expect(domains).toEqual(["notes.ruan-cat.com"]);
 		});
 
 		test("应该返回指定别名的域名 - notesGithubWorkflow", () => {
