@@ -154,7 +154,14 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 	],
 
 	/** github贡献表 */
-	gh: [{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "gh", order: 1 }],
+	gh: [
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "gh",
+			order: 1,
+			description: "阮喵喵的github贡献表。包括pr和issue的贡献。",
+		},
+	],
 
 	/** rmmv笔记项目 */
 	"rmmv-notes": [
