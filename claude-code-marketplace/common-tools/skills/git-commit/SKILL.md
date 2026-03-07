@@ -3,7 +3,7 @@ name: git-commit
 description: "创建高质量的 git 提交：审查/暂存预期的变更，拆分为逻辑提交，并编写清晰的提交信息（遵循 Conventional Commits 规范，支持 Emoji）。当用户要求提交代码、编写提交信息、暂存变更或将工作拆分为多个提交时使用此技能。当用户提及【破坏性变更】关键词时，必须按照本技能的 BREAKING CHANGE 规范使用感叹号格式编写提交信息。优先针对 git 暂存区（staged）中的文件进行提交，只有当暂存区为空时才考虑整个工作树。当用户提及【分门别类】关键词时，必须按照本技能的多提交拆分规范，从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。"
 user-invocable: true
 metadata:
-  version: "0.3.1"
+  version: "0.3.2"
 ---
 
 # Git Commit
@@ -82,6 +82,9 @@ metadata:
      - "You are Gemini CLI" → 客户端 = "Gemini CLI"
      - 其他 AI IDE / CLI 同理
    - **获取 AI 模型型号**：从当前对话的 model 信息中查找：
+     - "gpt-5.2" → 模型 = "OpenAI GPT-5.2"
+     - "gpt-5.3" → 模型 = "OpenAI GPT-5.3"
+     - "gpt-5.4" → 模型 = "OpenAI GPT-5.4"
      - "MiniMax-M2.5-highspeed" → 模型 = "MiniMax-M2.5"
      - "claude-opus-4-6" → 模型 = "Claude Opus 4.6"
      - "claude-sonnet-4-6" → 模型 = "Claude Sonnet 4.6"
@@ -259,40 +262,44 @@ BREAKING CHANGE: 删除了 reference.md 和 templates.md，替换为 references/
 
 ## Co-authored-by 邮箱对照表
 
+注意：GitHub 识别 `Co-authored-by` 主要依赖邮箱是否能归属到 GitHub 账号。下面统一改为对应账号的 `users.noreply.github.com` 邮箱，避免继续使用无法在 GitHub 内归属到用户名的厂商域名邮箱。
+
 ### AI & IDE 开发工具
 
-| 工具名称    | Co-authored-by 格式                                |
-| :---------- | :------------------------------------------------- |
-| VS Code     | `Co-authored-by: VSCode <bot@microsoft.com>`       |
-| Cursor      | `Co-authored-by: Cursor <ai@cursor.com>`           |
-| Trae        | `Co-authored-by: Trae <ai@trae.ai>`                |
-| Codebuddy   | `Co-authored-by: Codebuddy <bot@codebuddy.ca>`     |
-| Antigravity | `Co-authored-by: Antigravity <ai@antigravity.dev>` |
-| Qoder       | `Co-authored-by: Qoder <bot@qoder.ai>`             |
-| Kiro        | `Co-authored-by: Kiro <ai@kiro.ai>`                |
+| 工具名称    | Co-authored-by 格式                                                                         |
+| :---------- | :------------------------------------------------------------------------------------------ |
+| VS Code     | `Co-authored-by: VSCode <62039782+vscode-triage-bot@users.noreply.github.com>`              |
+| Cursor      | `Co-authored-by: Cursor <199161495+cursoragent@users.noreply.github.com>`                   |
+| Trae        | `Co-authored-by: Trae <192575406+Trae-AI-Admin@users.noreply.github.com>`                   |
+| Codebuddy   | `Co-authored-by: Codebuddy <214620440+CodeBuddy-Official-Account@users.noreply.github.com>` |
+| Antigravity | `Co-authored-by: Antigravity <256725992+antigravity-ai@users.noreply.github.com>`           |
+| Qoder       | `Co-authored-by: Qoder <215799558+Qoder-AI@users.noreply.github.com>`                       |
+| Kiro        | `Co-authored-by: Kiro <201607104+kiro-ai@users.noreply.github.com>`                         |
 
 ### AI CLI 命令行工具
 
-| 工具名称    | Co-authored-by 格式                               |
-| :---------- | :------------------------------------------------ |
-| Claude Code | `Co-authored-by: Claude-Code <cli@anthropic.com>` |
-| Gemini CLI  | `Co-authored-by: Gemini-CLI <cli@google.com>`     |
-| Codex CLI   | `Co-authored-by: Codex-CLI <codex@openai.com>`    |
+| 工具名称    | Co-authored-by 格式                                                                  |
+| :---------- | :----------------------------------------------------------------------------------- |
+| Claude Code | `Co-authored-by: Claude-Code <237456255+anthropics-claude@users.noreply.github.com>` |
+| Gemini CLI  | `Co-authored-by: Gemini-CLI <229672533+google-gemini-cli@users.noreply.github.com>`  |
+| Codex CLI   | `Co-authored-by: Codex-CLI <208188539+codex-cli@users.noreply.github.com>`           |
 
 ### AI 大模型系列
 
-| 模型系列          | Co-authored-by 格式                                        |
-| :---------------- | :--------------------------------------------------------- |
-| Claude Opus 4.6   | `Co-authored-by: Claude-Opus-4.6 <claude@anthropic.com>`   |
-| Claude Sonnet 4.5 | `Co-authored-by: Claude-Sonnet-4.5 <claude@anthropic.com>` |
-| Claude Sonnet 4.6 | `Co-authored-by: Claude-Sonnet-4.6 <claude@anthropic.com>` |
-| Claude Haiku 4.5  | `Co-authored-by: Claude-Haiku-4.5 <claude@anthropic.com>`  |
-| OpenAI GPT-4.5    | `Co-authored-by: OpenAI-GPT-4.5 <ai@openai.com>`           |
-| OpenAI o3         | `Co-authored-by: OpenAI-o3 <ai@openai.com>`                |
-| Gemini 3 Pro      | `Co-authored-by: Gemini-3-Pro <gemini@google.com>`         |
-| Gemini 2.5 Flash  | `Co-authored-by: Gemini-2.5-Flash <gemini@google.com>`     |
-| MiniMax M2.5      | `Co-authored-by: MiniMax-M2.5 <ai@minimaxi.com>`           |
-| GLM-5             | `Co-authored-by: GLM-5 <glm@zhipuai.cn>`                   |
+| 模型系列          | Co-authored-by 格式                                                                        |
+| :---------------- | :----------------------------------------------------------------------------------------- |
+| Claude Opus 4.6   | `Co-authored-by: Claude-Opus-4.6 <237456255+anthropics-claude@users.noreply.github.com>`   |
+| Claude Sonnet 4.5 | `Co-authored-by: Claude-Sonnet-4.5 <237456255+anthropics-claude@users.noreply.github.com>` |
+| Claude Sonnet 4.6 | `Co-authored-by: Claude-Sonnet-4.6 <237456255+anthropics-claude@users.noreply.github.com>` |
+| Claude Haiku 4.5  | `Co-authored-by: Claude-Haiku-4.5 <237456255+anthropics-claude@users.noreply.github.com>`  |
+| OpenAI GPT-4.5    | `Co-authored-by: OpenAI-GPT-4.5 <208188539+codex-cli@users.noreply.github.com>`            |
+| OpenAI GPT-5.2    | `Co-authored-by: OpenAI-GPT-5.2 <208188539+codex-cli@users.noreply.github.com>`            |
+| OpenAI GPT-5.3    | `Co-authored-by: OpenAI-GPT-5.3 <208188539+codex-cli@users.noreply.github.com>`            |
+| OpenAI GPT-5.4    | `Co-authored-by: OpenAI-GPT-5.4 <208188539+codex-cli@users.noreply.github.com>`            |
+| Gemini 3 Pro      | `Co-authored-by: Gemini-3-Pro <229672533+google-gemini-cli@users.noreply.github.com>`      |
+| Gemini 2.5 Flash  | `Co-authored-by: Gemini-2.5-Flash <229672533+google-gemini-cli@users.noreply.github.com>`  |
+| MiniMax M2.5      | `Co-authored-by: MiniMax-M2.5 <239562665+MiniMax-OpenPlatform@users.noreply.github.com>`   |
+| GLM-5             | `Co-authored-by: GLM-5 <178361551+zhipuch@users.noreply.github.com>`                       |
 
 ## 交付物
 
