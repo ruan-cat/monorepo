@@ -1,5 +1,12 @@
 # 更新日志
 
+## 2.1.0
+
+### Minor Changes
+
+- 1. 新增 `claude-notifier` 项目的 4 个预设域名：`ccntf.ruan-cat.com`、`claude-notifier.ruan-cat.com`、`ccntf.ruancat6312.top`、`claude-notifier.ruancat6312.top`。 ([`db2b873`](https://github.com/ruan-cat/monorepo/commit/db2b873909d6f16a6dd2e8ca2c9ee37f7b1c2684))
+  2. 扩展 `@ruan-cat/domains` 的域名配置范围，便于直接查询和使用上述域名。
+
 ## 2.0.1
 
 ### Patch Changes
