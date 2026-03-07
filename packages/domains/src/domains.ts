@@ -153,6 +153,9 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 		},
 	],
 
+	/** github贡献表 */
+	gh: [{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "gh", order: 1 }],
+
 	/** rmmv笔记项目 */
 	"rmmv-notes": [
 		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "rpgmv-dev-notes", order: 1 },

@@ -59,6 +59,7 @@ export const projects = [
 	{ name: "domain", description: "域名列表" },
 	{ name: "vercel-deploy-tool", description: "vercel部署工具" },
 	{ name: "ruan-cat-notes", description: "阮喵喵笔记" },
+	{ name: "gh", description: "github贡献表" },
 	{ name: "rmmv-notes", description: "rmmv笔记项目" },
 	{ name: "drill-doc", description: "钻头文档" },
 	{ name: "rmmv-api-doc", description: "rmmv api文档" },
