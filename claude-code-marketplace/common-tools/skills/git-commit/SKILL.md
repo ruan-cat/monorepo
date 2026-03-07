@@ -3,7 +3,7 @@ name: git-commit
 description: "创建高质量的 git 提交：审查/暂存预期的变更，拆分为逻辑提交，并编写清晰的提交信息（遵循 Conventional Commits 规范，支持 Emoji）。当用户要求提交代码、编写提交信息、暂存变更或将工作拆分为多个提交时使用此技能。当用户提及【破坏性变更】关键词时，必须按照本技能的 BREAKING CHANGE 规范使用感叹号格式编写提交信息。优先针对 git 暂存区（staged）中的文件进行提交，只有当暂存区为空时才考虑整个工作树。当用户提及【分门别类】关键词时，必须按照本技能的多提交拆分规范，从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。"
 user-invocable: true
 metadata:
-  version: "0.3.2"
+  version: "0.3.3"
 ---
 
 # Git Commit
@@ -82,14 +82,12 @@ metadata:
      - "You are Gemini CLI" → 客户端 = "Gemini CLI"
      - 其他 AI IDE / CLI 同理
    - **获取 AI 模型型号**：从当前对话的 model 信息中查找：
-     - "gpt-5.2" → 模型 = "OpenAI GPT-5.2"
-     - "gpt-5.3" → 模型 = "OpenAI GPT-5.3"
-     - "gpt-5.4" → 模型 = "OpenAI GPT-5.4"
      - "MiniMax-M2.5-highspeed" → 模型 = "MiniMax-M2.5"
      - "claude-opus-4-6" → 模型 = "Claude Opus 4.6"
      - "claude-sonnet-4-6" → 模型 = "Claude Sonnet 4.6"
      - 其他模型同理
    - **转换为 Co-authored-by 格式**：根据下方的「Co-authored-by 邮箱对照表」进行转换
+   - **⚠️ 重要原则**：若在对照表中找不到该客户端或模型对应的已验证 GitHub 账号，**必须跳过，不得填写任何 Co-authored-by**。错误的归属比不写更有害，会导致无关人员出现在仓库贡献者列表中。
    - **使用 `--trailer` 参数追加**：
      ```bash
      # 使用文件方式提交，并追加 Co-authored-by trailer
@@ -262,44 +260,47 @@ BREAKING CHANGE: 删除了 reference.md 和 templates.md，替换为 references/
 
 ## Co-authored-by 邮箱对照表
 
-注意：GitHub 识别 `Co-authored-by` 主要依赖邮箱是否能归属到 GitHub 账号。下面统一改为对应账号的 `users.noreply.github.com` 邮箱，避免继续使用无法在 GitHub 内归属到用户名的厂商域名邮箱。
+注意：
 
-### AI & IDE 开发工具
+- GitHub 识别 `Co-authored-by` 主要依赖邮箱是否能归属到 GitHub 账号。下面统一使用对应账号的 `users.noreply.github.com` 邮箱格式。
+- 所有条目均已通过 GitHub API（`https://api.github.com/user/:id` + `/users/:login/orgs`）验证，确认账号归属可信。
+- **若某工具或模型不在此表中，禁止编造或猜测账号，直接跳过 Co-authored-by。**
 
-| 工具名称    | Co-authored-by 格式                                                                         |
-| :---------- | :------------------------------------------------------------------------------------------ |
-| VS Code     | `Co-authored-by: VSCode <62039782+vscode-triage-bot@users.noreply.github.com>`              |
-| Cursor      | `Co-authored-by: Cursor <199161495+cursoragent@users.noreply.github.com>`                   |
-| Trae        | `Co-authored-by: Trae <192575406+Trae-AI-Admin@users.noreply.github.com>`                   |
-| Codebuddy   | `Co-authored-by: Codebuddy <214620440+CodeBuddy-Official-Account@users.noreply.github.com>` |
-| Antigravity | `Co-authored-by: Antigravity <256725992+antigravity-ai@users.noreply.github.com>`           |
-| Qoder       | `Co-authored-by: Qoder <215799558+Qoder-AI@users.noreply.github.com>`                       |
-| Kiro        | `Co-authored-by: Kiro <201607104+kiro-ai@users.noreply.github.com>`                         |
+### 已验证的 Co-authored-by 账号
 
-### AI CLI 命令行工具
+| 工具名称 | GitHub 账号 | 关注者数 | Co-authored-by 格式                                                       |
+| :------- | :---------- | :------- | :------------------------------------------------------------------------ |
+| Cursor   | cursoragent | 1,856    | `Co-authored-by: Cursor <199161495+cursoragent@users.noreply.github.com>` |
 
-| 工具名称    | Co-authored-by 格式                                                                  |
-| :---------- | :----------------------------------------------------------------------------------- |
-| Claude Code | `Co-authored-by: Claude-Code <237456255+anthropics-claude@users.noreply.github.com>` |
-| Gemini CLI  | `Co-authored-by: Gemini-CLI <229672533+google-gemini-cli@users.noreply.github.com>`  |
-| Codex CLI   | `Co-authored-by: Codex-CLI <208188539+codex-cli@users.noreply.github.com>`           |
+### 无官方账号（禁止使用）
 
-### AI 大模型系列
+以下工具/模型目前没有经验证的官方 GitHub bot 账号，**禁止使用任何冒名抢注账号**：
 
-| 模型系列          | Co-authored-by 格式                                                                        |
-| :---------------- | :----------------------------------------------------------------------------------------- |
-| Claude Opus 4.6   | `Co-authored-by: Claude-Opus-4.6 <237456255+anthropics-claude@users.noreply.github.com>`   |
-| Claude Sonnet 4.5 | `Co-authored-by: Claude-Sonnet-4.5 <237456255+anthropics-claude@users.noreply.github.com>` |
-| Claude Sonnet 4.6 | `Co-authored-by: Claude-Sonnet-4.6 <237456255+anthropics-claude@users.noreply.github.com>` |
-| Claude Haiku 4.5  | `Co-authored-by: Claude-Haiku-4.5 <237456255+anthropics-claude@users.noreply.github.com>`  |
-| OpenAI GPT-4.5    | `Co-authored-by: OpenAI-GPT-4.5 <208188539+codex-cli@users.noreply.github.com>`            |
-| OpenAI GPT-5.2    | `Co-authored-by: OpenAI-GPT-5.2 <208188539+codex-cli@users.noreply.github.com>`            |
-| OpenAI GPT-5.3    | `Co-authored-by: OpenAI-GPT-5.3 <208188539+codex-cli@users.noreply.github.com>`            |
-| OpenAI GPT-5.4    | `Co-authored-by: OpenAI-GPT-5.4 <208188539+codex-cli@users.noreply.github.com>`            |
-| Gemini 3 Pro      | `Co-authored-by: Gemini-3-Pro <229672533+google-gemini-cli@users.noreply.github.com>`      |
-| Gemini 2.5 Flash  | `Co-authored-by: Gemini-2.5-Flash <229672533+google-gemini-cli@users.noreply.github.com>`  |
-| MiniMax M2.5      | `Co-authored-by: MiniMax-M2.5 <239562665+MiniMax-OpenPlatform@users.noreply.github.com>`   |
-| GLM-5             | `Co-authored-by: GLM-5 <178361551+zhipuch@users.noreply.github.com>`                       |
+- **AI CLI**：Claude Code（属于 `anthropics` 组织）、Codex CLI（属于 `openai` 组织）、Gemini CLI（属于 `google-gemini` 组织）均无专属 bot 账号
+- **AI IDE**：VS Code、Trae、Codebuddy、Antigravity、Qoder、Kiro 均未确认官方 bot 账号
+- **AI 模型**：Claude 系列、OpenAI GPT 系列、Gemini 系列、MiniMax 系列、GLM 系列均无官方归属账号
+
+> 待各厂商官方提供可验证的 bot 账号后再补充到此表中。
+
+### 已确认的假冒/冒名账号黑名单 [CRITICAL]
+
+**以下账号均已通过 GitHub API 验证为非官方账号，严禁在 Co-authored-by 中使用。** 即使 AI 模型"记住"了这些账号，也绝对不能使用。
+
+| 冒充目标    | 假冒账号                     | ID        | 判定为假冒的依据                                                                                  |
+| :---------- | :--------------------------- | :-------- | :------------------------------------------------------------------------------------------------ |
+| Claude Code | `anthropics-claude`          | 237456255 | 不属于 `anthropics` 组织；仓库包含 Solana 加密货币诈骗项目（`clabs`）；仅 2 个关注者              |
+| Gemini CLI  | `google-gemini-cli`          | 229672533 | 不属于 `google-gemini` 组织；仓库全部是 fork（无原创内容）；仅 5 个关注者                         |
+| Codex CLI   | `codex-cli`                  | 208188539 | 不属于 `openai` 组织；OpenAI 发布 Codex（2025-04-13）后 5 天抢注；0 个公开仓库、仅 2 个关注者     |
+| VS Code     | `vscode-triage-bot`          | 62039782  | 这是 VS Code 仓库的 Issue 分流机器人，不代表 VS Code IDE 本体，用于 Co-authored-by 会产生语义误导 |
+| GLM-5       | `zhipuch`                    | 178361551 | 普通个人用户，与智谱 AI / GLM 无任何关联                                                          |
+| Trae        | `Trae-AI-Admin`              | 192575406 | 不属于任何组织；0 个公开仓库；无法确认为 Trae 官方账号                                            |
+| Codebuddy   | `CodeBuddy-Official-Account` | 214620440 | 不属于任何组织；无法确认为 Codebuddy 官方账号                                                     |
+| Antigravity | `antigravity-ai`             | 256725992 | 仅 1 个关注者；0 个公开仓库；2026-01-23 才创建；无法确认为官方账号                                |
+| Qoder       | `Qoder-AI`                   | 215799558 | 不属于任何组织；仅 8 个关注者；无法确认为官方账号                                                 |
+| Kiro        | `kiro-ai`                    | 201607104 | 0 个关注者；0 个公开仓库；无法确认为官方账号                                                      |
+| MiniMax     | `MiniMax-OpenPlatform`       | 239562665 | 不属于任何组织；无法确认为 MiniMax 官方账号                                                       |
+
+> **为什么要维护黑名单？** AI 模型在生成 Co-authored-by 时，可能会从训练数据或互联网上"回忆"起这些账号并自动填入。明确列出黑名单可以防止这种行为，避免你的 GitHub 仓库贡献者列表中出现无关甚至恶意的第三方。
 
 ## 交付物
 

@@ -5,6 +5,31 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.9.5] - 2026-03-07
+
+### Fixed
+
+- **🐞 技能修复**: `git-commit` - 移除 Co-authored-by 对照表中的错误账号归属 (v0.3.2 → v0.3.3)
+
+  **背景**：上一版本（v0.3.2）在补全 Co-authored-by 对照表时，存在多处严重的账号错误归属问题。错误的 `Co-authored-by` 会导致 GitHub 将提交归属到**完全无关的陌生人**，污染仓库的贡献者列表。本次修复通过 GitHub API（`https://api.github.com/user/:id`）逐一验证了所有条目后，删除了无法核实为官方账号的条目。
+
+  **错误条目一：VS Code (`62039782+vscode-triage-bot`)**
+  - **错误原因**：该 ID 对应的账号是 VS Code 仓库专用的 **Issue 分流机器人**（"VS Code Issue Triage Bot"），隶属于 Microsoft，用于自动化处理 GitHub Issues，与"使用 VS Code 编写代码"这一语义**完全无关**。
+  - **处理方式**：删除 VS Code 条目。VS Code 作为 IDE 没有对应的官方 Co-authored-by bot 账号。
+
+  **错误条目二：OpenAI GPT 系列模型 (`208188539+codex-cli`)**
+  - **错误原因**：v0.3.2 将 GPT-4.5、GPT-5.2、GPT-5.3、GPT-5.4 全部挂在 `codex-cli`（ID: `208188539`）账号下。经验证，该账号是**抢注账号**：OpenAI 于 2025-04-13 发布了官方 `openai/codex` 仓库，5 天后（2025-04-18）即有人注册了同名个人账号 `codex-cli`，该账号无 bio、无 company、0 个公开仓库、仅 2 个关注者。真正的 Codex CLI 归属于 `openai` 组织（ID: `14957082`），而非任何个人 bot 账号。
+  - **处理方式**：删除所有 OpenAI GPT 系列条目，同时删除 Codex CLI 条目。OpenAI 没有为 GPT 模型或 Codex CLI 设立专属的 Co-authored-by bot 账号。
+
+  **错误条目三：GLM-5 (`178361551+zhipuch`)**
+  - **错误原因**：该 ID 对应的是一个**普通个人用户** `zhipuch`，与智谱 AI（Zhipu AI）官方毫无关联。这是最严重的错误——会直接将一个无辜的普通 GitHub 用户添加为仓库贡献者。
+  - **处理方式**：删除 GLM-5 条目。智谱 AI 没有可验证的官方 Co-authored-by bot 账号。
+
+  **新增防错规则**：
+  - 在工作流步骤 8 中增加了明确警告：若在对照表中找不到对应的已验证 GitHub 账号，**必须跳过，禁止编造或猜测账号**。
+  - 在对照表说明中补充了验证方式（GitHub API）和禁止猜测的原则。
+  - 对照表新增"GitHub 账号"列，方便在 github.com 上直接核验账号的真实性。
+
 ## [2.9.4] - 2026-03-07
 
 ### Changed
