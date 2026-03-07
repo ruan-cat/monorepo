@@ -5,6 +5,15 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.9.4] - 2026-03-07
+
+### Changed
+
+- **🔧 技能更新**: `git-commit` - 补全并修正 Co-authored-by 模型与邮箱映射 (v0.3.1 → v0.3.2)
+  - **GitHub 账号归属修正**：将多组 `Co-authored-by` 邮箱从厂商域名邮箱调整为可被 GitHub 正确识别的 `users.noreply.github.com` 地址，减少提交后无法关联到正确用户名的问题
+  - **OpenAI 模型补全**：在技能文档中补充 `OpenAI GPT-5.2`、`OpenAI GPT-5.3`、`OpenAI GPT-5.4` 的模型识别示例与 Co-authored-by 对照项
+  - **文档说明增强**：明确说明 GitHub 对 Co-authored-by 的识别依赖邮箱归属账号，避免后续继续误用无法归属的外部邮箱
+
 ## [2.9.3] - 2026-03-05
 
 ### Fixed
