@@ -3,7 +3,7 @@ name: git-commit
 description: "创建高质量的 git 提交：审查/暂存预期的变更，拆分为逻辑提交，并编写清晰的提交信息（遵循 Conventional Commits 规范，支持 Emoji）。当用户要求提交代码、编写提交信息、暂存变更或将工作拆分为多个提交时使用此技能。当用户提及【破坏性变更】关键词时，必须按照本技能的 BREAKING CHANGE 规范使用感叹号格式编写提交信息。优先针对 git 暂存区（staged）中的文件进行提交，只有当暂存区为空时才考虑整个工作树。当用户提及【分门别类】关键词时，必须按照本技能的多提交拆分规范，从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。"
 user-invocable: true
 metadata:
-  version: "0.3.3"
+  version: "0.3.4"
 ---
 
 # Git Commit
@@ -268,37 +268,38 @@ BREAKING CHANGE: 删除了 reference.md 和 templates.md，替换为 references/
 
 ### 已验证的 Co-authored-by 账号
 
-| 工具名称 | GitHub 账号 | 关注者数 | Co-authored-by 格式                                                       |
-| :------- | :---------- | :------- | :------------------------------------------------------------------------ |
-| Cursor   | cursoragent | 1,856    | `Co-authored-by: Cursor <199161495+cursoragent@users.noreply.github.com>` |
+| 工具名称    | GitHub 账号 / 邮箱类型 | 关注者数 / 验证来源 | Co-authored-by 格式                                                       |
+| :---------- | :--------------------- | :------------------ | :------------------------------------------------------------------------ |
+| Cursor      | cursoragent            | 1,856               | `Co-authored-by: Cursor <199161495+cursoragent@users.noreply.github.com>` |
+| Claude Code | 公司邮箱               | 官方文档            | `Co-authored-by: Claude <noreply@anthropic.com>`                          |
 
 ### 无官方账号（禁止使用）
 
-以下工具/模型目前没有经验证的官方 GitHub bot 账号，**禁止使用任何冒名抢注账号**：
+以下工具/模型目前没有经验证的官方 GitHub bot 账号或公司邮箱，**禁止使用任何冒名抢注账号**：
 
-- **AI CLI**：Claude Code（属于 `anthropics` 组织）、Codex CLI（属于 `openai` 组织）、Gemini CLI（属于 `google-gemini` 组织）均无专属 bot 账号
+- **AI CLI**：Codex CLI（属于 `openai` 组织）、Gemini CLI（属于 `google-gemini` 组织）均无专属 bot 账号
 - **AI IDE**：VS Code、Trae、Codebuddy、Antigravity、Qoder、Kiro 均未确认官方 bot 账号
-- **AI 模型**：Claude 系列、OpenAI GPT 系列、Gemini 系列、MiniMax 系列、GLM 系列均无官方归属账号
+- **AI 模型**：OpenAI GPT 系列、Gemini 系列、MiniMax 系列、GLM 系列均无官方归属账号
 
-> 待各厂商官方提供可验证的 bot 账号后再补充到此表中。
+> 待各厂商官方提供可验证的 bot 账号或公司邮箱后再补充到此表中。
 
 ### 已确认的假冒/冒名账号黑名单 [CRITICAL]
 
 **以下账号均已通过 GitHub API 验证为非官方账号，严禁在 Co-authored-by 中使用。** 即使 AI 模型"记住"了这些账号，也绝对不能使用。
 
-| 冒充目标    | 假冒账号                     | ID        | 判定为假冒的依据                                                                                  |
-| :---------- | :--------------------------- | :-------- | :------------------------------------------------------------------------------------------------ |
-| Claude Code | `anthropics-claude`          | 237456255 | 不属于 `anthropics` 组织；仓库包含 Solana 加密货币诈骗项目（`clabs`）；仅 2 个关注者              |
-| Gemini CLI  | `google-gemini-cli`          | 229672533 | 不属于 `google-gemini` 组织；仓库全部是 fork（无原创内容）；仅 5 个关注者                         |
-| Codex CLI   | `codex-cli`                  | 208188539 | 不属于 `openai` 组织；OpenAI 发布 Codex（2025-04-13）后 5 天抢注；0 个公开仓库、仅 2 个关注者     |
-| VS Code     | `vscode-triage-bot`          | 62039782  | 这是 VS Code 仓库的 Issue 分流机器人，不代表 VS Code IDE 本体，用于 Co-authored-by 会产生语义误导 |
-| GLM-5       | `zhipuch`                    | 178361551 | 普通个人用户，与智谱 AI / GLM 无任何关联                                                          |
-| Trae        | `Trae-AI-Admin`              | 192575406 | 不属于任何组织；0 个公开仓库；无法确认为 Trae 官方账号                                            |
-| Codebuddy   | `CodeBuddy-Official-Account` | 214620440 | 不属于任何组织；无法确认为 Codebuddy 官方账号                                                     |
-| Antigravity | `antigravity-ai`             | 256725992 | 仅 1 个关注者；0 个公开仓库；2026-01-23 才创建；无法确认为官方账号                                |
-| Qoder       | `Qoder-AI`                   | 215799558 | 不属于任何组织；仅 8 个关注者；无法确认为官方账号                                                 |
-| Kiro        | `kiro-ai`                    | 201607104 | 0 个关注者；0 个公开仓库；无法确认为官方账号                                                      |
-| MiniMax     | `MiniMax-OpenPlatform`       | 239562665 | 不属于任何组织；无法确认为 MiniMax 官方账号                                                       |
+| 冒充目标    | 假冒账号                     | ID        | 判定为假冒的依据                                                                                                                                                           |
+| :---------- | :--------------------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude Code | `anthropics-claude`          | 237456255 | 不属于 `anthropics` 组织；仓库包含 Solana 加密货币诈骗项目（`clabs`）；仅 2 个关注者。**注意：Claude Code 有官方邮箱 `noreply@anthropic.com`，请使用该邮箱而非此假冒账号** |
+| Gemini CLI  | `google-gemini-cli`          | 229672533 | 不属于 `google-gemini` 组织；仓库全部是 fork（无原创内容）；仅 5 个关注者                                                                                                  |
+| Codex CLI   | `codex-cli`                  | 208188539 | 不属于 `openai` 组织；OpenAI 发布 Codex（2025-04-13）后 5 天抢注；0 个公开仓库、仅 2 个关注者                                                                              |
+| VS Code     | `vscode-triage-bot`          | 62039782  | 这是 VS Code 仓库的 Issue 分流机器人，不代表 VS Code IDE 本体，用于 Co-authored-by 会产生语义误导                                                                          |
+| GLM-5       | `zhipuch`                    | 178361551 | 普通个人用户，与智谱 AI / GLM 无任何关联                                                                                                                                   |
+| Trae        | `Trae-AI-Admin`              | 192575406 | 不属于任何组织；0 个公开仓库；无法确认为 Trae 官方账号                                                                                                                     |
+| Codebuddy   | `CodeBuddy-Official-Account` | 214620440 | 不属于任何组织；无法确认为 Codebuddy 官方账号                                                                                                                              |
+| Antigravity | `antigravity-ai`             | 256725992 | 仅 1 个关注者；0 个公开仓库；2026-01-23 才创建；无法确认为官方账号                                                                                                         |
+| Qoder       | `Qoder-AI`                   | 215799558 | 不属于任何组织；仅 8 个关注者；无法确认为官方账号                                                                                                                          |
+| Kiro        | `kiro-ai`                    | 201607104 | 0 个关注者；0 个公开仓库；无法确认为官方账号                                                                                                                               |
+| MiniMax     | `MiniMax-OpenPlatform`       | 239562665 | 不属于任何组织；无法确认为 MiniMax 官方账号                                                                                                                                |
 
 > **为什么要维护黑名单？** AI 模型在生成 Co-authored-by 时，可能会从训练数据或互联网上"回忆"起这些账号并自动填入。明确列出黑名单可以防止这种行为，避免你的 GitHub 仓库贡献者列表中出现无关甚至恶意的第三方。
 
