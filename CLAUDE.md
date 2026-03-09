@@ -96,9 +96,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 pnpm install                    # 安装依赖
-pnpm up-taze                    # 交互式更新依赖
-pnpm clear:deps                 # 清理所有 node_modules
-pnpm clear:cache                # 清理构建缓存 (dist, .turbo, .vercel 等)
+pnpm up-taze                    # 交互式更新依赖（使用 taze）
+pnpm clear:deps                 # 清理所有 node_modules 和锁文件
+pnpm clear:cache                # 清理构建缓存（dist, .turbo, .vercel, .cache, .temp）
 ```
 
 ### 构建
@@ -119,6 +119,8 @@ pnpm test                       # 运行 Vitest，启用 UI 界面，端口 4000
 
 ```bash
 pnpm format                     # 使用 Prettier 格式化所有代码
+pnpm automd                     # 运行 automd 自动更新 Markdown 文档
+pnpm automd:all                 # 对所有包运行 automd
 ```
 
 ### Git 工作流
@@ -126,15 +128,18 @@ pnpm format                     # 使用 Prettier 格式化所有代码
 ```bash
 pnpm commit                     # 使用 commitizen 提交（基于 cz-git）
 pnpm git:push                   # 推送并携带标签
-pnpm git:fetch                  # 获取远程更新并清理
+pnpm git:fetch                  # 获取远程更新并清理（git fetch -p）
+pnpm git:dev-2-main             # 将 dev 分支 rebase 到 main 并推送
+pnpm git:main-2-dev             # 将 main 分支 rebase 到 dev 并推送
 ```
 
 ### 发版流程（Changesets）
 
 ```bash
 pnpm changeset:add              # 添加变更集用于版本升级
-pnpm changeset:version          # 升级版本并更新变更日志
-pnpm release                    # 构建并发布到 npm
+pnpm changeset:version          # 升级版本并更新变更日志（包含 tag）
+pnpm changeset:publish          # 发布包到 npm
+pnpm release                    # 构建并发布到 npm（build + publish）
 ```
 
 发版工作流使用：
@@ -145,10 +150,20 @@ pnpm release                    # 构建并发布到 npm
 - **自定义插件**：`@ruan-cat/release-toolkit` 提供基于 changelogen 的增强功能
 - **GitHub Release 同步**：通过 `scripts/sync-github-release.ts` 自动同步
 
-### Vercel 部署
+### 部署
 
 ```bash
-pnpm deploy-vercel              # 部署文档站点到 Vercel
+pnpm deploy                     # 部署文档站点到 Vercel（使用 Turbo）
+pnpm deploy-vercel              # 直接部署到 Vercel（使用 vercel-deploy-tool）
+```
+
+### 工具命令
+
+```bash
+pnpm create-code-workspace      # 生成 VS Code workspace 配置文件
+pnpm pack:all                   # 打包所有包并生成报告
+pnpm codess:init                # 初始化 codess 配置
+pnpm codess:build               # 使用 codess 构建
 ```
 
 ## 构建系统架构
@@ -309,7 +324,7 @@ VitePress 配置预设：
 **环境要求**：
 
 - Node.js >= 22.14.0
-- pnpm 10.17.0（通过 packageManager 字段指定）
+- pnpm 10.21.0（通过 packageManager 字段指定）
 - 仅允许使用 pnpm（通过 `preinstall` 脚本强制）
 
 ## 代码规范
