@@ -37,6 +37,28 @@ fi
 # 简化路径显示（将用户主目录替换为~）
 current_dir=$(echo "$current_dir" | sed "s|^$HOME|~|g")
 
+# 进一步缩短路径：显示最后 2 级目录
+# 支持 Unix 路径 (/) 和 Windows 路径 (\)
+if [[ "$current_dir" == */* ]] || [[ "$current_dir" == *\\* ]]; then
+  # 统一处理反斜杠为正斜杠
+  current_dir=$(echo "$current_dir" | sed 's|\\|/|g')
+
+  # 统计斜杠数量
+  slash_count=$(echo "$current_dir" | tr -cd '/' | wc -c)
+
+  if [ "$slash_count" -gt 2 ]; then
+    # 使用 awk 提取最后 2 级目录（更可靠）
+    last_two=$(echo "$current_dir" | awk -F'/' '{print $(NF-1)"/"$NF}')
+    if [ -n "$last_two" ]; then
+      current_dir="📁 .../$last_two"
+    fi
+  else
+    current_dir="📁 $current_dir"
+  fi
+else
+  current_dir="📁 $current_dir"
+fi
+
 # ---- Git 分支 ----
 git_branch=""
 if git rev-parse --git-dir >/dev/null 2>&1; then
