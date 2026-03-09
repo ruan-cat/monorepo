@@ -130,7 +130,7 @@ pnpm dlx @ruan-cat/commitlint-config --version
 
 ```js
 // commitlint.config.cjs
-// @ts-check
+/** @type {import('cz-git').UserConfig} */
 module.exports = require("@ruan-cat/commitlint-config").default;
 ```
 
@@ -142,7 +142,7 @@ module.exports = require("@ruan-cat/commitlint-config").default;
 
 ```cjs [commitlint.config.cjs]
 // commitlint.config.cjs
-// @ts-check
+/** @type {import('cz-git').UserConfig} */
 module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
 	config: {
 		// 推荐不打印提交范围
@@ -167,6 +167,7 @@ const userScopes = [
 	{ code: "process", value: "流程应用管理", desc: "流程应用管理" },
 	{ code: "personal", value: "个人设置", desc: "个人设置" },
 ];
+/** @type {import('cz-git').UserConfig} */
 module.exports = require("@ruan-cat/commitlint-config").getUserConfig({
 	userScopes,
 	config: {
