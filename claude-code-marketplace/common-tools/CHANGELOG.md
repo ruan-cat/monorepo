@@ -5,6 +5,17 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.11.0] - 2026-03-10
+
+### Changed
+
+- **✨ 技能增强**: `init-claude-code-statusline` - 优化状态栏路径显示 (v0.14.1 → v0.15.0)
+  - **核心功能**：添加路径缩短显示，仅显示最后 2 级目录
+  - **跨平台支持**：统一处理 Unix 路径（`/`）和 Windows 路径（`\`）
+  - **显示格式**：超过 2 级目录时显示为 `📁 .../parent/current`
+  - **实现细节**：使用 `awk` 提取路径，确保在各种 shell 环境下的可靠性
+  - **用户体验**：避免状态栏显示过长路径，提升可读性
+
 ## [2.10.1] - 2026-03-09
 
 ### Fixed
