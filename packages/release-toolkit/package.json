@@ -76,9 +76,9 @@
 	},
 	"devDependencies": {
 		"@changesets/types": "^6.1.0",
-		"@types/node": "^22.19.0",
+		"@types/node": "^22.19.15",
 		"automd": "^0.4.3",
-		"tsup": "^8.5.0",
+		"tsup": "^8.5.1",
 		"typescript": "^5.9.3"
 	},
 	"peerDependencies": {
