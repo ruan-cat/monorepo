@@ -30,6 +30,14 @@ npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-market
 
 以下是当前可用的技能及其安装命令：
 
+#### 获取全部 Git 远程分支 (get-git-branch)
+
+诊断并修复 Git 仓库无法看到所有远程分支的问题，将受限的 fetch refspec 恢复为通配符模式。
+
+```bash
+npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-marketplace/common-tools/skills/get-git-branch
+```
+
 #### Git 提交助手 (git-commit)
 
 创建高质量的 Conventional Commits 规范提交。

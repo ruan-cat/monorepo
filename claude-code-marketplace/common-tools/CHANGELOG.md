@@ -5,6 +5,17 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.10.0] - 2026-03-09
+
+### Added
+
+- **✨ 新增技能**: `get-git-branch` (v0.1.0) - 诊断并修复 Git 仓库无法看到所有远程分支的问题
+  - **核心功能**：将受限的 fetch refspec（`--single-branch` 或 `--depth=1` 导致）恢复为通配符模式，使 `git fetch` 能拉取全部远程分支
+  - **诊断流程**：自动检测 `remote.origin.fetch` 配置，对比本地与远程分支差异，定位问题根因
+  - **修复方案**：修改 fetch refspec 为 `+refs/heads/*:refs/remotes/origin/*`，并执行 `git fetch --all` 补全分支引用
+  - **可选深度补全**：支持 `git fetch --unshallow` 补全浅克隆的完整提交历史
+  - **触发关键词**：看不到远程分支、分支不全、只有 master/main、fetch 所有分支、shallow clone 补全分支、remote 分支丢失等
+
 ## [2.9.5] - 2026-03-07
 
 ### Fixed
