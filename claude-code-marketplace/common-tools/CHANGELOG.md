@@ -5,6 +5,18 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.10.1] - 2026-03-09
+
+### Fixed
+
+- **🐞 技能修复**: `git-commit` - 添加 Claude Code 官方邮箱到 Co-authored-by 对照表 (v0.3.3 → v0.3.4)
+  - **核心变更**：将 `Co-authored-by: Claude <noreply@anthropic.com>` 添加到已验证账号表
+  - **来源验证**：通过 Claude Code 官方文档（https://code.claude.com/docs/en/settings）确认
+  - **文档更新**：
+    - 从"无官方账号"列表中移除 Claude Code
+    - 在黑名单中添加说明，明确 `anthropics-claude` 是假冒账号，应使用官方邮箱
+  - **影响范围**：使用 Claude Code 的用户现在可以正确添加 Co-authored-by 信息
+
 ## [2.10.0] - 2026-03-09
 
 ### Added
