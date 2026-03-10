@@ -78,6 +78,14 @@ npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-market
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-marketplace/common-tools/skills/init-prettier-git-hooks
 ```
 
+#### VSCode 配置初始化 (init-vscode)
+
+初始化或更新项目的 VSCode 配置文件，智能合并现有配置。
+
+```bash
+npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-marketplace/common-tools/skills/init-vscode
+```
+
 #### Nitro 接口开发 (nitro-api-development)
 
 初始化和开发符合规范的 Nitro 后端接口。

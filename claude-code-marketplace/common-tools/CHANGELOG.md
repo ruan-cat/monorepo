@@ -5,6 +5,21 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.12.0] - 2026-03-10
+
+### Added
+
+- **🎉 新增技能**: `init-vscode` - VSCode 配置初始化技能 (v0.1.0)
+  - **核心功能**：初始化或更新项目的 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json）
+  - **智能合并策略**：数组去重合并，对象深度合并，用户配置优先
+  - **项目支持**：适用于 monorepo 和单体项目
+  - **可选插件配置**：
+    - git-graph - 自定义分支筛选模式
+    - cursor - 将 .cursorignore 识别为 ignore 文件类型
+    - i18n-ally - 国际化工具配置（智能识别项目 i18n 路径）
+  - **触发场景**：明确提及 VSCode 配置、项目初始化、开发环境设置
+  - **工作流程**：确认目录 → 处理 extensions.json → 处理 settings.json → 可选插件配置 → 验证反馈
+
 ## [2.11.0] - 2026-03-10
 
 ### Changed
