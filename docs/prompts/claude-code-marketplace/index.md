@@ -659,3 +659,81 @@ git commit -m "feat: integrate Neon DB with Drizzle ORM in Nitro API" \
   --trailer "Co-authored-by: Cursor <ai@cursor.com>" \
   --trailer "Co-authored-by: Gemini-3-Pro <gemini@google.com>"
 ```
+
+## 034 <!-- TODO: --> 新建 init-vscode 技能
+
+/skill-creator 在 `claude-code-marketplace\common-tools\skills\init-vscode` 目录内新建一个技能，用来完成初始化 vscode 的配置文件，将会在当前项目目录下，初始化 vscode 相关的配置。不管是 monorepo 项目还是普通的单体项目，该技能就默认在根目录下安装这些配置。
+
+安装的逻辑并不是强制覆盖，而是认真对比并针对性的赋值。
+
+最终目的是为了让全空的项目拥有一个初始化的 vscode 配置，或者是让现有的 vscode 配置补充来自本技能提供的 vscode 配置。
+
+目前，本技能提供以下默认模板内的配置：
+
+```json
+// .vscode\extensions.json
+{
+	"recommendations": [
+		"esbenp.prettier-vscode",
+		"Spades.vs-picgo",
+		// 从 vitesse-nuxt 仓库得到的推荐配置
+		"antfu.iconify",
+		"antfu.unocss",
+		"antfu.goto-alias"
+	],
+	"unwantedRecommendations": []
+}
+```
+
+```json
+// .vscode\settings.json
+{
+	/** 启用文件嵌套折叠功能 */
+	"explorer.fileNesting.enabled": true,
+	/** AI 大模型记忆文件嵌套折叠配置 */
+	"explorer.fileNesting.patterns": {
+		"CLAUDE.md": "GEMINI.md,AGENTS.md"
+	},
+	// 配置多根项目的目录地址 默认为项目根目录
+	"terminal.integrated.cwd": "${workspaceFolder}",
+	// 配置多根项目的目录地址 默认为项目根目录 且该配置仅在 .code-workspace 文件内生效
+	"terminal.integrated.splitCwd": "workspaceRoot",
+	/** 忽略特定的文件夹 不予搜索 */
+	"search.exclude": {
+		"**/dist": true,
+		"**/.cache": true,
+		"**/.temp": true,
+		"**/.vercel": true,
+		"**/.turbo": true,
+		"**/cache": true,
+		"**/.vitepress/cache/**": true,
+		"**/.nuxt/**": true
+	},
+	/** 
+		排除文件或文件夹的文件系统监视（watcher）。vscode 默认会监视文件系统的变化，
+		但对于大型项目，监视过多文件可能会导致性能问题。
+	*/
+	"files.watcherExclude": {
+		"**/.git/objects/**": true,
+		"**/.git/subtree-cache/**": true,
+		"**/.turbo/**": true,
+		"**/node_modules/*/**": true,
+		"**/dist/**": true,
+		"**/.changeset/**": true
+	},
+	// 代码运行插件配置
+	"code-runner.executorMap": {
+		// https://nodejs.org/en/learn/typescript/run#registering-tsx-via-node
+		"typescript": "pnpm dotenvx run -- tsx $fullFileName"
+	},
+	/**
+		让volar对md提供基础的类型支持
+		- https://github.com/vuejs/language-tools/tree/master/extensions/vscode#configs
+		- https://vitepress.dev/guide/using-vue#vs-code-intellisense-support
+	*/
+	"vue.server.includeLanguages": ["vue", "markdown"],
+	// iconify 插件配置
+	"iconify.annotations": true,
+	"iconify.inplace": true
+}
+```
