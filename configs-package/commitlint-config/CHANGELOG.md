@@ -1,5 +1,13 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 4.9.2
+
+### Patch Changes
+
+- 1. 修复默认模板的 TypeScript 类型报错问题，将 `@ts-check` 替换为 JSDoc 类型注释 ([`23570fa`](https://github.com/ruan-cat/monorepo/commit/23570fa553b310b9d7b50c1240f19186765a37c4))
+  2. 更新 README 文档中的所有配置示例，使用正确的类型注释格式
+  3. 更新模板文件 `templates/commitlint.config.cjs`，确保开箱即用无类型错误
+
 ## 4.9.1
 
 ### Patch Changes
