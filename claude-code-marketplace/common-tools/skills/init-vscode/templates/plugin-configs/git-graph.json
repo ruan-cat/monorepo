@@ -1,0 +1,8 @@
+{
+	"git-graph.customBranchGlobPatterns": [
+		{
+			"name": "f1小组分支",
+			"glob": "*f1*"
+		}
+	]
+}

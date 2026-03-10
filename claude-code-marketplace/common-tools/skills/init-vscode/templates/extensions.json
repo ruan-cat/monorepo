@@ -1,0 +1,4 @@
+{
+	"recommendations": ["esbenp.prettier-vscode", "Spades.vs-picgo", "antfu.iconify", "antfu.unocss", "antfu.goto-alias"],
+	"unwantedRecommendations": []
+}

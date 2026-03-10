@@ -1,0 +1,32 @@
+{
+	"explorer.fileNesting.enabled": true,
+	"explorer.fileNesting.patterns": {
+		"CLAUDE.md": "GEMINI.md,AGENTS.md"
+	},
+	"terminal.integrated.cwd": "${workspaceFolder}",
+	"terminal.integrated.splitCwd": "workspaceRoot",
+	"search.exclude": {
+		"**/dist": true,
+		"**/.cache": true,
+		"**/.temp": true,
+		"**/.vercel": true,
+		"**/.turbo": true,
+		"**/cache": true,
+		"**/.vitepress/cache/**": true,
+		"**/.nuxt/**": true
+	},
+	"files.watcherExclude": {
+		"**/.git/objects/**": true,
+		"**/.git/subtree-cache/**": true,
+		"**/.turbo/**": true,
+		"**/node_modules/*/**": true,
+		"**/dist/**": true,
+		"**/.changeset/**": true
+	},
+	"code-runner.executorMap": {
+		"typescript": "pnpm dotenvx run -- tsx $fullFileName"
+	},
+	"vue.server.includeLanguages": ["vue", "markdown"],
+	"iconify.annotations": true,
+	"iconify.inplace": true
+}
