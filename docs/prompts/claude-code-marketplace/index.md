@@ -737,3 +737,51 @@ git commit -m "feat: integrate Neon DB with Drizzle ORM in Nitro API" \
 	"iconify.inplace": true
 }
 ```
+
+### vscode 插件特殊配置
+
+你应该主动的使用 claude code 内置的 `AskUserQuestion` 工具，询问用户是否要安装特定插件的拓展配置。这些写入到 `.vscode\settings.json` 的插件拓展配置如下：
+
+#### git-graph 插件针对 01s 项目群的分支筛选配置
+
+```json
+{
+	// git-graph插件 https://github.com/mhutchie/vscode-git-graph/blob/develop/README.md
+	"git-graph.customBranchGlobPatterns": [
+		{
+			"name": "f1小组分支",
+			// 参考资料 https://stackoverflow.com/questions/45439796/globbing-in-git-log-to-show-certain-branches
+			"glob": "*f1*"
+		}
+	]
+}
+```
+
+#### cursor 的文件忽略关联配置
+
+```json
+{
+	// 设置文件关联 规定 .cursorignore 被是被为 ignore 文件
+	"files.associations": {
+		".cursorignore": "ignore"
+	}
+}
+```
+
+#### i18n 插件配置
+
+```json
+{
+	"i18n-ally.localesPaths": "此处应该智能识别本项目的i18n配置文件存储路径",
+	/** https://github.com/lokalise/i18n-ally/wiki/Path-Matcher */
+	// "i18n-ally.pathMatcher": "{locale}/{namespaces}.{ext}",
+	"i18n-ally.pathMatcher": "{locale}/{namespace}.{ext}",
+	"i18n-ally.keystyle": "nested",
+	"i18n-ally.sortKeys": true,
+	"i18n-ally.namespace": true,
+	"i18n-ally.enabledParsers": ["yaml", "js", "json"],
+	"i18n-ally.sourceLanguage": "en",
+	"i18n-ally.displayLanguage": "zh-CN",
+	"i18n-ally.enabledFrameworks": ["vue"]
+}
+```
