@@ -660,7 +660,7 @@ git commit -m "feat: integrate Neon DB with Drizzle ORM in Nitro API" \
   --trailer "Co-authored-by: Gemini-3-Pro <gemini@google.com>"
 ```
 
-## 034 <!-- TODO: --> 新建 init-vscode 技能
+## 034 新建 init-vscode 技能
 
 /skill-creator 在 `claude-code-marketplace\common-tools\skills\init-vscode` 目录内新建一个技能，用来完成初始化 vscode 的配置文件，将会在当前项目目录下，初始化 vscode 相关的配置。不管是 monorepo 项目还是普通的单体项目，该技能就默认在根目录下安装这些配置。
 

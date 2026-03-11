@@ -43,3 +43,19 @@ copyClaudeAgents(target) 函数的参数，改成 copyClaudeAgents(options?) 的
 ### 02 发布处理 `.claude/agents` 的寻址问题的更新日志
 
 为刚才的处理 `.claude/agents` 的寻址问题，编写更新日志，发版标签为 patch。
+
+### 03 <!-- TODO: --> 设计一个实现在 monorepo 项目内，子包将构建产物移动到根目录下以便解决 vercel 平台部署问题的 typescript 脚本
+
+1. 首先你阅读这个文档，了解清楚相关的故障和设计缘故 https://juejin.cn/post/7610816257119354915 。
+2. 其次，请你阅读 D:\code\github-desktop-store\gh.notes\docs\my-pull-requests\package.json 的处理方式。了解清楚基于命令实现的构建产物的移动方案。
+3. 我很不喜欢这个方案，我希望实现一个基于 typescript，用 tsx 运行的脚本。我希望 `packages\utils\package.json` 这个包在 `packages\utils\src\node-esm\scripts\move-vercel-output-to-root` 目录内，提供一个脚本，实现在 monorepo 项目内的子包将构建产物移动到项目根目录内。
+
+这个脚本在 `packages\utils\package.json` 内要提供一个快捷入口，在 exports 内提供一个快捷入口，实现直接使用这个 node 脚本。
+
+这个脚本会在 monorepo 的子包内运行。
+
+这个脚本预期会使用 `tsx @ruan-cat/utils/move-vercel-output-to-root` 的方式，直接在对应的 monorepo 子包内运行。
+
+由于不清楚 monorepo 包的深度问题，所以允许你设计出额外的脚本运行参数和解析逻辑，实现路径识别。但是我希望你使用本包提供的 monorepo 函数，实现根目录的定位。
+
+在 `packages\utils\src\node-esm\scripts\move-vercel-output-to-root` 目录内，新建脚本、使用说明文档、和测试用例。
