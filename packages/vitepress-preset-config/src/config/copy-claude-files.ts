@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import consola from "consola";
-import { findMonorepoRoot } from "@ruan-cat/utils/monorepo";
+import { findMonorepoRoot } from "@ruan-cat/utils/node-esm";
 
 /**
  * Claude 文件夹名称类型
