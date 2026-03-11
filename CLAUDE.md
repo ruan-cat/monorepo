@@ -88,7 +88,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `demos/*` - 示例应用
 - `tests/*`、`fork/*`、`learn-create-compoents-lib/*`、`docs/*` - 其他辅助工作区
 
-**关键的 monorepo 事实**：`.claude/agents` 仅存在于 monorepo 根目录。当从嵌套子项目运行脚本时，`process.cwd()` 可能指向子项目根目录，而非 monorepo 根目录。使用 `findMonorepoRoot()` 模式（参见 `packages/utils/src/node-esm/scripts/copy-claude-agents.ts`）通过向上查找 `pnpm-workspace.yaml` 来定位 monorepo 根目录。
+**关键的 monorepo 事实**：`.claude/agents` 仅存在于 monorepo 根目录。当从嵌套子项目运行脚本时，`process.cwd()` 可能指向子项目根目录，而非 monorepo 根目录。应复用工具包公开的 `@ruan-cat/utils/monorepo` 中的 `findMonorepoRoot()`（源码位于 `packages/utils/src/monorepo/index.ts`），通过向上查找 `pnpm-workspace.yaml` 来定位 monorepo 根目录。
 
 ## 常用命令
 
@@ -209,7 +209,7 @@ Monorepo 使用 **Turbo** 进行基于依赖关系的任务编排：
 
 通用工具包，包含 Node.js 脚本：
 
-- `node-esm/scripts/copy-claude-agents.ts` - 从 monorepo 根目录复制 `.claude/agents`（演示 monorepo 根目录检测）
+- `monorepo/index.ts` - 提供 `findMonorepoRoot()`、`isMonorepoProject()` 等 monorepo 根目录定位与 workspace 判定工具
 - 导出工具：条件判断、Promise 工具、打印工具、VueUse 辅助函数等
 - **多环境构建**：同时支持浏览器、Node.js CJS、Node.js ESM
 
