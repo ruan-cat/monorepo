@@ -17,6 +17,7 @@
 	"scripts": {
 		"build": "tsup",
 		"prebuild": "automd",
+		"move-vercel-output-to-root": "tsx ./src/node-esm/scripts/move-vercel-output-to-root/index.ts",
 		"docs:dev": "turbo docs:dev",
 		"build:docs": "turbo do-build-docs",
 		"typedoc": "typedoc --options typedoc.config.mjs",
@@ -44,6 +45,8 @@
 			"types": "./dist/node-esm/index.d.ts",
 			"import": "./dist/node-esm/index.js"
 		},
+		"./monorepo": "./src/monorepo/index.ts",
+		"./move-vercel-output-to-root": "./src/node-esm/scripts/move-vercel-output-to-root/index.ts",
 		"./unplugin-vue-router": "./src/unplugin-vue-router/index.ts",
 		"./vite-plugin-autogeneration-import-file": "./src/vite-plugin-autogeneration-import-file/index.ts",
 		"./vueuse": "./src/vueuse/index.ts",

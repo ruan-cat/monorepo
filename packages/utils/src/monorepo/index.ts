@@ -1,4 +1,4 @@
-import { join } from "node:path";
+import { dirname, join, parse, resolve } from "node:path";
 import * as fs from "node:fs";
 import { globSync } from "tinyglobby";
 import { load } from "js-yaml";
@@ -15,6 +15,33 @@ function pathChange(path: string) {
 	// return normalize(path);
 	// FIXME: tsup打包时，无法处理好vite的依赖 会导致打包失败 不知道怎么单独使用并打包该函数
 	// return normalizePath(path);
+}
+
+/**
+ * 从给定目录开始，向上查找 monorepo 根目录。
+ * @description
+ * 通过查找 `pnpm-workspace.yaml` 文件来定位 monorepo 根目录。
+ * 该函数适用于脚本在 monorepo 子包内运行的场景。
+ *
+ * @param startDir 起始查找目录，默认值为 `process.cwd()`
+ * @returns 找到的 monorepo 根目录绝对路径；若未找到则返回 `null`
+ */
+export function findMonorepoRoot(startDir: string = process.cwd()): string | null {
+	let currentDir = resolve(startDir);
+	const fileSystemRoot = parse(currentDir).root;
+
+	while (true) {
+		const workspaceConfigPath = join(currentDir, "pnpm-workspace.yaml");
+		if (fs.existsSync(workspaceConfigPath)) {
+			return currentDir;
+		}
+
+		if (currentDir === fileSystemRoot) {
+			return null;
+		}
+
+		currentDir = dirname(currentDir);
+	}
 }
 
 /**
