@@ -1,39 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import consola from "consola";
+import { findMonorepoRoot } from "@ruan-cat/utils/monorepo";
 
 /**
  * Claude 文件夹名称类型
  */
 export type ClaudeFolderName = "agents" | "commands" | "skills";
-
-/**
- * 从当前工作目录向上查找 monorepo 根目录
- * @returns monorepo 根目录的绝对路径，如果找不到则返回 null
- * @description
- * 通过查找 pnpm-workspace.yaml 文件来定位 monorepo 根目录。
- * 从 process.cwd() 开始向上遍历，直到找到该文件或到达文件系统根目录。
- */
-function findMonorepoRoot(): string | null {
-	let currentDir = process.cwd();
-	const root = path.parse(currentDir).root;
-
-	while (currentDir !== root) {
-		const workspaceFile = path.join(currentDir, "pnpm-workspace.yaml");
-		if (fs.existsSync(workspaceFile)) {
-			return currentDir;
-		}
-		currentDir = path.dirname(currentDir);
-	}
-
-	// 检查根目录本身
-	const workspaceFile = path.join(root, "pnpm-workspace.yaml");
-	if (fs.existsSync(workspaceFile)) {
-		return root;
-	}
-
-	return null;
-}
 
 /**
  * 解析根目录路径
