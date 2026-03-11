@@ -159,7 +159,9 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "gh",
 			order: 1,
-			description: "阮喵喵的github贡献表。包括pr和issue的贡献。",
+			description: `阮喵喵的github贡献表。目前只包括pr贡献，issue贡献暂时没有。
+				使用vercel部署，域名在cloudflare内以CDN方式配置。
+				本站点几乎是一次性完成的，未来几乎不会进一步更新。故配置了基于main主分支的低频更新。`,
 		},
 	],
 
