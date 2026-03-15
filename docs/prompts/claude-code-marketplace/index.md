@@ -785,3 +785,15 @@ git commit -m "feat: integrate Neon DB with Drizzle ORM in Nitro API" \
 	"i18n-ally.enabledFrameworks": ["vue"]
 }
 ```
+
+## 035 根据 `.claude\skills\fix-bug\record-bug-fix-memory` 开发习惯与设计惯性，更新 init-ai-md 技能
+
+在 `D:\code\github-desktop-store\01s-11comm\.claude\skills\fix-bug\record-bug-fix-memory` 和 `D:\code\01s\202603-13hzb\yunxiao\01s-2603-13eams\eams-frontend-monorepo\.claude\skills\fix-bug\record-bug-fix-memory` 内，
+
+在 `D:\code\github-desktop-store\01s-11comm\CLAUDE.md` 和 `D:\code\01s\202603-13hzb\yunxiao\01s-2603-13eams\eams-frontend-monorepo\CLAUDE.md` 的 `本项目的技能表` 章节内，都涉及到了 `.claude\skills\fix-bug\record-bug-fix-memory` 的说明和使用。
+
+我希望你参考这些内容，然后让 `claude-code-marketplace\common-tools\skills\init-ai-md` 这款技能增加一个新的能力：
+
+1. 让 `claude-code-marketplace\common-tools\skills\init-ai-md` 学会新建一个 `本项目的技能表` 章节。专门罗列，列举本项目现存的技能表。
+2. 让该技能学会新建 `.claude\skills\fix-bug\record-bug-fix-memory` 目录，学会专门新建一个独立的 `record-bug-fix-memory` 本地级别的项目技能，完成对项目的错误记录和经验教训总结。
+3. 根据我提供给你的 `.claude\skills\fix-bug\record-bug-fix-memory` 具体的本地技能，在 `claude-code-marketplace\common-tools\skills\init-ai-md\templates` 内新建一个 `record-bug-fix-memory` 技能模板文件。
