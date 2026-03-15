@@ -37,6 +37,23 @@ export default defineConfig((options: Options) => [
 		tsconfig: "./tsconfig.types.json",
 	},
 
+	// CLI 入口构建
+	{
+		entry: {
+			index: "./src/cli/index.ts",
+			"move-vercel-output-to-root": "./src/cli/move-vercel-output-to-root.ts",
+		},
+		sourcemap: true,
+		outDir: "dist/cli",
+		format: ["esm"],
+		clean: true,
+		shims: true,
+		banner: {
+			js: "#!/usr/bin/env node",
+		},
+		tsconfig: "./tsconfig.types.json",
+	},
+
 	// 专用于模板文件的复制粘贴
 	// {
 	// 	entry: ["./src/node-esm/vite-plugin-autogeneration-import-file/template/components.template.ts"],

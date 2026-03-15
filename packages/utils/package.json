@@ -5,6 +5,10 @@
 	"type": "module",
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
+	"bin": {
+		"ruan-cat-utils": "./dist/cli/index.js",
+		"move-vercel-output-to-root": "./dist/cli/move-vercel-output-to-root.js"
+	},
 	"homepage": "https://utils.ruancat6312.top",
 	"bugs": {
 		"url": "https://github.com/ruan-cat/monorepo/issues"
@@ -46,7 +50,6 @@
 			"import": "./dist/node-esm/index.js"
 		},
 		"./monorepo": "./src/monorepo/index.ts",
-		"./move-vercel-output-to-root": "./src/node-esm/scripts/move-vercel-output-to-root/index.ts",
 		"./unplugin-vue-router": "./src/unplugin-vue-router/index.ts",
 		"./vite-plugin-autogeneration-import-file": "./src/vite-plugin-autogeneration-import-file/index.ts",
 		"./vueuse": "./src/vueuse/index.ts",

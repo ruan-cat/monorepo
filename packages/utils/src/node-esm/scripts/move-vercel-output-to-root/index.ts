@@ -239,7 +239,7 @@ export function parseMoveVercelOutputToRootCliArgs(args: string[]): MoveVercelOu
  */
 export function getMoveVercelOutputToRootHelpText() {
 	return [
-		"tsx @ruan-cat/utils/move-vercel-output-to-root [options]",
+		"move-vercel-output-to-root [options]",
 		"",
 		"选项：",
 		"  --root-dir <path>    显式指定 monorepo 根目录",
