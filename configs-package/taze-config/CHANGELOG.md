@@ -1,5 +1,12 @@
 # @ruan-cat/taze-config
 
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`abf9c57`](https://github.com/ruan-cat/monorepo/commit/abf9c577bc4a1663894cf455319820598fe68961)]:
+  - @ruan-cat/utils@4.22.0
+
 ## 1.0.3
 
 ### Patch Changes
