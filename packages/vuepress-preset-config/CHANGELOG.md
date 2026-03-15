@@ -1,5 +1,12 @@
 # @ruan-cat/vuepress-preset-config 更新日志
 
+## 0.3.5
+
+### Patch Changes
+
+- Updated dependencies [[`16cada1`](https://github.com/ruan-cat/monorepo/commit/16cada15096f374829759755261018dd54c36adc)]:
+  - @ruan-cat/utils@4.21.0
+
 ## 0.3.4
 
 ### Patch Changes

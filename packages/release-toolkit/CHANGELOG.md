@@ -1,5 +1,12 @@
 # @ruan-cat/release-toolkit 更新日志
 
+## 0.2.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ruan-cat/commitlint-config@4.9.3
+
 ## 0.2.14
 
 ### Patch Changes
