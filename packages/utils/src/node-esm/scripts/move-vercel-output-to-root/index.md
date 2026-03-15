@@ -10,12 +10,41 @@
 
 因此需要在子包构建结束后，把当前子包的构建产物搬运到 monorepo 根目录。
 
-## 默认行为
+## ⚠️ 重要：必须使用 bin 命令调用
 
-在子包目录内执行：
+> [!CAUTION]
+> **禁止**使用 `tsx @ruan-cat/utils/move-vercel-output-to-root` 方式调用本脚本。
+>
+> 这种写法会导致 `ERR_MODULE_NOT_FOUND` 错误。原因是 `tsx`/`node` 等运行时的 CLI 参数只解释为**文件系统路径**，不会触发 `node_modules` 内 `package.json` 的 `exports` 模块解析。
+>
+> 详见：[避坑指南：为什么 tsx 执行 NPM 包导出的脚本会报错 ERR_MODULE_NOT_FOUND？](https://ruan-cat.github.io/notes/ruan-cat-notes/docs/tsx/tsx-cli-module-resolution-trap.html)
+
+本包通过标准的 `bin` 字段提供可执行命令，安装 `@ruan-cat/utils` 后即可直接调用。
+
+## 使用方式
+
+### 方式一：通过快捷命令（推荐）
+
+安装本包后，`move-vercel-output-to-root` 命令自动注册到 `node_modules/.bin`：
 
 ```bash
-tsx @ruan-cat/utils/move-vercel-output-to-root
+npx move-vercel-output-to-root
+```
+
+### 方式二：通过统一入口命令
+
+```bash
+npx ruan-cat-utils move-vercel-output-to-root
+```
+
+两种方式完全等价。
+
+## 默认行为
+
+在子包目录内执行命令：
+
+```bash
+npx move-vercel-output-to-root
 ```
 
 脚本会自动执行以下行为：
@@ -48,7 +77,17 @@ tsx @ruan-cat/utils/move-vercel-output-to-root
 ```json
 {
 	"scripts": {
-		"build:vercel": "nuxi build --preset vercel && tsx @ruan-cat/utils/move-vercel-output-to-root"
+		"build:vercel": "nuxi build --preset vercel && move-vercel-output-to-root"
+	}
+}
+```
+
+也可以在 Vercel 或 Turbo 的构建链中搭配使用：
+
+```json
+{
+	"scripts": {
+		"build:prod:vercel": "nuxi build --preset vercel && move-vercel-output-to-root"
 	}
 }
 ```
@@ -56,11 +95,28 @@ tsx @ruan-cat/utils/move-vercel-output-to-root
 ## dry-run 示例
 
 ```bash
-tsx @ruan-cat/utils/move-vercel-output-to-root --dry-run
+npx move-vercel-output-to-root --dry-run
 ```
 
 ## 显式指定路径示例
 
 ```bash
-tsx @ruan-cat/utils/move-vercel-output-to-root --root-dir ../../.. --source-dir .vercel/output --target-dir .vercel/output
+npx move-vercel-output-to-root --root-dir ../../.. --source-dir .vercel/output --target-dir .vercel/output
 ```
+
+## 编程式调用
+
+如果你需要在 TypeScript/JavaScript 代码中调用本脚本的功能，可以通过以下方式引用：
+
+```typescript
+// 通过 node-esm 导出引用
+import { moveVercelOutputToRoot } from "@ruan-cat/utils/node-esm";
+
+moveVercelOutputToRoot({
+	dryRun: true,
+});
+```
+
+> [!NOTE]
+> 本包已移除 `exports` 中的 `"./move-vercel-output-to-root"` 导出入口。
+> CLI 调用请使用 `bin` 命令，编程式调用请通过 `@ruan-cat/utils/node-esm` 导出访问。

@@ -44,7 +44,7 @@ copyClaudeAgents(target) 函数的参数，改成 copyClaudeAgents(options?) 的
 
 为刚才的处理 `.claude/agents` 的寻址问题，编写更新日志，发版标签为 patch。
 
-### 03 <!-- TODO: --> 设计一个实现在 monorepo 项目内，子包将构建产物移动到根目录下以便解决 vercel 平台部署问题的 typescript 脚本
+## 002 <!-- TODO: --> 设计一个实现在 monorepo 项目内，子包将构建产物移动到根目录下以便解决 vercel 平台部署问题的 typescript 脚本
 
 1. 首先你阅读这个文档，了解清楚相关的故障和设计缘故 https://juejin.cn/post/7610816257119354915 。
 2. 其次，请你阅读 D:\code\github-desktop-store\gh.notes\docs\my-pull-requests\package.json 的处理方式。了解清楚基于命令实现的构建产物的移动方案。
@@ -59,3 +59,17 @@ copyClaudeAgents(target) 函数的参数，改成 copyClaudeAgents(options?) 的
 由于不清楚 monorepo 包的深度问题，所以允许你设计出额外的脚本运行参数和解析逻辑，实现路径识别。但是我希望你使用本包提供的 monorepo 函数，实现根目录的定位。
 
 在 `packages\utils\src\node-esm\scripts\move-vercel-output-to-root` 目录内，新建脚本、使用说明文档、和测试用例。
+
+### 1 出现重大设计失误
+
+经过实际使用，对于 `packages\utils\src\node-esm\scripts\move-vercel-output-to-root\index.ts` 而言，在真实的 monorepo 子包内，执行 `tsx @ruan-cat/utils/move-vercel-output-to-root` 是错误的。出现严重故障。
+
+根据这篇文章 `https://raw.githubusercontent.com/ruan-cat/notes/refs/heads/dev/docs/ruan-cat-notes/docs/tsx/tsx-cli-module-resolution-trap.md` 的说明，我们的 tsx 方案完全就是错误的。很差劲的方案。
+
+我们应该提供标准的 bin 字段。
+
+1. 需要你更新 `packages\utils\src\node-esm\scripts\move-vercel-output-to-root\index.ts` 。按理说你似乎不需要更新。
+2. 完全重做 `packages\utils\src\node-esm\scripts\move-vercel-output-to-root\index.md` 文档，说明清楚必须使用本包提供的 bin 字段来完成加载任务。
+3. 设计了 `packages\utils\src\cli\index.ts` ，你应该在这里整合 `packages\utils\src\node-esm\scripts\move-vercel-output-to-root\index.ts` 脚本。确保 `packages\utils` 包提供 bin 运行脚本。且 bin 运行脚本的入口是 `packages\utils\src\cli\index.ts` 文件。
+4. 对于 `packages\utils\package.json` 这款，增加专门的 `packages\utils\src\cli` 目录下的 index.md 说明文档，说明本包提供了 cli 命令行。
+5. 对于 `packages\utils\tsup.config.ts` ，你应该增加构建入口，确保该 `packages\utils\src\cli\index.ts` 和 bin 入口能够提供有效的构建后的可运行 javascript 脚本。
