@@ -3,7 +3,7 @@ name: init-ai-md
 description: 初始化和增量更新 AI 记忆文件（CLAUDE.md、AGENTS.md、GEMINI.md）。通过交互式选择和差异对比，智能补全记忆项内容。触发条件：当用户提及初始化记忆文件、更新 CLAUDE.md、同步 AI 记忆、init-ai-md 等关键词时主动调用。
 user-invocable: true
 metadata:
-  version: "0.15.0"
+  version: "0.16.0"
 ---
 
 # init-ai-md 技能说明
@@ -16,6 +16,8 @@ metadata:
 2. **交互式选择**：扫描现有内容和可用模板，让用户选择需要的记忆项
 3. **差异对比补全**：深度对比文本差异，仅补全缺失内容而非全量替换
 4. **多文件同步**：支持同步更新 AGENTS.md 和 GEMINI.md
+5. **技能表管理**：扫描项目中 `.claude/skills/` 目录下的现有技能，在 CLAUDE.md 中创建并维护「本项目的技能表」章节
+6. **内置技能初始化**：支持将 `record-bug-fix-memory` 等内置技能模板部署到项目的 `.claude/skills/` 目录中
 
 ## 执行流程
 
@@ -141,7 +143,57 @@ metadata:
    - **禁止**一股脑复制粘贴整个模板内容
    - **禁止**覆盖用户的自定义内容
 
-### 步骤 5：同步其他 AI 记忆文件
+### 步骤 5：初始化本地技能
+
+在完成 CLAUDE.md 内容更新后，检查项目是否需要部署内置技能：
+
+1. **检查技能模板目录**：
+   - 读取 `templates/record-bug-fix-memory/` 目录，确认内置技能模板可用
+
+2. **检查项目现有技能**：
+   - 检查项目中是否已存在 `.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
+   - 如果已存在：标记为 `[已存在]`
+   - 如果不存在：标记为 `[可部署]`
+
+3. **询问用户**：
+   - 使用 `AskUserQuestion` 工具询问用户是否需要部署内置技能
+   - 选项中列出每个可部署的技能及其状态
+
+4. **部署技能**：
+   - 用户确认后，将 `templates/record-bug-fix-memory/SKILL.md` 复制到项目的 `.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
+   - 创建必要的目录结构（`.claude/skills/fix-bug/record-bug-fix-memory/`）
+   - **注意**：模板中的「仓库级经验库」章节初始为空，不包含项目特有的事故记录。随着项目实际使用积累经验后由 agent 逐步补充。
+
+### 步骤 6：生成/更新「本项目的技能表」
+
+在步骤 5 完成后（无论是否部署了新技能），都需要生成或更新技能表：
+
+1. **扫描项目技能**：
+   - 扫描项目 `.claude/skills/` 目录下的所有 `SKILL.md` 文件
+   - 读取每个技能的 `name` 和 `description`（从 YAML frontmatter 中提取）
+   - 记录每个技能的相对路径
+
+2. **生成技能表内容**：
+   - 参考 `templates/08.本项目的技能表.md` 的格式
+   - 为每个扫描到的技能生成一条条目，格式如下：
+     ```markdown
+     - `{技能名称}`
+       - 路径：`{技能相对路径}`
+       - 用途：{技能描述}
+       - 触发时机：{从技能 SKILL.md 中提取的使用场景}
+       - 参考作用：{从技能 SKILL.md 中提取的参考信息}
+       - 约束：{从技能 SKILL.md 中提取的边界约束}
+     ```
+
+3. **插入或更新 CLAUDE.md**：
+   - 如果 CLAUDE.md 中已存在「## 本项目的技能表」章节：执行差异对比，仅补全新增或变更的技能条目
+   - 如果不存在：将技能表章节插入到 CLAUDE.md 的**一级标题之后、其他二级标题之前**（即紧跟在文件开头的项目描述之后）
+
+4. **技能表位置要求**：
+   - 技能表**必须**位于所有其他二级标题之前
+   - 这确保 agent 在读取 CLAUDE.md 时最先看到可用的技能清单
+
+### 步骤 7：同步其他 AI 记忆文件
 
 1. 检查项目根目录是否存在 `AGENTS.md` 或 `GEMINI.md` 文件
 2. 如果存在这些文件：
@@ -162,7 +214,12 @@ init-ai-md/
     ├── 03.报告编写规范.md
     ├── 04.生成发版日志的操作规范.md
     ├── 05.沟通协作要求.md
-    └── 99.获取技术栈对应的上下文.md
+    ├── 06.终端操作注意事项（防卡住）.md
+    ├── 07.简单任务的高效执行原则.md
+    ├── 08.本项目的技能表.md          # 技能表章节模板
+    ├── 99.获取技术栈对应的上下文.md
+    └── record-bug-fix-memory/       # 内置技能模板
+        └── SKILL.md                 # record-bug-fix-memory 技能模板
 ```
 
 ### 模板文件命名规范
@@ -178,6 +235,16 @@ init-ai-md/
 2. 单个模板可包含多个二级目录
 3. 二级目录标题即为插入后的章节标题
 4. 内容使用简体中文编写
+
+### 内置技能模板规范
+
+`templates/` 目录下除了序号前缀的记忆项模板外，还可以包含子目录形式的**内置技能模板**：
+
+1. 内置技能模板以独立子目录存放（如 `templates/record-bug-fix-memory/`）
+2. 每个内置技能模板目录中必须包含 `SKILL.md` 文件
+3. 内置技能模板的 `SKILL.md` 遵循 Claude Code Skills 的 YAML frontmatter 规范
+4. 内置技能模板中不应包含项目特有的内容（如具体的仓库级事故记录），这些内容应在部署后由项目积累
+5. 内置技能模板部署到项目时，目标路径为 `.claude/skills/{类别}/{技能名}/SKILL.md`
 
 ## 执行示例
 
@@ -227,6 +294,95 @@ init-ai-md/
 4. 在对应位置补全缺失内容
 5. 保持原有的自定义内容不变
 ```
+
+### 场景 4：初始化本地技能并生成技能表
+
+```markdown
+用户：请帮我初始化 AI 记忆文件
+
+执行流程：
+
+1. 检测到无 CLAUDE.md → 执行 /init 命令
+2. 扫描 templates/ 目录，建立可用记忆项清单
+3. 使用 AskUserQuestion 询问用户需要哪些记忆项
+4. 用户选择后，按序号顺序插入选中的模板内容
+5. 检查 .claude/skills/ → 不存在 record-bug-fix-memory
+6. 使用 AskUserQuestion 询问用户是否部署 record-bug-fix-memory 技能
+7. 用户确认 → 创建 .claude/skills/fix-bug/record-bug-fix-memory/SKILL.md
+8. 扫描 .claude/skills/ 全部技能 → 生成「本项目的技能表」章节
+9. 将技能表插入 CLAUDE.md 的开头位置（一级标题之后、其他二级标题之前）
+10. 检测到无 AGENTS.md/GEMINI.md → 完成
+```
+
+### 场景 5：增量更新时发现新技能
+
+```markdown
+用户：请更新我的 CLAUDE.md 记忆文件
+
+执行流程：
+
+1. 检测到已有 CLAUDE.md → 读取现有内容
+2. 扫描 templates/ 和已有记忆项 → 对比分析
+3. 用户选择更新记忆项 → 执行差异补全
+4. 检查 .claude/skills/ → 发现已有 record-bug-fix-memory
+5. 扫描 .claude/skills/ → 发现用户新增了 code-style 技能
+6. 对比现有技能表 → 识别新增技能
+7. 补全技能表，新增 code-style 条目
+8. 检测到存在 AGENTS.md → 询问用户是否同步替换
+```
+
+## 技能表管理详细说明
+
+### 技能表的作用
+
+「本项目的技能表」章节的作用是让 agent 在读取 CLAUDE.md 时，能够**快速了解项目中可用的技能清单**，包括：
+
+- 技能名称和路径
+- 技能的用途和触发时机
+- 技能的参考作用和约束
+
+这帮助 agent 在合适的场景下主动调用正确的技能，而不需要逐个扫描 `.claude/skills/` 目录。
+
+### 技能表条目格式
+
+每个技能条目遵循以下格式（参考 `templates/08.本项目的技能表.md`）：
+
+```markdown
+- `{技能名称}`
+  - 路径：`.claude/skills/{类别}/{技能名}/SKILL.md`
+  - 用途：{技能描述，从 YAML frontmatter 的 description 字段提取}
+  - 触发时机：{从 SKILL.md 的"何时使用"章节提取关键触发条件}
+  - 参考作用：{技能的辅助参考价值}
+  - 约束：{技能的边界限制}
+```
+
+### 技能表更新策略
+
+1. **新增技能时**：扫描发现新的 SKILL.md → 在技能表末尾追加条目
+2. **技能变更时**：检测到技能描述或路径变化 → 更新对应条目
+3. **技能删除时**：扫描未发现已记录的技能 → 使用 `AskUserQuestion` 询问用户是否移除该条目
+
+## 内置技能部署详细说明
+
+### record-bug-fix-memory 技能
+
+这是一个专用于 bug 修复经验沉淀的技能。部署后：
+
+1. **目标路径**：`.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
+2. **来源模板**：`templates/record-bug-fix-memory/SKILL.md`
+3. **部署后状态**：
+   - 技能的通用框架已就绪（概述、何时使用、记录流程等）
+   - 「仓库级经验库」章节为空，等待项目实际积累
+   - agent 可以立即使用该技能记录 bug 修复经验
+4. **持续演进**：
+   - 每次 bug 修复后，agent 应主动将经验补充到该技能的「仓库级经验库」章节
+   - 这使得技能随项目使用逐步丰富，形成项目特有的排错知识库
+
+### 部署注意事项
+
+- **不会覆盖**：如果目标路径已存在技能文件，不执行部署
+- **目录创建**：自动创建 `.claude/skills/fix-bug/record-bug-fix-memory/` 目录结构
+- **技能表同步**：部署完成后自动更新 CLAUDE.md 中的技能表
 
 ## 交互选择详细说明
 
