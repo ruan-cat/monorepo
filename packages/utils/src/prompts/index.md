@@ -44,7 +44,7 @@ copyClaudeAgents(target) 函数的参数，改成 copyClaudeAgents(options?) 的
 
 为刚才的处理 `.claude/agents` 的寻址问题，编写更新日志，发版标签为 patch。
 
-## 002 <!-- TODO: --> 设计一个实现在 monorepo 项目内，子包将构建产物移动到根目录下以便解决 vercel 平台部署问题的 typescript 脚本
+## 002 设计一个实现在 monorepo 项目内，子包将构建产物移动到根目录下以便解决 vercel 平台部署问题的 typescript 脚本
 
 1. 首先你阅读这个文档，了解清楚相关的故障和设计缘故 https://juejin.cn/post/7610816257119354915 。
 2. 其次，请你阅读 D:\code\github-desktop-store\gh.notes\docs\my-pull-requests\package.json 的处理方式。了解清楚基于命令实现的构建产物的移动方案。
