@@ -181,15 +181,21 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 	/** rmmv api文档 */
 	"rmmv-api-doc": [
 		{
-			topLevelDomain: "ruancat6312.top",
+			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "rmmv-api-doc",
 			order: 1,
+			description: "使用vercel流水线部署的域名。",
+		},
+		{
+			topLevelDomain: "ruancat6312.top",
+			secondLevelDomain: "rmmv-api-doc",
+			order: 2,
 			description: "目前没有配置工作流给该域名，未来看情况使用",
 		},
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "rmmv-api-doc",
-			order: 2,
+			order: 3,
 			description: "该域名在vercel内配置cname 在此处仅声明 不实际暴露出去使用",
 		},
 	],
