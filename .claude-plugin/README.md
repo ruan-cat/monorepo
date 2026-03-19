@@ -16,11 +16,42 @@
 /plugin install common-tools@ruan-cat-tools
 ```
 
-## 用 skills 工具单独安装插件市场提供的 skills 技能
+## 用 skills 工具安装插件市场提供的 skills 技能
 
-你可以使用 `npx skills` 命令从 GitHub 远程安装本仓库提供的特定技能，无需下载整个仓库。
+你可以使用 [`npx skills`](https://github.com/vercel-labs/skills) 命令从 GitHub 远程安装本仓库提供的技能，无需下载整个仓库。
 
-### 安装命令格式
+### 批量安装全部技能（推荐）
+
+一条命令即可将本仓库的全部技能全局安装到你本机已有的 AI 客户端（Cursor、Claude Code、Windsurf、Codex 等）：
+
+```bash
+npx skills add ruan-cat/monorepo --skill '*' -g -y
+```
+
+| 参数                | 说明                                                                                          |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| `ruan-cat/monorepo` | GitHub 仓库简写，CLI 会自动克隆并发现仓库中所有的 `SKILL.md` 技能文件                         |
+| `--skill '*'`       | 安装仓库中发现的全部技能                                                                      |
+| `-g`                | 全局安装，技能文件写入用户目录（如 `~/.cursor/skills/`、`~/.claude/skills/`），对所有项目生效 |
+| `-y`                | 跳过交互确认，适合在文档中一键执行                                                            |
+
+CLI 会自动检测本机已安装的 AI 客户端，只向已检测到的客户端写入技能文件，不会创建多余目录。
+
+安装完成后，可随时更新全部已安装的技能到最新版本：
+
+```bash
+npx skills update
+```
+
+### 单独安装特定技能
+
+如果只需要其中几个技能，可以按名称选择性安装：
+
+```bash
+npx skills add ruan-cat/monorepo --skill git-commit --skill rebase2main -g -y
+```
+
+也可以通过完整 URL 安装单个技能：
 
 ```bash
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/claude-code-marketplace/common-tools/skills/<skill-name>
