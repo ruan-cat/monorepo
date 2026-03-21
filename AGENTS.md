@@ -1,6 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# AI 记忆文档
 
 ## 主动问询实施细节
 
@@ -330,6 +328,51 @@ VitePress 配置预设：
 ## 代码规范
 
 - 要使用 `tinyglobby` ，而不是 `glob` 。
+
+## 新建 Skills 的 YAML 前缀规范
+
+在本项目新建 Skill（`SKILL.md`）时，文件最顶部必须使用 YAML frontmatter（以 `---` 开始和结束）。
+
+### 必填字段（最小集合）
+
+1. `name`
+2. `description`
+
+### 本项目推荐字段
+
+1. `metadata.version`
+   - 建议从 `"1.0.0"` 起步，后续仅在该 Skill 有变更时更新。
+2. `user-invocable`
+   - 当技能需要允许用户主动调用时，设置为 `true`。
+
+### 参考模板（普通 Skill）
+
+```yaml
+---
+name: your-skill-name
+description: 说明技能用途、触发时机与适用场景。
+metadata:
+  version: "1.0.0"
+---
+```
+
+### 参考模板（可主动调用 Skill）
+
+```yaml
+---
+name: your-skill-name
+description: 说明技能用途、触发时机与适用场景。
+user-invocable: true
+metadata:
+  version: "1.0.0"
+---
+```
+
+### 补充说明
+
+1. `name` 建议使用 kebab-case（小写英文和短横线）。
+2. `description` 要写清楚“做什么 + 什么时候用”。
+3. frontmatter 之后再编写正文指令，不要把正文内容写进 YAML 区域。
 
 ## 简单任务的高效执行原则
 
