@@ -1,4 +1,4 @@
-# <!-- TODO: --> 重构技能存储的目录层级，拓展成更加通用的技能分发方案
+# <!-- 已完成重构 --> 重构技能存储的目录层级，拓展成更加通用的技能分发方案
 
 我的全部对外外发的技能，都存储在 `claude-code-marketplace\common-tools\skills` 目录内，是一个和 `claude-code-marketplace` ，和 claude code 高度绑定的一款配置插件方案。我希望全面的，重大改造我的 skills `分发方式`和`存储方式`。
 

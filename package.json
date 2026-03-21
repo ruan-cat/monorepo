@@ -29,7 +29,7 @@
 		"automd": "automd",
 		"automd:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- automd",
 		"pack:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- pnpm pack >docs/reports/all-packages-pack.md",
-		"preinstall": "npx only-allow pnpm && npm run corepack:pnpm",
+		"preinstall": "node scripts/check-pnpm.mjs && corepack enable && corepack install",
 		"corepack:pnpm": "corepack enable && corepack install",
 		"postinstall": "pnpm run init-git-hooks",
 		"init-git-hooks": "simple-git-hooks",
