@@ -1,0 +1,13 @@
+{
+	"name": "dev-skills",
+	"version": "2.12.1",
+	"description": "阮喵喵开发时使用的工程化开发技能",
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com"
+	},
+	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/dev-skills",
+	"repository": "https://github.com/ruan-cat/monorepo",
+	"license": "MIT",
+	"skills": "./skills"
+}

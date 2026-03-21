@@ -1,0 +1,16 @@
+{
+	"name": "common-tools",
+	"version": "2.12.1",
+	"description": "阮喵喵开发时常用的一些通用工具",
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com"
+	},
+	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/common-tools",
+	"repository": "https://github.com/ruan-cat/monorepo",
+	"license": "MIT",
+	"commands": "./commands",
+	"agents": "./agents",
+	"skills": "./skills",
+	"hooks": "./hooks/hooks.json"
+}
