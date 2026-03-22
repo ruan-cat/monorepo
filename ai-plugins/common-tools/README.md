@@ -4,7 +4,11 @@
 
 ## 版本
 
-**当前版本**: `2.14.0`
+**当前版本**: `2.15.0`
+
+⚠️ **v2.15.0 新增技能**:
+
+- 新增 `pr-ruancat-repo`：多仓库批量 PR 工作流（仓库清单与模板见 `skills/pr-ruancat-repo/references/`），统一 commit 文案需先通过 `git-commit` 技能协助生成
 
 ⚠️ **v2.14.0 版本同步**:
 
@@ -49,6 +53,7 @@
 - **init-claude-code-statusline**: 初始化 Claude Code 状态栏配置文件（`.claude/settings.json` + `statusline.sh`），展示目录、分支、模型、上下文窗口
 - **init-prettier-git-hooks**: 初始化基于 lint-staged + simple-git-hooks + prettier 的 Git 提交前代码格式化流程
 - **init-vscode**: 初始化或更新 VSCode 配置文件（`extensions.json`、`settings.json`），支持 monorepo 和单体项目，智能合并现有配置
+- **pr-ruancat-repo**: 对固定清单内的多个 GitHub 仓库批量发起统一内容 PR（协调者 + 多子代理；仓库清单见 `references/target-repos.md`）
 - **rebase2main**: 将当前开发分支通过 git rebase 同步到 main 分支，推送后切回原分支
 - **use-other-model**: 指导主代理驱动其他 AI 模型（MiniMax、Gemini）完成任务，实现 50–80% token 节省
 
@@ -366,6 +371,9 @@ common-tools/
 │   ├── init-claude-code-statusline/SKILL.md # Claude Code 状态栏初始化
 │   ├── init-prettier-git-hooks/SKILL.md    # Prettier + Git Hooks 初始化
 │   ├── init-vscode/SKILL.md                # VSCode 配置初始化
+│   ├── pr-ruancat-repo/                     # 多仓库批量 PR
+│   │   ├── SKILL.md
+│   │   └── references/                      # 目标仓库清单与执行模板
 │   ├── rebase2main/SKILL.md                # dev → main rebase 同步
 │   └── use-other-model/                     # 驱动其他 AI 模型
 │       ├── SKILL.md

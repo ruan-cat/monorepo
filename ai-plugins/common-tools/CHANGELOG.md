@@ -5,6 +5,12 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.15.0] - 2026-03-22
+
+### Added
+
+- **新增技能**: `pr-ruancat-repo`（`metadata.version` `0.3.0`）— 面向多仓库批量 PR 的工作流技能；仓库清单与汇总模板拆分为 `references/target-repos.md`、`references/workflow-and-template.md`；统一内容生成需先通过 `git-commit` 技能协助产出 `commitMessage`。
+
 ## [2.14.0] - 2026-03-22
 
 ### Changed
