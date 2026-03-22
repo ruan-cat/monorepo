@@ -150,6 +150,15 @@
 	"terminal.integrated.cwd": "${workspaceFolder}",
 	// 配置多根项目的目录地址 默认为项目根目录 且该配置仅在 .code-workspace 文件内生效
 	"terminal.integrated.splitCwd": "workspaceRoot",
+	/**
+	 * Cursor / VS Code：提交后侧边栏仍显示未提交变更、或编辑器残留红绿「幽灵 diff」时，
+	 * 常与 Diff 视图默认计算超时（约 5s）有关，界面状态与 `git` 真值不一致。
+	 * 参考：掘金讨论 https://juejin.cn/post/7619219565653983295
+	 * 参考：Cursor 论坛 https://forum.cursor.com/t/no-changes-made-affects-all-versions-of-cursor/67532
+	 */
+	"diffEditor.maxComputationTime": 0,
+	"git.ignoreLimitWarning": true,
+	"editor.colorDecoratorsLimit": 500000,
 	/** 启用文件嵌套折叠功能 */
 	"explorer.fileNesting.enabled": true,
 	/** AI 大模型记忆文件嵌套折叠配置 */
