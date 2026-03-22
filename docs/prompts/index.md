@@ -21,7 +21,7 @@
 
 请你在 turbo.json 内，为全部的 "prebuild" 命令，制作一个全局的 turbo 任务，预期在运行 turbo 的 build 任务前，先完成 turbo 的 prebuild 任务。
 
-## 05 <!-- TODO: --> 更新迭代 `.npmrc` 文件的配置，以便避免出现警告
+## 05 <!-- 已完成 --> 更新迭代 `.npmrc` 文件的配置，以便避免出现警告
 
 1. 你可以阅读 `C:\Users\pc\.npmrc` 文件，了解上述配置使用了那些全局配置。
 2. 阅读本项目全部的 `.npmrc` 文件。
