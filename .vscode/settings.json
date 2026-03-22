@@ -1,5 +1,5 @@
 {
-	"prettier.ignorePath": "../.prettierignore",
+	"prettier.ignorePath": ".prettierignore",
 	// Enable the ESlint flat config support
 	// (remove this if your ESLint extension above v3.0.5)
 	"eslint.experimental.useFlatConfig": true,
@@ -91,6 +91,13 @@
 	"workbench.editorAssociations": {
 		// 正常可用
 		"*.drawio.svg": "hediet.vscode-drawio-text"
+	},
+	/**
+	 * init-vscode 技能模板：`templates/extensions.json` 的语言类型覆盖为 plaintext。
+	 * 原因与 JSONC 编写约束见该文件顶部的块注释；此处仅保证保存时不触发 JSON/Prettier 格式化。
+	 */
+	"files.associations": {
+		"**/init-vscode/templates/extensions.json": "plaintext"
 	},
 	"pnpmCatalogLens.enabled": true,
 	"code-runner.executorMap": {

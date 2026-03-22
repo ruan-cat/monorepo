@@ -3,6 +3,9 @@
 # 全部的json文件 都默认不忽略 都要做格式化
 !**/*.json
 
+# skill 模板文件：内部使用分组注释划分插件区块，禁止 prettier 自动排版破坏结构
+ai-plugins/**/templates/extensions.json
+
 # 全部以tsconfig开头的 尾缀为json的配置文件 都被忽略
 tsconfig*.json
 
