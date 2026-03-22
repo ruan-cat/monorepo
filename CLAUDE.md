@@ -85,6 +85,7 @@
 - `vite-plugins/*` - Vite 相关插件
 - `demos/*` - 示例应用
 - `tests/*`、`fork/*`、`learn-create-compoents-lib/*`、`docs/*` - 其他辅助工作区
+- `ai-plugins/*` - AI 插件与 skills 模板（内含大量**非真实可运行项目**的 TypeScript 片段，仅作技能模板）
 
 **关键的 monorepo 事实**：`.claude/agents` 仅存在于 monorepo 根目录。当从嵌套子项目运行脚本时，`process.cwd()` 可能指向子项目根目录，而非 monorepo 根目录。应复用工具包公开的 `@ruan-cat/utils/monorepo` 中的 `findMonorepoRoot()`（源码位于 `packages/utils/src/monorepo/index.ts`），通过向上查找 `pnpm-workspace.yaml` 来定位 monorepo 根目录。
 
@@ -237,6 +238,8 @@ VitePress 配置预设：
 - **路径配置**：`tsconfig.path.json` - 路径别名
 - **测试配置**：`tsconfig.test.json` - 测试专用设置
 - **Markdown 配置**：`tsconfig.md.json` - 用于 Markdown 中的 TypeScript 代码块
+- **`ai-plugins` 专用**：`ai-plugins/tsconfig.json` — 根 `tsconfig.json` 与 `tsconfig.test.json` 已排除 `./ai-plugins`，避免 skills 模板 TS 被主工程当作正式代码检查。该配置使用 **`noCheck: true`**（并仅 `include` `**/*.ts`），有意**不做语义类型检查**，以免 Nuxt/占位包/`~icons` 等模板依赖产生大面积误报。校验命令：`pnpm run typecheck:ai-plugins`（通过即表示配置可解析，不代表类型安全）。
+- **若将来在 `ai-plugins` 内编写「真实、可维护」的 TypeScript 脚本**（需要完整类型与 `tsc` 把关）：应**单独拆目录**（例如 `ai-plugins/tools/`）或**单独新增 tsconfig**（如 `ai-plugins/tools/tsconfig.json`），在该配置中**关闭 `noCheck`**（并补齐 `@types/node`、相关依赖与 `include`/`exclude`），**不要**与纯模板代码共用当前这份「仅消除误报」的 `ai-plugins/tsconfig.json`。
 
 ### 代码检查与格式化
 
