@@ -1,5 +1,100 @@
 # AI 记忆文档
 
+## 本项目的技能表
+
+本仓库在 `.claude/skills/` 下维护 Claude Code 技能。**经验教训、事故复盘、根级 AI 记忆与 Memorix 同步**请优先使用 `record-bug-fix-memory`；其余按场景选用。已落地的仓库级排错案例写在 `record-bug-fix-memory` 技能正文 **「仓库级经验库」** 小节（可随事故继续追加）。
+
+- `record-bug-fix-memory`
+  - 路径：`.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
+  - 用途：在 bug 已定位并修复后，沉淀排错结论、事故记录、复盘与本地 MCP 记忆；只写「发生了什么、为何发生、如何验证、以后要记住什么」，不用于现场修 bug。
+  - 触发时机：用户要求「记录经验教训」「补充 AI 记忆」「写事故记录」「同步 Memorix」，或排错已完成需沉淀时。
+  - 参考作用：仓库级事故模式与验证证据写法的参考，减少重复踩坑。
+  - 约束：不承担具体修复实现；仓库级经验写入本技能「仓库级经验库」及根级 `CLAUDE.md` / `AGENTS.md`（必要时 Memorix）。
+
+- `openspec-apply-change`
+  - 路径：`.claude/skills/openspec-apply-change/SKILL.md`
+  - 用途：OpenSpec 变更中按任务实现代码。
+  - 触发时机：用户要开始、继续或推进实现，或处理 tasks 时。
+  - 参考作用：把 delta 与 tasks 落到代码。
+  - 约束：以变更工件为准，不跳过已约定的实现边界。
+
+- `openspec-archive-change`
+  - 路径：`.claude/skills/openspec-archive-change/SKILL.md`
+  - 用途：在实现完成后归档 OpenSpec 变更。
+  - 触发时机：用户要归档或结束某次变更时。
+  - 参考作用：闭环变更与归档结构。
+  - 约束：归档前宜配合 verify 与规范目录结构。
+
+- `openspec-bulk-archive-change`
+  - 路径：`.claude/skills/openspec-bulk-archive-change/SKILL.md`
+  - 用途：并行多份变更一次性归档。
+  - 触发时机：多分支或多变更需批量归档时。
+  - 参考作用：批量归档流程与一致性。
+  - 约束：核对每个变更的完成状态再归档。
+
+- `openspec-continue-change`
+  - 路径：`.claude/skills/openspec-continue-change/SKILL.md`
+  - 用途：继续 OpenSpec 变更并生成下一工件。
+  - 触发时机：用户要「下一 artifact」或延续工作流时。
+  - 参考作用：延续 OPSX 工作流节奏。
+  - 约束：承接上一工件依赖与命名约定。
+
+- `openspec-explore`
+  - 路径：`.claude/skills/openspec-explore/SKILL.md`
+  - 用途：探索需求、问题与方案（OpenSpec 探索模式）。
+  - 触发时机：变更前或途中需要澄清、调研、头脑风暴时。
+  - 参考作用：在进入 new-change / apply 前缩小不确定面。
+  - 约束：探索结论应能回写到规范工件，避免无限发散。
+
+- `openspec-ff-change`
+  - 路径：`.claude/skills/openspec-ff-change/SKILL.md`
+  - 用途：快速创建 OpenSpec 实现所需全部工件。
+  - 触发时机：用户要跳过逐步生成、一次性补齐 artifacts 时。
+  - 参考作用：加速从意图到可实施工件集。
+  - 约束：仍需人工审查质量与一致性。
+
+- `openspec-new-change`
+  - 路径：`.claude/skills/openspec-new-change/SKILL.md`
+  - 用途：以实验性工件流程创建新的 OpenSpec 变更。
+  - 触发时机：用户要新开功能、修复或重构类变更时。
+  - 参考作用：规范化变更入口与目录结构。
+  - 约束：遵循仓库 OpenSpec 约定与分支/命名策略。
+
+- `openspec-onboard`
+  - 路径：`.claude/skills/openspec-onboard/SKILL.md`
+  - 用途：带讲解的 OpenSpec 全流程上手。
+  - 触发时机：新成员或首次使用 OpenSpec 工作流时。
+  - 参考作用：把设计与真实仓库操作串起来。
+  - 约束：与仓库实际 `openspec` / `opsx` 布局一致。
+
+- `openspec-sync-specs`
+  - 路径：`.claude/skills/openspec-sync-specs/SKILL.md`
+  - 用途：把 delta spec 同步回主 spec，且不强制归档变更。
+  - 触发时机：主规格需吸收变更中的 delta 时。
+  - 参考作用：保持主规格与变更一致。
+  - 约束：区分同步与归档，避免误删变更目录。
+
+- `openspec-verify-change`
+  - 路径：`.claude/skills/openspec-verify-change/SKILL.md`
+  - 用途：核对实现与变更工件一致后再归档。
+  - 触发时机：实现完成后、归档前需验收时。
+  - 参考作用：减少「实现与 spec 不一致」的归档。
+  - 约束：验证应可复现（测试、构建或清单）。
+
+- `package-linter`
+  - 路径：`.claude/skills/package-linter/SKILL.md`
+  - 用途：校验并规范化 monorepo 中 Node 包的 `package.json`、`tsup.config.ts`、`tsconfig.json`。
+  - 触发时机：新建包、改包配置、包规范审查或初始化子包时。
+  - 参考作用：与 monorepo 包规范一致。
+  - 约束：以本仓库既有包与 `package-linter` 技能正文为准。
+
+- `release-ai-plugins`
+  - 路径：`.claude/skills/release-ai-plugins/SKILL.md`
+  - 用途：管理 `ai-plugins` 多插件与多平台（Claude/Cursor）插件商城版本与文档链接。
+  - 触发时机：插件版本升级、发版、更新 marketplace 或安装文档时。
+  - 参考作用：与 `.claude-plugin` / marketplace 布局一致。
+  - 约束：同步版本号与变更路径，避免漏改子包。
+
 ## 主动问询实施细节
 
 在我与你沟通并要求你具体实施更改时，难免会遇到很多模糊不清的事情。
