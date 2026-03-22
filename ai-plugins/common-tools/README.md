@@ -1,40 +1,28 @@
 # Common Tools - Claude Code Plugin
 
-阮喵喵开发时常用的一些通用工具集合，提供命令、代理和钩子功能。
+阮喵喵开发时常用的一些通用工具集合，提供命令、代理、技能和钩子功能。
 
 ## 版本
 
-**当前版本**: `0.9.0`
+**当前版本**: `2.14.0`
 
-⚠️ **v0.9.0 新增功能**:
+⚠️ **v2.14.0 版本同步**:
 
-- 新增 OpenSpec 中文版规范助手技能，帮助管理项目规范和需求文档
+- 版本号与 marketplace 主版本同步至 2.14.0（本次无 common-tools 功能变更）
 
-⚠️ **v0.8.3 优化改进**:
+⚠️ **v2.12.1 技能增强**:
 
-- 优化了项目根目录检测逻辑，提升脚本执行效率
-- 将检测逻辑移至脚本前面，避免重复执行
-- 增加了调试日志记录，便于问题排查
+- `init-ai-md` 新增技能表管理（步骤 6）和内置技能部署（步骤 5）能力
+- 新增 `record-bug-fix-memory` 内置技能模板，支持 bug 修复经验沉淀
+- 新增 `08.本项目的技能表.md` 模板文件
 
-⚠️ **v0.8.2 通知超时优化**:
+⚠️ **v2.12.0 新增技能**:
 
-- 调整通知弹框超时时间确保完整显示
-- Stop 钩子总超时时间增加到 45 秒
-- 优化立即通知和 Gemini 总结的通知时长
+- 新增 `init-vscode` 技能，支持 monorepo 与单体项目的 VSCode 配置初始化
 
-⚠️ **v0.8.1 重要修复**:
+⚠️ **v2.10.1 技能修复**:
 
-- 彻底解决了 `● Stop hook failed: The operation was aborted` 的持续性故障
-- 优化 Stop hooks 通知机制：单钩子内完成立即通知 + Gemini 智能总结
-- 消除 stdin 竞争，避免重复通知，缩短总执行时间
-- 详见 [CHANGELOG.md](./CHANGELOG.md#081---2025-11-20)
-
-⚠️ **v0.8.0 重要修复**:
-
-- 修复了 Stop hooks 的 stdin 竞争问题，解决任务删除失败和重复通知
-- **破坏性变更**: 不再在 Stop 钩子中使用 `check-and-notify`，详见 [CHANGELOG.md](./CHANGELOG.md#080---2025-11-19)
-
-⚠️ **v0.7.0 重要变更**: 本版本修复了进程堆积问题，**需要手动安装全局依赖**。详见[安装要求](#安装要求)。
+- `git-commit` 添加 Claude Code 官方邮箱到 Co-authored-by 对照表
 
 查看完整的更新历史，请参阅 [CHANGELOG.md](./CHANGELOG.md)
 
@@ -53,7 +41,16 @@
 
 ### Skills (技能)
 
-- **openspec**: OpenSpec 中文版规范助手，帮助管理项目规范、需求文档和变更提案
+通用开发辅助技能，覆盖 Git 工作流、项目初始化、AI 记忆管理等高频场景：
+
+- **get-git-branch**: 诊断并修复 Git 仓库无法看到所有远程分支的问题，恢复通配符 fetch refspec
+- **git-commit**: 创建高质量 Git 提交，支持 Conventional Commits 规范、Emoji、破坏性变更格式、暂存区优先与多提交拆分
+- **init-ai-md**: 初始化和增量更新 AI 记忆文件（`CLAUDE.md`、`AGENTS.md`、`GEMINI.md`），包含技能表管理与内置技能部署
+- **init-claude-code-statusline**: 初始化 Claude Code 状态栏配置文件（`.claude/settings.json` + `statusline.sh`），展示目录、分支、模型、上下文窗口
+- **init-prettier-git-hooks**: 初始化基于 lint-staged + simple-git-hooks + prettier 的 Git 提交前代码格式化流程
+- **init-vscode**: 初始化或更新 VSCode 配置文件（`extensions.json`、`settings.json`），支持 monorepo 和单体项目，智能合并现有配置
+- **rebase2main**: 将当前开发分支通过 git rebase 同步到 main 分支，推送后切回原分支
+- **use-other-model**: 指导主代理驱动其他 AI 模型（MiniMax、Gemini）完成任务，实现 50–80% token 节省
 
 ### Hooks (钩子)
 
@@ -342,21 +339,39 @@ pnpm add -g tsx
 ```plain
 common-tools/
 ├── .claude-plugin/
-│   └── plugin.json                      # 插件配置清单
-├── commands/                            # 命令定义
-│   ├── markdown-title-order.md
-│   └── close-window-port.md
-├── agents/                              # 代理定义
-│   └── format-markdown.md
-├── hooks/                               # 钩子配置
+│   └── plugin.json                          # 插件配置清单（Claude）
+├── .cursor-plugin/
+│   └── plugin.json                          # 插件配置清单（Cursor）
+├── agents/                                  # 代理定义
+│   ├── add-git-mcp.md
+│   ├── format-markdown.md
+│   └── migrate-iconify-use-pure-admin.md
+├── commands/                                # 命令定义
+│   ├── close-window-port.md
+│   └── markdown-title-order.md
+├── hooks/                                   # 钩子配置
 │   ├── hooks.json
 │   └── README.md
-├── scripts/                             # 辅助脚本
-│   ├── task-complete-notifier.sh        # 任务完成通知脚本
-│   └── TASK_COMPLETE_NOTIFIER_README.md # 详细功能说明
-├── CHANGELOG.md                         # 版本更新日志
-├── README.md                            # 本文件
-└── TEST-REPORT.md                       # 测试报告
+├── scripts/                                 # 辅助脚本
+│   ├── parse-hook-data.ts                   # JSON 钩子数据解析器
+│   ├── task-complete-notifier.sh            # 任务完成通知脚本（Stop 钩子）
+│   ├── transcript-reader.ts                 # JSONL 对话历史解析器
+│   └── user-prompt-logger.sh               # 用户消息记录脚本（UserPromptSubmit 钩子）
+├── skills/                                  # 技能定义
+│   ├── get-git-branch/SKILL.md             # 修复远程分支拉取问题
+│   ├── git-commit/SKILL.md                 # 高质量 Git 提交
+│   ├── init-ai-md/                          # 初始化 AI 记忆文件
+│   │   ├── SKILL.md
+│   │   └── templates/                       # 各类记忆章节模板 + record-bug-fix-memory 子技能
+│   ├── init-claude-code-statusline/SKILL.md # Claude Code 状态栏初始化
+│   ├── init-prettier-git-hooks/SKILL.md    # Prettier + Git Hooks 初始化
+│   ├── init-vscode/SKILL.md                # VSCode 配置初始化
+│   ├── rebase2main/SKILL.md                # dev → main rebase 同步
+│   └── use-other-model/                     # 驱动其他 AI 模型
+│       ├── SKILL.md
+│       └── references/                      # 方案参考文档
+├── CHANGELOG.md                             # 版本更新日志
+└── README.md                                # 本文件
 ```
 
 ### 参考资源
