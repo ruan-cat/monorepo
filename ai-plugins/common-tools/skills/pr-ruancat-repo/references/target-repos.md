@@ -3,23 +3,35 @@
 本文件是 `pr-ruancat-repo` 技能唯一的仓库清单来源。  
 后续扩展时，只改本文件，不改 `SKILL.md`。
 
+**目标分支**：不按仓库配置。各仓库 PR 的目标分支由 `SKILL.md`「阶段 3」中的**全局分支探测规则**决定（`dev` → `main` → `master`），本表不重复维护。
+
 ## 默认批量 PR 仓库
 
-| 序号 | repo                        | 默认目标分支优先级    | 启用 |
-| :--: | :-------------------------- | :-------------------- | :--: |
-|  1   | `ruan-cat/notes`            | `dev > main > master` |  ✅  |
-|  2   | `ruan-cat/monorepo`         | `dev > main > master` |  ✅  |
-|  3   | `ruan-cat/11comm`           | `dev > main > master` |  ✅  |
-|  4   | `ruan-cat/10wms`            | `dev > main > master` |  ✅  |
-|  5   | `ruan-cat/09oa`             | `dev > main > master` |  ✅  |
-|  6   | `Nonameboyy/zero-one-mes`   | `dev > main > master` |  ✅  |
-|  7   | `ruan-cat/stars-list`       | `dev > main > master` |  ✅  |
-|  8   | `ruan-cat/rm-monorepo`      | `dev > main > master` |  ✅  |
-|  9   | `nwt-q/001-Smart-Community` | `dev > main > master` |  ✅  |
+| 优先级序号 | repo                                       | 启用 |
+| :--------: | :----------------------------------------- | :--: |
+|     1      | `ruan-cat/notes`                           |  ✅  |
+|     2      | `ruan-cat/monorepo`                        |  ✅  |
+|     3      | `ruan-cat/12psi`                           |  ✅  |
+|     4      | `nwt-q/001-Smart-Community`                |  ✅  |
+|     5      | `ruan-cat/11comm`                          |  ✅  |
+|     6      | `ruan-cat/10wms`                           |  ✅  |
+|     7      | `ruan-cat/09oa`                            |  ✅  |
+|     8      | `Nonameboyy/zero-one-mes`                  |  ✅  |
+|     9      | `ruan-cat/SmallAliceWeb`                   |  ✅  |
+|     10     | `ruan-cat/mall-nuxt`                       |  ✅  |
+|     11     | `ruan-cat/learn-nitro-starter-with-vercel` |  ✅  |
+|     12     | `ruan-cat/gzpc-big-screen`                 |  ✅  |
+|     13     | `ruan-cat/stars-list`                      |  ✅  |
+|     14     | `ruan-cat/rm-monorepo`                     |  ✅  |
 
 ## 维护约定
 
 1. 新增仓库：直接在表格末尾新增一行，`repo` 必须用 `owner/name` 格式。
 2. 临时停用：将“启用”改为 `❌`，不要删除历史条目。
-3. 分支策略变更：仅改“默认目标分支优先级”列，保持统一可读性。
+3. 若需变更**目标分支探测策略**（例如调整 `dev` / `main` / `master` 的优先顺序），只改 `SKILL.md`「阶段 3」，**不要**在本表增加 per-repo 分支列。
 4. 用户指定仓库子集时，运行时只处理“用户指定集合 ∩ 启用仓库集合”。
+5. **优先级序号（重要）**：表格中各行的**上下顺序**由维护者人工排定（表示批量 PR 处理顺序或业务优先级），**不得**在「修正 / 重排序号」时移动行或改动 `repo`、启用列。若序号出现跳号、重复，只需在**保持当前行顺序不变**的前提下，将「优先级序号」列自上而下改为连续正整数 `1、2、3…`；新增行接在表末时，序号接在最后一行之后递增。
+
+### 给自动化助手（含 AI）
+
+整理本表时：**只重写「优先级序号」列**，自上而下编号为 `1…N`；**禁止**按数字大小重新排序表格行。若需调整真实先后顺序，应由维护者手动调整行位置后，再按上一条规则重编号。
