@@ -5,6 +5,12 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.15.1] - 2026-03-23
+
+### Changed
+
+- **pr-ruancat-repo**（`metadata.version` `0.3.0` → `0.3.1`）：精简 `references/target-repos.md` 仓库表，移除与 `SKILL.md`「阶段 3」全局分支探测重复的「默认目标分支优先级」列；文首说明目标分支不按仓库配置；维护约定与「给自动化助手」指引同步调整。
+
 ## [2.15.0] - 2026-03-22
 
 ### Added
