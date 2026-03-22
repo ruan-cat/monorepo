@@ -1,5 +1,5 @@
 {
-	"exclude": ["**/dist", "**/node_modules", "./scripts"],
+	"exclude": ["**/dist", "**/node_modules", "./scripts", "./ai-plugins"],
 	"compilerOptions": {
 		"outDir": "**/dist"
 		// "rootDir": "./",

@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"noEmit": true,
+		"noCheck": true,
+		"skipLibCheck": true,
+		"strict": false,
+		"noImplicitAny": false,
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"allowImportingTsExtensions": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"allowJs": true,
+		"checkJs": false,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"types": [],
+		"typeRoots": []
+	},
+	"include": ["**/*.ts"],
+	"exclude": ["**/node_modules", "**/dist"]
+}

@@ -22,6 +22,7 @@
 		"test": "vitest --ui --watch --api.port=4000",
 		"build:docs": "turbo build:docs",
 		"ci": "pnpm run build && pnpm run build:docs",
+		"typecheck:ai-plugins": "tsc --noEmit -p ai-plugins/tsconfig.json",
 		"clear": "tsx ./scripts/clean.ts",
 		"create-code-workspace": "tsx ./scripts/generate.code-workspace.ts",
 		"deploy": "turbo deploy-vercel",
