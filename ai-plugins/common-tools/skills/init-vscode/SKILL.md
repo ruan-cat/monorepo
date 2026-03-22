@@ -31,7 +31,9 @@ mkdir -p .vscode
 
 ### 2. 处理 extensions.json
 
-读取模板配置（见 `templates/extensions.json`），然后：
+读取模板配置（见 `templates/extensions.json`）。
+
+> 注意：模板文件顶部有块注释，说明该文件在 monorepo 内为何被工作区关联为 `plaintext`（防止保存时格式化破坏分组排版），以及作为 JSONC（`extensions.json` 特例）的编写约束。写入目标项目的 `.vscode/extensions.json` 后，由 VS Code 按 JSONC 正常解析，**无需将 `plaintext` 关联一并复制过去**。
 
 **如果文件不存在**：
 
