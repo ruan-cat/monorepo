@@ -5,6 +5,12 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [2.14.0] - 2026-03-22
+
+### Changed
+
+- 版本号与 marketplace 主版本同步至 2.14.0（本次无 common-tools 功能变更）。
+
 ## [2.12.1] - 2026-03-16
 
 ### Added
