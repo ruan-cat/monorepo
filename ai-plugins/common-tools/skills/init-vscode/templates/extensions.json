@@ -1,4 +1,98 @@
+/*
+ * 本模板为何在 monorepo 工作区内被关联为「纯文本 / plaintext」？
+ * -----------------------------------------------------------------
+ * 仓库根目录 `.vscode/settings.json` 中配置了 `files.associations`，将本路径映射为
+ * `plaintext`。原因：本文件使用大量 `//` 分组注释与刻意空行排版；若按 JSON/JSONC
+ * 交给默认格式化器或 Prettier 在「保存时格式化」，极易打乱区块结构。关联为纯文本后，
+ * Ctrl+S 不会触发 JSON 格式化，从而保护可读的手动排版。
+ *
+ * 部署到目标项目后应恢复为正常 JSONC：复制为 `.vscode/extensions.json` 后，VS Code
+ * 会按扩展推荐清单解析；若需高亮，可去掉对方仓库里对本文件的关联覆盖（一般无需配置）。
+ *
+ * 内容与语法约束（JSONC 特例）
+ * -----------------------------------------------------------------
+ * - 语义上等同于「带注释的 JSON」：VS Code 对 `extensions.json` 使用 JSONC 解析器。
+ * - 允许：`//` 行注释、`/* */` 块注释（本文件顶说明使用块注释，列表内用行注释）。
+ * - 禁止：尾逗号（trailing comma）、单引号字符串等非标准 JSON 写法，以免在非 VS Code
+ *   环境或被严格 JSON 校验的工具链中失败。
+ * - `recommendations` / `unwantedRecommendations` 的值须为字符串数组，元素为扩展
+ *   Marketplace 的 `publisher.extensionName` 标识。
+ */
+// prettier-ignore
 {
-	"recommendations": ["esbenp.prettier-vscode", "Spades.vs-picgo", "antfu.iconify", "antfu.unocss", "antfu.goto-alias"],
+	"recommendations": [
+		// ========== 语言支持 ==========
+
+		// vue3的 .vue SFCs 的 LSP 语言支持服务
+		"Vue.volar",
+		// TypeScript 语言服务增强（Nightly 版本，支持最新特性）
+		"ms-vscode.vscode-typescript-next",
+
+		// ========== 代码格式化与检查 ==========
+
+		// 使用 prettier 实现格式化
+		"esbenp.prettier-vscode",
+		// 使用 eslint 实现代码检查
+		"dbaeumer.vscode-eslint",
+		// 行内展示错误与警告信息，提升错误可见性
+		"usernamehw.errorlens",
+		// 英文单词拼写检查
+		"streetsidesoftware.code-spell-checker",
+		// EditorConfig 文件支持（统一不同编辑器的代码风格）
+		"EditorConfig.EditorConfig",
+
+		// ========== Git 管理 ==========
+
+		// 使用 gitlens 插件 实现git代码管理
+		"eamodio.gitlens",
+		// 使用 git-graph 插件 实现git提交分支图的查看
+		"mhutchie.git-graph",
+
+		// ========== 测试 ==========
+
+		// Vitest 测试用例的可视化运行与管理
+		"vitest.explorer",
+
+		// ========== 样式与 UI 开发 ==========
+
+		// TailwindCSS 智能提示与补全
+		"bradlc.vscode-tailwindcss",
+		// UnoCSS 智能提示
+		"antfu.unocss",
+		// 颜色值（如 hex、rgb）的行内颜色预览
+		"naumovs.color-highlight",
+
+		// ========== 路径与导入增强 ==========
+
+		// 路径字符串的智能补全
+		"christian-kohler.path-intellisense",
+		// 自动导入文件的智能跳转（支持路径别名）
+		"antfu.goto-alias",
+		// HTML/JSX 中标签重命名时自动同步修改配对标签
+		"formulahendry.auto-rename-tag",
+
+		// ========== 环境变量 ==========
+
+		// .env 文件的语法高亮支持
+		"mikestead.dotenv",
+
+		// ========== 图标与图片 ==========
+
+		// 对 iconify 的图标做图标提示
+		"antfu.iconify",
+		// vscode 的图标主题
+		"PKief.material-icon-theme",
+		// 粘贴图片并自动上传到图床（PicGo）
+		"Spades.vs-picgo",
+
+		// ========== UI 交互增强 ==========
+
+		// TODO 高亮
+		"wayou.vscode-todo-highlight",
+		// TODO 树统计
+		"Gruntfuggly.todo-tree",
+		// 自定义代码颜色
+		"warmthsea.vscode-custom-code-color"
+	],
 	"unwantedRecommendations": []
 }
