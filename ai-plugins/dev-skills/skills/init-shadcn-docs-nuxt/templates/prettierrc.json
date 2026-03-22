@@ -1,0 +1,17 @@
+{
+	"$comment_1": "Prettier 配置 - MDC 文件防护（双保险方案之二）",
+	"$comment_2": "方案一：在 .prettierignore 中排除 content/**/*.md（主保护）",
+	"$comment_3": "方案二（本文件）：overrides 对同路径启用 requirePragma（兜底保护）",
+	"$comment_4": "requirePragma: true 表示只有文件头部有 <!-- @format --> 注解的文件才会被格式化",
+	"$comment_5": "两种方案建议同时使用。Prettier 会重新格式化 Markdown 文件，可能破坏 MDC 容器语法",
+	"$comment_6": "已知破坏行为：在 :: 前后添加/删除空行、改变 frontmatter 缩进、重新包装长行、将 #preview/#code 识别为标题",
+
+	"overrides": [
+		{
+			"files": "content/**/*.md",
+			"options": {
+				"requirePragma": true
+			}
+		}
+	]
+}

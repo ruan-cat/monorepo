@@ -1,0 +1,115 @@
+/**
+ * shadcn-docs-nuxt Tailwind CSS 入口（Tailwind v4 语法）
+ *
+ * 本文件是文档站的 CSS 入口，职责：
+ * 1. 导入 Tailwind CSS
+ * 2. 指向 tailwind.config.js（@config）
+ * 3. 声明额外扫描源（@source），确保 shadcn-docs-nuxt 模板内部类被覆盖
+ * 4. 定义 shadcn-vue 主题 CSS 变量（亮色 + 暗色）
+ * 5. 导入自定义样式（main.css）
+ *
+ * ⚠️ @source 指令说明：
+ * - Tailwind v4 使用 @source 声明额外扫描目录
+ * - 必须包含 shadcn-docs-nuxt 的 node_modules 路径
+ * - 路径前缀 ../../ 取决于当前文件到 monorepo 根 node_modules 的相对层级
+ *
+ * ⚠️ CSS 变量格式说明：
+ * - 变量值使用 HSL 纯数值格式：221.2 83.2% 53.3%
+ * - 不要写成 hsl(221.2, 83.2%, 53.3%) — 因为在 Tailwind 中通过 hsl(var(--xxx)) 组合
+ * - .dark 选择器下的变量用于暗黑模式，必须完整覆盖所有变量
+ */
+@import "tailwindcss";
+
+@config "../../tailwind.config.js";
+@source "../../node_modules/shadcn-docs-nuxt";
+
+@layer base {
+	*,
+	::after,
+	::before,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--color-gray-200, currentcolor);
+	}
+}
+
+@utility step {
+	counter-increment: step;
+
+	&:before {
+		@apply absolute -ml-[50px] -mt-1 inline-flex h-9 w-9 -indent-px items-center justify-center rounded-full border-4 border-background bg-muted font-mono text-center text-base font-medium;
+		content: counter(step);
+	}
+}
+
+/* ═══════════════════════════════════════════════
+   亮色主题变量
+   ═══════════════════════════════════════════════ */
+@layer base {
+	:root {
+		--background: 0 0% 100%;
+		--foreground: 222.2 84% 4.9%;
+		--card: 0 0% 100%;
+		--card-foreground: 222.2 84% 4.9%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 222.2 84% 4.9%;
+		--primary: 221.2 83.2% 53.3%;
+		--primary-foreground: 210 40% 98%;
+		--secondary: 210 40% 96.1%;
+		--secondary-foreground: 222.2 47.4% 11.2%;
+		--muted: 210 40% 96.1%;
+		--muted-foreground: 215.4 16.3% 46.9%;
+		--accent: 210 40% 96.1%;
+		--accent-foreground: 222.2 47.4% 11.2%;
+		--destructive: 0 84.2% 60.2%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 214.3 31.8% 91.4%;
+		--input: 214.3 31.8% 91.4%;
+		--ring: 221.2 83.2% 53.3%;
+		--radius: 0.5rem;
+	}
+
+	/* ═══════════════════════════════════════════════
+	   暗色主题变量
+	   暗黑模式通过 .dark class 切换（配合 tailwind darkMode: "class"）
+	   必须完整覆盖所有 :root 中定义的变量
+	   ═══════════════════════════════════════════════ */
+	.dark {
+		--background: 222.2 84% 4.9%;
+		--foreground: 210 40% 98%;
+		--card: 222.2 84% 4.9%;
+		--card-foreground: 210 40% 98%;
+		--popover: 222.2 84% 4.9%;
+		--popover-foreground: 210 40% 98%;
+		--primary: 217.2 91.2% 59.8%;
+		--primary-foreground: 222.2 47.4% 11.2%;
+		--secondary: 217.2 32.6% 17.5%;
+		--secondary-foreground: 210 40% 98%;
+		--muted: 217.2 32.6% 17.5%;
+		--muted-foreground: 215 20.2% 65.1%;
+		--accent: 217.2 32.6% 17.5%;
+		--accent-foreground: 210 40% 98%;
+		--destructive: 0 62.8% 30.6%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 217.2 32.6% 17.5%;
+		--input: 217.2 32.6% 17.5%;
+		--ring: 224.3 76.3% 48%;
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+
+	:is(h1, h2, h3, h4, h5, h6) {
+		@apply text-balance;
+	}
+
+	body {
+		@apply bg-background text-foreground;
+	}
+}
+
+/* 在末尾导入自定义样式，确保优先级正确 */
+@import "./main.css";

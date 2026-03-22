@@ -1,0 +1,47 @@
+/**
+ * 自定义样式文件
+ *
+ * 自定义样式放这里，不要污染 tailwind.css。
+ * tailwind.css 负责 Tailwind 入口和 CSS 变量，
+ * 本文件负责项目特有的样式定制。
+ *
+ * 注意：
+ * - 不要在这里添加限制宽度的全局规则（会导致"布局变窄"问题）
+ * - 使用 hsl(var(--xxx)) 引用主题变量，保持亮暗模式兼容
+ * - 组件演示容器建议使用 isolation: isolate 做样式隔离
+ */
+
+/* 组件演示容器样式隔离 */
+.cui-demo-container {
+	isolation: isolate;
+}
+
+.cui-demo-preview {
+	padding: 1.5rem;
+	background: hsl(var(--background));
+}
+
+.cui-demo-code pre {
+	margin: 0;
+	border-radius: 1rem;
+}
+
+/* API 表格样式 */
+.cui-api-table table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.cui-api-table thead tr {
+	border-bottom: 1px solid hsl(var(--border));
+}
+
+.cui-api-table tbody tr + tr {
+	border-top: 1px solid hsl(var(--border));
+}
+
+.cui-api-table :is(th, td) {
+	padding: 0.85rem 0.75rem;
+	text-align: left;
+	vertical-align: top;
+}

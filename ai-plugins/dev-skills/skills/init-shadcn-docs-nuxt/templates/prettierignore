@@ -1,0 +1,11 @@
+# Prettier 排除规则 - MDC 文件防护（双保险方案之一）
+#
+# 排除 MDC markdown 文件，防止 Prettier 破坏 ::demo-playground 等容器语法。
+# 已知破坏行为：
+# - 在 :: 开闭标记前后添加/删除空行
+# - 改变 frontmatter 内的缩进
+# - 重新包装长行，破坏 slot 标记
+# - 将 #preview / #code 识别为 Markdown 标题
+#
+# 搭配 prettierrc.json 中的 requirePragma overrides 实现双保险。
+content/**/*.md

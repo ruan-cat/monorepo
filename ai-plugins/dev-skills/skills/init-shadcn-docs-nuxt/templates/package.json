@@ -1,0 +1,33 @@
+{
+	"$comment_1": "shadcn-docs-nuxt 文档站 package.json 基线模板",
+	"$comment_2": "scripts 中的三处 nuxt prepare（predev/prebuild/postinstall）是保险措施，确保在任何起点都能启动",
+	"$comment_3": "不要预设 .nuxt 一定已存在 或 依赖包一定先构建完成",
+	"$comment_4": "如果文档站需要消费 workspace 组件库，追加 workspace:* 依赖",
+	"$comment_5": "@iconify-json/lucide 是必须的 devDependency，不安装会有集合缺失提示",
+	"name": "@your-scope/your-docs",
+	"description": "项目文档站",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "nuxt dev",
+		"predev": "nuxt prepare",
+		"prebuild": "nuxt prepare",
+		"build": "nuxt build",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview",
+		"postinstall": "nuxt prepare"
+	},
+	"dependencies": {
+		"nuxt": "^3.21.2",
+		"shadcn-docs-nuxt": "^1.1.9",
+		"tailwindcss": "^4.2.1",
+		"tailwindcss-animate": "^1.0.7",
+		"vue": "^3.5.30",
+		"vue-router": "^4.6.4"
+	},
+	"devDependencies": {
+		"@iconify-json/lucide": "^1.2.98",
+		"typescript": "^5.9.3"
+	}
+}
