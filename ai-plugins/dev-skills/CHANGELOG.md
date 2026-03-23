@@ -2,6 +2,12 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [2.16.2] - 2026-03-24
+
+### Changed
+
+- **init-relizy**（`metadata.version` `1.1.0` → `1.2.0`）：兼容层**不再**提供可复制本地 `templates/relizy-runner.ts`；统一要求使用 **`@ruan-cat/utils`** 的 **`relizy-runner` bin**（见 monorepo 内 `packages/utils/src/node-esm/scripts/relizy-runner/index.md`）。更新 `SKILL.md`、`templates/config-writer.md`、`references/config-templates.md`、`references/baseline-tags.md`、`references/windows-compatibility.md`、`references/verification-matrix.md`、`references/validated-archetypes.md` 等；`relizy.config` 骨架补充默认 **`release`** 配置块。
+
 ## [2.16.1] - 2026-03-24
 
 ### Changed

@@ -4,11 +4,16 @@
 
 ## 版本
 
-**当前版本**: `2.16.1`
+**当前版本**: `2.16.2`
+
+⚠️ **v2.16.2 `init-relizy` 重大迭代**（`metadata.version` `1.2.0`）:
+
+- **兼容层**改为 **`@ruan-cat/utils` 的 `relizy-runner` bin**（文档：`packages/utils/src/node-esm/scripts/relizy-runner/index.md`）；**移除**本地模板 `templates/relizy-runner.ts`，禁止在目标仓库新建 `scripts/relizy-runner.ts`。
+- `relizy.config` 骨架要求补充默认 **`release`** 配置块；`templates/config-writer.md`、`references/*` 与验证矩阵同步。
 
 ⚠️ **v2.16.1 `init-relizy` 修订**（`metadata.version` `1.1.0`）:
 
-- 移除 `evals/`，场景并入 `references/validated-archetypes.md`；**runner**（`templates/relizy-runner.ts`）为推荐默认兼容层；baseline tag 与 Windows 策略文档重写。
+- 移除 `evals/`，场景并入 `references/validated-archetypes.md`；runner 兼容层列为推荐默认；baseline tag 与 Windows 策略文档重写（已由 v2.16.2 进一步改为使用 `@ruan-cat/utils`）。
 
 ⚠️ **v2.16.0 新增技能**:
 
@@ -116,11 +121,11 @@
 
 ### init-relizy
 
-**版本**: `1.1.0` | **可主动调用**: 是
+**版本**: `1.2.0` | **可主动调用**: 是
 
-执行型发版接入技能：五阶段流程（侦察 → 确认 → 落盘 → 验证 → 收尾），显式阻断条件（versionMode 误判、`private`、baseline tags、Windows 兼容未决）。
+执行型发版接入技能：五阶段流程（侦察 → 确认 → 落盘 → 验证 → 收尾），显式阻断条件（versionMode 误判、`private`、baseline tags、Windows 兼容未决）。兼容层**必须**通过 **`@ruan-cat/utils`** 的 **`relizy-runner`** 调用，不在目标仓库维护本地 runner 脚本。
 
-- **templates/** — 侦察表、确认表、配置骨架、[`relizy-runner.ts`](skills/init-relizy/templates/relizy-runner.ts) 兼容层模板、兼容记录、README 段落
+- **templates/** — 侦察表、确认表、配置骨架（含 `release` 默认块）、兼容记录、README 段落
 - **references/** — 决策树、类型收口、验证矩阵、回滚与三类匿名原型对照（含期望决策检查项）
 
 ### nitro-api-development
@@ -170,7 +175,7 @@ dev-skills/
 │   ├── init-relizy/                         # relizy monorepo 发版接入
 │   │   ├── SKILL.md
 │   │   ├── references/                      # 决策树、验证矩阵、三类匿名原型对照（含期望决策）
-│   │   └── templates/                       # 侦察/确认/配置/README + relizy-runner.ts
+│   │   └── templates/                       # 侦察/确认/配置/README（runner 用 @ruan-cat/utils）
 │   ├── nitro-api-development/               # Nitro v3 接口开发
 │   │   ├── SKILL.md
 │   │   ├── references/                      # API 参考与迁移指南
