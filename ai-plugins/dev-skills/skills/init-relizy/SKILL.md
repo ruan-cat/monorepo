@@ -3,7 +3,7 @@ name: init-relizy
 description: 为任意 pnpm monorepo 从零接入或补强 relizy（changelogen）发版链路：先仓库侦察与风险确认，再落盘配置、兼容策略、README 与验证命令。触发关键词：init relizy、接入 relizy、relizy monorepo、monorepo 发版初始化、changelog.config、relizy.config、独立版本、Windows relizy。
 user-invocable: true
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Init Relizy — Monorepo 发版配置落地技能
@@ -13,6 +13,13 @@ metadata:
 ## 与 `package-linter` 的关系
 
 若同时新建或规范化子包，请先或并行参考仓库内 **`package-linter`** 技能，保证 `package.json` / `tsup` / `tsconfig` 与 monorepo 约定一致；本技能聚焦 **relizy 发版域** 的配置与决策。
+
+## Runner：必须使用 `@ruan-cat/utils` 的 `relizy-runner`（禁止自建脚本）
+
+兼容层（Windows GNU 工具补齐 + independent 基线 tag 预检）由 **`@ruan-cat/utils`** 包实现，通过 **`relizy-runner` bin** 调用。**不得**在目标仓库内新建 `scripts/relizy-runner.ts` 或任何本地 runner 副本作为落地方案。
+
+- **权威说明**（行为、参数、根脚本示例）：仓库内见 `packages/utils/src/node-esm/scripts/relizy-runner/index.md`；若需在线直链，可参考：<https://raw.githubusercontent.com/ruan-cat/monorepo/refs/heads/dev/packages/utils/src/node-esm/scripts/relizy-runner/index.md>
+- **调用约定**：须使用 `package.json` 的 `bin`（如 `npx relizy-runner …` / `pnpm exec relizy-runner …`），**禁止**使用 `tsx @ruan-cat/utils/relizy-runner` 等会绕过 exports 的写法（详见该文档「必须使用 bin 命令调用」）。
 
 ## 三层目录
 
@@ -29,7 +36,8 @@ metadata:
 - 不默认执行 `npm publish`、不默认开启 provider release。
 - 不把本技能写成某个私有或固定仓库的专用脚本；具体仓库仅可作为**匿名「已验证原型」**学习，见 [`references/validated-archetypes.md`](references/validated-archetypes.md)。
 - 在 **`private` 策略未确认、兼容策略未决** 时，不盲目改写 release 脚本或宣称「已接入完成」。
-- 不以「已验证无 baseline tag 问题」为由默认跳过 runner；若不使用 runner，必须有明确的手工验证记录。
+- 不以「已验证无 baseline tag 问题」为由默认跳过 `@ruan-cat/utils` 的 `relizy-runner`；若坚持不用该 bin，必须有明确的手工验证记录（见 [`references/baseline-tags.md`](references/baseline-tags.md)）。
+- **禁止**为接入 relizy 在目标仓库内**新建**本地 runner 脚本；统一通过 `@ruan-cat/utils` 依赖与 `relizy-runner` 命令完成运行。
 - 不将 `selective` 与「各包独立版本线」混为一谈。
 
 ## 标准五阶段流程
@@ -38,7 +46,7 @@ metadata:
 Task Progress:
 - [ ] 阶段 1 — 侦察：收集工作区、锁文件、现有发版工具、tag、`private`、README/CHANGELOG 边界（用 templates/workspace-discovery.md）
 - [ ] 阶段 2 — 第一次确认：仅对高风险项确认（versionMode、全量纳管、`private`、兼容策略、是否写 README）（用 templates/package-eligibility.md）
-- [ ] 阶段 3 — 落盘：依赖、changelog.config.ts、relizy.config.ts、根脚本、补丁或 runner、必要时最小 tsconfig（用 templates/config-writer.md + references/config-templates.md）
+- [ ] 阶段 3 — 落盘：依赖（含 `@ruan-cat/utils` + `relizy`）、changelog.config.ts、relizy.config.ts（含 `release` 默认块）、根脚本指向 `relizy-runner`、可选 pnpm patch、必要时最小 tsconfig（用 templates/config-writer.md + references/config-templates.md）
 - [ ] 阶段 4 — 验证：帮助、changelog dry-run、release dry-run（必要时 --no-publish 等），见 references/verification-matrix.md
 - [ ] 阶段 5 — 收尾：修改清单、破坏性说明、残余风险、下一步（用 templates/docs-sync.md）
 ```
@@ -49,25 +57,24 @@ Task Progress:
 
 - 用户要求「各子包独立版本」，却拟使用 `selective` 充当独立版本方案（见 [`references/version-mode-decision.md`](references/version-mode-decision.md)）。
 - 拟纳入 relizy 的包涉及 `private: true` 变更，但未获书面/对话确认（见 [`references/package-visibility.md`](references/package-visibility.md)）。
-- 确认不使用 runner，但未完成手工 baseline tag 确认且未建立补 tag 机制（见 [`references/baseline-tags.md`](references/baseline-tags.md)）。
+- 确认不使用 `relizy-runner`（`@ruan-cat/utils`），但未完成手工 baseline tag 确认且未建立补 tag 机制（见 [`references/baseline-tags.md`](references/baseline-tags.md)）。
 - Windows 下已观测到 `grep` / `head` / `sed` 类失败，但未选择任何兼容策略（见 [`references/windows-compatibility.md`](references/windows-compatibility.md)）。
 
 ## 核心决策（速查）
 
 1. **versionMode**：「每包独立版本线」→ `independent`；「只 bump 变更包且共享一次发布语义」≠ 独立版本线，见决策表。
-2. **兼容策略**：**首选 runner**（同时解决 Windows GNU 工具问题与 baseline tag 预检）；次选 `pnpm patch`（仅解决 Windows 工具问题，需另行处理 baseline tag）；无额外层仅在满足严格前提时可用（见 [`references/windows-compatibility.md`](references/windows-compatibility.md)）。
+2. **兼容策略**：**首选** `@ruan-cat/utils` 提供的 **`relizy-runner` bin**（同时解决 Windows GNU 工具问题与 baseline tag 预检）；次选 `pnpm patch`（仅解决 Windows 工具问题，需另行处理 baseline tag）；无额外层仅在满足严格前提时可用（见 [`references/windows-compatibility.md`](references/windows-compatibility.md)）。
 3. **文档边界**：`rootChangelog` 与 README 更新是两条链路；`formatCmd` 不应宽到误改 README，见 [`references/readme-and-changelog-boundaries.md`](references/readme-and-changelog-boundaries.md)。
 
 ## templates/ 索引
 
-| 文件                                                                   | 用途                                     |
-| ---------------------------------------------------------------------- | ---------------------------------------- |
-| [`templates/workspace-discovery.md`](templates/workspace-discovery.md) | 侦察结果结构化输出                       |
-| [`templates/package-eligibility.md`](templates/package-eligibility.md) | 纳管范围与 `private` 确认                |
-| [`templates/config-writer.md`](templates/config-writer.md)             | 配置与脚本落盘骨架（含 runner 接入步骤） |
-| [`templates/relizy-runner.ts`](templates/relizy-runner.ts)             | 可直接复制的 runner 脚本（含定制化注释） |
-| [`templates/runtime-compat.md`](templates/runtime-compat.md)           | 兼容策略记录（runner 为默认推荐）        |
-| [`templates/docs-sync.md`](templates/docs-sync.md)                     | README 发版章节模板                      |
+| 文件                                                                   | 用途                                                                  |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [`templates/workspace-discovery.md`](templates/workspace-discovery.md) | 侦察结果结构化输出                                                    |
+| [`templates/package-eligibility.md`](templates/package-eligibility.md) | 纳管范围与 `private` 确认                                             |
+| [`templates/config-writer.md`](templates/config-writer.md)             | 配置与脚本落盘骨架（含 `@ruan-cat/utils` / `relizy-runner` 接入步骤） |
+| [`templates/runtime-compat.md`](templates/runtime-compat.md)           | 兼容策略记录（`relizy-runner` bin 为默认推荐）                        |
+| [`templates/docs-sync.md`](templates/docs-sync.md)                     | README 发版章节模板                                                   |
 
 ## references/ 索引
 
@@ -78,7 +85,7 @@ Task Progress:
 | [`references/version-mode-decision.md`](references/version-mode-decision.md)                     | `independent` / `selective` / 统一版本线  |
 | [`references/config-templates.md`](references/config-templates.md)                               | 配置插槽与文件角色                        |
 | [`references/type-compatibility.md`](references/type-compatibility.md)                           | `types` 与 changelogen 收口               |
-| [`references/windows-compatibility.md`](references/windows-compatibility.md)                     | runner / patch / 无层                     |
+| [`references/windows-compatibility.md`](references/windows-compatibility.md)                     | `relizy-runner` / patch / 无层            |
 | [`references/baseline-tags.md`](references/baseline-tags.md)                                     | 独立模式与 package tags                   |
 | [`references/package-visibility.md`](references/package-visibility.md)                           | `private` 与扫描范围                      |
 | [`references/readme-and-changelog-boundaries.md`](references/readme-and-changelog-boundaries.md) | 根 CHANGELOG 与 README                    |
@@ -89,6 +96,16 @@ Task Progress:
 ## 验证命令基线（根目录执行）
 
 具体标志与失败归因见 [`references/verification-matrix.md`](references/verification-matrix.md)。
+
+**已接入 `relizy-runner`（推荐）时**，优先用 bin 做与发版同路径的验证：
+
+```bash
+pnpm exec relizy-runner --help
+pnpm exec relizy-runner changelog --dry-run
+pnpm exec relizy-runner release --dry-run --no-publish --no-provider-release --no-push --no-commit --no-clean --yes
+```
+
+**未使用 runner、直连 relizy 时**（须已满足 [`references/windows-compatibility.md`](references/windows-compatibility.md) 中「无额外层」前提）：
 
 ```bash
 pnpm exec relizy --help

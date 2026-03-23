@@ -6,33 +6,18 @@
 
 这意味着：哪怕目标仓库是纯 Linux CI、没有任何 Windows 问题，baseline tag 缺失仍然会让 relizy 静默跳过应被 bump 的包，或直接失败——而这种失败往往没有清晰的错误提示。
 
-## Runner 是推荐的预检机制
+## `relizy-runner`（`@ruan-cat/utils`）是推荐的预检机制
 
-`templates/relizy-runner.ts` 中实现了两个关键函数：
+**不要**在目标仓库维护本地 runner 副本。请使用 **`@ruan-cat/utils`** 自带的 **`relizy-runner`**（实现见 monorepo 内 `packages/utils/src/node-esm/scripts/relizy-runner/index.ts`，文档见同目录 `index.md`）。其核心行为包括：
 
-- `shouldCheckIndependentBootstrap(relizyArgs)` — 判断当前命令是 `release` 或 `bump`（即可能触发实际版本计算的子命令），只有这时才执行预检。
-- `getPackagesMissingBootstrapTags(env)` — 扫描 `getWorkspacePackages()` 返回的所有包，对每个包执行 `git tag --list "@pkgname@*"`，收集返回为空的包。
+- 在 `release` / `bump` 前判断是否需要做 independent 基线 tag 预检。
+- 通过 **`getWorkspacePackages()`** 解析根目录 **`pnpm-workspace.yaml`**，按 `一级目录/*` 形式的 glob 展开并读取各子包 `package.json` 的 `name` / `version`，再对每个包检查是否已有 `@scope/pkg@*` 形式的 git tag；缺失则打印补打命令并退出，**不执行 relizy**。
 
-若 `missingPackages.length > 0`：runner 打印可直接执行的 `git tag` 与 `git push` 指令，然后以非零状态退出，**不执行 relizy**。
+因此：**`pnpm-workspace.yaml` 与 `relizy.config.ts` 的 `monorepo.packages` 必须一致**；若 workspace 使用本实现未覆盖的复杂 glob，须先对齐 relizy 与 runner 的包发现范围（必要时查阅 `index.md` 与上游实现），避免预检漏包。
 
-## 定制化：`getWorkspacePackages()` 的扫描范围
+## 非 `relizy-runner` 场景的处理方式
 
-这是 runner 中**唯一需要按仓库调整的函数**。默认实现只扫描 `apps/*`，需要与实际 workspace 对齐：
-
-```ts
-// 单目录场景（默认）
-const targetDir = resolve(process.cwd(), "apps");
-
-// 多 glob 场景：合并扫描
-const dirs = ["apps", "packages", "configs"];
-return dirs.flatMap((dir) => scanDir(resolve(process.cwd(), dir)));
-```
-
-扫描范围必须覆盖 `relizy.config.ts` 中 `monorepo.packages` 所指向的所有子包，否则预检会漏掉部分包。
-
-## 非 runner 场景的处理方式
-
-若因特殊原因确认不使用 runner，则必须在接入前手工完成以下检查：
+若因特殊原因确认不使用 `@ruan-cat/utils` 的 `relizy-runner`，则必须在接入前手工完成以下检查：
 
 ```bash
 # 查询每个目标包是否已有 tag

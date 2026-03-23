@@ -4,16 +4,16 @@
 
 ## 原型 A：Runner + baseline 预检（Windows 兼容 + 标准 workspace）
 
-**触发信号**：pnpm monorepo，主要开发环境为 Windows；dry-run 报 `grep`/`head`/`sed` 类错误；要求各包独立版本线；部分包缺 baseline package tags；团队接受维护根目录 runner 与测试。
+**触发信号**：pnpm monorepo，主要开发环境为 Windows；dry-run 报 `grep`/`head`/`sed` 类错误；要求各包独立版本线；部分包缺 baseline package tags；团队接受依赖 `@ruan-cat/utils` 并使用其 **`relizy-runner` bin**（不在仓库内自建 runner 脚本）。
 
 **特征**：多应用目录 + 标准 workspace；Unix 工具依赖在 Windows PowerShell 下直接失败。
 
-**策略要点**：`independent`；`monorepo.packages` 与真实 workspace 对齐；发版前检查 package baseline tags；用 runner 解决环境前置问题而非改 relizy 语义。
+**策略要点**：`independent`；`monorepo.packages` 与真实 workspace 对齐；发版前检查 package baseline tags；用 **`relizy-runner`** 解决环境前置问题而非改 relizy 语义。
 
 **期望决策（检查项）**：
 
 - `versionMode` 应为 `independent`，不得用 `selective` 冒充独立版本线。
-- 兼容策略应倾向 runner 或等价可测封装，并记录 precheck 逻辑。
+- 兼容策略应倾向 `@ruan-cat/utils` 的 **`relizy-runner`**（或等价可测封装），并理解其 precheck 逻辑。
 - 缺 baseline tags 时应阻断并给出可执行的补 tag 建议，不得伪装成「正常无输出」。
 
 ---
@@ -42,14 +42,14 @@
 
 **特征**：无 Windows 工具问题且 baseline tag 经过明确验证，方可选此路线。
 
-**策略要点**：直接生成配置；验证矩阵仍须包含 dry-run；README 命令与脚本保持一致；使用前必须完成 [`references/windows-compatibility.md`](windows-compatibility.md) 中「放弃 runner 的前提条件」的全部确认项。
+**策略要点**：直接生成配置；验证矩阵仍须包含 dry-run；README 命令与脚本保持一致；使用前必须完成 [`references/windows-compatibility.md`](windows-compatibility.md) 中「放弃 **`relizy-runner` bin**」的前提条件的全部确认项。
 
 **期望决策（检查项）**：
 
-- 在此场景下，仍不因为「可能遇到 Windows 问题」而预防性引入 runner。
+- 在此场景下，仍不因为「可能遇到 Windows 问题」而预防性引入 `relizy-runner`（但若团队含 Windows 开发者，通常仍应默认采用 `relizy-runner`）。
 - 验证矩阵必须包含 `relizy release --dry-run`。
 - README 发版章节写法与 `package.json` 脚本完全一致。
-- 必须有明确记录证明 baseline tag 已存在且流程可靠；否则应回退到原型 A（使用 runner）。
+- 必须有明确记录证明 baseline tag 已存在且流程可靠；否则应回退到原型 A（使用 **`relizy-runner`**）。
 
 ---
 
@@ -57,5 +57,5 @@
 
 - 先侦察再写配置；`selective` 不替代独立版本线。
 - `private` 与 tag 必须显式确认。
-- **Runner 是推荐默认策略**：它同时解决 Windows 工具依赖与 baseline tag 预检，两者都是 `independent` 模式下普遍存在的风险点，不仅限于特定平台。
-- 无法确认所有子包 baseline tag 状态时，应始终选择 runner 或等价的自动化预检机制。
+- **`@ruan-cat/utils` 的 `relizy-runner` 是推荐默认策略**：它同时解决 Windows 工具依赖与 baseline tag 预检，两者都是 `independent` 模式下普遍存在的风险点，不仅限于特定平台。
+- 无法确认所有子包 baseline tag 状态时，应始终选择 **`relizy-runner`** 或等价的自动化预检机制。

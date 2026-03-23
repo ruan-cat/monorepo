@@ -28,7 +28,7 @@
 
 | 选项                                         | 勾选 |
 | -------------------------------------------- | ---- |
-| A. 仓库内 runner 脚本封装入口                |      |
+| A. `@ruan-cat/utils` 的 `relizy-runner` bin  |      |
 | B. `pnpm patch` 修补上游 relizy              |      |
 | C. 不增加兼容层（已验证无问题或仅 Linux CI） |      |
 

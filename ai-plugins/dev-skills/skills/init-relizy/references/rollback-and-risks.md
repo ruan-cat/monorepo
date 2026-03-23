@@ -12,5 +12,5 @@
 
 ## 长期风险
 
-- 上游修复 Windows 行为后，应评估移除 patch 或简化 runner。
+- 上游修复 Windows 行为后，应评估移除 patch 或简化对 `relizy-runner` / `@ruan-cat/utils` 的依赖（若上游已等价覆盖）。
 - 发版工具并存时，避免重复 bump 与 changelog 冲突。

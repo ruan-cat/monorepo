@@ -2,24 +2,24 @@
 
 本模板用于记录已做出的兼容策略选择，便于审计与回滚。
 
-> 默认推荐：**使用 runner**。放弃 runner 的前提条件见 [`references/windows-compatibility.md`](../references/windows-compatibility.md)。
+> 默认推荐：**使用 `@ruan-cat/utils` 的 `relizy-runner` bin**。放弃该 bin 的前提条件见 [`references/windows-compatibility.md`](../references/windows-compatibility.md)。
 
 ## 选定策略
 
 | 分支                         | 选择    |
 | ---------------------------- | ------- |
-| Runner（推荐默认）           | 是 / 否 |
+| `relizy-runner`（推荐默认）  | 是 / 否 |
 | pnpm patch（次选）           | 是 / 否 |
 | 无额外层（仅满足严格前提时） | 是 / 否 |
 
-## 选择 runner 时填写
+## 选择 `relizy-runner` 时填写
 
-| 项                                          | 说明                              |
-| ------------------------------------------- | --------------------------------- |
-| runner 脚本路径                             | （如 `scripts/relizy-runner.ts`） |
-| `getWorkspacePackages()` 扫描目录           | （如 `apps`，或多目录合并）       |
-| 是否覆盖 `relizy.config.ts` 中所有 packages | 是 / 否                           |
-| 是否有配套测试                              | 是 / 否，位置：                   |
+| 项                                                        | 说明                               |
+| --------------------------------------------------------- | ---------------------------------- |
+| `@ruan-cat/utils` 安装版本或 semver 范围                  | （以 `package.json` / 锁文件为准） |
+| 根脚本是否指向 `relizy-runner`（而非自建 `scripts/*.ts`） | 是 / 否                            |
+| `pnpm-workspace.yaml` 与 `relizy.config.ts` 是否一致      | 是 / 否                            |
+| 是否已阅读 `packages/utils/.../relizy-runner/index.md`    | 是 / 否                            |
 
 ## 选择 pnpm patch 时填写
 
