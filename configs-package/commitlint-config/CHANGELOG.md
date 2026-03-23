@@ -1,5 +1,12 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 4.9.5
+
+### Patch Changes
+
+- Updated dependencies [[`ab773a2`](https://github.com/ruan-cat/monorepo/commit/ab773a2e87afb2021fa1ccddd67ae562c0a7cd15)]:
+  - @ruan-cat/utils@4.23.0
+
 ## 4.9.4
 
 ### Patch Changes
