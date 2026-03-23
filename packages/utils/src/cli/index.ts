@@ -10,6 +10,7 @@
  *
  * 支持的子命令：
  *   move-vercel-output-to-root  将子包的 .vercel/output 搬运到 monorepo 根目录
+ *   relizy-runner               relizy 发版兼容层（Windows GNU 工具补齐 + 基线 tag 检查）
  */
 
 import consola from "consola";
@@ -17,6 +18,7 @@ import {
 	getMoveVercelOutputToRootHelpText,
 	runMoveVercelOutputToRootCli,
 } from "../node-esm/scripts/move-vercel-output-to-root/index";
+import { runRelizyRunnerCli } from "../node-esm/scripts/relizy-runner/index";
 
 const CLI_NAME = "ruan-cat-utils";
 
@@ -29,6 +31,7 @@ function printMainHelp() {
 		"",
 		"可用命令：",
 		"  move-vercel-output-to-root  将子包的 .vercel/output 搬运到 monorepo 根目录",
+		"  relizy-runner               relizy 发版兼容层（Windows GNU + 基线 tag）",
 		"",
 		"全局选项：",
 		"  -h, --help                  查看帮助信息",
@@ -38,6 +41,7 @@ function printMainHelp() {
 		`  ${CLI_NAME} move-vercel-output-to-root`,
 		`  ${CLI_NAME} move-vercel-output-to-root --dry-run`,
 		`  ${CLI_NAME} move-vercel-output-to-root --root-dir ../../..`,
+		`  ${CLI_NAME} relizy-runner release --no-publish --no-provider-release`,
 	].join("\n");
 
 	console.log(helpText);
@@ -72,6 +76,12 @@ function main() {
 				consola.error(error instanceof Error ? error.message : String(error));
 				process.exitCode = 1;
 			}
+			break;
+		}
+
+		case "relizy-runner": {
+			const subArgs = args.slice(1);
+			runRelizyRunnerCli(subArgs);
 			break;
 		}
 

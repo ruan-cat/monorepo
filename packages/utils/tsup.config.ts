@@ -42,6 +42,7 @@ export default defineConfig((options: Options) => [
 		entry: {
 			index: "./src/cli/index.ts",
 			"move-vercel-output-to-root": "./src/cli/move-vercel-output-to-root.ts",
+			"relizy-runner": "./src/cli/relizy-runner.ts",
 		},
 		sourcemap: true,
 		outDir: "dist/cli",
