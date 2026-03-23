@@ -73,3 +73,35 @@ copyClaudeAgents(target) 函数的参数，改成 copyClaudeAgents(options?) 的
 3. 设计了 `packages\utils\src\cli\index.ts` ，你应该在这里整合 `packages\utils\src\node-esm\scripts\move-vercel-output-to-root\index.ts` 脚本。确保 `packages\utils` 包提供 bin 运行脚本。且 bin 运行脚本的入口是 `packages\utils\src\cli\index.ts` 文件。
 4. 对于 `packages\utils\package.json` 这款，增加专门的 `packages\utils\src\cli` 目录下的 index.md 说明文档，说明本包提供了 cli 命令行。
 5. 对于 `packages\utils\tsup.config.ts` ，你应该增加构建入口，确保该 `packages\utils\src\cli\index.ts` 和 bin 入口能够提供有效的构建后的可运行 javascript 脚本。
+
+## 003 <!-- 已完成 --> 用 `@ruan-cat/utils` 的内部能力，完成对 `scripts\relizy-runner.ts` 脚本的内部整合
+
+阅读以下内容：
+
+- D:\code\github-desktop-store\01s-11comm\scripts\relizy-runner.ts
+- D:\code\01s\202603-13hzb\yunxiao\01s-2603-13eams\eams-frontend-monorepo\scripts\relizy-runner.ts
+
+这些脚本是高度相似的，他们负责提取 pnpm 配置的内容，我需要在 `@ruan-cat/utils` 内设置一个能力，确保其能够实现这个脚本，就叫做 relizy-runner 。在 bin 内对外暴露这个路径。
+
+我们的 packages\utils\src\cli 已经提供了一个通用的脚本入口，这个脚本需要识别 `relizy-runner` 这个入口，然后去执行 relizy-runner 的相关逻辑。
+
+### 迭代优化脚本
+
+尽管我让你去参考 relizy-runner.ts 脚本，但是我们自己的 relizy-runner 脚本，应该使用 consola 来优化显示效果。
+
+### 补全 relizy-runner 的测试用例
+
+你在 `D:\code\github-desktop-store\01s-11comm\` 和 `D:\code\01s\202603-13hzb\yunxiao\01s-2603-13eams\eams-frontend-monorepo` 项目内，能看到和 relizy 相关的 vitest 测试用例的，模仿并为我们的 relizy-runner 脚本增加测试用例。
+
+### 补全文档
+
+在 `packages\utils\src\node-esm\scripts` 内新建具体的工作脚本、测试用例、和 index.md 的说明文档。其中，index.md 说明文档应该参考：
+
+- D:\code\01s\202603-13hzb\yunxiao\01s-2603-13eams\eams-frontend-monorepo\README.md
+- D:\code\github-desktop-store\01s-11comm\README.md
+
+重点说明清楚在 monorepo 的根包内，要怎么配置这个 relizy-runner 脚本，这个脚本运行有哪些参数要使用。重点从这两个参考文档内，照搬，获取清楚 relizy 包运行时的参数。
+
+### 本包的依赖需要拓展
+
+这个脚本预期会使用 pnpm-workspace-yaml 、pkg-types、和 consola 这三个包。让本包增加 pnpm-workspace-yaml 、pkg-types 这两个包为生产环境依赖包。

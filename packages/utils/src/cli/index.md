@@ -26,17 +26,20 @@ pnpm add -D @ruan-cat/utils
 
 1. `ruan-cat-utils` —— 统一入口命令，通过子命令分发执行。
 2. `move-vercel-output-to-root` —— 直接执行搬运 Vercel 构建产物的专用快捷命令。
+3. `relizy-runner` —— relizy 发版兼容层（Windows GNU 工具补齐 + 基线 tag 检查）。
 
 ### 通过统一入口调用
 
 ```bash
 npx ruan-cat-utils move-vercel-output-to-root [options]
+npx ruan-cat-utils relizy-runner <relizy 子命令与参数>
 ```
 
 ### 通过快捷命令调用
 
 ```bash
 npx move-vercel-output-to-root [options]
+npx relizy-runner release --no-publish --no-provider-release
 ```
 
 两种方式完全等价。
@@ -46,6 +49,7 @@ npx move-vercel-output-to-root [options]
 ```bash
 npx ruan-cat-utils --help
 npx ruan-cat-utils move-vercel-output-to-root --help
+npx ruan-cat-utils relizy-runner --help
 ```
 
 ## 在 package.json scripts 中使用
@@ -55,7 +59,8 @@ npx ruan-cat-utils move-vercel-output-to-root --help
 ```json
 {
 	"scripts": {
-		"move-output": "move-vercel-output-to-root --dry-run"
+		"move-output": "move-vercel-output-to-root --dry-run",
+		"release": "relizy-runner release --no-publish --no-provider-release"
 	}
 }
 ```
