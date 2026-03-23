@@ -9,7 +9,7 @@
 	},
 	"metadata": {
 		"description": "阮喵喵自用的一整套claude code插件",
-		"version": "2.16.1"
+		"version": "2.16.2"
 	},
 	"plugins": [
 		{
@@ -30,7 +30,7 @@
 			"source": "./ai-plugins/dev-skills",
 			"description": "阮喵喵开发时使用的工程化开发技能",
 			"repository": "https://github.com/ruan-cat/monorepo",
-			"version": "2.16.1",
+			"version": "2.16.2",
 			"license": "MIT",
 			"author": {
 				"name": "ruan-cat",
