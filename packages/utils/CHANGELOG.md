@@ -1,5 +1,13 @@
 # @ruan-cat/utils 更新日志
 
+## 4.23.0
+
+### Minor Changes
+
+- 1. 新增 `relizy-runner`：在调用 `relizy` 前补齐 Windows 下 GNU 工具（grep / head / sed）路径，并在 `release` / `bump` 前校验 independent 基线 tag；通过 `bin` 暴露 `relizy-runner`，并在 `ruan-cat-utils` 中增加 `relizy-runner` 子命令。 ([`ab773a2`](https://github.com/ruan-cat/monorepo/commit/ab773a2e87afb2021fa1ccddd67ae562c0a7cd15))
+  2. 新增生产依赖 `pkg-types`，与既有 `pnpm-workspace-yaml`、`consola` 配合解析工作区与子包信息。
+  3. 在 `packages/utils/src/node-esm/scripts/relizy-runner` 下提供脚本实现、说明文档与 Vitest 测试用例；`@ruan-cat/utils/node-esm` 导出相关 API。
+
 ## 4.22.0
 
 ### Minor Changes
