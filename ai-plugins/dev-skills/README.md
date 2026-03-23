@@ -4,7 +4,15 @@
 
 ## 版本
 
-**当前版本**: `2.15.1`
+**当前版本**: `2.16.1`
+
+⚠️ **v2.16.1 `init-relizy` 修订**（`metadata.version` `1.1.0`）:
+
+- 移除 `evals/`，场景并入 `references/validated-archetypes.md`；**runner**（`templates/relizy-runner.ts`）为推荐默认兼容层；baseline tag 与 Windows 策略文档重写。
+
+⚠️ **v2.16.0 新增技能**:
+
+- `init-relizy`：为任意 pnpm monorepo 接入 relizy 发版链路的执行型技能（`templates/` + `references/`，含侦察、决策、兼容、验证与匿名原型对照）
 
 ⚠️ **v2.15.1 版本同步**:
 
@@ -32,6 +40,7 @@
 
 - **init-pure-admin-iconify**: 在任意 `vite + vue3` 项目中快速初始化 pure-admin 风格的 iconify 图标体系，提供离线图标、在线图标与 `useRenderIcon` 统一渲染出口
 - **init-shadcn-docs-nuxt**: 以「最小可用 + 快速稳定」为目标，为任意项目建立可长期维护的 `shadcn-docs-nuxt` 文档站；内含 Nuxt 配置模板、Tailwind 主题、MDC 语法说明与 Windows 构建假卡死排错手册
+- **init-relizy**: 为任意 pnpm monorepo 接入或补强 relizy（changelogen）发版链路：侦察、versionMode 与兼容策略决策、配置落盘、baseline tag 与 `private` 风险、README 与 dry-run 验证
 - **nitro-api-development**: 使用 Nitro v3 框架和 H3 编写服务端 API，适用于纯后端 Nitro 项目初始化、Vite 项目全栈化、Drizzle ORM 数据库交互与多平台部署
 - **openspec**: OpenSpec 规范驱动开发助手，基于 OPSX 工作流在编写代码前与 AI 就需求达成一致，使用 Schema 驱动的工件依赖系统管理变更
 
@@ -72,6 +81,7 @@
 | :------------------------ | :------------------------------------------------- |
 | `init-pure-admin-iconify` | 初始化 iconify、pure-admin 图标方案、ReIcon        |
 | `init-shadcn-docs-nuxt`   | 搭建组件库文档、接入 shadcn-docs-nuxt、Nuxt 文档站 |
+| `init-relizy`             | 接入 relizy、monorepo 发版初始化、changelog.config |
 | `nitro-api-development`   | 开发 Nitro 接口、全栈化 Vite、Drizzle ORM          |
 | `openspec`                | openspec、规范驱动开发、/opsx:new                  |
 
@@ -103,6 +113,15 @@
 - **templates/** — 可直接复制的代码模板（注释即文档，记录每个配置项的根因与历史事故）
 
 重点解决场景：Windows 构建假卡死、MDC 语法错误、Tailwind 主题集成、模块兼容问题。
+
+### init-relizy
+
+**版本**: `1.1.0` | **可主动调用**: 是
+
+执行型发版接入技能：五阶段流程（侦察 → 确认 → 落盘 → 验证 → 收尾），显式阻断条件（versionMode 误判、`private`、baseline tags、Windows 兼容未决）。
+
+- **templates/** — 侦察表、确认表、配置骨架、[`relizy-runner.ts`](skills/init-relizy/templates/relizy-runner.ts) 兼容层模板、兼容记录、README 段落
+- **references/** — 决策树、类型收口、验证矩阵、回滚与三类匿名原型对照（含期望决策检查项）
 
 ### nitro-api-development
 
@@ -148,6 +167,10 @@ dev-skills/
 │   │   ├── SKILL.md
 │   │   ├── references/                      # 排错手册与配置说明
 │   │   └── templates/                       # 可直接复制的配置模板
+│   ├── init-relizy/                         # relizy monorepo 发版接入
+│   │   ├── SKILL.md
+│   │   ├── references/                      # 决策树、验证矩阵、三类匿名原型对照（含期望决策）
+│   │   └── templates/                       # 侦察/确认/配置/README + relizy-runner.ts
 │   ├── nitro-api-development/               # Nitro v3 接口开发
 │   │   ├── SKILL.md
 │   │   ├── references/                      # API 参考与迁移指南

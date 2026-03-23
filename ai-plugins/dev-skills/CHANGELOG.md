@@ -2,6 +2,22 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [2.16.1] - 2026-03-24
+
+### Changed
+
+- **init-relizy**（`metadata.version` `1.0.0` → `1.1.0`）：将评测场景并入 `references/validated-archetypes.md`，移除 `evals/` 目录；将 **runner 兼容层** 列为推荐默认（同时覆盖 Windows GNU 工具链与 baseline package tag 预检）；新增可复制模板 `templates/relizy-runner.ts`；重写 `references/baseline-tags.md`、`references/windows-compatibility.md`，更新 `templates/config-writer.md`、`templates/runtime-compat.md` 与 `SKILL.md` 决策/阻断表述。
+
+### Fixed
+
+- **init-relizy**：`2.16.0` 变更说明中误写 `evals/evals.json`；实际交付仅为 `templates/` + `references/`（已在本次修订中更正上文条目）。
+
+## [2.16.0] - 2026-03-24
+
+### Added
+
+- `init-relizy` 技能：为任意 pnpm monorepo 接入或补强 relizy（changelogen）发版链路（`SKILL.md`、`templates/`、`references/`），含侦察、决策、兼容分支、baseline tag、`private` 风险、README/CHANGELOG 边界与验证矩阵；案例以匿名原型对照呈现，不绑定具体仓库。
+
 ## [2.15.1] - 2026-03-23
 
 ### Changed
