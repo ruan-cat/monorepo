@@ -41,6 +41,6 @@ Runner 同时解决两个独立的、在任意 monorepo 中都可能出现的问
 **不要**在目标仓库新建本地 runner 脚本。按 **`@ruan-cat/utils`** 文档操作：
 
 1. 安装依赖：在目标仓库执行 `pnpm add -D @ruan-cat/utils relizy`（或与该仓库包管理器等价的安装命令）。
-2. 将根 `package.json` 的 `release` / `changelog` 脚本指向 **`relizy-runner` bin**（例如 `relizy-runner release --no-publish --no-provider-release`）。**禁止**使用 `tsx @ruan-cat/utils/relizy-runner` 等非 bin 写法（见 `packages/utils/.../relizy-runner/index.md`）。
+2. 将根 `package.json` 的 `release` / `changelog` 脚本指向 **`relizy-runner` bin**，并在**脚本中显式附加 `--yes`**（例如 `relizy-runner release --no-publish --no-provider-release --yes`，`changelog` 示例见 [`templates/config-writer.md`](../templates/config-writer.md)）。**禁止**使用 `tsx @ruan-cat/utils/relizy-runner` 等非 bin 写法（见 `packages/utils/.../relizy-runner/index.md`）。
 3. 工作区包发现与基线 tag 预检由包内实现驱动；确保根目录存在 **`pnpm-workspace.yaml`**，且与 `relizy.config.ts` 的 `monorepo.packages` 一致。
 4. 完整说明、常用命令与编程式 API 见 `packages/utils/src/node-esm/scripts/relizy-runner/index.md`。

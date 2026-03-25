@@ -3,7 +3,7 @@ name: init-relizy
 description: 为任意 pnpm monorepo 从零接入或补强 relizy（changelogen）发版链路：先仓库侦察与风险确认，再落盘配置、兼容策略、README 与验证命令。触发关键词：init relizy、接入 relizy、relizy monorepo、monorepo 发版初始化、changelog.config、relizy.config、独立版本、Windows relizy。
 user-invocable: true
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Init Relizy — Monorepo 发版配置落地技能
@@ -20,6 +20,22 @@ metadata:
 
 - **权威说明**（行为、参数、根脚本示例）：仓库内见 `packages/utils/src/node-esm/scripts/relizy-runner/index.md`；若需在线直链，可参考：<https://raw.githubusercontent.com/ruan-cat/monorepo/refs/heads/dev/packages/utils/src/node-esm/scripts/relizy-runner/index.md>
 - **调用约定**：须使用 `package.json` 的 `bin`（如 `npx relizy-runner …` / `pnpm exec relizy-runner …`），**禁止**使用 `tsx @ruan-cat/utils/relizy-runner` 等会绕过 exports 的写法（详见该文档「必须使用 bin 命令调用」）。
+
+## `--yes` 与非交互发版（技能必须显式传递）
+
+**背景**：relizy 在 `release` / `bump` 等流程中可能弹出「是否继续」类交互；在无 TTY 或 CI 下会**一直等待 stdin**，表现为进程挂起。上游选项 **`--yes`** 表示 _Skip confirmation prompt_，与版本计算算法无关。
+
+**与 `relizy-runner` 的关系**：较新版本的 `@ruan-cat/utils` 会在 **`release` / `bump`** 子命令上**自动追加** `--yes`（除非使用 runner 专用的 `--no-yes` 关闭）。即便如此，**执行本技能时仍须在一切落盘内容中显式写出 `--yes`**，包括：
+
+1. 根 `package.json` 里所有 `relizy-runner release`、`relizy-runner bump`（若配置）及需要在非交互下运行的 `changelog` 示例；
+2. README / 内部文档中的等价命令；
+3. 本文件下文「验证命令基线」与 [`references/verification-matrix.md`](references/verification-matrix.md) 中的示例。
+
+**原因**：脚本与文档自描述、与 CI 复制粘贴一致、兼容尚未内置自动注入的旧版 `@ruan-cat/utils`，并覆盖 **`changelog`** 等 runner 未默认注入 `--yes` 的路径。
+
+**本地需要逐步人工确认**：使用 runner 的 **`--no-yes`**（由 runner 消费，不转发给 relizy），详见 `packages/utils/.../relizy-runner/index.md`。
+
+**直连 `relizy`（无 runner）时**：凡涉及 `release` / `bump` 的示例命令，同样必须包含 `--yes`，除非文档明确是在演示交互模式。
 
 ## 三层目录
 
@@ -46,7 +62,7 @@ metadata:
 Task Progress:
 - [ ] 阶段 1 — 侦察：收集工作区、锁文件、现有发版工具、tag、`private`、README/CHANGELOG 边界（用 templates/workspace-discovery.md）
 - [ ] 阶段 2 — 第一次确认：仅对高风险项确认（versionMode、全量纳管、`private`、兼容策略、是否写 README）（用 templates/package-eligibility.md）
-- [ ] 阶段 3 — 落盘：依赖（含 `@ruan-cat/utils` + `relizy`）、changelog.config.ts、relizy.config.ts（含 `release` 默认块）、根脚本指向 `relizy-runner`、可选 pnpm patch、必要时最小 tsconfig（用 templates/config-writer.md + references/config-templates.md）
+- [ ] 阶段 3 — 落盘：依赖（含 `@ruan-cat/utils` + `relizy`）、changelog.config.ts、relizy.config.ts（含 `release` 默认块）、根脚本指向 `relizy-runner` 且 **显式包含 `--yes`**（见上节）、可选 pnpm patch、必要时最小 tsconfig（用 templates/config-writer.md + references/config-templates.md）
 - [ ] 阶段 4 — 验证：帮助、changelog dry-run、release dry-run（必要时 --no-publish 等），见 references/verification-matrix.md
 - [ ] 阶段 5 — 收尾：修改清单、破坏性说明、残余风险、下一步（用 templates/docs-sync.md）
 ```
@@ -101,7 +117,7 @@ Task Progress:
 
 ```bash
 pnpm exec relizy-runner --help
-pnpm exec relizy-runner changelog --dry-run
+pnpm exec relizy-runner changelog --dry-run --yes
 pnpm exec relizy-runner release --dry-run --no-publish --no-provider-release --no-push --no-commit --no-clean --yes
 ```
 

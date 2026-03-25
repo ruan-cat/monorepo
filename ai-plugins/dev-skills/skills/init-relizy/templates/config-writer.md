@@ -23,15 +23,20 @@ pnpm add -D @ruan-cat/utils relizy
 
 **推荐（使用 `relizy-runner` bin）**：
 
+> **`--yes`（必选写在脚本里）**：跳过 relizy 交互确认，避免 CI / `pnpm` 脚本 / 非 TTY 下挂起。较新的 `@ruan-cat/utils` 虽可能对 `release` / `bump` 自动追加 `--yes`，本技能仍要求**显式写出**，保证文档自解释与旧版兼容；`changelog` 路径同理。本地若要逐步人工确认，使用 runner 的 `--no-yes`（见 `relizy-runner` 的 `index.md`）。
+
 ```json
 {
 	"scripts": {
-		"release": "relizy-runner release --no-publish --no-provider-release",
+		"release": "relizy-runner release --no-publish --no-provider-release --yes",
 		"release:dry": "relizy-runner release --dry-run --no-publish --no-provider-release --no-push --no-commit --no-clean --yes",
-		"changelog": "relizy-runner changelog"
+		"changelog": "relizy-runner changelog --yes",
+		"changelog:dry": "relizy-runner changelog --dry-run --yes"
 	}
 }
 ```
+
+若仓库需要 `bump` 入口，脚本应写为：`relizy-runner bump <…> --yes`（参数顺序与 relizy 一致即可，但**不要省略**末尾或等价位置上的 `--yes`）。
 
 等价写法：`pnpm exec relizy-runner …` 或 `npx relizy-runner …`。亦可使用文档中的 `npx ruan-cat-utils relizy-runner …` 统一入口。
 
@@ -44,8 +49,8 @@ pnpm add -D @ruan-cat/utils relizy
 ```json
 {
 	"scripts": {
-		"release": "pnpm exec relizy release",
-		"changelog": "pnpm exec relizy changelog"
+		"release": "pnpm exec relizy release --yes",
+		"changelog": "pnpm exec relizy changelog --yes"
 	}
 }
 ```

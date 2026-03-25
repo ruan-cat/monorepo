@@ -39,3 +39,5 @@ relizy 的 配置文件应该增加以下配置 ：
 		prComment: false,
 	},
 ```
+
+## 002 <!-- 已完成：SKILL.md 1.3.0 + templates/references 同步 --> 对 --yes 参数的情况做出说明，并要求 init-relizy 技能主动传递该参数

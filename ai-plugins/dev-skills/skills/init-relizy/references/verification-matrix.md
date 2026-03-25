@@ -4,10 +4,10 @@
 
 ## 基础（已接入 `relizy-runner`，推荐）
 
-| 命令                                          | 期望                                 |
-| --------------------------------------------- | ------------------------------------ |
-| `pnpm exec relizy-runner --help`              | 正常输出                             |
-| `pnpm exec relizy-runner changelog --dry-run` | 无配置错误；若无可写变更则输出可解释 |
+| 命令                                                | 期望                                 |
+| --------------------------------------------------- | ------------------------------------ |
+| `pnpm exec relizy-runner --help`                    | 正常输出                             |
+| `pnpm exec relizy-runner changelog --dry-run --yes` | 无配置错误；若无可写变更则输出可解释 |
 
 ## Release dry-run（推荐与根脚本同路径）
 
