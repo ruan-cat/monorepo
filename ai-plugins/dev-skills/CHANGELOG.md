@@ -2,6 +2,12 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [3.2.0] - 2026-03-25
+
+### Changed
+
+- **init-relizy**（`metadata.version` `1.2.0` → `1.3.0`）：新增「`--yes` 与非交互发版」专节，要求技能在根脚本、README 与验证示例中**显式传递 `--yes`**，并说明与 `relizy-runner` 自动注入及 `--no-yes` 的关系；更新 `templates/config-writer.md`（含 `changelog` / `changelog:dry` 与非 runner 备选）、`templates/docs-sync.md`、`references/verification-matrix.md`、`references/windows-compatibility.md`；技能内验证基线为 `changelog --dry-run --yes`。
+
 ## [3.1.0] - 2026-03-25
 
 ### Changed
