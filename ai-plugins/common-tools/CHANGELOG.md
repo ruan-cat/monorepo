@@ -5,6 +5,12 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [3.0.0] - 2026-03-25
+
+### Breaking Changes
+
+- **init-prettier-git-hooks**（`metadata.version` `0.14.0` → `1.0.0`）：模板 `templates/prettier.config.mjs` 将 **`endOfLine` 由 `"auto"` 改为 `"lf"`**。在 Windows 上，通过本技能初始化或覆盖 Prettier 配置后，保存/格式化会**统一写成 LF**，与保留 CRLF 的旧行为不兼容；若项目仍依赖 CRLF，需在生成后自行改回或配合 `.gitattributes` / EditorConfig 策略评估后再升级。
+
 ## [2.16.1] - 2026-03-24
 
 ### Changed
