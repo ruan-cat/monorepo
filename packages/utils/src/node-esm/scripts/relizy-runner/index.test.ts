@@ -8,6 +8,7 @@ import {
 	getRelizyRunnerHelpText,
 	getWorkspacePackages,
 	parseRelizyRunnerCliArgs,
+	prepareRelizySpawnArgs,
 	shouldCheckIndependentBootstrap,
 } from "./index";
 
@@ -217,6 +218,36 @@ describe("relizy-runner", () => {
 		});
 	});
 
+	describe("prepareRelizySpawnArgs", () => {
+		test("release 未带 --yes 时自动追加", () => {
+			expect(prepareRelizySpawnArgs(["release", "--no-publish"])).toEqual(["release", "--no-publish", "--yes"]);
+		});
+
+		test("bump 未带 --yes 时自动追加", () => {
+			expect(prepareRelizySpawnArgs(["bump", "--patch"])).toEqual(["bump", "--patch", "--yes"]);
+		});
+
+		test("已包含 --yes 时不重复追加", () => {
+			expect(prepareRelizySpawnArgs(["release", "--yes", "--dry-run"])).toEqual(["release", "--yes", "--dry-run"]);
+		});
+
+		test("--no-yes 时不再注入且不转发给 relizy", () => {
+			expect(prepareRelizySpawnArgs(["release", "--no-publish", "--no-yes"])).toEqual(["release", "--no-publish"]);
+		});
+
+		test("changelog 不注入 --yes", () => {
+			expect(prepareRelizySpawnArgs(["changelog", "--dry-run"])).toEqual(["changelog", "--dry-run"]);
+		});
+
+		test("bump 与 --no-yes 时不追加 --yes", () => {
+			expect(prepareRelizySpawnArgs(["bump", "--no-yes"])).toEqual(["bump"]);
+		});
+
+		test("仅 --no-yes 时去掉后只剩子命令仍需能区分", () => {
+			expect(prepareRelizySpawnArgs(["release", "--no-yes", "--dry-run"])).toEqual(["release", "--dry-run"]);
+		});
+	});
+
 	describe("parseRelizyRunnerCliArgs", () => {
 		test("无参数时返回 help", () => {
 			const result = parseRelizyRunnerCliArgs([]);
@@ -276,6 +307,13 @@ describe("relizy-runner", () => {
 			const helpText = getRelizyRunnerHelpText();
 
 			expect(helpText).toContain("-h, --help");
+		});
+
+		test("帮助文本说明自动 --yes 与 --no-yes", () => {
+			const helpText = getRelizyRunnerHelpText();
+
+			expect(helpText).toContain("--no-yes");
+			expect(helpText).toContain("release / bump");
 		});
 	});
 });
