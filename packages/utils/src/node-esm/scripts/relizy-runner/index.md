@@ -15,6 +15,63 @@
 - 需要在 **Windows 本地**直接执行发版命令。`relizy` 在 independent 模式下会直接调用 `grep` / `head` / `sed` 处理 git tag；Git Bash 或 CI 通常无妨，但 **PowerShell / cmd** 下不一定天然可用。
 - **首次接入** independent，仓库里还没有每个子包各自的**基线 tag**。此时 `relizy` 需要先知道每个包从哪个 `@scope/pkg@x.y.z` tag 起算后续变更。
 
+## 关于 Windows 下的误报「No packages to bump」
+
+如果你在 **Windows + independent monorepo** 下遇到：
+
+```text
+× No packages to bump, no relevant commits found
+```
+
+先不要立刻把它理解成「确实没有待发版改动」。这条报错历史上有过一类**误报**，根因不在 runner，而在 relizy 自身的包级提交过滤逻辑。
+
+### 为什么会误报？
+
+旧版本 relizy 在 `isCommitOfTrackedPackages` / `getPackageCommits` 里，会拿：
+
+- `path.relative(cwd, pkg.path)` 算出来的包相对路径
+- 去匹配 `git log --name-status` 产生的 `commit.body`
+
+问题在于：
+
+- Git 的 `--name-status` 输出始终是 **POSIX 正斜杠**，例如 `packages/admin/src/main.ts`
+- `path.relative()` 在 Windows 上通常返回 **反斜杠路径**，例如 `packages\\admin`
+- 于是 `commit.body.includes(relativePath)` 在 Windows 上会直接返回 `false`
+
+结果就是：明明有 `feat` / `fix` 提交命中了某个包，但 relizy 仍把该包的 commits 过滤空，最终退化成 `No packages to bump`。
+
+### 这个故障在哪个 PR 修复了？
+
+这个问题已经在上游 PR **[#53](https://github.com/LouisMazel/relizy/pull/53)** 修复：
+
+- 标题：`fix(repo): normalize path separators to POSIX before commit body matching`
+- 合并时间：**2026-03-24**
+- 修复方式：在 `src/core/repo.ts` 中，把 `relative(...)` 的结果先做 `.split(sep).join("/")`，再参与 `includes` 匹配
+- 覆盖范围：同时修复了 `isCommitOfTrackedPackages` 与 `getPackageCommits`
+- 验证补充：同一个 PR 还加入了 Windows 路径分隔符回归测试
+
+公开可验证的修复依据以上游 PR 为准：<https://github.com/LouisMazel/relizy/pull/53>
+
+### 这和 relizy-runner 的关系是什么？
+
+这里要区分清楚：
+
+- `relizy-runner` **负责** Windows GNU 工具补齐、independent 基线 tag 预检、`release` / `bump` 默认补 `--yes`
+- `relizy-runner` **不负责** 改写 relizy 自身的 bump 计算、commit 过滤、版本推导逻辑
+
+也就是说，如果你使用的 relizy 版本**尚未包含** PR #53 的修复，那么即便走 `relizy-runner`，仍可能看到这类误报。因为 runner 的设计目标就是在执行前补环境、补前置校验，而不是偷偷篡改上游 release 算法。
+
+### 现在遇到这条报错，应该怎么判断？
+
+可以按下面顺序排查：
+
+1. 先确认当前 relizy 版本是否已包含 PR #53。
+2. 如果还没包含，优先升级到带修复的版本，或对 relizy 做临时 patch。
+3. 如果已经包含，再检查是否真的是「没有可 bump 的提交」。
+4. 若仓库使用了自定义 `types` 白名单，也要确认最近提交的 `feat` / `fix` 等类型没有被配置过滤掉。
+
+这一节的目的，是避免把「Windows 路径分隔符误报」和 runner 当前仍承担的「GNU 工具补齐 / baseline tag 预检」混为一谈。
+
 ## ⚠️ 重要：必须使用 bin 命令调用
 
 > [!CAUTION]
