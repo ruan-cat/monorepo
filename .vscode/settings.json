@@ -164,5 +164,6 @@
 	/** AI 大模型记忆文件嵌套折叠配置 */
 	"explorer.fileNesting.patterns": {
 		"CLAUDE.md": "GEMINI.md,AGENTS.md"
-	}
+	},
+	"files.eol": "\n"
 }
