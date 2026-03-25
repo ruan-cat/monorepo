@@ -1,4 +1,5 @@
 {
+	"files.eol": "\n",
 	"explorer.fileNesting.enabled": true,
 	"explorer.fileNesting.patterns": {
 		"CLAUDE.md": "GEMINI.md,AGENTS.md"

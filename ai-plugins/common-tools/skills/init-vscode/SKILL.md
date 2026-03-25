@@ -1,9 +1,9 @@
 ---
 name: init-vscode
-description: 初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json）。当用户提及「初始化 vscode」、「配置 vscode」、「设置编辑器」、「初始化项目」、「新建项目」、「项目设置」、「开发环境」、「工作区配置」、「团队规范」等关键词时使用此技能。适用于 monorepo 和单体项目，智能合并现有配置而非强制覆盖。
+description: 初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json），并在合并现有配置时把 `files.eol` 明确收敛为 `"\n"`，配合 `.gitattributes`、`.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题。只要用户提到初始化 vscode、编辑器配置、工作区设置、行尾统一、EOL、CRLF/LF、幽灵修改、团队规范，都应该使用本技能。
 user-invocable: true
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Init VSCode
@@ -17,7 +17,7 @@ metadata:
 - 扩展推荐（extensions.json）
 - 工作区设置（settings.json）
 
-配置采用智能合并策略，尊重用户现有配置的同时补充最佳实践。
+配置采用智能合并策略，尊重用户现有配置的同时补充最佳实践。但本技能存在一个**强策略例外**：`files.eol` 必须收敛为 `"\n"`。
 
 ## 工作流程
 
@@ -61,9 +61,29 @@ mkdir -p .vscode
 - 深度合并对象：
   - 对于嵌套对象（如 `search.exclude`、`files.watcherExclude`、`explorer.fileNesting.patterns`），合并所有键值对
   - 对于数组（如 `vue.server.includeLanguages`），去重合并
-  - 对于简单值（字符串、布尔值、数字），**用户现有值优先**，不覆盖
+  - 对于简单值（字符串、布尔值、数字），默认仍然是**用户现有值优先**
+- 但对以下策略键，必须使用模板值覆盖冲突值：
+  - `files.eol`：必须收敛为 `"\n"`，不允许保留 `"\r\n"` 或 `"auto"`
 - 保留用户配置中的其他字段
 - 写回文件，保持 JSON 格式美观（2 空格缩进）
+
+### 3.1. `files.eol` 的特殊规则
+
+本技能专门负责 `.vscode/settings.json` 中的：
+
+```json
+{
+	"files.eol": "\n"
+}
+```
+
+处理原则如下：
+
+1. 如果 `files.eol` 不存在：直接补写为 `"\n"`
+2. 如果 `files.eol` 已存在但值是 `"\r\n"`、`"auto"` 或其他值：必须覆盖为 `"\n"`
+3. 如果用户已经是 `"\n"`：保持不变
+
+这是一个明确的团队策略键，不适用“用户简单值优先”的默认规则。
 
 ### 4. 验证结果
 
@@ -288,6 +308,12 @@ merged = {
 - 如果用户已有配置，**完全保留用户的值**
 - 如果用户没有配置，使用模板值
 
+### 策略键例外
+
+以下键不走“用户优先”，而是必须按模板收敛：
+
+- `files.eol` → 必须为 `"\n"`
+
 ### 可选插件配置合并
 
 对于用户选择添加的可选插件配置（git-graph、cursor、i18n-ally）：
@@ -310,6 +336,7 @@ merged = {
 
 - 不会删除用户的任何现有配置
 - 不会强制覆盖用户的自定义值
+- 但 `files.eol` 属于显式策略键，必须按本技能要求统一为 `"\n"`
 - JSON 文件格式保持美观（2 空格缩进，无尾随逗号）
 - 如果 JSON 解析失败，报告错误并建议用户手动检查文件格式
 
