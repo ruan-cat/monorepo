@@ -5,6 +5,13 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [3.1.0] - 2026-03-25
+
+### Changed
+
+- **init-prettier-git-hooks**（`metadata.version` `1.0.0` → `1.1.0`）：从“初始化模板”升级为“依赖检查 + 合并现有配置 + 收敛 LF 行尾策略 + git 归一化”的技能；新增 `templates/.gitattributes` 与 `templates/.editorconfig`，明确要求将全局文本规则收敛为 `* text=auto eol=lf`、将 `[*]` 区块的 `end_of_line` 收敛为 `lf`，并把 `git add --renormalize .` 纳入必做链路。
+- **init-vscode**（`metadata.version` `0.1.0` → `0.2.0`）：把 `.vscode/settings.json` 中的 `files.eol` 提升为必须覆盖的策略键，模板新增 `"files.eol": "\n"`，技能正文明确该键不再遵循普通简单值的“用户优先”逻辑。
+
 ## [3.0.0] - 2026-03-25
 
 ### Breaking Changes

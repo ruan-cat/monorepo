@@ -2,6 +2,12 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [3.1.0] - 2026-03-25
+
+### Changed
+
+- 版本号与 marketplace 主版本同步至 `3.1.0`（本次 `dev-skills` 技能树无内容变更，仅与 `common-tools` 的插件发版保持一致）。
+
 ## [3.0.0] - 2026-03-25
 
 ### Changed
