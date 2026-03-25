@@ -1,5 +1,13 @@
 # @ruan-cat/utils 更新日志
 
+## 4.24.0
+
+### Minor Changes
+
+- 1. `relizy-runner` 对 `release` 与 `bump` 子命令默认在调用 relizy 前自动追加 `--yes`，避免 bump 前交互确认在非 TTY 或 CI 中阻塞。 ([`a81405d`](https://github.com/ruan-cat/monorepo/commit/a81405d22d92cdbb96866b6f643547d869d4ce37))
+  2. 新增 runner 专用参数 `--no-yes`：不转发给 relizy，用于关闭上述自动注入并在本地保留人工确认。
+  3. 导出 `prepareRelizySpawnArgs` 供程序拼装参数；说明文档与测试已同步更新。
+
 ## 4.23.0
 
 ### Minor Changes
