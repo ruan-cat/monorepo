@@ -1,9 +1,10 @@
 # relizy-runner
 
-`relizy` 发版兼容层脚本。在执行 `relizy` 前做两件前置处理，**不改变** relizy 自身的发版与版本计算逻辑：
+`relizy` 发版兼容层脚本。在执行 `relizy` 前做前置处理，**不改变** relizy 自身的发版与版本计算逻辑：
 
 1. **Windows GNU 工具补齐**：Windows 下自动补齐 Git for Windows 的 `usr\bin` 路径，避免 relizy 内部调用 `grep` / `head` / `sed` 失败。
 2. **Independent 基线 tag 检查**：在 `release` / `bump` 前校验 independent 基线 tag，缺失时打印补打命令并终止。
+3. **`release` / `bump` 的 `--yes` 预设**：对这两个子命令，若参数中尚未包含 `--yes`，runner 会在调用 relizy 前**自动追加** `--yes`，避免 bump 前交互确认在 CI 或非 TTY 下阻塞。若你需要本地逐步人工确认，请传入 runner 专用参数 **`--no-yes`**（不会转发给 relizy，且会关闭上述自动注入）。背景可参考各业务仓 README「Relizy 发版」与 relizy 文档中的 _Skip confirmation prompt_。
 
 ## 为什么需要这个兼容层？
 
@@ -104,20 +105,27 @@ pnpm release:relizy -- --patch
 pnpm release:relizy -- --minor
 ```
 
+## runner 专用参数
+
+| 参数       | 含义                                                                            |
+| ---------- | ------------------------------------------------------------------------------- |
+| `--no-yes` | 关闭 `release` / `bump` 的自动 `--yes`，恢复 relizy 交互确认；不会传给 relizy。 |
+
 ## relizy 常用参数（透传）
 
-以下参数由 relizy 本身处理，relizy-runner 仅负责透传：
+以下参数由 relizy 本身处理；除 `--no-yes` 外，relizy-runner 仅负责透传（并在 `release` / `bump` 上按需追加 `--yes`）：
 
-| 参数                                 | 含义                                         |
-| ------------------------------------ | -------------------------------------------- |
-| `--dry-run`                          | 预览，不写文件、不打 tag、不提交、不 publish |
-| `--no-push`                          | 不 push 到远端                               |
-| `--no-publish`                       | 不执行 npm publish                           |
-| `--no-provider-release`              | 不在 GitHub/GitLab 创建 Release              |
-| `--no-commit`                        | 不创建提交与 tag（与其它跳过项组合使用）     |
-| `--no-changelog`                     | 不生成 changelog 文件                        |
-| `--no-verify`                        | 提交时跳过 git hooks                         |
-| `--major` / `--minor` / `--patch` 等 | 指定 semver 升级策略                         |
+| 参数                                 | 含义                                                                                   |
+| ------------------------------------ | -------------------------------------------------------------------------------------- |
+| `--dry-run`                          | 预览，不写文件、不打 tag、不提交、不 publish                                           |
+| `--no-push`                          | 不 push 到远端                                                                         |
+| `--no-publish`                       | 不执行 npm publish                                                                     |
+| `--no-provider-release`              | 不在 GitHub/GitLab 创建 Release                                                        |
+| `--no-commit`                        | 不创建提交与 tag（与其它跳过项组合使用）                                               |
+| `--no-changelog`                     | 不生成 changelog 文件                                                                  |
+| `--no-verify`                        | 提交时跳过 git hooks                                                                   |
+| `--yes`                              | 跳过 relizy 确认提示；`release` / `bump` 下 runner 也会自动追加（除非使用 `--no-yes`） |
+| `--major` / `--minor` / `--patch` 等 | 指定 semver 升级策略                                                                   |
 
 查看 relizy 全部选项与子命令：
 
@@ -168,7 +176,7 @@ export default defineConfig({
 ```typescript
 import { runRelizyRunner, getWorkspacePackages, buildBootstrapInstructions } from "@ruan-cat/utils/node-esm";
 
-// 运行 relizy
+// 运行 relizy（release / bump 会自动追加 --yes，除非传入 --no-yes）
 const exitCode = runRelizyRunner(["release", "--no-publish", "--no-provider-release"]);
 
 // 获取工作区包信息
