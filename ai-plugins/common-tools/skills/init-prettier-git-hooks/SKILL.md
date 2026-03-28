@@ -3,7 +3,7 @@ name: init-prettier-git-hooks
 description: 初始化或补强基于 lint-staged + simple-git-hooks + prettier 的 git 提交前代码格式化流程，并统一 `.gitattributes`、`.editorconfig`、`prettier.config.mjs` 的 LF 行尾策略，解决 Windows 上常见的 git 幽灵修改、CRLF 漂移、已有配置缺项或冲突配置未收敛的问题。只要用户提到 prettier、git hooks、lint-staged、simple-git-hooks、行尾统一、EOL、CRLF/LF、gitattributes、editorconfig、ghost modified、幽灵修改，都应该使用本技能，而不是把它当成“只能无脑覆盖模板”的初始化脚本。
 user-invocable: true
 metadata:
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # 初始化 Prettier + Git Hooks 格式化流程
@@ -229,13 +229,17 @@ npx simple-git-hooks
 
 ## 4. Git 行尾归一化
 
-完成配置文件修改后，必须执行一次：
+完成配置文件修改后，**必须**执行一次：
 
 ```bash
 git add --renormalize .
 ```
 
-这一步是 LF 统一链路的一部分，不要省略。它负责把已追踪文件重新按 `.gitattributes` 规则归一化，否则只改配置文件但不重算索引，git 幽灵修改仍可能持续出现。
+这一步是 LF 统一链路的一部分，不要省略。它负责把已追踪文件重新按 `.gitattributes` 规则归一化并**刷新索引中的 blob**，否则历史对象里仍是 CRLF、工作区却是 LF 时，会出现「内容看似未改但 `git status` 永远脏」的幽灵差异。只改 `.gitattributes` 而不执行 `renormalize` **不会**自动重写已入库的历史行尾。
+
+若 `git diff --cached` 出现预期内的批量行尾变更，应**单独提交**规范化（例如 `chore: normalize line endings per .gitattributes`）。**每个仍受影响的分支**都需要各自执行并提交一次 renormalize，不能指望只在主干做一次就消除所有分支的脏状态。
+
+复盘与团队案例：[加了 `.gitattributes` 就万事大吉？必须 `git add --renormalize`](https://notes.ruan-cat.com/bug/025-gitattributes-must-use-renormalize/)。
 
 ## 5. 自检清单
 
