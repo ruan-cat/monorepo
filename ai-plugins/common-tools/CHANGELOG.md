@@ -5,6 +5,12 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [3.2.1] - 2026-03-28
+
+### Changed
+
+- **init-prettier-git-hooks**（`metadata.version` `1.1.0` → `1.1.1`）：§4 行尾归一化补充「只改 `.gitattributes` 不重算索引仍会幽灵脏」的根因、须单独提交 `git add --renormalize .`、多分支各自处理；交叉引用 [阮喵喵笔记 #025 — `.gitattributes` 与 renormalize](https://notes.ruan-cat.com/bug/025-gitattributes-must-use-renormalize/)。
+
 ## [3.2.0] - 2026-03-25
 
 ### Changed
