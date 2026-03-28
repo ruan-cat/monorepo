@@ -1,13 +1,14 @@
+# 统一强制使用 LF 行尾，防止 Windows 幽灵 git modified 问题（init-prettier-git-hooks）
 * text=auto eol=lf
 
-# Force the following filetypes to have unix eols, so Windows does not break them
-*.* text eol=lf
-
+# 常见二进制文件不做行尾归一化
 *.png binary
 *.jpg binary
 *.jpeg binary
 *.gif binary
+*.webp binary
 *.ico binary
+*.bmp binary
 *.mov binary
 *.mp4 binary
 *.mp3 binary
@@ -16,18 +17,21 @@
 *.swf binary
 *.gz binary
 *.zip binary
+*.tar binary
 *.7z binary
 *.ttf binary
 *.eot binary
+*.otf binary
 *.woff binary
+*.woff2 binary
+*.wasm binary
 *.pyc binary
 *.pdf binary
 
-# 增加办公常用文件的二进制配置
+# 办公常用文件
 *.xls binary
 *.wps binary
 *.doc binary
-
 *.docx binary
 *.xlsx binary
 *.pptx binary

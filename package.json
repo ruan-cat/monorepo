@@ -32,7 +32,7 @@
 		"pack:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- pnpm pack >docs/reports/all-packages-pack.md",
 		"preinstall": "node scripts/check-pnpm.mjs && corepack enable && corepack install",
 		"corepack:pnpm": "corepack enable && corepack install",
-		"postinstall": "pnpm run init-git-hooks",
+		"prepare": "simple-git-hooks",
 		"init-git-hooks": "simple-git-hooks",
 		"commit": "git-cz",
 		"git:push": "git push --follow-tags",
