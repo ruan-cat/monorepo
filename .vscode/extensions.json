@@ -13,7 +13,26 @@
 		"antfu.iconify",
 		"antfu.unocss",
 		"antfu.goto-alias",
-		"csstools.postcss"
+		"csstools.postcss",
+
+		// ========== init-vscode 技能模板补充（去重合并）==========
+		"EditorConfig.EditorConfig",
+		"Gruntfuggly.todo-tree",
+		"PKief.material-icon-theme",
+		"Vue.volar",
+		"bradlc.vscode-tailwindcss",
+		"christian-kohler.path-intellisense",
+		"eamodio.gitlens",
+		"formulahendry.auto-rename-tag",
+		"mhutchie.git-graph",
+		"mikestead.dotenv",
+		"ms-vscode.vscode-typescript-next",
+		"naumovs.color-highlight",
+		"streetsidesoftware.code-spell-checker",
+		"usernamehw.errorlens",
+		"vitest.explorer",
+		"warmthsea.vscode-custom-code-color",
+		"wayou.vscode-todo-highlight"
 	],
 	"unwantedRecommendations": []
 }

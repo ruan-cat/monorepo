@@ -97,7 +97,8 @@
 	 * 原因与 JSONC 编写约束见该文件顶部的块注释；此处仅保证保存时不触发 JSON/Prettier 格式化。
 	 */
 	"files.associations": {
-		"**/init-vscode/templates/extensions.json": "plaintext"
+		"**/init-vscode/templates/extensions.json": "plaintext",
+		".cursorignore": "ignore"
 	},
 	"pnpmCatalogLens.enabled": true,
 	"code-runner.executorMap": {
