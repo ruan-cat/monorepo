@@ -12,7 +12,7 @@
 |     1      | `ruan-cat/notes`                           |  ✅  |
 |     2      | `ruan-cat/monorepo`                        |  ✅  |
 |     3      | `ruan-cat/12psi`                           |  ✅  |
-|     4      | `nwt-q/001-Smart-Community`                |  ✅  |
+|     4      | `ruan-cat/11comm-app`                      |  ✅  |
 |     5      | `ruan-cat/11comm`                          |  ✅  |
 |     6      | `ruan-cat/10wms`                           |  ✅  |
 |     7      | `ruan-cat/09oa`                            |  ✅  |
