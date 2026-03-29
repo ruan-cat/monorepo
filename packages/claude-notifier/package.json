@@ -48,6 +48,7 @@
 	},
 	"license": "MIT",
 	"bin": {
+		"claude-notifier": "./dist/cli.cjs",
 		"@ruan-cat/claude-notifier": "./dist/cli.cjs"
 	},
 	"publishConfig": {
