@@ -5,6 +5,12 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [3.2.2] - 2026-03-29
+
+### Changed
+
+- **pr-ruancat-repo**（`metadata.version` `0.3.1` → `0.3.2`）：`references/target-repos.md` 默认批量 PR 列表将 `nwt-q/001-Smart-Community` 替换为 `ruan-cat/11comm-app`（序号 4 不变）。
+
 ## [3.2.1] - 2026-03-28
 
 ### Changed

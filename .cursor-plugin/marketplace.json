@@ -7,7 +7,7 @@
 	},
 	"metadata": {
 		"description": "阮喵喵自用的一整套 Cursor 插件合集",
-		"version": "3.2.1",
+		"version": "3.2.2",
 		"pluginRoot": "ai-plugins"
 	},
 	"plugins": [
@@ -15,13 +15,13 @@
 			"name": "common-tools",
 			"source": "common-tools",
 			"description": "阮喵喵开发时常用的一些通用工具",
-			"version": "3.2.1"
+			"version": "3.2.2"
 		},
 		{
 			"name": "dev-skills",
 			"source": "dev-skills",
 			"description": "阮喵喵开发时使用的工程化开发技能",
-			"version": "3.2.1"
+			"version": "3.2.2"
 		}
 	]
 }
