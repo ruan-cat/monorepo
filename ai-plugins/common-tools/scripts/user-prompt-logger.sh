@@ -2,28 +2,37 @@
 # Claude Code UserPromptSubmit 钩子 - 记录用户输入
 # 在用户提交 prompt 时触发，记录用户输入并初始化会话日志
 # 关键：必须快速返回，不阻塞 Claude Code
+#
+# 设计要点：
+#   1. 不使用 set -e，避免意外退出导致 JSON 响应丢失
+#   2. 使用 trap EXIT 保障 JSON 响应一定输出
+#   3. log() 只写文件，不输出 stdout（stdout 保留给 JSON 响应）
 
-set -euo pipefail
+# ====== 安全保障：确保无论如何都输出 JSON 响应 ======
+_HOOK_RESPONDED=false
+_respond_hook() {
+  if [ "$_HOOK_RESPONDED" = "false" ]; then
+    _HOOK_RESPONDED=true
+    echo "{}"
+  fi
+}
+trap '_respond_hook' EXIT
 
 # ====== 配置 ======
 LOG_DIR="${TEMP:-${TMP:-/tmp}}/claude-code-task-complete-notifier-logs"
 mkdir -p "$LOG_DIR" 2>/dev/null || true
 
 # ====== 读取钩子输入 ======
-HOOK_DATA=$(cat)
+HOOK_DATA=$(cat 2>/dev/null || echo "")
 
 # ====== 提取关键信息 ======
-SESSION_ID=$(echo "$HOOK_DATA" | node -e "
-const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
-console.log(data.session_id || 'unknown');
-" 2>/dev/null || echo "unknown")
+# session_id / transcript_path 是简单字符串，用 grep -oP 提取（无 node 启动开销）
+SESSION_ID=$(echo "$HOOK_DATA" | grep -oP '"session_id"\s*:\s*"\K[^"]+' 2>/dev/null || echo "unknown")
+TRANSCRIPT_PATH=$(echo "$HOOK_DATA" | grep -oP '"transcript_path"\s*:\s*"\K[^"]+' 2>/dev/null || echo "")
 
-TRANSCRIPT_PATH=$(echo "$HOOK_DATA" | node -e "
-const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
-console.log(data.transcript_path || '');
-" 2>/dev/null || echo "")
-
-USER_PROMPT=$(echo "$HOOK_DATA" | node -e "
+# prompt 可能含换行、引号等复杂内容，用 node 做完整 JSON 解析
+# printf 比 echo 安全：不会把 HOOK_DATA 开头的 -e/-n 解释为 flag
+USER_PROMPT=$(printf '%s\n' "$HOOK_DATA" | node -e "
 const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
 console.log(data.prompt || '');
 " 2>/dev/null || echo "")
@@ -54,9 +63,5 @@ SESSION_ENV="${LOG_DIR}/.session_${SESSION_ID}"
   echo "START_TIME=$(date +%s)"
 } > "$SESSION_ENV" 2>/dev/null || true
 
-# ====== 快速返回 ======
-# UserPromptSubmit 钩子的输出会添加到 Claude 的上下文中
-# 这里可以添加一些有用的上下文信息
-# 使用空 JSON 表示允许继续处理，不添加额外上下文
-echo "{}"
+# ====== 快速返回（JSON 响应由 trap EXIT 保障输出） ======
 exit 0
