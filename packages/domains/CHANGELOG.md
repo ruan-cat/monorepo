@@ -1,5 +1,12 @@
 # 更新日志
 
+## 2.2.0
+
+### Minor Changes
+
+- 1. 在 `11comm` 项目内，新增 order 3 和 order 4 两条域名配置：`01s-11-app.ruan-cat.com`（H5 前端，vercel 平台部署，高频更新，projectAlias: `11commAppH5`）和 `01s-11-app-server.ruan-cat.com`（Nitro 服务端接口，vercel 平台部署，高频更新，projectAlias: `11commAppNitroServer`）。 ([`ad9fb9e`](https://github.com/ruan-cat/monorepo/commit/ad9fb9edb64173dacf944c57f6aa0b6a6c6ca9f6))
+  2. 原 `11comm` 内 order 3 和 order 4 的 `ruancat6312.top` 域名顺延为 order 5 和 order 6。
+
 ## 2.1.0
 
 ### Minor Changes
