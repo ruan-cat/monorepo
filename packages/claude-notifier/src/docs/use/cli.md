@@ -2,27 +2,48 @@
 
 本文档详细说明完整的命令行使用方法，介绍如何以命令行的形式使用 `@ruan-cat/claude-notifier`。
 
+## CLI 入口说明
+
+本包提供两个等价的 CLI 入口，指向同一个可执行文件：
+
+| 入口                        | 说明                                     |
+| --------------------------- | ---------------------------------------- |
+| `claude-notifier`           | **推荐**。语义化短名，全局安装后直接使用 |
+| `@ruan-cat/claude-notifier` | 带作用域的完整名，兼容旧版行为           |
+
+两个命令完全等价，使用任意一个均可。推荐在 Claude Code hooks、脚本与文档中统一使用 `claude-notifier`。
+
 ## 快速开始
 
-### 方式 1：使用 npx（推荐）
+### 方式 1：全局安装后使用短名（推荐）
 
-无需安装，直接使用：
+安装一次，到处可用：
+
+```bash
+# 使用 pnpm 全局安装（推荐）
+pnpm add -g @ruan-cat/claude-notifier
+
+# 安装后直接使用短名
+claude-notifier <command> [options]
+```
+
+也可以用 npm：
+
+```bash
+npm install -g @ruan-cat/claude-notifier
+claude-notifier <command> [options]
+```
+
+### 方式 2：使用 npx（无需安装）
 
 ```bash
 npx @ruan-cat/claude-notifier <command> [options]
 ```
 
-### 方式 2：使用 pnpm dlx
+### 方式 3：使用 pnpm dlx（无需安装）
 
 ```bash
 pnpm dlx @ruan-cat/claude-notifier <command> [options]
-```
-
-### 方式 3：全局安装
-
-```bash
-npm install -g @ruan-cat/claude-notifier
-claude-notifier <command> [options]
 ```
 
 ## 基础命令
@@ -30,17 +51,21 @@ claude-notifier <command> [options]
 ### 查看帮助
 
 ```bash
-# 查看主帮助
-npx @ruan-cat/claude-notifier --help
+# 全局安装后，使用短名
+claude-notifier --help
+claude-notifier task-complete --help
+claude-notifier long-task --help
 
-# 查看子命令帮助
+# 未安装时，使用 npx
+npx @ruan-cat/claude-notifier --help
 npx @ruan-cat/claude-notifier task-complete --help
-npx @ruan-cat/claude-notifier long-task --help
 ```
 
 ### 查看版本
 
 ```bash
+claude-notifier --version
+# 或
 npx @ruan-cat/claude-notifier --version
 ```
 
@@ -523,7 +548,7 @@ npm run build && \
 
 ### 场景 3：Claude Code hooks 集成（推荐）
 
-在 `~/.claude/settings.json` 中配置：
+全局安装后，在 `~/.claude/settings.json` 中配置：
 
 ```json
 {
@@ -534,7 +559,7 @@ npm run build && \
 				"hooks": [
 					{
 						"type": "command",
-						"command": "npx @ruan-cat/claude-notifier check-and-notify"
+						"command": "claude-notifier check-and-notify"
 					}
 				]
 			}
@@ -545,11 +570,11 @@ npm run build && \
 				"hooks": [
 					{
 						"type": "command",
-						"command": "npx @ruan-cat/claude-notifier check-and-notify"
+						"command": "claude-notifier check-and-notify"
 					},
 					{
 						"type": "command",
-						"command": "npx @ruan-cat/claude-notifier task-complete"
+						"command": "claude-notifier task-complete"
 					}
 				]
 			}
@@ -557,6 +582,8 @@ npm run build && \
 	}
 }
 ```
+
+> 全局安装后使用 `claude-notifier` 短名，hooks 响应更快，无 npx 冷启动开销。若未全局安装，可将命令替换为 `npx @ruan-cat/claude-notifier`。
 
 **效果**：
 
@@ -637,21 +664,26 @@ CLI 的日志输出：
    - 检查状态文件：`%TEMP%\.claude-notifier-timer.json`
 
 4. **命令执行过慢**
-   - 使用完整的 `npx @ruan-cat/claude-notifier` 命令
-   - 或全局安装后使用 `claude-notifier`
+   - 推荐全局安装后使用 `claude-notifier`，避免 npx 每次冷启动的开销
+   - 尤其是配置在 Claude Code hooks 中高频触发的命令（如 `check-and-notify`），全局安装后的短名响应更快
 
 ## 最佳建议
 
-1. **使用 npx 的优点**
-   - 无需全局安装
-   - 始终使用最新版本
-   - 适用于临时使用场景
+1. **推荐全局安装，使用短名 `claude-notifier`**
+   - `pnpm add -g @ruan-cat/claude-notifier` 安装一次即可
+   - 之后在终端、脚本、Claude Code hooks 中均可直接使用 `claude-notifier`
+   - 响应速度快于 npx（无冷启动），适合 hooks 高频调用场景
 
-2. **长任务定时器的使用建议**
+2. **使用 npx 的场景**
+   - 临时体验，无需全局安装
+   - CI 环境中不想维护全局包时
+   - 始终使用最新发布版本时
+
+3. **长任务定时器的使用建议**
    - 每 30 秒检查一次，建议使用合理的时间间隔
    - 不建议使用过短的间隔（会增加系统开销）
 
-3. **推荐通知组合**
+4. **推荐通知组合**
    - 保持简洁的消息内容
    - 避免过于冗长的描述
 
