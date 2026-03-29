@@ -16,7 +16,7 @@ order: 8000
 3 为 projectLikeDomainSet 的 ruan-cat-notes 的 description ，增加上述的 jsdoc 内容。根据不同的 projectAlias 配置，将对应的 jsdoc 配置写入到 description 内。
 4 写入时，请注意实现文本的换行效果。注意使用模板字符串。填写好模板字符串即可。
 
-## 002 <!-- TODO: --> 增加 11comm 内增加 app 相关的域名，并提供别名配置
+## 002 <!-- 已完成 --> 增加 11comm 内增加 app 相关的域名，并提供别名配置
 
 1. 阅读 `D:\code\github-desktop-store\11comm-app\docs\prompts\migrate-plan\01.md` 的 088 将项目部署到 vercel 平台内 ，这个章节。
 2. 去更新维护 `packages\domains\src\domains.ts` 文件。
