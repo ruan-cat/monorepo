@@ -5,6 +5,19 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [4.0.0] - 2026-03-29
+
+### Changed
+
+- **hooks.json**：两条 hook 命令格式由直接执行 `.sh` 路径改为 `bash "..."` 显式调用 bash 解释器。原格式 `"${CLAUDE_PLUGIN_ROOT}/scripts/xxx.sh"` 在 Windows 上会触发操作系统文件关联机制，导致每次 hook 触发时 Cursor 自动打开 `.sh` 文件；新格式 `bash "${CLAUDE_PLUGIN_ROOT}/scripts/xxx.sh"` 强制指定解释器，彻底解决 Windows 下 Cursor 反复打开脚本文件的问题。
+
+- **`user-prompt-logger.sh`**：重写错误处理与 JSON 响应保障机制，与 `task-complete-notifier.sh` 保持一致：
+  1. 移除 `set -euo pipefail`，改为容错模式，避免中间步骤失败时脚本提前退出、无法输出 JSON 响应。
+  2. 新增 `trap EXIT` 兜底机制，确保无论脚本是否正常执行完毕都能输出 `{}` 响应，符合 Claude Code hooks 官方规范要求所有钩子必须返回标准 JSON。
+  3. `HOOK_DATA=$(cat)` 补充防护改为 `$(cat 2>/dev/null || echo "")`，与 `task-complete-notifier.sh` 一致。
+  4. `session_id` 与 `transcript_path` 的提取从 `node -e` 改为 `grep -oP`，消除两次 Node 进程启动开销，在 3 秒超时限制内更从容。
+  5. `prompt` 字段的管道输入从 `echo "$HOOK_DATA"` 改为 `printf '%s\n' "$HOOK_DATA"`，避免 prompt 内容以 `-e`/`-n` 开头时被 echo 误解释为 flag。
+
 ## [3.2.2] - 2026-03-29
 
 ### Changed
