@@ -29,8 +29,23 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			order: 2,
 			description: "本域名主要用于 vercel 部署，与 ruancat6312.top 域名的内容并不完全等价",
 		},
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11", order: 3 },
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm", order: 4 },
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "01s-11-app",
+			order: 3,
+			projectAlias: "11commAppH5",
+			description: "11comm App H5 前端生产环境。在 vercel 平台内完成部署，高频更新。vercel 项目名称：11comm-app-h5。",
+		},
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "01s-11-app-server",
+			order: 4,
+			projectAlias: "11commAppNitroServer",
+			description:
+				"11comm App Nitro 服务端接口生产环境。在 vercel 平台内完成部署，高频更新。vercel 项目名称：11comm-app-nitro-server。",
+		},
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11", order: 5 },
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm", order: 6 },
 	],
 	/** 大项目 11智慧社区项目 前端文档 */
 	"11comm-doc": [
