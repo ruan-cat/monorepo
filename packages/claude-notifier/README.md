@@ -196,6 +196,15 @@ npx @ruan-cat/claude-notifier --help
 - Matcher 语法和配置模板
 - 错误排查指南
 
+### Codex 集成
+
+🧩 **[Codex 配置文档](./src/docs/use/codex.md)** - `config.toml` 与外部通知脚本配置指南
+
+- `~/.codex/config.toml` 的 `notify = [...]` 关键配置
+- 可复用的 `codex-notify-ccntf.ps1` 模板
+- `agent-turn-complete` 与 `approval-requested` 的触发说明
+- `@{title=...}` / `{title:...}` 这类 payload 结构化对象问题排查
+
 ### 自定义资源
 
 🎨 **[资源添加指南](./src/docs/how-to-add-assets.md)** - 添加音频和图标
@@ -405,6 +414,7 @@ pnpm test:cli
 - [CLI 使用文档](./src/docs/use/cli.md) - 命令行完整指南
 - [API 使用文档](./src/docs/use/api.md) - 编程方式使用
 - [Claude Code 配置](./src/docs/use/claude-code.md) - Hooks 集成配置
+- [Codex 配置](./src/docs/use/codex.md) - `notify = [...]` 外部脚本集成
 
 ### 🎨 资源管理
 

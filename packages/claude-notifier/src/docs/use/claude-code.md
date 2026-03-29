@@ -2,6 +2,8 @@
 
 本文档说明如何在 Claude Code 的配置文件中使用 hooks 集成通知工具。
 
+> 如果你使用的是 Codex CLI，而不是 Claude Code，请改看 [Codex 配置文档](./codex.md)。
+
 ## 配置文件位置
 
 Claude Code 的配置文件位置：
