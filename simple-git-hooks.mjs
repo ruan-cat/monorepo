@@ -10,4 +10,13 @@ export default {
 	"commit-msg": "npx --no-install commitlint --edit ${1}",
 	"pre-commit": "npx lint-staged",
 	// "pre-push": "pnpm run format",
+	/**
+	 * post-commit: 每次提交后，将本次提交涉及的文件从 index（LF）恢复到工作区。
+	 * 解决 Windows 上 AI Agent（Cursor/Claude）写入文件时使用 CRLF，
+	 * 导致 pre-commit/lint-staged 将 index 规范化为 LF 后，工作区仍残留 CRLF，
+	 * 从而出现「幽灵 git modified」的问题。
+	 * 仅恢复本次提交修改的文件，不影响其他未暂存的工作区变更。
+	 */
+	"post-commit":
+		'COMMITTED=$(git diff HEAD~1..HEAD --diff-filter=ACMR --name-only 2>/dev/null); [ -n "$COMMITTED" ] && echo "$COMMITTED" | xargs git restore --worktree -- 2>/dev/null || true',
 };
