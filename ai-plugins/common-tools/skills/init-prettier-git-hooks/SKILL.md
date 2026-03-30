@@ -3,7 +3,7 @@ name: init-prettier-git-hooks
 description: 初始化或补强基于 lint-staged + simple-git-hooks + prettier 的 git 提交前代码格式化流程，并统一 `.gitattributes`、`.editorconfig`、`prettier.config.mjs` 的 LF 行尾策略，解决 Windows 上常见的 git 幽灵修改、CRLF 漂移、已有配置缺项或冲突配置未收敛的问题。只要用户提到 prettier、git hooks、lint-staged、simple-git-hooks、行尾统一、EOL、CRLF/LF、gitattributes、editorconfig、ghost modified、幽灵修改，都应该使用本技能，而不是把它当成“只能无脑覆盖模板”的初始化脚本。
 user-invocable: true
 metadata:
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # 初始化 Prettier + Git Hooks 格式化流程
