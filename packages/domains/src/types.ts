@@ -47,15 +47,15 @@ export interface Project {
  * 项目列表 新建一个项目时 就在这里添加一个项目
  */
 export const projects = [
-	{ name: "09oa", description: "大项目 09OA项目" },
-	{ name: "10wms", description: "大项目 10WMS项目" },
-	{ name: "10wms-doc", description: "大项目 10WMS项目 前端文档" },
-	{ name: "11comm", description: "大项目 11智慧社区项目" },
-	{ name: "11comm-doc", description: "大项目 11智慧社区项目 前端文档" },
-	{ name: "01s-doc", description: "大项目 01星球文档" },
+	{ name: "09oa", description: "dfsw 09OA技术验证项目" },
+	{ name: "10wms", description: "hgxy 10WMS招标客户演示demo项目" },
+	{ name: "10wms-doc", description: "hgxy 10WMS招标demo项目 客户要求开发团队内部文档-前端团队" },
+	{ name: "11comm", description: "hgxy 11智慧社区项目（客户违约）" },
+	{ name: "11comm-doc", description: "hgxy 11智慧社区项目（客户违约） 前端文档" },
+	{ name: "01s-doc", description: "dfsw-01s实习生团队 01s文档" },
 	{ name: "utils", description: "工具包项目" },
 	{ name: "vitepress-preset", description: "vitepress配置预设" },
-	{ name: "claude-notifier", description: "claude code 通知工具" },
+	{ name: "claude-notifier", description: "claude code通知工具" },
 	{ name: "domain", description: "域名列表" },
 	{ name: "vercel-deploy-tool", description: "vercel部署工具" },
 	{ name: "ruan-cat-notes", description: "阮喵喵笔记" },
