@@ -5,6 +5,12 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [4.0.1] - 2026-03-30
+
+### Added
+
+- **init-prettier-git-hooks**（`metadata.version` `1.1.1` → `1.1.2`）：`templates/simple-git-hooks.mjs` 增加可选、默认注释掉的 `post-commit` 钩子模板，使用 `git diff -z` 与 `xargs -0` 在 Windows / macOS / Linux 上把本次提交涉及的文件从 index（LF）写回工作区，用于缓解 AI 编辑器在 Windows 写入 CRLF 后的「幽灵 git modified」；附完整启用说明与已知限制（git ≥ 2.23、混合暂存/未暂存场景等）。
+
 ## [4.0.0] - 2026-03-29
 
 ### Changed
