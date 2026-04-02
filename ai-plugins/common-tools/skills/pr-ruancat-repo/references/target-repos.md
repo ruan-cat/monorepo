@@ -16,13 +16,14 @@
 |     5      | `ruan-cat/11comm`                          |  ✅  |
 |     6      | `ruan-cat/10wms`                           |  ✅  |
 |     7      | `ruan-cat/09oa`                            |  ✅  |
-|     8      | `Nonameboyy/zero-one-mes`                  |  ✅  |
+|     8      | `ruan-cat/08mes`                           |  ✅  |
 |     9      | `ruan-cat/SmallAliceWeb`                   |  ✅  |
 |     10     | `ruan-cat/mall-nuxt`                       |  ✅  |
 |     11     | `ruan-cat/learn-nitro-starter-with-vercel` |  ✅  |
 |     12     | `ruan-cat/gzpc-big-screen`                 |  ✅  |
-|     13     | `ruan-cat/stars-list`                      |  ✅  |
-|     14     | `ruan-cat/rm-monorepo`                     |  ✅  |
+|     13     | `ruan-cat/dfsw-assets-admin`               |  ✅  |
+|     14     | `ruan-cat/stars-list`                      |  ✅  |
+|     15     | `ruan-cat/rm-monorepo`                     |  ✅  |
 
 ## 维护约定
 
