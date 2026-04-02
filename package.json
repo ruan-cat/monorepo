@@ -7,7 +7,7 @@
 	"description": "这是单仓架构项目的根目录。",
 	"main": "index.js",
 	"type": "module",
-	"packageManager": "pnpm@10.31.0",
+	"packageManager": "pnpm@10.33.0",
 	"engines": {
 		"node": ">=22.14.0"
 	},
@@ -79,19 +79,19 @@
 		"cz-git": "^1.12.0",
 		"eslint": "^9.39.4",
 		"eslint-config-prettier": "^10.1.8",
-		"eslint-config-turbo": "^2.8.14",
+		"eslint-config-turbo": "^2.9.3",
 		"eslint-plugin-prettier": "^5.5.5",
-		"lint-staged": "^16.3.2",
-		"lodash-es": "^4.17.23",
+		"lint-staged": "^16.4.0",
+		"lodash-es": "^4.18.1",
 		"markdown-it": "^14.1.1",
 		"pkg-types": "^2.3.0",
 		"prettier": "^3.8.1",
 		"prettier-plugin-lint-md": "^1.0.1",
 		"rimraf": "^6.1.3",
 		"simple-git-hooks": "^2.13.1",
-		"taze": "^19.10.0",
+		"taze": "^19.11.0",
 		"tsx": "^4.21.0",
-		"turbo": "^2.8.14",
+		"turbo": "^2.9.3",
 		"type-fest": "^4.41.0",
 		"type-plus": "^7.6.2",
 		"typescript": "^5.9.3",
@@ -100,12 +100,12 @@
 		"vite": "^6.3.5",
 		"vitepress-demo-plugin": "^1.5.1",
 		"vitest": "^3.2.4",
-		"vue": "^3.5.30",
+		"vue": "^3.5.31",
 		"vue-tsc": "^2.2.12",
 		"vuepress": "2.0.0-rc.20",
 		"vuepress-theme-hope": "2.0.0-rc.73"
 	},
 	"dependencies": {
-		"@dotenvx/dotenvx": "^1.54.1"
+		"@dotenvx/dotenvx": "^1.59.1"
 	}
 }
