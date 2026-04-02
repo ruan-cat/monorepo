@@ -9,12 +9,14 @@
 git clone https://github.com/ruan-cat/11comm 01s-11comm
 git clone https://github.com/ruan-cat/11comm-app 01s-11comm-app
 git clone --depth=750 --no-single-branch https://github.com/ruan-cat/12psi.git 01s-12psi
-git clone --depth=750 --no-single-branch https://github.com/ruan-cat/09oa 01s-09oa
 git clone --depth=750 --no-single-branch https://github.com/ruan-cat/10wms 01s-10wms
+git clone --depth=750 --no-single-branch https://github.com/ruan-cat/09oa 01s-09oa
+git clone --depth=1 --no-single-branch https://github.com/ruan-cat/08mes 01s-08mes
 git clone --depth=1 --no-single-branch https://github.com/ruan-cat/drill-docx drill-docx
 git clone --depth=750 --no-single-branch https://github.com/ruan-cat/notes notes
 git clone https://github.com/ruan-cat/monorepo monorepo
 git clone --depth=1 --no-single-branch https://github.com/ruan-cat/stars-list stars-list
+git clone https://github.com/ruan-cat/mall-nuxt mall-nuxt
 git clone https://github.com/ruan-cat/resume resume
 git clone https://github.com/ruan-cat/learn-nitro-starter-with-vercel learn-nitro-starter-with-vercel
 git clone https://github.com/ruan-cat/learn-openx-ui learn-openx-ui

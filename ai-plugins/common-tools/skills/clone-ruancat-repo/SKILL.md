@@ -1,5 +1,5 @@
 ---
-name: clone-ruan-cat-repo
+name: clone-ruancat-repo
 description: >-
   按固定清单快速克隆 GitHub 用户 ruan-cat 的常用仓库（及 tocque/h5mota-web）到约定目录名，
   支持浅克隆与多分支抓取等参数组合。在用户提及「克隆 ruan-cat 仓库」「拉常用仓库」
