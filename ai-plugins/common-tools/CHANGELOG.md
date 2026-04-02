@@ -5,6 +5,16 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [4.1.0] - 2026-04-02
+
+### Added
+
+- **clone-ruancat-repo**（`metadata.version` `0.2.0`）：新增「按固定清单克隆 ruan-cat 常用仓库」技能；克隆命令以 `references/clone-commands.md` 为唯一来源，支持浅克隆与 `--no-single-branch` 等参数组合，并说明与 **get-git-branch** 的衔接。技能目录与 YAML `name` 统一为 `clone-ruancat-repo`（若仍引用旧路径 `clone-ruan-cat-repo` 需迁移）。
+
+### Changed
+
+- **pr-ruancat-repo**（`metadata.version` `0.3.2` → `0.3.3`）：默认批量 PR 仓库清单更新：`references/target-repos.md` 将第 8 项调整为 `ruan-cat/08mes`，补登记 `ruan-cat/dfsw-assets-admin`，并将「优先级序号」列重排为连续 1–15。
+
 ## [4.0.1] - 2026-03-30
 
 ### Added

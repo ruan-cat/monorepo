@@ -2,6 +2,12 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [4.1.0] - 2026-04-02
+
+### Changed
+
+- 版本号与 marketplace 主版本同步至 `4.1.0`（本次 `dev-skills` 技能树无内容变更；功能更新见 `common-tools` **clone-ruancat-repo** 与 **pr-ruancat-repo**）。
+
 ## [4.0.1] - 2026-03-30
 
 ### Changed
