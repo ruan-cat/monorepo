@@ -1,7 +1,7 @@
 {
 	"name": "@ruan-cat/vitepress-demo-plugin",
 	"version": "0.3.0",
-	"description": "阮喵喵自己照抄别人vitepress-demo-plugin的插件。纯粹自用。",
+	"description": "阮喵喵自己照抄别人vitepress-demo-plugin的插件，纯粹自用。",
 	"keywords": [
 		"vitepress",
 		"plugin",
@@ -16,10 +16,11 @@
 	"bugs": "https://github.com/zh-lx/vitepress-demo-plugin/issues",
 	"repository": {
 		"type": "git",
-		"url": "git@github.com:zh-lx/vitepress-demo-plugin.git"
+		"url": "git+https://github.com/ruan-cat/monorepo.git",
+		"directory": "fork/vitepress-demo-plugin"
 	},
+	"author": "ruan-cat",
 	"license": "MIT",
-	"author": "zh-lx",
 	"type": "module",
 	"exports": {
 		".": {
