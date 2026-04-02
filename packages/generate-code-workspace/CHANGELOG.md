@@ -1,5 +1,17 @@
 # @ruan-cat/generate-code-workspace 更新日志
 
+## 0.8.0
+
+### Minor Changes
+
+- 1. **全部子包已升级依赖**（工作区内各发布包同步刷新 `dependencies` / `devDependencies` 等声明，与当前 lockfile 对齐）。 ([`af5aa60`](https://github.com/ruan-cat/monorepo/commit/af5aa603fcdd2a5b8f5caa8b3f74bcb996500120))
+  2. 根工作区同步升级 `packageManager`（pnpm）版本，便于团队统一工具链。
+
+### Patch Changes
+
+- Updated dependencies [[`af5aa60`](https://github.com/ruan-cat/monorepo/commit/af5aa603fcdd2a5b8f5caa8b3f74bcb996500120)]:
+  - @ruan-cat/utils@4.25.0
+
 ## 0.7.6
 
 ### Patch Changes
