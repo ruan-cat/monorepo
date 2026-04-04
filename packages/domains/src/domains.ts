@@ -49,19 +49,22 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "01s.11.app",
 			order: 5,
 			description: `微信小程序备案用的【H5前端app页面】，说是不给增加短横杠。经过实际实验不行，因为 ruan-cat.com 这个一级域名本身就提供了短横杠。这是不可理喻的。
-				傻逼腾讯。`,
+				傻逼腾讯。
+				尝试使用 web-view 来实现小程序套壳H5，但是我的账号是个人账号，没有权限使用 web-view 功能。故备案域名设计无效。`,
 		},
 		{
 			topLevelDomain: "ruancat6312.top",
 			secondLevelDomain: "01s.11.app",
 			order: 6,
-			description: `微信小程序备案用的【H5前端app页面】，说是不给增加短横杠。`,
+			description: `微信小程序备案用的【H5前端app页面】，说是不给增加短横杠。
+				尝试使用 web-view 来实现小程序套壳H5，但是我的账号是个人账号，没有权限使用 web-view 功能。故备案域名设计无效。`,
 		},
 		{
 			topLevelDomain: "ruancat6312.top",
 			secondLevelDomain: "01s.11.app.server",
 			order: 7,
-			description: `微信小程序备案用的【nitro服务端接口】，说是不给增加短横杠。`,
+			description: `微信小程序备案用的【nitro服务端接口】，说是不给增加短横杠。
+				尝试使用 web-view 来实现小程序套壳H5，但是我的账号是个人账号，没有权限使用 web-view 功能。故备案域名设计无效。`,
 		},
 		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11", order: 8 },
 		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm", order: 9 },
