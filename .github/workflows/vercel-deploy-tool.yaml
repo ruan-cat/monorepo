@@ -88,4 +88,10 @@ jobs:
         # https://dotenvx.com/docs/cis/github-actions#install-dotenvx
         run: |
           curl -sfS https://dotenvx.sh/install.sh | sh
-          pnpm dotenvx run -- pnpm run deploy
+          if [ "${{ github.event_name }}" = "push" ]; then
+            pnpm dotenvx run -- pnpm run deploy -- --diff-base ${{ github.event.before }}
+          elif [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            pnpm dotenvx run -- pnpm run deploy -- --diff-base ${{ github.event.client_payload.sha }}~1
+          else
+            pnpm dotenvx run -- pnpm run deploy
+          fi
