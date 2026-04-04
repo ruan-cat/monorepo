@@ -12,6 +12,7 @@
 - `src/config/loader.ts`：基于 `c12` 加载 `vercel-deploy-tool.config.ts`，合并 `.env*`、`process.env`、`VERCEL_DEPLOY_TOOL_ENV_PATH`/`--env-path` 指定的 dotenv。
 - `src/templates/vercel-deploy-tool.config.ts`：配置模板。
 - `src/core/tasks/*`：基于 `tasuku` 的流水线（link/build/after-build/user-commands/copy-dist/deploy/alias）。
+- `src/core/git-diff-filter.ts`：基于 `git diff` 的变更检测与 `watchPaths` 过滤，支持精确部署。
 - `src/core/vercel.ts`：封装 vercel CLI 参数。
 - `src/utils/vercel-null-config.ts`：生成空配置文件，驱动 Build Output API。
 - `src/utils/type-guards.ts`：类型守卫与默认值处理。
@@ -32,6 +33,7 @@ graph LR
   Loader --> C12[c12]
   Loader --> Dotenvx["@dotenvx/dotenvx"]
 
+  Tasks --> GitDiffFilter[core/git-diff-filter.ts]
   Tasks --> Link[core/tasks/link.ts]
   Tasks --> Build[core/tasks/build.ts]
   Tasks --> AfterBuild[core/tasks/after-build.ts]
@@ -39,6 +41,8 @@ graph LR
   Tasks --> CopyDist[core/tasks/copy-dist.ts]
   Tasks --> Deploy[core/tasks/deploy.ts]
   Tasks --> Alias[core/tasks/alias.ts]
+
+  GitDiffFilter --> Picomatch[picomatch]
 
   Link --> VercelArgs[core/vercel.ts]
   Build --> VercelArgs
@@ -59,7 +63,11 @@ flowchart TD
   LoadEnv --> LoadCfg
   SkipEnv --> LoadCfg
   LoadCfg[c12 + dotenvx 读取配置<br/>合并 .env* / process.env / 默认值] --> GenNull[生成 vercel.null.def.json]
-  GenNull --> Link[link 阶段并行]
+  GenNull --> DiffDetect{"有 --diff-base ?"}
+  DiffDetect -- 是 --> GitDiff["git diff 检测变更<br/>picomatch 匹配 watchPaths<br/>确定最终部署目标"]
+  DiffDetect -- 否 --> AllTargets["全量部署（全部目标）"]
+  GitDiff --> Link[link 阶段并行]
+  AllTargets --> Link
   Link --> Build[build 阶段并行（可跳过）]
   Build --> AfterBuild[afterBuildTasks 串行]
   AfterBuild --> UserCmds[userCommands 串行执行（按目标）]
@@ -81,8 +89,12 @@ flowchart TD
 - 目标类型：
   - `static`：直接复制已有产物。
   - `userCommands`：先执行构建命令，再按 `outputDirectory` 复制到 `.vercel/output/static`，`isCopyDist` 控制复制，`isNeedVercelBuild` 控制是否执行 `vercel build`。
+- `watchPaths`（可选）：glob 模式数组，配合 `--diff-base` 实现精确部署。未配置则始终部署（向后兼容）。
 
 ## 命令速览
 
 - `vdt init` / `vercel-deploy-tool init`：生成配置模板并写入 `deploy-vercel` 脚本。
-- `vdt deploy [--env-path <path>]`：执行完整部署流水线，支持指定 dotenv。
+- `vdt deploy [--env-path <path>] [--diff-base <ref>] [--force-all]`：执行部署流水线。
+  - `--env-path`：指定 dotenv 文件路径。
+  - `--diff-base`：Git ref，与 HEAD 对比，仅部署 `watchPaths` 有变更的目标。
+  - `--force-all`：强制全量部署，忽略 `watchPaths` 过滤。
