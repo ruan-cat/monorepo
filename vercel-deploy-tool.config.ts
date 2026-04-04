@@ -67,8 +67,7 @@ export default defineConfig({
 			type: "static",
 			targetCWD: "./packages/utils/src/.vitepress/dist",
 			url: getDomains("utils"),
-			// outputDirectory: "src/.vitepress/dist",
-			// userCommands: ["pnpm -C=./packages/utils build:docs"],
+			watchPaths: ["packages/utils/**"],
 		},
 
 		// vitepress预设配置文档
@@ -76,8 +75,7 @@ export default defineConfig({
 			type: "static",
 			targetCWD: "./packages/vitepress-preset-config/src/docs/.vitepress/dist",
 			url: getDomains("vitepress-preset"),
-			// outputDirectory: "src/.vitepress/dist",
-			// userCommands: ["pnpm -C=./packages/vitepress-preset-config build:docs"],
+			watchPaths: ["packages/vitepress-preset-config/**"],
 		},
 
 		// claude code 通知工具文档
@@ -85,6 +83,7 @@ export default defineConfig({
 			type: "static",
 			targetCWD: "./packages/claude-notifier/src/docs/.vitepress/dist",
 			url: getDomains("claude-notifier"),
+			watchPaths: ["packages/claude-notifier/**"],
 		},
 
 		// 域名列表
@@ -92,8 +91,7 @@ export default defineConfig({
 			type: "static",
 			targetCWD: "./packages/domains/docs/.vitepress/dist",
 			url: getDomains("domain"),
-			// outputDirectory: "docs/.vitepress/dist",
-			// userCommands: ["pnpm -C=./packages/domains build:docs"],
+			watchPaths: ["packages/domains/**"],
 		},
 
 		// vercel部署工具
@@ -101,6 +99,7 @@ export default defineConfig({
 			type: "static",
 			targetCWD: "./packages/vercel-deploy-tool/src/docs/.vitepress/dist",
 			url: getDomains("vercel-deploy-tool"),
+			watchPaths: ["packages/vercel-deploy-tool/**"],
 		},
 	],
 });
