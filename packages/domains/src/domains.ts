@@ -48,10 +48,23 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "01s.11.app",
 			order: 5,
-			description: "微信小程序备案用的。说是不给增加短横杠。",
+			description: `微信小程序备案用的【H5前端app页面】，说是不给增加短横杠。经过实际实验不行，因为 ruan-cat.com 这个一级域名本身就提供了短横杠。这是不可理喻的。
+				傻逼腾讯。`,
 		},
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11", order: 6 },
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm", order: 7 },
+		{
+			topLevelDomain: "ruancat6312.top",
+			secondLevelDomain: "01s.11.app",
+			order: 6,
+			description: `微信小程序备案用的【H5前端app页面】，说是不给增加短横杠。`,
+		},
+		{
+			topLevelDomain: "ruancat6312.top",
+			secondLevelDomain: "01s.11.app.server",
+			order: 7,
+			description: `微信小程序备案用的【nitro服务端接口】，说是不给增加短横杠。`,
+		},
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11", order: 8 },
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm", order: 9 },
 	],
 	/** 大项目 11智慧社区项目 前端文档 */
 	"11comm-doc": [
