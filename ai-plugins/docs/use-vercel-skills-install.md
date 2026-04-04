@@ -48,6 +48,17 @@ npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/dev-ski
   -a claude-code -a codex -a cursor -a antigravity -a trae -a qoder
 ```
 
+## 个人高频一键安装命令
+
+以下是本仓库维护者日常高频使用的命令，直接从 `dev` 开发分支安装 **`dev-skills`** 与 **`common-tools`** 全部技能：
+
+```bash
+skills add https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/dev-skills/skills --skill '*' -g -y -a claude-code -a codex -a cursor -a antigravity -a trae -a qoder
+skills add https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/common-tools/skills --skill '*' -g -y -a claude-code -a codex -a cursor -a antigravity -a trae -a qoder
+```
+
+> 注意：上述命令使用 `skills`（全局安装后可直接调用），而不是 `npx skills`；且指向 `dev` 分支，以获取最新开发版技能。若需要稳定版，请将 URL 中的 `dev` 改为 `main`。
+
 ## 单独安装某个技能
 
 ```bash
