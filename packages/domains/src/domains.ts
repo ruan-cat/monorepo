@@ -44,8 +44,14 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			description:
 				"11comm App Nitro 服务端接口生产环境。在 vercel 平台内完成部署，高频更新。vercel 项目名称：11comm-app-nitro-server。",
 		},
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11", order: 5 },
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm", order: 6 },
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "01s.11.app",
+			order: 5,
+			description: "微信小程序备案用的。说是不给增加短横杠。",
+		},
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11", order: 6 },
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm", order: 7 },
 	],
 	/** 大项目 11智慧社区项目 前端文档 */
 	"11comm-doc": [
