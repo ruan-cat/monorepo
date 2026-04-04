@@ -27,6 +27,18 @@ export interface DeployTargetBase {
 	 * @default true
 	 */
 	isNeedVercelBuild?: boolean;
+
+	/**
+	 * 监控路径（glob 模式）
+	 * @description
+	 * 配置后，部署前会通过 git diff 检测这些路径是否有变更。
+	 * 仅在有变更时才部署该目标。未配置则始终部署（向后兼容）。
+	 *
+	 * 路径相对于 monorepo 根目录，使用 glob 语法。
+	 * @example ["packages/utils/**"]
+	 * @example ["packages/utils/src/docs/**", "packages/utils/src/.vitepress/**"]
+	 */
+	watchPaths?: string[];
 }
 
 /**
