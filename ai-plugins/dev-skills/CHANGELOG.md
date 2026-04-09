@@ -2,6 +2,18 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [4.2.0] - 2026-04-09
+
+### Added
+
+- **init-release-base-relizy-and-bumpp**（新技能，`metadata.version` `1.0.0`）：从零接入 relizy + bumpp 组合发版方案的执行型技能。relizy 负责子包独立版本管理，bumpp 负责根包版本管理，GitHub Release 由 CI 工作流自动创建。包含 5 个配置文件模板（`bump.config.ts`、`changelog.config.ts`、`changelogithub.config.ts`、`relizy.config.ts`、`.github/workflows/release.yaml`）、根包 scripts 完整模板、`commit-and-tag-version` 依赖冲突预检机制、发版架构详解文档。
+
+### Removed
+
+- **init-relizy**（`metadata.version` `1.3.0`）：**已过时，已删除**。原技能仅支持单独使用 relizy 发版，缺少 bumpp 根包管理与 GitHub Release 自动化能力。**请使用 `init-release-base-relizy-and-bumpp` 替代**。
+  - 全局缓存删除命令：`Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\plugins\cache\ruan-cat-tools\dev-skills\*\skills\init-relizy"`（Windows PowerShell）
+  - 或：`rm -rf ~/.claude/plugins/cache/ruan-cat-tools/dev-skills/*/skills/init-relizy`（macOS/Linux bash）
+
 ## [4.1.0] - 2026-04-02
 
 ### Changed
