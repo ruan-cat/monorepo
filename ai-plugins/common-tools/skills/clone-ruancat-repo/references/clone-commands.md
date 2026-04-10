@@ -13,6 +13,7 @@ git clone --depth=750 --no-single-branch https://github.com/ruan-cat/10wms 01s-1
 git clone --depth=750 --no-single-branch https://github.com/ruan-cat/09oa 01s-09oa
 git clone --depth=1 --no-single-branch https://github.com/ruan-cat/08mes 01s-08mes
 git clone --depth=1 --no-single-branch https://github.com/ruan-cat/drill-docx drill-docx
+git clone --depth=1 --no-single-branch https://github.com/ruan-cat/eams-component-lib eams-component-lib
 git clone --depth=750 --no-single-branch https://github.com/ruan-cat/notes notes
 git clone https://github.com/ruan-cat/monorepo monorepo
 git clone --depth=1 --no-single-branch https://github.com/ruan-cat/stars-list stars-list

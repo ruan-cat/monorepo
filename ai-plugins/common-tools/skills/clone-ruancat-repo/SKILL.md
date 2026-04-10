@@ -7,7 +7,7 @@ description: >-
   命令清单以 references/clone-commands.md 为唯一真实来源。
 user-invocable: true
 metadata:
-  version: "0.2.0"
+  version: "0.2.1"
 ---
 
 # Clone ruan-cat Repo

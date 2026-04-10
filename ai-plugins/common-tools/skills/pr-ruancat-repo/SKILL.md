@@ -6,7 +6,7 @@ description: >-
   再按仓库并发发起 PR，最后输出汇总报告。目标仓库与维护策略统一放在 references 文件中。
 user-invocable: true
 metadata:
-  version: "0.3.3"
+  version: "0.3.4"
 ---
 
 # PR ruan-cat Repo

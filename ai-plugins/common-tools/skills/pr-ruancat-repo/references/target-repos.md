@@ -10,20 +10,22 @@
 | 优先级序号 | repo                                       | 启用 |
 | :--------: | :----------------------------------------- | :--: |
 |     1      | `ruan-cat/notes`                           |  ✅  |
-|     2      | `ruan-cat/monorepo`                        |  ✅  |
-|     3      | `ruan-cat/12psi`                           |  ✅  |
-|     4      | `ruan-cat/11comm-app`                      |  ✅  |
-|     5      | `ruan-cat/11comm`                          |  ✅  |
-|     6      | `ruan-cat/10wms`                           |  ✅  |
-|     7      | `ruan-cat/09oa`                            |  ✅  |
-|     8      | `ruan-cat/08mes`                           |  ✅  |
-|     9      | `ruan-cat/SmallAliceWeb`                   |  ✅  |
-|     10     | `ruan-cat/mall-nuxt`                       |  ✅  |
-|     11     | `ruan-cat/learn-nitro-starter-with-vercel` |  ✅  |
-|     12     | `ruan-cat/gzpc-big-screen`                 |  ✅  |
-|     13     | `ruan-cat/dfsw-assets-admin`               |  ✅  |
-|     14     | `ruan-cat/stars-list`                      |  ✅  |
-|     15     | `ruan-cat/rm-monorepo`                     |  ✅  |
+|     2      | `ruan-cat/resume`                          |  ✅  |
+|     3      | `ruan-cat/monorepo`                        |  ✅  |
+|     4      | `ruan-cat/12psi`                           |  ✅  |
+|     5      | `ruan-cat/11comm-app`                      |  ✅  |
+|     6      | `ruan-cat/11comm`                          |  ✅  |
+|     7      | `ruan-cat/10wms`                           |  ✅  |
+|     8      | `ruan-cat/09oa`                            |  ✅  |
+|     9      | `ruan-cat/08mes`                           |  ✅  |
+|     10     | `ruan-cat/SmallAliceWeb`                   |  ✅  |
+|     11     | `ruan-cat/mall-nuxt`                       |  ✅  |
+|     12     | `ruan-cat/learn-nitro-starter-with-vercel` |  ✅  |
+|     13     | `ruan-cat/eams-component-lib`              |  ✅  |
+|     14     | `ruan-cat/gzpc-big-screen`                 |  ✅  |
+|     15     | `ruan-cat/dfsw-assets-admin`               |  ✅  |
+|     16     | `ruan-cat/stars-list`                      |  ✅  |
+|     17     | `ruan-cat/rm-monorepo`                     |  ✅  |
 
 ## 维护约定
 
