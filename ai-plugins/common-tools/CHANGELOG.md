@@ -5,6 +5,13 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [4.2.1] - 2026-04-10
+
+### Changed
+
+- **clone-ruancat-repo**（`metadata.version` `0.2.0` → `0.2.1`）：`references/clone-commands.md` 增加 `ruan-cat/eams-component-lib` 浅克隆命令（`--depth=1 --no-single-branch`）。
+- **pr-ruancat-repo**（`metadata.version` `0.3.3` → `0.3.4`）：`references/target-repos.md` 默认批量 PR 清单新增 `ruan-cat/resume`，补登记 `ruan-cat/eams-component-lib`，并将优先级序号重排为连续 1–17；同步将 `common-tools` 双平台 `plugin.json` 与 marketplace 对齐至 **4.2.1**（修复此前 manifest 滞留在 `4.1.0` 的版本漂移）。
+
 ## [4.1.0] - 2026-04-02
 
 ### Added
