@@ -1,5 +1,12 @@
 # 更新日志
 
+## 2.4.0
+
+### Minor Changes
+
+- 1. 新增 `vue-element-cui` 和 `gzpc` 项目到 domains 配置 ([`4e63e12`](https://github.com/ruan-cat/monorepo/commit/4e63e128412e7a81003718c4e2b23a2b8a36e388))
+  2. 为 `projects` 数组新增 `order` 字段并重新排序
+
 ## 2.3.0
 
 ### Minor Changes
