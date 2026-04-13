@@ -202,6 +202,27 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 		},
 	],
 
+	/** vue-element-cui 组件库项目 */
+	"vue-element-cui": [
+		{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "vec", order: 1, description: "组件库项目的文档。" },
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "vue-element-cui",
+			order: 2,
+			description: "组件库项目的文档。",
+		},
+	],
+
+	/** 广州普查 */
+	gzpc: [
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "gzpc",
+			order: 1,
+			description: "广州普查，广州智能决策智慧城市驾驶舱，高德地图大屏项目",
+		},
+	],
+
 	/** rmmv笔记项目 */
 	"rmmv-notes": [
 		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "rpgmv-dev-notes", order: 1 },
