@@ -629,8 +629,14 @@ export const commonScopes: ScopesItemWithDesc[] = [
 		code: "i18n",
 		value: "i18n",
 		desc: "国际化",
-		// TODO: 国际化配置的 glob 匹配路径。 需要先去看看 i18n 常见的路径配置才能得知。
-		// glob: ["**/i18n/**"],
+		glob: [
+			"**/locales/**",
+			"**/lang/**",
+			"**/i18n/**",
+			"**/i18n.config.{js,ts,cjs,mjs}",
+			"**/i18n.{js,ts,cjs,mjs}",
+			"**/plugins/i18n.{js,ts,cjs,mjs}",
+		],
 	},
 
 	// 提示词

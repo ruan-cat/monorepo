@@ -93,6 +93,32 @@ describe("getDefaultScope glob matching", () => {
 			});
 		});
 
+		test("应该正确匹配常见国际化目录和入口文件", () => {
+			const testFiles = [
+				"src/locales/en.json",
+				"src/locales/zh-CN.yaml",
+				"locales/en.json",
+				"lang/en.json",
+				"i18n/locales/ja.json",
+				"src/i18n/index.ts",
+				"src/i18n.ts",
+				"plugins/i18n.ts",
+				"app/plugins/i18n.ts",
+				"i18n.config.ts",
+				"i18n/i18n.config.ts",
+			];
+
+			testFiles.forEach((filePath) => {
+				const i18nScope = commonScopes.find((scope) => scope.value === "i18n");
+				expect(i18nScope).toBeDefined();
+				expect(i18nScope?.glob).toBeDefined();
+
+				const matched = i18nScope?.glob?.some((globPattern) => minimatch(filePath, globPattern));
+
+				expect(matched).toBe(true);
+			});
+		});
+
 		test("应该正确匹配 root 范围的文件（根目录配置文件）", () => {
 			const testFiles = [
 				".gitignore",
