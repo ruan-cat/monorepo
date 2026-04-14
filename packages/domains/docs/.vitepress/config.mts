@@ -5,10 +5,9 @@ import {
 	copyReadmeMd,
 } from "@ruan-cat/vitepress-preset-config/config";
 
-import { projects } from "../../src/types";
-
 import { printFormat } from "@ruan-cat/utils";
 import consola from "consola";
+import { getProjectSidebarItems } from "./project-navigation";
 
 copyReadmeMd("./docs");
 
@@ -62,11 +61,7 @@ const sidebarDomain = [
 	{
 		text: "域名集",
 		collapsed: true,
-		// 生成形如 { text: "09oa", link: "/domain/09oa" }, 格式的数组
-		items: projects.map((project) => {
-			// 目录在 /domain/ 下
-			return { text: project.name, link: `/domain/${project.name}` };
-		}),
+		items: getProjectSidebarItems(),
 	},
 ];
 

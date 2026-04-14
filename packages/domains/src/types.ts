@@ -39,6 +39,13 @@ export interface Project {
 	 * 填写简单的描述即可 可以不写
 	 */
 	description?: string;
+
+	/**
+	 * 项目展示顺序
+	 * @description
+	 * 数值越小排序越靠前；不填写时会在文档导航中排到最后
+	 */
+	order?: number;
 }
 
 /**
