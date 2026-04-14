@@ -37,3 +37,15 @@ order: 8000
 - `packages\domains\docs\domain\[project].paths.ts`
 
 这两个文件可能需要更改，以便实现基于 order 字段的排序。
+
+### 上下文与知识
+
+去用 context7 去看看 vitepress 动态页面的路由生成方案。看看具体的语法和细节。这个方案不是很大众的知识。
+
+### 调试
+
+在 `packages\domains\package.json` 内，针对 `"docs:dev": "vitepress dev docs",` 命令。运行，并在谷歌浏览器 MCP 内自主调试。
+
+### 相同逻辑的代码分发
+
+我不喜欢你最后实现两段完全相同的代码，请你将相同的代码逻辑整理起来。不要重复冗余。
