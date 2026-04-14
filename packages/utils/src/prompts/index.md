@@ -106,10 +106,23 @@ copyClaudeAgents(target) 函数的参数，改成 copyClaudeAgents(options?) 的
 
 这个脚本预期会使用 pnpm-workspace-yaml 、pkg-types、和 consola 这三个包。让本包增加 pnpm-workspace-yaml 、pkg-types 这两个包为生产环境依赖包。
 
-## 004 <!-- TODO: --> 迭代 `packages\utils\src\node-esm\scripts\relizy-runner\index.md` 说明文档
+## 004 <!-- 失败，经过AI验证，未能够实现替代 --> 迭代 `packages\utils\src\node-esm\scripts\relizy-runner\index.md` 说明文档
 
 我觉得 relizy-runner 的文档，应该多说明，多讲讲关于 relizy 的东西，避免使用的时候出现其他杂七杂八的内容。
 
 1. 发版的时候为什么容易出现出现误报？是什么原因？该故障已经在那个 pr 内修复了？
    > 完整的说明文档： D:\code\github-desktop-store\01s-11comm\docs\issues\relizy\2026-03-24-windows-path-body-filter-no-bump.md
    > 具体被修复的 pr： https://github.com/LouisMazel/relizy/pull/53
+
+## 005 <!-- 失败，经过AI验证，未能够实现替代 --> 标记 `packages\utils\src\node-esm\scripts\relizy-runner\index.md` 说明文档的能力已经过时
+
+全面阅读：
+
+- https://github.com/LouisMazel/relizy/pull/58
+- https://github.com/LouisMazel/relizy/pull/53
+
+的 pr，现在的 relizy 已经修复这个问题了。
+
+1. 你首先去看看 `github.com/LouisMazel/relizy` 项目内，是否修复了这个 window 的故障？
+2. 评估 `packages\utils\src\node-esm\scripts\move-vercel-output-to-root` 这款脚本，是否已经过时了？
+3. 去更新 `packages\utils\src\node-esm\scripts\relizy-runner\index.md` 说明文档的能力已经过时
