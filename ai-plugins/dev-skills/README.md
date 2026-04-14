@@ -4,7 +4,12 @@
 
 ## 版本
 
-**当前版本**: `2.16.2`
+**当前版本**: `4.3.0`
+
+⚠️ **v4.3.0 `init-release-base-relizy-and-bumpp` 模板增强**（`metadata.version` `1.0.0` → `1.1.0`）:
+
+- `templates/release.yaml` 的根包 `v*` tag Release notes 提取逻辑补充兼容 `## [v1.2.3](...)`、`## v1.2.3`、`# v1.2.3` 等标题形态，避免根 `CHANGELOG.md` 标题样式变化后 GitHub Release 被空跑。
+- 插件版本与根级 marketplace 同步提升至 `4.3.0`。
 
 ⚠️ **v2.16.2 `init-relizy` 重大迭代**（`metadata.version` `1.2.0`）:
 
@@ -45,7 +50,7 @@
 
 - **init-pure-admin-iconify**: 在任意 `vite + vue3` 项目中快速初始化 pure-admin 风格的 iconify 图标体系，提供离线图标、在线图标与 `useRenderIcon` 统一渲染出口
 - **init-shadcn-docs-nuxt**: 以「最小可用 + 快速稳定」为目标，为任意项目建立可长期维护的 `shadcn-docs-nuxt` 文档站；内含 Nuxt 配置模板、Tailwind 主题、MDC 语法说明与 Windows 构建假卡死排错手册
-- **init-relizy**: 为任意 pnpm monorepo 接入或补强 relizy（changelogen）发版链路：侦察、versionMode 与兼容策略决策、配置落盘、baseline tag 与 `private` 风险、README 与 dry-run 验证
+- **init-release-base-relizy-and-bumpp**: 为任意 pnpm monorepo 接入 relizy + bumpp 组合发版方案：子包独立版本由 relizy 管理，根包版本由 bumpp 管理，GitHub Release 由 CI 工作流自动创建
 - **nitro-api-development**: 使用 Nitro v3 框架和 H3 编写服务端 API，适用于纯后端 Nitro 项目初始化、Vite 项目全栈化、Drizzle ORM 数据库交互与多平台部署
 - **openspec**: OpenSpec 规范驱动开发助手，基于 OPSX 工作流在编写代码前与 AI 就需求达成一致，使用 Schema 驱动的工件依赖系统管理变更
 
@@ -82,13 +87,13 @@
 
 技能会在满足触发条件时自动激活，也可以在对话中主动描述需求来触发：
 
-| 技能                      | 触发关键词示例                                     |
-| :------------------------ | :------------------------------------------------- |
-| `init-pure-admin-iconify` | 初始化 iconify、pure-admin 图标方案、ReIcon        |
-| `init-shadcn-docs-nuxt`   | 搭建组件库文档、接入 shadcn-docs-nuxt、Nuxt 文档站 |
-| `init-relizy`             | 接入 relizy、monorepo 发版初始化、changelog.config |
-| `nitro-api-development`   | 开发 Nitro 接口、全栈化 Vite、Drizzle ORM          |
-| `openspec`                | openspec、规范驱动开发、/opsx:new                  |
+| 技能                                 | 触发关键词示例                                                       |
+| :----------------------------------- | :------------------------------------------------------------------- |
+| `init-pure-admin-iconify`            | 初始化 iconify、pure-admin 图标方案、ReIcon                          |
+| `init-shadcn-docs-nuxt`              | 搭建组件库文档、接入 shadcn-docs-nuxt、Nuxt 文档站                   |
+| `init-release-base-relizy-and-bumpp` | 接入 relizy + bumpp、monorepo 发版初始化、relizy.config、bump.config |
+| `nitro-api-development`              | 开发 Nitro 接口、全栈化 Vite、Drizzle ORM                            |
+| `openspec`                           | openspec、规范驱动开发、/opsx:new                                    |
 
 ## 技能详情
 
@@ -119,14 +124,14 @@
 
 重点解决场景：Windows 构建假卡死、MDC 语法错误、Tailwind 主题集成、模块兼容问题。
 
-### init-relizy
+### init-release-base-relizy-and-bumpp
 
-**版本**: `1.2.0` | **可主动调用**: 是
+**版本**: `1.1.0` | **可主动调用**: 是
 
-执行型发版接入技能：五阶段流程（侦察 → 确认 → 落盘 → 验证 → 收尾），显式阻断条件（versionMode 误判、`private`、baseline tags、Windows 兼容未决）。兼容层**必须**通过 **`@ruan-cat/utils`** 的 **`relizy-runner`** 调用，不在目标仓库维护本地 runner 脚本。
+执行型发版接入技能：为 pnpm monorepo 一次性接入 **relizy（子包）+ bumpp（根包）** 的组合发版方案，覆盖仓库侦察、配置落盘、依赖对齐、故障预检、dry-run 验证与文档同步。GitHub Actions 负责在 tag 推送后从 `CHANGELOG.md` 提取内容创建 Release。
 
-- **templates/** — 侦察表、确认表、配置骨架（含 `release` 默认块）、兼容记录、README 段落
-- **references/** — 决策树、类型收口、验证矩阵、回滚与三类匿名原型对照（含期望决策检查项）
+- **templates/** — `bump.config.ts`、`changelog.config.ts`、`changelogithub.config.ts`、`relizy.config.ts`、`.github/workflows/release.yaml` 等可直接落盘的模板
+- **references/** — discovery checklist、验证矩阵、Windows / baseline / root release / dependency drift 等配套说明
 
 ### nitro-api-development
 
@@ -172,7 +177,7 @@ dev-skills/
 │   │   ├── SKILL.md
 │   │   ├── references/                      # 排错手册与配置说明
 │   │   └── templates/                       # 可直接复制的配置模板
-│   ├── init-relizy/                         # relizy monorepo 发版接入
+│   ├── init-release-base-relizy-and-bumpp/  # relizy + bumpp monorepo 发版接入
 │   │   ├── SKILL.md
 │   │   ├── references/                      # 决策树、验证矩阵、三类匿名原型对照（含期望决策）
 │   │   └── templates/                       # 侦察/确认/配置/README（runner 用 @ruan-cat/utils）

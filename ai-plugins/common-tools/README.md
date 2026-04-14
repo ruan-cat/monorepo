@@ -4,7 +4,11 @@
 
 ## 版本
 
-**当前版本**: `2.16.1`
+**当前版本**: `4.3.0`
+
+⚠️ **v4.3.0 版本同步**:
+
+- 版本号与 marketplace 主版本同步至 `4.3.0`（本次 `common-tools` 技能树无内容变更；`dev-skills` 中 **init-release-base-relizy-and-bumpp** 的模板增强见该插件 CHANGELOG）。
 
 ⚠️ **v2.16.1 版本同步**:
 
@@ -214,7 +218,7 @@ gemini --version  # 如果安装了 gemini
    ```bash
    # Windows 任务管理器：结束包含 "claude-notifier" 或 "gemini" 的 node.exe/npx.exe 进程
    # 或运行清理脚本（如果已安装插件）
-   bash claude-code-marketplace/common-tools/scripts/cleanup-orphan-processes.sh
+   bash ai-plugins/common-tools/scripts/cleanup-orphan-processes.sh
    ```
 
 ## 使用方法

@@ -2,6 +2,13 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [4.3.0] - 2026-04-15
+
+### Changed
+
+- **init-release-base-relizy-and-bumpp**（`metadata.version` `1.0.0` → `1.1.0`）：增强 `templates/release.yaml` 中根包 `v*` tag 的 GitHub Release notes 提取兼容性。根 `CHANGELOG.md` 现在除了原有的 `## <small>1.2.3 (...)`、`## [1.2.3](...)`、`## 1.2.3 (...)` 外，也兼容 `## [v1.2.3](...)`、`## v1.2.3`、`## v1.2.3 (...)` 以及对应的 `#` 一级标题写法，避免根包 release 因 changelog 标题形态不同而跳过内容提取。
+- 同步将根级 marketplace、`common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `4.3.0`。
+
 ## [4.2.1] - 2026-04-10
 
 ### Changed
