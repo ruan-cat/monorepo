@@ -1,3 +1,5 @@
+<!-- 已完成 -->
+
 # eams-frontend-monorepo 任意 Monorepo 初始化 Relizy 发版配置工作流计划
 
 ## 目标
