@@ -1,3 +1,5 @@
+<!-- 有价值的报告 不予删除 -->
+
 # 2026-04-14 relizy canary initial independent release 测试报告
 
 ## 测试目标
