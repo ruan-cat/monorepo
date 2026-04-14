@@ -27,7 +27,7 @@ order: 8000
    - 高频更新
 6. 最后编写更新日志，发版标签为 minor 更新。
 
-## 003 <!-- TODO: --> 实现 vitepress 动态页面的排序
+## 003 <!-- 已完成 --> 实现 vitepress 动态页面的排序
 
 现在域名页的侧边栏排序，其排序不合适。我已经增加了 `packages\domains\src\types.ts` 的项目说明的 order 属性。我希望 domain 路由的侧边栏可以实现按照 order 来完成侧边栏排序。
 
