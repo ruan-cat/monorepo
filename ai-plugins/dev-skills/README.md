@@ -4,12 +4,15 @@
 
 ## 版本
 
-**当前版本**: `4.3.0`
+**当前版本**: `5.0.0`
 
-⚠️ **v4.3.0 `init-release-base-relizy-and-bumpp` 模板增强**（`metadata.version` `1.0.0` → `1.1.0`）:
+⚠️ **v5.0.0 `init-release-base-relizy-and-bumpp` 重大调整**（`metadata.version` `1.1.1` → `2.0.0`）:
 
-- `templates/release.yaml` 的根包 `v*` tag Release notes 提取逻辑补充兼容 `## [v1.2.3](...)`、`## v1.2.3`、`# v1.2.3` 等标题形态，避免根 `CHANGELOG.md` 标题样式变化后 GitHub Release 被空跑。
-- 插件版本与根级 marketplace 同步提升至 `4.3.0`。
+- 根包 changelog 默认链路从 `conventional-changelog` 收口为 `changelogen`，避免继续把旧 preset 方案当作默认实现。
+- `templates/bump.config.ts` 改为 `execute(newVersion)` 形态，显式把目标版本传给 `changelogen` 生成根 `CHANGELOG.md`。
+- `templates/release.yaml` 保留原注释风格，仅最小补入 `set +e` / `set -e` 提升 notes 提取容错。
+- 预检文档与模板从“旧 angular preset 冲突”收缩为“遗留根包发版工具是否还残留”，减少无关排查面。
+- 插件版本与根级 marketplace 同步提升至 `5.0.0`。
 
 ⚠️ **v2.16.2 `init-relizy` 重大迭代**（`metadata.version` `1.2.0`）:
 
@@ -126,7 +129,7 @@
 
 ### init-release-base-relizy-and-bumpp
 
-**版本**: `1.1.0` | **可主动调用**: 是
+**版本**: `2.0.0` | **可主动调用**: 是
 
 执行型发版接入技能：为 pnpm monorepo 一次性接入 **relizy（子包）+ bumpp（根包）** 的组合发版方案，覆盖仓库侦察、配置落盘、依赖对齐、故障预检、dry-run 验证与文档同步。GitHub Actions 负责在 tag 推送后从 `CHANGELOG.md` 提取内容创建 Release。
 

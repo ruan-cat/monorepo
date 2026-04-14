@@ -2,6 +2,17 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [5.0.0] - 2026-04-15
+
+### Changed
+
+- **init-release-base-relizy-and-bumpp**（`metadata.version` `1.1.1` → `2.0.0`，重大调整）：
+- 根包 changelog 的默认生成链路从 `conventional-changelog` 收口为 `changelogen`，不再把旧 preset 方案作为默认实现。
+- `templates/bump.config.ts` 从固定命令字符串改为 `execute` 函数，并显式传入 `newVersion`，确保根 `CHANGELOG.md` 能按目标版本生成稳定标题。
+- `templates/release.yaml` 保留原有注释风格，只最小补入 `set +e` / `set -e`，提升 Release notes 提取阶段的容错性。
+- `references/dependency-conflict-precheck.md` 与相关模板/说明文档，把预检范围从“旧 angular preset 冲突”收缩为“遗留根包发版工具是否还残留”，避免把排查面扩到无关的 changelog preset 兼容问题。
+- 同步将根级 marketplace、`common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `5.0.0`。
+
 ## [4.3.0] - 2026-04-15
 
 ### Changed

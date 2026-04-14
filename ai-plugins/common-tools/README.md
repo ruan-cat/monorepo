@@ -4,11 +4,11 @@
 
 ## 版本
 
-**当前版本**: `4.3.0`
+**当前版本**: `5.0.0`
 
-⚠️ **v4.3.0 版本同步**:
+⚠️ **v5.0.0 版本同步**:
 
-- 版本号与 marketplace 主版本同步至 `4.3.0`（本次 `common-tools` 技能树无内容变更；`dev-skills` 中 **init-release-base-relizy-and-bumpp** 的模板增强见该插件 CHANGELOG）。
+- 版本号与 marketplace 主版本同步至 `5.0.0`（本次 `common-tools` 技能树无内容变更；`dev-skills` 中 **init-release-base-relizy-and-bumpp** 的重大调整与 `metadata.version` `2.0.0` 升级见该插件 CHANGELOG）。
 
 ⚠️ **v2.16.1 版本同步**:
 
