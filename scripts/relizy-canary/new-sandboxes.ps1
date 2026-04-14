@@ -20,6 +20,8 @@ if (-not $PSBoundParameters.ContainsKey("Root") -or [string]::IsNullOrWhiteSpace
   $Root = Join-Path $worktreeRoot ".tmp\relizy-canary"
 }
 
+$originRoot = Join-Path $Root "origin.git"
+
 function Write-Utf8File {
   param(
     [Parameter(Mandatory = $true)]
@@ -172,6 +174,27 @@ function Assert-SandboxHistory {
   }
 }
 
+function Initialize-OriginRemote {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$SandboxName
+  )
+
+  $sandboxDir = Join-Path $Root $SandboxName
+
+  if (Test-Path -LiteralPath $originRoot) {
+    Remove-Item -LiteralPath $originRoot -Recurse -Force
+  }
+
+  Invoke-CheckedCommand -FilePath "git" -ArgumentList @("clone", "--bare", $sandboxDir, $originRoot) -WorkingDirectory $Root
+  Invoke-CheckedCommand -FilePath "git" -ArgumentList @("remote", "add", "origin", $originRoot) -WorkingDirectory $sandboxDir
+
+  $originUrl = & git -C $sandboxDir remote get-url origin
+  if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(($originUrl | Out-String).Trim())) {
+    throw "Sandbox '$SandboxName' is missing a usable origin remote."
+  }
+}
+
 function New-Sandbox {
   param(
     [Parameter(Mandatory = $true)]
@@ -310,6 +333,8 @@ export const alphaFeature = "first-independent-release";
   Invoke-CheckedCommand -FilePath "git" -ArgumentList @("add", "README.md") -WorkingDirectory $dir
   Invoke-GitCommit -Directory $dir -Message "docs: add root note" -Date "2026-04-14T10:00:00+08:00"
 
+  Initialize-OriginRemote -SandboxName $Name
+
   Assert-PathExists -Path $dir -Message "Sandbox directory '$dir' was not created."
   Assert-PathExists -Path (Join-Path $dir ".git") -Message "Sandbox '$Name' is missing its .git directory."
   Assert-PathExists -Path (Join-Path $dir "node_modules") -Message "Sandbox '$Name' is missing node_modules."
@@ -326,7 +351,12 @@ export const alphaFeature = "first-independent-release";
   Assert-PathExists -Path (Join-Path $dir "packages\alpha\src\index.ts") -Message "Sandbox '$Name' is missing packages\\alpha\\src\\index.ts."
   Assert-PathExists -Path (Join-Path $dir "packages\beta\package.json") -Message "Sandbox '$Name' is missing packages\\beta\\package.json."
   Assert-PathExists -Path (Join-Path $dir "packages\beta\src\index.ts") -Message "Sandbox '$Name' is missing packages\\beta\\src\\index.ts."
+  Assert-PathExists -Path $originRoot -Message "Sandbox '$Name' is missing the shared bare origin remote."
   Assert-SandboxHistory -Directory $dir
+}
+
+if (Test-Path -LiteralPath $originRoot) {
+  Remove-Item -LiteralPath $originRoot -Recurse -Force
 }
 
 New-Item -ItemType Directory -Force -Path $Root | Out-Null
