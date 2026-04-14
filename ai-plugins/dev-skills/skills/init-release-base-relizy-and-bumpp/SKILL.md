@@ -3,7 +3,7 @@ name: init-release-base-relizy-and-bumpp
 description: 为任意 pnpm monorepo 从零接入 relizy + bumpp 组合发版方案：子包独立版本由 relizy 管理，根包版本由 bumpp 管理，GitHub Release 由 CI 工作流自动创建。覆盖仓库侦察、配置落盘、依赖对齐、故障预检与验证。触发关键词：init relizy、init bumpp、接入发版、monorepo 发版初始化、relizy + bumpp、relizy.config、bump.config、changelog.config、独立版本、GitHub Release 自动化。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Init Release Base — Relizy + Bumpp Monorepo 发版配置落地技能

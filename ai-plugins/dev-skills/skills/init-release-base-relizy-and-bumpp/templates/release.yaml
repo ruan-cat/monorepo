@@ -63,14 +63,20 @@ jobs:
 
           # 根据 tag 格式选择不同的 CHANGELOG 提取策略
           if [[ "$TAG" == v* ]]; then
-            # 根包 tag (v0.12.0) → conventional-changelog 生成的段落
+            # 根包 tag (v0.12.0) → conventional-changelog / changelogen 生成的段落
             # 兼容以下标题格式（h2 和 h1 均覆盖）：
             #   ## <small>0.12.0 (2026-04-09)</small>
             #   ## [0.12.0](https://...compare/v0.11.3...v0.12.0) (2026-04-09)
             #   ## 0.12.0 (2026-04-09)
+            #   ## [v0.12.0](https://...compare/v0.11.3...v0.12.0)
+            #   ## v0.12.0
+            #   ## v0.12.0 (2026-04-09)
             #   # <small>0.12.0 (2026-04-09)</small>
             #   # [0.12.0](https://...compare/v0.11.3...v0.12.0) (2026-04-09)
             #   # 0.12.0 (2026-04-09)
+            #   # [v0.12.0](https://...compare/v0.11.3...v0.12.0)
+            #   # v0.12.0
+            #   # v0.12.0 (2026-04-09)
             VERSION="${TAG#v}"
             NOTES=$(
               awk -v ver="$VERSION" '
@@ -78,9 +84,15 @@ jobs:
                   return index(line, "## <small>" ver " (") == 1 \
                     || index(line, "## [" ver "](") == 1 \
                     || index(line, "## " ver " (") == 1 \
+                    || index(line, "## [v" ver "](") == 1 \
+                    || line == "## v" ver \
+                    || index(line, "## v" ver " (") == 1 \
                     || index(line, "# <small>" ver " (") == 1 \
                     || index(line, "# [" ver "](") == 1 \
-                    || index(line, "# " ver " (") == 1
+                    || index(line, "# " ver " (") == 1 \
+                    || index(line, "# [v" ver "](") == 1 \
+                    || line == "# v" ver \
+                    || index(line, "# v" ver " (") == 1
                 }
 
                 is_root_header($0) {

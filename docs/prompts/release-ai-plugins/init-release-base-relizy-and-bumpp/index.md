@@ -42,7 +42,7 @@ relizy 的 配置文件应该增加以下配置 ：
 
 ## 002 <!-- 已完成：SKILL.md 1.3.0 + templates/references 同步 --> 对 --yes 参数的情况做出说明，并要求 init-relizy 技能主动传递该参数
 
-## 003 <!-- TODO: --> 大范围重构 `init-relizy` 技能，改名为 `init-release-base-relizy-and-bumpp`
+## 003 <!-- 已完成 --> 大范围重构 `init-relizy` 技能，改名为 `init-release-base-relizy-and-bumpp`
 
 全面的重构，拓展 `ai-plugins\dev-skills\skills\init-relizy` 技能。
 
