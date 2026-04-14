@@ -1,11 +1,15 @@
 import { describe, expect, test } from "vitest";
 
-import { projects } from "../types.ts";
+import { projects, type ProjectItem } from "../types.ts";
 import {
 	getProjectRoutePaths,
 	getProjectSidebarItems,
 	getSortedProjects,
 } from "../../docs/.vitepress/project-navigation.ts";
+
+function hasOrder(project: ProjectItem): project is ProjectItem & { order: number } {
+	return "order" in project && typeof project.order === "number";
+}
 
 describe("project-navigation", () => {
 	test("应让带 order 的项目按升序排列，未配置 order 的项目排在后面", () => {
@@ -25,10 +29,10 @@ describe("project-navigation", () => {
 	});
 
 	test("应保持未配置 order 的项目相对顺序不变", () => {
-		const unorderedProjects = projects.filter((project) => project.order === undefined);
+		const unorderedProjects = projects.filter((project) => !hasOrder(project));
 		const unorderedNames = unorderedProjects.map((project) => project.name);
 		const sortedUnorderedNames = getSortedProjects()
-			.filter((project) => project.order === undefined)
+			.filter((project) => !hasOrder(project))
 			.map((project) => project.name);
 
 		expect(sortedUnorderedNames).toEqual(unorderedNames);

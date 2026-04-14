@@ -1,6 +1,6 @@
 import { test, describe, expect, vi } from "vitest";
-import { getDomains } from "../utils";
-import type { GetDomainsParamsWithAlias } from "../utils";
+import { getDomains } from "../utils.ts";
+import type { GetDomainsParamsWithAlias } from "../utils.ts";
 
 describe("getDomains 函数测试", () => {
 	describe("使用 projectName 字符串参数", () => {
