@@ -2,16 +2,16 @@
 
 完成一次接入后，至少执行以下验证（路径与包管理器以目标仓库为准）。
 
-## 阶段 0：依赖冲突预检
+## 阶段 0：遗留根包发版工具预检
 
 ```bash
-node --input-type=module -e "const m = await import('conventional-changelog-angular'); console.log('export type:', typeof m.default);"
+pnpm why commit-and-tag-version
+pnpm why conventional-changelog-cli
+pnpm why standard-version
+pnpm why release-it
 ```
 
-| 输出                    | 含义                    | 处理                                                                                |
-| ----------------------- | ----------------------- | ----------------------------------------------------------------------------------- |
-| `export type: function` | angular@8.x，兼容       | 继续                                                                                |
-| `export type: object`   | angular@6.x/7.x，不兼容 | 须先修复（见 [`dependency-conflict-precheck.md`](dependency-conflict-precheck.md)） |
+若任一命令命中结果，说明仓库内仍保留旧的根包发版工具，须先删除或隔离（见 [`dependency-conflict-precheck.md`](dependency-conflict-precheck.md)）。
 
 ## 阶段 1：relizy 子包验证（使用 relizy-runner，推荐）
 
@@ -33,13 +33,13 @@ pnpm exec relizy-runner release --dry-run --no-publish --no-provider-release --n
 | `pnpm exec bumpp --help`                    | 正常输出               |
 | `pnpm exec bumpp --dry-run --release patch` | 正常输出版本号变更预览 |
 
-## 阶段 3：conventional-changelog 验证
+## 阶段 3：changelogen 验证
 
 ```bash
-conventional-changelog -p angular -r 0 --dry-run
+pnpm exec changelogen --output CHANGELOG.md -r 0.0.1
 ```
 
-期望：正常输出 CHANGELOG 内容，无 `does not export a function` 错误。
+期望：正常更新根 `CHANGELOG.md`，并生成版本标题 `## v0.0.1`，而不是区间标题 `## v0.0.0...main`。
 
 ## 阶段 1 备选（未使用 relizy-runner、直连 relizy）
 
@@ -59,7 +59,7 @@ pnpm exec relizy release --dry-run --no-publish --no-provider-release --no-push 
 - 若提示无可 bump 包且无配置/平台错误 → **接入验证通过**，当前无变更可发。
 - 若报类型错误 → 查 `type-compatibility` 与 tsconfig。
 - 若报 `grep`/`head`/`sed` → 查 `windows-compatibility`（应优先改用 `relizy-runner`）。
-- 若报 `does not export a function` → 查 `dependency-conflict-precheck`。
+- 若发现仓库中仍保留旧的根包发版工具 → 查 `dependency-conflict-precheck`。
 
 ## 可选
 

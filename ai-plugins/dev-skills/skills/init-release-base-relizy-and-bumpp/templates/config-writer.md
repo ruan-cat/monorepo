@@ -9,20 +9,23 @@
 **推荐**：一次性安装所有必需的开发依赖：
 
 ```bash
-pnpm add -D bumpp changelogen changelogithub relizy conventional-changelog-cli @ruan-cat/commitlint-config @ruan-cat/utils @types/node pnpm-workspace-yaml
+pnpm add -D bumpp changelogen changelogithub relizy @ruan-cat/commitlint-config @ruan-cat/utils @types/node pnpm-workspace-yaml
 ```
 
 **不再**为执行 runner 而添加 `tsx` 或新建 `scripts/relizy-runner.ts`；runner 由 `@ruan-cat/utils` 的 `bin` 提供。
 
 ## 2. 故障预检
 
-在安装依赖后、写入配置前，执行依赖冲突预检：
+在安装依赖后、写入配置前，执行遗留根包发版工具预检：
 
 ```bash
-node --input-type=module -e "const m = await import('conventional-changelog-angular'); console.log('export type:', typeof m.default);"
+pnpm why commit-and-tag-version
+pnpm why conventional-changelog-cli
+pnpm why standard-version
+pnpm why release-it
 ```
 
-期望输出 `export type: function`。若输出 `object`，说明存在旧版依赖冲突，须先修复（见 [`references/dependency-conflict-precheck.md`](../references/dependency-conflict-precheck.md)）。
+若任一命令命中结果，说明仓库内仍保留旧的根包发版链路，须先确认删除还是隔离（见 [`references/dependency-conflict-precheck.md`](../references/dependency-conflict-precheck.md)）。
 
 ## 3. 配置文件落盘（5 个文件）
 
@@ -47,7 +50,7 @@ node --input-type=module -e "const m = await import('conventional-changelog-angu
 
 - `push: false`：不单独推送，等待最后统一 push
 - `tag: "v%s"`：根包使用 `v0.12.0` 格式的 tag
-- `execute: "pnpm run changelog:conventional-changelog"`：bump 后自动生成根包 CHANGELOG
+- `execute`：使用函数调用 `changelogen --output CHANGELOG.md -r <newVersion>`，bump 后自动生成根包 CHANGELOG
 - `commit: "📢 publish(root): release v%s"`：与子包的 `publish` scope 区分
 
 ### 3.4 `changelogithub.config.ts`

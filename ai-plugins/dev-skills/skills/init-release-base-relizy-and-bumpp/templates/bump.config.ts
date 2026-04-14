@@ -1,4 +1,4 @@
-// bump.config.ts
+import { execSync } from "node:child_process";
 import { defineConfig } from "bumpp";
 
 /**
@@ -13,8 +13,13 @@ export default defineConfig({
 	// tag: false,
 	// 不推送到远程仓库，由 release 流程最后统一 git push --follow-tags
 	push: false,
-	// 在执行完 bumpp 后执行本地的更新日志生成命令
-	execute: "pnpm run changelog:conventional-changelog",
+	// 在执行完 bumpp 后回写根 CHANGELOG，并显式传入本次新版本号
+	execute: (operation) => {
+		execSync(`pnpm exec changelogen --output CHANGELOG.md -r ${operation.state.newVersion}`, {
+			cwd: operation.options.cwd,
+			stdio: "inherit",
+		});
+	},
 	// 将暂存区的全部文件都提交
 	all: true,
 });

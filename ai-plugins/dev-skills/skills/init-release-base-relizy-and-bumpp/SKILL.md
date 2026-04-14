@@ -3,7 +3,7 @@ name: init-release-base-relizy-and-bumpp
 description: 为任意 pnpm monorepo 从零接入 relizy + bumpp 组合发版方案：子包独立版本由 relizy 管理，根包版本由 bumpp 管理，GitHub Release 由 CI 工作流自动创建。覆盖仓库侦察、配置落盘、依赖对齐、故障预检与验证。触发关键词：init relizy、init bumpp、接入发版、monorepo 发版初始化、relizy + bumpp、relizy.config、bump.config、changelog.config、独立版本、GitHub Release 自动化。
 user-invocable: true
 metadata:
-  version: "1.1.0"
+  version: "2.0.0"
 ---
 
 # Init Release Base — Relizy + Bumpp Monorepo 发版配置落地技能
@@ -42,7 +42,7 @@ pnpm release
     │   └── 不 push（--no-push）
     │
     ├── 2. pnpm run release:root（bumpp）
-    │   ├── bump 根包 patch → conventional-changelog → commit → tag
+    │   ├── bump 根包 patch → changelogen → commit → tag
     │   └── 不 push（push: false）
     │
     └── 3. pnpm run git:push
@@ -66,7 +66,7 @@ pnpm release
 接入时须安装以下 devDependencies（版本以 registry 最新为准）：
 
 ```bash
-pnpm add -D bumpp changelogen changelogithub relizy conventional-changelog-cli @ruan-cat/commitlint-config @ruan-cat/utils @types/node pnpm-workspace-yaml
+pnpm add -D bumpp changelogen changelogithub relizy @ruan-cat/commitlint-config @ruan-cat/utils @types/node pnpm-workspace-yaml
 ```
 
 ## 根包 scripts 模板
@@ -78,6 +78,7 @@ pnpm add -D bumpp changelogen changelogithub relizy conventional-changelog-cli @
 	"release": "pnpm run release:sub && pnpm run release:root && pnpm run git:push",
 	"release:sub": "relizy-runner release --no-publish --no-provider-release --no-push --yes",
 	"release:root": "bumpp --yes --release patch",
+	"changelog:root": "changelogen --output CHANGELOG.md",
 	"git:push": "git push --follow-tags"
 }
 ```
@@ -104,7 +105,7 @@ pnpm add -D bumpp changelogen changelogithub relizy conventional-changelog-cli @
 Task Progress:
 - [ ] 阶段 1 — 侦察：收集工作区、锁文件、现有发版工具、tag、private、README/CHANGELOG 边界（用 templates/workspace-discovery.md）
 - [ ] 阶段 2 — 确认：仅对高风险项确认（versionMode、全量纳管、private、兼容策略）（用 templates/package-eligibility.md）
-- [ ] 阶段 3 — 故障预检：检查是否存在 commit-and-tag-version 等遗留工具导致的依赖冲突（见 references/dependency-conflict-precheck.md）
+- [ ] 阶段 3 — 故障预检：检查是否存在 commit-and-tag-version、conventional-changelog-cli 等遗留根包发版工具（见 references/dependency-conflict-precheck.md）
 - [ ] 阶段 4 — 落盘：依赖安装、5 个配置文件写入、根 scripts 配置、必要时最小 tsconfig（用 templates/config-writer.md + 各 templates/*.ts）
 - [ ] 阶段 5 — 验证：help、changelog dry-run、release dry-run（见 references/verification-matrix.md）
 - [ ] 阶段 6 — 收尾：修改清单、破坏性说明、残余风险、下一步（用 templates/docs-sync.md）
@@ -118,14 +119,14 @@ Task Progress:
 - 拟纳入 relizy 的包涉及 `private: true` 变更，但未获确认。
 - 确认不使用 `relizy-runner`，但未完成手工 baseline tag 确认。
 - Windows 下已观测到 `grep` / `head` / `sed` 类失败，但未选择兼容策略。
-- **检测到 `commit-and-tag-version` 或其他锁死旧版 `conventional-changelog` 的依赖**，可能导致 `conventional-changelog -p angular` 命令加载 preset 失败（见 [`references/dependency-conflict-precheck.md`](references/dependency-conflict-precheck.md)）。
+- **检测到遗留根包发版工具**（如 `commit-and-tag-version`、`conventional-changelog-cli`、`standard-version`、`release-it`），但尚未确认是删除还是隔离（见 [`references/dependency-conflict-precheck.md`](references/dependency-conflict-precheck.md)）。
 
 ## 核心决策（速查）
 
 1. **versionMode**：「每包独立版本线」→ `independent`；「只 bump 变更包且共享一次发布语义」≠ 独立版本线。
 2. **兼容策略**：**首选** `relizy-runner`（Windows GNU 工具 + baseline tag 预检）。
 3. **文档边界**：`rootChangelog` 与 README 更新是两条链路；`formatCmd` 不应宽到误改 README。
-4. **根包发版**：由 bumpp 独立负责，`push: false` + `execute: "pnpm run changelog:conventional-changelog"`。
+4. **根包发版**：由 bumpp 独立负责，`push: false`，并通过 `execute` 函数调用 `changelogen --output CHANGELOG.md -r <newVersion>`。
 5. **GitHub Release**：由 CI 使用 `gh release create` 从 CHANGELOG.md 提取，不依赖 changelogithub / relizy provider-release。
 
 ## templates/ 索引
@@ -150,7 +151,7 @@ Task Progress:
 | ------------------------------------------------------------------------------------------------ | ------------------------------------ |
 | [`references/overview.md`](references/overview.md)                                               | 技能知识地图与推荐落地顺序           |
 | [`references/release-workflow-architecture.md`](references/release-workflow-architecture.md)     | relizy + bumpp 组合发版架构详解      |
-| [`references/dependency-conflict-precheck.md`](references/dependency-conflict-precheck.md)       | commit-and-tag-version 依赖冲突预检  |
+| [`references/dependency-conflict-precheck.md`](references/dependency-conflict-precheck.md)       | 遗留根包发版工具预检                 |
 | [`references/discovery-checklist.md`](references/discovery-checklist.md)                         | 侦察信号清单                         |
 | [`references/version-mode-decision.md`](references/version-mode-decision.md)                     | independent / selective / 统一版本线 |
 | [`references/config-templates.md`](references/config-templates.md)                               | 配置插槽与文件角色                   |
@@ -180,14 +181,9 @@ pnpm exec relizy-runner release --dry-run --no-publish --no-provider-release --n
 ```bash
 pnpm exec bumpp --help
 pnpm exec bumpp --dry-run --release patch
+pnpm exec changelogen --output CHANGELOG.md -r 0.0.1
 ```
 
-**conventional-changelog 预检（检测依赖冲突）**：
-
-```bash
-node --input-type=module -e "const m = await import('conventional-changelog-angular'); console.log('export type:', typeof m.default);"
-```
-
-期望输出 `export type: function`。若输出 `object`，说明存在依赖冲突，见 [`references/dependency-conflict-precheck.md`](references/dependency-conflict-precheck.md)。
+期望根包 changelog 生成版本标题 `## v0.0.1`，而不是区间标题 `## v0.0.0...main`。
 
 若输出为「无可 bump 包」且无配置/跨平台错误，应解释为**验证通过但当前无变更可发**。
