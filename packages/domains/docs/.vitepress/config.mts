@@ -7,7 +7,7 @@ import {
 
 import { printFormat } from "@ruan-cat/utils";
 import consola from "consola";
-import { getProjectSidebarItems } from "./project-navigation";
+import { getProjectSidebarItems } from "./project-navigation.ts";
 
 copyReadmeMd("./docs");
 

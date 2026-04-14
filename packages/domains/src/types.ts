@@ -78,6 +78,11 @@ export const projects = [
 /** 项目名称列表 */
 export type ProjectName = (typeof projects)[number]["name"];
 
+/** 项目条目 */
+export type ProjectItem = Project & {
+	name: ProjectName;
+};
+
 /**
  * 项目化的域名配置 项目展示风格的 域名配置类型
  * @description
