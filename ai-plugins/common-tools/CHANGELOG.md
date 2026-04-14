@@ -5,6 +5,15 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [5.1.0] - 2026-04-15
+
+### Changed
+
+- **use-other-model**（`metadata.version` `0.3.0` -> `0.4.0`）：将方案 B 加硬为无人值守编码代理流程，默认命令收敛为 `claude -p`、`--permission-mode bypassPermissions`、`--tools default`、`--output-format json` 与 `--append-system-prompt`，并要求主代理在子会话完成后重新复核 `diff`、关键命令与前端验收结果。
+- **use-other-model**：新增 `references/claude-code-launch-templates.md`、`references/context-packet-template.md`、`references/frontend-browser-verification-template.md`、`references/failure-routing.md`，把启动模板、任务封包、浏览器验收和失败分流拆成独立文档。
+- **use-other-model**：回补 `method-b-independent-session.md`、`references/README.md`、`code-templates.md` 与 `case-study-git-commits.md` 中仍有信息密度的图例、导航、模板骨架和实践说明，避免说明层被过度压缩。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一同步至 `5.1.0`。
+
 ## [5.0.0] - 2026-04-15
 
 ### Changed
