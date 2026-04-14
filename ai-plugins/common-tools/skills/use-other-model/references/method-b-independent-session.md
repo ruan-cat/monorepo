@@ -1,231 +1,309 @@
-# 方案 B:启动独立 Claude Code 会话(推荐用于复杂任务)
+# 方案 B:启动独立 Claude Code 会话
 
 ## 核心架构
 
+下面这张图保留的是 **方案 B 的职责分层**,不是旧参数模板本身。
+
 ```plain
 ┌─────────────────────────────────────────────────────────────┐
-│ 主会话 (当前会话 - Claude Sonnet 4.6)                       │
+│ 主会话 (当前会话)                                            │
 │                                                              │
 │  1. 分析任务需求                                             │
-│  2. 编写详细的执行计划文件                                   │
-│  3. 生成 Bash 启动脚本                                       │
-│  4. 使用 Bash 工具启动后台任务                               │
-│     └─> run_in_background: true                             │
+│  2. 写任务封包 / 验收标准                                    │
+│  3. 生成启动模板与系统提示                                   │
+│  4. 启动独立 Claude Code 会话                                │
+│  5. 读取结果并重新验证                                       │
 │                                                              │
 └──────────────────────┬───────────────────────────────────────┘
                        │
-                       │ Bash 后台任务
+                       │ 独立执行链路
                        ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 子会话 (独立 Claude Code 进程 - MiniMax/Gemini)             │
+│ 子会话 (独立 Claude Code 进程)                              │
 │                                                              │
-│  1. 绕过嵌套检查: unset CLAUDECODE                           │
-│  2. 设置目标模型的 API 配置                                  │
-│  3. 启动独立的 Claude Code 进程                              │
-│  4. 读取主会话编写的计划文件                                 │
-│  5. 按计划执行任务                                           │
-│  6. 返回执行结果                                             │
+│  1. 读取任务封包                                             │
+│  2. 读取目标文件                                             │
+│  3. 修改文件 / 执行命令                                      │
+│  4. 运行验证                                                 │
+│  5. 前端任务执行浏览器验收                                   │
+│  6. 写 execution log 并退出                                  │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
+## 定位
+
+方案 B 不是“再开一个聊天窗口”,而是启动一个 **无人值守的独立编码代理**。
+
+这个子会话必须具备以下责任:
+
+1. 自己先读任务封包
+2. 自己读目标文件
+3. 自己修改文件
+4. 自己运行验证命令
+5. 前端任务自己做浏览器检查
+6. 自己写 execution log
+7. 完成后退出
+
+如果主代理无法把任务压缩成这样的执行契约,就不要使用方案 B。
+
+## 已核实的 CLI 参数
+
+本节基于 **2026-04-15** 在本机运行的 `claude --help` 与 `claude -p --help` 核实。
+
+当前可用的关键参数包括:
+
+- `-p, --print`
+- `--permission-mode <mode>`
+- `--tools <tools...>`
+- `--output-format <format>`
+- `--append-system-prompt <prompt>`
+
+这意味着新的标准模板应优先使用:
+
+- `claude -p`
+- `--permission-mode bypassPermissions`
+- `--tools default`
+- `--output-format json`
+
+而不是继续把 `--dangerously-skip-permissions` 当作默认起点。
+
 ## 关键技术点
 
-### 1. 绕过嵌套会话检查
+### 1. 仍然需要绕过嵌套会话检查
 
-**问题**:Claude Code 通过 `CLAUDECODE` 环境变量检测嵌套会话,默认禁止嵌套。
-
-**解决方案**:在启动子会话前 `unset CLAUDECODE`
+方案 B 依旧依赖:
 
 ```bash
-#!/bin/bash
-
-# 关键:取消 CLAUDECODE 环境变量以绕过嵌套检查
 unset CLAUDECODE
-
-# 设置目标模型的 API 配置
-export ANTHROPIC_AUTH_TOKEN="sk-ant-xxxxx"
-export ANTHROPIC_BASE_URL="https://api.minimaxi.com/anthropic"
-export ANTHROPIC_MODEL="MiniMax-M2.5-highspeed"
-
-# 启动独立的 Claude Code 会话
-claude --dangerously-skip-permissions << 'TASK_END'
-请你严格按照 task-plan.md 文件中的执行计划,完成任务。
-TASK_END
 ```
 
-### 2. 使用 Bash 后台任务
+这一步没有变,变化的是后续默认启动参数已经从旧的 `--dangerously-skip-permissions` 收敛到了 `--permission-mode bypassPermissions`。
 
-**关键参数**:`run_in_background: true`
+### 2. 仍然是“主会话编排,子会话执行”
 
-使用 Bash 工具时,必须设置 `run_in_background: true`,这样:
+主会话负责:
 
-- 主会话不会被阻塞
-- 子会话可以独立运行
-- 通过 `TaskOutput` 工具获取执行结果
+- 拆解任务
+- 写任务封包
+- 生成启动模板
+- 读取结果并复核
 
-### 3. 使用 Heredoc 传递任务
+子会话负责:
 
-**技术**:使用 Bash Heredoc 将任务指令传递给子会话
+- 实际读文件
+- 改文件
+- 跑命令
+- 做验证
 
-```bash
-claude --dangerously-skip-permissions << 'TASK_END'
-请你严格按照 task-plan.md 文件中的执行计划,完成任务。
+### 3. 文件仍然是通信媒介
 
-执行步骤:
-1. 先阅读 task-plan.md 文件,理解执行计划
-2. 按照计划中的顺序,逐步执行
-3. 每个步骤完成后验证结果
-4. 遇到问题时记录到 execution-log.md
-
-开始执行。
-TASK_END
-```
-
-**优势**:
-
-- 清晰的任务边界(`TASK_END` 标记)
-- 支持多行指令
-- 避免 shell 转义问题
-
-### 4. 文件作为通信媒介
-
-**设计模式**:主会话和子会话通过文件系统通信
+虽然现在新增了任务封包和浏览器验收模板,但设计模式仍然是文件通信:
 
 ```plain
 主会话编写:
-  ├─ task-plan.md              # 详细的执行计划
-  ├─ execute-task.sh           # 启动脚本
-  └─ input-data/               # 输入数据(如果需要)
+  ├─ context-packet.md         # 任务封包
+  ├─ unattended-system-prompt.txt
+  └─ [可选] browser-verification.md
 
 子会话读取和写入:
-  ├─ task-plan.md              # 读取计划
-  ├─ execution-log.md          # 写入执行日志
-  └─ output-data/              # 输出结果
+  ├─ context-packet.md
+  ├─ execution-log.md
+  └─ result.json
 ```
 
-**优势**:
+保留这层图例说明的目的,就是让使用者快速看懂“谁负责什么、通过什么交接”。
 
-- 解耦主会话和子会话
-- 计划可以被审查和修改
-- 支持复杂的任务描述
-- 便于调试和追踪
+## 方案 B 的默认契约
 
-## 完整实施流程
+### 1. 默认启动模式
 
-### Step 1: 向用户索要 API 配置
+- 使用 **非交互** 的 `claude -p`
+- 让子会话收到完整任务后一次性执行
+- 输出写入 JSON 结果文件和 execution log
 
-使用 `AskUserQuestion` 工具,详细说明需要的配置信息。参见 `environment-variables.md` 了解用户可能提供的格式。
+### 2. 默认权限模式
 
-### Step 2: 主会话分析任务并编写执行计划
+- 使用 `--permission-mode bypassPermissions`
+- 因为方案 B 的本质就是无人值守执行
+- 仅在高风险场景下才主动降权
 
-创建详细的执行计划文件 `task-plan.md`。参见 `code-templates.md` 中的"执行计划模板"。
+### 3. 默认工具集
 
-### Step 3: 主会话生成启动脚本
+- 使用 `--tools default`
+- 不要再把工具能力留给子会话临场猜测
 
-根据用户提供的环境变量格式,生成对应的启动脚本。参见 `code-templates.md` 中的"启动脚本模板"。
+### 4. 默认输出格式
 
-### Step 4: 主会话启动后台任务
+- 使用 `--output-format json`
+- 这样主代理更容易读取执行结果和状态
 
-使用 Bash 工具启动后台任务:
+### 5. 默认系统提示
 
-```typescript
-Bash({
-	command: "chmod +x execute-task.sh && bash execute-task.sh 2>&1",
-	description: "启动独立的 [模型名称] 会话执行任务",
-	run_in_background: true,
-	timeout: 300000, // 5 分钟超时,根据任务复杂度调整
-});
+- 通过 `--append-system-prompt` 注入硬约束
+- 必须明确说明:不要反问、先读文件、先验证、完成后退出
+
+## 必备输入
+
+启动前主代理至少要准备:
+
+1. **Provider 配置**
+   - 见 `environment-variables.md`
+
+2. **任务封包**
+   - 见 `context-packet-template.md`
+
+3. **启动模板**
+   - 见 `claude-code-launch-templates.md`
+
+4. **前端浏览器验收模板**
+   - 如果任务涉及 UI、页面、组件、样式、交互
+   - 见 `frontend-browser-verification-template.md`
+
+5. **失败分流预案**
+   - 见 `failure-routing.md`
+
+## 标准工作流
+
+### Step 1: 先判断任务级别和预算
+
+- 简单任务:5 分钟以内
+- 中等任务:10-20 分钟
+- 复杂任务:20-45 分钟
+
+如果任务超过 45 分钟仍无法拆分,不要直接硬上。
+
+### Step 2: 写任务封包
+
+主代理必须先写完整的任务封包文件。
+
+封包内至少要写:
+
+1. Working directory
+2. Branch
+3. Read first
+4. Allowed edits
+5. Do not do
+6. Verification commands
+7. Browser verification target
+8. Required output log
+9. Completion rule
+
+### Step 3: 前端任务补浏览器验收要求
+
+如果任务涉及页面或 UI,必须再补一份浏览器验收模板:
+
+- URL
+- 首屏加载标准
+- 视觉对比目标
+- 核心交互步骤
+- 失败时如何记录
+
+浏览器不可用时也必须写明原因。
+
+### Step 4: 生成无人值守系统提示
+
+系统提示至少要覆盖:
+
+- 你是 unattended coding agent
+- 不要反问,除非任务封包本身冲突
+- 先读文件,再改代码,再跑命令,再验证
+- 前端任务必须做浏览器检查
+- 完成后立即退出
+
+### Step 5: 使用标准启动模板
+
+直接使用 `claude-code-launch-templates.md` 中的 PowerShell 或 Bash 模板。
+
+默认命令核心骨架如下:
+
+```bash
+claude -p \
+  --permission-mode bypassPermissions \
+  --tools default \
+  --output-format json \
+  --append-system-prompt "<硬约束系统提示>" \
+  "<主提示>"
 ```
 
-**重要参数说明**:
+### Step 6: 读取结果和 execution log
 
-- `run_in_background: true`:必须设置,否则主会话会被阻塞
-- `timeout`:根据任务预计时间设置,建议留有余量
-- `2>&1`:捕获标准错误输出,便于调试
+主代理至少需要读取:
 
-### Step 5: 主会话监控任务进度(可选)
+- JSON 结果
+- execution log
+- 如果命令失败,还要读 stdout/stderr
 
-如果任务执行时间较长,可以定期检查进度:
+### Step 7: 主代理重新验证
 
-```typescript
-// 检查子会话是否创建了执行日志
-Read({
-	file_path: "execution-log.md",
-});
-```
+这一步不能省。
 
-### Step 6: 主会话获取执行结果
+主代理必须重新:
 
-使用 `TaskOutput` 工具获取子会话的执行结果:
+1. 查看 `git diff`
+2. 运行关键验证命令
+3. 前端任务确认浏览器结果
 
-```typescript
-TaskOutput({
-	task_id: "bwlly90kq", // 使用 Step 4 返回的 task_id
-	block: true, // 阻塞等待任务完成
-	timeout: 300000, // 超时时间(毫秒)
-});
-```
+只有这一步完成后,才能说任务完成。
 
-### Step 7: 主会话验证结果并清理
+## 浏览器验收规则
 
-1. **验证输出质量**:读取子会话生成的文件
-2. **清理敏感文件**:`rm -f execute-task.sh`
-3. **向用户报告**:提供执行摘要和 token 使用对比
+前端任务默认最少包含:
 
-## 方案 B 的优势
+1. 打开本地 URL
+2. 观察首屏是否加载
+3. 检查是否有明显布局错误
+4. 执行至少一个核心交互
+5. 把观察结果写入 execution log
 
-1. **显著的 Token 节省**:
-   - 主会话只负责规划(~5K tokens)
-   - 子会话执行具体任务(使用更便宜的模型)
-   - 节省比例:50-80%
+如果子会话跳过了这一步,主代理要把它视为 **验收不完整**,而不是“基本完成”。
 
-2. **模型选择灵活性**:
-   - 规划任务:使用 Claude Sonnet 4.6(推理能力强)
-   - 执行任务:使用 MiniMax/Gemini(速度快、成本低)
+## 超时与预算
 
-3. **任务隔离**:
-   - 主会话和子会话完全隔离
-   - 子会话崩溃不影响主会话
-   - 可以并行启动多个子会话
+建议主代理按阶段设置超时:
 
-4. **可审查性**:
-   - 执行计划以文件形式存在
-   - 可以在执行前审查和修改
-   - 便于调试和优化
+| 阶段       | 建议时长 |
+| ---------- | -------- |
+| 启动会话   | 2 分钟   |
+| 编码执行   | 30 分钟  |
+| 构建/测试  | 5 分钟   |
+| 浏览器验收 | 5 分钟   |
 
-## 潜在风险与限制
+复杂任务的 orchestrator 超时建议至少 15 分钟,通常按 30 分钟起配。
 
-### 风险
+## 回退策略
 
-1. **嵌套会话稳定性**:
-   - 虽然绕过了检查,但仍可能存在资源冲突
-   - 建议监控系统资源使用情况
-   - 避免同时启动过多子会话
+### 启动失败
 
-2. **API 配置泄露**:
-   - 启动脚本包含 API token
-   - **必须在执行后立即删除脚本文件**
-   - 或使用环境变量文件(`.env`)管理配置
+- 跑 `claude --help`
+- 核实参数是否可用
+- 核实 provider 环境变量
+- 必要时退回兼容模式
 
-3. **子会话失控**:
-   - 子会话可能执行意外操作
-   - 建议在计划中明确限制子会话的权限
-   - 使用 `--dangerously-skip-permissions` 时要特别小心
+### 执行失败
 
-### 限制
+- 看 JSON 结果
+- 看 execution log
+- 看 stdout/stderr
 
-1. **无法实时监控**:
-   - 只能在任务完成后获取结果
-   - 无法中途干预子会话
-   - 建议让子会话定期写入进度文件
+### 浏览器验收失败
 
-2. **文件系统依赖**:
-   - 需要通过文件系统通信
-   - 可能存在文件读写冲突
-   - 确保文件路径正确且可访问
+- 先记录具体视觉或交互问题
+- 再决定继续委托,还是主代理直接接管
 
-3. **环境变量隔离**:
-   - 需要正确设置环境变量
-   - 配置错误可能导致子会话失败
-   - 建议在启动前验证配置
+### 连续两轮失败
+
+- 停止使用外部模型
+- 主代理直接接管
+
+详细流程见 `failure-routing.md`。
+
+## 何时不该使用方案 B
+
+1. 任务目标仍然模糊
+2. 无法明确允许修改范围
+3. 无法定义验证命令
+4. 前端任务却没有浏览器环境和替代证据
+5. 主代理没有时间重新复核
+
+这些情况都说明当前更适合直接执行,而不是委托。

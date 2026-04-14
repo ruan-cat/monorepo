@@ -13,7 +13,7 @@ $env:ANTHROPIC_MODEL = "MiniMax-M2.5-highspeed"
 $env:ANTHROPIC_DEFAULT_HAIKU_MODEL = "MiniMax-M2.5-highspeed"
 $env:ANTHROPIC_DEFAULT_SONNET_MODEL = "MiniMax-M2.5-highspeed"
 $env:ANTHROPIC_DEFAULT_OPUS_MODEL = "MiniMax-M2.5-highspeed"
-claude --dangerously-skip-permissions
+claude -p --permission-mode bypassPermissions --tools default --output-format json
 ```
 
 **提取要点**:
@@ -29,7 +29,7 @@ claude --dangerously-skip-permissions
 $env:ANTHROPIC_AUTH_TOKEN = "sk-be08aa56e195...(API Key 已脱敏)...57c1d12a"
 $env:ANTHROPIC_BASE_URL = "https://www.ai-clauder.cc"
 $env:CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS = "1"
-claude --dangerously-skip-permissions
+claude -p --permission-mode bypassPermissions --tools default --output-format json
 ```
 
 **提取要点**:
@@ -146,5 +146,7 @@ $env:ANTHROPIC_AUTH_TOKEN = "sk-be08aa56e195...(API Key 已脱敏)...57c1d12a"
 1. **脚本中包含敏感的 API 密钥**
 2. **执行完成后应立即删除脚本文件**
 3. **或者使用环境变量文件(`.env`)管理配置**
+4. **实际启动命令优先参考 `claude-code-launch-templates.md`**
 
-参见 `code-templates.md` 中的"环境变量文件模板"了解如何使用 `.env` 文件。
+如果只是处理 provider 配置,本文件足够。  
+如果要真正启动方案 B,请跳转到 `claude-code-launch-templates.md`。

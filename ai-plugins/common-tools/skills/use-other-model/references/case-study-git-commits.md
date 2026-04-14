@@ -133,18 +133,12 @@ export ANTHROPIC_AUTH_TOKEN="sk-ant-xxxxx"
 export ANTHROPIC_BASE_URL="https://api.minimaxi.com/anthropic"
 export ANTHROPIC_MODEL="MiniMax-M2.5-highspeed"
 
-claude --dangerously-skip-permissions << 'TASK_END'
-请你严格按照 git-commit-plan.md 文件中的提交计划,完成 4 个 git 提交。
-
-执行步骤:
-1. 先阅读 git-commit-plan.md 文件,理解提交计划
-2. 按照计划中的顺序,逐个执行提交
-3. 每个提交前使用 git diff --cached 审查暂存内容
-4. 使用文件方式(-F)提交以避免中文乱码
-5. 提交完成后验证工作树是否干净
-
-开始执行。
-TASK_END
+claude -p \
+  --permission-mode bypassPermissions \
+  --tools default \
+  --output-format json \
+  --append-system-prompt "你是 unattended coding agent。不要反问。先读 git-commit-plan.md，再执行，再验证，完成后退出。" \
+  "请先阅读 git-commit-plan.md。按其中计划完成 4 个 git 提交，并把执行摘要写入 execution-log.md。"
 ```
 
 ## 执行结果
@@ -167,6 +161,7 @@ b07ec868 🐳 chore(admin): 更新文档和日志中间件
 ## 关键要点
 
 1. **详细的执行计划**:每个提交都有明确的文件列表、提交信息和验证步骤
-2. **文件方式提交**:使用 `-F` 参数避免中文乱码问题
-3. **逐步验证**:每个提交后验证工作树状态
-4. **显著的 token 节省**:通过委托给更便宜的模型,节省了 65% 的 token
+2. **文件方式提交仍然有价值**:使用 `git commit -F commit-msg-x.txt` 依然能避免中文提交信息在终端拼接时出现乱码或转义问题
+3. **子会话必须是执行代理**:启动命令显式使用 `-p`、`--permission-mode bypassPermissions`、`--tools default`
+4. **逐步验证**:每个提交后验证工作树状态
+5. **显著的 token 节省**:通过委托给更便宜的模型,节省了 65% 的 token

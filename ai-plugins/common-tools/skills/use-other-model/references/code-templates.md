@@ -1,282 +1,185 @@
 # 代码模板
 
-## A. 执行计划模板 (`task-plan.md`)
+本文件现在不是方案 B 的主入口,但仍然保留“可以直接抄”的模板骨架。
 
-````markdown
-# 任务执行计划
+如果你想按新主线严谨执行,优先看:
 
-## 任务概述
+1. `claude-code-launch-templates.md`
+2. `context-packet-template.md`
+3. `frontend-browser-verification-template.md`
+4. `failure-routing.md`
 
-**目标**:[简要描述任务目标]
+如果你只是想快速拿一个模板起手,本文件仍然有价值。
 
-**预期收益**:
+## A. 任务封包模板 (`context-packet.md`)
 
-- Token 节省:约 [X]%
-- 执行时间:约 [X] 分钟
+> 这是旧“执行计划模板”的升级版。  
+> 旧模板偏步骤列表,新模板偏执行契约。
 
-## 执行步骤
+```markdown
+# Task Packet
 
-### 步骤 1:[步骤名称]
+## Working directory
 
-**目标**:[这一步要完成什么]
+- Repository root: `/absolute/path/to/repo`
 
-**操作**:
+## Branch
 
-```bash
-# 具体的命令或操作
-[命令 1]
-[命令 2]
+- Expected branch: `dev`
+- Do not switch branches.
+
+## Read first
+
+- `path/to/file-a`
+- `path/to/file-b`
+
+## Goal
+
+- [目标 1]
+- [目标 2]
+
+## Allowed edits
+
+- `path/to/file-a`
+- `path/to/dir/**`
+
+## Do not do
+
+- Do not edit files outside the allowed scope.
+- Do not ask follow-up questions unless the packet contains direct contradictions.
+- Do not claim completion without running the required verification commands.
+
+## Verification commands
+
+- `pnpm test --filter ...`
+- `pnpm build --filter ...`
+
+## Browser verification target
+
+- Required: `yes` / `no`
+- URL: `http://localhost:5173/#/`
+
+## Required output log
+
+1. Start time
+2. Files read
+3. Files changed
+4. Commands executed
+5. Verification results
+6. Browser observations
+7. Final status
+
+## Completion rule
+
+You are done only if:
+
+1. Allowed edits are finished
+2. Required verification commands have passed
+3. Browser verification is completed or explicitly marked blocked with reason
+4. The execution log is complete
+5. You exit immediately after writing the result
 ```
 
-**验证**:
-
-- [ ] 检查点 1:[描述]
-- [ ] 检查点 2:[描述]
-
-**预期输出**:
-
-- [输出描述]
-
----
-
-### 步骤 2:[步骤名称]
-
-**目标**:[这一步要完成什么]
-
-**操作**:
+## B. Bash 启动脚本模板 (`execute-task.sh`)
 
 ```bash
-[命令]
-```
+#!/usr/bin/env bash
+set -euo pipefail
 
-**验证**:
-
-- [ ] 检查点 1
-
----
-
-## 预期输出
-
-### 文件输出
-
-- `output-file-1.txt`:[描述]
-- `output-file-2.json`:[描述]
-
-### 执行日志
-
-- `execution-log.md`:详细的执行过程记录
-
-## 注意事项
-
-1. **错误处理**:如果遇到 [X] 问题,执行 [Y] 操作
-2. **验证要求**:必须验证 [Z] 条件
-3. **安全限制**:不要执行 [危险操作]
-
-## 最终验证
-
-执行完所有步骤后,运行:
-
-```bash
-[验证命令]
-```
-
-确认:
-
-- [ ] [验证条件 1]
-- [ ] [验证条件 2]
-````
-
-## B. 启动脚本模板 (`execute-task.sh`)
-
-````bash
-#!/bin/bash
-
-# ============================================
-# 独立 Claude Code 会话启动脚本
-# ============================================
-
-# 1. 绕过嵌套检查
 unset CLAUDECODE
 
-# 2. 设置目标模型的 API 配置
-# 注意:这些值应该从用户处获取
+WORKDIR="/absolute/path/to/repo"
+TASK_DIR="$WORKDIR/.use-other-model/task-001"
+CONTEXT_PACKET="$TASK_DIR/context-packet.md"
+SYSTEM_PROMPT_FILE="$TASK_DIR/unattended-system-prompt.txt"
+RESULT_JSON="$TASK_DIR/result.json"
+EXECUTION_LOG="$TASK_DIR/execution-log.md"
+
+mkdir -p "$TASK_DIR"
+cd "$WORKDIR"
+
 export ANTHROPIC_AUTH_TOKEN="[用户提供的 API Key]"
 export ANTHROPIC_BASE_URL="[用户提供的 Base URL]"
 export ANTHROPIC_MODEL="[用户提供的模型名称]"
 
-# 3. 可选:设置其他环境变量
-# export ANTHROPIC_MAX_TOKENS="4096"
-# export ANTHROPIC_TEMPERATURE="0.7"
+claude -p \
+  --permission-mode bypassPermissions \
+  --tools default \
+  --output-format json \
+  --append-system-prompt "$(cat "$SYSTEM_PROMPT_FILE")" \
+  "先阅读 '$CONTEXT_PACKET'。按封包要求完成任务，把执行过程写入 '$EXECUTION_LOG'。完成后退出，不要反问。" \
+  > "$RESULT_JSON"
+```
 
-# 4. 启动独立的 Claude Code 会话
-claude --dangerously-skip-permissions << 'TASK_END'
-你是一个任务执行助手。请严格按照 task-plan.md 文件中的执行计划完成任务。
+## C. PowerShell 启动脚本模板 (`execute-task.ps1`)
 
-执行要求:
-1. 先阅读 task-plan.md 文件,完整理解执行计划
-2. 按照计划中的步骤顺序,逐步执行
-3. 每个步骤完成后,验证结果是否符合预期
-4. 将执行过程和结果记录到 execution-log.md 文件
-5. 如果遇到问题,记录问题并尝试解决
-6. 完成所有步骤后,总结执行结果
+```powershell
+$ErrorActionPreference = "Stop"
 
-执行日志格式:
-```markdown
-# 任务执行日志
+Remove-Item Env:CLAUDECODE -ErrorAction SilentlyContinue
 
-## 开始时间
-[时间戳]
+$workdir = "D:\path\to\repo"
+$taskDir = Join-Path $workdir ".use-other-model\task-001"
+$contextPacket = Join-Path $taskDir "context-packet.md"
+$systemPromptFile = Join-Path $taskDir "unattended-system-prompt.txt"
+$resultJson = Join-Path $taskDir "result.json"
+$executionLog = Join-Path $taskDir "execution-log.md"
 
-## 步骤 1:[名称]
-- 状态:[进行中/完成/失败]
-- 输出:[描述]
-- 问题:[如有]
+New-Item -ItemType Directory -Force -Path $taskDir | Out-Null
+Set-Location $workdir
 
-## 步骤 2:[名称]
-...
+$env:ANTHROPIC_AUTH_TOKEN = "[用户提供的 API Key]"
+$env:ANTHROPIC_BASE_URL = "[用户提供的 Base URL]"
+$env:ANTHROPIC_MODEL = "[用户提供的模型名称]"
 
-## 完成时间
-[时间戳]
+claude -p `
+  --permission-mode bypassPermissions `
+  --tools default `
+  --output-format json `
+  --append-system-prompt (Get-Content -Raw $systemPromptFile) `
+  "先阅读 '$contextPacket'。按封包要求完成任务，把执行过程写入 '$executionLog'。完成后退出，不要反问。" |
+  Set-Content -Path $resultJson
+```
 
-## 执行摘要
-- 成功步骤:[X]/[总数]
-- 失败步骤:[列表]
-- 输出文件:[列表]
-````
-
-现在开始执行。
-TASK_END
-
-# 5. 可选:执行后清理
-
-# rm -f execute-task.sh
-
-````markdown
-## C. 主会话调用代码模板
+## D. 主会话调用骨架
 
 ```typescript
-// ============================================
-// 主会话:启动独立 Claude Code 会话
-// ============================================
-
-// Step 1: 向用户索要配置信息
-AskUserQuestion({
-	questions: [
-		{
-			question: "为了启动独立的 [模型名称] 会话,我需要您的 API 配置信息。请提供以下信息:",
-			header: "API 配置",
-			options: [
-				{
-					label: "我已准备好配置信息",
-					description: "我会在下一步提供 API Key、Base URL 和模型名称",
-				},
-				{
-					label: "我需要配置帮助",
-					description: "请告诉我如何获取和配置这些信息",
-				},
-			],
-			multiSelect: false,
-		},
-	],
-});
-
-// Step 2: 创建执行计划
-Write({
-	content: `# 任务执行计划
-
-## 任务概述
-[详细的执行计划内容]
-...
-`,
-	file_path: "task-plan.md",
-});
-
-// Step 3: 创建启动脚本
-Write({
-	content: `#!/bin/bash
-
-unset CLAUDECODE
-
-export ANTHROPIC_AUTH_TOKEN="[用户提供的 API Key]"
-export ANTHROPIC_BASE_URL="[用户提供的 Base URL]"
-export ANTHROPIC_MODEL="[用户提供的模型名称]"
-
-claude --dangerously-skip-permissions << 'TASK_END'
-请你严格按照 task-plan.md 文件中的执行计划,完成任务。
-...
-TASK_END
-`,
-	file_path: "execute-task.sh",
-});
-
-// Step 4: 启动后台任务
-Bash({
-	command: "chmod +x execute-task.sh && bash execute-task.sh 2>&1",
-	description: "启动独立的 [模型名称] 会话执行任务",
-	run_in_background: true,
-	timeout: 300000, // 5 分钟超时
-});
-
-// 记录返回的 task_id,例如:bwlly90kq
-
-// Step 5: 向用户报告
-// "我已经启动了独立的 [模型名称] 会话来执行任务。
-//  - 任务 ID: bwlly90kq
-//  - 预计执行时间: 约 5 分钟
-//  我会在任务完成后通知您。"
-
-// Step 6: 获取执行结果
-TaskOutput({
-	task_id: "bwlly90kq", // 使用 Step 4 返回的 task_id
-	block: true,
-	timeout: 300000,
-});
-
-// Step 7: 验证结果
-Read({ file_path: "execution-log.md" });
-Read({ file_path: "output-data/result.json" });
-
-// Step 8: 清理敏感文件
-Bash({
-	command: "rm -f execute-task.sh",
-	description: "删除包含 API 密钥的脚本文件",
-});
-
-// Step 9: 向用户报告
-// "✅ 任务执行完成！
-//
-//  **执行摘要**:
-//  - 使用模型:[模型名称]
-//  - 执行时间:[X] 分 [Y] 秒
-//  - Token 使用:主会话 [A] + 子会话 [B] = [A+B]
-//  - Token 节省:约 [X]%
-//
-//  请检查输出结果是否符合预期。"
+// 1. 写 context-packet.md
+// 2. 写 unattended-system-prompt.txt
+// 3. 启动 execute-task.sh 或 execute-task.ps1
+// 4. 读取 result.json 和 execution-log.md
+// 5. 主代理重新验证 diff / 测试 / 浏览器结果
 ```
 
-## D. 环境变量文件模板 (`.env`)
+## E. 环境变量文件模板 (`.env`)
 
 ```bash
-# Claude Code API 配置
+# Claude Code provider 配置
 # 注意:此文件包含敏感信息,不要提交到 git
 
-# MiniMax 配置
 ANTHROPIC_AUTH_TOKEN=sk-ant-xxxxx
 ANTHROPIC_BASE_URL=https://api.minimaxi.com/anthropic
 ANTHROPIC_MODEL=MiniMax-M2.5-highspeed
-
-# 可选配置
-# ANTHROPIC_MAX_TOKENS=4096
-# ANTHROPIC_TEMPERATURE=0.7
 ```
 
 **使用方式**:
 
 ```bash
-# 在启动脚本中加载环境变量
 source .env
-
-# 或者使用 export
-export $(cat .env | xargs)
 ```
-````
+
+## 迁移说明
+
+### 为什么还保留这个文件
+
+因为很多人仍然习惯先找“模板合集”,再决定看哪份细文档。  
+所以这个文件保留,但不再承担全部规则说明。
+
+### 现在它和新文档的关系
+
+- 这里给你“可以直接抄”的骨架
+- 细规则去看:
+  - `claude-code-launch-templates.md`
+  - `context-packet-template.md`
+  - `frontend-browser-verification-template.md`
+  - `failure-routing.md`

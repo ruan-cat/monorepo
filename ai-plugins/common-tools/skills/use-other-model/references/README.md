@@ -1,69 +1,90 @@
 # References 目录
 
-本目录包含 `use-other-model` 技能的详细参考文档,实现渐进式加载。
+本目录承载 `use-other-model` 技能的渐进式加载文档。
+
+升级后的主线已经从“旧的代码模板集合”切换为四类核心文档,但这并不意味着旧文档的解释价值被抹掉。  
+这里仍然保留“按主题找文档”的导航方式,只是把启动模板、任务封包、浏览器验收和失败分流提到了更前面。
 
 ## 文件说明
 
+### 新主线文档
+
+方案 B 现在优先围绕下面四类文档展开:
+
+1. **启动模板**
+2. **任务封包模板**
+3. **前端浏览器验收模板**
+4. **失败分流文档**
+
 ### 核心实现文档
 
-- **`method-a-mcp-tools.md`** - 方案 A:使用 MCP 工具驱动其他模型
-  - 适用场景:简单任务、单次调用、执行时间 < 2 分钟
-  - Token 节省:20-40%
-  - 包含:前置准备、可用工具、执行流程
+- **`method-a-mcp-tools.md`**
+  - 方案 A 的说明
+  - 适合简单任务和单次调用
 
-- **`method-b-independent-session.md`** - 方案 B:启动独立 Claude Code 会话
-  - 适用场景:复杂任务、批量操作、执行时间 > 5 分钟
-  - Token 节省:50-80%
-  - 包含:核心架构、关键技术点、完整实施流程、优势与风险
+- **`method-b-independent-session.md`**
+  - 方案 B 的执行契约
+  - 说明为什么它是独立编码代理,不是普通问答会话
+  - 包含职责分层图、关键技术点、标准工作流和回退边界
 
-### 配置与模板
+- **`claude-code-launch-templates.md`**
+  - Bash / PowerShell 的标准启动模板
+  - 基于本机 `claude --help` 核实参数
+  - 默认使用 `--permission-mode bypassPermissions`、`--tools default`、`--output-format json`
 
-- **`environment-variables.md`** - 环境变量格式识别与提取
-  - 用户提供的 3 种环境变量格式(PowerShell MiniMax、PowerShell Claude 代理、Bash)
-  - 环境变量提取规则
-  - Token 格式识别(JWT vs API Key)
-  - 格式转换示例
+- **`context-packet-template.md`**
+  - 任务封包模板
+  - 规定工作目录、分支、先读文件、允许修改范围、禁止事项、验证命令、完成规则
 
-- **`code-templates.md`** - 完整代码模板
-  - A. 执行计划模板(`task-plan.md`)
-  - B. 启动脚本模板(`execute-task.sh`)
-  - C. 主会话调用代码模板(TypeScript)
-  - D. 环境变量文件模板(`.env`)
+- **`frontend-browser-verification-template.md`**
+  - 前端任务专用浏览器验收模板
+  - 强制要求 URL、视觉目标、关键交互、执行日志
 
-### 案例与问答
+- **`failure-routing.md`**
+  - 启动失败、执行失败、浏览器验收失败的处理流程
+  - 包含“连续两轮失败后主代理接管”的硬规则
 
-- **`case-study-git-commits.md`** - 实战案例:批量 Git 提交
-  - 场景:创建 4 个独立的 git 提交
-  - 完整的执行计划和启动脚本
-  - 执行结果和 token 使用对比
-  - 关键要点总结
+### 配置与辅助文档
 
-- **`faq.md`** - 常见问题解答(10 个问题)
-  - Q1-Q2:方案选择
-  - Q3-Q5:配置与模型使用
-  - Q6-Q7:安全性与调试
-  - Q8-Q10:执行计划、API 密钥安全、失败处理
+- **`environment-variables.md`**
+  - provider 环境变量格式识别与提取
+  - 仍然保留用户常见输入格式示例,方便主代理做变量提取和转换
 
-## 阅读建议
+- **`case-study-git-commits.md`**
+  - 方案 B 的实战案例
+  - 保留了完整计划和启动脚本示例,适合快速理解“主会话编排 + 子会话执行”是什么样子
 
-### 首次使用
+- **`faq.md`**
+  - 常见问题和回退建议
 
-1. 先阅读主 SKILL.md 了解整体框架
-2. 根据任务类型选择方案:
-   - 简单任务 → `method-a-mcp-tools.md`
-   - 复杂任务 → `method-b-independent-session.md`
-3. 查看 `environment-variables.md` 了解如何处理用户配置
-4. 使用 `code-templates.md` 中的模板快速开始
+- **`code-templates.md`**
+  - 兼容保留的旧模板入口
+  - 新流程应优先使用 `claude-code-launch-templates.md` 和 `context-packet-template.md`
+  - 但仍保留“可以直接抄”的模板骨架,方便快速落地
 
-### 遇到问题
+## 阅读顺序建议
 
-1. 先查看 `faq.md` 寻找答案
-2. 如果是配置问题,参考 `environment-variables.md`
-3. 如果是实施问题,重新阅读对应方案的详细文档
-4. 参考 `case-study-git-commits.md` 了解完整的实战流程
+### 首次使用方案 B
 
-### 深入学习
+1. 先读 `method-b-independent-session.md`
+   - 先理解谁负责什么、为什么要这么分层
+2. 再读 `claude-code-launch-templates.md`
+   - 再拿到可直接运行的启动模板
+3. 然后读 `context-packet-template.md`
+   - 再补完整任务封包
+4. 如果是前端任务,再读 `frontend-browser-verification-template.md`
+5. 最后看 `failure-routing.md`
+   - 明确失败后的分流和停止条件
 
-1. 阅读 `method-b-independent-session.md` 了解核心技术细节
-2. 研究 `case-study-git-commits.md` 中的实际案例
-3. 查看主 SKILL.md 中的技术报告链接,获取更深入的背景知识
+### 需要排错时
+
+1. 先看 `failure-routing.md`
+2. 再看 `faq.md`
+3. 若怀疑是 provider 配置问题,查看 `environment-variables.md`
+
+### 需要快速复用时
+
+1. 直接复制 `claude-code-launch-templates.md` 中的启动模板
+2. 填写 `context-packet-template.md`
+3. 前端任务附加 `frontend-browser-verification-template.md`
+4. 如果想先看完整示例,可回看 `case-study-git-commits.md`
