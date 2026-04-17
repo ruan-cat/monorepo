@@ -239,12 +239,21 @@ describe("relizy-runner", () => {
 			expect(prepareRelizySpawnArgs(["changelog", "--dry-run"])).toEqual(["changelog", "--dry-run"]);
 		});
 
+		test("changelog 显式传入 --yes 时兼容接受但不透传", () => {
+			expect(prepareRelizySpawnArgs(["changelog", "--dry-run", "--yes"])).toEqual(["changelog", "--dry-run"]);
+			expect(prepareRelizySpawnArgs(["changelog", "--yes"])).toEqual(["changelog"]);
+		});
+
 		test("bump 与 --no-yes 时不追加 --yes", () => {
 			expect(prepareRelizySpawnArgs(["bump", "--no-yes"])).toEqual(["bump"]);
 		});
 
 		test("仅 --no-yes 时去掉后只剩子命令仍需能区分", () => {
 			expect(prepareRelizySpawnArgs(["release", "--no-yes", "--dry-run"])).toEqual(["release", "--dry-run"]);
+		});
+
+		test("--no-yes 只关闭自动注入，不覆盖用户显式传入的 --yes", () => {
+			expect(prepareRelizySpawnArgs(["release", "--no-yes", "--yes"])).toEqual(["release", "--yes"]);
 		});
 	});
 
