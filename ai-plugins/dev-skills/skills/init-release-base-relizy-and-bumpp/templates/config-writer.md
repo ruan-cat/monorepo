@@ -48,7 +48,7 @@ pnpm why release-it
 
 从 [`templates/bump.config.ts`](bump.config.ts) 复制。关键配置：
 
-- `push: false`：不单独推送，等待最后统一 push
+- `push`：不要在 `bump.config.ts` 中写成生效配置；保留注释说明，由 `release:root` / `release:bumpp` 通过 `--no-push` / `--push` 显式控制
 - `tag: "v%s"`：根包使用 `v0.12.0` 格式的 tag
 - `execute`：使用函数调用 `changelogen --output CHANGELOG.md -r <newVersion>`，bump 后自动生成根包 CHANGELOG
 - `commit: "📢 publish(root): release v%s"`：与子包的 `publish` scope 区分
@@ -68,7 +68,7 @@ pnpm why release-it
 
 从 [`templates/package-scripts.md`](package-scripts.md) 复制全部 scripts。
 
-> **`--yes`（必选）**：跳过交互确认。所有 `relizy-runner release`、`bumpp --yes` 命令都必须显式包含。
+> **`--yes`（按入口使用）**：串行主链路中的 `relizy-runner release` 与 `release:root` 必须显式包含。单独入口 `release:bumpp` 默认保留 bumpp 交互式版本选择，并通过 `--push` 立即推送根 tag。
 
 须调整 `format:changelog` 的 glob 匹配路径以覆盖目标仓库的实际子包目录。
 

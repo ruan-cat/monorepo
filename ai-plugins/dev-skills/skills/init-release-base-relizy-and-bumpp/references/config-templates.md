@@ -17,7 +17,7 @@
 ## `bump.config.ts`
 
 - 使用 bumpp 的 `defineConfig`。
-- `push: false`：不单独推送，由 `git:push` 统一 push。
+- `push`：不要在配置文件里写死；保留注释化示例，由 `release:root` / `release:bumpp` 通过 `--no-push` / `--push` 控制。
 - `tag: "v%s"`：根包使用 `v*` 格式 tag，与 relizy 的 `@scope/pkg@version` 区分。
 - `execute`：使用函数调用 `changelogen --output CHANGELOG.md -r <newVersion>`，bump 后自动生成根包 CHANGELOG section。
 - `commit: "📢 publish(root): release v%s"`：使用 `publish(root)` scope 与子包的 `publish` 区分。

@@ -41,6 +41,14 @@ pnpm exec changelogen --output CHANGELOG.md -r 0.0.1
 
 期望：正常更新根 `CHANGELOG.md`，并生成版本标题 `## v0.0.1`，而不是区间标题 `## v0.0.0...main`。
 
+## 阶段 4：远程 tag 触发链路验收
+
+```bash
+git ls-remote --tags origin "v0.0.1"
+```
+
+期望：能够查到对应远程 tag。若单独执行的是 `release:bumpp`，则该命令应在发版后立即命中。
+
 ## 阶段 1 备选（未使用 relizy-runner、直连 relizy）
 
 仅当已满足「无额外层」严格前提时使用：
@@ -60,6 +68,21 @@ pnpm exec relizy release --dry-run --no-publish --no-provider-release --no-push 
 - 若报类型错误 → 查 `type-compatibility` 与 tsconfig。
 - 若报 `grep`/`head`/`sed` → 查 `windows-compatibility`（应优先改用 `relizy-runner`）。
 - 若发现仓库中仍保留旧的根包发版工具 → 查 `dependency-conflict-precheck`。
+- 若 `release.yaml` 未触发 → 先用 `git ls-remote --tags origin "<tag>"` 确认远程 tag 是否存在，再排查工作流逻辑。
+
+## 两类验收口径
+
+### 配置正确性验收
+
+- `release:root` 显式使用 `bumpp --no-push --yes --release patch`
+- `release:bumpp` 显式使用 `bumpp --push`
+- `bump.config.ts` 中不再写入生效中的 `push:` 配置
+
+### 远程 tag 触发链路验收
+
+- 串行主链路执行 `pnpm run release` 后，由 `git:push` 统一推送根包与子包 tags
+- 单独执行 `pnpm run release:bumpp` 后，根包 tag 应立即出现在远程
+- 若远程 tag 缺失，则 GitHub Actions 无法触发对应 release 工作流
 
 ## 可选
 

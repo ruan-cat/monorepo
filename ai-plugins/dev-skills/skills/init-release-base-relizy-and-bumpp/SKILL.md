@@ -3,7 +3,7 @@ name: init-release-base-relizy-and-bumpp
 description: 为任意 pnpm monorepo 从零接入 relizy + bumpp 组合发版方案：子包独立版本由 relizy 管理，根包版本由 bumpp 管理，GitHub Release 由 CI 工作流自动创建。覆盖仓库侦察、配置落盘、依赖对齐、故障预检与验证。触发关键词：init relizy、init bumpp、接入发版、monorepo 发版初始化、relizy + bumpp、relizy.config、bump.config、changelog.config、独立版本、GitHub Release 自动化。
 user-invocable: true
 metadata:
-  version: "2.0.0"
+  version: "3.0.0"
 ---
 
 # Init Release Base — Relizy + Bumpp Monorepo 发版配置落地技能
@@ -14,8 +14,9 @@ metadata:
 
 1. **本地控制 tag 生成**：开发者在本地运行 `pnpm release` 一条命令完成所有版本管理
 2. **云端负责 GitHub Release**：GitHub Actions 检测到 tag 推送后，自动从 CHANGELOG.md 提取内容创建 Release
-3. **单次 push**：所有 tags（子包 + 根包）在一次 `git push --follow-tags` 中推送
-4. **两工具协作**：relizy 负责子包（independent 模式），bumpp 负责根包，各司其职
+3. **单次 push**：串行主链路中的所有 tags（子包 + 根包）在一次 `git push --follow-tags` 中推送
+4. **根包有两种合法入口**：串行主链路使用 `release:root` + `--no-push`；单独根包发版使用 `release:bumpp` + `--push`
+5. **两工具协作**：relizy 负责子包（independent 模式），bumpp 负责根包，各司其职
 
 ## 与 `package-linter` 的关系
 
@@ -30,7 +31,7 @@ metadata:
 
 ## `--yes` 与非交互发版
 
-relizy 在 `release` / `bump` 等流程中可能弹出交互；在无 TTY 或 CI 下会挂起。**执行本技能时须在一切落盘内容中显式写出 `--yes`**，包括 `package.json` 脚本、README、验证命令。本地需要逐步确认时使用 `--no-yes`。
+relizy 在 `release` / `bump` 等流程中可能弹出交互；在无 TTY 或 CI 下会挂起。**串行主链路中的 `release:sub` 与 `release:root` 须显式写出 `--yes`**，包括 `package.json` 脚本、README、验证命令。单独入口 `release:bumpp` 默认保留 bumpp 的交互式版本选择，并通过 `--push` 立即推送根 tag；若目标仓库确实需要全非交互，再自行显式追加 `--yes`。
 
 ## 发版流程架构
 
@@ -43,13 +44,22 @@ pnpm release
     │
     ├── 2. pnpm run release:root（bumpp）
     │   ├── bump 根包 patch → changelogen → commit → tag
-    │   └── 不 push（push: false）
+    │   └── 不 push（--no-push）
     │
     └── 3. pnpm run git:push
         └── git push --follow-tags（一次性推送）
 ```
 
 详细架构说明见 [`references/release-workflow-architecture.md`](references/release-workflow-architecture.md)。
+
+单独根包发版时使用：
+
+```plain
+pnpm run release:bumpp
+    ├── bumpp 交互式选择根包版本
+    ├── 生成根包 commit + tag
+    └── 立即 push（--push）
+```
 
 ## 一次性落盘的配置文件
 
@@ -77,7 +87,8 @@ pnpm add -D bumpp changelogen changelogithub relizy @ruan-cat/commitlint-config 
 {
 	"release": "pnpm run release:sub && pnpm run release:root && pnpm run git:push",
 	"release:sub": "relizy-runner release --no-publish --no-provider-release --no-push --yes",
-	"release:root": "bumpp --yes --release patch",
+	"release:root": "bumpp --no-push --yes --release patch",
+	"release:bumpp": "bumpp --push",
 	"changelog:root": "changelogen --output CHANGELOG.md",
 	"git:push": "git push --follow-tags"
 }
@@ -126,7 +137,7 @@ Task Progress:
 1. **versionMode**：「每包独立版本线」→ `independent`；「只 bump 变更包且共享一次发布语义」≠ 独立版本线。
 2. **兼容策略**：**首选** `relizy-runner`（Windows GNU 工具 + baseline tag 预检）。
 3. **文档边界**：`rootChangelog` 与 README 更新是两条链路；`formatCmd` 不应宽到误改 README。
-4. **根包发版**：由 bumpp 独立负责，`push: false`，并通过 `execute` 函数调用 `changelogen --output CHANGELOG.md -r <newVersion>`。
+4. **根包发版**：由 bumpp 独立负责，`bump.config.ts` 不写死 push；串行入口 `release:root` 用 `--no-push`，单独入口 `release:bumpp` 用 `--push`，并通过 `execute` 函数调用 `changelogen --output CHANGELOG.md -r <newVersion>`。
 5. **GitHub Release**：由 CI 使用 `gh release create` 从 CHANGELOG.md 提取，不依赖 changelogithub / relizy provider-release。
 
 ## templates/ 索引
@@ -182,8 +193,11 @@ pnpm exec relizy-runner release --dry-run --no-publish --no-provider-release --n
 pnpm exec bumpp --help
 pnpm exec bumpp --dry-run --release patch
 pnpm exec changelogen --output CHANGELOG.md -r 0.0.1
+git ls-remote --tags origin "v0.0.1"
 ```
 
 期望根包 changelog 生成版本标题 `## v0.0.1`，而不是区间标题 `## v0.0.0...main`。
+
+若本地已有根包 tag，但 GitHub Actions 的 `release.yaml` 未触发，应先检查远程 tag 是否存在，而不是第一时间怀疑工作流的 CHANGELOG 提取逻辑。
 
 若输出为「无可 bump 包」且无配置/跨平台错误，应解释为**验证通过但当前无变更可发**。
