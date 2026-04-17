@@ -126,3 +126,7 @@ copyClaudeAgents(target) 函数的参数，改成 copyClaudeAgents(options?) 的
 1. 你首先去看看 `github.com/LouisMazel/relizy` 项目内，是否修复了这个 window 的故障？
 2. 评估 `packages\utils\src\node-esm\scripts\move-vercel-output-to-root` 这款脚本，是否已经过时了？
 3. 去更新 `packages\utils\src\node-esm\scripts\relizy-runner\index.md` 说明文档的能力已经过时
+
+## 006 <!-- 已完成 --> 调整加固代码
+
+阅读 `D:\code\ruan-cat\01s-11comm\apps\admin\src\docs\reports\2026-04-17-relizy-runner-changelog-yes-upgrade-plan.md` 的报告，加固我们代码。
