@@ -4,7 +4,11 @@
 
 ## 版本
 
-**当前版本**: `5.0.0`
+**当前版本**: `6.0.0`
+
+⚠️ **v6.0.0 版本同步**:
+
+- 版本号与 marketplace 主版本同步至 `6.0.0`（本次 `common-tools` 技能树无内容变更；`dev-skills` 中 **init-release-base-relizy-and-bumpp** 的重大破坏性调整与 `metadata.version` `3.0.0` 升级见该插件 CHANGELOG）。
 
 ⚠️ **v5.0.0 版本同步**:
 

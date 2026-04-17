@@ -4,7 +4,14 @@
 
 ## 版本
 
-**当前版本**: `5.0.0`
+**当前版本**: `6.0.0`
+
+⚠️ **v6.0.0 `init-release-base-relizy-and-bumpp` 重大破坏性变更**（`metadata.version` `2.0.0` → `3.0.0`）:
+
+- 根包 `bumpp` 的 push 策略不再写死在 `bump.config.ts`；改为通过官方 CLI `--push` / `--no-push` 显式控制。
+- 根包 scripts 明确拆成两种入口：`release:root = bumpp --no-push --yes --release patch`，`release:bumpp = bumpp --push`。
+- `references/release-workflow-architecture.md` 与 `references/verification-matrix.md` 新增“远程 tag 缺失导致工作流未触发”的排障与验收说明。
+- 插件版本与根级 marketplace 同步提升至 `6.0.0`。
 
 ⚠️ **v5.0.0 `init-release-base-relizy-and-bumpp` 重大调整**（`metadata.version` `1.1.1` → `2.0.0`）:
 
@@ -129,7 +136,7 @@
 
 ### init-release-base-relizy-and-bumpp
 
-**版本**: `2.0.0` | **可主动调用**: 是
+**版本**: `3.0.0` | **可主动调用**: 是
 
 执行型发版接入技能：为 pnpm monorepo 一次性接入 **relizy（子包）+ bumpp（根包）** 的组合发版方案，覆盖仓库侦察、配置落盘、依赖对齐、故障预检、dry-run 验证与文档同步。GitHub Actions 负责在 tag 推送后从 `CHANGELOG.md` 提取内容创建 Release。
 

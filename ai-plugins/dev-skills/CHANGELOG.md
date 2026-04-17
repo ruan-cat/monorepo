@@ -2,6 +2,20 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [6.0.0] - 2026-04-17
+
+### Breaking Changes
+
+- **init-release-base-relizy-and-bumpp**（`metadata.version` `2.0.0` → `3.0.0`，重大调整）：
+- 根包 `bumpp` 的 push 策略不再写死在 `templates/bump.config.ts`；模板仅保留注释说明，要求通过官方 CLI `--push` / `--no-push` 显式控制。
+- 根包 scripts 拆成两种合法入口：`release:root` 固定为 `bumpp --no-push --yes --release patch`，`release:bumpp` 固定为 `bumpp --push`。
+- `SKILL.md`、`templates/config-writer.md` 与 `references/config-templates.md` 同步改口，不再把 `push: false` 写成默认生效配置。
+- `references/release-workflow-architecture.md` 与 `references/verification-matrix.md` 新增“远程 tag 缺失会导致工作流未触发”的排障与验收口径，先查远程 tag，再查 `release.yaml` 提取逻辑。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.0.0`。
+
 ## [5.1.0] - 2026-04-15
 
 ### Changed
