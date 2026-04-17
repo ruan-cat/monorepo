@@ -26,7 +26,7 @@ pnpm add -D @ruan-cat/utils
 
 1. `ruan-cat-utils` —— 统一入口命令，通过子命令分发执行。
 2. `move-vercel-output-to-root` —— 直接执行搬运 Vercel 构建产物的专用快捷命令。
-3. `relizy-runner` —— relizy 发版兼容层（Windows GNU 工具补齐 + 基线 tag 检查）。
+3. `relizy-runner` —— relizy 发版兼容层（Windows GNU 工具补齐 + 基线 tag 检查 + `changelog --yes` 兼容吞参）。
 
 ### 通过统一入口调用
 
@@ -40,6 +40,7 @@ npx ruan-cat-utils relizy-runner <relizy 子命令与参数>
 ```bash
 npx move-vercel-output-to-root [options]
 npx relizy-runner release --no-publish --no-provider-release
+npx relizy-runner changelog --dry-run --yes
 ```
 
 两种方式完全等价。
@@ -72,3 +73,9 @@ npx ruan-cat-utils relizy-runner --help
 原因是 `tsx`、`ts-node`、`node` 等运行时的 CLI 参数只会被解释为**文件系统路径**，而不会触发 Node.js 的模块解析算法。因此 `tsx @ruan-cat/utils/move-vercel-output-to-root` 这种写法会报 `ERR_MODULE_NOT_FOUND` 错误——运行时会在当前工作目录拼接路径去查找文件，而不是去 `node_modules` 里根据 `exports` 字段解析模块。
 
 标准的 `bin` 字段方案通过包管理器（pnpm/npm/yarn）在 `node_modules/.bin` 中创建可执行链接，完全绕过了这个问题。
+
+## relizy-runner 补充说明
+
+- `release` / `bump` 会默认自动补 `--yes`，除非显式传入 runner 专用参数 `--no-yes`。
+- `changelog` 不会自动补 `--yes`。
+- 若历史脚本或 skill 仍写成 `relizy-runner changelog --dry-run --yes`，runner 会兼容接受该参数，但不会再把 `--yes` 透传给上游 `relizy`。

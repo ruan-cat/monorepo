@@ -265,6 +265,9 @@ pnpm release
 # 仅预览 changelog 生成（不写盘、不改仓库）
 relizy-runner changelog --dry-run
 
+# 兼容旧脚本 / skill 中显式写出的 --yes（runner 会忽略它，不再透传给 relizy）
+relizy-runner changelog --dry-run --yes
+
 # 预览完整 release 流程
 relizy-runner release --dry-run --no-publish --no-provider-release
 
@@ -282,21 +285,28 @@ pnpm release:relizy -- --minor
 | ---------- | ------------------------------------------------------------------------------- |
 | `--no-yes` | 关闭 `release` / `bump` 的自动 `--yes`，恢复 relizy 交互确认；不会传给 relizy。 |
 
+补充说明：
+
+- `release` / `bump`：若未显式传入 `--yes`，runner 会自动补一个。
+- `changelog`：runner 不会自动补 `--yes`。
+- `changelog --yes`：runner 会兼容接受该参数，但会在调用 relizy 前将其吃掉。
+- `--no-yes` 只关闭自动注入；如果你在 `release` / `bump` 下显式写了 `--yes`，仍会按显式参数透传。
+
 ## relizy 常用参数（透传）
 
-以下参数由 relizy 本身处理；除 `--no-yes` 外，relizy-runner 仅负责透传（并在 `release` / `bump` 上按需追加 `--yes`）：
+以下参数大多由 relizy 本身处理；除 `--no-yes` 外，relizy-runner 通常只负责透传（并在 `release` / `bump` 上按需追加 `--yes`）。唯一的兼容例外是：`changelog --yes` 会被 runner 吞掉，不再传给上游 relizy。
 
-| 参数                                 | 含义                                                                                   |
-| ------------------------------------ | -------------------------------------------------------------------------------------- |
-| `--dry-run`                          | 预览，不写文件、不打 tag、不提交、不 publish                                           |
-| `--no-push`                          | 不 push 到远端                                                                         |
-| `--no-publish`                       | 不执行 npm publish                                                                     |
-| `--no-provider-release`              | 不在 GitHub/GitLab 创建 Release                                                        |
-| `--no-commit`                        | 不创建提交与 tag（与其它跳过项组合使用）                                               |
-| `--no-changelog`                     | 不生成 changelog 文件                                                                  |
-| `--no-verify`                        | 提交时跳过 git hooks                                                                   |
-| `--yes`                              | 跳过 relizy 确认提示；`release` / `bump` 下 runner 也会自动追加（除非使用 `--no-yes`） |
-| `--major` / `--minor` / `--patch` 等 | 指定 semver 升级策略                                                                   |
+| 参数                                 | 含义                                                                                                             |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `--dry-run`                          | 预览，不写文件、不打 tag、不提交、不 publish                                                                     |
+| `--no-push`                          | 不 push 到远端                                                                                                   |
+| `--no-publish`                       | 不执行 npm publish                                                                                               |
+| `--no-provider-release`              | 不在 GitHub/GitLab 创建 Release                                                                                  |
+| `--no-commit`                        | 不创建提交与 tag（与其它跳过项组合使用）                                                                         |
+| `--no-changelog`                     | 不生成 changelog 文件                                                                                            |
+| `--no-verify`                        | 提交时跳过 git hooks                                                                                             |
+| `--yes`                              | 跳过 relizy 确认提示；`release` / `bump` 下 runner 也会自动追加（除非使用 `--no-yes`）；`changelog` 下仅兼容忽略 |
+| `--major` / `--minor` / `--patch` 等 | 指定 semver 升级策略                                                                                             |
 
 查看 relizy 全部选项与子命令：
 
