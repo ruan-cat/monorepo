@@ -194,25 +194,31 @@ export function shouldCheckIndependentBootstrap(relizyArgs: string[]) {
 }
 
 const RELIZY_SUBCOMMANDS_WITH_YES_PRESET = new Set(["release", "bump"]);
+const RELIZY_SUBCOMMANDS_WITH_COMPAT_ONLY_YES = new Set(["changelog"]);
 
 /**
  * 规整即将交给 relizy 的参数：移除 runner 专用选项，并在适当时追加 `--yes`。
  *
  * - 对 `release` / `bump`：若未出现 `--yes` 且未要求 `--no-yes`，则在末尾追加 `--yes`。
+ * - 对 `changelog`：显式传入的 `--yes` 会被 runner 兼容接受，但不会继续传给 relizy。
  * - `--no-yes` 仅由 relizy-runner 识别，不会传递给 relizy。
  */
 export function prepareRelizySpawnArgs(relizyArgs: string[]): string[] {
 	const optOutYes = relizyArgs.includes("--no-yes");
 	const forward = relizyArgs.filter((arg) => arg !== "--no-yes");
 	const [command] = forward;
+	const normalizedForward =
+		command !== undefined && RELIZY_SUBCOMMANDS_WITH_COMPAT_ONLY_YES.has(command)
+			? forward.filter((arg) => arg !== "--yes")
+			: forward;
 
 	const shouldInjectYes =
 		!optOutYes &&
 		command !== undefined &&
 		RELIZY_SUBCOMMANDS_WITH_YES_PRESET.has(command) &&
-		!forward.includes("--yes");
+		!normalizedForward.includes("--yes");
 
-	return shouldInjectYes ? [...forward, "--yes"] : forward;
+	return shouldInjectYes ? [...normalizedForward, "--yes"] : normalizedForward;
 }
 
 function getPackagesMissingBootstrapTags(env: NodeJS.ProcessEnv) {
@@ -258,9 +264,10 @@ export function getRelizyRunnerHelpText() {
 		"  relizy-runner bump",
 		"",
 		"runner 行为：对 release / bump 默认在末尾追加 --yes（跳过上游确认）；",
+		"  changelog 不会自动追加 --yes，若显式传入也只会被兼容忽略，不传给 relizy。",
 		"  需要交互确认时请加上 --no-yes（仅 runner 识别，不传给 relizy）。",
 		"",
-		"常用参数（节选，由 relizy 处理；除 --no-yes 外 runner 仅透传）：",
+		"常用参数（节选，由 relizy 处理；runner 仅做少量兼容规整）：",
 		"  --dry-run              预览，不写文件、不打 tag、不提交",
 		"  --no-push              不 push 到远端",
 		"  --no-publish           不执行 npm publish",
@@ -268,7 +275,7 @@ export function getRelizyRunnerHelpText() {
 		"  --no-commit            不创建提交与 tag",
 		"  --no-changelog         不生成 changelog 文件",
 		"  --no-verify            提交时跳过 git hooks",
-		"  --yes                  跳过 relizy 的确认提示（release/bump 下 runner 也会自动追加）",
+		"  --yes                  跳过 relizy 的确认提示（release/bump 下 runner 也会自动追加；changelog 下仅兼容忽略）",
 		"",
 		"以上仅为常用参数节选，完整参数请查阅 relizy 包自身文档：",
 		"  npx relizy --help",
@@ -310,6 +317,12 @@ export function runRelizyRunner(relizyArgs: string[]) {
 	}
 
 	const spawnArgs = prepareRelizySpawnArgs(relizyArgs);
+	const rawForwardArgs = relizyArgs.filter((arg) => arg !== "--no-yes");
+	const [command] = rawForwardArgs;
+
+	if (command === "changelog" && rawForwardArgs.includes("--yes") && !spawnArgs.includes("--yes")) {
+		consola.info("[release:relizy] `changelog` 子命令不需要 `--yes`，已兼容忽略该参数。");
+	}
 
 	consola.start(`[release:relizy] 执行命令：relizy ${spawnArgs.join(" ")}`);
 
