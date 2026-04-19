@@ -75,6 +75,7 @@
 - **init-vscode**: 初始化或更新 VSCode 配置文件（`extensions.json`、`settings.json`），支持 monorepo 和单体项目，智能合并现有配置
 - **pr-ruancat-repo**: 对固定清单内的多个 GitHub 仓库批量发起统一内容 PR（协调者 + 多子代理；仓库清单见 `references/target-repos.md`）
 - **rebase2main**: 将当前开发分支通过 git rebase 同步到 main 分支，推送后切回原分支
+- **release-ai-plugins**: 管理 `ai-plugins` 多插件与多平台（Claude/Cursor）插件商城版本与文档链接，负责版本同步、清单校验、更新日志与安装文档一致性
 - **use-other-model**: 指导主代理驱动其他 AI 模型（MiniMax、Gemini）完成任务，实现 50–80% token 节省
 
 ### Hooks (钩子)
@@ -395,6 +396,7 @@ common-tools/
 │   │   ├── SKILL.md
 │   │   └── references/                      # 目标仓库清单与执行模板
 │   ├── rebase2main/SKILL.md                # dev → main rebase 同步
+│   ├── release-ai-plugins/SKILL.md         # AI 插件多平台发版与文档同步
 │   └── use-other-model/                     # 驱动其他 AI 模型
 │       ├── SKILL.md
 │       └── references/                      # 方案参考文档

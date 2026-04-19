@@ -2,7 +2,9 @@
 
 ## 本项目的技能表
 
-本仓库在 `.claude/skills/` 下维护 Claude Code 技能。**经验教训、事故复盘、根级 AI 记忆与 Memorix 同步**请优先使用 `record-bug-fix-memory`；其余按场景选用。已落地的仓库级排错案例写在 `record-bug-fix-memory` 技能正文 **「仓库级经验库」** 小节（可随事故继续追加）。
+本仓库同时维护两类技能来源：项目局部技能位于 `.claude/skills/`，对外分发技能位于 `ai-plugins/*/skills/`。**经验教训、事故复盘、根级 AI 记忆与 Memorix 同步**请优先使用 `record-bug-fix-memory`；其余按场景选用。已落地的仓库级排错案例写在 `record-bug-fix-memory` 技能正文 **「仓库级经验库」** 小节（可随事故继续追加）。
+
+### 项目局部技能（仓库内维护）
 
 - `record-bug-fix-memory`
   - 路径：`.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
@@ -88,12 +90,14 @@
   - 参考作用：与 monorepo 包规范一致。
   - 约束：以本仓库既有包与 `package-linter` 技能正文为准。
 
+### 对外分发技能（ai-plugins）
+
 - `release-ai-plugins`
-  - 路径：`.claude/skills/release-ai-plugins/SKILL.md`
+  - 路径：`ai-plugins/common-tools/skills/release-ai-plugins/SKILL.md`
   - 用途：管理 `ai-plugins` 多插件与多平台（Claude/Cursor）插件商城版本与文档链接。
   - 触发时机：插件版本升级、发版、更新 marketplace 或安装文档时。
-  - 参考作用：与 `.claude-plugin` / marketplace 布局一致。
-  - 约束：同步版本号与变更路径，避免漏改子包。
+  - 参考作用：与 `ai-plugins/common-tools` 下的 skills 树、README、CHANGELOG 保持一致。
+  - 约束：同步版本号与变更路径，避免漏改子包；不再从旧的仓库局部路径读取真实来源。
 
 ## 主动问询实施细节
 
