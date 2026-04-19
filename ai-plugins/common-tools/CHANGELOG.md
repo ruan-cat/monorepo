@@ -5,6 +5,13 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.2.0] - 2026-04-19
+
+### Changed
+
+- **release-ai-plugins**（`metadata.version` `0.15.1` → `0.16.0`）：从仓库局部 skill 源目录剪切迁移到 `ai-plugins/common-tools/skills/release-ai-plugins/`，将 `common-tools` 设为唯一真实来源。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.2.0`。
+
 ## [6.1.0] - 2026-04-19
 
 ### Changed
