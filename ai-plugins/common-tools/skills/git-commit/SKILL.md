@@ -3,7 +3,7 @@ name: git-commit
 description: "创建高质量的 git 提交：审查/暂存预期的变更，拆分为逻辑提交，并编写清晰的提交信息（遵循 Conventional Commits 规范，支持 Emoji）。当用户要求提交代码、编写提交信息、暂存变更或将工作拆分为多个提交时使用此技能。当用户提及【破坏性变更】关键词时，必须按照本技能的 BREAKING CHANGE 规范使用感叹号格式编写提交信息。优先针对 git 暂存区（staged）中的文件进行提交，只有当暂存区为空时才考虑整个工作树。当用户提及【分门别类】关键词时，必须按照本技能的多提交拆分规范，从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。"
 user-invocable: true
 metadata:
-  version: "0.3.4"
+  version: "0.3.5"
 ---
 
 # Git Commit
@@ -25,6 +25,19 @@ metadata:
 - **单个提交还是多个提交？**（如果不确定：当存在不相关的变更时，默认为多个小提交。）
 - **提交风格**：必须使用 Conventional Commits，并包含 Emoji。
 - **任何规则**：最大标题长度，必需的作用域。
+
+## 规则来源优先级 [CRITICAL]
+
+生成提交信息时，按以下优先级决策，低优先级不得覆盖高优先级：
+
+1. 用户在当前对话中的明确要求
+2. 当前仓库本地 commit / commitlint 规则（如 `commitlint.config.*`、`.commitlintrc*`、`package.json` 中的 `commitlint` 字段、`commit-msg` hook）
+3. 远程 raw `commit-types.ts` 中的 `type -> emoji` 定义
+4. 技能默认模板、示例与 `references/commit-message-template.md`
+
+- 若多个来源冲突，必须以更高优先级来源为准。
+- 若更高优先级来源缺失、读取失败或含糊不清，必须停下说明，不得猜测。
+- `references/commit-message-template.md` 只可作为写作模板，不可作为 emoji/type 的真实来源。
 
 ## 工作流程（清单）
 
@@ -62,20 +75,33 @@ metadata:
      - (空行)
      - body (内容/原因，而非实现流水账)
      - footer：破坏性变更时必须包含 `BREAKING CHANGE: <说明>` 行
-   - **Emoji 和 Type 规范**：必须查阅并遵循 [commit-types.ts](https://raw.githubusercontent.com/ruan-cat/monorepo/dev/configs-package/commitlint-config/src/commit-types.ts) 中的定义。
-     - **主动查阅**：使用 `Read` 或 `WebFetch` 工具主动读取上述文件以获取最新的 Emoji 和 Type 列表。
-   - **推荐使用文件方式**（解决 Windows/PowerShell 中文乱码问题）：
-     - 由于 Cursor IDE 的 Shell 工具在通过 `-m` 参数传递中文时存在编码问题，推荐使用 `-F` 文件方式提交
+   - **Emoji 和 Type 规范**：必须查阅并遵循远程 raw `commit-types.ts` 中的定义：
+     - `https://raw.githubusercontent.com/ruan-cat/monorepo/dev/configs-package/commitlint-config/src/commit-types.ts`
+     - 必须读取 raw 全文后，再定位本次要使用的 `type`。
+     - 禁止仅依据搜索摘要、snippet、单行预览、缓存摘要或 reference 表格判断 emoji。
+     - 在继续之前，必须显式复述本次解析结果：`selected type`、`resolved emoji`、命中的原始片段。
+     - 如果 raw 文件抓取失败、内容不完整、或无法可靠定位目标 `type`，必须停止提交流程，不得猜测，不得回退到旧表格。
+   - **推荐使用文件方式**（避免 shell 参数传递导致的编码与转义问题）：
+     - 对于包含中文的 commit message，默认使用 `git commit -F commit-message.txt`
      - 创建临时提交信息文件（如 `commit-message.txt`），写入提交信息内容
      - **注意**：此步骤只创建文件，**暂不执行提交**
-   - 参考 `references/commit-message-template.md` 获取完整的模板和 Emoji 列表。
+   - 参考 `references/commit-message-template.md` 获取模板格式与 BREAKING CHANGE 示例，不要把其中内容当作 emoji/type 真值。
 
-7. **运行最小的相关验证**
-   - 在提交之前运行仓库中最快且有意义的检查（单元测试、lint 或构建）。
-   - 验证通过后再执行步骤 8 进行提交。
+7. **提交信息预校验 [CRITICAL]**
+   - 优先检查当前仓库是否存在本地 commit 规则：`commitlint.config.*`、`.commitlintrc*`、`package.json` 的 `commitlint` 字段、`commit-msg` hook。
+   - 如果仓库存在本地 commitlint 配置或可执行 `commitlint`，必须先对 `commit-message.txt` 做预校验，再允许进入 `git commit`。
+   - 推荐命令：`pnpm exec commitlint --edit commit-message.txt --strict`；若仓库使用 `npx --no-install commitlint`，按仓库现有 hook / 脚本保持一致。
+   - 任何 warning、error 或 rule violation 都视为阻塞，必须先修正文案，再继续。
+   - 若仓库要求 scope，必须使用合法 scope；若无法确定合法 scope，停止并说明原因。
+   - 若仓库未要求 scope，优先省略 scope，而不是臆造 scope。
+
+8. **运行最小的相关验证**
+   - 按下方「最小有效校验矩阵」选择本次提交前的默认最小校验。
+   - 验证通过后再执行步骤 9 进行提交。
    - 如果验证失败，修复问题后重新执行验证。
+   - 如果仓库确实不存在任何有意义的自动校验，必须在最终说明中明确“未运行校验，原因是仓库无可用脚本/规则”。
 
-8. **获取 Co-authored-by 信息并执行提交**
+9. **获取 Co-authored-by 信息并执行提交**
    - **获取 AI 客户端型号**：从当前对话的 system prompt 或初始化信息中查找：
      - "You are Claude Code" → 客户端 = "Claude Code"
      - "You are Cursor" → 客户端 = "Cursor"
@@ -86,25 +112,47 @@ metadata:
      - "claude-opus-4-6" → 模型 = "Claude Opus 4.6"
      - "claude-sonnet-4-6" → 模型 = "Claude Sonnet 4.6"
      - 其他模型同理
-   - **转换为 Co-authored-by 格式**：根据下方的「Co-authored-by 邮箱对照表」进行转换
-   - **⚠️ 重要原则**：若在对照表中找不到该客户端或模型对应的已验证 GitHub 账号，**必须跳过，不得填写任何 Co-authored-by**。错误的归属比不写更有害，会导致无关人员出现在仓库贡献者列表中。
-   - **使用 `--trailer` 参数追加**：
-     ```bash
-     # 使用文件方式提交，并追加 Co-authored-by trailer
-     git commit -F commit-message.txt \
-       --trailer "Co-authored-by: <AI客户端> <邮箱>" \
-       --trailer "Co-authored-by: <AI模型> <邮箱>"
-     ```
-     如果有多个 Co-authored-by 信息，使用多个 `--trailer` 参数。
+   - **逐项判定**：客户端与模型必须分别判断是否在下方 allowlist 中，不得把“客户端可验证”自动扩展为“模型也可验证”。
+   - 仅允许以下四种结果：
+     1. 仅客户端可验证 → 只追加客户端 trailer
+     2. 仅模型可验证 → 只追加模型 trailer
+     3. 二者都可验证 → 追加两条 trailer
+     4. 二者都不可验证或无法识别 → 不追加任何 trailer
+   - 如果当前会话无法可靠得到模型标识，必须视为“模型不可验证”，不得猜测。
+   - 当前非 allowlist 客户端（如 Codex、Gemini CLI 等）默认不写 Co-authored-by，除非下方对照表后续明确补充。
+   - **使用 `--trailer` 参数追加**：执行 `git commit -F commit-message.txt` 时，仅为已验证身份追加对应的 `--trailer`；一条身份对应一条 `--trailer`。
    - **提交成功后删除临时文件**：
-     ```bash
-     rm commit-message.txt
-     ```
-   - **验证提交是否成功**：
-     - 运行 `git status` 确认工作树已干净
-     - 运行 `git log -1` 查看最终提交信息
+     - PowerShell：`Remove-Item -LiteralPath commit-message.txt`
+     - POSIX Shell：`rm -- commit-message.txt`
+   - **复核提交结果**：
+     - `git log -1 --format=%B`
+     - `git status --short --branch`
+     - 若 commit 过程中出现 warning、hook 改写了文件、或最终提交信息与预期不一致，不能直接宣称完成，必须先修正。
 
-9. **重复下一个提交，直到工作树干净**
+10. **重复下一个提交，直到工作树干净**
+
+## 平台命令参考
+
+### PowerShell
+
+- 读取远程 raw 文件：`(Invoke-WebRequest -UseBasicParsing '<raw-url>').Content`
+- 预校验提交信息：`pnpm exec commitlint --edit commit-message.txt --strict`
+- 删除临时文件：`Remove-Item -LiteralPath commit-message.txt`
+
+### POSIX Shell
+
+- 读取远程 raw 文件：`curl -fsSL '<raw-url>'`
+- 预校验提交信息：`pnpm exec commitlint --edit commit-message.txt --strict`
+- 删除临时文件：`rm -- commit-message.txt`
+
+## 最小有效校验矩阵 [CRITICAL]
+
+| 变更类型           | 默认最小校验                                             |
+| :----------------- | :------------------------------------------------------- |
+| 仅 Markdown / 文档 | Markdown 格式化或与文档渲染链路相关的最小构建            |
+| 仅配置             | 对应 lint / config check / 最小 build                    |
+| 源码               | 对应模块的 test / typecheck / build 中最快且有意义的一项 |
+| 混合改动           | 选择覆盖主要风险面的最小组合校验                         |
 
 ## 优先处理暂存区 [CRITICAL]
 
@@ -264,6 +312,7 @@ BREAKING CHANGE: 删除了 reference.md 和 templates.md，替换为 references/
 
 - GitHub 识别 `Co-authored-by` 主要依赖邮箱是否能归属到 GitHub 账号。下面统一使用对应账号的 `users.noreply.github.com` 邮箱格式。
 - 所有条目均已通过 GitHub API（`https://api.github.com/user/:id` + `/users/:login/orgs`）验证，确认账号归属可信。
+- 客户端与模型必须分别匹配此表；任一项未命中时，仅跳过该项，不得连带臆造另一项。
 - **若某工具或模型不在此表中，禁止编造或猜测账号，直接跳过 Co-authored-by。**
 
 ### 已验证的 Co-authored-by 账号
