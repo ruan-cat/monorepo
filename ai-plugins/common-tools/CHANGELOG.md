@@ -5,6 +5,16 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.1.0] - 2026-04-19
+
+### Changed
+
+- **git-commit**（`metadata.version` `0.3.4` → `0.3.5`）：补充“规则来源优先级”，明确用户要求、本地 commit / commitlint 规则、远程 raw `commit-types.ts` 与模板 reference 的覆盖关系。
+- **git-commit**：将 emoji / type 解析加硬为读取远程 raw 全文后定位，并要求复述 `selected type`、`resolved emoji` 与命中的原始片段；抓取失败或定位不可靠时直接阻塞提交流程。
+- **git-commit**：在正式 `git commit` 前新增本地 `commitlint` 预校验、最小有效校验矩阵，以及提交后 `git log -1 --format=%B` / `git status --short --branch` 复核要求。
+- **git-commit**：收紧 Co-authored-by 为客户端 / 模型逐项 allowlist 判定，补充 PowerShell / POSIX 命令参考，并将 `references/commit-message-template.md` 收口为模板而非 emoji 真值来源。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.1.0`。
+
 ## [6.0.0] - 2026-04-17
 
 ### Changed
