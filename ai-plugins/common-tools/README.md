@@ -4,7 +4,12 @@
 
 ## 版本
 
-**当前版本**: `6.0.0`
+**当前版本**: `6.3.0`
+
+⚠️ **v6.3.0 新增技能**:
+
+- 新增 `add-favicon`：为文档站和 monorepo 批量站点补全本地 `favicon.svg`，沉淀 Iconify-first、Lucide 风格、透明背景、显式 `head` 配置与 VitePress public 目录确认流程。
+- 版本号与 marketplace 主版本同步至 `6.3.0`。
 
 ⚠️ **v6.0.0 版本同步**:
 
@@ -69,6 +74,7 @@
 
 - **get-git-branch**: 诊断并修复 Git 仓库无法看到所有远程分支的问题，恢复通配符 fetch refspec
 - **git-commit**: 创建高质量 Git 提交，支持 Conventional Commits 规范、Emoji、破坏性变更格式、暂存区优先与多提交拆分
+- **add-favicon**: 为文档站或 monorepo 批量站点补全本地 `favicon.svg`，优先参考 Iconify/Lucide 风格，保持透明背景、简洁线性和显式 `head` 配置
 - **init-ai-md**: 初始化和增量更新 AI 记忆文件（`CLAUDE.md`、`AGENTS.md`、`GEMINI.md`），包含技能表管理与内置技能部署
 - **init-claude-code-statusline**: 初始化 Claude Code 状态栏配置文件（`.claude/settings.json` + `statusline.sh`），展示目录、分支、模型、上下文窗口
 - **init-prettier-git-hooks**: 初始化基于 lint-staged + simple-git-hooks + prettier 的 Git 提交前代码格式化流程
@@ -384,6 +390,9 @@ common-tools/
 │   ├── transcript-reader.ts                 # JSONL 对话历史解析器
 │   └── user-prompt-logger.sh               # 用户消息记录脚本（UserPromptSubmit 钩子）
 ├── skills/                                  # 技能定义
+│   ├── add-favicon/                         # 文档站 favicon 设计与配置
+│   │   ├── SKILL.md
+│   │   └── evals/
 │   ├── get-git-branch/SKILL.md             # 修复远程分支拉取问题
 │   ├── git-commit/SKILL.md                 # 高质量 Git 提交
 │   ├── init-ai-md/                          # 初始化 AI 记忆文件

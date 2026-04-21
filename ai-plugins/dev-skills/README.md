@@ -4,7 +4,11 @@
 
 ## 版本
 
-**当前版本**: `6.0.0`
+**当前版本**: `6.3.0`
+
+⚠️ **v6.3.0 版本同步**:
+
+- 版本号与 marketplace 主版本同步至 `6.3.0`（本次 `dev-skills` 技能树无内容变更；`common-tools` 新增 **add-favicon** 技能）。
 
 ⚠️ **v6.0.0 `init-release-base-relizy-and-bumpp` 重大破坏性变更**（`metadata.version` `2.0.0` → `3.0.0`）:
 

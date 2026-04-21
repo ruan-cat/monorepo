@@ -5,6 +5,17 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.3.0] - 2026-04-21
+
+### Added
+
+- **add-favicon**（`metadata.version` `1.0.0`）：新增文档站 favicon 设计与配置技能，沉淀 Iconify-first、Lucide 风格、透明背景、本地 SVG、显式 `head` 配置和 VitePress public 目录确认流程。
+- **add-favicon**：附带 `evals/evals.json`，覆盖批量 VitePress 站点、public 目录确认和去除深色背景块三类高频提示。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.3.0`。
+
 ## [6.2.0] - 2026-04-19
 
 ### Changed
