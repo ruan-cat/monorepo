@@ -24,19 +24,19 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: 安装pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           run_install: |
             - recursive: true
             - args: [--global, "vercel", "@dotenvx/dotenvx", "tsx", "turbo", "npm"]
 
       - name: 安装node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22.14.0
           cache: pnpm
@@ -82,7 +82,7 @@ jobs:
 
       - name: 触发部署工作流
         if: steps.changesets.outputs.published == 'true'
-        uses: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: deploy-after-release

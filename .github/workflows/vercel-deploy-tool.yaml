@@ -50,12 +50,12 @@ jobs:
           fi
 
       - name: 检出分支
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: 安装pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           # 项目提供了packageManager，故我们不提供该配置
           # version: 9
@@ -65,7 +65,7 @@ jobs:
             - args: [--global, "vercel@latest", "@dotenvx/dotenvx", "tsx", "turbo"]
 
       - name: 安装node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22.14.0
           cache: pnpm
