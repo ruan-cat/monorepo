@@ -1,3 +1,5 @@
+<!-- 已完成 -->
+
 # 2026-04-14 relizy canary initial independent release 测试设计
 
 ## 目标

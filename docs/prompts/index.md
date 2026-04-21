@@ -85,3 +85,15 @@ npm.
 ---
 
 请你更改 openspec 对应的规范设计文档。
+
+## 007 <!-- 已完成 --> 给 vitepress 文档站点增加 `favicon.svg`
+
+我们的 monorepo 项目内，有很多的 vitepress 文档，但是这些 vitepress 文档都没有对应的，合适的 `favicon.svg` 。请你按照满足 vitepress 的格式，补全，增加满足各个项目风格的 style 设计的 `favicon.svg` 。
+
+我的偏好：
+
+- 颜色最多 2 个。
+- 尽量用圆形。
+- 避免过于复杂而导致 `favicon.svg` 在浏览器内阅读困难。我不想在浏览器内看到一团浆糊。
+
+优先去 iconify 图标库内去找设计灵感。
