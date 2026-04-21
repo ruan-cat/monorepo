@@ -5,6 +5,7 @@ import { task, executeSequential } from "../executor";
 import type { VercelDeployConfig } from "../../config/schema";
 import { isDeployTargetWithUserCommands, isNeedVercelBuild, getIsCopyDist } from "../../utils/type-guards";
 import { VERCEL_NULL_CONFIG, VERCEL_NULL_CONFIG_PATH } from "../../utils/vercel-null-config";
+import { assertVercelCliAvailable } from "../vercel";
 import { getChangedFiles, filterTargetsByDiff } from "../git-diff-filter";
 import { createLinkTask } from "./link";
 import { createBuildTask } from "./build";
@@ -55,6 +56,9 @@ export interface DeploymentWorkflowOptions {
  * 5. Deploy + Alias 阶段（并行目标，串行步骤）
  */
 export async function executeDeploymentWorkflow(config: VercelDeployConfig, options?: DeploymentWorkflowOptions) {
+	// 部署依赖外部安装的 Vercel CLI，先做版本检查，避免上传阶段才失败。
+	assertVercelCliAvailable();
+
 	// 0. 生成 Vercel 空配置文件
 	await generateVercelNullConfig();
 

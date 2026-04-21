@@ -79,12 +79,14 @@ export function createInitCommand(): Command {
   • deploy-vercel: vercel-deploy-tool deploy
 
 下一步:
-  1. 编辑 ${configFile} 填写你的配置
-  2. 确保环境变量已设置:
+  1. 安装 Vercel CLI peer 依赖:
+     pnpm add -D vercel@latest
+  2. 编辑 ${configFile} 填写你的配置
+  3. 确保环境变量已设置:
      - VERCEL_TOKEN
      - VERCEL_ORG_ID
      - VERCEL_PROJECT_ID
-  3. 运行部署:
+  4. 运行部署:
      pnpm run deploy-vercel`);
 		});
 
