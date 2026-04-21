@@ -11,7 +11,7 @@
 1. 创建 favicon SVG
    - 在 5 个正式站点的 VitePress source directory 下创建 `public/favicon.svg`。
    - 在 `tests/monorepo-1` 的两个测试站配置目录下创建稳定源文件 `public/favicon.svg`。
-   - 每个 SVG 使用统一的圆形底色 + 白色 Lucide 风格线性图标。
+   - 每个 SVG 使用透明背景 + 单色 Lucide 风格线性图标，不使用圆形或矩形底色。
 
 2. 更新正式站点配置
    - 在 5 个正式站点的 `.vitepress/config.mts` 中追加：
