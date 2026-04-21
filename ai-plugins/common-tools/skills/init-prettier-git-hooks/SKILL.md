@@ -3,7 +3,7 @@ name: init-prettier-git-hooks
 description: 初始化或补强基于 lint-staged + simple-git-hooks + prettier 的 git 提交前代码格式化流程，并统一 `.gitattributes`、`.editorconfig`、`prettier.config.mjs` 的 LF 行尾策略，解决 Windows 上常见的 git 幽灵修改、CRLF 漂移、已有配置缺项或冲突配置未收敛的问题。只要用户提到 prettier、git hooks、lint-staged、simple-git-hooks、行尾统一、EOL、CRLF/LF、gitattributes、editorconfig、ghost modified、幽灵修改，都应该使用本技能，而不是把它当成“只能无脑覆盖模板”的初始化脚本。
 user-invocable: true
 metadata:
-  version: "1.1.2"
+  version: "1.1.3"
 ---
 
 # 初始化 Prettier + Git Hooks 格式化流程
@@ -19,6 +19,7 @@ metadata:
 3. `prettier.config.mjs`：`endOfLine: "lf"`，禁止保留 `"auto"`
 4. `package.json`、`lint-staged.config.js`、`simple-git-hooks.mjs` 的格式化链路可正常工作
 5. 执行 `git add --renormalize .` 后，git 行尾归一化完成
+6. 带注释的 `.json` 配置文件具备精确的 Prettier `parser: "jsonc"` override，不会在 `pnpm format` 或 lint-staged 中失败
 
 ## 1. 定位根 package.json 并检查依赖
 
@@ -131,6 +132,47 @@ pnpm add -D prettier @prettier/plugin-oxc prettier-plugin-lint-md lint-staged si
   - 如果已存在且不是 `"lf"`，必须改成 `"lf"`
   - 如果不存在，则补写 `endOfLine: "lf"`
 - 明确禁止保留 `endOfLine: "auto"`，因为它在 Windows 上会继续保留或引入 CRLF
+
+### 2.1.1. JSONC 配置文件 override
+
+本技能负责建立格式化链路，因此不能只添加通用 `format` 命令。只要项目中存在带注释的 `.json` 配置文件，就必须检查它们是否需要 Prettier `jsonc` parser override。
+
+优先检查这些文件：
+
+- `.vscode/extensions.json`
+- `.vscode/settings.json`
+- `tsconfig.json`
+- `tsconfig.*.json`
+- `jsconfig.json`
+- `.devcontainer/devcontainer.json`
+- `.hintrc`
+- 任何本次技能模板中带注释、块注释或尾逗号的 `*.json`
+
+判断流程：
+
+1. 扫描本次将创建或更新的 `*.json` 配置文件。
+2. 判断文件是否包含 JSONC 语法：`//` 行注释、块注释、尾逗号，或目标工具明确支持 JSONC。
+3. 检查 `package.json` 的 `format` 脚本、`lint-staged.config.*`、`simple-git-hooks.mjs` 是否会格式化 `*.json` 或所有文件。
+4. 如果 JSONC 文件会进入 Prettier，合并精确 override；若该文件需要保持无尾逗号风格，同步写入 `trailingComma: "none"`：
+
+   ```text
+   /** @type {import("prettier").Config} */
+   const config = {
+     overrides: [
+       {
+         files: [".vscode/extensions.json", ".vscode/settings.json"],
+         parser: "jsonc",
+         trailingComma: "none",
+       },
+     ],
+   };
+
+   export default config;
+   ```
+
+5. 如果已有 `overrides`，追加缺失项；如果同一文件已有 override 但 parser 不是 `jsonc`，除非项目有明确理由，否则改为 `jsonc` 并补齐所需的 `trailingComma` 策略。
+6. 不要把 `**/*.json` 全部设置为 JSONC。`package.json`、lockfile、以及第三方严格 JSON parser 读取的配置文件仍应保持严格 JSON。
+7. 不要通过删除注释来绕过 parser 问题。模板注释是维护信息，正确处理是保留注释并让格式化器使用正确 parser。
 
 ### 2.2. 创建或更新 `.gitattributes`
 
@@ -269,13 +311,20 @@ git add --renormalize .
   - [ ] `.editorconfig` 中 `[*]` 区块存在 `end_of_line = lf`
   - [ ] `prettier.config.mjs` 中 `endOfLine` 为 `"lf"`
 
-- [ ] 5. **Git hooks 初始化**：
+- [ ] 5. **JSONC 配置文件兼容**：
+  - [ ] 已检查 `.vscode/extensions.json`、`.vscode/settings.json`、`tsconfig*.json` 等带注释 JSON 配置
+  - [ ] 需要 JSONC 的文件已在 `prettier.config.mjs` 中配置精确 `parser: "jsonc"` override
+  - [ ] 未把 `**/*.json` 全部改成 JSONC
+
+- [ ] 6. **Git hooks 初始化**：
   - [ ] 执行 `npx simple-git-hooks` 成功
 
-- [ ] 6. **功能验证**：
+- [ ] 7. **功能验证**：
   - [ ] 执行 `pnpm format` 能正常格式化代码
   - [ ] git commit 时会自动触发 lint-staged 格式化
   - [ ] 执行 `git add --renormalize .` 后，git 状态只保留预期改动
+  - [ ] 如项目存在 `.vscode/extensions.json` 注释文件，执行 `pnpm exec prettier --parser jsonc --trailing-comma none --check .vscode/extensions.json`
+  - [ ] 如项目级 Prettier 应接管该文件，执行 `pnpm exec prettier --check .vscode/extensions.json`
 
 ## 6. 工作流程说明
 

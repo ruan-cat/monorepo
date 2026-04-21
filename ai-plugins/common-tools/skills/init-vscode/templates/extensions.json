@@ -1,23 +1,21 @@
-/*
- * 本模板为何在 monorepo 工作区内被关联为「纯文本 / plaintext」？
- * -----------------------------------------------------------------
- * 仓库根目录 `.vscode/settings.json` 中配置了 `files.associations`，将本路径映射为
- * `plaintext`。原因：本文件使用大量 `//` 分组注释与刻意空行排版；若按 JSON/JSONC
- * 交给默认格式化器或 Prettier 在「保存时格式化」，极易打乱区块结构。关联为纯文本后，
- * Ctrl+S 不会触发 JSON 格式化，从而保护可读的手动排版。
- *
- * 部署到目标项目后应恢复为正常 JSONC：复制为 `.vscode/extensions.json` 后，VS Code
- * 会按扩展推荐清单解析；若需高亮，可去掉对方仓库里对本文件的关联覆盖（一般无需配置）。
- *
- * 内容与语法约束（JSONC 特例）
- * -----------------------------------------------------------------
- * - 语义上等同于「带注释的 JSON」：VS Code 对 `extensions.json` 使用 JSONC 解析器。
- * - 允许：`//` 行注释、`/* */` 块注释（本文件顶说明使用块注释，列表内用行注释）。
- * - 禁止：尾逗号（trailing comma）、单引号字符串等非标准 JSON 写法，以免在非 VS Code
- *   环境或被严格 JSON 校验的工具链中失败。
- * - `recommendations` / `unwantedRecommendations` 的值须为字符串数组，元素为扩展
- *   Marketplace 的 `publisher.extensionName` 标识。
- */
+// 本模板为何在 monorepo 工作区内被关联为 JSONC？
+// -----------------------------------------------------------------
+// 仓库根目录 `.vscode/settings.json` 中配置了 `files.associations`，将本路径映射为
+// `jsonc`。原因：本文件使用大量 `//` 分组注释与说明注释，语义上不是严格 JSON；
+// 在本仓库中必须保持 JSONC 语法高亮、诊断与 Prettier JSONC 校验，不允许降级为纯文本。
+//
+// 部署到目标项目后应恢复为正常 JSONC：复制为 `.vscode/extensions.json` 后，VS Code
+// 会按扩展推荐清单解析；若目标项目也维护模板副本，可继续将模板副本显式关联为 `jsonc`。
+//
+// 内容与语法约束（JSONC 特例）
+// -----------------------------------------------------------------
+// - 语义上等同于「带注释的 JSON」：VS Code 对 `extensions.json` 使用 JSONC 解析器。
+// - 允许：`//` 行注释；也允许块注释语法，但顶部说明优先使用行注释，避免说明文本中的
+//   `*/` 提前结束外层块注释。
+// - 禁止：尾逗号（trailing comma）、单引号字符串等非标准 JSON 写法，以免在非 VS Code
+//   环境或被严格 JSON 校验的工具链中失败。
+// - `recommendations` / `unwantedRecommendations` 的值须为字符串数组，元素为扩展
+//   Marketplace 的 `publisher.extensionName` 标识。
 // prettier-ignore
 {
 	"recommendations": [

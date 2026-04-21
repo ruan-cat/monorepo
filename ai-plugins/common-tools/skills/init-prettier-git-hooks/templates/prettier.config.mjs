@@ -18,6 +18,13 @@ const config = {
 			parser: "oxc-ts",
 			plugins: [prettierPluginOxc],
 		},
+		// 按需启用：仅当项目保留带注释的 JSON 配置文件时使用 JSONC parser。
+		// 不要把 `**/*.json` 全部配置为 JSONC，`package.json` 等仍应保持严格 JSON。
+		// {
+		// 	files: [".vscode/extensions.json", ".vscode/settings.json"],
+		// 	parser: "jsonc",
+		// 	trailingComma: "none",
+		// },
 	],
 
 	singleQuote: false,

@@ -93,11 +93,11 @@
 		"*.drawio.svg": "hediet.vscode-drawio-text"
 	},
 	/**
-	 * init-vscode 技能模板：`templates/extensions.json` 的语言类型覆盖为 plaintext。
-	 * 原因与 JSONC 编写约束见该文件顶部的块注释；此处仅保证保存时不触发 JSON/Prettier 格式化。
+	 * init-vscode 技能模板：`templates/extensions.json` 必须按 JSONC 识别。
+	 * 模板保留大量说明注释和分组注释，本仓库不允许把它降级为纯文本。
 	 */
 	"files.associations": {
-		"**/init-vscode/templates/extensions.json": "plaintext",
+		"**/init-vscode/templates/extensions.json": "jsonc",
 		".cursorignore": "ignore"
 	},
 	"pnpmCatalogLens.enabled": true,

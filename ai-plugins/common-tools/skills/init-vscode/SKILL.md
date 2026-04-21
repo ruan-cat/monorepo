@@ -3,7 +3,7 @@ name: init-vscode
 description: 初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json），并在合并现有配置时把 `files.eol` 明确收敛为 `"\n"`，配合 `.gitattributes`、`.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题。只要用户提到初始化 vscode、编辑器配置、工作区设置、行尾统一、EOL、CRLF/LF、幽灵修改、团队规范，都应该使用本技能。
 user-invocable: true
 metadata:
-  version: "0.2.0"
+  version: "0.2.1"
 ---
 
 # Init VSCode
@@ -33,7 +33,15 @@ mkdir -p .vscode
 
 读取模板配置（见 `templates/extensions.json`）。
 
-> 注意：模板文件顶部有块注释，说明该文件在 monorepo 内为何被工作区关联为 `plaintext`（防止保存时格式化破坏分组排版），以及作为 JSONC（`extensions.json` 特例）的编写约束。写入目标项目的 `.vscode/extensions.json` 后，由 VS Code 按 JSONC 正常解析，**无需将 `plaintext` 关联一并复制过去**。
+> 注意：模板文件顶部说明使用 `//` 行注释，说明该文件在 monorepo 内为何被工作区关联为 `jsonc`，以及作为 JSONC（`extensions.json` 特例）的编写约束。写入目标项目的 `.vscode/extensions.json` 后，由 VS Code 按 JSONC 正常解析；如果目标项目也维护模板副本，应显式关联为 `jsonc`，不要降级成纯文本。
+
+**JSONC 语法安全要求：**
+
+- `.vscode/extensions.json` 可以保留 `//` 行注释和分组注释，因为 VS Code 会按 JSONC 解析该文件。
+- 模板顶部说明必须优先使用 `//` 行注释。
+- 不要用外层 `/* ... */` 块注释包裹包含 `/* */`、`*/`、代码片段或注释语法示例的说明文本；这会提前结束块注释并造成语法错误。
+- 不要为了消除解析错误而删除说明注释、分组注释或扩展用途注释。正确目标是“保留注释且语法安全”。
+- 写入目标项目后，必须用 JSONC parser 验证 `.vscode/extensions.json`，不能只依赖 VS Code 目测。
 
 **如果文件不存在**：
 
@@ -42,10 +50,12 @@ mkdir -p .vscode
 **如果文件已存在**：
 
 - 读取现有配置
+- 如果现有文件包含注释，按 JSONC 文件处理；不要用 `JSON.parse` 作为唯一解析或验收方式
 - 合并 `recommendations` 数组：去重后保留所有扩展（用户的 + 模板的）
 - 合并 `unwantedRecommendations` 数组：同样去重
 - 保留用户配置中的其他字段（如果有）
-- 写回文件，保持 JSON 格式美观（2 空格缩进）
+- 写回文件时保留已有注释与分组；如果所用工具无法保留注释，改用最小文本插入方式补齐缺失扩展，不要把 JSONC 退化成无注释 JSON
+- 保持格式美观（2 空格缩进；如果保留注释则按 JSONC 处理）
 
 ### 3. 处理 settings.json
 
@@ -58,6 +68,7 @@ mkdir -p .vscode
 **如果文件已存在**：
 
 - 读取现有配置
+- 如果现有文件包含注释，按 JSONC 文件处理，并复用后续 Prettier JSONC override 规则
 - 深度合并对象：
   - 对于嵌套对象（如 `search.exclude`、`files.watcherExclude`、`explorer.fileNesting.patterns`），合并所有键值对
   - 对于数组（如 `vue.server.includeLanguages`），去重合并
@@ -65,7 +76,7 @@ mkdir -p .vscode
 - 但对以下策略键，必须使用模板值覆盖冲突值：
   - `files.eol`：必须收敛为 `"\n"`，不允许保留 `"\r\n"` 或 `"auto"`
 - 保留用户配置中的其他字段
-- 写回文件，保持 JSON 格式美观（2 空格缩进）
+- 写回文件，保持 JSON/JSONC 格式美观（2 空格缩进）
 
 ### 3.1. `files.eol` 的特殊规则
 
@@ -85,6 +96,45 @@ mkdir -p .vscode
 
 这是一个明确的团队策略键，不适用“用户简单值优先”的默认规则。
 
+### 3.2. Prettier JSONC 兼容规则
+
+本技能落地的 `.vscode/extensions.json` 默认保留注释，因此它是 JSONC 而不是严格 JSON。执行时必须检查目标项目的 Prettier 链路，避免“VS Code 能读，但格式化器报错”。
+
+处理步骤：
+
+1. 检查本次创建或更新的 `.vscode/extensions.json`、`.vscode/settings.json` 是否包含 `//` 行注释、块注释或尾逗号。
+2. 读取目标项目的 `package.json`、`prettier.config.*`、`lint-staged.config.*`，判断 `format`、lint-staged 或提交钩子是否会格式化 `*.json` 或所有文件。
+3. 如果 JSONC 文件会进入 Prettier，则在目标项目 `prettier.config.mjs` 中追加精确 override；本模板禁止尾逗号，因此同时收敛 `trailingComma: "none"`：
+
+   ```text
+   /** @type {import("prettier").Config} */
+   const config = {
+     overrides: [
+       {
+         files: ".vscode/extensions.json",
+         parser: "jsonc",
+         trailingComma: "none",
+       },
+     ],
+   };
+
+   export default config;
+   ```
+
+4. 如果 `.vscode/settings.json` 也保留注释，可以和 `extensions.json` 合并为精确文件数组：
+
+   ```text
+   {
+     files: [".vscode/extensions.json", ".vscode/settings.json"],
+     parser: "jsonc",
+     trailingComma: "none",
+   }
+   ```
+
+5. 如果已有 `overrides`，只追加缺失项或修正同一文件的 parser / `trailingComma`，不要删除现有 parser、plugins、printWidth、tabWidth、endOfLine 等项目配置。
+6. 不要把 `**/*.json` 全部设置为 `jsonc`。`package.json`、lockfile、以及第三方严格 JSON parser 读取的配置仍应保持严格 JSON。
+7. 如果目标项目没有 Prettier 配置，或格式化命令不会覆盖 `.vscode/extensions.json`，也要在反馈中明确说明判断结果，不要无声跳过。
+
 ### 4. 验证结果
 
 检查两个文件是否正确创建/更新：
@@ -93,6 +143,27 @@ mkdir -p .vscode
 ls -la .vscode/
 ```
 
+验证 `.vscode/extensions.json` 本身是合法 JSONC：
+
+```bash
+pnpm exec prettier --parser jsonc --trailing-comma none --check .vscode/extensions.json
+```
+
+如果目标项目存在 Prettier 配置，或 `format` / lint-staged 会处理 JSON 文件，还要验证项目级 Prettier 配置能正确接管：
+
+```bash
+pnpm exec prettier --check .vscode/extensions.json
+```
+
+如果 `.vscode/settings.json` 保留注释，同样纳入窄范围检查：
+
+```bash
+pnpm exec prettier --parser jsonc --trailing-comma none --check .vscode/settings.json
+pnpm exec prettier --check .vscode/settings.json
+```
+
+如果 `pnpm format` 会触碰大量历史文件，可以先运行上述窄范围检查，并在反馈中明确没有运行全量格式化的原因。
+
 ### 5. 提供反馈
 
 向用户报告：
@@ -100,6 +171,7 @@ ls -la .vscode/
 - 更新了哪些文件（新建 or 合并）
 - 大致变更内容（新增了多少扩展推荐、多少设置项）
 - 如果有冲突保留了用户配置的情况，简要说明
+- JSONC / Prettier override 的判断结果：已补齐、已有可复用配置，或当前项目无需补齐
 
 **反馈格式示例**：
 
@@ -337,8 +409,9 @@ merged = {
 - 不会删除用户的任何现有配置
 - 不会强制覆盖用户的自定义值
 - 但 `files.eol` 属于显式策略键，必须按本技能要求统一为 `"\n"`
-- JSON 文件格式保持美观（2 空格缩进，无尾随逗号）
-- 如果 JSON 解析失败，报告错误并建议用户手动检查文件格式
+- JSON / JSONC 文件格式保持美观（2 空格缩进，无尾随逗号）
+- 对保留注释的配置文件，不要使用 `JSON.parse` 作为验收标准；应使用 JSONC parser 或 Prettier `--parser jsonc`
+- 如果 JSONC 解析失败，报告错误并建议用户手动检查文件格式
 
 ## 何时使用此技能
 

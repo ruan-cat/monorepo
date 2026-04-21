@@ -22,6 +22,15 @@ const config = {
 			parser: "oxc-ts",
 			plugins: [prettierPluginOxc],
 		},
+		{
+			files: [
+				".vscode/extensions.json",
+				".vscode/settings.json",
+				"ai-plugins/common-tools/skills/init-vscode/templates/extensions.json",
+			],
+			parser: "jsonc",
+			trailingComma: "none",
+		},
 		// {
 		// 	files: ["**/*.md"],
 		// 	plugins: [prettierPluginLintMd],
