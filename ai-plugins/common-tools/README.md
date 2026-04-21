@@ -4,7 +4,13 @@
 
 ## 版本
 
-**当前版本**: `6.3.1`
+**当前版本**: `6.3.2`
+
+⚠️ **v6.3.2 JSONC 配置加固**:
+
+- `init-vscode` 修复 `extensions.json` 模板顶部块注释隐患，改用 JSONC 行注释保留说明、分组和扩展用途注释，并在本仓库中显式按 JSONC 识别模板文件。
+- `init-vscode` 与 `init-prettier-git-hooks` 补充带注释 `.json` 配置文件的 Prettier `parser: "jsonc"` 精确 override 判断与验证命令。
+- 版本号与 marketplace 主版本同步至 `6.3.2`。
 
 ⚠️ **v6.3.1 版本同步**:
 

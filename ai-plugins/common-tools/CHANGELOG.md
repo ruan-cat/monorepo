@@ -5,6 +5,17 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.3.2] - 2026-04-21
+
+### Changed
+
+- **init-vscode**（`metadata.version` `0.2.0` -> `0.2.1`）：修复 `templates/extensions.json` 顶部块注释隐患，改用 JSONC 行注释保留说明、分组和扩展用途注释。
+- **init-vscode**：本仓库 `.vscode/settings.json` 将模板文件显式关联为 `jsonc`，不再把模板降级为纯文本。
+- **init-vscode**：补充 `.vscode/extensions.json` / `.vscode/settings.json` 的 JSONC 识别、Prettier `parser: "jsonc"` 精确 override 判断与验证命令。
+- **init-prettier-git-hooks**（`metadata.version` `1.1.2` -> `1.1.3`）：新增带注释 `.json` 配置文件的 JSONC override 检查流程。
+- **init-prettier-git-hooks**：在 `templates/prettier.config.mjs` 预留精确文件匹配示例，明确禁止把 `**/*.json` 全部改成 JSONC。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.3.2`。
+
 ## [6.3.1] - 2026-04-21
 
 ### Changed

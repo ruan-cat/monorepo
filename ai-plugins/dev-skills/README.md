@@ -4,7 +4,11 @@
 
 ## 版本
 
-**当前版本**: `6.3.1`
+**当前版本**: `6.3.2`
+
+⚠️ **v6.3.2 版本同步**:
+
+- 版本号与 marketplace 主版本同步至 `6.3.2`（本次 `dev-skills` 技能树无内容变更；`common-tools` 加固 **init-vscode** 与 **init-prettier-git-hooks** 的 JSONC / Prettier 处理规则）。
 
 ⚠️ **v6.3.1 workflow 模板升级**:
 
