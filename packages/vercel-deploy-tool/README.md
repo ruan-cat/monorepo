@@ -47,10 +47,21 @@ deno install --dev npm:@ruan-cat/vercel-deploy-tool
 
 <!-- /automd -->
 
+### 安装 Vercel CLI peer 依赖
+
+`@ruan-cat/vercel-deploy-tool` 不再内置 `vercel` 包。部署命令会调用项目内的 Vercel CLI，请在使用方项目主动安装：
+
+```sh
+pnpm add -D vercel@latest
+```
+
+Vercel 部署接口要求 CLI 版本至少为 `47.2.2`。推荐使用 `vercel@latest`，避免 CI 因锁文件中的旧版 CLI 被服务端拒绝。
+
 ## 🔧 环境要求
 
 - Node.js >= 18
 - pnpm >= 9 (推荐)
+- Vercel CLI >= 47.2.2（peerDependency，推荐安装 `vercel@latest`）
 
 ## 🚀 快速开始
 

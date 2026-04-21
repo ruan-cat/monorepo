@@ -30,9 +30,10 @@ jobs:
       - name: 安装pnpm
         uses: pnpm/action-setup@v4
         with:
+          # vercel-deploy-tool 将 vercel 作为 peerDependency，建议显式安装最新版 CLI。
           run_install: |
             - recursive: true
-            - args: [--global, "vercel", "@dotenvx/dotenvx", "tsx", "turbo"]
+            - args: [--global, "vercel@latest", "@dotenvx/dotenvx", "tsx", "turbo"]
 
       - name: 安装node
         uses: actions/setup-node@v4
@@ -44,6 +45,7 @@ jobs:
         run: |
           node -v
           pnpm -v
+          pnpm exec vercel --version
           vc -v
 
       - name: pnpm全局检查依赖包

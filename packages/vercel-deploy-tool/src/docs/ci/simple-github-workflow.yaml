@@ -25,9 +25,10 @@ jobs:
           # 若项目提供了packageManager配置 这里可以不提供该配置
           # version: 9
           # 必须安装 vercel @dotenvx/dotenvx tsx 这三个全局包
+          # vercel-deploy-tool 将 vercel 作为 peerDependency，建议显式安装最新版 CLI。
           run_install: |
             - recursive: true
-            - args: [--global, "vercel", "@dotenvx/dotenvx", "tsx"]
+            - args: [--global, "vercel@latest", "@dotenvx/dotenvx", "tsx"]
 
       - name: 安装node
         uses: actions/setup-node@v4
@@ -39,6 +40,7 @@ jobs:
         run: |
           node -v
           pnpm -v
+          pnpm exec vercel --version
           vc -v
 
       - name: pnpm全局检查依赖包
