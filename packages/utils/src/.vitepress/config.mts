@@ -10,6 +10,7 @@ addChangelog2doc({
 });
 
 const userConfig = setUserConfig({
+	head: [["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }]],
 	title: "阮喵喵工具包",
 	description,
 	themeConfig: {

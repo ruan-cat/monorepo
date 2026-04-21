@@ -8,9 +8,11 @@ moveMdAsHomePage({
 	homePageMdPath: `./src/configs/${name}/.vitepress/index.md`,
 	docsSourcePath: "./docs",
 	targetDocsPath: `./.docs/${name}`,
+	publicSourcePath: `./src/configs/${name}/public`,
 });
 
 const userConfig = setUserConfig({
+	head: [["link", { rel: "icon", type: "image/svg+xml", href: `/${name}/favicon.svg` }]],
 	title: "monorepo-1-vitepress原版主题",
 	description: "vitepress原版主题测试",
 	lang: "zh",

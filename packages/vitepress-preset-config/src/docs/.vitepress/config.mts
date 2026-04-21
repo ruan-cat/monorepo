@@ -12,6 +12,7 @@ addChangelog2doc({
  * 本文档的渲染配置
  */
 const thisDocUserConfig = setUserConfig({
+	head: [["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }]],
 	title: "vitepress预设配置",
 	description,
 	themeConfig: {

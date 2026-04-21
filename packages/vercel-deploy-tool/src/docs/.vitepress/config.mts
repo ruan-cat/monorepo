@@ -12,6 +12,7 @@ addChangelog2doc({
 });
 
 const userConfig = setUserConfig({
+	head: [["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }]],
 	title: "阮喵喵的 Vercel 部署工具",
 	themeConfig: {
 		editLink: {

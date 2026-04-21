@@ -10,6 +10,7 @@ moveMdAsHomePage({
 	homePageMdPath: `./src/configs/${name}/.vitepress/index.md`,
 	docsSourcePath: "./docs",
 	targetDocsPath: `./.docs/${name}`,
+	publicSourcePath: `./src/configs/${name}/public`,
 });
 
 /**
@@ -17,6 +18,7 @@ moveMdAsHomePage({
  * @see https://carbon.breno.tech/guide/configuration
  */
 export default defineConfig({
+	head: [["link", { rel: "icon", type: "image/svg+xml", href: `/${name}/favicon.svg` }]],
 	title: "vitepress-carbon主题",
 	description: "vitepress-carbon主题",
 	lang: "zh",

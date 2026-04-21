@@ -12,6 +12,7 @@ addChangelog2doc({
 });
 
 const userConfig = setUserConfig({
+	head: [["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }]],
 	title: "Claude Code 通知工具",
 	themeConfig: {
 		editLink: {

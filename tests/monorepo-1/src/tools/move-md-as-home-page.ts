@@ -36,6 +36,11 @@ interface Params {
 	 * 该目录应该被git忽略
 	 */
 	targetDocsPath: string;
+
+	/**
+	 * 可选的稳定 public 资源目录，用于复制到目标文档目录。
+	 */
+	publicSourcePath?: string;
 }
 
 const indexMdName = <const>`index.md`;
@@ -44,8 +49,10 @@ export function moveMdAsHomePage(params: Params) {
 	const homePageMdPath = resolve(process.cwd(), params.homePageMdPath);
 	const docsSourcePath = resolve(process.cwd(), params.docsSourcePath);
 	const targetDocsPath = resolve(process.cwd(), params.targetDocsPath);
+	const publicSourcePath = params.publicSourcePath ? resolve(process.cwd(), params.publicSourcePath) : undefined;
 
 	const targetDocsHomePageMdPath = resolve(process.cwd(), params.targetDocsPath, indexMdName);
+	const targetPublicPath = resolve(process.cwd(), params.targetDocsPath, "public");
 
 	if (!existsSync(homePageMdPath)) {
 		consola.error(`未发现期望的 ${homePageMdPath} 首页文件，无法移动文件。 首页文件只识别 ${indexMdName} 名称。 `);
@@ -67,4 +74,14 @@ export function moveMdAsHomePage(params: Params) {
 
 	copyFileSync(homePageMdPath, targetDocsHomePageMdPath);
 	consola.success(`首页文件已复制到 ${targetDocsHomePageMdPath}`);
+
+	if (publicSourcePath) {
+		if (!existsSync(publicSourcePath)) {
+			consola.error(`未发现期望的 ${publicSourcePath} public 资源目录，无法复制站点静态资源。`);
+			return;
+		}
+
+		cpSync(publicSourcePath, targetPublicPath, { recursive: true });
+		consola.success(`public 资源目录已复制到 ${targetPublicPath}`);
+	}
 }
