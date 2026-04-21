@@ -177,3 +177,6 @@ docs/reports/all-packages-pack.md
 
 # 忽略 local_cache 文件夹
 local_cache/
+
+# Superpowers brainstorming visual companion artifacts
+.superpowers/
