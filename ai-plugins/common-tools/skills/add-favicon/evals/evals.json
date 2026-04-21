@@ -1,0 +1,23 @@
+{
+	"skill_name": "add-favicon",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "我们的 monorepo 有 6 个 VitePress 文档站，都还没有 favicon。请你按项目语义分别设计 favicon.svg，优先参考 Iconify 的 Lucide 风格，不要背景块，最多 2 色，并在每个 config.mts 里显式配置 head。",
+			"expected_output": "应发现全部 VitePress 站点，给每个站点选择不同语义图标，写入正确 public/favicon.svg 路径，更新对应 head，并说明验证结果。",
+			"files": []
+		},
+		{
+			"id": 2,
+			"prompt": "这个 VitePress favicon 放到 .vitepress/public 真的能识别吗？你先确认项目构建根目录，再给 utils 文档站补一个清晰的 Iconify/Lucide 风格 favicon。",
+			"expected_output": "应先判断 VitePress source root 和实际 public 目录，避免误用 .vitepress/public；最终补本地 SVG、head 配置，并验证 dist/favicon.svg 与 HTML link。",
+			"files": []
+		},
+		{
+			"id": 3,
+			"prompt": "favicon 太丑了，不要黑乎乎的圆形背景。我只想要一个简洁明亮的 icon 本体，请把现有一批 favicon 全部重做。",
+			"expected_output": "应去除深色背景块，保留透明背景的简洁线性 icon，控制颜色和路径复杂度，并对批量站点保持统一风格但不同图标语义。",
+			"files": []
+		}
+	]
+}
