@@ -4,7 +4,11 @@
 
 ## 版本
 
-**当前版本**: `6.3.0`
+**当前版本**: `6.3.1`
+
+⚠️ **v6.3.1 版本同步**:
+
+- 版本号与 marketplace 主版本同步至 `6.3.1`（本次 `common-tools` 技能树无内容变更；`dev-skills` 更新 **init-release-base-relizy-and-bumpp** 的 GitHub workflow 模板）。
 
 ⚠️ **v6.3.0 新增技能**:
 

@@ -5,6 +5,13 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.3.1] - 2026-04-21
+
+### Changed
+
+- 版本号与根级 marketplace、`common-tools` / `dev-skills` 双平台 `plugin.json` 同步至 `6.3.1`。
+- 本次 `common-tools` 技能树无内容变更；功能更新集中在 `dev-skills` 的 **init-release-base-relizy-and-bumpp**。
+
 ## [6.3.0] - 2026-04-21
 
 ### Added

@@ -2,6 +2,13 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [6.3.1] - 2026-04-21
+
+### Changed
+
+- **init-release-base-relizy-and-bumpp**（`metadata.version` `3.0.0` -> `3.0.1`）：将 `templates/release.yaml` 的 GitHub Actions 模板升级到 Node 24 runtime 版本，`actions/checkout` 使用 `v6`，`pnpm/action-setup` 使用 `v6`，`actions/setup-node` 使用 `v6`。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.3.1`。
+
 ## [6.3.0] - 2026-04-21
 
 ### Changed

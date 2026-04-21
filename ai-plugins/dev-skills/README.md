@@ -4,7 +4,12 @@
 
 ## 版本
 
-**当前版本**: `6.3.0`
+**当前版本**: `6.3.1`
+
+⚠️ **v6.3.1 workflow 模板升级**:
+
+- `init-release-base-relizy-and-bumpp` 的 `.github/workflows/release.yaml` 模板升级 GitHub Actions 主版本：`actions/checkout@v6`、`pnpm/action-setup@v6`、`actions/setup-node@v6`。
+- 版本号与 marketplace 主版本同步至 `6.3.1`。
 
 ⚠️ **v6.3.0 版本同步**:
 
