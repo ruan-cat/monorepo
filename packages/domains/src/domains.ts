@@ -19,35 +19,50 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 	"11comm": [
 		{
 			topLevelDomain: "ruan-cat.com",
-			secondLevelDomain: "01s-11",
+			secondLevelDomain: "01s-11comm",
 			order: 1,
-			description: "本域名主要用于 cloudflare worker 部署，与 ruancat6312.top 域名的内容并不完全等价",
+			deployPlatform: "vercel",
+			description: "admin管理后台的入口。与 ruancat6312.top 域名的内容并不完全等价",
 		},
 		{
 			topLevelDomain: "ruan-cat.com",
-			secondLevelDomain: "01s-11comm",
+			secondLevelDomain: "01s-11",
 			order: 2,
-			description: "本域名主要用于 vercel 部署，与 ruancat6312.top 域名的内容并不完全等价",
+			deployPlatform: "cloudflare",
+			description: `admin管理后台的入口，但是已经废弃，因为部署nitro接口遇到环境变量获取问题，故未来不考虑继续维护cloudflare worker的部署了。
+				与 ruancat6312.top 域名的内容并不完全等价`,
 		},
+
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "01s-11-server",
+			order: 3,
+			deployPlatform: "vercel",
+			description: "整个11comm项目admin和app两个前端应用的，公共nitro接口后端服务。",
+		},
+		// TODO 需要及时改造调整vercel项目的github仓库指向。
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "01s-11-app",
-			order: 3,
+			order: 4,
+			deployPlatform: "vercel",
 			projectAlias: "11commAppH5",
-			description: "11comm App H5 前端生产环境。在 vercel 平台内完成部署，高频更新。vercel 项目名称：11comm-app-h5。",
+			description: `11comm App H5 前端生产环境。在 vercel 平台内完成部署，高频更新。vercel 项目名称：11comm-app-h5。`,
 		},
+		// TODO 需要及时改造调整vercel项目的github仓库指向。
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "01s-11-app-server",
-			order: 4,
+			order: 5,
+			deployPlatform: "vercel",
 			projectAlias: "11commAppNitroServer",
-			description:
-				"11comm App Nitro 服务端接口生产环境。在 vercel 平台内完成部署，高频更新。vercel 项目名称：11comm-app-nitro-server。",
+			description: `11comm App Nitro 服务端接口生产环境。在 vercel 平台内完成部署，高频更新。vercel 项目名称：11comm-app-nitro-server。
+			该域名未来需要废弃掉，因为不考虑为app做一个独立的接口服务了。`,
 		},
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "01s.11.app",
-			order: 5,
+			order: 6,
 			description: `微信小程序备案用的【H5前端app页面】，说是不给增加短横杠。经过实际实验不行，因为 ruan-cat.com 这个一级域名本身就提供了短横杠。这是不可理喻的。
 				傻逼腾讯。
 				尝试使用 web-view 来实现小程序套壳H5，但是我的账号是个人账号，没有权限使用 web-view 功能。故备案域名设计无效。`,
@@ -55,19 +70,19 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 		{
 			topLevelDomain: "ruancat6312.top",
 			secondLevelDomain: "01s.11.app",
-			order: 6,
+			order: 7,
 			description: `微信小程序备案用的【H5前端app页面】，说是不给增加短横杠。
 				尝试使用 web-view 来实现小程序套壳H5，但是我的账号是个人账号，没有权限使用 web-view 功能。故备案域名设计无效。`,
 		},
 		{
 			topLevelDomain: "ruancat6312.top",
 			secondLevelDomain: "01s.11.app.server",
-			order: 7,
+			order: 8,
 			description: `微信小程序备案用的【nitro服务端接口】，说是不给增加短横杠。
 				尝试使用 web-view 来实现小程序套壳H5，但是我的账号是个人账号，没有权限使用 web-view 功能。故备案域名设计无效。`,
 		},
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11", order: 8 },
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm", order: 9 },
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11", order: 9 },
+		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm", order: 10 },
 	],
 	/** 大项目 11智慧社区项目 前端文档 */
 	"11comm-doc": [
@@ -75,6 +90,7 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "01s-11comm-doc",
 			order: 1,
+			deployPlatform: "cloudflare",
 			description: "本域名主要用于 cloudflare worker 部署，与 ruancat6312.top 域名的内容并不完全等价。是高频更新的。",
 		},
 		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "01s-11comm-doc", order: 2 },
@@ -85,12 +101,14 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "01s-doc",
 			order: 1,
+			deployPlatform: "cloudflare",
 			description: "本域名是主域名，作为主要的域名使用。在cloudflare worker内配置了自动部署。",
 		},
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "docs-01-star",
 			order: 2,
+			deployPlatform: "cloudflare",
 			description: "本域名是别名。在cloudflare worker内指向同一个内容。不属于301重定向写法。",
 		},
 		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "docs-01-star", order: 3 },
@@ -118,12 +136,14 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "ccntf",
 			order: 1,
+			deployPlatform: "vercel",
 			description: "本域名在cloudflare CDN 内配置了二级域名。由 github workflow + vercel 流水线完成部署。低频更新。",
 		},
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "claude-notifier",
 			order: 2,
+			deployPlatform: "vercel",
 			description: "和 ccntf 域名指向同一个内容，使用相同的配置。",
 		},
 		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "ccntf", order: 3 },
@@ -147,6 +167,7 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "notes",
 			order: 1,
+			deployPlatform: "vercel",
 			projectAlias: "notesVercel",
 			description: `笔记项目 Vercel 流水线版本
 在 vercel 流水线内部署的域名
@@ -162,6 +183,7 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "ruan-cat-notes",
 			order: 2,
+			deployPlatform: "cloudflare",
 			projectAlias: "notesCloudflare",
 			description: `笔记项目 Cloudflare 流水线版本
 在 cloudflare pages 流水线内部署的域名
@@ -177,6 +199,7 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruancat6312.top",
 			secondLevelDomain: "ruan-cat-notes",
 			order: 3,
+			deployPlatform: "vercel",
 			projectAlias: "notesGithubWorkflow",
 			description: `笔记项目 GitHub Workflow 流水线版本
 在 github workflow 流水线内部署的域名
@@ -196,6 +219,7 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "gh",
 			order: 1,
+			deployPlatform: "vercel",
 			description: `阮喵喵的github贡献表。目前只包括pr贡献，issue贡献暂时没有。
 				使用vercel部署，域名在cloudflare内以CDN方式配置。
 				本站点几乎是一次性完成的，未来几乎不会进一步更新。故配置了基于main主分支的低频更新。`,
@@ -242,6 +266,7 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "rmmv-api-doc",
 			order: 1,
+			deployPlatform: "vercel",
 			description: "使用vercel流水线部署的域名。",
 		},
 		{
@@ -254,6 +279,7 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "rmmv-api-doc",
 			order: 3,
+			deployPlatform: "vercel",
 			description: "该域名在vercel内配置cname 在此处仅声明 不实际暴露出去使用",
 		},
 	],
@@ -263,12 +289,14 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "juejin",
 			order: 1,
+			deployPlatform: "cloudflare",
 			description: "重定向到掘金文章主页。在cloudflare内用cloudflare worker函数实现301重定向配置。",
 		},
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "star",
 			order: 2,
+			deployPlatform: "cloudflare",
 			description: `重定向到个人的github stars列表页。在cloudflare内用cloudflare worker函数实现301重定向配置。
 			重定向到 https://ruan-cat.github.io/stars-list/ 这个页面。`,
 		},
@@ -276,6 +304,7 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "rmmv-api-doc",
 			order: 2,
+			deployPlatform: "vercel",
 			description: "rmmv的api文档，用工具生成的文档。由于仓库庞大，故选择用vercel工作流克隆并部署文档。",
 		},
 	],
