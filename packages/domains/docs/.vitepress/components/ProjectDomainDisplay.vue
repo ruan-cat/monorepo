@@ -1,8 +1,20 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useData } from "vitepress";
+import { Icon } from "@iconify/vue";
 import { projectLikeDomainSet } from "../../../src/domains";
 import { projects } from "../../../src/types";
+import type { DeployPlatform } from "../../../src/types";
+
+const PLATFORM_ICON: Record<DeployPlatform, string> = {
+	vercel: "logos:vercel-icon",
+	cloudflare: "logos:cloudflare-icon",
+};
+
+const PLATFORM_LABEL: Record<DeployPlatform, string> = {
+	vercel: "Vercel",
+	cloudflare: "Cloudflare",
+};
 
 const { params } = useData();
 
@@ -85,6 +97,11 @@ const sortedDomains = computed(() => {
 								<span class="separator">.</span>
 								<span class="tld">{{ domain.topLevelDomain }}</span>
 							</div>
+						</div>
+						<!-- 部署平台 -->
+						<div v-if="domain.deployPlatform" class="domain-platform" :class="`platform-${domain.deployPlatform}`">
+							<Icon :icon="PLATFORM_ICON[domain.deployPlatform]" class="platform-icon" />
+							<span class="platform-label">{{ PLATFORM_LABEL[domain.deployPlatform] }}</span>
 						</div>
 					</div>
 
@@ -208,6 +225,61 @@ const sortedDomains = computed(() => {
 	border-radius: 50%;
 	font-weight: 700;
 	font-size: 0.9em;
+}
+
+/* 部署平台徽章 */
+.domain-platform {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 4px 10px;
+	border-radius: 20px;
+	font-size: 0.78em;
+	font-weight: 600;
+	transition: all 0.25s ease;
+	border: 1px solid transparent;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.domain-platform:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.platform-icon {
+	font-size: 1.15em;
+	flex-shrink: 0;
+}
+
+.platform-label {
+	letter-spacing: 0.02em;
+}
+
+/* Vercel 平台样式 */
+.platform-vercel {
+	background: #f5f5f5;
+	color: #171717;
+	border-color: #d4d4d4;
+}
+
+.platform-vercel:hover {
+	background: #e5e5e5;
+	border-color: #000;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Cloudflare 平台样式 */
+.platform-cloudflare {
+	background: #fef2e7;
+	color: #d4650c;
+	border-color: #f9c982;
+}
+
+.platform-cloudflare:hover {
+	background: #fde8d0;
+	border-color: #f38020;
+	box-shadow: 0 2px 8px rgba(243, 128, 32, 0.25);
 }
 
 .domain-info {
