@@ -8,6 +8,13 @@
 export type TopLevelDomain = "ruancat6312.top" | "ruan-cat.com";
 
 /**
+ * 部署平台
+ * @description
+ * 该域名所部署的平台。目前仅支持 cloudflare 和 vercel。
+ */
+export type DeployPlatform = "cloudflare" | "vercel";
+
+/**
  * 域名配置信息
  * @description
  * 每一个域名配置信息
@@ -117,6 +124,13 @@ export interface ProjectLikeDomain extends Domain {
 	 * 某些域名很特殊 需要被特殊索引 故需要配置一个别名 来方便索引
 	 */
 	projectAlias?: string;
+
+	/**
+	 * 部署平台
+	 * @description
+	 * 指明该域名部署在哪个平台上，目前可选的平台有 cloudflare 和 vercel。
+	 */
+	deployPlatform?: DeployPlatform;
 }
 
 /** 项目化的域名 不包含项目名称 */
