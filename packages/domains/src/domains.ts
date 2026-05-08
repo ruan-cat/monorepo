@@ -22,7 +22,9 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "01s-11comm",
 			order: 1,
 			deployPlatform: "vercel",
-			description: "admin管理后台的入口。与 ruancat6312.top 域名的内容并不完全等价",
+			projectAlias: "11commAdmin",
+			description: `admin管理后台的入口。与 ruancat6312.top 域名的内容并不完全等价。
+			vercel 项目名称：11comm-admin`,
 		},
 		{
 			topLevelDomain: "ruan-cat.com",
@@ -38,18 +40,20 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "01s-11-server",
 			order: 3,
 			deployPlatform: "vercel",
-			description: "整个11comm项目admin和app两个前端应用的，公共nitro接口后端服务。",
+			projectAlias: "11commNitroServer",
+			description: `整个11comm项目admin和app两个前端应用的，公共nitro接口后端服务。
+			vercel 项目名称：11comm-nitro-server`,
 		},
-		// TODO 需要及时改造调整vercel项目的github仓库指向。
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "01s-11-app",
 			order: 4,
 			deployPlatform: "vercel",
 			projectAlias: "11commAppH5",
-			description: `11comm App H5 前端生产环境。在 vercel 平台内完成部署，高频更新。vercel 项目名称：11comm-app-h5。`,
+			description: `11comm App H5 前端生产环境。
+			vercel 项目名称：11comm-app-h5`,
 		},
-		// TODO 需要及时改造调整vercel项目的github仓库指向。
+		// 这个配置已经过时了 认定为需要被废弃掉
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "01s-11-app-server",
