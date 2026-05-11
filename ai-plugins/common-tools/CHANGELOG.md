@@ -5,6 +5,19 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.4.0] - 2026-05-11
+
+### Added
+
+- **init-simple-memorix**（`metadata.version` `1.0.0`）：新增 Memorix hooks 精简配置技能。
+- 移除高频噪音触发器（`PostToolUse`、`PreToolUse`、`afterFileEdit` 等），仅保留会话生命周期事件。
+- 支持 Claude Code、Cursor、Windsurf、Gemini CLI、Kiro 等多种 AI IDE 的 hooks 配置文件。
+- 提供完整的配置模板和自检清单。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.4.0`。
+
 ## [6.3.2] - 2026-04-21
 
 ### Changed

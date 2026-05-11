@@ -1,0 +1,15 @@
+name: memorix-file-save
+description: Record file saves to Memorix memory system (disabled to reduce noise)
+enabled: false
+event: onFileSave
+match:
+  - "**/*"
+exclude:
+  - "**/node_modules/**"
+  - "**/.git/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/*.log"
+steps:
+  - command: memorix.cmd hook
+    description: Record file save event to Memorix
