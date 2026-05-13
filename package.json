@@ -2,7 +2,11 @@
 	"name": "@ruan-cat-monorepo/root",
 	"private": true,
 	"version": "1.0.0",
-	"author": "ruan-cat",
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	},
 	"license": "ISC",
 	"description": "这是单仓架构项目的根目录。",
 	"main": "index.js",

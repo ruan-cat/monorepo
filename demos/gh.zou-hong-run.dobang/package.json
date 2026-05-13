@@ -12,5 +12,10 @@
 		"sass": "^1.98.0",
 		"typescript": "^5.9.3",
 		"vite": "^6.3.5"
+	},
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
 	}
 }

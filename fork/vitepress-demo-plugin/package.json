@@ -19,7 +19,11 @@
 		"url": "git+https://github.com/ruan-cat/monorepo.git",
 		"directory": "fork/vitepress-demo-plugin"
 	},
-	"author": "ruan-cat",
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	},
 	"license": "MIT",
 	"type": "module",
 	"exports": {
