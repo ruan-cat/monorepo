@@ -5,6 +5,14 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.4.1] - 2026-05-13
+
+### Changed
+
+- **pr-ruancat-repo**（`metadata.version` `0.3.4` -> `0.3.5`）：
+- `references/target-repos.md` 新增私有仓库 `ruan-cat/hzx10`，优先级排在 `ruan-cat/stars-list` 之后。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.4.1`。
+
 ## [6.4.0] - 2026-05-11
 
 ### Added

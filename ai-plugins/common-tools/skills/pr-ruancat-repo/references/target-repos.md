@@ -25,7 +25,8 @@
 |     14     | `ruan-cat/gzpc-big-screen`                 |  ✅  |
 |     15     | `ruan-cat/dfsw-assets-admin`               |  ✅  |
 |     16     | `ruan-cat/stars-list`                      |  ✅  |
-|     17     | `ruan-cat/rm-monorepo`                     |  ✅  |
+|     17     | `ruan-cat/hzx10`                           |  ✅  |
+|     18     | `ruan-cat/rm-monorepo`                     |  ✅  |
 
 ## 维护约定
 
