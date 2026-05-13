@@ -3,7 +3,7 @@ name: init-ai-md
 description: 初始化和增量更新 AI 记忆文件（CLAUDE.md、AGENTS.md、GEMINI.md）。通过交互式选择和差异对比，智能补全记忆项内容。触发条件：当用户提及初始化记忆文件、更新 CLAUDE.md、同步 AI 记忆、init-ai-md 等关键词时主动调用。
 user-invocable: true
 metadata:
-  version: "0.16.0"
+  version: "0.17.0"
 ---
 
 # init-ai-md 技能说明
@@ -143,26 +143,50 @@ metadata:
    - **禁止**一股脑复制粘贴整个模板内容
    - **禁止**覆盖用户的自定义内容
 
-### 步骤 5：初始化本地技能
+### 步骤 5：初始化或升级本地技能
 
-在完成 CLAUDE.md 内容更新后，检查项目是否需要部署内置技能：
+在完成 CLAUDE.md 内容更新后，检查项目是否需要部署或升级内置技能：
 
 1. **检查技能模板目录**：
    - 读取 `templates/record-bug-fix-memory/` 目录，确认内置技能模板可用
+   - 读取模板的 `template-version` 字段（当前为 `2.0.0`）
 
 2. **检查项目现有技能**：
    - 检查项目中是否已存在 `.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
-   - 如果已存在：标记为 `[已存在]`
    - 如果不存在：标记为 `[可部署]`
+   - 如果已存在：读取其 frontmatter 中的 `template-version` 字段
+     - 无版本号或版本 < 2.0.0：标记为 `[需升级]`
+     - 版本 ≥ 2.0.0：标记为 `[已是最新]`
 
-3. **询问用户**：
-   - 使用 `AskUserQuestion` 工具询问用户是否需要部署内置技能
-   - 选项中列出每个可部署的技能及其状态
+3. **判断是否为旧版单层架构**：
+   - 如果标记为 `[需升级]`，检查现有 SKILL.md 是否内嵌了大段事故记录正文
+   - 判断方法：检测 `###` 三级标题下是否存在超过 10 行的内容块
+   - 如果存在内嵌案例：标记为 `[需升级 + 需拆分]`
 
-4. **部署技能**：
-   - 用户确认后，将 `templates/record-bug-fix-memory/SKILL.md` 复制到项目的 `.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
-   - 创建必要的目录结构（`.claude/skills/fix-bug/record-bug-fix-memory/`）
-   - **注意**：模板中的「仓库级经验库」章节初始为空，不包含项目特有的事故记录。随着项目实际使用积累经验后由 agent 逐步补充。
+4. **询问用户**：
+   - 使用 `AskUserQuestion` 工具询问用户需要执行的操作
+   - 选项中列出每个技能及其状态：`[可部署]`、`[需升级]`、`[需升级 + 需拆分]`、`[已是最新]`
+
+5. **执行部署或升级**：
+
+   **情况 A：全新部署（`[可部署]`）**
+   - 将 `templates/record-bug-fix-memory/SKILL.md` 复制到项目的 `.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
+   - 创建必要的目录结构
+   - 模板中的「案例索引」章节初始为空，随项目积累逐步补充
+
+   **情况 B：升级骨架（`[需升级]`，无内嵌案例）**
+   - 用模板的流程指导部分替换现有 SKILL.md 的对应章节
+   - 保留项目已有的案例索引内容（如果有）
+   - 保留同目录下已有的独立案例文件
+
+   **情况 C：升级 + 拆分（`[需升级 + 需拆分]`）**
+   - 提取 SKILL.md 中内嵌的每条事故记录（`###` 三级标题 + 正文）
+   - 为每条记录创建独立的案例文件 `YYYY-MM-DD-{slug}.md`
+     - 日期从标题中提取（如有），否则使用当前日期
+     - slug 从标题关键词生成
+   - 在 SKILL.md 的「案例索引」章节为每条拆分出的案例生成摘要索引
+   - 用模板的流程指导部分替换 SKILL.md 的骨架
+   - 最终 SKILL.md 只保留流程指导 + 摘要索引，不再包含事故正文
 
 ### 步骤 6：生成/更新「本项目的技能表」
 
@@ -183,6 +207,13 @@ metadata:
        - 触发时机：{从技能 SKILL.md 中提取的使用场景}
        - 参考作用：{从技能 SKILL.md 中提取的参考信息}
        - 约束：{从技能 SKILL.md 中提取的边界约束}
+     ```
+   - **特殊处理 `record-bug-fix-memory`**：该技能采用双层存储架构，技能表条目必须额外包含存储架构说明和阅读指引，格式如下：
+     ```markdown
+     - `record-bug-fix-memory` — `.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
+       - **存储架构**：双层存储。SKILL.md 只放流程指导和摘要索引，详细案例存储在同目录下的独立 `YYYY-MM-DD-{slug}.md` 文件中。
+       - **阅读方式**：使用此技能前，先读 SKILL.md 了解流程，再根据「案例索引」章节按需读取相关的独立案例文件。
+       - **写入方式**：新增经验时，创建独立案例文件，同时在 SKILL.md 的「案例索引」追加摘要。禁止将完整事故正文写入 SKILL.md。
      ```
 
 3. **插入或更新 CLAUDE.md**：
@@ -366,23 +397,46 @@ init-ai-md/
 
 ### record-bug-fix-memory 技能
 
-这是一个专用于 bug 修复经验沉淀的技能。部署后：
+这是一个专用于 bug 修复经验沉淀的技能，采用**双层存储架构**。部署后：
 
 1. **目标路径**：`.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
-2. **来源模板**：`templates/record-bug-fix-memory/SKILL.md`
-3. **部署后状态**：
-   - 技能的通用框架已就绪（概述、何时使用、记录流程等）
-   - 「仓库级经验库」章节为空，等待项目实际积累
+2. **来源模板**：`templates/record-bug-fix-memory/SKILL.md`（template-version: 2.0.0）
+3. **双层存储架构**：
+   - **SKILL.md**：只放流程指导 + 案例摘要索引（保持精简）
+   - **独立案例文件**：每条详细事故记录写成 `YYYY-MM-DD-{slug}.md`，与 SKILL.md 同目录
+   - **禁止**将完整事故记录正文内嵌到 SKILL.md 中
+4. **部署后状态**：
+   - 技能的通用框架已就绪（概述、何时使用、记录流程、案例文件规范等）
+   - 「案例索引」章节为空，等待项目实际积累
    - agent 可以立即使用该技能记录 bug 修复经验
-4. **持续演进**：
-   - 每次 bug 修复后，agent 应主动将经验补充到该技能的「仓库级经验库」章节
-   - 这使得技能随项目使用逐步丰富，形成项目特有的排错知识库
+5. **持续演进**：
+   - 每次 bug 修复后，agent 创建独立案例文件 `YYYY-MM-DD-{slug}.md`
+   - 同时在 SKILL.md 的「案例索引」章节追加一条摘要索引
+   - 这使得技能随项目使用逐步丰富，同时 SKILL.md 保持精简可读
 
 ### 部署注意事项
 
-- **不会覆盖**：如果目标路径已存在技能文件，不执行部署
-- **目录创建**：自动创建 `.claude/skills/fix-bug/record-bug-fix-memory/` 目录结构
+- **全新部署**：如果目标路径不存在，创建目录结构并部署模板
+- **升级部署**：如果已存在旧版（无 template-version 或 < 2.0.0），执行升级流程（见步骤 5）
+- **不会覆盖案例**：升级时保留项目已有的独立案例文件
 - **技能表同步**：部署完成后自动更新 CLAUDE.md 中的技能表
+
+### CLAUDE.md / AGENTS.md 中的技能表条目要求
+
+部署或升级 `record-bug-fix-memory` 后，在 CLAUDE.md 的技能表中生成的条目**必须**包含以下信息，确保 agent 能正确使用双层架构：
+
+```markdown
+- `record-bug-fix-memory` — `.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
+  - **存储架构**：双层存储。SKILL.md 只放流程指导和摘要索引，详细案例存储在同目录下的独立 `YYYY-MM-DD-{slug}.md` 文件中。
+  - **阅读方式**：使用此技能前，先读 SKILL.md 了解流程，再根据「案例索引」章节按需读取相关的独立案例文件。
+  - **写入方式**：新增经验时，创建独立案例文件，同时在 SKILL.md 的「案例索引」追加摘要。禁止将完整事故正文写入 SKILL.md。
+```
+
+这段描述确保任何 agent 在读取 CLAUDE.md / AGENTS.md 后，都能准确理解：
+
+1. 经验教训不在 SKILL.md 正文里，而在同目录的独立文件中
+2. 需要先读索引，再按需读详细案例
+3. 写入时必须创建独立文件，不能往 SKILL.md 里堆内容
 
 ## 交互选择详细说明
 
