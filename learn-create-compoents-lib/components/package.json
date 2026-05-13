@@ -31,7 +31,11 @@
 		"build:vite": "vite build"
 	},
 	"keywords": [],
-	"author": "",
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	},
 	"license": "ISC",
 	"devDependencies": {
 		"@giegie/resolver": "workspace:^",

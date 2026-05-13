@@ -20,5 +20,10 @@
 		"consola": "^3.4.2",
 		"vitepress": "^1.6.4",
 		"vitepress-carbon": "^1.6.0"
+	},
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
 	}
 }
