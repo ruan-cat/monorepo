@@ -5,6 +5,18 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.6.0] - 2026-05-19
+
+### Added
+
+- **do-long-task**（`metadata.version` `1.0.0`）：新增长任务可恢复执行纪律技能，面向 OpenSpec 长任务、上下文恢复、测试失败重试和文件化 checkpoint 推进。
+- **do-long-task**：新增 `AGENT_LONGTASK.md`，沉淀唯一任务源、进度日志、失败记忆、验证后完成和中断恢复等长任务执行规范。
+- **do-long-task**：新增 `evals/evals.json`，覆盖 OpenSpec 断点续跑、连续验证失败处理和短任务不触发三类触发边界。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.6.0`。
+
 ## [6.5.0] - 2026-05-14
 
 ### Changed
