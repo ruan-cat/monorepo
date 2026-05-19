@@ -1,0 +1,23 @@
+{
+	"skill_name": "do-long-task",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "继续执行 openspec/changes/refactor-auth-flow/tasks.md，之前会话被压缩过。请先恢复上下文，然后持续完成未勾选任务，验证通过后再标记完成。",
+			"expected_output": "应触发 do-long-task；先读取 AGENT_LONGTASK.md、OpenSpec change 文件、agent-progress.md 和 agent-findings.md，再选择一个未完成 task 小步推进，并把进度与验证结果写回文件。",
+			"files": []
+		},
+		{
+			"id": 2,
+			"prompt": "这个 OpenSpec change 已经连续两次 typecheck 失败了。继续修复，但不要重复走刚才的方案，失败路径要记录下来。",
+			"expected_output": "应触发 do-long-task；按失败记忆纪律读取并更新 agent-findings.md，换方案处理当前 task，验证失败或通过都写入 agent-progress.md。",
+			"files": []
+		},
+		{
+			"id": 3,
+			"prompt": "帮我给这次改动写一个 changeset 更新日志，发 patch。",
+			"expected_output": "不应触发 do-long-task；这是短任务，应按项目 changeset 规范处理，不需要 agent-progress.md 或 agent-findings.md。",
+			"files": []
+		}
+	]
+}
