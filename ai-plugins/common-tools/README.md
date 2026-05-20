@@ -4,7 +4,14 @@
 
 ## 版本
 
-**当前版本**: `6.6.0`
+**当前版本**: `6.7.0`
+
+⚠️ **v6.7.0 批量 PR 策略增强**:
+
+- `pr-ruancat-repo` 新增仓库复杂度评估、本地仓库路径收集与 `remote-api` / `local-git` / `hybrid` 执行模式。
+- 批量跨仓库 PR 默认推荐本地 Bash 循环 + GitHub API/MCP 混合策略。
+- 新增线性合并与分支清理要求：GitHub 优先 rebase，本地优先 `git merge --ff-only`，合并后清理远程和本地来源分支。
+- 版本号与 marketplace 主版本同步至 `6.7.0`。
 
 ⚠️ **v6.6.0 新增长任务执行技能**:
 

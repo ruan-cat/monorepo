@@ -5,6 +5,18 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.7.0] - 2026-05-20
+
+### Changed
+
+- **pr-ruancat-repo**（`metadata.version` `0.3.5` -> `0.4.0`）：
+- 新增仓库复杂度评估流程，要求在选择 PR 手段前先判断 `low` / `medium` / `high`。
+- 新增本地仓库路径收集要求，优先使用用户已克隆的 GitHub 仓库提升规模识别和批量修改效率。
+- 新增 `remote-api` / `local-git` / `hybrid` 三种执行模式，并将本地 Bash 循环 + GitHub API/MCP 设为批量跨仓库 PR 的默认推荐策略。
+- 新增线性合并策略，GitHub PR 页面优先 rebase，本地合并优先 `git merge --ff-only`。
+- 新增 PR 合并后的远程来源分支与本地来源分支清理要求。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.7.0`。
+
 ## [6.6.0] - 2026-05-19
 
 ### Added
