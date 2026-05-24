@@ -4,7 +4,15 @@
 
 ## 版本
 
-**当前版本**: `6.7.0`
+**当前版本**: `6.8.0`
+
+⚠️ **v6.8.0 do-long-task 动态任务补全增强**:
+
+- `do-long-task` 增强 OpenSpec 协作声明，以 `openspec/changes/<change>/tasks.md` 为唯一任务源。
+- 新增动态补全纪律：发现遗漏任务先补写 `tasks.md`，再继续执行。
+- 补充子代理协作边界：子代理只提出候选，主代理负责合并、验证和勾选。
+- 增强 eval 覆盖动态补全、重复候选去重和上下文恢复场景。
+- 版本号与 marketplace 主版本同步至 `6.8.0`。
 
 ⚠️ **v6.7.0 批量 PR 策略增强**:
 
@@ -98,7 +106,7 @@
 - **get-git-branch**: 诊断并修复 Git 仓库无法看到所有远程分支的问题，恢复通配符 fetch refspec
 - **git-commit**: 创建高质量 Git 提交，支持 Conventional Commits 规范、Emoji、破坏性变更格式、暂存区优先与多提交拆分
 - **add-favicon**: 为文档站或 monorepo 批量站点补全本地 `favicon.svg`，优先参考 Iconify/Lucide 风格，保持透明背景、简洁线性和显式 `head` 配置
-- **do-long-task**: 面向 OpenSpec 长任务、上下文恢复和测试失败重试的可恢复执行纪律，要求以 `tasks.md` 为唯一任务源并持续维护 `agent-progress.md` / `agent-findings.md`
+- **do-long-task**: 面向 OpenSpec 长任务、上下文恢复和测试失败重试的可恢复执行纪律，要求动态补全 `tasks.md`、以 OpenSpec 工件链协作推进，并持续维护 `agent-progress.md` / `agent-findings.md`
 - **init-ai-md**: 初始化和增量更新 AI 记忆文件（`CLAUDE.md`、`AGENTS.md`、`GEMINI.md`），包含技能表管理与内置技能部署
 - **init-claude-code-statusline**: 初始化 Claude Code 状态栏配置文件（`.claude/settings.json` + `statusline.sh`），展示目录、分支、模型、上下文窗口
 - **init-prettier-git-hooks**: 初始化基于 lint-staged + simple-git-hooks + prettier 的 Git 提交前代码格式化流程

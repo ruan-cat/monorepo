@@ -5,6 +5,17 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.8.0] - 2026-05-24
+
+### Changed
+
+- **do-long-task**（`metadata.version` `1.0.0` -> `1.1.0`）：新增 OpenSpec 协作声明。
+- **do-long-task**：执行 `openspec/changes/<change>` 时，以 OpenSpec 工件链和 `tasks.md` 为唯一任务源。
+- **do-long-task**：新增动态任务补全纪律，发现遗漏任务先补写 `tasks.md`，再继续执行。
+- **do-long-task**：新增子代理协作规则，子代理只提出补全候选，主代理负责去重、合并、排序和验证。
+- **do-long-task**：增强 `evals/evals.json`，覆盖动态补全、重复候选合并、上下文恢复和子代理候选边界。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.8.0`。
+
 ## [6.7.0] - 2026-05-20
 
 ### Changed

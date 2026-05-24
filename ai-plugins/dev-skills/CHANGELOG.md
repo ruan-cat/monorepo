@@ -2,6 +2,15 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [6.8.0] - 2026-05-24
+
+### Changed
+
+- **openspec**：`metadata.version` `1.2.0` -> `1.3.0`。
+- **openspec**：新增执行中动态补全规则，发现任务遗漏时先回写当前 change 的 `tasks.md`。
+- **openspec**：补充动态任务与 specs/design 的同步规则，并要求补全后执行 strict validate。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.8.0`。
+
 ## [6.7.0] - 2026-05-20
 
 ### Changed
