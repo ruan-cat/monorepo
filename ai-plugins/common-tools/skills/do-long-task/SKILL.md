@@ -3,12 +3,19 @@ name: do-long-task
 description: 在需要把复杂开发、修复、重构或多步变更拆成可恢复 checkpoint 并持续推进时使用，尤其是 OpenSpec 长任务、上下文压缩后的断点续跑、测试失败后的反复修复，以及必须把进度、发现和失败写入文件而不能依赖聊天记忆的场景；不要在单文件改动、一次性问答、纯方案讨论、简单格式化、写更新日志或其他短任务里使用。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # do-long-task
 
 这是一个面向长任务执行的入口 skill。它不负责替你决定“大任务做什么”，而是负责把已经确定的长任务稳定推进到底。
+
+## 协作声明
+
+- 需要协作的全局技能是 `openspec`。执行 OpenSpec change 时，先使用 `openspec` 理解 `proposal.md`、`design.md`、`specs/` 和 `tasks.md` 的工件链。
+- 当检测到当前任务位于 `openspec/changes/<change>` 下时，必须以当前 OpenSpec 工件链为准，`tasks.md` 是唯一可执行任务源。
+- 长任务执行中发现遗漏任务时，先更新当前 change 的 `tasks.md`，再继续执行。
+- 不得只把遗漏任务写在聊天 checklist、`agent-progress.md` 或子代理报告里。
 
 ## 什么时候用
 

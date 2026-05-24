@@ -110,7 +110,77 @@
 
 ---
 
-### 3. Verification Discipline 验证纪律
+### 3. Dynamic Task Completion Discipline 动态任务补全纪律
+
+动态补全不是创建新计划，而是把执行中发现的遗漏任务回写到当前 OpenSpec change 的唯一任务源。
+
+必须在以下时机重新读取 `tasks.md`、`agent-progress.md`、`agent-findings.md`：
+
+- 每次启动。
+- 上下文压缩后恢复。
+- 开始新的 OpenSpec task 前。
+- 完成 checkpoint 后。
+- 连续失败 2 次后。
+- 准备勾选 `[x]` 前。
+
+发现缺口时，先判断是否属于当前 `openspec/changes/<change-name>` 的范围：
+
+- 属于当前 change：先补写 `tasks.md`，再继续执行。
+- 不属于当前 change：写入 no-go，或建议新建 OpenSpec change。
+- 改变用户可观察行为：先同步 `specs/`，再补写 `tasks.md`。
+- 改变技术路线：先同步 `design.md`，再补写 `tasks.md`。
+
+`agent-progress.md` 必须记录：
+
+- 为什么补任务。
+- 补到了 `tasks.md` 的哪个位置。
+- 本轮运行了哪些验证。
+- 验证通过、失败或替代验证的结果。
+
+`agent-findings.md` 必须记录：
+
+- 风险。
+- 阻断。
+- 失败路径。
+- 不得误判的证据边界。
+
+只有同时满足以下条件，才能把补全后相关 task 勾选为 `[x]`：
+
+- 实现完成。
+- 验收标准满足。
+- 验证通过，或替代验证已明确记录。
+- OpenSpec strict validate 通过。
+- 没有未解决的 CRITICAL 残留。
+
+---
+
+### 4. Subagent Collaboration Discipline 子代理协作规则
+
+子代理只能提出动态补全候选，不能创建第二任务源，不能直接把自己的报告当成执行清单。
+
+子代理返回建议时使用以下格式：
+
+```markdown
+### 建议补全任务
+
+- 来源：验证失败 / 设计遗漏 / specs 未覆盖 / 实现依赖缺失
+- 建议任务：`- [ ] [修改] path - 具体动作与验收标准`
+- 是否需要同步 design/specs：是 / 否
+- 验证方式：命令、HTTP、browser、DB 或人工复核
+```
+
+主代理负责：
+
+- 去重。
+- 合并。
+- 排序。
+- 写入 `tasks.md`。
+- 运行 OpenSpec validate。
+- 判断是否满足勾选 `[x]` 的条件。
+
+---
+
+### 5. Verification Discipline 验证纪律
 
 任务必须验证后才能完成。
 
@@ -127,13 +197,14 @@
 
 ---
 
-### 4. Completion Marking Discipline 完成标记纪律
+### 6. Completion Marking Discipline 完成标记纪律
 
 只有满足以下条件，才能把 task 标记为 `[x]`：
 
 - 代码已实现。
 - task 验收标准满足。
 - 相关验证命令通过。
+- OpenSpec strict validate 通过。
 - 验证结果写入 `agent-progress.md`。
 - 重要风险写入 `agent-findings.md`。
 - 没有未解决的 CRITICAL 问题。
@@ -142,7 +213,7 @@
 
 ---
 
-### 5. Failure Memory Discipline 失败记忆纪律
+### 7. Failure Memory Discipline 失败记忆纪律
 
 失败必须成为长期记忆。
 
@@ -168,7 +239,7 @@
 
 ---
 
-### 6. File and Git Persistence Discipline 文件与 git 持久化纪律
+### 8. File and Git Persistence Discipline 文件与 git 持久化纪律
 
 文件持久化是强制要求。
 

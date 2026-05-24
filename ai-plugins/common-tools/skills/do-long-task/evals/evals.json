@@ -18,6 +18,48 @@
 			"prompt": "帮我给这次改动写一个 changeset 更新日志，发 patch。",
 			"expected_output": "不应触发 do-long-task；这是短任务，应按项目 changeset 规范处理，不需要 agent-progress.md 或 agent-findings.md。",
 			"files": []
+		},
+		{
+			"id": 4,
+			"prompt": "继续执行 openspec/changes/migrate-nitro-api/tasks.md。实现时发现 tasks.md 里只写了 contract test，没有写对应 endpoint handler。请继续推进。",
+			"expected_output": "应触发 do-long-task；发现 endpoint handler 缺口后先判断属于当前 OpenSpec change，再把 handler 任务补写进 tasks.md，记录补全原因和验证方式到 agent-progress.md，然后继续实现。",
+			"files": []
+		},
+		{
+			"id": 5,
+			"prompt": "两个子代理都说同一个 endpoint adapter 没有迁移，请把他们的发现纳入任务并继续。",
+			"expected_output": "应触发 do-long-task；主代理不能创建第二任务源，应按文件路径、endpoint、操作类型和验收目标去重合并，只在 tasks.md 中保留一个覆盖该缺口的任务。",
+			"files": []
+		},
+		{
+			"id": 6,
+			"prompt": "上下文被压缩后恢复执行 openspec/changes/payment-rewrite/tasks.md，之前聊天里还有一个临时 checklist。",
+			"expected_output": "应触发 do-long-task；恢复后重新读取 tasks.md、agent-progress.md、agent-findings.md，并明确 tasks.md 是唯一任务源，聊天 checklist 只能作为线索，不能作为执行清单。",
+			"files": []
+		},
+		{
+			"id": 7,
+			"prompt": "让子代理检查 openspec/changes/report-api/tasks.md 是否漏任务。子代理返回建议后你继续处理。",
+			"expected_output": "应触发 do-long-task；子代理只能按“建议补全任务”格式提出候选，主代理负责去重、合并、排序、写入 tasks.md、运行 OpenSpec validate，并决定是否可勾选完成。",
+			"files": []
+		},
+		{
+			"id": 8,
+			"prompt": "继续执行 openspec/changes/report-export/tasks.md。实现时发现需要新增用户可见的导出错误提示，原 specs 没写这个行为。",
+			"expected_output": "应触发 do-long-task；新增或改变用户可观察行为时，先同步当前 change 的 specs/**/spec.md，再把对应实现和验证任务补写到 tasks.md，并运行 strict validate。",
+			"files": []
+		},
+		{
+			"id": 9,
+			"prompt": "继续执行 openspec/changes/cache-runtime/tasks.md。现有任务要求改 repository，但实现发现必须改 runtime manifest 生成策略。",
+			"expected_output": "应触发 do-long-task；技术路线变化时不能只追加任务，必须先同步 design.md，再补写 tasks.md，并把方案变化和验证记录写入 agent-progress.md / agent-findings.md。",
+			"files": []
+		},
+		{
+			"id": 10,
+			"prompt": "继续执行 openspec/changes/user-api/tasks.md。你刚补了遗漏任务，但 openspec validate user-api --strict 失败了。",
+			"expected_output": "应触发 do-long-task；validate 失败时必须阻止继续实现和勾选完成，记录失败路径到 agent-findings.md，修正 OpenSpec 工件或任务后重新运行 strict validate。",
+			"files": []
 		}
 	]
 }
