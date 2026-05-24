@@ -113,12 +113,17 @@ openspec schemas                     # 列出所有可用 schemas
 # 检查安装
 openspec --version
 
-# 重新安装
-npm install -g @fission-ai/openspec@latest
+# 不做全局安装时，使用一次性执行
+npx @fission-ai/openspec@latest --version
+
+# 或在仓库已有依赖时使用
+pnpm exec openspec --version
 
 # 刷新指令文件
 openspec update
 ```
+
+不要使用全局安装方式污染用户环境。优先使用仓库脚本、`pnpm exec` 或 `npx`。
 
 ### 环境变量
 

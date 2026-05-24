@@ -72,10 +72,49 @@
 
 ---
 
+## 执行中动态补全任务
+
+执行 `/opsx:apply`、`/opsx:verify` 或人工复核时，如果发现当前 change 的 `tasks.md` 漏掉实现、验证、证据或依赖任务，必须先把遗漏补回 `tasks.md`，再继续实现或验收。`tasks.md` 是唯一可执行任务源，不得创造第二任务源。
+
+### 触发条件
+
+- 实现依赖缺失，导致原任务无法闭环。
+- 验证失败暴露遗漏的文件、endpoint、测试、HTTP/browser/DB/write evidence 或 guard。
+- 子代理复核发现 specs 到任务的追踪断裂，或发现已确认范围内的文件未覆盖。
+- 批次验收缺少必要的 HTTP、browser、DB、写入证据或替代验证记录。
+- 用户在同一 change 范围内追加已确认要求，且不改变目标边界。
+
+### 追加位置
+
+- 优先追加到对应业务章节或对应批次下，保持执行顺序清晰。
+- 跨切片规则可追加到「动态补全任务」小节。
+- 「动态补全任务」小节只属于 `tasks.md` 的组织方式，不得形成聊天 checklist、`agent-progress.md`、`agent-findings.md` 或子代理报告里的第二任务源。
+
+### 去重规则
+
+- 按文件路径、endpoint、操作类型、验收目标和证据来源去重。
+- 已有任务能覆盖同一缺口时，只补强原条目的动作或验收标准。
+- 不得重复追加语义相同的 backlog 条目。
+
+### 粒度规则
+
+- 补全任务必须继续使用 OpenSpec checkbox 格式：`- [ ] [操作类型] 路径 - 具体动作与验收标准`。
+- 真实 Nitro 迁移任务优先写到 endpoint/file-level，例如 handler、adapter、repository、runtime manifest、caller、contract test、HTTP gate、browser evidence、DB evidence、write guard。
+- 每条任务必须有可定位文件或明确 endpoint，并包含可验收结果或证据来源。
+
+### 禁止规则
+
+- 禁止新增「继续探索」「完善相关内容」「后续处理」这类无文件、无验收的模糊任务。
+- 禁止把 fallback evidence、`READY_CONFIGURED`、Vitest 通过、HTTP 200、blocked guard 误写成 `DB_READY`、exact migrated、shadow-off 或 retirement candidate。
+- 禁止把当前 `proposal.md`、`design.md`、`specs/**` 未覆盖的新目标伪装成动态补全任务；目标边界改变时应暂停并评估是否需要新的 OpenSpec change。
+- 任务补全后必须运行 `openspec validate <change-name> --strict`，未通过前不得勾选完成或声明验收完成。
+
+---
+
 ## 执行时的任务粒度原则
 
 执行 `/opsx:apply` 时，遵循以下原则来保证质量：
 
 1. **文件级粒度执行**：每次只修改一个文件，立即标记完成，不允许跨文件批量操作
 2. **先试点再推进**：先完成「试点批次」的任务，验证通过后再继续「主体任务」
-3. **及时更新状态**：完成每个任务后立即将 `- [ ]` 改为 `- [x]`，保持进度透明
+3. **及时更新状态**：完成每个任务后立即将 `- [ ]` 改为 `- [x]`；发现遗漏任务时先补写 `tasks.md` 并运行 strict validate，保持进度透明
