@@ -5,6 +5,19 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.9.0] - 2026-05-25
+
+### Added
+
+- **init-ai-md**（`metadata.version` `0.17.0` -> `0.18.0`）：新增 `09.Karpathy Guidelines.md` AI 记忆模板。
+- **init-ai-md**：新增「编码前思考、简洁优先、精准修改与目标驱动执行」记忆项。
+- **init-ai-md**：模板内容整合 Karpathy 编码行为准则，覆盖错误假设、过度工程、无关改动和验证不足等常见 LLM 编码问题。
+- **init-ai-md**：新增面向 AI agent 的实践补充，强调显式假设、最小必要改动、逐步验证、保护用户改动和完成前 diff 自检。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.9.0`。
+
 ## [6.8.0] - 2026-05-24
 
 ### Changed
