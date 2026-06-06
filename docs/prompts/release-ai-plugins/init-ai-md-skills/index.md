@@ -100,3 +100,16 @@
 - 接着使用 `AskUserQuestion` 工具，生成交互式的询问，询问我
 
 我希望通过`询问`和`交互`的方式，让我能够准确选择需要的技能项。而不是一股脑的，全量的把全部模板内的`记忆项`都复制粘贴到 AI 文件内。
+
+## 002 拓展 `init-ai-md` 技能预设的内容，增加新的个人习惯
+
+为 `ai-plugins\common-tools\skills\init-ai-md\SKILL.md` 增加新的预设内容，在 `ai-plugins\common-tools\skills\init-ai-md\templates` 内增加内容，就像最新的： `ai-plugins\common-tools\skills\init-ai-md\templates\09.Karpathy Guidelines.md` 一样。
+
+预期来一个 `10.使用superpower技能的个人偏好.md` 模板文件。
+
+我使用 superpower 系列技能的个人偏好如下：
+
+1. 使用 `brainstorming` 技能生成的 `docs\superpowers\specs` 和 `docs\superpowers\plans` 的 spec 计划规划文件，和 plan 执行任务清单文件，**必须是纯中文**的。不要写纯英文的。我反复要求好多次了，但是具体的 superpower 技能每次执行时都有偏差，所以我要求项目级别的 AI 记忆文件重点说明清楚，由 superpower 技能生成的 markdown 文件，特别是 plan 任务清单文件，必须是纯中文的。
+2. 使用 `executing-plans` 技能执行任务时，我**不喜欢**默认的 git worktree 执行方式。当前的 AI 代理在那个分支内工作，你就在那个分支内开始工作。
+   - 如果在 dev 开发分支，那么你就直接做。
+   - 如果在 main 分支，那么你就先看看有没有 dev，有的话就优先进入 dev 分支来直接完成开发与编写。
