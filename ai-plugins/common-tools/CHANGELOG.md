@@ -5,6 +5,19 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.10.0] - 2026-06-06
+
+### Added
+
+- **init-ai-md**（`metadata.version` `0.18.0` -> `0.19.0`）：新增 `10.使用superpower技能的个人偏好.md` AI 记忆模板。
+- **init-ai-md**：新增 superpower Markdown 产物中文化偏好，要求 `docs\superpowers\specs` 与 `docs\superpowers\plans` 使用简体中文。
+- **init-ai-md**：新增 `executing-plans` 分支执行偏好，默认不使用 git worktree。
+- **init-ai-md**：明确当前在 `dev` 分支时直接开发，当前在 `main` 分支时优先检查并切换到 `dev`。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.10.0`。
+
 ## [6.9.0] - 2026-05-25
 
 ### Added

@@ -2,6 +2,13 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [6.10.0] - 2026-06-06
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.10.0`。
+- 本次 `dev-skills` 技能树无内容变更；功能更新集中在 `common-tools` 的 **init-ai-md** superpower 个人偏好模板。
+
 ## [6.9.0] - 2026-05-25
 
 ### Changed
