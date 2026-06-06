@@ -1,451 +1,95 @@
-# 长任务执行设计
+# 长任务执行入口
 
-这是 `do-long-task` skill 的详细执行规范。它把一系列复杂任务跑成可恢复、可验证、文件驱动的流程。
+这是 `do-long-task` skill 的详细入口文件。它只承载总纲、路由和不可丢失的核心纪律；长篇细则按场景拆到 `references/`，需要时再读取，避免每次把全部规范塞进上下文。
 
-## 核心原则
+## 核心纪律
 
-- 不依赖聊天上下文记忆。
-- 所有重要目标、计划、进度、发现、失败尝试都必须写入文件。
-- 不创建多套任务系统。
-- 不靠猜测继续任务，必须先读取文件状态。
-- 不在每个小步骤后询问用户是否继续，除非遇到真正阻塞。
+- 长任务靠文件恢复，不靠聊天记忆。
+- OpenSpec 场景只以 `openspec/changes/<change-name>/tasks.md` 为唯一任务源。
+- 不创建第二套任务列表，不把聊天 checklist、子代理报告或临时计划当主任务源。
+- 每次只处理一个 task 或一个明确 checkpoint。
+- 发现遗漏任务时，先判断是否属于当前 change；属于则先补写 `tasks.md`，再继续执行。
+- 改变用户可见行为时先同步 `specs/`；改变技术路线时先同步 `design.md`。
+- 进度和验证结果写入 `agent-progress.md`。
+- 失败路径、风险、已排除方案和连续失败写入 `agent-findings.md`。
+- 只有实现完成、验收满足、验证通过或替代验证已记录，且没有未解决 CRITICAL 问题时，才能勾选 `[x]`。
+- 只有遇到权限问题、破坏性风险、需求冲突、产品决策问题，或连续 3 次同类失败时，才暂停请求用户介入。
 
-## 适用场景
+## 读取路由
 
-- 长时间、多步骤的开发、修复、重构、迁移、验收。
-- 会遇到上下文压缩、中断、测试失败、恢复续跑的任务。
-- 需要把进度、发现、失败和验证结果持续落盘。
-- 使用 OpenSpec change 作为任务载体的场景。
+先读本文件，再按任务场景读取对应 reference。不要无脑读取全部 reference。
 
-## 不适用场景
+| 场景                                                | 读取文件                                 |
+| --------------------------------------------------- | ---------------------------------------- |
+| 启动、恢复或推进长任务                              | `references/execution-discipline.md`     |
+| OpenSpec `tasks.md` 缺漏、动态补任务、设计/规格同步 | `references/openspec-task-source.md`     |
+| 子代理参与探索、编辑、复核或提出补全候选            | `references/subagent-collaboration.md`   |
+| 验证失败、连续失败、完成勾选、BLOCKED 判断          | `references/verification-and-failure.md` |
+| 用户要求生成 Codex `/goal` 长任务执行提示词         | `references/codex-goal-prompt.md`        |
 
-- 单文件小改动。
-- 一次性问答或纯解释。
-- 还在做需求探索、方案脑暴，尚未进入执行。
-- 写 changeset、提交信息、简短报告、一次性格式化这类短任务。
-- 不需要 checkpoint、恢复续跑、失败记录的操作。
+## 启动检查
 
-## 长任务执行落地时的核心原则
+执行长任务前读取：
 
-- 不依赖聊天上下文记忆。
-- 所有重要目标、计划、进度、发现、失败尝试都必须写入文件。
-- 不创建多套任务系统。
-- 不靠猜测继续任务，必须先读取文件状态。
-- 不在每个小步骤后询问用户是否继续，除非遇到真正阻塞。
+1. 当前 skill 的 `SKILL.md`。
+2. 本文件 `AGENT_LONGTASK.md`。
+3. 按场景选中的 `references/*.md`。
+4. 当前 OpenSpec change 的 `proposal.md`、`design.md`、`specs/`、`tasks.md`。
+5. `agent-progress.md` 和 `agent-findings.md`；不存在时先创建。
 
-## 长任务执行时的规则
+恢复中断或上下文压缩后的任务时，先读 `agent-progress.md` 最近 checkpoint，再读 `tasks.md` 当前状态，不凭聊天记忆继续。
 
-1. `tasks.md` 是唯一任务清单。
-2. 每次开始前先读取 OpenSpec 文件和本文件。
-3. 每次只处理一个小任务或一个明确 checkpoint。不要跳过未完成任务。
-4. 不要把未验证的任务标记为完成。
-5. 修改代码后必须运行相关测试。
-6. 如果测试失败，先分析原因，再修复。
-7. 连续失败时必须记录失败路径，避免重复尝试。
-8. 重要发现写入 `agent-findings.md`。
-9. 阶段进度写入 `agent-progress.md`。
-10. 不要每一步都问用户是否继续。
-11. 只有遇到权限问题、破坏性操作风险、需求冲突、产品决策问题、连续 3 次同类失败时，才暂停并请求用户介入。
+## 执行模式
 
-## 长任务运行时的规则
+执行模式用于真正推进长任务。
 
-本节定义长任务运行时纪律，用于补充 OpenSpec、Codex `/goal`、Superpowers 和 Ralph-style workflow 之间的调度关系。
+1. 选定 `tasks.md` 中一个未完成 task。
+2. 理清该 task 的验收标准、修改范围、依赖关系和验证命令。
+3. 做最小可验证改动。
+4. 运行相关测试、lint、typecheck、OpenSpec validate 或替代验证。
+5. 把进度、文件变化和验证结果写入 `agent-progress.md`。
+6. 把失败路径、风险和不能重复走的方案写入 `agent-findings.md`。
+7. 满足完成条件后，才把 task 勾选为 `[x]`。
+8. 进入下一个 task 前，重新读取文件状态。
 
-### 1. Fresh Context Discipline 上下文刷新纪律
+## 提示词生成模式
 
-本规范默认使用 Codex `/goal` 单会话执行，因此通过“文件状态刷新”模拟 fresh context。
+提示词生成模式用于帮用户生成 Codex `/goal` prompt，不执行任务。
 
-必须在以下时机重新读取文件状态：
+- 只输出可复制的 `/goal` 提示词。
+- 不修改 OpenSpec 工件。
+- 不创建或更新 `agent-progress.md` / `agent-findings.md`。
+- 不运行测试、lint、typecheck 或 validate。
+- 默认控制在 1500 字以内；用户指定更短或更长时，以用户要求为准。
+- 缺少 change 路径时，使用 `<change-name>`、`<验证命令>` 等占位符，不臆造路径。
 
-- 启动 `/goal` 时。
-- 每开始一个新的 OpenSpec task 时。
-- 每完成一个 checkpoint 时。
-- 上下文压缩后。
-- 会话中断恢复后。
-- 连续失败 2 次以上时。
-- 准备标记任务完成前。
+详细模板和裁剪规则见 `references/codex-goal-prompt.md`。
 
-必须读取：
-
-- `AGENT_LONGTASK.md`，如果存在。
-- 当前 skill 的 `SKILL.md`。
-- `proposal.md`。
-- `design.md`。
-- `specs/`。
-- `tasks.md`。
-- `agent-progress.md`。
-- `agent-findings.md`。
-
-刷新后必须在 `agent-progress.md` 写入当前状态确认。
-
----
-
-### 2. Task List Discipline 任务列表纪律
-
-唯一主任务源是：
-
-`openspec/changes/<change-name>/tasks.md`
-
-不得创建或遵循第二套主任务源。
-
-禁止把以下内容作为主任务源：
-
-- `task_plan.md`
-- `.agent/tasks.json`
-- Ralph task list
-- Superpowers implementation plan
-- 聊天中的临时 checklist
-
-每个 task 应尽量包含：
-
-- task id。
-- 目标。
-- 修改范围。
-- 验收标准。
-- 验证命令。
-- 依赖关系。
-- 状态。
-
-每次只能处理一个 task 或一个明确 checkpoint。
-
----
-
-### 3. Dynamic Task Completion Discipline 动态任务补全纪律
-
-动态补全不是创建新计划，而是把执行中发现的遗漏任务回写到当前 OpenSpec change 的唯一任务源。
-
-必须在以下时机重新读取 `tasks.md`、`agent-progress.md`、`agent-findings.md`：
-
-- 每次启动。
-- 上下文压缩后恢复。
-- 开始新的 OpenSpec task 前。
-- 完成 checkpoint 后。
-- 连续失败 2 次后。
-- 准备勾选 `[x]` 前。
-
-发现缺口时，先判断是否属于当前 `openspec/changes/<change-name>` 的范围：
-
-- 属于当前 change：先补写 `tasks.md`，再继续执行。
-- 不属于当前 change：写入 no-go，或建议新建 OpenSpec change。
-- 改变用户可观察行为：先同步 `specs/`，再补写 `tasks.md`。
-- 改变技术路线：先同步 `design.md`，再补写 `tasks.md`。
-
-`agent-progress.md` 必须记录：
-
-- 为什么补任务。
-- 补到了 `tasks.md` 的哪个位置。
-- 本轮运行了哪些验证。
-- 验证通过、失败或替代验证的结果。
-
-`agent-findings.md` 必须记录：
-
-- 风险。
-- 阻断。
-- 失败路径。
-- 不得误判的证据边界。
-
-只有同时满足以下条件，才能把补全后相关 task 勾选为 `[x]`：
-
-- 实现完成。
-- 验收标准满足。
-- 验证通过，或替代验证已明确记录。
-- OpenSpec strict validate 通过。
-- 没有未解决的 CRITICAL 残留。
-
----
-
-### 4. Subagent Collaboration Discipline 子代理协作规则
-
-子代理只能提出动态补全候选，不能创建第二任务源，不能直接把自己的报告当成执行清单。
-
-子代理返回建议时使用以下格式：
-
-```markdown
-### 建议补全任务
-
-- 来源：验证失败 / 设计遗漏 / specs 未覆盖 / 实现依赖缺失
-- 建议任务：`- [ ] [修改] path - 具体动作与验收标准`
-- 是否需要同步 design/specs：是 / 否
-- 验证方式：命令、HTTP、browser、DB 或人工复核
-```
-
-主代理负责：
-
-- 去重。
-- 合并。
-- 排序。
-- 写入 `tasks.md`。
-- 运行 OpenSpec validate。
-- 判断是否满足勾选 `[x]` 的条件。
-
----
-
-### 5. Verification Discipline 验证纪律
-
-任务必须验证后才能完成。
-
-验证分为四层：
-
-1. task-level verification
-2. change-level verification
-3. `/opsx:verify <change-name>`
-4. regression check
-
-如果验证命令不存在，必须记录为“不可用”，不得伪造通过。
-
-如果无法自动验证，必须写明替代验证方式和剩余风险。
-
----
-
-### 6. Completion Marking Discipline 完成标记纪律
-
-只有满足以下条件，才能把 task 标记为 `[x]`：
-
-- 代码已实现。
-- task 验收标准满足。
-- 相关验证命令通过。
-- OpenSpec strict validate 通过。
-- 验证结果写入 `agent-progress.md`。
-- 重要风险写入 `agent-findings.md`。
-- 没有未解决的 CRITICAL 问题。
-
-不得因为“代码已经写完”就标记完成。
-
----
-
-### 7. Failure Memory Discipline 失败记忆纪律
-
-失败必须成为长期记忆。
-
-以下情况必须写入 `agent-findings.md`：
-
-- 测试失败。
-- 构建失败。
-- 类型检查失败。
-- lint 失败。
-- 连续修复失败。
-- 方案被证明不可行。
-- 需求或设计冲突。
-- 需要用户决策。
-- 存在破坏性风险。
-
-连续失败规则：
-
-- 第 1 次失败：分析并修复。
-- 第 2 次同类失败：记录失败并换方案。
-- 第 3 次同类失败：停止当前 task，输出 BLOCKED 报告。
-
-不得无记录地重复尝试同一路径。
-
----
-
-### 8. File and Git Persistence Discipline 文件与 git 持久化纪律
-
-文件持久化是强制要求。
-
-以下文件必须持续维护：
-
-- `tasks.md`
-- `agent-progress.md`
-- `agent-findings.md`
-
-以下事件后必须更新文件：
-
-- 开始任务。
-- 完成 task。
-- 完成 checkpoint。
-- 验证失败。
-- 发现重要事实。
-- 改变方案。
-- 暂停前。
-- BLOCKED 前。
-- 完成 change 前。
-
-如果项目使用 git 且用户允许本地 commit，则每个稳定 checkpoint 后创建本地 commit。
-
-提交前必须执行：
-
-```bash
-git status
-git diff
-```
-
-## Task Lifecycle 单一任务生命周期说明
-
-每个 task 必须经历以下状态：
-
-1. Pending
-   任务在 `tasks.md` 中未勾选。
-2. Selected
-   选中当前 task，并在 `agent-progress.md` 写明选择原因。
-3. Understood
-   已读取相关 proposal/design/specs，并确认验收标准。
-4. Implementing
-   正在修改代码。必要时使用 Superpowers 方法。
-5. Verifying
-   正在运行 task-level 和 change-level 验证。
-6. Failed
-   验证失败，失败原因写入 `agent-findings.md`。
-7. Completed
-   验证通过，`tasks.md` 勾选为 `[x]`，`agent-progress.md` 记录证据。
-
-## 各个工具之间的职责说明
-
-- openspec
-  > 任务规格与任务源头：定义做什么、验收什么、进度在哪里
-- codex /goal 命令
-  > 单会话执行器：在一个会话里持续推进直到完成条件
-- superpower
-  > 工程方法：TDD、subagent、review、debug、finish
-- Ralph skills
-  > 长任务纪律：任务小步推进、日志、验证、可恢复
-- Ralph runner
-  > 长任务执行器，但目前暂不使用
-
-## 需要使用的其他辅助 skills 的职责划分
-
-- brainstorming
-- executing-plans
-- subagent-driven-development
-- test-driven-development
-- systematic-debugging
-
-## 文件职责划分
+## 文件职责
 
 - 唯一主任务源：`openspec/changes/<change-name>/tasks.md`
-- 唯一目标来源：OpenSpec 目录的 `proposal.md`、`specs/`、`design.md`
-- 唯一执行状态：`agent-progress.md`
-- 唯一经验/失败记录：`agent-findings.md`
+- 目标和验收来源：`proposal.md`、`design.md`、`specs/`
+- 执行状态：`agent-progress.md`
+- 发现、失败和风险：`agent-findings.md`
+- 长任务规则入口：`AGENT_LONGTASK.md`
+- 详细规则：`references/*.md`
 
-## 长任务轻量日志文件与状态文件
+## 不要做
 
-除了 OpenSpec 默认文件外，这个长任务规范还使用两个自定义的轻量文件：
+- 不要同时维护 `task_plan.md`、`.agent/tasks.json`、Ralph task list、Superpowers implementation plan 或聊天 checklist 作为第二任务源。
+- 不要因为代码写完就勾选 task。
+- 不要伪造验证通过。
+- 不要无记录地重复同一失败路径。
+- 不要让子代理直接修改主任务源，除非主代理明确分配了写入范围。
+- 不要为了压缩提示词删掉唯一任务源、验证后完成、失败记录和停止条件。
 
-```txt
-openspec/changes/<change-name>/agent-progress.md
-openspec/changes/<change-name>/agent-findings.md
-```
+## 完成前总检查
 
-分别是 `agent-progress.md` 和 `agent-findings.md`。
+完成或汇报前确认：
 
-### agent-progress.md
-
-用于记录执行进度：
-
-- 当前正在处理的 task。
-- 已完成的 task。
-- 本轮修改了哪些文件。
-- 运行了哪些验证命令。
-- 测试结果。
-- 当前 checkpoint。
-- 下一步建议。
-
-### agent-findings.md
-
-用于记录长期发现：
-
-- 代码结构发现。
-- 关键设计决策。
-- 坑点。
-- 失败尝试。
-- 已排除的方案。
-- 不能重复走的错误路径。
-- 需要用户决策的问题。
-
-## 多任务源头风险
-
-为了避免混用，不要同时维护多套任务源。
-
-各个工具的任务源头情况如下：
-
-- OpenSpec 有 `tasks.md`。
-- PageAI Ralph 有 `.agent/tasks.json` 和 `.agent/tasks/TASK-{ID}.json`。
-- Superpowers 有 implementation plan。
-- Codex `/goal` 自己也会形成 checkpoint。
-
-关键决策：只保留一个 OpenSpec 的任务源头：`openspec/changes/<change-name>/tasks.md`。
-
-不要同时创建另一套 `task_plan.md`、`tasks.json`、Ralph task list 或独立 implementation plan 作为主任务源。
-
-## OpenSpec 的定位与使用细则
-
-OpenSpec 负责 change 的规格、设计、任务拆分、验收验证和归档，是长任务的一系列任务的文件记忆来源。
-
-1. 如果 `agent-progress.md` 或 `agent-findings.md` 不存在，先创建。
-2. 每次恢复任务时，先读取 `agent-progress.md` 最近 checkpoint，再读取 `tasks.md`。
-
-## Superpowers 的定位与使用细则
-
-Superpowers 不负责决定做哪个大任务。它只负责指导每个小阶段如何高质量完成，例如：
-
-- 使用 TDD。
-- 使用系统化调试。
-- 使用子代理处理局部任务。
-- 做代码审查。
-- 收尾分支。
-- 运行测试、lint、typecheck。
-- 避免盲目修改和重复失败。
-
-## Codex `/goal` 的定位与使用细则
-
-定位为单会话长任务执行引擎。`/goal` 负责在当前会话中持续推进 OpenSpec 的任务。启动 `/goal` 时，应要求 Codex：
-
-1. 先读取本文件。
-2. 再读取当前 OpenSpec change 的 `proposal.md`、`design.md`、`specs/`、`tasks.md`。
-3. 持续执行 `tasks.md` 中未完成的任务。
-4. 每完成一个任务，就把对应 checkbox 改为 `[x]`。
-5. 每完成一个阶段，就更新进度日志。
-6. 直到所有任务完成、验证通过，或遇到真正阻塞才停止。
-
-## 长任务执行习惯
-
-- 只用 OpenSpec `tasks.md` 作为唯一任务源。
-- 不使用 Ralph `tasks.json`。
-- 不让 Superpowers 决定大任务。
-- Codex `/goal` 负责持续执行。
-- 一次只处理一个明确任务。
-- 实现前先确认验收条件。
-- 实现后必须验证。
-- 验证通过后才能标记完成。
-- 失败尝试必须记录。
-- 重要发现必须记录。
-- 中断恢复时先读文件，不凭记忆继续。
-- 不做无关重构。
-- 不擅自扩大任务范围。
-
-## 执行 Codex goal 命令的模板
-
-```markdown
-/goal 执行 OpenSpec change：`openspec/changes/<change-name>/tasks.md`。
-
-目标：
-持续完成 `tasks.md` 中所有未完成任务，直到：
-
-1. 所有 checkbox 都变成 `[x]`。
-2. `/opsx:verify <change-name>` 没有 CRITICAL。
-3. 项目的测试、lint、typecheck 全部通过。
-4. `agent-progress.md` 有最终总结。
-5. `agent-findings.md` 记录重要发现、失败尝试和遗留风险。
-6. 关键验收场景都有测试或明确验证记录。
-
-执行规则：
-
-- 先读取 `proposal.md`、`design.md`、`specs/`、`tasks.md`。
-- 以 `tasks.md` 为唯一主任务源。
-- 不要创建另一套任务列表。
-- 每次只处理一个小 task 或一个明确 checkpoint。
-- 每完成一个 task，更新 `tasks.md`。
-- 每完成一个 checkpoint，更新 `agent-progress.md`。
-- 重要发现写入 `agent-findings.md`。
-- 遇到实现问题时使用 Superpowers 的 `systematic-debugging`。
-- 实现每个小阶段时使用 Superpowers 的 `test-driven-development`、`subagent-driven-development`、`requesting-code-review`。
-- 不要每一步询问是否继续。
-- 只有遇到权限问题、需求冲突、破坏性操作风险、产品决策问题、连续 3 次同类失败，或需要产品决策时才暂停。
-
-停止条件：
-
-- 全部完成。
-- 无法继续且输出 BLOCKED 报告。
-- 运行达到 8 小时。
-- 上下文不足且无法通过文件恢复。
-```
+- `tasks.md` 中相关 task 状态与实际实现一致。
+- `agent-progress.md` 已记录本轮进展和验证结果。
+- `agent-findings.md` 已记录重要发现、失败尝试和剩余风险。
+- 相关验证命令已经运行，或替代验证和剩余风险已写明。
+- 没有未解决的 CRITICAL 问题。
+- 若只是生成 `/goal` 提示词，没有执行任务或修改 OpenSpec 工件。

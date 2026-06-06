@@ -60,6 +60,30 @@
 			"prompt": "继续执行 openspec/changes/user-api/tasks.md。你刚补了遗漏任务，但 openspec validate user-api --strict 失败了。",
 			"expected_output": "应触发 do-long-task；validate 失败时必须阻止继续实现和勾选完成，记录失败路径到 agent-findings.md，修正 OpenSpec 工件或任务后重新运行 strict validate。",
 			"files": []
+		},
+		{
+			"id": 11,
+			"prompt": "请为 openspec/changes/report-export/tasks.md 生成一个 Codex /goal 长任务执行提示词，1500 字以内。",
+			"expected_output": "应触发 do-long-task 的提示词生成模式；只输出可复制的 /goal 提示词，不执行任务、不修改文件；提示词不超过 1500 字，并包含唯一任务源、必读文件、动态补全、进度/失败记录、验证后完成和停止条件。",
+			"files": []
+		},
+		{
+			"id": 12,
+			"prompt": "帮我生成一个 do-long-task 的长任务执行提示词，用来继续 OpenSpec 长任务，但我还没确定 change 路径。",
+			"expected_output": "应触发 do-long-task 的提示词生成模式；不得臆造 OpenSpec change 路径；应输出带 <change-name> 等占位符的模板，并列出用户需要补齐的 change 名称、tasks.md 路径和验证命令。",
+			"files": []
+		},
+		{
+			"id": 13,
+			"prompt": "根据 AGENT_LONGTASK.md 给我裁剪一个适合 Codex /goal 的短提示词，不要现在执行，也不要创建 agent-progress.md。",
+			"expected_output": "应触发 do-long-task 的提示词生成模式；先从 AGENT_LONGTASK.md 路由到 references/codex-goal-prompt.md，再裁剪核心纪律，避免复制整篇文档；不得执行任务、不得创建或更新 agent-progress.md / agent-findings.md。",
+			"files": []
+		},
+		{
+			"id": 14,
+			"prompt": "为 openspec/changes/cache-runtime/tasks.md 生成 /goal 提示词，限制 800 字以内，重点强调失败记录和验证后再勾选。",
+			"expected_output": "应触发 do-long-task 的提示词生成模式；优先满足用户指定的 800 字限制；保留失败记录、验证后完成、唯一任务源和停止条件，不因压缩而省略关键纪律。",
+			"files": []
 		}
 	]
 }

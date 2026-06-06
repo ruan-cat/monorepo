@@ -4,7 +4,15 @@
 
 ## 版本
 
-**当前版本**: `6.9.0`
+**当前版本**: `6.10.0`
+
+⚠️ **v6.10.0 do-long-task Codex goal 提示词生成与长文拆分增强**:
+
+- `do-long-task` 新增 Codex `/goal` 提示词生成模式，可生成 1500 字以内的长任务执行提示词。
+- 生成提示词时只输出可复制 prompt，不执行任务、不修改 OpenSpec 工件、不创建进度文件。
+- 补充缺少 OpenSpec change 路径时的占位模板策略，避免臆造 `tasks.md` 路径。
+- `AGENT_LONGTASK.md` 拆为入口路由，详细执行纪律下沉到 `references/`，降低单次加载上下文。
+- 增强 eval 覆盖明确 change、缺少路径、从 `AGENT_LONGTASK.md` 裁剪和自定义字数限制场景。
 
 ⚠️ **v6.9.0 init-ai-md Karpathy 编码行为准则模板**:
 
@@ -113,7 +121,7 @@
 - **get-git-branch**: 诊断并修复 Git 仓库无法看到所有远程分支的问题，恢复通配符 fetch refspec
 - **git-commit**: 创建高质量 Git 提交，支持 Conventional Commits 规范、Emoji、破坏性变更格式、暂存区优先与多提交拆分
 - **add-favicon**: 为文档站或 monorepo 批量站点补全本地 `favicon.svg`，优先参考 Iconify/Lucide 风格，保持透明背景、简洁线性和显式 `head` 配置
-- **do-long-task**: 面向 OpenSpec 长任务、上下文恢复和测试失败重试的可恢复执行纪律，要求动态补全 `tasks.md`、以 OpenSpec 工件链协作推进，并持续维护 `agent-progress.md` / `agent-findings.md`
+- **do-long-task**: 面向 OpenSpec 长任务、上下文恢复和测试失败重试的可恢复执行纪律，要求动态补全 `tasks.md`、以 OpenSpec 工件链协作推进，并持续维护 `agent-progress.md` / `agent-findings.md`；也支持生成 1500 字以内的 Codex `/goal` 长任务执行提示词
 - **init-ai-md**: 初始化和增量更新 AI 记忆文件（`CLAUDE.md`、`AGENTS.md`、`GEMINI.md`），包含技能表管理与内置技能部署
 - **init-claude-code-statusline**: 初始化 Claude Code 状态栏配置文件（`.claude/settings.json` + `statusline.sh`），展示目录、分支、模型、上下文窗口
 - **init-prettier-git-hooks**: 初始化基于 lint-staged + simple-git-hooks + prettier 的 Git 提交前代码格式化流程
@@ -435,6 +443,7 @@ common-tools/
 │   ├── do-long-task/                        # 长任务可恢复执行纪律
 │   │   ├── SKILL.md
 │   │   ├── AGENT_LONGTASK.md
+│   │   ├── references/                      # 长任务细则：执行纪律、OpenSpec、子代理、验证、/goal 提示词
 │   │   └── evals/
 │   ├── get-git-branch/SKILL.md             # 修复远程分支拉取问题
 │   ├── git-commit/SKILL.md                 # 高质量 Git 提交

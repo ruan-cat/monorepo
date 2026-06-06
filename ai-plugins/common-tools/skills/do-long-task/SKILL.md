@@ -1,14 +1,33 @@
 ---
 name: do-long-task
-description: 在需要把复杂开发、修复、重构或多步变更拆成可恢复 checkpoint 并持续推进时使用，尤其是 OpenSpec 长任务、上下文压缩后的断点续跑、测试失败后的反复修复，以及必须把进度、发现和失败写入文件而不能依赖聊天记忆的场景；不要在单文件改动、一次性问答、纯方案讨论、简单格式化、写更新日志或其他短任务里使用。
+description: 在需要把复杂开发、修复、重构或多步变更拆成可恢复 checkpoint 并持续推进时使用，尤其是 OpenSpec 长任务、上下文压缩后的断点续跑、测试失败后的反复修复，以及必须把进度、发现和失败写入文件而不能依赖聊天记忆的场景；当用户要求生成 Codex /goal、长任务执行提示词或 1500 字以内的 do-long-task 提示词时也使用本技能，但只生成提示词不执行任务；不要在单文件改动、一次性问答、纯方案讨论、简单格式化、写更新日志或其他短任务里使用。
 user-invocable: true
 metadata:
-  version: "1.1.0"
+  version: "1.3.0"
 ---
 
 # do-long-task
 
 这是一个面向长任务执行的入口 skill。它不负责替你决定“大任务做什么”，而是负责把已经确定的长任务稳定推进到底。
+
+## 提示词生成模式
+
+当用户要求“生成 Codex `/goal` 提示词”“生成长任务执行提示词”“用 do-long-task 写 1500 字以内提示词”时，进入提示词生成模式。
+
+提示词生成模式只做一件事：输出一段可复制给 Codex `/goal` 使用的长任务执行提示词。不要开始执行该长任务。
+
+生成提示词时：
+
+- 不修改 OpenSpec 工件。
+- 不创建或更新 `agent-progress.md` / `agent-findings.md`。
+- 不运行测试、lint、typecheck 或 validate 命令。
+- 不把聊天 checklist 当任务源。
+- 默认把最终提示词控制在 1500 字以内；如果用户指定更短或更长的字数限制，以用户指定为准。
+- 如果用户没有提供 `openspec/changes/<change-name>` 或 `tasks.md` 路径，不要臆造路径；输出带 `<change-name>` 的占位模板，并列出需要用户补齐的占位符。
+
+提示词必须保留 do-long-task 的核心纪律：读取 OpenSpec 工件、只使用 `tasks.md` 作为唯一任务源、小步推进、动态补全遗漏任务、维护进度与失败记录、验证后再勾选完成、遇到真正阻塞才暂停。
+
+详细模板、占位符策略和裁剪规则见 `references/codex-goal-prompt.md`。按 `AGENT_LONGTASK.md` 的读取路由只加载相关 reference，不要无脑读取全部长文。
 
 ## 协作声明
 
@@ -36,13 +55,14 @@ metadata:
 开始前先读这些文件，再动手：
 
 1. `AGENT_LONGTASK.md`（如果存在）
-2. 当前 skill 的 `SKILL.md`
-3. 当前 OpenSpec change 的 `proposal.md`
-4. 当前 OpenSpec change 的 `design.md`
-5. 当前 OpenSpec change 的 `specs/`
-6. 当前 OpenSpec change 的 `tasks.md`
-7. `agent-progress.md`
-8. `agent-findings.md`
+2. 按 `AGENT_LONGTASK.md` 读取路由选中的 `references/*.md`
+3. 当前 skill 的 `SKILL.md`
+4. 当前 OpenSpec change 的 `proposal.md`
+5. 当前 OpenSpec change 的 `design.md`
+6. 当前 OpenSpec change 的 `specs/`
+7. 当前 OpenSpec change 的 `tasks.md`
+8. `agent-progress.md`
+9. `agent-findings.md`
 
 如果这些文件里有缺失，就先补齐，再继续。
 
