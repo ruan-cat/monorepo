@@ -5,6 +5,21 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.11.0] - 2026-06-19
+
+### Added
+
+- **do-long-task**（`metadata.version` `1.1.0` -> `1.3.0`）：新增 Claude Code `/goal` 与 Codex `/goal` 提示词生成模式，可生成 1500 字以内的长任务执行提示词。
+- **do-long-task**：明确生成提示词时不执行任务、不修改 OpenSpec 工件、不创建进度文件。
+- **do-long-task**：补充缺少 OpenSpec change 路径时的占位模板策略，避免臆造 `tasks.md`。
+- **do-long-task**：将 `AGENT_LONGTASK.md` 拆为入口路由，详细执行纪律下沉到 `references/`，保留核心规范并降低单次加载上下文。
+- **do-long-task**：增强 `evals/evals.json`，覆盖明确 change、缺少路径、模板裁剪和自定义字数限制场景。
+
+### Changed
+
+- **do-long-task**（`metadata.version` `1.3.0` -> `1.3.1`）：修正 `/goal` 提示词生成模式的表述，明确同时适用于 Claude Code 与 Codex。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.11.0`。
+
 ## [6.10.0] - 2026-06-06
 
 ### Added
@@ -13,11 +28,6 @@
 - **init-ai-md**：新增 superpower Markdown 产物中文化偏好，要求 `docs\superpowers\specs` 与 `docs\superpowers\plans` 使用简体中文。
 - **init-ai-md**：新增 `executing-plans` 分支执行偏好，默认不使用 git worktree。
 - **init-ai-md**：明确当前在 `dev` 分支时直接开发，当前在 `main` 分支时优先检查并切换到 `dev`。
-- **do-long-task**（`metadata.version` `1.3.0` -> `1.3.1`）：修正 Claude Code `/goal` 与 Codex `/goal` 提示词生成模式的表述。
-- **do-long-task**：支持生成 1500 字以内的长任务执行提示词，并明确生成时不执行任务、不修改 OpenSpec 工件。
-- **do-long-task**：补充缺少 OpenSpec change 路径时的占位模板策略，避免臆造 `tasks.md`。
-- **do-long-task**：将 `AGENT_LONGTASK.md` 拆为入口路由，详细执行纪律下沉到 `references/`，保留核心规范并降低单次加载上下文。
-- **do-long-task**：增强 `evals/evals.json`，覆盖明确 change、缺少路径、模板裁剪和自定义字数限制场景。
 
 ### Changed
 

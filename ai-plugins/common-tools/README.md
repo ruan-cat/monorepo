@@ -4,9 +4,9 @@
 
 ## 版本
 
-**当前版本**: `6.10.0`
+**当前版本**: `6.11.0`
 
-⚠️ **v6.10.0 do-long-task Claude Code `/goal` 与 Codex `/goal` 提示词生成与长文拆分增强**:
+⚠️ **v6.11.0 do-long-task Claude Code `/goal` 与 Codex `/goal` 提示词生成与长文拆分增强**:
 
 - `do-long-task` 新增 Claude Code `/goal` 与 Codex `/goal` 提示词生成模式，可生成 1500 字以内的长任务执行提示词。
 - 生成提示词时只输出可复制 prompt，不执行任务、不修改 OpenSpec 工件、不创建进度文件。
