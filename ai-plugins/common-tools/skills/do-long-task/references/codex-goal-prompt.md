@@ -1,6 +1,6 @@
-# Codex `/goal` 提示词
+# Claude Code `/goal` 与 Codex `/goal` 提示词
 
-本文件用于生成或执行 Codex `/goal` 长任务提示词。
+本文件用于生成或执行 Claude Code `/goal` 与 Codex `/goal` 长任务提示词。
 
 ## 提示词生成模式
 
@@ -41,7 +41,7 @@
 
 ## 1500 字内裁剪策略
 
-为了让提示词适合直接粘贴到 Codex `/goal`，优先保留可执行纪律，删掉解释性背景。
+为了让提示词适合直接粘贴到 Claude Code `/goal` 或 Codex `/goal`，优先保留可执行纪律，删掉解释性背景。
 
 裁剪顺序：
 
@@ -89,9 +89,9 @@
 全部任务完成并验证通过；或无法继续且已记录阻塞原因、失败证据和下一步建议。
 ```
 
-## 执行 Codex `/goal` 时的最低要求
+## 执行 Claude Code `/goal` 与 Codex `/goal` 时的最低要求
 
-启动 `/goal` 时，应要求 Codex：
+启动 `/goal` 时，应要求 Claude Code 或 Codex：
 
 1. 先读取本 skill 入口和相关 reference。
 2. 再读取当前 OpenSpec change 的 `proposal.md`、`design.md`、`specs/`、`tasks.md`。

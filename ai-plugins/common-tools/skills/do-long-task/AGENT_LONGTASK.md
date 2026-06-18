@@ -19,13 +19,13 @@
 
 先读本文件，再按任务场景读取对应 reference。不要无脑读取全部 reference。
 
-| 场景                                                | 读取文件                                 |
-| --------------------------------------------------- | ---------------------------------------- |
-| 启动、恢复或推进长任务                              | `references/execution-discipline.md`     |
-| OpenSpec `tasks.md` 缺漏、动态补任务、设计/规格同步 | `references/openspec-task-source.md`     |
-| 子代理参与探索、编辑、复核或提出补全候选            | `references/subagent-collaboration.md`   |
-| 验证失败、连续失败、完成勾选、BLOCKED 判断          | `references/verification-and-failure.md` |
-| 用户要求生成 Codex `/goal` 长任务执行提示词         | `references/codex-goal-prompt.md`        |
+| 场景                                                               | 读取文件                                 |
+| ------------------------------------------------------------------ | ---------------------------------------- |
+| 启动、恢复或推进长任务                                             | `references/execution-discipline.md`     |
+| OpenSpec `tasks.md` 缺漏、动态补任务、设计/规格同步                | `references/openspec-task-source.md`     |
+| 子代理参与探索、编辑、复核或提出补全候选                           | `references/subagent-collaboration.md`   |
+| 验证失败、连续失败、完成勾选、BLOCKED 判断                         | `references/verification-and-failure.md` |
+| 用户要求生成 Claude Code `/goal` 或 Codex `/goal` 长任务执行提示词 | `references/codex-goal-prompt.md`        |
 
 ## 启动检查
 
@@ -54,7 +54,7 @@
 
 ## 提示词生成模式
 
-提示词生成模式用于帮用户生成 Codex `/goal` prompt，不执行任务。
+提示词生成模式用于帮用户生成 Claude Code `/goal` 或 Codex `/goal` prompt，不执行任务。
 
 - 只输出可复制的 `/goal` 提示词。
 - 不修改 OpenSpec 工件。

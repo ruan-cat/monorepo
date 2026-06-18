@@ -101,6 +101,6 @@ OpenSpec 负责 change 的规格、设计、任务拆分、验收验证和归档
 - OpenSpec 有 `tasks.md`。
 - PageAI Ralph 有 `.agent/tasks.json` 和 `.agent/tasks/TASK-{ID}.json`。
 - Superpowers 有 implementation plan。
-- Codex `/goal` 自身也可能形成 checkpoint。
+- Claude Code `/goal` 与 Codex `/goal` 自身也可能形成 checkpoint。
 
 关键决策：只保留 OpenSpec `tasks.md` 作为主任务源，不同时维护另一套任务系统。

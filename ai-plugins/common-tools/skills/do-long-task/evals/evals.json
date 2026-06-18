@@ -63,7 +63,7 @@
 		},
 		{
 			"id": 11,
-			"prompt": "请为 openspec/changes/report-export/tasks.md 生成一个 Codex /goal 长任务执行提示词，1500 字以内。",
+			"prompt": "请为 openspec/changes/report-export/tasks.md 生成一个 Claude Code /goal 或 Codex /goal 长任务执行提示词，1500 字以内。",
 			"expected_output": "应触发 do-long-task 的提示词生成模式；只输出可复制的 /goal 提示词，不执行任务、不修改文件；提示词不超过 1500 字，并包含唯一任务源、必读文件、动态补全、进度/失败记录、验证后完成和停止条件。",
 			"files": []
 		},
@@ -75,7 +75,7 @@
 		},
 		{
 			"id": 13,
-			"prompt": "根据 AGENT_LONGTASK.md 给我裁剪一个适合 Codex /goal 的短提示词，不要现在执行，也不要创建 agent-progress.md。",
+			"prompt": "根据 AGENT_LONGTASK.md 给我裁剪一个适合 Claude Code /goal 或 Codex /goal 的短提示词，不要现在执行，也不要创建 agent-progress.md。",
 			"expected_output": "应触发 do-long-task 的提示词生成模式；先从 AGENT_LONGTASK.md 路由到 references/codex-goal-prompt.md，再裁剪核心纪律，避免复制整篇文档；不得执行任务、不得创建或更新 agent-progress.md / agent-findings.md。",
 			"files": []
 		},
