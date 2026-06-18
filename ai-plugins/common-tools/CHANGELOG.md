@@ -13,7 +13,7 @@
 - **init-ai-md**：新增 superpower Markdown 产物中文化偏好，要求 `docs\superpowers\specs` 与 `docs\superpowers\plans` 使用简体中文。
 - **init-ai-md**：新增 `executing-plans` 分支执行偏好，默认不使用 git worktree。
 - **init-ai-md**：明确当前在 `dev` 分支时直接开发，当前在 `main` 分支时优先检查并切换到 `dev`。
-- **do-long-task**（`metadata.version` `1.1.0` -> `1.3.0`）：新增 Codex `/goal` 提示词生成模式。
+- **do-long-task**（`metadata.version` `1.3.0` -> `1.3.1`）：修正 Claude Code `/goal` 与 Codex `/goal` 提示词生成模式的表述。
 - **do-long-task**：支持生成 1500 字以内的长任务执行提示词，并明确生成时不执行任务、不修改 OpenSpec 工件。
 - **do-long-task**：补充缺少 OpenSpec change 路径时的占位模板策略，避免臆造 `tasks.md`。
 - **do-long-task**：将 `AGENT_LONGTASK.md` 拆为入口路由，详细执行纪律下沉到 `references/`，保留核心规范并降低单次加载上下文。
