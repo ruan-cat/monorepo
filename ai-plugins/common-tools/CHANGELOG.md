@@ -5,6 +5,20 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.12.0] - 2026-06-25
+
+### Added
+
+- **git-commit**（`metadata.version` `0.3.5` -> `0.3.6`）：
+- 新增 MiniMax（`model@minimax.io`）和 MIMO（`mimo@xiaomi.com`）组织邮箱 Co-authored-by。
+- 上述组织邮箱条目已标注「图标显示不确定」，待厂商提供官方 bot 账号后替换。
+- 黑名单新增 `kimi-bot`（id:85515654），2021 年创建、0 个公开仓库，不在 `MoonshotAI` 组织。
+- 黑名单新增 `Mimo-BOT`（id:68919994），2020 年创建、0 个公开仓库，不在 `XiaomiMiMo` 组织。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.12.0`。
+
 ## [6.11.0] - 2026-06-19
 
 ### Added
