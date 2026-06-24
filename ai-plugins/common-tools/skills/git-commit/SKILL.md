@@ -3,7 +3,7 @@ name: git-commit
 description: "创建高质量的 git 提交：审查/暂存预期的变更，拆分为逻辑提交，并编写清晰的提交信息（遵循 Conventional Commits 规范，支持 Emoji）。当用户要求提交代码、编写提交信息、暂存变更或将工作拆分为多个提交时使用此技能。当用户提及【破坏性变更】关键词时，必须按照本技能的 BREAKING CHANGE 规范使用感叹号格式编写提交信息。优先针对 git 暂存区（staged）中的文件进行提交，只有当暂存区为空时才考虑整个工作树。当用户提及【分门别类】关键词时，必须按照本技能的多提交拆分规范，从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。"
 user-invocable: true
 metadata:
-  version: "0.3.5"
+  version: "0.3.6"
 ---
 
 # Git Commit
@@ -321,14 +321,20 @@ BREAKING CHANGE: 删除了 reference.md 和 templates.md，替换为 references/
 | :---------- | :--------------------- | :------------------ | :------------------------------------------------------------------------ |
 | Cursor      | cursoragent            | 1,856               | `Co-authored-by: Cursor <199161495+cursoragent@users.noreply.github.com>` |
 | Claude Code | 公司邮箱               | 官方文档            | `Co-authored-by: Claude <noreply@anthropic.com>`                          |
+| MiniMax     | 组织邮箱               | 6,703 (org followers) | `Co-authored-by: MiniMax <model@minimax.io>`                              |
+| MIMO        | 组织邮箱               | 1,741 (org followers) | `Co-authored-by: MIMO <mimo@xiaomi.com>`                                  |
+
+> **注意**：MiniMax 和 MIMO 使用的组织邮箱已在 GitHub 组织设置（`MiniMax-AI` / `XiaomiMiMo`）中公开，但可能无法在 GitHub 提交页显示模型图标（取决于 GitHub 域名验证与头像关联状态）。若各厂商后续提供官方 bot 账号或 `users.noreply.github.com` ID，再用其替换组织邮箱。
 
 ### 无官方账号（禁止使用）
 
 以下工具/模型目前没有经验证的官方 GitHub bot 账号或公司邮箱，**禁止使用任何冒名抢注账号**：
 
 - **AI CLI**：Codex CLI（属于 `openai` 组织）、Gemini CLI（属于 `google-gemini` 组织）均无专属 bot 账号
+- **ZCode CLI**：由智谱 AI（`zai-org`）推出，无独立 GitHub bot 账号。智谱官方尚未建立任何可验证的 bot 账号（参见 [zai-org/GLM-5#75](https://github.com/zai-org/GLM-5/issues/75)，社区提议 `glm-bot` + `noreply@z.ai`，至今无官方回复）
+- **WorkBuddy（腾讯小龙虾）**：腾讯云 CodeBuddy 团队维护，代码托管在 `cnb.cool/CodeBuddy`，GitHub 无官方组织或 bot 账号
 - **AI IDE**：VS Code、Trae、Codebuddy、Antigravity、Qoder、Kiro 均未确认官方 bot 账号
-- **AI 模型**：OpenAI GPT 系列、Gemini 系列、MiniMax 系列、GLM 系列均无官方归属账号
+- **AI 模型**：OpenAI GPT 系列、Gemini 系列、GLM 系列（智谱）、Kimi 系列（月之暗面/MoonshotAI）均无官方归属 bot 账号
 
 > 待各厂商官方提供可验证的 bot 账号或公司邮箱后再补充到此表中。
 
@@ -349,6 +355,8 @@ BREAKING CHANGE: 删除了 reference.md 和 templates.md，替换为 references/
 | Qoder       | `Qoder-AI`                   | 215799558 | 不属于任何组织；仅 8 个关注者；无法确认为官方账号                                                                                                                          |
 | Kiro        | `kiro-ai`                    | 201607104 | 0 个关注者；0 个公开仓库；无法确认为官方账号                                                                                                                               |
 | MiniMax     | `MiniMax-OpenPlatform`       | 239562665 | 不属于任何组织；无法确认为 MiniMax 官方账号                                                                                                                                |
+| Kimi        | `kimi-bot`                   | 85515654  | 2021 年创建（早于 Kimi 2023 年诞生）；0 个公开仓库、仅 1 个关注者；不在 `MoonshotAI` 组织中                                                                                |
+| MIMO        | `Mimo-BOT`                   | 68919994  | 2020 年创建（早于 MIMO 诞生）；0 个公开仓库、仅 1 个关注者；不在 `XiaomiMiMo` 组织中                                                                                      |
 
 > **为什么要维护黑名单？** AI 模型在生成 Co-authored-by 时，可能会从训练数据或互联网上"回忆"起这些账号并自动填入。明确列出黑名单可以防止这种行为，避免你的 GitHub 仓库贡献者列表中出现无关甚至恶意的第三方。
 
