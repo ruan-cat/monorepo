@@ -19,7 +19,7 @@ ai-plugins/
 ## 可安装插件
 
 - `common-tools`：常用开发辅助工具技能
-- `dev-skills`：偏工程研发流程的技能（如 Nitro、OpenSpec）
+- `dev-skills`：偏工程研发流程的技能（含 Playwright 初始化、Nitro、OpenSpec 等）
 
 ## 按平台安装
 

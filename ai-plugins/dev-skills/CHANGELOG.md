@@ -2,6 +2,28 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [6.13.0] - 2026-06-30
+
+### Added
+
+- **init-playwright**（`metadata.version` `1.0.0` -> `1.1.0`）：
+- 新增「无头浏览器 CPU 风险须知」节，用风险矩阵说明不同场景的风险等级。
+- 新增完整「无头浏览器安全使用规范」章，含 5 条约束（headed 优先、MCP 生命周期管理、大屏 3D 注意事项、AI 记忆约束模板、session 进程清理命令）。
+- 新增「真实事故复盘：无头浏览器 CPU 过载」节，记录时间线和根因分析链。
+- 新增「故障排查指南」节，含症状速查表、紧急止损步骤、长期回归检查清单。
+
+### Changed
+
+- **init-playwright**（`metadata.version` `1.0.0` -> `1.1.0`）：
+- playwright.config.ts 新增显式 `headless: true` 和 `launchOptions.args` GPU 降压参数。
+- AI 记忆模板默认策略从 `pw_core`（headless）改为 `pw_visual`（headed）。
+- YAML frontmatter 对齐 monorepo `init-` 系列技能格式（`user-invocable` + `metadata.version` 字段）。
+- 移除全部项目特定引用（`gzpc-big-screen`、`@gzpc/` 作用域），提升技能通用性。
+- YAML description 扩展，明确声明本技能的无头浏览器事故排查能力与触发关键词。
+- 三件套表格 pw_core 描述加注「省 token 但高 CPU」标签。
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.13.0`。
+
 ## [6.11.0] - 2026-06-19
 
 ### Changed
