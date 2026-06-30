@@ -5,6 +5,18 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.1.1] - 2026-06-30
+
+### Fixed
+
+- **init-prettier-git-hooks**（`metadata.version` `1.1.3` -> `1.1.4`）：
+- `templates/lint-staged.config.js` 中 prettier 命令增加 `--no-parallel`，避免 Prettier 3.6+ experimental-cli 的并行 worker pool 在 lint-staged / pre-commit 场景中因 worker 崩溃抛出 `WorkTankWorkerError`。
+- `SKILL.md` 同步补充 `--no-parallel` 的原理说明与使用边界：提交钩子优先稳定性，全量 `format` 脚本可保留并行。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.1.1`。
+
 ## [7.1.0] - 2026-06-30
 
 ### Changed
