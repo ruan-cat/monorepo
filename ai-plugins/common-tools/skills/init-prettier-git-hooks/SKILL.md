@@ -10,7 +10,7 @@ description: >-
   而不是把它当成"只能无脑覆盖模板"的初始化脚本。
 user-invocable: true
 metadata:
-  version: "1.1.3"
+  version: "1.1.4"
 ---
 
 # 初始化 Prettier + Git Hooks 格式化流程
@@ -221,7 +221,13 @@ pnpm add -D prettier @prettier/plugin-oxc prettier-plugin-lint-md lint-staged si
 
 模板：参见 [templates/lint-staged.config.js](./templates/lint-staged.config.js)
 
-如果文件已存在，确认它仍会对暂存区文件执行 `prettier --experimental-cli --write` 或等价命令。
+如果文件已存在，确认它仍会对暂存区文件执行 `prettier --experimental-cli --write --no-parallel` 或等价命令。
+
+**关于 `--no-parallel` 的说明：**
+
+- Prettier 3.6+ 的 `--experimental-cli` 默认会启动并行 worker pool，默认 worker 数为 `CPU 核心数 - 1`。
+- 在 lint-staged / pre-commit 场景中，某些文件（如大型 markdown、特殊字符、或特定插件处理的文件）可能导致 worker 线程崩溃，抛出 `WorkTankWorkerError`，从而阻塞提交。
+- 提交钩子的第一优先级是**稳定性**，因此模板中关闭并行；`package.json` 中的 `format` 脚本等全量格式化场景可保留并行以换取速度。
 
 ### 2.5. 创建 `simple-git-hooks.mjs`
 
@@ -338,8 +344,11 @@ git add --renormalize .
 当你执行 `git commit` 时，会自动触发以下流程：
 
 1. **pre-commit 钩子**触发 → 执行 `npx lint-staged`
-2. lint-staged 对暂存区的文件执行 `prettier --experimental-cli --write`
+2. lint-staged 对暂存区的文件执行 `prettier --experimental-cli --write --no-parallel`
 3. **commit-msg 钩子**触发 → 执行 `npx --no-install commitlint --edit ${1}` 校验提交信息格式
+
+> **为什么 lint-staged 要加 `--no-parallel`？**
+> `--experimental-cli` 默认启用并行 worker pool，但 worker 崩溃会导致 `WorkTankWorkerError` 并阻塞提交。提交钩子场景优先保证稳定性，因此关闭并行。
 
 ## 7. 模板清单
 
@@ -356,4 +365,5 @@ git add --renormalize .
 1. **修改 `simple-git-hooks.mjs` 后**，务必重新执行 `npx simple-git-hooks` 命令来更新 git hooks。
 2. **首次安装依赖时**，如果 pnpm 提示 `simple-git-hooks` 的 postinstall 脚本被忽略，需要执行 `pnpm approve-builds simple-git-hooks` 来允许其运行。
 3. **Prettier 使用 `--experimental-cli` 参数**，这是启用实验性 CLI 功能的必要参数。
-4. **不要把补 EOL 配置理解成“整文件覆盖”**。这个技能的职责就是在保留项目现状的前提下，收敛冲突键，补齐缺失键。
+4. **lint-staged 中必须带 `--no-parallel`**：`--experimental-cli` 默认会启动并行 worker pool，worker 崩溃时会抛出 `WorkTankWorkerError` 阻塞提交。提交钩子场景优先稳定性，因此关闭并行；`package.json` 的 `format` 脚本等全量格式化场景可保留并行。
+5. **不要把补 EOL 配置理解成“整文件覆盖”**。这个技能的职责就是在保留项目现状的前提下，收敛冲突键，补齐缺失键。
