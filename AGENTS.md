@@ -397,6 +397,38 @@ When a task is completed, a bug is fixed, or information becomes outdated:
 
 This is critical — without resolving, old bug reports and completed tasks will keep appearing in future searches.
 
+## 仓库级排错经验：consola Node.js 24 ESM 解析失败
+
+### 问题
+
+2026-06-30，GitHub Actions CI（`ubuntu-latest` + Node.js `24.18.0`）在执行 `pnpm run ci` 时，`@ruan-cat/utils:prebuild` 阶段的 `automd` 因无法解析 `consola` 而崩溃：
+
+```log
+Error: Cannot find package '.../consola/index.js' imported from '.../automd/dist/cli.mjs'
+    at legacyMainResolve (node:internal/modules/esm/resolve:201:26)
+```
+
+### 根因
+
+`consola@3.4.2` 的 `package.json` 使用条件嵌套 `exports` 并将 `main` 指向 `./lib/index.cjs`。在 Node.js 24 的 ESM 解析路径下，`exports` 解析回退到 `legacyMainResolve`，`./lib/index.cjs` 不被 ESM 直接识别，最终尝试 `consola/index.js` 失败。
+
+### 修复
+
+使用 `pnpm patch` 持久化重写 `consola@3.4.2` 的 `package.json`：
+
+- 将 `main` 改为 `./dist/index.mjs`。
+- 简化 `exports["."]` 和 `exports["./basic"]` 为扁平的 `types` / `import` / `require` / `default` 映射。
+- 在 `pnpm-workspace.yaml` 中注册 `patchedDependencies`，并将 `pnpm-lock.yaml` 纳入版本控制。
+
+详细记录见 `.claude/skills/fix-bug/record-bug-fix-memory/2026-06-30-consola-node24-esm-resolve.md`。
+
+### 后续约束
+
+1. 升级 consola 前必须重新评估 patch，版本变化会使旧 patch 失效。
+2. 不要将 `scripts/fix-consola-esm.ts` 重新启用为 `postinstall`，patch 是确定性的修复方式。
+3. CI 诊断步骤继续保留，用于快速确认 patch 状态。
+4. `pnpm-lock.yaml` 必须持续纳入版本控制，否则 patch hash 无法在 CI 中一致应用。
+
 ## RULE 4: Session End — Store Decision Chain Summary
 
 When the conversation is ending, create a **decision chain summary** (not just a checklist):
