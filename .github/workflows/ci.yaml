@@ -20,18 +20,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 安装pnpm
-        uses: pnpm/action-setup@v5
+      - name: 初始化 monorepo 环境
+        uses: ./.github/actions/setup-monorepo
         with:
-          run_install: |
-            - recursive: true
-            - args: [--global, "vercel", "@dotenvx/dotenvx", "tsx", "turbo"]
-
-      - name: 安装node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24.18.0
-          cache: pnpm
+          with-vercel: "true"
 
       - name: 检查版本
         run: |

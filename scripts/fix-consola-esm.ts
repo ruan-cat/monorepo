@@ -101,9 +101,38 @@ function findConsolaDirs(root: string): string[] {
 		}
 	}
 
-	// 过滤出真实存在的候选目录
+	// 直接扫描 pnpm store 中所有 consola 实例（覆盖 automd 等依赖的真实目录）
+	const pnpmDir = join(nodeModules, ".pnpm");
+	if (existsSync(pnpmDir)) {
+		try {
+			for (const entry of readdirSync(pnpmDir, { withFileTypes: true })) {
+				if (!entry.isDirectory()) continue;
+				// consola@<version> 或 consola@<version>_patch_hash=...
+				if (entry.name.startsWith("consola@")) {
+					candidates.push(join(pnpmDir, entry.name, "node_modules", "consola"));
+				}
+				// automd@<version> 的依赖目录中也可能包含 consola 软链接
+				if (entry.name.startsWith("automd@")) {
+					candidates.push(join(pnpmDir, entry.name, "node_modules", "consola"));
+				}
+			}
+		} catch {
+			// ignore
+		}
+	}
+
+	// 过滤出真实存在的候选目录，并去重（跟随软链接后的真实路径）
+	const seen = new Set<string>();
 	for (const c of candidates) {
-		if (existsSync(c)) dirs.push(c);
+		if (!existsSync(c)) continue;
+		try {
+			const real = realpathSync(c);
+			if (seen.has(real)) continue;
+			seen.add(real);
+			dirs.push(c);
+		} catch {
+			dirs.push(c);
+		}
 	}
 
 	return dirs;
