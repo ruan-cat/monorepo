@@ -5,6 +5,22 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [6.14.0] - 2026-06-30
+
+### Added
+
+- **init-simple-memorix**（`metadata.version` `1.0.0` -> `1.2.0`）：
+- 新增 WorkBuddy agent 支持，基于 matcher 嵌套 + description 字段的 hooks 配置模板。
+- 新增 `templates/workbuddy.hooks.json` 模板，覆盖 SessionStart、UserPromptSubmit、PreCompact、Stop 四个会话生命周期事件。
+
+### Changed
+
+- **init-simple-memorix**（`metadata.version` `1.1.0` -> `1.2.0`）：
+- 将所有内联 hooks 配置模板提取到 `templates/` 目录，SKILL.md 从 441 行缩减至 232 行（-47%）。
+- **common-tools / dev-skills 对外分发 SKILL.md**（共 18 个文件）：
+- YAML `description` 字段格式从单行/双引号统一为 `>-` folded block scalar 多行分段格式。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `6.14.0`。
+
 ## [6.12.0] - 2026-06-25
 
 ### Added
