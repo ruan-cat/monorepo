@@ -14,3 +14,5 @@ onlyBuiltDependencies:
   - simple-git-hooks
   - vitepress-carbon
   - vue-demi
+patchedDependencies:
+  consola: patches/consola.patch

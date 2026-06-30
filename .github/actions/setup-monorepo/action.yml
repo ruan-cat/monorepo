@@ -1,7 +1,7 @@
 name: Setup Monorepo
 
 description: |
-  统一安装 pnpm、Node、全局工具与项目依赖，并在 build 前兜底修复 consola ESM 垫片。
+  统一安装 pnpm、Node、全局工具与项目依赖。
   供 release.yml、ci.yaml 等需要执行 build 的工作流复用。
 
 inputs:
@@ -59,23 +59,17 @@ runs:
       shell: bash
       run: pnpm i
 
-    # 诊断：确认 consola 垫片是否存在（用于排查 ERR_MODULE_NOT_FOUND）
-    - name: 诊断consola垫片状态
+    # 诊断：确认 consola package.json 与补丁状态
+    - name: 诊断consola解析状态
       shell: bash
       run: |
-        echo "=== 根目录 consola ==="
+        echo "=== 根目录 consola package.json ==="
         ls -la ./node_modules/consola || true
-        test -f ./node_modules/consola/index.js && echo "根 consola/index.js 存在" || echo "根 consola/index.js 不存在"
-        echo "=== utils 包 consola ==="
-        ls -la ./packages/utils/node_modules/consola || true
-        test -f ./packages/utils/node_modules/consola/index.js && echo "utils consola/index.js 存在" || echo "utils consola/index.js 不存在"
-        echo "=== automd 依赖的 consola ==="
-        ls -la ./node_modules/.pnpm/automd@*/node_modules/consola || true
-        test -f ./node_modules/.pnpm/automd@*/node_modules/consola/index.js && echo "automd consola/index.js 存在" || echo "automd consola/index.js 不存在"
+        echo "=== consola main 字段 ==="
+        node -e "console.log(require('./node_modules/consola/package.json').main)" || true
+        echo "=== consola exports 字段 ==="
+        node -e "console.log(JSON.stringify(require('./node_modules/consola/package.json').exports, null, 2))" || true
+        echo "=== utils 包 consola package.json ==="
+        node -e "console.log(JSON.stringify(require('./packages/utils/node_modules/consola/package.json').exports?.['.'], null, 2))" || true
         echo "=== automd 入口 ==="
         ls -la ./node_modules/.pnpm/automd@*/node_modules/automd/dist/cli.mjs || true
-
-    # 兜底：显式修复 consola ESM 垫片（兼容 postinstall 未触发或被缓存跳过的场景）
-    - name: 修复consola ESM垫片
-      shell: bash
-      run: pnpm exec tsx scripts/fix-consola-esm.ts
