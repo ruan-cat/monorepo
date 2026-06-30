@@ -102,6 +102,7 @@ metadata:
 - `2026-03-01-crlf-loop-phantom-modified.md` — Windows CRLF 残留导致「循环幽灵 modified」
 - `2026-04-01-codex-memorix-mcp-startup.md` — Windows 下 Codex 无法拉起 Memorix MCP
 - `2026-04-01-codex-memorix-roots-list.md` — Codex 与 Memorix 的 roots/list 兼容问题
+- `2026-06-30-consola-node24-esm-resolve.md` — consola@3.4.2 在 Node.js 24 CI 下的 ESM 解析失败，最终通过 pnpm patch 重写 package.json 根治
 
 新增事故记录时，先创建独立案例文件，再在本索引追加一行摘要。**禁止**将完整事故正文直接写入 SKILL.md。
 
