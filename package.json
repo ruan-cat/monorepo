@@ -35,6 +35,7 @@
 		"automd:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- automd",
 		"pack:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- pnpm pack >docs/reports/all-packages-pack.md",
 		"preinstall": "node scripts/check-pnpm.mjs && corepack enable && corepack install",
+		"postinstall": "tsx scripts/fix-consola-esm.ts",
 		"corepack:pnpm": "corepack enable && corepack install",
 		"prepare": "simple-git-hooks",
 		"init-git-hooks": "simple-git-hooks",
