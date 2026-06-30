@@ -2,7 +2,8 @@
 /**
  * batch-pr.ts — 跨仓库批量 PR 自动化脚本
  *
- * 由 pr-ruancat-repo 技能自动生成，用于替代 AI 逐仓库调用 gh CLI / GitHub MCP。
+ * 由 pr-ruancat-repo 技能根据具体任务自动生成，用于替代 AI 逐仓库调用 gh CLI / GitHub MCP。
+ * 建议在头部注释中补充本次任务的简要说明（例如：统一升级 setup-node 至 Node.js 24.18.0）。
  * 执行前请确保：
  *   1. Node.js >= 18，且已安装 tsx（`npm i -g tsx`）或使用 npx tsx
  *   2. gh CLI 已安装并认证（`gh auth status`）
@@ -13,11 +14,14 @@
  *
  * 用法：
  *   npx tsx batch-pr.ts [--workdir <path>] [--dry-run] [--parallel <N>]
+ *   npx tsx batch-pr.ts merge [--workdir <path>] [--admin] [--parallel <N>]
  *
  * --workdir <path>: 工作目录，存放 pr-config.json、pr-body.md、commit-message.txt 等
- *                   默认：当前目录 (process.cwd())
+ *                   默认：脚本自身所在目录（推荐将本脚本与配置放在同一目录）
  * --dry-run:        仅打印将要执行的操作，不实际修改任何文件
  * --parallel <N>:   同时处理 N 个仓库（默认 1，即串行）
+ * merge:            合并已创建的 PR（rebase 方式），并清理远程/本地分支
+ * --admin:          merge 模式下，强制合并未通过检查的 PR
  *
  * 文件变换支持：
  *   工作目录下的 pr-transform.json（可选）指定 inline 搜索替换规则，
@@ -35,6 +39,7 @@ import { execSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as process from "node:process";
+import { fileURLToPath } from "node:url";
 
 /* ============================================================
  * 类型定义
@@ -90,9 +95,23 @@ interface RepoResult {
 	changes: FileChangeRecord[];
 }
 
+interface MergeResult {
+	repo: string;
+	localPath: string;
+	status: "success" | "skipped" | "failed";
+	targetBranch: string | null;
+	prNumber: number | null;
+	prUrl: string | null;
+	branchDeleted: boolean;
+	reason: string | null;
+}
+
 /* ============================================================
  * 工具函数
  * ============================================================ */
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function exec(command: string, cwd: string, dryRun = false): { stdout: string; stderr: string } {
 	if (dryRun) {
@@ -333,11 +352,16 @@ async function main(): Promise<void> {
 	const args = process.argv.slice(2);
 	const dryRun = args.includes("--dry-run");
 	const workdirIndex = args.indexOf("--workdir");
+	// 默认使用脚本自身所在目录作为工作目录，确保 cd 到任意位置执行都不会读错配置
 	const workdir: string =
-		workdirIndex >= 0 && workdirIndex + 1 < args.length ? path.resolve(args[workdirIndex + 1]) : process.cwd();
+		workdirIndex >= 0 && workdirIndex + 1 < args.length
+			? path.resolve(args[workdirIndex + 1])
+			: __dirname;
 
 	const parallelArg = args.find((a) => a.startsWith("--parallel="));
 	const parallelCount = parallelArg ? Number.parseInt(parallelArg.split("=")[1], 10) : 1;
+	const mergeMode = args[0] === "merge";
+	const useAdmin = args.includes("--admin");
 
 	// ---- 读取配置文件 ----
 	const configPath = path.join(workdir, "pr-config.json");
@@ -366,12 +390,20 @@ async function main(): Promise<void> {
 	const defaultCommitMessage = fs.existsSync(commitMsgPath) ? fs.readFileSync(commitMsgPath, "utf-8").trim() : "";
 
 	console.log("=".repeat(60));
-	console.log(`  批量 PR 执行脚本`);
+	console.log(
+		mergeMode
+			? "  批量 PR 合并脚本"
+			: "  批量 PR 执行脚本",
+	);
 	console.log(`  PR 标题: ${config.prTitle}`);
 	console.log(`  来源分支: ${config.sourceBranch}`);
 	console.log(`  仓库数: ${config.repos.length}`);
 	console.log(`  工作目录: ${workdir}`);
-	console.log(`  模式: ${dryRun ? "DRY-RUN（仅预览）" : "实际执行"}`);
+	if (mergeMode) {
+		console.log(`  模式: 合并 PR + 清理分支${useAdmin ? "（--admin 强制）" : ""}`);
+	} else {
+		console.log(`  模式: ${dryRun ? "DRY-RUN（仅预览）" : "实际执行"}`);
+	}
 	console.log("=".repeat(60));
 	console.log();
 
@@ -408,6 +440,31 @@ async function main(): Promise<void> {
 	}
 
 	// ---- 逐仓库执行 ----
+	if (mergeMode) {
+		const mergeResults: MergeResult[] = [];
+
+		const batches: RepoConfig[][] = [];
+		for (let i = 0; i < config.repos.length; i += parallelCount) {
+			batches.push(config.repos.slice(i, i + parallelCount));
+		}
+
+		for (const batch of batches) {
+			const batchPromises = batch.map(async (repoCfg) => mergeRepo(repoCfg, useAdmin, dryRun));
+			const batchResults = await Promise.all(batchPromises);
+			mergeResults.push(...batchResults);
+		}
+
+		generateMergeSummary(config, mergeResults, workdir);
+
+		const failedCount = mergeResults.filter((r) => r.status === "failed").length;
+		if (failedCount > 0) {
+			console.error(`\n❌ ${failedCount} 个仓库合并失败，请检查 ${path.join(workdir, "merge-summary.md")}`);
+			process.exit(1);
+		}
+		console.log("\n✅ 全部仓库合并成功！");
+		return;
+	}
+
 	const results: RepoResult[] = [];
 
 	const batches: RepoConfig[][] = [];
@@ -491,6 +548,28 @@ async function processRepo(
 		runOrExit(`git checkout "${targetBranch}"`, localPath, dryRun);
 	}
 
+	// 1.6 清理本次任务遗留的未提交改动（仅当未提交文件全部被转换规则覆盖时）
+	const { stdout: preStatus } = exec("git status --porcelain", localPath, false);
+	if (preStatus && transformCfg && transformCfg.transformations.length > 0) {
+		const dirtyFiles = preStatus
+			.split("\n")
+			.map((line) => line.slice(3).trim())
+			.filter(Boolean);
+
+		const allRuleFiles = new Set<string>();
+		for (const rule of transformCfg.transformations) {
+			for (const f of resolveGlob(rule.glob, localPath)) {
+				allRuleFiles.add(f.replace(/\\/g, "/"));
+			}
+		}
+
+		const allCovered = dirtyFiles.every((f) => allRuleFiles.has(f.replace(/\\/g, "/")));
+		if (allCovered) {
+			console.log(`  🧹 清理 ${dirtyFiles.length} 个任务相关残留改动`);
+			runOrExit("git reset --hard HEAD", localPath, dryRun);
+		}
+	}
+
 	// 2. 检查工作树是否干净（只读操作，dry-run 下也实际执行）
 	const { stdout: statusOut } = exec("git status --porcelain", localPath, false);
 	if (statusOut) {
@@ -508,7 +587,7 @@ async function processRepo(
 
 	// 3. 检查是否已存在同源分支的开放 PR（只读操作，dry-run 下也实际执行）
 	const { stdout: existingPr } = exec(
-		`gh pr list --head "${sourceBranch}" --base "${targetBranch}" --state open --json url --jq '.[0].url'`,
+		`gh pr list --head "${sourceBranch}" --base "${targetBranch}" --state open --json url --jq ".[0].url"`,
 		localPath,
 		false,
 	);
@@ -680,6 +759,132 @@ async function processRepo(
 	};
 }
 
+/**
+ * 合并单个仓库的 PR 并清理分支
+ */
+async function mergeRepo(repoCfg: RepoConfig, useAdmin: boolean, dryRun = false): Promise<MergeResult> {
+	const { repo, localPath, sourceBranch } = repoCfg;
+	console.log(`\n── ${repo} ──`);
+	console.log(`  本地路径: ${localPath}`);
+
+	if (!fs.existsSync(localPath)) {
+		console.log(`  ⏭  跳过：本地路径不存在`);
+		return { repo, localPath, status: "skipped", targetBranch: null, prNumber: null, prUrl: null, branchDeleted: false, reason: "本地路径不存在" };
+	}
+
+	// 1. 探测目标分支
+	const targetBranch = detectTargetBranch(localPath, false);
+	if (!targetBranch) {
+		console.log(`  ⏭  跳过：无法确定目标分支`);
+		return { repo, localPath, status: "skipped", targetBranch: null, prNumber: null, prUrl: null, branchDeleted: false, reason: "无法确定目标分支" };
+	}
+	console.log(`  目标分支: ${targetBranch}`);
+
+	// 2. 查找开放 PR（只读，dry-run 也实际执行）
+	const prListResult = exec(
+		`gh pr list --head "${sourceBranch}" --base "${targetBranch}" --state open --json number,url --jq ".[0]"`,
+		localPath,
+		false,
+	);
+	let prInfo: { number?: number; url?: string } | null = null;
+	try {
+		prInfo = prListResult.stdout ? (JSON.parse(prListResult.stdout) as { number: number; url: string }) : null;
+	} catch {
+		prInfo = null;
+	}
+
+	if (!prInfo || !prInfo.number) {
+		console.log(`  ⏭  跳过：未找到 ${sourceBranch} → ${targetBranch} 的开放 PR`);
+		return { repo, localPath, status: "skipped", targetBranch, prNumber: null, prUrl: null, branchDeleted: false, reason: "未找到开放 PR" };
+	}
+
+	console.log(`  [dry-run] 将合并 PR #${prInfo.number}: ${prInfo.url}${useAdmin ? " （--admin 强制）" : ""}`);
+	if (dryRun) {
+		return {
+			repo,
+			localPath,
+			status: "success",
+			targetBranch,
+			prNumber: prInfo.number,
+			prUrl: prInfo.url,
+			branchDeleted: true,
+			reason: null,
+		};
+	}
+
+	console.log(`  🔀 合并 PR #${prInfo.number}: ${prInfo.url}`);
+
+	// 3. 执行 rebase 合并并请求删除分支
+	const mergeCmd = `gh pr merge ${prInfo.number} --rebase --delete-branch${useAdmin ? " --admin" : ""}`;
+	const mergeResult = runOrExit(mergeCmd, localPath, false);
+	if (mergeResult.stderr && !mergeResult.stderr.toLowerCase().includes("already merged")) {
+		console.log(`  ⚠  gh merge 可能失败: ${mergeResult.stderr}`);
+	}
+
+	// 4. 通过 GitHub API 验证远程分支是否已删除
+	const [owner, name] = repo.split("/");
+	let branchStillExists = false;
+	try {
+		const checkResult = exec(`gh api repos/${owner}/${name}/branches/${sourceBranch} --jq ".name"`, localPath, false);
+		branchStillExists = checkResult.stdout.trim() === sourceBranch;
+	} catch {
+		branchStillExists = false;
+	}
+
+	// 5. 兜底删除远程分支
+	if (branchStillExists) {
+		console.log(`  🧹 远程分支仍存在，执行兜底删除`);
+		const deleteResult = runOrExit(`git push origin --delete "${sourceBranch}"`, localPath, false);
+		if (deleteResult.stderr && !deleteResult.stderr.includes("remote ref does not exist")) {
+			console.error(`  ⚠  删除远程分支失败: ${deleteResult.stderr}`);
+		}
+	}
+
+	// 6. 清理本地跟踪分支并同步目标分支
+	runOrExit(`git fetch --prune origin`, localPath, false);
+	runOrExit(`git checkout "${targetBranch}"`, localPath, false);
+	runOrExit(`git pull origin "${targetBranch}"`, localPath, false);
+	try {
+		runOrExit(`git branch -D "${sourceBranch}"`, localPath, false);
+	} catch {
+		// 本地分支可能不存在，忽略
+	}
+
+	// 7. 二次验证远程分支
+	let finalBranchExists = false;
+	try {
+		const finalCheck = exec(`gh api repos/${owner}/${name}/branches/${sourceBranch} --jq ".name"`, localPath, false);
+		finalBranchExists = finalCheck.stdout.trim() === sourceBranch;
+	} catch {
+		finalBranchExists = false;
+	}
+
+	if (finalBranchExists) {
+		return {
+			repo,
+			localPath,
+			status: "failed",
+			targetBranch,
+			prNumber: prInfo.number,
+			prUrl: prInfo.url,
+			branchDeleted: false,
+			reason: "合并后远程分支仍无法删除",
+		};
+	}
+
+	console.log(`  ✅ 合并完成，远程/本地分支已清理`);
+	return {
+		repo,
+		localPath,
+		status: "success",
+		targetBranch,
+		prNumber: prInfo.number,
+		prUrl: prInfo.url,
+		branchDeleted: true,
+		reason: null,
+	};
+}
+
 /* ============================================================
  * 汇总报告
  * ============================================================ */
@@ -745,6 +950,42 @@ function generateSummary(config: PRConfig, results: RepoResult[], dryRun: boolea
 	const summaryContent = summaryLines.filter((l) => l !== "").join("\n");
 	fs.writeFileSync(path.join(workdir, "execution-summary.md"), summaryContent, "utf-8");
 	console.log(`\n📄 汇总报告已写入: ${path.join(workdir, "execution-summary.md")}`);
+}
+
+function generateMergeSummary(config: PRConfig, results: MergeResult[], workdir: string): void {
+	const summaryLines: string[] = [];
+	const successCount = results.filter((r) => r.status === "success").length;
+	const skippedCount = results.filter((r) => r.status === "skipped").length;
+	const failedCount = results.filter((r) => r.status === "failed").length;
+
+	summaryLines.push("# 批量 PR 合并汇总报告");
+	summaryLines.push("");
+	summaryLines.push("> **合并模式** — rebase 合并 + 分支清理");
+	summaryLines.push("");
+	summaryLines.push("## 统一内容");
+	summaryLines.push(`- **来源分支**: ${config.sourceBranch}`);
+	summaryLines.push("");
+	summaryLines.push("## 执行结果");
+	summaryLines.push(`- ✅ 成功: ${successCount}`);
+	summaryLines.push(`- ⏭  跳过: ${skippedCount}`);
+	summaryLines.push(`- ❌ 失败: ${failedCount}`);
+	summaryLines.push("");
+
+	summaryLines.push("| 仓库 | 状态 | 目标分支 | PR | 分支已删除 | 说明 |");
+	summaryLines.push("| :--- | :--: | :------ | --- | :--------: | :--- |");
+
+	for (const r of results) {
+		const statusIcon = r.status === "success" ? "✅" : r.status === "skipped" ? "⏭" : "❌";
+		const prLink = r.prUrl ? `[#${r.prNumber}](${r.prUrl})` : "—";
+		const deletedIcon = r.branchDeleted ? "✅" : r.status === "skipped" ? "—" : "❌";
+		summaryLines.push(
+			`| \`${r.repo}\` | ${statusIcon} ${r.status} | ${r.targetBranch ?? "—"} | ${prLink} | ${deletedIcon} | ${r.reason ?? "—"} |`,
+		);
+	}
+
+	const summaryContent = summaryLines.filter((l) => l !== "").join("\n");
+	fs.writeFileSync(path.join(workdir, "merge-summary.md"), summaryContent, "utf-8");
+	console.log(`\n📄 合并汇总报告已写入: ${path.join(workdir, "merge-summary.md")}`);
 }
 
 /* ============================================================

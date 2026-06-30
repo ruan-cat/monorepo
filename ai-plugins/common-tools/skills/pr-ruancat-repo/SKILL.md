@@ -145,10 +145,11 @@ metadata:
 
 1. **验证本地路径**：检查每个仓库的 `localPath` 是否存在。不存在则加入 `excludedRepos`。
 2. **扫描目标文件**：根据任务类型扫描相关目录。例如 `.github/workflows/*.{yml,yaml}` 查找 `setup-node` 配置。
-3. **计数与归类**：统计受影响文件数、匹配次数。
-4. **识别特殊模式**：发现不同仓库的差异（如 release 文件有额外字段、部分仓库使用不同版本号）。
-5. **归纳转换规则**：将探索结果抽象为 `transformations[]` 规则（见下方数据契约），供脚本使用。
-6. **汇总输出**：产出完整的 `scopeAnalysis` JSON。
+3. **grep 搜索**：使用 `grep -R -n` 查找目标模式，记录匹配文件路径和行号。
+4. **计数与归类**：统计受影响文件数、匹配次数、当前值分布。
+5. **识别特殊模式**：发现不同仓库的差异（如 release 文件有额外字段、部分仓库使用不同版本号、引号格式不一致）。
+6. **归纳转换规则**：将探索结果抽象为 `transformations[]` 规则（见下方数据契约），供脚本使用。每条规则必须包含人类可读的 `description`、精确的 `glob`、安全的 `search` 正则和最小改动的 `replace`。
+7. **汇总输出**：产出完整的 `scopeAnalysis` JSON。
 
 ### 排除原则
 
@@ -167,7 +168,17 @@ metadata:
 
 ## 1. 背景与目标
 
-{从阶段 2α 的统一内容中提取}
+### 1.1 背景
+
+{从阶段 2α 的统一内容中提取：为什么要做这次批量改动}
+
+### 1.2 当前状态扫描
+
+{从阶段 2β 的范围探索中提取：当前版本分布、扫描命令、扫描结论}
+
+### 1.3 目标
+
+{本次批量改动要达成的具体目标}
 
 ## 2. 改动范围
 
@@ -179,13 +190,11 @@ metadata:
 
 ### 2.2 未包含的仓库
 
-| 仓库 | 原因 |
-| :--- | :--- |
-| ...  | ...  |
+{本地未克隆或没有目标文件的仓库及原因}
 
-### 2.3 受影响文件清单
+### 2.3 涉及的文件
 
-{具体的文件路径列表}
+{具体的文件路径列表，含每个仓库的当前值/预期值/备注}
 
 ## 3. 替换策略
 
@@ -197,40 +206,82 @@ metadata:
 
 {需要特殊处理的仓库或文件，例如 release 工作流保留 registry-url}
 
-## 4. 执行模式
+### 3.3 转换规则（pr-transform.json）
 
-推荐使用**脚本自动化模式**（生成 `batch-pr.ts` 执行）。
+{从 scopeAnalysis.transformations[] 派生的 JSON 规则及说明}
 
-## 5. 分支策略
+## 4. 范围探索数据契约
+
+{scopeAnalysis JSON 的完整内容或摘要}
+
+## 5. 执行模式
+
+推荐使用**脚本自动化模式**（生成 `batch-pr.ts` 由用户本地执行）。
+
+## 6. 分支策略
 
 - 来源分支：{sourceBranch}
 - 目标分支探测：dev > main > master
 
-## 6. Commit 与 PR 文案
+## 7. Commit 与 PR 文案
 
-### 6.1 Commit Message
+### 7.1 Commit Message
 
 {commitMessage}
 
-### 6.2 PR 标题
+### 7.2 PR 标题
 
 {prTitle}
 
-### 6.3 PR 正文
+### 7.3 PR 正文
 
 {prBody}
 
-## 7. 验证方式
+## 8. 验证方式
 
-{验证命令和方式}
+### 8.1 替换验证
 
-## 8. 风险与回滚
+{例如 grep 命令}
+
+### 8.2 语法验证
+
+{例如 YAML 语法检查方式}
+
+### 8.3 PR 状态验证
+
+{PR URL、状态汇总}
+
+### 8.4 执行命令示例
+
+{dry-run 和实际执行命令}
+
+## 9. PR 合并与分支清理
+
+### 9.1 合并命令
+
+{`npx tsx batch-pr.ts merge` 等}
+
+### 9.2 合并流程
+
+{扫描 PR → rebase 合并 → 删除分支 → 验证 → 生成 merge-summary.md}
+
+### 9.3 分支清理原则
+
+{必须删除本次来源分支，不得删除默认分支和 GitHub Pages 源分支}
+
+### 9.4 合并后状态
+
+| 仓库 | PR | 目标分支 | 分支删除 |
+| :--- | --- | :--- | :------: |
+| ...  | ... | ...  | ...      |
+
+## 10. 风险与回滚
 
 | 序号 | 风险 | 影响 | 应对措施 |
 | :--: | :--- | :--- | :------- |
 | ...  | ...  | ...  | ...      |
 
-## 9. 验收标准
+## 11. 验收标准
 
 - [ ] 验收项 1
 - [ ] 验收项 2
@@ -288,6 +339,7 @@ metadata:
 | `spec.md`                | 完整设计规格文档               | AI     |
 | `pr-transform.json`      | 文件内容转换规则（如有）       | AI     |
 | `batch-pr.ts`            | 可执行的 TypeScript 脚本       | AI     |
+| `README.md`              | 使用说明与执行指引             | AI     |
 | `changes/<repo_safe>/*`  | 跨仓库共享的待修改文件（可选） | AI     |
 | `commit-message--<repo_safe>.txt` | **per-repo 差异化** commit（可选） | AI |
 | `pr-body--<repo_safe>.md`         | **per-repo 差异化** PR 正文（可选） | AI |
@@ -356,12 +408,14 @@ metadata:
 5. **生成 `batch-pr.ts`**：以 `references/batch-pr-script.ts` 为参考模板，根据本次任务的实际情况生成**定制化**的 TypeScript 脚本：
    - 必须将 `pr-config.json` 中的仓库列表直接嵌入脚本（或用读取 `pr-config.json` 的方式）。
    - 必须硬编码 `prTitle` 和 `sourceBranch`。
-   - 必须包含 `--workdir <path>` 参数支持，指向阶段 3a 创建的 `batch-pr-<YYYY-MM-DD>/` 目录。
+   - 默认使用脚本自身所在目录作为工作目录（通过 `import.meta.url` 解析），确保用户从任意目录执行都不会读错配置。
+   - 可选包含 `--workdir <path>` 参数支持，用于覆盖默认工作目录。
    - 必须包含健壮的错误处理：工作树不干净、推送被拒绝、PR 已存在等场景应优雅跳过并记录原因。
    - 必须支持 `--dry-run` 参数用于预览。
    - 必须在执行完成后写入 `execution-summary.md`。
    - 必须集成阶段 2β 产出的 `transformations[]` 规则，使脚本具备 inline 搜索替换能力而非仅整文件拷贝。转换规则以 `pr-transform.json` 文件形式与脚本同目录存放。
    - 必须支持 per-repo 差异化文件（`commit-message--<repo_safe>.txt`、`pr-body--<repo_safe>.md`），读取优先级：per-repo 文件 > 通用文件。
+   - 建议内建任务相关残留改动的自动清理：若工作树中的未提交文件全部被 `transformations[]` 规则覆盖，可安全 `git reset --hard HEAD` 后重跑；否则保留跳过行为，避免覆盖用户真实改动。
 
 6. **生成 `pr-transform.json`（如有转换规则）**：从 `scopeAnalysis.transformations[]` 写入独立 JSON 文件，格式如下：
 
@@ -406,11 +460,12 @@ metadata:
 生成脚本后，主 Agent 向用户输出清晰的执行指引：
 
 1. 告知用户产物所在目录（`batch-pr-<YYYY-MM-DD>/`）。
-2. 建议的执行命令：
+2. 建议的执行命令（脚本默认读取自身所在目录的配置）：
    - `cd batch-pr-<YYYY-MM-DD> && npx tsx batch-pr.ts --dry-run`（先预览效果）
    - `cd batch-pr-<YYYY-MM-DD> && npx tsx batch-pr.ts`（实际执行）
-   - 或使用 `--workdir` 参数从其他目录指定：`npx tsx /path/to/batch-pr.ts --workdir ./batch-pr-<YYYY-MM-DD>`
-3. 告知用户预期结果：脚本执行后将生成 `execution-summary.md` 汇总报告。
+   - 或从其他目录通过 `--workdir` 指定：`npx tsx /path/to/batch-pr.ts --workdir ./batch-pr-<YYYY-MM-DD>`
+   - 合并模式：`npx tsx batch-pr.ts merge --dry-run` 预览，`npx tsx batch-pr.ts merge` 实际合并
+3. 告知用户预期结果：脚本执行后将生成 `execution-summary.md` 汇总报告；合并模式生成 `merge-summary.md`。
 4. 请用户执行完毕后反馈 `execution-summary.md` 内容，或告知执行结果。
 
 **在用户执行期间，AI Agent 不消耗 token**——这是脚本自动化模式的核心收益。

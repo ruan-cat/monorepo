@@ -86,9 +86,12 @@
 1. 生成 `pr-config.json`——包含 repo 列表、本地路径、来源分支、PR 标题。
 2. 生成 `pr-body.md`——统一 PR 正文，聚焦"做了什么 + 为什么做 + 如何验证"。
 3. 生成 `commit-message.txt`——纯文本 commit 信息，**不带 Emoji**，与阶段 2 冻结的 `commitMessage` 语义一致。
-4. 生成 `batch-pr.ts`——自包含的 TypeScript 脚本，参考 `references/batch-pr-script.ts`。
-5. （可选）生成 `changes/` 目录下的待修改文件。
-6. 对 `batch-pr.ts` 做语法快速检查。
+4. 生成 `pr-transform.json`——从 `scopeAnalysis.transformations[]` 写入转换规则。
+5. 生成 `batch-pr.ts`——自包含的 TypeScript 脚本，参考 `references/batch-pr-script.ts`。
+6. 生成 `spec.md`——完整设计规格，便于用户审阅。
+7. 生成 `README.md`——使用说明与执行指引，降低用户执行门槛。
+8. （可选）生成 `changes/` 目录下的待修改文件。
+9. 对 `batch-pr.ts` 做语法快速检查（`npx tsc --noEmit --module ES2022 batch-pr.ts`）。
 
 **用户端（阶段 3b）**：
 
@@ -225,7 +228,9 @@ batch-pr-<YYYY-MM-DD>/
 ├── commit-message.txt         # commit 信息（默认）
 ├── pr-transform.json          # 转换规则（可选）
 ├── spec.md                    # 设计规格（仅审阅）
+├── README.md                  # 使用说明与执行指引
 ├── execution-summary.md       # 脚本执行后生成
+├── merge-summary.md           # merge 模式执行后生成
 ├── changes/
 │   ├── ruan-cat__notes/       # per-repo 差异化文件
 │   └── ruan-cat__monorepo/    # per-repo 差异化文件
@@ -248,9 +253,9 @@ batch-pr-<YYYY-MM-DD>/
 
 #### 脚本执行顺序
 
-1. 解析 `--workdir` 参数（默认 `process.cwd()`）
+1. 解析 `--workdir` 参数（默认脚本自身所在目录 `import.meta.url`）
 2. 读取 `pr-config.json` 获得仓库清单
-3. 对每个仓库：resolve commit message（per-repo 优先）→ resolve PR body（per-repo 优先）→ 执行 inline 转换 → resolve changes 目录应用 → git commit/push → gh pr create
+3. 对每个仓库：切回目标分支 → 清理任务相关残留改动（仅当未提交文件全部被转换规则覆盖时）→ 检查工作树 → resolve commit message（per-repo 优先）→ resolve PR body（per-repo 优先）→ 执行 inline 转换 → resolve changes 目录应用 → git commit/push → gh pr create
 4. 写入 `execution-summary.md` 到工作目录
 
 #### 工作目录生命周期
@@ -271,6 +276,10 @@ batch-pr-<YYYY-MM-DD>/
 3. 所有转换规则按数组顺序串行执行（后一条在前一条产物上操作）。
 4. 转换完成后，若存在 `changes/` 目录的整文件，再应用整文件拷贝。
 5. 执行完毕后对所有被修改文件做日志记录（显示原始行 vs 新行摘要）。
+
+#### 任务残留清理
+
+若上次执行失败后工作树中残留了未提交改动，且这些改动全部被 `transformations[]` 规则匹配的文件覆盖，脚本可安全执行 `git reset --hard HEAD` 清理后重跑。否则应跳过该仓库并提示用户手动处理，避免覆盖真实未提交工作。
 
 ## B. 输出模板
 
