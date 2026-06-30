@@ -2,16 +2,18 @@
 
 ## 本项目的技能表
 
-本仓库同时维护两类技能来源：项目局部技能位于 `.claude/skills/`，对外分发技能位于 `ai-plugins/*/skills/`。**经验教训、事故复盘、根级 AI 记忆与 Memorix 同步**请优先使用 `record-bug-fix-memory`；其余按场景选用。已落地的仓库级排错案例写在 `record-bug-fix-memory` 技能正文 **「仓库级经验库」** 小节（可随事故继续追加）。
+本仓库同时维护两类技能来源：项目局部技能位于 `.claude/skills/`，对外分发技能位于 `ai-plugins/*/skills/`。**经验教训、事故复盘、根级 AI 记忆与 Memorix 同步**请优先使用 `record-bug-fix-memory`；其余按场景选用。已落地的仓库级排错案例写在 `record-bug-fix-memory` 技能正文 **「案例索引」** 小节（可随事故继续追加）。
 
 ### 项目局部技能（仓库内维护）
 
-- `record-bug-fix-memory`
-  - 路径：`.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
+- `record-bug-fix-memory` — `.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
+  - **存储架构**：双层存储。SKILL.md 只放流程指导和摘要索引，详细案例存储在同目录下的独立 `YYYY-MM-DD-{slug}.md` 文件中。
+  - **阅读方式**：使用此技能前，先读 SKILL.md 了解流程，再根据「案例索引」章节按需读取相关的独立案例文件。
+  - **写入方式**：新增经验时，创建独立案例文件，同时在 SKILL.md 的「案例索引」追加摘要。禁止将完整事故正文写入 SKILL.md。
   - 用途：在 bug 已定位并修复后，沉淀排错结论、事故记录、复盘与本地 MCP 记忆；只写「发生了什么、为何发生、如何验证、以后要记住什么」，不用于现场修 bug。
   - 触发时机：用户要求「记录经验教训」「补充 AI 记忆」「写事故记录」「同步 Memorix」，或排错已完成需沉淀时。
   - 参考作用：仓库级事故模式与验证证据写法的参考，减少重复踩坑。
-  - 约束：不承担具体修复实现；仓库级经验写入本技能「仓库级经验库」及根级 `CLAUDE.md` / `AGENTS.md`（必要时 Memorix）。
+  - 约束：不承担具体修复实现；仓库级经验写入本技能「案例索引」及根级 `CLAUDE.md` / `AGENTS.md`（必要时 Memorix）。
 
 - `openspec-apply-change`
   - 路径：`.claude/skills/openspec-apply-change/SKILL.md`
@@ -107,29 +109,6 @@
 
 我会与你共同补充细化实现细节。我们会先迭代出一轮完整完善的实施清单，然后再由你亲自落实实施下去。
 
-## 术语说明
-
-在我和你沟通时，我会使用以下术语，便于你理解。
-
-### 全局术语
-
-在任何沟通下，这些术语都生效。
-
-- `生成更新日志` ： 指的是在 `.changeset` 目录内，编写面向 changeset 的更新日志文件。其`发版标签`分为 `major` `minor` `patch` 这三个档次。如果我在要求你生成更新日志时，没有说明清楚`发版标签`具体发版到那个等级，请及时询问我。要求我给你说明清楚。
-- `生成发版日志` ： `生成更新日志` 的别名，是同一个意思。
-
-## 沟通协作要求
-
-### `计划模式`
-
-在`计划模式`下，请你按照以下方式与我协作：
-
-1. 你不需要考虑任何向后兼容的设计，允许你做出破坏性的写法。请先设计一个合适的方案，和我沟通后再修改实施。
-2. 如果有疑惑，请询问我。
-3. 完成任务后，请告知我你做了那些破坏性变更。
-
-请注意，在绝大多数情况下，我不会要求你以这种 `计划模式` 来和我协作。
-
 ## 编写测试用例规范
 
 1. 请你使用 vitest 的 `import { test, describe } from "vitest";` 来编写。我希望测试用例格式为 describe 和 test。
@@ -174,6 +153,299 @@
    - major： 详细，清晰。说明清楚 major 版本的重大变更。
    - minor： 用有序序号，简明扼要的说明清楚更新日志即可。
    - patch： 用有序序号，简明扼要的说明清楚更新日志即可。
+
+### 术语说明
+
+在你和我沟通时，我会使用以下术语，便于你理解。
+
+#### 全局术语
+
+在任何沟通下，这些术语都生效。
+
+- `生成更新日志`： 指的是在 `.changeset` 目录内，编写面向 changeset 的更新日志文件。其`发版标签`分为 `major` `minor` `patch` 这三个档次。如果我在要求你生成更新日志时，没有说明清楚`发版标签`具体发版到那个等级，请及时询问我。要求我给你说明清楚。
+- `生成发版日志`： `生成更新日志` 的别名，是同一个意思。
+
+## 沟通协作要求
+
+### `计划模式`
+
+在`计划模式`下，请你按照以下方式与我协作：
+
+1. 你不需要考虑任何向后兼容的设计，允许你做出破坏性的写法。请先设计一个合适的方案，和我沟通后再修改实施。
+2. 如果有疑惑，请询问我。
+3. 完成任务后，请告知我你做了那些破坏性变更。
+
+请注意，在绝大多数情况下，我不会要求你以这种 `计划模式` 来和我协作。
+
+## 终端操作注意事项（防卡住）
+
+在 Windows PowerShell 环境下执行终端命令时，必须遵循以下规则，避免命令卡住浪费时间：
+
+### 1. 避免超长单行命令
+
+命令行参数过多（超过 200 字符）时，PowerShell 可能会挂起无响应。
+
+- **拆分命令**：每次传入 2~3 个文件路径，不要一次传入 5 个以上。
+- **使用通配符**：优先用 `git add scripts/.../src/*.ts` 替代逐个列举文件路径。
+
+### 2. 优先使用 `pnpm run` 而非 `npx`
+
+`npx` 在 Windows 上被终止时，会触发 `Terminate batch job (Y/N)?` 交互提示导致卡住。
+
+- **优先使用** `pnpm run build` 替代 `npx tsdown`。
+- **优先使用** `pnpm run test` 替代 `npx vitest run`。
+
+### 3. 及时止损，不要反复轮询
+
+当命令可能卡住时：
+
+1. 第 1 次状态检查等待 10~15 秒。
+2. 如果无输出且仍在运行 → **立即终止**，用新命令重试。
+3. **不要超过 2 次**状态检查仍无进展还继续等待。
+
+### 4. 合理的等待超时设置
+
+|         命令类型         | 建议等待时长 |
+| :----------------------: | :----------: |
+| `git add / status / log` |   5~10 秒    |
+|       `git commit`       |    10 秒     |
+| `pnpm run build / test`  |    30 秒     |
+|      `pnpm install`      |    60 秒     |
+
+## 简单任务的高效执行原则
+
+对于明显简单、直接、可在几步内完成的任务，请避免过度工程化。
+
+### 1. 不要创建任务列表
+
+简单任务不需要任务管理。只有当任务满足以下条件时才使用任务列表：
+
+- 3 个或以上独立步骤
+- 需要多轮决策
+- 涉及多个文件或模块
+- 用户明确要求跟踪进度
+
+### 2. 不要写报告
+
+除非用户明确要求，否则不要为简单任务生成报告、总结文档或变更说明。
+
+### 3. 不要过度确认
+
+在信息充足时直接执行，不要反复询问用户已经明确的内容。
+
+### 4. 判断任务规模，选择正确的行动姿态
+
+| 任务信号                         | 正确行动               |
+| :------------------------------- | :--------------------- |
+| 用户通过 `@文件` 明确了操作范围  | 直接读该文件，立即动手 |
+| 用户说"帮我改这个"、"写个日志"   | 行动优先，缺什么补什么 |
+| 用户涉及多包架构改动、新功能设计 | 先侦察，再行动         |
+
+**核心原则**：用户提供的上下文（@文件引用、对话内容、当前打开文件）就是最直接的线索，优先使用，不要用命令重新发现已知信息。
+
+### 5. 禁止行为清单
+
+以下行为在**简单任务**（单文件改动、写 changeset、写提交信息等）中是被禁止的：
+
+- 禁止连续执行超过 3 次 `git log` 来"了解全貌"
+- 禁止在明确知道目标文件的情况下，仍去扫描整个项目目录
+- 禁止把"读遍所有相关文档"当作行动前置条件
+- 禁止在用户已给出 @文件 的情况下，用命令重新搜索文件位置
+
+### 6. 立即响应纠偏
+
+当用户发出以下信号时，必须**立即停止当前路径**，回归最小行动路径：
+
+- "太复杂了"
+- "不要反复查询"
+- "直接做就行"
+- "按要求做即可"
+- "不对"
+- "不是"
+- "换种方式"
+
+正确反应：停止当前侦察行为 → 明确当前已知信息 → 直接执行最核心的操作步骤。
+
+### 7. 标准执行路径
+
+| 用户请求      | 直接执行       |
+| :------------ | :------------- |
+| 安装依赖      | `pnpm install` |
+| 运行测试      | `pnpm test`    |
+| 格式化代码    | `pnpm format`  |
+| 查看 git 状态 | `git status`   |
+
+以"为某文件修改编写更新日志"为例，正确路径只有 3 步：
+
+1. 读目标文件，理解改了什么
+2. 执行 `pnpm dlx @changesets/cli add --empty`，重命名文件，写入内容
+3. 提交
+
+不需要查 git log，不需要扫描全部 tags，不需要对比所有包的版本号。
+
+## Karpathy Guidelines
+
+在编写代码或修改实现前，先按以下准则校准行动：
+
+### 1. 先思考，再动手
+
+- 不要急着打开编辑器。
+- 先完整理解问题、约束和最终目标。
+- 在脑中（或草稿中）形成清晰的实现路径后再开始编码。
+
+### 2. 简洁优先
+
+- 能用简单方案解决的，不要引入复杂抽象。
+- 删除不必要的中间层、配置和依赖。
+- 代码是负债，不是资产；少即是多。
+
+### 3. 精准修改
+
+- 一次只改与当前目标直接相关的文件和行。
+- 避免「顺便重构」未触及的模块。
+- 改动范围越小，回滚和审查越容易。
+
+### 4. 目标驱动
+
+- 始终围绕用户请求的最终结果工作。
+- 不要为了让工具链「更漂亮」而偏离目标。
+- 完成比完美更重要；先让事情工作，再考虑优化。
+
+## 使用 superpower 技能的个人偏好
+
+当使用 superpower 系列技能（如 `writing-plans`、`subagent-driven-development`、`executing-plans` 等）时，遵循以下个人偏好：
+
+### 产物中文化
+
+- 生成的计划、报告、总结、任务描述等**默认使用简体中文**。
+- 除非用户明确要求，否则不要输出全英文产物。
+
+### executing-plans 不使用 git worktree
+
+- 使用 `executing-plans` 技能执行计划时，**不要在 git worktree 中运行**。
+- 直接在当前工作区执行，避免 worktree 切换带来的路径和状态混乱。
+- 如需隔离，优先通过分支或临时目录实现，而不是 worktree。
+
+## 获取技术栈对应的上下文
+
+### claude code skill
+
+- 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
+- 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+- 规范文档： https://agentskills.io/home
+
+# Memorix — Automatic Memory Rules
+
+You have access to Memorix memory tools. Follow these rules to maintain persistent context across sessions.
+
+## RULE 1: Session Start — Load Context
+
+At the **beginning of every conversation**, BEFORE responding to the user:
+
+1. Call `memorix_session_start` to get the previous session summary and key memories (this is a direct read, not a search — no fragmentation risk)
+2. Then call `memorix_search` with a query related to the user's first message for additional context
+3. If search results are found, use `memorix_detail` to fetch the most relevant ones
+4. Reference relevant memories naturally — the user should feel you "remember" them
+
+## RULE 2: Store Important Context
+
+**Proactively** call `memorix_store` when any of the following happen:
+
+### What MUST be recorded
+
+- Architecture/design decisions → type: `decision`
+- Bug identified and fixed → type: `problem-solution`
+- Unexpected behavior or gotcha → type: `gotcha`
+- Config changed (env vars, ports, deps) → type: `what-changed`
+- Feature completed or milestone → type: `what-changed`
+- Trade-off discussed with conclusion → type: `trade-off`
+
+### What should NOT be recorded
+
+- Simple file reads, greetings, trivial commands (ls, pwd, git status)
+
+### Use topicKey for evolving topics
+
+For decisions, architecture docs, or any topic that evolves over time, ALWAYS use `topicKey` parameter.
+This ensures the memory is UPDATED instead of creating duplicates.
+Use `memorix_suggest_topic_key` to generate a stable key.
+
+Example: `topicKey: "architecture/auth-model"` — subsequent stores with the same key update the existing memory.
+
+### Track progress with the progress parameter
+
+When working on features or tasks, include the `progress` parameter:
+
+```json
+{
+	"progress": {
+		"feature": "user authentication",
+		"status": "in-progress",
+		"completion": 60
+	}
+}
+```
+
+Status values: `in-progress`, `completed`, `blocked`
+
+## RULE 3: Resolve Completed Memories
+
+When a task is completed, a bug is fixed, or information becomes outdated:
+
+1. Call `memorix_resolve` with the observation IDs to mark them as resolved
+2. Resolved memories are hidden from default search, preventing context pollution
+
+This is critical — without resolving, old bug reports and completed tasks will keep appearing in future searches.
+
+## RULE 4: Session End — Store Decision Chain Summary
+
+When the conversation is ending, create a **decision chain summary** (not just a checklist):
+
+1. Call `memorix_store` with type `session-request` and `topicKey: "session/latest-summary"`:
+
+   **Required structure:**
+
+   ```plain
+   ## Goal
+   [What we were working on — specific, not vague]
+
+   ## Key Decisions & Reasoning
+   - Chose X because Y. Rejected Z because [reason].
+   - [Every architectural/design decision with WHY]
+
+   ## What Changed
+   - [File path] — [what changed and why]
+
+   ## Current State
+   - [What works now, what's pending]
+   - [Any blockers or risks]
+
+   ## Next Steps
+   - [Concrete next actions, in priority order]
+   ```
+
+   **Critical: Include the "Key Decisions & Reasoning" section.** Without it, the next AI session will lack the context to understand WHY things were done a certain way and may suggest conflicting approaches.
+
+2. Call `memorix_resolve` on any memories for tasks completed in this session
+
+## RULE 5: Compact Awareness
+
+Memorix automatically compacts memories on store:
+
+- **With LLM API configured:** Smart dedup — extracts facts, compares with existing, merges or skips duplicates
+- **Without LLM (free mode):** Heuristic dedup — uses similarity scores to detect and merge duplicate memories
+- **You don't need to manually deduplicate.** Just store naturally and compact handles the rest.
+- If you notice excessive duplicate memories, call `memorix_deduplicate` for batch cleanup.
+
+## Guidelines
+
+- **Use concise titles** (~5-10 words) and structured facts
+- **Include file paths** in filesModified when relevant
+- **Include related concepts** for better searchability
+- **Always use topicKey** for recurring topics to prevent duplicates
+- **Always resolve** completed tasks and fixed bugs
+- **Always include reasoning** — "chose X because Y" is 10x more valuable than "did X"
+- Search defaults to `status="active"` — use `status="all"` to include resolved memories
 
 ## Monorepo 结构
 
@@ -475,168 +747,3 @@ metadata:
 1. `name` 建议使用 kebab-case（小写英文和短横线）。
 2. `description` 要写清楚“做什么 + 什么时候用”。
 3. frontmatter 之后再编写正文指令，不要把正文内容写进 YAML 区域。
-
-## 简单任务的高效执行原则
-
-当用户交代的任务范围明确清晰时，必须**直接行动**，禁止进行不必要的大范围侦察。
-
-### 判断任务规模，选择正确的行动姿态
-
-| 任务信号                         | 正确行动               |
-| :------------------------------- | :--------------------- |
-| 用户通过 `@文件` 明确了操作范围  | 直接读该文件，立即动手 |
-| 用户说"帮我改这个"、"写个日志"   | 行动优先，缺什么补什么 |
-| 用户涉及多包架构改动、新功能设计 | 先侦察，再行动         |
-
-**核心原则**：用户提供的上下文（@文件引用、对话内容、当前打开文件）就是最直接的线索，优先使用，不要用命令重新发现已知信息。
-
-### 禁止行为清单
-
-以下行为在**简单任务**（单文件改动、写 changeset、写提交信息等）中是被禁止的：
-
-- 禁止连续执行超过 3 次 `git log` 来"了解全貌"
-- 禁止在明确知道目标文件的情况下，仍去扫描整个项目目录
-- 禁止把"读遍所有相关文档"当作行动前置条件
-- 禁止在用户已给出 @文件 的情况下，用命令重新搜索文件位置
-
-### 对用户纠偏提示立即响应
-
-当用户发出以下信号时，必须**立即停止当前路径**，回归最小行动路径：
-
-- "太复杂了"
-- "不要反复查询"
-- "直接做就行"
-- "按要求做即可"
-
-正确反应：停止当前侦察行为 → 明确当前已知信息 → 直接执行最核心的操作步骤。
-
-### 简单任务的标准执行路径示例
-
-以"为某文件修改编写更新日志"为例，正确路径只有 3 步：
-
-1. 读目标文件，理解改了什么
-2. 执行 `pnpm dlx @changesets/cli add --empty`，重命名文件，写入内容
-3. 提交
-
-不需要查 git log，不需要扫描全部 tags，不需要对比所有包的版本号。
-
-# Memorix — Automatic Memory Rules
-
-You have access to Memorix memory tools. Follow these rules to maintain persistent context across sessions.
-
-## RULE 1: Session Start — Load Context
-
-At the **beginning of every conversation**, BEFORE responding to the user:
-
-1. Call `memorix_session_start` to get the previous session summary and key memories (this is a direct read, not a search — no fragmentation risk)
-2. Then call `memorix_search` with a query related to the user's first message for additional context
-3. If search results are found, use `memorix_detail` to fetch the most relevant ones
-4. Reference relevant memories naturally — the user should feel you "remember" them
-
-## RULE 2: Store Important Context
-
-**Proactively** call `memorix_store` when any of the following happen:
-
-### What MUST be recorded
-
-- Architecture/design decisions → type: `decision`
-- Bug identified and fixed → type: `problem-solution`
-- Unexpected behavior or gotcha → type: `gotcha`
-- Config changed (env vars, ports, deps) → type: `what-changed`
-- Feature completed or milestone → type: `what-changed`
-- Trade-off discussed with conclusion → type: `trade-off`
-
-### What should NOT be recorded
-
-- Simple file reads, greetings, trivial commands (ls, pwd, git status)
-
-### Use topicKey for evolving topics
-
-For decisions, architecture docs, or any topic that evolves over time, ALWAYS use `topicKey` parameter.
-This ensures the memory is UPDATED instead of creating duplicates.
-Use `memorix_suggest_topic_key` to generate a stable key.
-
-Example: `topicKey: "architecture/auth-model"` — subsequent stores with the same key update the existing memory.
-
-### Track progress with the progress parameter
-
-When working on features or tasks, include the `progress` parameter:
-
-```json
-{
-	"progress": {
-		"feature": "user authentication",
-		"status": "in-progress",
-		"completion": 60
-	}
-}
-```
-
-Status values: `in-progress`, `completed`, `blocked`
-
-## RULE 3: Resolve Completed Memories
-
-When a task is completed, a bug is fixed, or information becomes outdated:
-
-1. Call `memorix_resolve` with the observation IDs to mark them as resolved
-2. Resolved memories are hidden from default search, preventing context pollution
-
-This is critical — without resolving, old bug reports and completed tasks will keep appearing in future searches.
-
-## RULE 4: Session End — Store Decision Chain Summary
-
-When the conversation is ending, create a **decision chain summary** (not just a checklist):
-
-1. Call `memorix_store` with type `session-request` and `topicKey: "session/latest-summary"`:
-
-   **Required structure:**
-
-   ```plain
-   ## Goal
-   [What we were working on — specific, not vague]
-
-   ## Key Decisions & Reasoning
-   - Chose X because Y. Rejected Z because [reason].
-   - [Every architectural/design decision with WHY]
-
-   ## What Changed
-   - [File path] — [what changed and why]
-
-   ## Current State
-   - [What works now, what's pending]
-   - [Any blockers or risks]
-
-   ## Next Steps
-   - [Concrete next actions, in priority order]
-   ```
-
-   **Critical: Include the "Key Decisions & Reasoning" section.** Without it, the next AI session will lack the context to understand WHY things were done a certain way and may suggest conflicting approaches.
-
-2. Call `memorix_resolve` on any memories for tasks completed in this session
-
-## RULE 5: Compact Awareness
-
-Memorix automatically compacts memories on store:
-
-- **With LLM API configured:** Smart dedup — extracts facts, compares with existing, merges or skips duplicates
-- **Without LLM (free mode):** Heuristic dedup — uses similarity scores to detect and merge duplicate memories
-- **You don't need to manually deduplicate.** Just store naturally and compact handles the rest.
-- If you notice excessive duplicate memories, call `memorix_deduplicate` for batch cleanup.
-
-## Guidelines
-
-- **Use concise titles** (~5-10 words) and structured facts
-- **Include file paths** in filesModified when relevant
-- **Include related concepts** for better searchability
-- **Always use topicKey** for recurring topics to prevent duplicates
-- **Always resolve** completed tasks and fixed bugs
-- **Always include reasoning** — "chose X because Y" is 10x more valuable than "did X"
-- Search defaults to `status="active"` — use `status="all"` to include resolved memories
-
-## 获取技术栈对应的上下文
-
-### claude code skill
-
-- 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
-- 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
-- 规范文档： https://agentskills.io/home
