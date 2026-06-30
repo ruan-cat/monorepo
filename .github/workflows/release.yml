@@ -28,12 +28,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      # 标准顺序：先安装 pnpm，再让 setup-node 识别 pnpm 缓存
       - name: 安装pnpm
         uses: pnpm/action-setup@v5
         with:
-          run_install: |
-            - recursive: true
-            - args: [--global, "vercel", "@dotenvx/dotenvx", "tsx", "turbo", "npm"]
+          run_install: false
 
       - name: 安装node
         uses: actions/setup-node@v6
@@ -45,8 +44,28 @@ jobs:
       - name: corepack手动再安装一次pnpm
         run: corepack enable && corepack install
 
+      # 全局安装 CI 所需的工具（与项目依赖隔离，避免污染 install 参数）
+      - name: 全局安装CI工具
+        run: pnpm add -g vercel @dotenvx/dotenvx tsx turbo npm
+
       - name: 安装整个项目的依赖
         run: pnpm i
+
+      # 诊断：确认 consola 垫片是否存在（用于排查 ERR_MODULE_NOT_FOUND）
+      - name: 诊断consola垫片状态
+        run: |
+          echo "=== 根目录 consola ==="
+          ls -la ./node_modules/consola || true
+          test -f ./node_modules/consola/index.js && echo "根 consola/index.js 存在" || echo "根 consola/index.js 不存在"
+          echo "=== utils 包 consola ==="
+          ls -la ./packages/utils/node_modules/consola || true
+          test -f ./packages/utils/node_modules/consola/index.js && echo "utils consola/index.js 存在" || echo "utils consola/index.js 不存在"
+          echo "=== automd 入口 ==="
+          ls -la ./node_modules/.pnpm/automd@*/node_modules/automd/dist/cli.mjs || true
+
+      # 兜底：显式修复 consola ESM 垫片（兼容 postinstall 未触发或被缓存跳过的场景）
+      - name: 修复consola ESM垫片
+        run: pnpm exec tsx scripts/fix-consola-esm.ts
 
       - name: turbo login 远程登录
         run: turbo login --token=${{env.TURBO_TOKEN}} --team=${{env.TURBO_TEAM}}
