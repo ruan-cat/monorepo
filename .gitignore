@@ -179,7 +179,7 @@ docs/reports/all-packages-pack.md
 local_cache/
 
 # 忽略掉 workbuddy 生成的文件， WorkBuddy 很喜欢自己搞一个什么记忆文件
-.workbuddy
+.workbuddy/memory
 
 # Superpowers brainstorming visual companion artifacts
 .superpowers/

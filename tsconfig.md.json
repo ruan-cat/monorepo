@@ -4,7 +4,9 @@
 	"compilerOptions": {
 		"baseUrl": "./",
 		// 本文件被其他的 tsconfig.json 组合 ，用于提供md配置，避免其他包的md文件报错。
-		"composite": true
+		"composite": true,
+		// 忽略 baseUrl 的过时配置
+		"ignoreDeprecations": "6.0"
 	},
 	"include": [
 		// 匹配本项目内全部的md文件
@@ -21,6 +23,8 @@
 		"./.claude/**/*.md",
 		// 匹配kiro文件夹内的全部md文件 主要是spec规范文档
 		"./.kiro/**/*.md",
+		// 匹配本地级别的记忆文档
+		"./.workbuddy/**/*.md",
 		"./tests/**/.vitepress/*.md",
 		"**/.vitepress/**/*.vue"
 	],
