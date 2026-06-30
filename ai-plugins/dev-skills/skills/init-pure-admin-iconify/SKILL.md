@@ -1,6 +1,10 @@
 ---
 name: init-pure-admin-iconify
-description: 初始化 vite+vue3 项目的 pure-admin 风格 iconify 图标渲染体系（离线 + 在线 + useRenderIcon 统一渲染）。当用户提及“初始化 iconify”“pure-admin 图标方案”“ReIcon/useRenderIcon”“离线图标接入”“后台项目图标基础设施”时使用此技能。
+description: >-
+  初始化 vite+vue3 项目的 pure-admin 风格 iconify 图标渲染体系
+  （离线 + 在线 + useRenderIcon 统一渲染）。当用户提及"初始化 iconify"
+  "pure-admin 图标方案""ReIcon/useRenderIcon""离线图标接入"
+  "后台项目图标基础设施"时使用此技能。
 user-invocable: true
 metadata:
   version: "0.2.0"

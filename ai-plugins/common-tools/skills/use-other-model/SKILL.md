@@ -1,6 +1,11 @@
 ---
 name: use-other-model
-description: "指导主代理如何驱动其他 AI 模型(MiniMax、Gemini)完成任务,实现 50-80% token 节省。提供两种方案:方案 A(MCP 工具,适合简单任务)和方案 B(独立 Claude Code 会话,适合复杂任务)。当用户提及使用其他模型、节省 token、批量操作、多文件处理、或执行时间超过 5 分钟的任务时使用此技能。包含完整的技术实现细节、代码模板和安全最佳实践。"
+description: >-
+  指导主代理如何驱动其他 AI 模型(MiniMax、Gemini)完成任务,实现 50-80% token 节省。
+  提供两种方案:方案 A(MCP 工具,适合简单任务)和方案 B(独立 Claude Code 会话,
+  适合复杂任务)。当用户提及使用其他模型、节省 token、批量操作、多文件处理、
+  或执行时间超过 5 分钟的任务时使用此技能。
+  包含完整的技术实现细节、代码模板和安全最佳实践。
 user-invocable: true
 metadata:
   version: "0.4.0"

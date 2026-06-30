@@ -1,7 +1,8 @@
 ---
 name: openspec
-description: |
-  OpenSpec 规范驱动开发助手 - 基于 OPSX 工作流的 AI 辅助编程框架。在编写代码前与 AI 就需求达成一致，使用 Schema 驱动的工件依赖系统管理变更。
+description: >-
+  OpenSpec 规范驱动开发助手 - 基于 OPSX 工作流的 AI 辅助编程框架。
+  在编写代码前与 AI 就需求达成一致，使用 Schema 驱动的工件依赖系统管理变更。
 
   触发条件（满足任意一项即触发）：
   1. 用户提及 "openspec"、"opsx"、规范驱动开发、spec-driven

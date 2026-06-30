@@ -1,6 +1,11 @@
 ---
 name: init-vscode
-description: 初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json），并在合并现有配置时把 `files.eol` 明确收敛为 `"\n"`，配合 `.gitattributes`、`.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题。只要用户提到初始化 vscode、编辑器配置、工作区设置、行尾统一、EOL、CRLF/LF、幽灵修改、团队规范，都应该使用本技能。
+description: >-
+  初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json），
+  并在合并现有配置时把 `files.eol` 明确收敛为 `"\n"`，配合 `.gitattributes`、
+  `.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题。
+  只要用户提到初始化 vscode、编辑器配置、工作区设置、行尾统一、EOL、CRLF/LF、
+  幽灵修改、团队规范，都应该使用本技能。
 user-invocable: true
 metadata:
   version: "0.2.1"

@@ -1,6 +1,12 @@
 ---
 name: get-git-branch
-description: "诊断并修复 Git 仓库无法看到所有远程分支的问题，将受限的 fetch refspec 恢复为通配符模式，使 git fetch 能拉取全部远程分支。当用户提及「看不到远程分支」「分支不全」「只有 master/main」「fetch 所有分支」「shallow clone 补全分支」「--single-branch 修复」「远程分支丢失」「获取全部分支」等关键词时使用此技能。即使用户没有明确提到 refspec 或 shallow clone，只要意图是让仓库能看到并拉取所有远程分支，就应触发此技能。"
+description: >-
+  诊断并修复 Git 仓库无法看到所有远程分支的问题，将受限的 fetch refspec 恢复为通配符模式，
+  使 git fetch 能拉取全部远程分支。当用户提及「看不到远程分支」「分支不全」
+  「只有 master/main」「fetch 所有分支」「shallow clone 补全分支」
+  「--single-branch 修复」「远程分支丢失」「获取全部分支」等关键词时使用此技能。
+  即使用户没有明确提到 refspec 或 shallow clone，只要意图是让仓库能看到并拉取所有远程分支，
+  就应触发此技能。
 user-invocable: true
 metadata:
   version: "0.1.0"

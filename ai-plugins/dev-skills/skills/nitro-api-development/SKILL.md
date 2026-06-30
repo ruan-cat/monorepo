@@ -1,6 +1,10 @@
 ---
 name: nitro-api-development
-description: 使用 Nitro v3 框架和 H3 编写服务端 API 的技能。适用于初始化纯后端 Nitro 项目、为 Vite 项目赋予全栈能力、编写符合规范的 CRUD 接口、以及使用 Drizzle ORM 进行数据库交互。当需要开发新的 Nitro 接口、初始化 Nitro 配置、或咨询 Nitro 开发规范时使用此技能。
+description: >-
+  使用 Nitro v3 框架和 H3 编写服务端 API 的技能。适用于初始化纯后端 Nitro 项目、
+  为 Vite 项目赋予全栈能力、编写符合规范的 CRUD 接口、以及使用 Drizzle ORM
+  进行数据库交互。当需要开发新的 Nitro 接口、初始化 Nitro 配置、
+  或咨询 Nitro 开发规范时使用此技能。
 metadata:
   version: "0.13.4"
 ---

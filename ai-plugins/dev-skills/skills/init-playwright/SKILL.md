@@ -1,6 +1,16 @@
 ---
 name: init-playwright
-description: 在 pnpm monorepo 初始化 Playwright 三件套（@playwright/test + @playwright/cli + playwright-mcp），含 e2e/视觉测试骨架、MCP 配置、AI skills 生成、AI 记忆更新。内置无头浏览器 CPU 过载事故复盘与故障排查指南：可排查 headless 模式下的高 CPU 占用（100%）、浏览器卡死、Chromium 进程残留无法退出、大屏 3D WebGL 渲染性能问题；提供紧急止损步骤和长期回归检查清单。当用户提及 playwright 初始化、大屏视觉测试、e2e 测试搭建、playwright monorepo 配置、pw_core/pw_visual MCP 等时触发。也适用于无头浏览器性能故障排查、headless CPU 100% 诊断、Chromium 进程残留清理、浏览器进程无法退出处理、大屏 3D 渲染性能调优等排查场景。
+description: >-
+  在 pnpm monorepo 初始化 Playwright 三件套（@playwright/test + @playwright/cli +
+  playwright-mcp），含 e2e/视觉测试骨架、MCP 配置、AI skills 生成、AI 记忆更新。
+  内置无头浏览器 CPU 过载事故复盘与故障排查指南：可排查 headless 模式下的
+  高 CPU 占用（100%）、浏览器卡死、Chromium 进程残留无法退出、
+  大屏 3D WebGL 渲染性能问题；提供紧急止损步骤和长期回归检查清单。
+  当用户提及 playwright 初始化、大屏视觉测试、e2e 测试搭建、
+  playwright monorepo 配置、pw_core/pw_visual MCP 等时触发。
+  也适用于无头浏览器性能故障排查、headless CPU 100% 诊断、
+  Chromium 进程残留清理、浏览器进程无法退出处理、
+  大屏 3D 渲染性能调优等排查场景。
 user-invocable: true
 metadata:
   version: "1.1.0"

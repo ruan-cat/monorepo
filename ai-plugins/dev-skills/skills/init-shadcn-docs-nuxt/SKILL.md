@@ -1,6 +1,10 @@
 ---
 name: init-shadcn-docs-nuxt
-description: 初始化或重构任意组件库/项目的 `shadcn-docs-nuxt` 文档站。用于快速建立可运行、可构建、可维护的 Nuxt 文档底座，并规避常见误区（配置复杂化、模块兼容、MDC 语法错误、Windows 构建假卡死）。当用户提及"搭建组件库文档""接入 shadcn-docs-nuxt""重做 Nuxt 文档站""迁移文档模板"时触发。
+description: >-
+  初始化或重构任意组件库/项目的 `shadcn-docs-nuxt` 文档站。用于快速建立可运行、
+  可构建、可维护的 Nuxt 文档底座，并规避常见误区（配置复杂化、模块兼容、
+  MDC 语法错误、Windows 构建假卡死）。当用户提及"搭建组件库文档"
+  "接入 shadcn-docs-nuxt""重做 Nuxt 文档站""迁移文档模板"时触发。
 user-invocable: true
 metadata:
   version: "1.0.0"

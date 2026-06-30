@@ -1,6 +1,11 @@
 ---
 name: release-ai-plugins
-description: 管理 ai-plugins 多插件与多平台（Claude/Cursor）插件商城的版本升级，包括同步 marketplace/plugin 版本号、校验路径、维护更新日志与文档安装链接。在用户要求升级插件版本、发布插件、更新插件商城或更新日志时使用。触发关键词：release-ai-plugins、ai-plugins、插件升级、版本更新、发布插件、更新日志、cursor-plugin。
+description: >-
+  管理 ai-plugins 多插件与多平台（Claude/Cursor）插件商城的版本升级，
+  包括同步 marketplace/plugin 版本号、校验路径、维护更新日志与文档安装链接。
+  在用户要求升级插件版本、发布插件、更新插件商城或更新日志时使用。
+  触发关键词：release-ai-plugins、ai-plugins、插件升级、版本更新、
+  发布插件、更新日志、cursor-plugin。
 metadata:
   version: "0.16.0"
 ---

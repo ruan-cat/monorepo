@@ -1,6 +1,10 @@
 ---
 name: add-favicon
-description: 为文档站、前端站点或 monorepo 内多个站点补全或重做 favicon.svg。用户提到 favicon、浏览器标签页图标、Iconify、Lucide 风格、VitePress/VuePress 文档站、public/favicon.svg、head link icon、图标太丑/一团浆糊/不要背景块时必须使用；尤其适合批量为多个 VitePress 站点设计本地 SVG favicon，并显式配置 head。
+description: >-
+  为文档站、前端站点或 monorepo 内多个站点补全或重做 favicon.svg。用户提到
+  favicon、浏览器标签页图标、Iconify、Lucide 风格、VitePress/VuePress 文档站、
+  public/favicon.svg、head link icon、图标太丑/一团浆糊/不要背景块时必须使用；
+  尤其适合批量为多个 VitePress 站点设计本地 SVG favicon，并显式配置 head。
 user-invocable: true
 metadata:
   version: "1.0.0"
