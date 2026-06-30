@@ -1,0 +1,5 @@
+name: memorix-file-save
+description: Record file saves to Memorix memory system
+enabled: false # 禁用以减少噪音
+event: onFileSave
+# ... 其他配置保持不变
