@@ -1,0 +1,56 @@
+{
+	"hooks": {
+		"SessionStart": [
+			{
+				"matcher": "*",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "memorix.cmd hook",
+						"timeout": 10,
+						"description": "Load memorix context at session start"
+					}
+				]
+			}
+		],
+		"UserPromptSubmit": [
+			{
+				"matcher": "*",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "memorix.cmd hook",
+						"timeout": 10,
+						"description": "Query memorix for relevant memories before responding"
+					}
+				]
+			}
+		],
+		"PreCompact": [
+			{
+				"matcher": "*",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "memorix.cmd hook",
+						"timeout": 10,
+						"description": "Save context before compression"
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"matcher": "*",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "memorix.cmd hook",
+						"timeout": 10,
+						"description": "Record session context on stop"
+					}
+				]
+			}
+		]
+	}
+}
