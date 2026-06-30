@@ -21,7 +21,7 @@
 	},
 	"scripts": {
 		"build": "tsup",
-		"prebuild": "automd",
+		"prebuild": "pnpm exec tsx ../../scripts/ensure-consola-patch.ts && automd",
 		"move-vercel-output-to-root": "tsx ./src/node-esm/scripts/move-vercel-output-to-root/index.ts",
 		"docs:dev": "turbo docs:dev",
 		"build:docs": "turbo do-build-docs",
