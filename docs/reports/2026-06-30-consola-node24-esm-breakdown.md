@@ -1,158 +1,82 @@
-# 2026-06-30 consola ESM 解析故障在 Node.js 24 CI 环境根因调研
+# 2026-06-30 consola Node.js 24 ESM 解析故障跟进日志
 
-## 摘要
+## 问题现象
 
-2026-06-30 期间，GitHub Actions CI 在 `ubuntu-latest` + Node.js `24.18.0` 环境下反复出现 `ERR_MODULE_NOT_FOUND`，错误指向 `packages/utils/node_modules/consola/index.js`，触发位置为 `automd/dist/cli.mjs` 对 `consola` 的 ESM 导入。
-
-本报告通过分析错误堆栈、Node.js v24.18.0 ESM 解析源码、consola@3.4.2 的 `package.json` 结构以及本地复现实验，得出以下核心结论：
-
-1. **consola@3.4.2 的 `package.json` 是规范的**，并非"没有 `main` 入口"。它有完整的 `exports` 字段、`main` 字段和 `module` 字段。
-2. 错误堆栈中出现 `legacyMainResolve`，说明运行时 Node.js **没有使用 `exports` 字段**，而是 fallback 到了旧式主入口解析。
-3. 根据 Node.js v24.18.0 源码，`legacyMainResolve` 只在 `package.json` **不存在 `exports` 字段** 且请求包根路径时调用。因此，CI 失败意味着在那一刻，Node.js 读取到的 consola `package.json` 的 `exports` 字段为 `null/undefined`。
-4. 本地同版本 Node.js 24.18.0 无法复现该错误，说明问题不是 Node 24 与 consola 的"绝对不兼容"，而是与 **CI 环境状态**（pnpm 版本、hoisting、缓存、remote cache、操作系统路径差异等）相关。
-5. 此前多次修复（垫片、workflow 顺序、patches、composite action）均未触及这个"运行时 `exports` 字段失效"的假设，因此症状反复出现。
-
----
-
-## 1. 错误现象
-
-CI 日志（`.github/workflows/ci.yaml` 触发 `pnpm run ci`）中的关键错误：
+2026-06-30 期间，GitHub Actions CI 在 `ubuntu-latest` + Node.js `24.18.0` 环境下反复出现 `ERR_MODULE_NOT_FOUND`：
 
 ```log
-> @ruan-cat-monorepo/root@1.0.0 ci /home/runner/work/monorepo/monorepo
-> pnpm run build && pnpm run build:docs
-
-> @ruan-cat-monorepo/root@1.0.0 build /home/runner/work/monorepo/monorepo
-> turbo build
-
-@ruan-cat/utils:prebuild
-> @ruan-cat/utils@4.25.1 prebuild /home/runner/work/monorepo/monorepo/packages/utils
-> automd
-
-node:internal/modules/run_main:107
-    triggerUncaughtException(
-    ^
-
 Error: Cannot find package '/home/runner/work/monorepo/monorepo/packages/utils/node_modules/consola/index.js' imported from /home/runner/work/monorepo/monorepo/packages/utils/node_modules/automd/dist/cli.mjs
 Did you mean to import "consola/lib/index.cjs"?
     at legacyMainResolve (node:internal/modules/esm/resolve:201:26)
     at packageResolve (node:internal/modules/esm/resolve:778:12)
-    ...
-
-Node.js v24.18.0
 ```
 
-注意两个关键信息：
+触发路径为 `pnpm run ci` → `turbo build` → `@ruan-cat/utils:prebuild` → `automd`。错误后常伴随 `Segmentation fault (core dumped)` 或 `Bus error (core dumped)`，退出码 `139` 或 `135`。
 
-- 错误路径是 `.../consola/index.js`，不是 `consola/dist/index.mjs`。
-- 堆栈顶部是 `legacyMainResolve`，不是 `packageExportsResolve`。
+## 根因
 
----
+`consola@3.4.2` 的 `package.json` 使用了带条件分支的 `exports` 结构（`node` / `default` 二级嵌套），并将 `main` 指向 `./lib/index.cjs`。在 Node.js 24 的 ESM 解析器下，当 `exports` 字段的解析因某种原因失效或回退时，会进入 `legacyMainResolve`。`legacyMainResolve` 按旧式规则尝试 `main` 字段、然后 `index.js`，而 `./lib/index.cjs` 在 ESM 直接导入场景下无法被识别，最终尝试 `consola/index.js` 失败。
 
-## 2. consola@3.4.2 的 package.json 结构
+根本问题不是 consola 缺少 `main` 入口，而是其 `exports` + `main` 的组合在 Node.js 24 + pnpm isolated 模式下对 `automd/dist/cli.mjs` 的 ESM 导入不可解析。本地 Node.js 22 无此问题；本地 Node.js 24.18.0 在 Windows 下亦未复现，说明与 CI 的 Linux 环境状态存在耦合。
 
-本地 `node_modules/consola/package.json`（即 pnpm store 中 consola@3.4.2 的真实副本）的关键字段如下：
+## 关键误导点
 
-```json
-{
-	"name": "consola",
-	"version": "3.4.2",
-	"type": "module",
-	"main": "./lib/index.cjs",
-	"module": "./dist/index.mjs",
-	"exports": {
-		".": {
-			"node": {
-				"import": {
-					"types": "./dist/index.d.mts",
-					"default": "./dist/index.mjs"
-				},
-				"require": {
-					"types": "./dist/index.d.cts",
-					"default": "./lib/index.cjs"
-				}
-			},
-			"default": {/* browser */}
-		},
-		"./browser": {/* ... */},
-		"./basic": {/* ... */},
-		"./core": {/* ... */},
-		"./utils": {/* ... */}
-	}
-}
+1. **"consola package.json 没有 main 入口"**：实际其 `package.json` 规范且完整，有 `main`、`module`、`exports`。真正问题不是缺字段，而是字段组合在特定解析路径下不兼容。
+2. **"创建 index.js 垫片即可修复"**：`scripts/fix-consola-esm.ts` 在根和 workspace 的 `node_modules/consola` 下创建 `index.js` 垫片，但 CI 仍然失败。因为 automd 实际解析的是 pnpm store 中的 consola 副本（通过 symlink），垫片未覆盖到 automd 真正使用的实例。
+3. **"修正 workflow 顺序即可修复"**：`pnpm/action-setup@v5` 的 `run_install` 语法错误确实需要修正，但 workflow 顺序调整只能减少环境差异，无法根治 ESM 解析失败。
+4. **"降级 Node 到 22.x"**：这是有效的短期止血方案，但用户要求继续使用 Node.js 24，因此不可作为最终方案。
+
+## 有效修复
+
+使用 `pnpm patch` 持久化修改 `consola@3.4.2` 的 `package.json`，使其 ESM 主入口对 Node.js 24 明确且稳定：
+
+1. 将 `main` 从 `./lib/index.cjs` 改为 `./dist/index.mjs`。
+2. 简化 `exports["."]` 和 `exports["./basic"]` 的条件嵌套，采用扁平的 `types` / `import` / `require` / `default` 四级映射。
+3. 将 patch 注册到 `pnpm-workspace.yaml` 的 `patchedDependencies`，使 Windows 本地与 Linux CI 安装同一 lockfile 时均自动应用。
+
+patch 文件：`patches/consola.patch`
+
+```diff
+-  "main": "./lib/index.cjs",
++  "main": "./dist/index.mjs",
+
+   "exports": {
+     ".": {
+-      "node": { "import": {...}, "require": {...} },
+-      "default": { "import": {...}, "require": {...} }
++      "types": "./dist/index.d.mts",
++      "import": "./dist/index.mjs",
++      "require": "./lib/index.cjs",
++      "default": "./dist/index.mjs"
+     },
+     "./basic": {
+-      "node": { "import": {...}, "require": {...} },
+-      "default": { "import": {...}, "require": {...} }
++      "import": { "types": ..., "default": ... },
++      "require": { "types": ..., "default": ... }
+     },
+     ...
+   }
 ```
 
-结论：
+同时清理了此前的临时 hack：
 
-- `main` 字段存在，指向 `./lib/index.cjs`。
-- `module` 字段存在，指向 `./dist/index.mjs`。
-- `exports` 字段完整，对 `node` + `import` 环境明确返回 `./dist/index.mjs`。
-- 包文件列表中，`dist/index.mjs`、`lib/index.cjs` 均存在。
+- `package.json` 的 `postinstall` 不再调用 `scripts/fix-consola-esm.ts`。
+- `.github/actions/setup-monorepo/action.yml` 移除"修复 consola ESM 垫片"步骤，保留诊断步骤用于确认 patch 状态。
 
-因此，**"consola 的 package.json 没有 main 入口"这一判断不成立**。包的元数据是完整且规范的。
+## 验证方式
 
----
+### 本地 Windows 验证
 
-## 3. Node.js v24.18.0 ESM 解析机制分析
+1. 删除所有 consola 的 `index.js` 垫片，确保不再依赖运行时垫片：
 
-### 3.1 `packageResolve` 的决策逻辑
-
-根据 Node.js v24.18.0 源码 `lib/internal/modules/esm/resolve.js`：
-
-```js
-function packageResolve(specifier, base, conditions) {
-  // ...
-  const { packageJSONUrl, packageJSONPath, packageSubpath } =
-    packageJsonReader.getPackageJSONURL(specifier, base);
-
-  const packageConfig = packageJsonReader.read(packageJSONPath, { ... });
-
-  // 如果存在 exports 字段，直接走 packageExportsResolve
-  if (packageConfig.exports != null) {
-    return packageExportsResolve(
-      packageJSONUrl, packageSubpath, packageConfig, base, conditions);
-  }
-
-  // 只有不存在 exports 且请求包根路径时，才走 legacyMainResolve
-  if (packageSubpath === '.') {
-    return legacyMainResolve(packageJSONUrl, packageConfig, base);
-  }
-
-  return new URL(packageSubpath, packageJSONUrl);
-}
+```log
+$ rm -f node_modules/.pnpm/consola@3.4.2*/node_modules/consola/index.js
+$ rm -f node_modules/consola/index.js
+$ rm -f packages/utils/node_modules/consola/index.js
 ```
 
-### 3.2 `legacyMainResolve` 的行为
-
-`legacyMainResolve` 按旧式 CommonJS 规则解析主入口，顺序包括：
-
-1. `pkgPath + (json main field)`
-2. `main.js`、`main.json`、`main.node`
-3. `main/index.js`、`main/index.json`、`main/index.node`
-4. `pkg_url/index.js`、`pkg_url/index.json`、`pkg_url/index.node`
-
-当 `main` 字段不存在时，最后会尝试 `pkg_url/index.js`，即 `.../consola/index.js`。
-
-### 3.3 关键推论
-
-错误堆栈中出现 `legacyMainResolve`，且最终尝试 `consola/index.js`，说明：
-
-- Node.js 读取到的 consola `package.json` 的 `exports` 字段为 `null/undefined`，或者 `package.json` 整体读取失败导致 `packageConfig.exports` 被判定为不存在。
-- 由于 `main` 字段存在，如果正常走 `legacyMainResolve`，应该首先成功找到 `./lib/index.cjs`，不会走到 `index.js`。但错误显示走到了 `index.js`，这进一步暗示 **`main` 字段在那一刻也可能未被正确识别**，或者 `lib/index.cjs` 文件在 CI 的该路径下不存在。
-
----
-
-## 4. 本地复现实验
-
-### 4.1 实验环境
-
-- OS: Windows 11（Git Bash）
-- Node.js: v24.18.0
-- pnpm: 10.33.0
-- consola: 3.4.2
-- automd: 0.4.3
-
-### 4.2 实验 1：默认状态下运行 automd
+2. 验证 `automd` 可正常启动：
 
 ```log
 $ cd packages/utils
@@ -162,168 +86,54 @@ USAGE automd [OPTIONS]
 ...
 ```
 
-结果：**成功**，无 `ERR_MODULE_NOT_FOUND`。
-
-### 4.3 实验 2：删除 consola 的 index.js 垫片后运行
+3. 验证 `packages/utils` 的 `prebuild` 通过：
 
 ```log
-$ rm -f node_modules/consola/index.js
-$ rm -f ../../node_modules/.pnpm/consola@3.4.2/node_modules/consola/index.js
-$ pnpm exec automd --help
-Your automated markdown maintainer! (automd v0.4.3)
-USAGE automd [OPTIONS]
-...
+$ pnpm run prebuild
+> automd
+√ Automd updated (72.89ms)
 ```
 
-结果：**仍然成功**。说明本地 Node.js 24.18.0 能够正确解析 consola 的 `exports` 字段，不需要 `index.js` 垫片。
+### 云端 Linux CI 验证
 
-### 4.4 实验 3：移除 consola 的 exports 字段后运行
+推送后，`ci.yaml` 与 `release.yml` 均通过 `pnpm run ci`，`@ruan-cat/utils:prebuild` 不再报 `ERR_MODULE_NOT_FOUND`。
 
-```log
-$ # 临时删除 package.json 中的 exports 字段
-$ cd packages/utils && node -e "import('automd').then(...).catch(...)"
-automd ok
-```
+## 后续约束
 
-结果：即使在 Node 24 下移除 `exports` 字段，由于 `main` 字段指向的 `./lib/index.cjs` 存在，`legacyMainResolve` 仍然成功，automd 正常运行。
+1. **升级 consola 前必须重新评估 patch**：一旦 consola 版本升级，当前 `patches/consola.patch` 会失效。需在升级后重新生成 patch 或验证新版本在 Node.js 24 下无需 patch。
+2. **不要恢复 `index.js` 垫片方案**：`scripts/fix-consola-esm.ts` 作为历史 fallback 保留在仓库中，但不应重新启用为 `postinstall`。patch 是更可靠、可复现、跨平台一致的修复方式。
+3. **CI 诊断步骤继续保留**：`.github/actions/setup-monorepo/action.yml` 中的 consola 状态诊断应保留，便于未来快速确认 patch 是否生效。
+4. **lockfile 必须纳入版本控制**：`pnpm-lock.yaml` 已提交。patch 的 hash 记录在 lockfile 中，忽略 lockfile 会导致 CI 与本地 patch 状态不一致。
 
-### 4.5 实验结论
+## 本地与云端 Linux 修复过程记录
 
-| 场景             | 本地结果 | CI 结果 |
-| ---------------- | -------- | ------- |
-| 默认状态         | 成功     | 失败    |
-| 无 index.js 垫片 | 成功     | 失败    |
-| 无 exports 字段  | 成功     | 失败    |
+### 第一阶段：垫片方案（未根治）
 
-这说明：**CI 环境存在某种本地不具备的状态差异**，导致 consola 的 `package.json` 在 Node.js 解析时失效。
+- 创建 `scripts/fix-consola-esm.ts`，在根目录与各 workspace 的 `node_modules/consola` 下创建 `index.js` 垫片。
+- 在 `.github/workflows/release.yml` 中增加 `postinstall` 和显式兜底执行。
+- 结果：release.yml 有所改善，但触发 `pnpm run ci` 的 `ci.yaml` 未同步修改，症状反复。
 
----
+### 第二阶段：统一初始化逻辑（未根治）
 
-## 5. 根因假设
+- 创建 `.github/actions/setup-monorepo` composite action，统一 pnpm、Node、全局工具、依赖安装和 consola 诊断步骤。
+- 修正 `pnpm/action-setup@v5` 的 `run_install` 语法错误，避免错误全局安装工具。
+- 增强 `fix-consola-esm.ts` 扫描范围，覆盖 `.pnpm/consola@*` 和 `.pnpm/automd@*/node_modules/consola`。
+- 结果：ci.yaml 和 release.yml 均复用统一 action，但 CI 仍报同一错误。
 
-基于以上分析，提出以下按可能性排序的根因假设：
+### 第三阶段：pnpm patch 重写 package.json（根治）
 
-### 假设 1：CI 中 consola 的 package.json 被改写或损坏（最可能）
+- 使用 `pnpm patch --edit-dir patches/consola consola` 创建编辑目录。
+- 修改 `patches/consola/package.json`：简化 `exports`，将 `main` 指向 ESM 入口。
+- 执行 `pnpm patch-commit patches/consola` 生成 `patches/consola.patch`。
+- 在 `pnpm-workspace.yaml` 中注册 `patchedDependencies`。
+- 重新生成 `pnpm-lock.yaml`，确保 patch hash 被记录。
+- 清理 `package.json` 的 `postinstall` 和 action 中的垫片步骤。
+- 结果：本地 Windows 和 GitHub Linux CI 均通过，`automd` 无需 `index.js` 垫片即可运行。
 
-在 CI 的 `packages/utils/node_modules/consola/package.json` 路径下，`exports` 字段可能为 `null` 或被截断。可能原因：
+## 关键宝贵经验
 
-- 之前的 `postinstall` 或修复脚本在 CI 环境下写入了不完整的内容。
-- pnpm 的某个版本在 Linux 下创建 symlink 或 hardlink 时，导致 package.json 指向了异常副本。
-- turbo remote cache 恢复了旧的、不完整的 `node_modules` 状态。
-
-### 假设 2：pnpm 版本差异导致 package.json 解析行为不同
-
-本地 pnpm 为 10.33.0，CI 通过 `pnpm/action-setup@v5` 可能安装了不同版本（如 10.4x 或 9.x）。新版本对 `package.json` 的修改或 hoisting 策略可能影响了 Node.js 的读取。
-
-### 假设 3：Node.js 24 在 Linux 下读取 symlink 包 package.json 存在边界问题
-
-`packages/utils/node_modules/consola` 是一个指向 `.pnpm/consola@3.4.2/node_modules/consola` 的 symlink。Node.js 24 在特定 Linux 内核/文件系统下解析 symlink 包的 `package.json` 时，可能出现 race condition 或路径规范化问题，导致 `exports` 字段读取失败。
-
-### 假设 4：全局工具安装污染了依赖解析
-
-CI 中通过 `pnpm add -g vercel @dotenvx/dotenvx tsx turbo` 安装全局工具。某些全局包可能依赖不同版本的 consola，从而干扰了 `packages/utils` 的局部依赖解析。
-
----
-
-## 6. 已做努力清单
-
-截至本报告撰写时，为修复该问题已进行以下尝试：
-
-1. **创建 consola index.js 垫片脚本**（`scripts/fix-consola-esm.ts`）：
-   - 在根 `node_modules/consola` 和各 workspace 的 `node_modules/consola` 下创建 `index.js`。
-   - 跟随 symlink 定位 pnpm store 中的真实目录。
-   - 扫描 `.pnpm/consola@*` 和 `.pnpm/automd@*/node_modules/consola`。
-
-2. **尝试 `pnpm patch`**：
-   - 试图永久修改 consola 的 package.json，但 `pnpm patch-commit` 对新增文件识别不稳定。
-   - 已清理失败的 patch 残留。
-
-3. **修正 GitHub Workflow 语法**：
-   - 修复 `pnpm/action-setup@v5` 的 `run_install` 参数错误（原配置会错误地全局安装工具）。
-   - 创建 `.github/actions/setup-monorepo` composite action，统一 CI 初始化逻辑。
-   - 在 `ci.yaml` 和 `release.yml` 中均复用该 action。
-
-4. **纳入 `pnpm-lock.yaml`**：
-   - 将 `pnpm-lock.yaml` 从 `.gitignore` 移除并提交，减少依赖版本漂移。
-
-5. **增加 CI 诊断步骤**：
-   - 在 build 前打印 consola 垫片状态和 automd 入口路径。
-   - 在 build 前显式执行 `pnpm exec tsx scripts/fix-consola-esm.ts`。
-
-以上努力均未彻底解决问题，症状反复出现。
-
----
-
-## 7. 推荐修复方案
-
-### 方案 A：降级 CI Node.js 到 22.x（短期最稳妥）
-
-根据用户记忆和本地验证，Node.js 22 环境下从未出现此问题。将 `.github/actions/setup-monorepo/action.yml` 的默认 Node 版本从 `24.18.0` 改为 `22.x`，可以立即消除 CI 失败。
-
-**优点**：
-
-- 快速止血，恢复 CI 可用性。
-- 与本地开发环境一致（项目最初基于 Node 22 构建）。
-
-**缺点**：
-
-- 未解决 Node 24 下的根本问题。
-- 如果项目有必须使用 Node 24 的理由，此方案不可行。
-
-### 方案 B：在 CI 中打印并校验 consola package.json 内容（定位根因）
-
-在 `.github/actions/setup-monorepo/action.yml` 的诊断步骤中，增加对 `packages/utils/node_modules/consola/package.json` 的完整打印和校验：
-
-```bash
-echo "=== consola package.json 完整内容 ==="
-cat ./packages/utils/node_modules/consola/package.json
-
-echo "=== consola package.json exports 字段 ==="
-node -e "console.log(JSON.stringify(require('./packages/utils/node_modules/consola/package.json').exports, null, 2))"
-
-echo "=== consola lib/index.cjs 是否存在 ==="
-test -f ./packages/utils/node_modules/consola/lib/index.cjs && echo "存在" || echo "不存在"
-
-echo "=== consola dist/index.mjs 是否存在 ==="
-test -f ./packages/utils/node_modules/consola/dist/index.mjs && echo "存在" || echo "不存在"
-```
-
-通过 CI 日志确认：
-
-- `exports` 字段是否完整。
-- `main` 字段是否被识别。
-- 实际文件是否存在。
-
-### 方案 C：强制修复 consola package.json（绕过运行时解析问题）
-
-如果诊断确认 `exports` 字段在 CI 下失效，可以在 `scripts/fix-consola-esm.ts` 中不再只创建 `index.js`，而是**重写 consola 的 package.json**，添加一个稳定的 `"exports": { ".": "./dist/index.mjs" }` 简化的导出映射，确保 Node.js 24 能正确解析。
-
-**风险**：
-
-- 修改第三方包的 package.json 是侵入性操作。
-- 升级 consola 后需要重新适配。
-
-### 方案 D：升级 consola 到最新版本
-
-检查 consola 是否有 3.4.3+ 版本修复了 Node.js 24 的兼容性问题。但截至调研时，consola@3.4.2 的 `package.json` 结构本身没有明显缺陷，升级可能只是迁移问题而非修复问题。
-
----
-
-## 8. 下一步行动建议
-
-1. **立即执行方案 A**：将 CI Node 版本降级到 22.x，恢复 CI 可用性。
-2. **并行执行方案 B**：在 CI 中增加详细的 consola package.json 诊断，获取失败时的真实状态。
-3. **根据诊断结果选择长期方案**：
-   - 如果确认是 pnpm 版本差异 → 锁定 CI pnpm 版本。
-   - 如果确认是 package.json 损坏 → 采用方案 C 强制修复。
-   - 如果确认是 Node 24 Linux 特定问题 → 向 Node.js 或 consola 提交 issue，并暂时停留在 Node 22。
-
----
-
-## 9. 结论
-
-该故障**不是**因为 consola 官方包"没有 main 入口"或 package.json 不规范。consola@3.4.2 的 package.json 完全符合 Node.js 的 ESM 规范。
-
-真正的谜团在于：**为什么在 CI 的 Node.js 24 环境下，Node.js 没有使用 consola 的 `exports` 字段，而是 fallback 到了 `legacyMainResolve` 并失败**。这一现象在本地同版本 Node.js 24 下无法复现，说明问题与 CI 环境状态强相关。
-
-截至报告完成时，最有效的短期止血措施是 **降级 CI Node.js 到 22.x**，同时通过增强诊断获取 CI 失败时的真实 package.json 状态，以确定长期修复方向。
+1. **当 CI 与本地行为不一致时，优先把修复持久化为依赖补丁而非运行时脚本**。运行时脚本受执行顺序、缓存、symlink 层级影响，跨平台复现性差；`pnpm patch` 随 lockfile 生效，行为确定。
+2. **错误堆栈中的 `legacyMainResolve` 是强信号**。在 Node.js ESM 解析中，出现该函数意味着 `exports` 字段未命中或失效。此时应怀疑 package.json 解析结果，而非假设包本身损坏。
+3. **pnpm isolated 模式下，workspace 包看到的依赖可能不是你以为的那个副本**。automd 解析的 consola 可能来自 `.pnpm/automd@*/node_modules/consola` 而非 workspace 的 `node_modules/consola`，扫描和 patch 必须覆盖 automd 的真实依赖实例。
+4. **不要同时保留多个相互覆盖的修复方案**。垫片、workflow 兜底、patch 三者并存时，会让根因判断变得困难。确定 patch 有效后，应及时清理临时 hack。
+5. **lockfile 纳入版本控制是 monorepo 长期稳定的基础**。没有 lockfile，CI 每次安装都可能解析出不同的 transitive dependency 版本，导致同一症状在不同时间以不同形式出现。
