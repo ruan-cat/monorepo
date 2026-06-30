@@ -5,8 +5,11 @@ description: >-
   复盘摘要或本地 MCP 记忆时使用。这个技能只负责沉淀
   "发生了什么、为什么会发生、如何修好、以后要记住什么"，
   不要把它用于实际修复 bug。
+template-version: "2.0.0"
 metadata:
-  template-version: "2.0.0"
+  author: openspec
+  version: "1.0"
+  generatedBy: "1.1.1"
 ---
 
 # 记录 Bug 修复记忆

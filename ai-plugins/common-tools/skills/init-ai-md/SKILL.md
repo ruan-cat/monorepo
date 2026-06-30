@@ -7,7 +7,7 @@ description: >-
   init-ai-md 等关键词时主动调用。
 user-invocable: true
 metadata:
-  version: "0.19.0"
+  version: "0.19.1"
 ---
 
 # init-ai-md 技能说明
@@ -324,7 +324,7 @@ init-ai-md/
 执行流程：
 
 1. 读取 CLAUDE.md 中该章节的完整内容
-2. 读取模板 99.获取技术栈对应的上下文.md 的内容
+2. 读取模板 99。获取技术栈对应的上下文。md 的内容
 3. 逐行对比，发现：
    - 缺失描述段落
    - 缺失"规范文档"链接
