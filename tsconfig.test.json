@@ -6,7 +6,9 @@
 		"baseUrl": "./",
 		"moduleResolution": "bundler",
 		// 本文件被其他的 tsconfig.json 组合 ，用于提供test配置
-		"composite": true
+		"composite": true,
+		// 忽略 baseUrl 的过时配置
+		"ignoreDeprecations": "6.0"
 	},
 	"include": [
 		// 匹配本项目内 全部的测试用例文件
@@ -19,7 +21,10 @@
 		"**/.vitepress/**/*.mts",
 		"**/.vitepress/**/*.vue",
 		"packages/vitepress-preset-config/src/**/*.ts",
-		"packages/vitepress-preset-config/src/**/*.mts"
+		"packages/vitepress-preset-config/src/**/*.mts",
+		"scripts/**/*.ts"
 	],
-	"exclude": ["./ai-plugins"]
+	"exclude": [
+		"./ai-plugins"
+	]
 }
