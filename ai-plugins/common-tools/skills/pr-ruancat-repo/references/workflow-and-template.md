@@ -18,11 +18,11 @@
 
 #### 复杂度分级
 
-| 复杂度 | 典型特征                                                          | 默认执行模式                  |
-| :----- | :---------------------------------------------------------------- | :---------------------------- |
-| low    | 单文件或少量文档/配置变更；无需安装依赖；无需跑构建               | `remote-api` 或 `hybrid`      |
-| medium | 多文件改动；需要本地搜索、格式化、简单测试或跨目录调整            | `hybrid`                      |
-| high   | monorepo、多包、多语言、生成产物、复杂 CI、需要拆分提交或人工判断 | `local-git` 预检后再 `hybrid` |
+| 复杂度 | 典型特征                                                          | 默认执行模式                                    |
+| :----- | :---------------------------------------------------------------- | :---------------------------------------------- |
+| low    | 单文件或少量文档/配置变更；无需安装依赖；无需跑构建               | `script-auto`（优先）或 `remote-api` / `hybrid` |
+| medium | 多文件改动；需要本地搜索、格式化、简单测试或跨目录调整            | `script-auto`（条件满足时）或 `hybrid`          |
+| high   | monorepo、多包、多语言、生成产物、复杂 CI、需要拆分提交或人工判断 | `local-git` 预检后再 `hybrid`                   |
 
 #### 复杂度识别信号
 
@@ -58,11 +58,12 @@
 
 #### 执行模式选择
 
-| 模式         | 何时使用                                                    | 关键约束                                   |
-| :----------- | :---------------------------------------------------------- | :----------------------------------------- |
-| `remote-api` | 只需读取远程信息、创建 PR、改极少量简单文件，且无需本地验证 | 不适合复杂文件修改或需要运行项目脚本的场景 |
-| `local-git`  | 高复杂度仓库需要先在本地完成检查、修改、验证、提交          | 仍需通过 GitHub API/MCP 汇总 PR 状态       |
-| `hybrid`     | 默认模式；本地负责改动和 push，远程 API/MCP 负责 PR 编排    | 批量跨仓库 PR 首选                         |
+| 模式          | 何时使用                                                     | 关键约束                                                         |
+| :------------ | :----------------------------------------------------------- | :--------------------------------------------------------------- |
+| `script-auto` | **v0.5.0 新增**。所有仓库有本地路径、变更统一、`gh` CLI 可用 | 不适合 high 复杂度或仓库间差异大的场景；生成脚本后用户需自行执行 |
+| `remote-api`  | 只需读取远程信息、创建 PR、改极少量简单文件，且无需本地验证  | 不适合复杂文件修改或需要运行项目脚本的场景                       |
+| `local-git`   | 高复杂度仓库需要先在本地完成检查、修改、验证、提交           | 仍需通过 GitHub API/MCP 汇总 PR 状态                             |
+| `hybrid`      | 默认模式；本地负责改动和 push，远程 API/MCP 负责 PR 编排     | 批量跨仓库 PR 首选                                               |
 
 #### 混合模式最小流程
 
@@ -75,6 +76,41 @@
 7. push 来源分支。
 8. 用 GitHub API/MCP 查询或创建 PR。
 9. 记录 PR URL、执行模式、验证结果与失败原因。
+
+#### 脚本自动化模式流程（`script-auto`）
+
+当 `SKILL.md`「脚本自动化模式」的适用条件全部满足时采用此模式，AI 生成产物后由用户本地执行，AI 不再参与中间执行过程。
+
+**AI 端（阶段 3a）**：
+
+1. 生成 `pr-config.json`——包含 repo 列表、本地路径、来源分支、PR 标题。
+2. 生成 `pr-body.md`——统一 PR 正文，聚焦"做了什么 + 为什么做 + 如何验证"。
+3. 生成 `commit-message.txt`——纯文本 commit 信息，**不带 Emoji**，与阶段 2 冻结的 `commitMessage` 语义一致。
+4. 生成 `batch-pr.ts`——自包含的 TypeScript 脚本，参考 `references/batch-pr-script.ts`。
+5. （可选）生成 `changes/` 目录下的待修改文件。
+6. 对 `batch-pr.ts` 做语法快速检查。
+
+**用户端（阶段 3b）**：
+
+1. `cd <产物目录>`
+2. `npx tsx batch-pr.ts --dry-run`（预览）
+3. `npx tsx batch-pr.ts`（实际执行）
+4. 脚本自动输出 `execution-summary.md`
+
+**AI 端（阶段 3c）**：
+
+1. 读取 `execution-summary.md`。
+2. 进入阶段 4 结果汇总。
+
+**脚本应内建的行为**：
+
+- 若 `gh auth status` 失败：立即终止并提示用户认证。
+- 若仓库本地路径不存在：跳过该仓库并记录原因。
+- 若工作树不干净：跳过并提示用户先提交/stash。
+- 若目标分支不存在：跳过并记录失败。
+- 若已存在同源分支开放 PR：跳过并复用现有 URL。
+- 若 push 被拒绝：记录错误原因，继续处理后续仓库。
+- 最终汇总所有仓库状态到 `execution-summary.md`。
 
 ### A3. 协调者阶段（统一内容）
 
@@ -129,6 +165,113 @@ PR 合并完成后，及时清理分支：
 - 已存在开放 PR：复用现有 PR 链接，不重复创建
 - 分支无法清理：记录失败原因，不隐瞒残留分支
 
+### A7. 范围探索工作流
+
+在阶段 2β 执行，用于替代"靠经验猜测"的粗放评估，产出精确的文件级别数据。
+
+#### 探索范围的决定因素
+
+| 任务类型 | 目标目录 | 匹配模式 |
+|:---------|:---------|:---------|
+| 配置文件变更 | `.github/workflows/`、`*.config.*` | `node-version`、`name:` |
+| 依赖版本升级 | `package.json` | `"dependencies"`、`"devDependencies"` |
+| 文档模板统一 | `*.md`、`docs/` | 关键字匹配 |
+| 环境变量调整 | `.env*`、`*.yaml` | `VITE_*`、`API_*` |
+
+#### 探索步骤（每仓库）
+
+1. **验证本地路径** → 不存在则排除
+2. **扫描目标目录** → 使用 glob 匹配 `targetGlob`
+3. **grep 搜索** → 查找 `search` 模式，记录匹配行号
+4. **归类** → 将匹配结果按文件分组，统计总数
+5. **识别特殊模式** → 比较不同仓库的匹配结果差异，标记需要特殊处理的仓库
+6. **输出** → 更新 `scopeAnalysis` 数据结构
+
+#### 探索产出物格式
+
+见 SKILL.md「阶段 2β」节的 `scopeAnalysis` JSON 契约。
+
+### A8. 设计规格生成规范
+
+在阶段 2γ 执行，将探索结果转化为可审阅、可追溯的设计文档。
+
+#### spec.md 生成原则
+
+1. **事实驱动**：所有数据从 `scopeAnalysis` 派生，不得凭空编造文件数量和路径。
+2. **用户可审阅**：spec.md 是用户确认的内容——用户看了觉得没问题，AI 才往下做。
+3. **可追溯**：spec.md 中的每条替换策略必须关联到对应的 `transformations[]` 规则。
+4. **验收绑定**：验收标准与 `transformations[]` 规则一一对应，一条规则对应一个验收项。
+
+#### 转换规则设计指南
+
+`transformations[]` 是连接「设计」和「执行」的核心数据。设计时应遵循：
+
+1. **一条规则一个原子操作**：不要将多个语义不同的替换写进一条规则。
+2. **search 正则要精确**：避免过于宽泛的匹配导致误改。使用明确的边界如 `node-version:\s*\S+` 而非 `node.*24`。
+3. **replace 保持上下文**：只替换目标值，不改变周围结构。
+4. **glob 范围越小越好**：优先匹配具体文件模式而非 `**/*`。
+
+### A10. 临时工作目录规范与 per-repo 差异化
+
+脚本自动化模式使用 `batch-pr-<YYYY-MM-DD>/` 作为强制工作目录，所有产物全部写入此目录。
+
+#### 目录结构
+
+```
+batch-pr-<YYYY-MM-DD>/
+├── batch-pr.ts                # 定制化可执行脚本
+├── pr-config.json             # 仓库清单
+├── pr-body.md                 # PR 正文（默认）
+├── commit-message.txt         # commit 信息（默认）
+├── pr-transform.json          # 转换规则（可选）
+├── spec.md                    # 设计规格（仅审阅）
+├── execution-summary.md       # 脚本执行后生成
+├── changes/
+│   ├── ruan-cat__notes/       # per-repo 差异化文件
+│   └── ruan-cat__monorepo/    # per-repo 差异化文件
+├── commit-message--ruan-cat__notes.txt  # per-repo commit 覆盖
+└── pr-body--ruan-cat__notes.md          # per-repo PR 正文覆盖
+```
+
+#### per-repo 差异化文件命名规则
+
+| 文件模式 | 用途 | 优先级 |
+|:---------|:-----|:-------|
+| `commit-message.txt` | 全部仓库统一的 commit | 低（fallback） |
+| `commit-message--<repo_safe>.txt` | 特定仓库的 commit | 高 |
+| `pr-body.md` | 全部仓库统一的 PR 正文 | 低（fallback） |
+| `pr-body--<repo_safe>.md` | 特定仓库的 PR 正文 | 高 |
+| `changes/<repo_safe>/` | 特定仓库的文件变更 | 高 |
+| `changes/`（旧格式） | 全部仓库共享的文件变更 | 低（fallback） |
+
+其中 `<repo_safe>` 为 repo 标识中的 `/` 替换为 `__`，例如 `ruan-cat/notes` → `ruan-cat__notes`。
+
+#### 脚本执行顺序
+
+1. 解析 `--workdir` 参数（默认 `process.cwd()`）
+2. 读取 `pr-config.json` 获得仓库清单
+3. 对每个仓库：resolve commit message（per-repo 优先）→ resolve PR body（per-repo 优先）→ 执行 inline 转换 → resolve changes 目录应用 → git commit/push → gh pr create
+4. 写入 `execution-summary.md` 到工作目录
+
+#### 工作目录生命周期
+
+| 阶段 | 操作 | 说明 |
+|:-----|:-----|:------|
+| 阶段 3a | AI 创建 `batch-pr-<date>/` 并写入所有文件 | 目录名不可省略 |
+| 阶段 3b | 用户在该目录下执行脚本 | `cd batch-pr-<date>/ && npx tsx batch-pr.ts` |
+| 阶段 3c | AI 读取 `execution-summary.md` | 用户确认后可删除整个目录 |
+| 归档 | `execution-summary.md` 建议留存 | 便于追溯历史
+
+### A9. `pr-transform.json` 执行规范
+
+当脚本自动化模式运行时，`pr-transform.json` 的转换规则按以下顺序执行：
+
+1. 对每个仓库，扫描匹配 `glob` 模式的文件。
+2. 对每个匹配文件，执行 `search` → `replace` 操作。
+3. 所有转换规则按数组顺序串行执行（后一条在前一条产物上操作）。
+4. 转换完成后，若存在 `changes/` 目录的整文件，再应用整文件拷贝。
+5. 执行完毕后对所有被修改文件做日志记录（显示原始行 vs 新行摘要）。
+
 ## B. 输出模板
 
 ````markdown
@@ -140,9 +283,10 @@ PR 合并完成后，及时清理分支：
 - **来源分支**: {{sourceBranch}}
 - **默认执行模式**: {{defaultExecutionMode}}
 - **commit**:
-  ```txt
-  {{commitMessage}}
-  ```
+
+```txt
+{{commitMessage}}
+```
 
 ### 策略摘要
 
@@ -165,6 +309,38 @@ PR 合并完成后，及时清理分支：
 | `ruan-cat/notes` | 已删除       | 已删除       |  ✅  | PR 已 rebase 合并 |
 ````
 
+### 脚本自动化模式输出模板（`execution-summary.md`）
+
+由 `batch-pr.ts` 自动生成的汇总报告模板：
+
+````markdown
+# 批量 PR 执行汇总报告
+
+> **执行模式**: 脚本自动化（batch-pr.ts）
+> **执行时间**: {{executionTime}}
+
+## 统一内容
+
+- **PR 标题**: {{prTitle}}
+- **来源分支**: {{sourceBranch}}
+- **commit**:
+  ```txt
+  {{commitMessage}}
+  ```
+
+## 执行结果
+
+- ✅ 成功: {{successCount}}
+- ⏭ 跳过: {{skippedCount}}
+- ❌ 失败: {{failedCount}}
+
+| 仓库                |    状态    | 目标分支 | PR 链接 | 说明         |
+| :------------------ | :--------: | :------- | :------ | :----------- |
+| `ruan-cat/notes`    | ✅ success | `dev`    | <url>   | —            |
+| `ruan-cat/monorepo` | ⏭ skipped | `main`   | <url>   | 已有开放 PR  |
+| `ruan-cat/resume`   | ❌ failed  | `master` | —       | 工作树不干净 |
+````
+
 ## C. commit 生成约束
 
 1. 必须先读取 `git-commit` 技能规范。
@@ -176,3 +352,4 @@ PR 合并完成后，及时清理分支：
    - 破坏性变更：`<emoji> type(scope)!: summary`
 6. `prTitle`、`prBody` 与 `commitMessage` 必须语义一致，不得相互冲突。
 7. 批量任务仅允许一份统一 `commitMessage`，所有仓库复用同一文案。
+8. **脚本自动化模式专属约束**：写入 `commit-message.txt` 的文本**必须去除 Emoji 字符**，仅保留纯文本格式（例如 `feat(config): update vitepress base path`），以便 shell 命令 `git commit -m "$(cat commit-message.txt)"` 能正确引用。
