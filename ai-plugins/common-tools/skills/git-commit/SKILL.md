@@ -10,28 +10,14 @@ description: >-
   从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。
 user-invocable: true
 metadata:
-  version: "0.3.6"
+  version: "0.4.0"
 ---
 
 # Git Commit
 
-## 来源说明
-
-该技能本质上是参考 [agent-toolkit/skills/commit-work](https://github.com/softaworks/agent-toolkit/blob/main/skills/commit-work/SKILL.md) 文档的纯中文翻译版本，并进行了特定改写以适应当前环境。
-
 ## 目标
 
-制作易于审查且安全发布的提交：
-
-- 仅包含预期的变更
-- 提交具有逻辑范围（必要时进行拆分）
-- 提交信息描述了变更内容和原因
-
-## 需要询问的输入（如果缺失）
-
-- **单个提交还是多个提交？**（如果不确定：当存在不相关的变更时，默认为多个小提交。）
-- **提交风格**：必须使用 Conventional Commits，并包含 Emoji。
-- **任何规则**：最大标题长度，必需的作用域。
+仅包含预期的变更 → 逻辑拆分 → 信息描述变更内容和原因
 
 ## 规则来源优先级 [CRITICAL]
 
@@ -39,12 +25,11 @@ metadata:
 
 1. 用户在当前对话中的明确要求
 2. 当前仓库本地 commit / commitlint 规则（如 `commitlint.config.*`、`.commitlintrc*`、`package.json` 中的 `commitlint` 字段、`commit-msg` hook）
-3. 远程 raw `commit-types.ts` 中的 `type -> emoji` 定义
+3. 远程 raw `commit-types.ts`（首选）+ 本地 `commit-types.ts`（fallback，详见步骤 6）
 4. 技能默认模板、示例与 `references/commit-message-template.md`
 
 - 若多个来源冲突，必须以更高优先级来源为准。
-- 若更高优先级来源缺失、读取失败或含糊不清，必须停下说明，不得猜测。
-- `references/commit-message-template.md` 只可作为写作模板，不可作为 emoji/type 的真实来源。
+- 若更高优先级来源缺失或读取失败，必须停下说明，不得猜测。若来源内容完整但含义明确（如 commitlint 规则已定义 scope 列表等），直接按规则执行即可。
 
 ## 工作流程（清单）
 
@@ -71,27 +56,38 @@ metadata:
      - 无密钥或令牌
      - 无意外的调试日志
      - 无不相关的格式化变动
+   - **检查通过后直接继续**：如果以上三项检查全部通过，**不要停下来询问用户"是否涉及敏感信息"**。直接继续到步骤 5。只有在检查发现可疑内容时才需要向用户确认。
 5. **用 1-2 句话描述暂存的变更（在编写信息之前）**
    - "变更了什么？" + "为什么？"
    - 如果你无法清晰地描述它，那么提交可能太大或混合了；返回第 2 步。
 6. **编写提交信息**
-   - **必须**使用中文编写提交信息。
+   - **语言选择（默认中文，按上下文切换）**：
+     - **默认**使用中文编写提交信息。
+     - **例外**：如果正在向一个使用英文的开源/上游仓库提交 PR（`git log` 中最近提交均为英文），则改用英文编写。判断依据：
+       - 检查当前分支的上游目标仓库的提交语言风格（`git log --oneline` 最近的 5-10 条记录）
+       - 如果上游/目标仓库全部使用英文 → 改用英文
+       - 否则 → 保持中文（默认）
+     - 无论中英文，summary 和 body 的语言必须保持一致。
    - 使用 **Conventional Commits**（必需）：
      - 普通提交：`<emoji> type(scope): summary`
      - 破坏性变更：`<emoji> type(scope)!: summary`（感叹号紧跟在 `)` 之后，冒号之前）
      - (空行)
      - body (内容/原因，而非实现流水账)
      - footer：破坏性变更时必须包含 `BREAKING CHANGE: <说明>` 行
-   - **Emoji 和 Type 规范**：必须查阅并遵循远程 raw `commit-types.ts` 中的定义：
-     - `https://raw.githubusercontent.com/ruan-cat/monorepo/dev/configs-package/commitlint-config/src/commit-types.ts`
-     - 必须读取 raw 全文后，再定位本次要使用的 `type`。
-     - 禁止仅依据搜索摘要、snippet、单行预览、缓存摘要或 reference 表格判断 emoji。
-     - 在继续之前，必须显式复述本次解析结果：`selected type`、`resolved emoji`、命中的原始片段。
-     - 如果 raw 文件抓取失败、内容不完整、或无法可靠定位目标 `type`，必须停止提交流程，不得猜测，不得回退到旧表格。
+   - **Emoji 和 Type 规范**：必须查阅并遵循 `commit-types.ts` 中的定义，按以下优先级获取：
+     - **首选（远程 raw，确保最新）**：从 GitHub 远程获取最新定义：
+       - `https://raw.githubusercontent.com/ruan-cat/monorepo/dev/configs-package/commitlint-config/src/commit-types.ts`
+       - 远程文件是权威来源，优先使用以确保 type/emoji 映射是最新的。
+     - **次选（技能自带的本地文件）**：若远程 raw 获取失败（网络不可用/超时/HTTP 错误），再回退到本技能目录下的 `references/commit-types.ts`
+       - 读取该文件，解析 `commitTypes` 数组，定位本次要使用的 `type`。
+       - 该文件是随技能一起分发的快照副本，版本可能落后于远程，但可确保离线可用。
+     - **禁止仅依据搜索摘要或缓存判断 emoji**——必须读取完整文件后定位 type。在继续之前，显式复述本次解析结果：`selected type`、`resolved emoji`、命中的原始片段。
+     - 若远程和本地都获取失败 → **停止**，报告"无法获取 commit-types.ts，无法确定合法 type 与 emoji"，不得猜测或回退到旧表格。
    - **推荐使用文件方式**（避免 shell 参数传递导致的编码与转义问题）：
      - 对于包含中文的 commit message，默认使用 `git commit -F commit-message.txt`
      - 创建临时提交信息文件（如 `commit-message.txt`），写入提交信息内容
-     - **注意**：此步骤只创建文件，**暂不执行提交**
+     - ⚠️ **此步骤只创建提交信息文件，不要在此步骤执行 `git commit`**。真正的提交执行将在步骤 9 进行。
+   - **不要在步骤 6 就停下来向用户展示提交信息文本后结束流程**——继续执行步骤 7→8→9 完成整个提交流程。
    - 参考 `references/commit-message-template.md` 获取模板格式与 BREAKING CHANGE 示例，不要把其中内容当作 emoji/type 真值。
 
 7. **提交信息预校验 [CRITICAL]**
@@ -120,6 +116,10 @@ metadata:
      - "claude-sonnet-4-6" → 模型 = "Claude Sonnet 4.6"
      - 其他模型同理
    - **逐项判定**：客户端与模型必须分别判断是否在下方 allowlist 中，不得把“客户端可验证”自动扩展为“模型也可验证”。
+   - **必须输出检测日志**（无论结果如何）：
+     - 格式：`→ Co-authored-by 检测: 客户端="{客户端名}" → {在/不在} allowlist; 模型="{模型名}" → {在/不在} allowlist; 结论="{结论}"`
+     - 例如：`→ Co-authored-by 检测: 客户端="WorkBuddy" → 不在 allowlist; 模型="Deepseek-V4-Flash" → 不在 allowlist; 结论="不追加任何 trailer"`
+     - 这样做是为了让用户明确知道检测过程，而非"Co-authored-by 神秘消失"。
    - 仅允许以下四种结果：
      1. 仅客户端可验证 → 只追加客户端 trailer
      2. 仅模型可验证 → 只追加模型 trailer
@@ -135,22 +135,9 @@ metadata:
      - `git log -1 --format=%B`
      - `git status --short --branch`
      - 若 commit 过程中出现 warning、hook 改写了文件、或最终提交信息与预期不一致，不能直接宣称完成，必须先修正。
+   - **🛑 不要推送**：执行完提交后，**不要执行 `git push`**。推送操作由用户自行决定并执行。
 
 10. **重复下一个提交，直到工作树干净**
-
-## 平台命令参考
-
-### PowerShell
-
-- 读取远程 raw 文件：`(Invoke-WebRequest -UseBasicParsing '<raw-url>').Content`
-- 预校验提交信息：`pnpm exec commitlint --edit commit-message.txt --strict`
-- 删除临时文件：`Remove-Item -LiteralPath commit-message.txt`
-
-### POSIX Shell
-
-- 读取远程 raw 文件：`curl -fsSL '<raw-url>'`
-- 预校验提交信息：`pnpm exec commitlint --edit commit-message.txt --strict`
-- 删除临时文件：`rm -- commit-message.txt`
 
 ## 最小有效校验矩阵 [CRITICAL]
 
@@ -161,78 +148,16 @@ metadata:
 | 源码               | 对应模块的 test / typecheck / build 中最快且有意义的一项 |
 | 混合改动           | 选择覆盖主要风险面的最小组合校验                         |
 
-## 优先处理暂存区 [CRITICAL]
 
-**在开始任何提交流程之前，首先检查 git 暂存区（staging area / index）是否已有文件。**
-
-这是基于尊重用户意图的原则：如果用户已经手动 `git add` 了某些文件，说明他们明确知道要提交什么，此时不应画蛇添足地扩大提交范围。
-
-| 暂存区状态     | 处理方式                                                    |
-| :------------- | :---------------------------------------------------------- |
-| **有暂存文件** | 直接对暂存区内容进行提交，**不自行 `git add` 任何额外文件** |
-| **暂存区为空** | 从工作树分析所有变更，按拆分规范选取文件并暂存后再提交      |
-
-**检查命令**：
-
-```bash
-# 检查暂存区是否有内容
-git diff --cached --stat
-
-# 有输出 → 暂存区有文件，直接进入审查流程
-# 无输出 → 暂存区为空，需要从工作树选取文件
-```
 
 ## 分门别类拆分提交规范 [CRITICAL]
 
-当用户提及**「分门别类」**，或工作树中存在较多文件变更时，**必须**认真分析上下文，将变更拆分为若干个逻辑独立的小提交，而不是粗暴地一次性 `git add .` 全量提交。
-
-### 为什么要拆分
-
-- 每个提交都有清晰的单一职责，方便 code review 和问题追溯
-- 出现问题时可以精准 `git revert` 单个提交而不影响其他变更
-- 符合 Conventional Commits 语义：一个 `type` 对应一类变更
-
-### 四个拆分维度
-
-在分析本次变更时，请从以下四个维度逐一评估，发现可拆分点就独立成一个提交：
-
-#### 1. 按文件类型拆分
-
-不同类型的文件通常对应不同关注点：
-
-- 配置文件（`*.json`, `*.yaml`, `*.toml`, `nitro.config.ts` 等）→ `config` 类型
-- 文档文件（`*.md`, `CHANGELOG`, `README`）→ `docs` 类型
-- 测试文件（`*.test.ts`, `*.spec.ts`）→ `test` 类型
-- 依赖文件（`package.json`, `pnpm-lock.yaml`）→ `deps` 类型
-- 核心源码文件 → `feat` / `fix` / `refactor` 类型
-
-#### 2. 按业务功能模块拆分
-
-不同业务模块的改动应独立提交，即使它们都是同一类型（如 `feat`）：
-
-- `feat(auth): ...` 和 `feat(payment): ...` 应分开
-- `fix(users): ...` 和 `fix(orders): ...` 应分开
-
-#### 3. 按修改类型拆分
-
-不同 `type` 的变更必须分开提交，不能混在一起：
-
-- 新增功能（`feat`）和修复 Bug（`fix`）→ 分开
-- 功能代码（`feat`/`fix`）和格式化（`style`）→ 分开
-- 业务逻辑和重构（`refactor`）→ 分开
-
-#### 4. 按修改范围拆分
-
-- 前端代码 vs 后端代码
-- 生产代码 vs 测试代码
-- 应用代码 vs 基础设施/工具链代码
-
-### 拆分决策流程
+当工作树中存在较多文件变更时，**必须**将变更拆分为独立小提交，而非全量提交。按以下决策流程执行：
 
 ```plain
 分析变更文件列表
     ↓
-有没有不同 type 的混合变更？ → 是 → 按类型拆分
+有没有不同 type 的混合变更？ → 是 → 按 type 拆分
     ↓ 否
 有没有跨越多个业务模块的变更？ → 是 → 按模块拆分
     ↓ 否
@@ -240,34 +165,33 @@ git diff --cached --stat
     ↓ 否
 变更范围是否横跨前后端或基础设施？ → 是 → 按范围拆分
     ↓ 否
-所有变更都聚焦于同一职责 → 可以合并为一个提交
+所有变更都聚焦于同一职责 → 合并为一个提交
 ```
 
-### 示例：工作树有 8 个文件的拆分方案
+**type与文件类型映射参考**：配置文件→`config`，文档→`docs`，测试→`test`，依赖→`deps`，核心源码→`feat`/`fix`/`refactor`
 
-```plain
-变更文件：
-  M  src/api/users.ts          # 后端业务逻辑：新增用户查询
-  M  src/api/orders.ts         # 后端业务逻辑：修复订单Bug
-  M  src/components/UserList.vue # 前端组件
-  M  nitro.config.ts            # 配置文件
-  M  package.json               # 依赖升级
-  M  pnpm-lock.yaml             # 依赖锁定文件
-  M  tests/users.test.ts        # 测试文件
-  M  CHANGELOG.md               # 文档
-
-推荐拆分为 5 个提交：
-  提交1: ✨ feat(users): 新增用户查询接口       ← src/api/users.ts
-  提交2: 🐞 fix(orders): 修复订单数量计算错误   ← src/api/orders.ts
-  提交3: ✨ feat(ui): 新增用户列表组件          ← src/components/UserList.vue
-  提交4: 🧪 test(users): 补充用户查询单测       ← tests/users.test.ts
-  提交5: 📦 deps: 升级依赖并更新配置            ← package.json + pnpm-lock.yaml + nitro.config.ts
-  (CHANGELOG.md 通常随其他提交一起或单独 docs 提交)
-```
+> 详细拆分示例（含 8 文件拆分方案）参见 `references/commit-splitting-example.md`。
 
 ## 破坏性变更规范 [CRITICAL]
 
 当用户提及**「破坏性变更」**关键词，或本次变更确实存在不向下兼容的 API/行为改动时，**必须**按以下规范编写提交信息。
+
+### 主动评估准则（每次提交前执行）
+
+**不要只等用户说"破坏性变更"才行动。** 在完成步骤 5 后（描述变更内容后），主动对照以下清单判断本次变更是否属于破坏性：
+
+| 判断维度 | 属于破坏性变更的情况 | 不属于破坏性变更的情况 |
+|:---------|:-------------------|:---------------------|
+| **API 签名变更** | 函数参数数量/顺序/类型变化、删除导出的函数或类、重命名公共 API | 新增仅额外可选参数的 API、内部私有函数改名 |
+| **配置格式变更** | 修改配置文件的字段名/类型/结构、删除已有配置项 | 新增配置项（默认值兼容旧行为）、仅调整注释 |
+| **行为语义变更** | 修改已有功能的预期行为、删除功能、改变错误处理策略 | 新增功能（不影响已有行为）、修复 Bug（恢复预期行为） |
+| **依赖升级** | 框架/运行时大版本升级（如 Vue 2→3、Node 16→20）、peerDependencies 范围收窄 | 补丁版本升级、开发依赖升级 |
+| **数据结构变更** | 修改数据库 schema、修改 API 响应格式、修改缓存键结构 | 新增字段（客户端可忽略）、仅增加索引 |
+| **删除/重命名文件** | 删除或重命名被其他模块引用的文件、删除导出的符号 | 删除未使用的文件、内部重组不影响外部 |
+
+**决策规则**：只要以上任意一维度命中"属于破坏性变更"，就必须使用 `!` 格式。
+
+**如果不确定**：偏向保守——标记为破坏性变更，并在 `BREAKING CHANGE:` 正文中说明"可能的影响范围"。
 
 ### 感叹号位置（唯一正确格式）
 
@@ -303,15 +227,84 @@ BREAKING CHANGE: 详细说明破坏性变更的内容、原因，以及用户需
 ### 示例
 
 ```text
-🦄 refactor(nitro-api-development)!: 从 11comm 项目提取技能并重构为通用版本
+🦄 refactor(api)!: 重构用户查询接口
 
-BREAKING CHANGE: 删除了 reference.md 和 templates.md，替换为 references/ 和 templates/ 子目录结构。
-
-- 移除 reference.md
-- 移除 templates.md
-- 新增 references/ 子目录（含 7 个专项文档）
-- 新增 templates/ 子目录（含 2 个可复用 TypeScript 文件）
+BREAKING CHANGE: 函数签名从 `getUser(id)` 改为 `getUser({ id, includeDeleted? })`，需更新所有调用方。
 ```
+
+## 提交类型（commit type）选择指南
+
+> 本仓库在 `references/commit-types.ts`（随技能分发的快照）中定义了 18 个提交类型。
+> 远程 GitHub raw 文件是权威来源，本地 `references/commit-types.ts` 作为离线 fallback。
+
+### 核心类型（高频使用）
+
+| type | emoji | 适用场景 | 注意 |
+|:-----|:------|:---------|:-----|
+| `feat` | ✨ | 新增功能、新特性、新组件 | 有 `semver: minor`，CLI 用户可见的新能力 |
+| `fix` | 🐞 | 修复 Bug、修正异常行为 | 恢复预期行为，非新增功能 |
+| `refactor` | 🦄 | 代码重构——重写/重命名/拆分代码但**不改变外部行为** | 如果改变了行为 → 用 `feat` 或 `fix` |
+| `docs` | 📃 | 仅文档变更（README、JSDoc、注释、CHANGELOG） | 不包括源码注释——源码注释用 `chore` |
+| `test` | 🧪 | 新增/修改测试用例、测试配置 | 不包括测试工具链的升级 |
+| `style` | 🌈 | 代码格式化（缩进、分号、引号）、Lint 修复 | 不包括 CSS/UI 样式变更——那是 `feat` |
+
+### 辅助类型（中频使用）
+
+| type | emoji | 适用场景 | 注意 |
+|:-----|:------|:---------|:-----|
+| `config` | 🔧 | 配置文件新增/修改 | 仅限配置本身，不包括配置变更引起的代码改动 |
+| `build` | 🔨 | 构建系统变更（构建工具、打包配置、tsconfig） | 与 `config` 的边界：`build` 只用于"影响构建产物"的配置变更 |
+| `deps` | 📦 | 依赖包的新增/升级/移除 | 当依赖变更伴随代码调整时，代码部分另开提交 |
+| `chore` | 🐳 | **不属于以上任何类别的杂项**——如 `.gitignore`、`.editorconfig`、源码注释清理 | **兜底 type**——只有其他 type 都不匹配时才用 |
+| `ci` | 🐎 | CI/CD 配置文件变更（GitHub Actions、CI 脚本） | 不影响生产代码 |
+| `perf` | 🎈 | 性能优化 | 如果优化时重构了代码 → 用 `refactor`；优化且改变行为 → 用 `feat` |
+| `i18n` | 🌐 | 国际化翻译文本的新增/修改 | 不包括国际化基础设施——那算 `feat` 或 `config` |
+
+### 特殊类型（低频使用）
+
+| type | emoji | 适用场景 | 注意 |
+|:-----|:------|:---------|:-----|
+| `revert` | 🔙 | 仅用于 `git revert` 生成的提交 | 不要手动编写此 type，让 `git revert` 自动生成 |
+| `delete` | 🔪 | 删除已废弃的代码/文件/注释 | 删除可能被引用的东西 → 用破坏性变更 `!` |
+| `init` | 🎉 | 项目/模块/子包的初始化或重新初始化。如：新建 monorepo 子包、首次接入构建工具链、初始化文档站脚手架、为新目录建立基础结构和约定 | 适用于**从无到有**搭建基础设施的场景。不要用于已有项目的增量功能开发（那用 `feat`） |
+| `publish` | 📢 | 发布 npm 包新版本（CHANGELOG + version bump） | 仅限发布流程专用 |
+| `save-file` | 🤔 | **仅用于"临时保存进度，不构成有意义变更"** | 尽量避免，用有意义的 type 代替 |
+
+### 边界类型判断流程
+
+当不确定选哪个 type 时，按以下流程决策：
+
+```plain
+1. 这个变更是"新增"还是"修复"？
+   → 新增功能 → feat
+   → 修 Bug → fix
+   → 都不是 → 第 2 步
+
+2. 变更是否影响用户可见行为？
+   → 是 → 回到第 1 步（用 feat 或 fix）
+   → 否 → 第 3 步
+
+3. 变更属于以下哪一类？
+   → 重构代码结构 → refactor
+   → 改配置文件 → config
+   → 改构建/打包 → build
+   → 改文档/注释 → docs
+   → 改测试 → test
+   → 改 CI/CD → ci
+   → 改依赖 → deps
+   → 改翻译文本 → i18n
+   → 性能优化 → perf
+   → 格式化/Lint → style
+   → 删除废弃文件 → delete
+   → 都不匹配 → chore（兜底）
+```
+
+### 类型选择禁忌
+
+- ❌ **不要混淆 `style` 和 UI 样式**：`style` 只用于代码格式化（缩进、分号），不用于 CSS/UI 视觉效果
+- ❌ **不要滥用 `chore`**：只有明确不属于其他任何 type 时才能用——`chore` 不是"我不知道用什么所以选这个"
+- ❌ **不要把不同类型混入一个提交**：如果改了代码又改了文档，拆成 `feat` + `docs` 两个提交
+- ❌ **不要臆造不在 commit-types.ts 中的 type**：如果觉得现有 type 都不匹配，用最接近的那个，而不是发明新 type
 
 ## Co-authored-by 邮箱对照表
 
@@ -347,30 +340,40 @@ BREAKING CHANGE: 删除了 reference.md 和 templates.md，替换为 references/
 
 ### 已确认的假冒/冒名账号黑名单 [CRITICAL]
 
-**以下账号均已通过 GitHub API 验证为非官方账号，严禁在 Co-authored-by 中使用。** 即使 AI 模型"记住"了这些账号，也绝对不能使用。
+以下账号均已通过 GitHub API 验证为非官方账号，**严禁在 Co-authored-by 中使用**：
 
-| 冒充目标    | 假冒账号                     | ID        | 判定为假冒的依据                                                                                                                                                           |
-| :---------- | :--------------------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Claude Code | `anthropics-claude`          | 237456255 | 不属于 `anthropics` 组织；仓库包含 Solana 加密货币诈骗项目（`clabs`）；仅 2 个关注者。**注意：Claude Code 有官方邮箱 `noreply@anthropic.com`，请使用该邮箱而非此假冒账号** |
-| Gemini CLI  | `google-gemini-cli`          | 229672533 | 不属于 `google-gemini` 组织；仓库全部是 fork（无原创内容）；仅 5 个关注者                                                                                                  |
-| Codex CLI   | `codex-cli`                  | 208188539 | 不属于 `openai` 组织；OpenAI 发布 Codex（2025-04-13）后 5 天抢注；0 个公开仓库、仅 2 个关注者                                                                              |
-| VS Code     | `vscode-triage-bot`          | 62039782  | 这是 VS Code 仓库的 Issue 分流机器人，不代表 VS Code IDE 本体，用于 Co-authored-by 会产生语义误导                                                                          |
-| GLM-5       | `zhipuch`                    | 178361551 | 普通个人用户，与智谱 AI / GLM 无任何关联                                                                                                                                   |
-| Trae        | `Trae-AI-Admin`              | 192575406 | 不属于任何组织；0 个公开仓库；无法确认为 Trae 官方账号                                                                                                                     |
-| Codebuddy   | `CodeBuddy-Official-Account` | 214620440 | 不属于任何组织；无法确认为 Codebuddy 官方账号                                                                                                                              |
-| Antigravity | `antigravity-ai`             | 256725992 | 仅 1 个关注者；0 个公开仓库；2026-01-23 才创建；无法确认为官方账号                                                                                                         |
-| Qoder       | `Qoder-AI`                   | 215799558 | 不属于任何组织；仅 8 个关注者；无法确认为官方账号                                                                                                                          |
-| Kiro        | `kiro-ai`                    | 201607104 | 0 个关注者；0 个公开仓库；无法确认为官方账号                                                                                                                               |
-| MiniMax     | `MiniMax-OpenPlatform`       | 239562665 | 不属于任何组织；无法确认为 MiniMax 官方账号                                                                                                                                |
-| Kimi        | `kimi-bot`                   | 85515654  | 2021 年创建（早于 Kimi 2023 年诞生）；0 个公开仓库、仅 1 个关注者；不在 `MoonshotAI` 组织中                                                                                |
-| MIMO        | `Mimo-BOT`                   | 68919994  | 2020 年创建（早于 MIMO 诞生）；0 个公开仓库、仅 1 个关注者；不在 `XiaomiMiMo` 组织中                                                                                      |
+| 冒充目标 | 假冒账号 | 判定依据简述 |
+|:---------|:---------|:------------|
+| Claude Code | `anthropics-claude` | 不在 `anthropics` 组织；含加密货币诈骗项目 |
+| Gemini CLI | `google-gemini-cli` | 不在 `google-gemini` 组织；全是 fork 无原创 |
+| Codex CLI | `codex-cli` | 不属于 `openai` 组织；Codex 发布 5 天后抢注 |
+| VS Code | `vscode-triage-bot` | 是 Issue 分流机器人，非 VS Code 本体 |
+| GLM-5 | `zhipuch` | 普通个人用户，与智谱 AI 无关联 |
+| Trae | `Trae-AI-Admin` | 不属于任何组织；0 个公开仓库 |
+| Codebuddy | `CodeBuddy-Official-Account` | 不属于任何组织；无法确认为官方账号 |
+| 其他（Antigravity/Qoder/Kiro/MiniMax/Kimi/MIMO） | 各假冒账号 | 均不在对应组织中，0 或极少公开仓库 |
 
-> **为什么要维护黑名单？** AI 模型在生成 Co-authored-by 时，可能会从训练数据或互联网上"回忆"起这些账号并自动填入。明确列出黑名单可以防止这种行为，避免你的 GitHub 仓库贡献者列表中出现无关甚至恶意的第三方。
+> 完整黑名单（含 ID 和详细判定依据）参见 `references/co-authored-by-blacklist.md`。
 
 ## 交付物
 
 提供：
 
-- 最终的提交信息（包含 Emoji，中文编写）
+- 最终的提交信息（包含 Emoji，按上下文选择中文或英文编写）
 - 每个提交的简短摘要（内容/原因）
 - 用于暂存/审查的命令（至少：`git diff --cached`，加上运行的任何测试）
+
+## 参考文件
+
+以下文件存放在本技能目录的 `references/` 下，按需查阅：
+
+| 文件 | 何时查阅 |
+|:-----|:---------|
+| `commit-types.ts` | emoji/type 映射的本地 fallback 数据源 |
+| `commit-message-template.md` | 提交信息写作模板与结构参考 |
+| `commit-splitting-example.md` | 拆分逻辑复杂、文件众多时需要详细拆分示例 |
+| `staging-priority.md` | 对暂存区处理逻辑有疑问时 |
+| `input-requirements.md` | 用户信息不足需要确认输入时 |
+| `co-authored-by-blacklist.md` | 发现未知 Co-authored-by 账号需验证时 |
+| `breaking-change-examples.md` | 编写复杂破坏性变更提交信息时 |
+| `command-reference.md` | PowerShell/POSIX 具体命令记不清时 |
