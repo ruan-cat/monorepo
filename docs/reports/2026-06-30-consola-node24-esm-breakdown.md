@@ -59,7 +59,13 @@ patch 文件：`patches/consola.patch`
    }
 ```
 
-同时清理了此前的临时 hack：
+同时增加运行时兜底：
+
+- 新增 `scripts/ensure-consola-patch.ts`，在每次 `@ruan-cat/utils:prebuild` 运行前显式校验并修复 consola 的 `package.json`。
+- 修改 `packages/utils/package.json` 的 `prebuild` 脚本为：`pnpm exec tsx ../../scripts/ensure-consola-patch.ts && automd`。
+- 该兜底用于覆盖 pnpm patch 在 CI 某些阶段（如 turbo 多次触发 prebuild、remote cache 恢复后）未稳定生效的场景。
+
+清理了此前的临时 hack：
 
 - `package.json` 的 `postinstall` 不再调用 `scripts/fix-consola-esm.ts`。
 - `.github/actions/setup-monorepo/action.yml` 移除"修复 consola ESM 垫片"步骤，保留诊断步骤用于确认 patch 状态。
@@ -100,10 +106,11 @@ $ pnpm run prebuild
 
 ## 后续约束
 
-1. **升级 consola 前必须重新评估 patch**：一旦 consola 版本升级，当前 `patches/consola.patch` 会失效。需在升级后重新生成 patch 或验证新版本在 Node.js 24 下无需 patch。
-2. **不要恢复 `index.js` 垫片方案**：`scripts/fix-consola-esm.ts` 作为历史 fallback 保留在仓库中，但不应重新启用为 `postinstall`。patch 是更可靠、可复现、跨平台一致的修复方式。
+1. **升级 consola 前必须同步更新 patch 与兜底脚本**：一旦 consola 版本升级，当前 `patches/consola.patch` 和 `scripts/ensure-consola-patch.ts` 中的目标字段都会失效。需在升级后重新生成 patch 并同步脚本中的 `TARGET_MAIN` 与 `TARGET_EXPORTS`。
+2. **不要恢复 `index.js` 垫片方案**：`scripts/fix-consola-esm.ts` 作为历史 fallback 保留在仓库中，但不应重新启用为 `postinstall`。patch + `ensure-consola-patch` 运行时兜底是更可靠、可复现、跨平台一致的修复方式。
 3. **CI 诊断步骤继续保留**：`.github/actions/setup-monorepo/action.yml` 中的 consola 状态诊断应保留，便于未来快速确认 patch 是否生效。
 4. **lockfile 必须纳入版本控制**：`pnpm-lock.yaml` 已提交。patch 的 hash 记录在 lockfile 中，忽略 lockfile 会导致 CI 与本地 patch 状态不一致。
+5. **`ensure-consola-patch` 是防御性兜底而非根治**：它用于覆盖 pnpm patch 在 CI 复杂阶段未稳定生效的边角场景。若未来 consola 或 pnpm 修复了底层兼容性问题，可考虑移除该兜底。
 
 ## 本地与云端 Linux 修复过程记录
 
@@ -128,7 +135,14 @@ $ pnpm run prebuild
 - 在 `pnpm-workspace.yaml` 中注册 `patchedDependencies`。
 - 重新生成 `pnpm-lock.yaml`，确保 patch hash 被记录。
 - 清理 `package.json` 的 `postinstall` 和 action 中的垫片步骤。
-- 结果：本地 Windows 和 GitHub Linux CI 均通过，`automd` 无需 `index.js` 垫片即可运行。
+- 结果：本地 Windows 通过；GitHub Linux CI 的 `pnpm run build` 阶段通过，但 `pnpm run build:docs` 阶段再次触发 `@ruan-cat/utils:prebuild` 时失败。
+
+### 第四阶段：prebuild 运行时兜底修复
+
+- 分析：第一次 `pnpm run build` 成功，第二次 `pnpm run build:docs` 中 `@ruan-cat/utils:prebuild` 失败，说明 pnpm patch 在 CI 的复杂阶段（turbo 多次触发 prebuild、remote cache 恢复）未能稳定生效。
+- 新增 `scripts/ensure-consola-patch.ts`：通过 `require.resolve('consola')` 定位 consola 真实目录，校验 `main` 与 `exports` 字段，不正确则重写为 patch 后的内容。
+- 修改 `packages/utils/package.json` 的 `prebuild` 脚本：`pnpm exec tsx ../../scripts/ensure-consola-patch.ts && automd`。
+- 结果：每次 prebuild 前都会强制确保 consola package.json 正确，CI 的 build 与 build:docs 阶段均通过。
 
 ## 关键宝贵经验
 
@@ -137,3 +151,5 @@ $ pnpm run prebuild
 3. **pnpm isolated 模式下，workspace 包看到的依赖可能不是你以为的那个副本**。automd 解析的 consola 可能来自 `.pnpm/automd@*/node_modules/consola` 而非 workspace 的 `node_modules/consola`，扫描和 patch 必须覆盖 automd 的真实依赖实例。
 4. **不要同时保留多个相互覆盖的修复方案**。垫片、workflow 兜底、patch 三者并存时，会让根因判断变得困难。确定 patch 有效后，应及时清理临时 hack。
 5. **lockfile 纳入版本控制是 monorepo 长期稳定的基础**。没有 lockfile，CI 每次安装都可能解析出不同的 transitive dependency 版本，导致同一症状在不同时间以不同形式出现。
+6. **对于 CI 中阶段性地复现的失败，需要增加运行时兜底而非继续追加假设性补丁**。当 `pnpm patch` 在大部分场景生效，但在 turbo 多次触发 prebuild 时失效，应在 prebuild 脚本内增加轻量级校验与修复，确保每次执行前状态正确，而不是反复调整 workflow 或 patch。
+7. **诊断步骤应覆盖失败发生的精确时刻**。只在 setup 阶段打印一次 consola 状态不足以定位阶段性问题；应在 prebuild 脚本或 workflow 的 build/build:docs 之间增加诊断，捕获失败前的真实状态。
