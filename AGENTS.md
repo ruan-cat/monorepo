@@ -408,26 +408,34 @@ Error: Cannot find package '.../consola/index.js' imported from '.../automd/dist
     at legacyMainResolve (node:internal/modules/esm/resolve:201:26)
 ```
 
+第一次 `pnpm run build` 阶段 `@ruan-cat/utils:prebuild` 成功，随后的 `pnpm run build:docs` 阶段再次触发 `@ruan-cat/utils:prebuild` 时失败。
+
 ### 根因
 
 `consola@3.4.2` 的 `package.json` 使用条件嵌套 `exports` 并将 `main` 指向 `./lib/index.cjs`。在 Node.js 24 的 ESM 解析路径下，`exports` 解析回退到 `legacyMainResolve`，`./lib/index.cjs` 不被 ESM 直接识别，最终尝试 `consola/index.js` 失败。
 
+`pnpm patch` 在本地与 CI 的 `build` 阶段生效，但在 `build:docs` 阶段（turbo 再次触发 `prebuild`、remote cache 恢复）未能稳定生效。
+
 ### 修复
 
-使用 `pnpm patch` 持久化重写 `consola@3.4.2` 的 `package.json`：
-
-- 将 `main` 改为 `./dist/index.mjs`。
-- 简化 `exports["."]` 和 `exports["./basic"]` 为扁平的 `types` / `import` / `require` / `default` 映射。
-- 在 `pnpm-workspace.yaml` 中注册 `patchedDependencies`，并将 `pnpm-lock.yaml` 纳入版本控制。
+1. 使用 `pnpm patch` 持久化重写 `consola@3.4.2` 的 `package.json`：
+   - 将 `main` 改为 `./dist/index.mjs`。
+   - 简化 `exports["."]` 和 `exports["./basic"]` 为扁平的 `types` / `import` / `require` / `default` 映射。
+   - 在 `pnpm-workspace.yaml` 中注册 `patchedDependencies`，并将 `pnpm-lock.yaml` 纳入版本控制。
+2. 新增 `scripts/ensure-consola-patch.ts` 作为 prebuild 运行时兜底：
+   - 通过 `require.resolve('consola')` 定位 consola 真实目录。
+   - 校验 `main` 与 `exports` 字段，不正确则重写为 patch 后的内容。
+   - 在 `packages/utils/package.json` 的 `prebuild` 脚本中先执行该脚本：`pnpm exec tsx ../../scripts/ensure-consola-patch.ts && automd`。
 
 详细记录见 `.claude/skills/fix-bug/record-bug-fix-memory/2026-06-30-consola-node24-esm-resolve.md`。
 
 ### 后续约束
 
-1. 升级 consola 前必须重新评估 patch，版本变化会使旧 patch 失效。
-2. 不要将 `scripts/fix-consola-esm.ts` 重新启用为 `postinstall`，patch 是确定性的修复方式。
+1. 升级 consola 前必须同步更新 `patches/consola.patch` 与 `scripts/ensure-consola-patch.ts` 中的目标字段。
+2. 不要将 `scripts/fix-consola-esm.ts` 重新启用为 `postinstall`；patch + `ensure-consola-patch` 运行时兜底是当前确定的修复方式。
 3. CI 诊断步骤继续保留，用于快速确认 patch 状态。
 4. `pnpm-lock.yaml` 必须持续纳入版本控制，否则 patch hash 无法在 CI 中一致应用。
+5. `ensure-consola-patch` 是防御性兜底，用于覆盖 pnpm patch 在 CI 复杂阶段未稳定生效的边角场景。
 
 ## RULE 4: Session End — Store Decision Chain Summary
 
