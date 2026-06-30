@@ -5,6 +5,23 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.1.0] - 2026-06-30
+
+### Changed
+
+- **pr-ruancat-repo**（`metadata.version` `0.4.0` -> `1.0.0`，重大架构重构）：
+- 新增**脚本自动化模式**：AI 生成自包含 `batch-pr.ts` 脚本，用户本地执行替代 AI 逐仓库调用，节省约 80–90% token 消耗。
+- 新增**阶段 2β 范围探索**：扫描仓库文件结构、计数、识别特殊模式，产出 `scopeAnalysis` JSON。
+- 新增**阶段 2γ 设计规格生成**：产出 `spec.md` 完整设计文档，含替换策略、风险表、验收清单。
+- 新增**inline 转换引擎**：`pr-transform.json` 定义搜索替换规则（glob + regex），脚本内建自实现 glob 匹配器，零外部依赖。
+- 新增 **per-repo 差异化**：`commit-message--<safe>.txt` / `pr-body--<safe>.md` / `changes/<safe>/` 覆盖统一文件。
+- 新增 `--workdir` CLI 参数，默认 `process.cwd()`，工作目录 `batch-pr-<date>/` 强制规范。
+- 新增阶段 3c 工作目录清理步骤。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.1.0`。
+
 ## [7.0.0] - 2026-06-30
 
 ### Changed
