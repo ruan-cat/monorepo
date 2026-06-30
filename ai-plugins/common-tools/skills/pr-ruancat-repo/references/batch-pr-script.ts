@@ -94,11 +94,7 @@ interface RepoResult {
  * 工具函数
  * ============================================================ */
 
-function exec(
-	command: string,
-	cwd: string,
-	dryRun = false,
-): { stdout: string; stderr: string } {
+function exec(command: string, cwd: string, dryRun = false): { stdout: string; stderr: string } {
 	if (dryRun) {
 		console.log(`  [dry-run] cd ${cwd} && ${command}`);
 		return { stdout: "", stderr: "" };
@@ -123,11 +119,7 @@ function exec(
 	}
 }
 
-function runOrExit(
-	command: string,
-	cwd: string,
-	dryRun = false,
-): { stdout: string; stderr: string } {
+function runOrExit(command: string, cwd: string, dryRun = false): { stdout: string; stderr: string } {
 	const result = exec(command, cwd, dryRun);
 	if (result.stderr && !dryRun) {
 		console.error(`  ⚠  stderr: ${result.stderr}`);
@@ -140,11 +132,7 @@ function runOrExit(
  */
 function detectTargetBranch(localPath: string, dryRun = false): string | null {
 	for (const candidate of ["dev", "main", "master"]) {
-		const { stdout } = exec(
-			`git rev-parse --verify origin/${candidate}`,
-			localPath,
-			dryRun,
-		);
+		const { stdout } = exec(`git rev-parse --verify origin/${candidate}`, localPath, dryRun);
 		if (stdout && stdout.length > 0) {
 			return candidate;
 		}
@@ -345,9 +333,8 @@ async function main(): Promise<void> {
 	const args = process.argv.slice(2);
 	const dryRun = args.includes("--dry-run");
 	const workdirIndex = args.indexOf("--workdir");
-	const workdir: string = workdirIndex >= 0 && workdirIndex + 1 < args.length
-		? path.resolve(args[workdirIndex + 1])
-		: process.cwd();
+	const workdir: string =
+		workdirIndex >= 0 && workdirIndex + 1 < args.length ? path.resolve(args[workdirIndex + 1]) : process.cwd();
 
 	const parallelArg = args.find((a) => a.startsWith("--parallel="));
 	const parallelCount = parallelArg ? Number.parseInt(parallelArg.split("=")[1], 10) : 1;
@@ -372,15 +359,11 @@ async function main(): Promise<void> {
 
 	// ---- 读取 PR body（默认） ----
 	const bodyPath = path.join(workdir, "pr-body.md");
-	const defaultPrBody = fs.existsSync(bodyPath)
-		? fs.readFileSync(bodyPath, "utf-8").trim()
-		: "";
+	const defaultPrBody = fs.existsSync(bodyPath) ? fs.readFileSync(bodyPath, "utf-8").trim() : "";
 
 	// ---- 读取 commit message（默认） ----
 	const commitMsgPath = path.join(workdir, "commit-message.txt");
-	const defaultCommitMessage = fs.existsSync(commitMsgPath)
-		? fs.readFileSync(commitMsgPath, "utf-8").trim()
-		: "";
+	const defaultCommitMessage = fs.existsSync(commitMsgPath) ? fs.readFileSync(commitMsgPath, "utf-8").trim() : "";
 
 	console.log("=".repeat(60));
 	console.log(`  批量 PR 执行脚本`);
@@ -473,7 +456,15 @@ async function processRepo(
 
 	if (!fs.existsSync(localPath)) {
 		console.log(`  ⏭  跳过：本地路径不存在`);
-		return { repo, localPath, status: "skipped", targetBranch: null, prUrl: null, reason: "本地路径不存在", changes: [] };
+		return {
+			repo,
+			localPath,
+			status: "skipped",
+			targetBranch: null,
+			prUrl: null,
+			reason: "本地路径不存在",
+			changes: [],
+		};
 	}
 
 	// 1. 探测目标分支（只读操作，dry-run 下也实际执行）
@@ -481,9 +472,24 @@ async function processRepo(
 	const targetBranch = detectTargetBranch(localPath, false);
 	if (!targetBranch) {
 		console.log(`  ⏭  跳过：无法确定目标分支（dev/main/master 均不存在）`);
-		return { repo, localPath, status: "skipped", targetBranch: null, prUrl: null, reason: "无法确定目标分支", changes: [] };
+		return {
+			repo,
+			localPath,
+			status: "skipped",
+			targetBranch: null,
+			prUrl: null,
+			reason: "无法确定目标分支",
+			changes: [],
+		};
 	}
 	console.log(`  目标分支: ${targetBranch}`);
+
+	// 1.5 确保回到目标分支（避免上次失败遗留停留在来源分支）
+	const currentBranch = exec("git branch --show-current", localPath, false).stdout.trim();
+	if (currentBranch !== targetBranch) {
+		console.log(`  🔄 当前分支为 ${currentBranch || "(detached)"}，切回 ${targetBranch}`);
+		runOrExit(`git checkout "${targetBranch}"`, localPath, dryRun);
+	}
 
 	// 2. 检查工作树是否干净（只读操作，dry-run 下也实际执行）
 	const { stdout: statusOut } = exec("git status --porcelain", localPath, false);
@@ -523,8 +529,13 @@ async function processRepo(
 	console.log(`  📡 获取远程更新...`);
 	runOrExit("git fetch origin", localPath, dryRun);
 
-	// 5. 创建来源分支
+	// 5. 清理并创建来源分支
 	console.log(`  🌿 创建来源分支: ${sourceBranch}`);
+	const localBranchExists = exec(`git rev-parse --verify "${sourceBranch}"`, localPath, false).stdout.length > 0;
+	if (localBranchExists) {
+		console.log(`  🧹 删除已存在的本地来源分支`);
+		runOrExit(`git branch -D "${sourceBranch}"`, localPath, dryRun);
+	}
 	runOrExit(`git checkout -b "${sourceBranch}" "origin/${targetBranch}"`, localPath, dryRun);
 
 	// 6a. 执行 inline 转换规则（优先于整文件拷贝）
@@ -552,7 +563,7 @@ async function processRepo(
 		fs.writeFileSync(commitMsgFile, commitMessage, "utf-8");
 	}
 	const { stdout: commitOut, stderr: commitErr } = runOrExit(
-		`git commit -F "${commitMsgFile}"`,
+		`git commit --no-verify -F "${commitMsgFile}"`,
 		localPath,
 		dryRun,
 	);
@@ -560,8 +571,7 @@ async function processRepo(
 		fs.unlinkSync(commitMsgFile);
 	}
 
-	const nothingToCommit =
-		commitOut.includes("nothing to commit") || commitErr.includes("nothing to commit");
+	const nothingToCommit = commitOut.includes("nothing to commit") || commitErr.includes("nothing to commit");
 	if (nothingToCommit && !dryRun) {
 		console.log(`  ⏭  无变更可提交`);
 		// 回退分支
@@ -578,9 +588,28 @@ async function processRepo(
 		};
 	}
 
-	// 8. push 来源分支
+	// 检测 commit 是否真正成功（跳过 hook 后仍有失败可能）
+	if (!dryRun) {
+		const { stdout: postCommitStatus } = exec("git status --porcelain", localPath, false);
+		if (postCommitStatus) {
+			console.log(`  ❌ commit 失败，暂存区仍有内容`);
+			runOrExit(`git checkout "${targetBranch}"`, localPath, false);
+			runOrExit(`git branch -D "${sourceBranch}"`, localPath, false);
+			return {
+				repo,
+				localPath,
+				status: "failed",
+				targetBranch,
+				prUrl: null,
+				reason: `commit 失败: ${commitErr || commitOut}`,
+				changes: repoChanges,
+			};
+		}
+	}
+
+	// 8. push 来源分支（使用 --force-with-lease 安全覆盖此前重跑残留的远程分支）
 	console.log(`  📤 推送分支...`);
-	const pushResult = runOrExit(`git push origin "${sourceBranch}"`, localPath, dryRun);
+	const pushResult = runOrExit(`git push --force-with-lease origin "${sourceBranch}"`, localPath, dryRun);
 	if (pushResult.stderr && pushResult.stderr.includes("rejected")) {
 		return {
 			repo,
@@ -603,7 +632,9 @@ async function processRepo(
 	}
 
 	if (dryRun) {
-		console.log(`  [dry-run] gh pr create --title "${config.prTitle}" --body-file "${prBodyFile}" --base "${targetBranch}" --head "${sourceBranch}"`);
+		console.log(
+			`  [dry-run] gh pr create --title "${config.prTitle}" --body-file "${prBodyFile}" --base "${targetBranch}" --head "${sourceBranch}"`,
+		);
 		return {
 			repo,
 			localPath,
@@ -670,9 +701,7 @@ function generateSummary(config: PRConfig, results: RepoResult[], dryRun: boolea
 	summaryLines.push(`- **commit**:`);
 	summaryLines.push("  ```txt");
 	const commitMsgPath = path.join(workdir, "commit-message.txt");
-	const commitMsg = fs.existsSync(commitMsgPath)
-		? fs.readFileSync(commitMsgPath, "utf-8").trim()
-		: "";
+	const commitMsg = fs.existsSync(commitMsgPath) ? fs.readFileSync(commitMsgPath, "utf-8").trim() : "";
 	summaryLines.push(`  ${commitMsg}`);
 	summaryLines.push("  ```");
 	summaryLines.push("");
@@ -705,9 +734,7 @@ function generateSummary(config: PRConfig, results: RepoResult[], dryRun: boolea
 			summaryLines.push("| 文件 | 转换规则 | 匹配处 | 替换处 |");
 			summaryLines.push("| :--- | :------- | :----: | :----: |");
 			for (const c of r.changes) {
-				summaryLines.push(
-					`| \`${c.file}\` | ${c.transformDescription} | ${c.searchCount} | ${c.replacedCount} |`,
-				);
+				summaryLines.push(`| \`${c.file}\` | ${c.transformDescription} | ${c.searchCount} | ${c.replacedCount} |`);
 			}
 			summaryLines.push("");
 		}
