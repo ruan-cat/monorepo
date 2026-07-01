@@ -2,6 +2,26 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [7.2.0] - 2026-07-01
+
+### Added
+
+- **init-pure-admin-iconify**（`metadata.version` `0.2.0` -> `0.3.0`）：
+- 新增 `useIconEffect` composable，提供 Iconify SVG 渐变色注入与呼吸动画能力。
+- 渐变注入采用排除法判别（只跳过 `fill="none"` 和已有 `url(#)`），内置定时重试链 `[0, 80, 200, 500, 1000]` ms。
+- 呼吸动画支持 GSAP / CSS / Auto 三策略，Auto 模式运行时检测 `globalThis.gsap` 自动降级。
+- GSAP 依赖通过动态 `import()` 加载，未安装时不阻塞打包。
+- 新增 `GradientStop`、`IconGradientConfig`、`BreathGsapParams`、`IconBreathConfig` 等 9 个类型定义。
+- 新增第 14 章「图标动效与渐变」使用文档，含 4 个完整代码示例与策略选择指南。
+- 新增 59 个 vitest 测试用例，覆盖 12 个分组，配置 jsdom 环境。
+
+- 根级 `devDependencies` 新增 `gsap` `^3.15.0` 与 `jsdom` 作为测试环境依赖。
+- vitest workspace 扩展 `tests/useIconEffect` 独立测试项目。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.2.0`。
+
 ## [6.13.0] - 2026-06-30
 
 ### Added

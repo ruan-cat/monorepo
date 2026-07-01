@@ -7,7 +7,7 @@ description: >-
   "后台项目图标基础设施"时使用此技能。
 user-invocable: true
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # 初始化 Pure-Admin Iconify 方案（Vite + Vue3）
