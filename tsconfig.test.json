@@ -23,8 +23,5 @@
 		"packages/vitepress-preset-config/src/**/*.ts",
 		"packages/vitepress-preset-config/src/**/*.mts",
 		"scripts/**/*.ts"
-	],
-	"exclude": [
-		"./ai-plugins"
 	]
 }
