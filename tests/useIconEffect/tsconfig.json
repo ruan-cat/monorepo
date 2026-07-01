@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"strict": true,
+		"skipLibCheck": true,
+		"types": ["vitest/globals"],
+		"jsx": "preserve",
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"noEmit": true
+	},
+	"include": [
+		"./**/*.ts",
+		"../../ai-plugins/dev-skills/skills/init-pure-admin-iconify/templates/ReIcon/src/useIconEffect.ts",
+		"../../ai-plugins/dev-skills/skills/init-pure-admin-iconify/templates/ReIcon/type.ts"
+	]
+}
