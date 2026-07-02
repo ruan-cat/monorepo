@@ -2,11 +2,11 @@
 
 ## 本项目的技能表
 
-本仓库同时维护两类技能来源：项目局部技能位于 `.claude/skills/`，对外分发技能位于 `ai-plugins/*/skills/`。**经验教训、事故复盘、根级 AI 记忆与 Memorix 同步**请优先使用 `record-bug-fix-memory`；其余按场景选用。已落地的仓库级排错案例写在 `record-bug-fix-memory` 技能正文 **「案例索引」** 小节（可随事故继续追加）。
+本仓库同时维护两类技能来源：项目局部技能位于 `.agents/skills/`，对外分发技能位于 `ai-plugins/*/skills/`。**经验教训、事故复盘、根级 AI 记忆与 Memorix 同步**请优先使用 `record-bug-fix-memory`；其余按场景选用。已落地的仓库级排错案例写在 `record-bug-fix-memory` 技能正文 **「案例索引」** 小节（可随事故继续追加）。
 
 ### 项目局部技能（仓库内维护）
 
-- `record-bug-fix-memory` — `.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
+- `record-bug-fix-memory` — `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
   - **存储架构**：双层存储。SKILL.md 只放流程指导和摘要索引，详细案例存储在同目录下的独立 `YYYY-MM-DD-{slug}.md` 文件中。
   - **阅读方式**：使用此技能前，先读 SKILL.md 了解流程，再根据「案例索引」章节按需读取相关的独立案例文件。
   - **写入方式**：新增经验时，创建独立案例文件，同时在 SKILL.md 的「案例索引」追加摘要。禁止将完整事故正文写入 SKILL.md。
@@ -16,77 +16,77 @@
   - 约束：不承担具体修复实现；仓库级经验写入本技能「案例索引」及根级 `CLAUDE.md` / `AGENTS.md`（必要时 Memorix）。
 
 - `openspec-apply-change`
-  - 路径：`.claude/skills/openspec-apply-change/SKILL.md`
+  - 路径：`.agents/skills/openspec-apply-change/SKILL.md`
   - 用途：OpenSpec 变更中按任务实现代码。
   - 触发时机：用户要开始、继续或推进实现，或处理 tasks 时。
   - 参考作用：把 delta 与 tasks 落到代码。
   - 约束：以变更工件为准，不跳过已约定的实现边界。
 
 - `openspec-archive-change`
-  - 路径：`.claude/skills/openspec-archive-change/SKILL.md`
+  - 路径：`.agents/skills/openspec-archive-change/SKILL.md`
   - 用途：在实现完成后归档 OpenSpec 变更。
   - 触发时机：用户要归档或结束某次变更时。
   - 参考作用：闭环变更与归档结构。
   - 约束：归档前宜配合 verify 与规范目录结构。
 
 - `openspec-bulk-archive-change`
-  - 路径：`.claude/skills/openspec-bulk-archive-change/SKILL.md`
+  - 路径：`.agents/skills/openspec-bulk-archive-change/SKILL.md`
   - 用途：并行多份变更一次性归档。
   - 触发时机：多分支或多变更需批量归档时。
   - 参考作用：批量归档流程与一致性。
   - 约束：核对每个变更的完成状态再归档。
 
 - `openspec-continue-change`
-  - 路径：`.claude/skills/openspec-continue-change/SKILL.md`
+  - 路径：`.agents/skills/openspec-continue-change/SKILL.md`
   - 用途：继续 OpenSpec 变更并生成下一工件。
   - 触发时机：用户要「下一 artifact」或延续工作流时。
   - 参考作用：延续 OPSX 工作流节奏。
   - 约束：承接上一工件依赖与命名约定。
 
 - `openspec-explore`
-  - 路径：`.claude/skills/openspec-explore/SKILL.md`
+  - 路径：`.agents/skills/openspec-explore/SKILL.md`
   - 用途：探索需求、问题与方案（OpenSpec 探索模式）。
   - 触发时机：变更前或途中需要澄清、调研、头脑风暴时。
   - 参考作用：在进入 new-change / apply 前缩小不确定面。
   - 约束：探索结论应能回写到规范工件，避免无限发散。
 
 - `openspec-ff-change`
-  - 路径：`.claude/skills/openspec-ff-change/SKILL.md`
+  - 路径：`.agents/skills/openspec-ff-change/SKILL.md`
   - 用途：快速创建 OpenSpec 实现所需全部工件。
   - 触发时机：用户要跳过逐步生成、一次性补齐 artifacts 时。
   - 参考作用：加速从意图到可实施工件集。
   - 约束：仍需人工审查质量与一致性。
 
 - `openspec-new-change`
-  - 路径：`.claude/skills/openspec-new-change/SKILL.md`
+  - 路径：`.agents/skills/openspec-new-change/SKILL.md`
   - 用途：以实验性工件流程创建新的 OpenSpec 变更。
   - 触发时机：用户要新开功能、修复或重构类变更时。
   - 参考作用：规范化变更入口与目录结构。
   - 约束：遵循仓库 OpenSpec 约定与分支/命名策略。
 
 - `openspec-onboard`
-  - 路径：`.claude/skills/openspec-onboard/SKILL.md`
+  - 路径：`.agents/skills/openspec-onboard/SKILL.md`
   - 用途：带讲解的 OpenSpec 全流程上手。
   - 触发时机：新成员或首次使用 OpenSpec 工作流时。
   - 参考作用：把设计与真实仓库操作串起来。
   - 约束：与仓库实际 `openspec` / `opsx` 布局一致。
 
 - `openspec-sync-specs`
-  - 路径：`.claude/skills/openspec-sync-specs/SKILL.md`
+  - 路径：`.agents/skills/openspec-sync-specs/SKILL.md`
   - 用途：把 delta spec 同步回主 spec，且不强制归档变更。
   - 触发时机：主规格需吸收变更中的 delta 时。
   - 参考作用：保持主规格与变更一致。
   - 约束：区分同步与归档，避免误删变更目录。
 
 - `openspec-verify-change`
-  - 路径：`.claude/skills/openspec-verify-change/SKILL.md`
+  - 路径：`.agents/skills/openspec-verify-change/SKILL.md`
   - 用途：核对实现与变更工件一致后再归档。
   - 触发时机：实现完成后、归档前需验收时。
   - 参考作用：减少「实现与 spec 不一致」的归档。
   - 约束：验证应可复现（测试、构建或清单）。
 
 - `package-linter`
-  - 路径：`.claude/skills/package-linter/SKILL.md`
+  - 路径：`.agents/skills/package-linter/SKILL.md`
   - 用途：校验并规范化 monorepo 中 Node 包的 `package.json`、`tsup.config.ts`、`tsconfig.json`。
   - 触发时机：新建包、改包配置、包规范审查或初始化子包时。
   - 参考作用：与 monorepo 包规范一致。
@@ -401,7 +401,7 @@ This is critical — without resolving, old bug reports and completed tasks will
 
 `automd@0.4.3` 的 CLI 入口在 Node.js 24 下因静态导入 `consola` 触发 `legacyMainResolve` fallback，导致 `ERR_MODULE_NOT_FOUND`。最终修复通过绕过 CLI 入口，使用 `scripts/run-automd.cjs` 调用 `automd` 的 API 入口。
 
-详细记录、根因分析、修复过程与后续约束见 `.claude/skills/fix-bug/record-bug-fix-memory/2026-06-30-consola-node24-esm-resolve.md`。
+详细记录、根因分析、修复过程与后续约束见 `.agents/skills/fix-bug/record-bug-fix-memory/2026-06-30-consola-node24-esm-resolve.md`。
 
 ## RULE 4: Session End — Store Decision Chain Summary
 
