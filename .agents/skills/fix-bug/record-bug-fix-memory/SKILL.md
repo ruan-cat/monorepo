@@ -106,6 +106,7 @@ metadata:
 - `2026-07-02-git-commit-broken-rename.md` — AI agent 在执行 git-commit 分门别类拆分时将文件移动误判为删除+新增两个独立提交，导致 rename 追踪断裂；修复方式为 soft reset + 合并暂存重提交
 
 - `2026-07-02-git-commit-skill-violation.md` — AI agent 在 git-commit 分门别类拆分时连续违反技能规范：emoji 错误（style 用 💅 而非 🌈）、publish 发版遗漏 6 个版本文件、反复 reset 补救导致 rebase 冲突；修复方式为先查阅 commit-types.ts 再提交、同步全部版本文件、stash 无关文件后 rebase
+- `2026-07-02-use-vercel-deploy-skill-pitfalls.md` — 新建 use-vercel-deploy-in-monorepo skill 时因未先验证 Git 仓库连接、未追溯 bin 来源、通用 skill 写死 AI 客户端名称、模板形态与脚本不一致导致多次返工；修复方式为 Vercel CLI/API 实锤核对、按部署形态分层、明确依赖来源、删除硬编码、统一模板逻辑
 
 新增事故记录时，先创建独立案例文件，再在本索引追加一行摘要。**禁止**将完整事故正文直接写入 SKILL.md。
 
