@@ -422,9 +422,11 @@ Error: Cannot find package '.../consola/index.js' imported from '.../automd/dist
    - 将 `main` 改为 `./dist/index.mjs`。
    - 简化 `exports["."]` 和 `exports["./basic"]` 为扁平的 `types` / `import` / `require` / `default` 映射。
    - 在 `pnpm-workspace.yaml` 中注册 `patchedDependencies`，并将 `pnpm-lock.yaml` 纳入版本控制。
-2. 新增 `scripts/ensure-consola-patch.ts` 作为 prebuild 运行时兜底：
-   - 通过 `require.resolve('consola')` 定位 consola 真实目录。
+2. 重写 `scripts/ensure-consola-patch.ts` 作为 prebuild 运行时兜底：
+   - 通过 `require.resolve('consola')` 定位当前 workspace 包解析到的 consola 真实目录。
+   - 同时尝试从 `automd` 的上下文解析其依赖的 consola 目录，覆盖 automd 实际使用的副本。
    - 校验 `main` 与 `exports` 字段，不正确则重写为 patch 后的内容。
+   - **在 consola 包根目录下创建 `index.js` 垫片**，重新导出 `dist/index.mjs`，直接满足 Node.js 24 `legacyMainResolve` fallback 尝试的文件路径。
    - 在 `packages/utils/package.json` 的 `prebuild` 脚本中先执行该脚本：`pnpm exec tsx ../../scripts/ensure-consola-patch.ts && automd`。
 
 详细记录见 `.claude/skills/fix-bug/record-bug-fix-memory/2026-06-30-consola-node24-esm-resolve.md`。
@@ -432,10 +434,10 @@ Error: Cannot find package '.../consola/index.js' imported from '.../automd/dist
 ### 后续约束
 
 1. 升级 consola 前必须同步更新 `patches/consola.patch` 与 `scripts/ensure-consola-patch.ts` 中的目标字段。
-2. 不要将 `scripts/fix-consola-esm.ts` 重新启用为 `postinstall`；patch + `ensure-consola-patch` 运行时兜底是当前确定的修复方式。
+2. 不要将 `scripts/fix-consola-esm.ts` 重新启用为 `postinstall`；`pnpm patch + ensure-consola-patch` 是当前确定的修复方式。
 3. CI 诊断步骤继续保留，用于快速确认 patch 状态。
 4. `pnpm-lock.yaml` 必须持续纳入版本控制，否则 patch hash 无法在 CI 中一致应用。
-5. `ensure-consola-patch` 是防御性兜底，用于覆盖 pnpm patch 在 CI 复杂阶段未稳定生效的边角场景。
+5. `ensure-consola-patch` 在 prebuild 入口强制创建 `index.js` 垫片，是覆盖 CI 阶段依赖状态不一致的防御性兜底，不是 turbo cache 问题。
 
 ## RULE 4: Session End — Store Decision Chain Summary
 
