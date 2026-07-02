@@ -80,51 +80,52 @@ function findPackageRoot(startDir: string, packageName: string): string | undefi
 	}
 }
 
-function resolveConsolaDir(): string {
-	const req = createRequire(join(process.cwd(), "package.json"));
-	const entryPath = realpathSync(req.resolve("consola"));
-	const root = findPackageRoot(dirname(entryPath), "consola");
-	if (!root) {
-		throw new Error(`无法从 ${entryPath} 定位 consola 包根目录`);
+function findConsolaDirsFrom(startDir: string): string[] {
+	const dirs: string[] = [];
+	let dir = startDir;
+	while (true) {
+		const candidate = join(dir, "node_modules", "consola");
+		if (existsSync(candidate)) {
+			dirs.push(realpathSync(candidate));
+		}
+		const parent = dirname(dir);
+		if (parent === dir) {
+			break;
+		}
+		dir = parent;
 	}
-	return root;
+	return dirs;
 }
 
-function resolveAutomdConsolaDir(): string | undefined {
+function resolveAutomdCliMjsPath(): string | undefined {
 	try {
-		// 先定位 automd 包根目录
 		const req = createRequire(join(process.cwd(), "package.json"));
 		const automdPath = realpathSync(req.resolve("automd"));
 		const automdDir = findPackageRoot(dirname(automdPath), "automd");
 		if (!automdDir) {
 			return undefined;
 		}
-
-		// 在 automd 的依赖上下文中解析 consola（这可能指向 workspace 包共享的 consola，
-		// 也可能指向 automd 自己独立的 consola 实例）
-		const automdReq = createRequire(join(automdDir, "package.json"));
-		const consolaPath = realpathSync(automdReq.resolve("consola"));
-		const root = findPackageRoot(dirname(consolaPath), "consola");
-		return root;
+		const cliMjs = join(automdDir, "dist", "cli.mjs");
+		if (!existsSync(cliMjs)) {
+			return undefined;
+		}
+		return realpathSync(cliMjs);
 	} catch {
 		// ignore
 	}
 	return undefined;
 }
 
-function resolveDirectWorkspaceConsolaDir(): string | undefined {
-	// 直接修复当前工作目录下 node_modules/consola 的真实路径，避免 pnpm isolated 模式下
-	// CJS 解析与 ESM 解析选择不同实例的问题。
-	const directPath = join(process.cwd(), "node_modules", "consola");
-	if (!existsSync(directPath)) {
-		return undefined;
-	}
+function resolveCjsConsolaDir(): string | undefined {
 	try {
-		const root = findPackageRoot(realpathSync(directPath), "consola");
+		const req = createRequire(join(process.cwd(), "package.json"));
+		const consolaPath = realpathSync(req.resolve("consola"));
+		const root = findPackageRoot(dirname(consolaPath), "consola");
 		return root;
 	} catch {
-		return undefined;
+		// ignore
 	}
+	return undefined;
 }
 
 function fixPackageJson(pkgPath: string, pkg: any): boolean {
@@ -179,24 +180,29 @@ function fixConsolaDir(consolaDir: string) {
 function main() {
 	const dirs = new Set<string>();
 
-	// 1. 当前 workspace 包解析到的 consola（packages/utils 的直接依赖）
-	try {
-		dirs.add(resolveConsolaDir());
-	} catch (e) {
-		console.error("[ensure-consola-patch] 无法解析 consola:", e);
+	// 1. 从 automd/dist/cli.mjs 的真实路径开始向上遍历 node_modules/consola，
+	//    覆盖 ESM 解析器实际会使用的所有候选目录（包括 packages/utils/node_modules/consola）。
+	const automdCliMjs = resolveAutomdCliMjsPath();
+	if (automdCliMjs) {
+		for (const dir of findConsolaDirsFrom(dirname(automdCliMjs))) {
+			dirs.add(dir);
+		}
+	}
+
+	// 2. 从当前工作目录（packages/utils）向上遍历，捕获 CI 上 automd 可能落到的直接依赖目录。
+	for (const dir of findConsolaDirsFrom(process.cwd())) {
+		dirs.add(dir);
+	}
+
+	// 3. CJS 解析兜底（覆盖 require.resolve 的解析路径）。
+	const cjsDir = resolveCjsConsolaDir();
+	if (cjsDir) {
+		dirs.add(cjsDir);
+	}
+
+	if (dirs.size === 0) {
+		console.error("[ensure-consola-patch] 无法解析任何 consola 目录");
 		process.exit(1);
-	}
-
-	// 2. automd 的依赖上下文可能解析到的 consola
-	const automdConsolaDir = resolveAutomdConsolaDir();
-	if (automdConsolaDir) {
-		dirs.add(automdConsolaDir);
-	}
-
-	// 3. 当前工作目录下 node_modules/consola 的真实路径（CI 上 automd 实际命中此处）
-	const directConsolaDir = resolveDirectWorkspaceConsolaDir();
-	if (directConsolaDir) {
-		dirs.add(directConsolaDir);
 	}
 
 	for (const dir of dirs) {
