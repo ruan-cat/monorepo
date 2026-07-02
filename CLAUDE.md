@@ -101,6 +101,17 @@
   - 参考作用：与 `ai-plugins/common-tools` 下的 skills 树、README、CHANGELOG 保持一致。
   - 约束：同步版本号与变更路径，避免漏改子包；不再从旧的仓库局部路径读取真实来源。
 
+## 对外分发 skill 的目录与路径约束
+
+在 `ai-plugins/common-tools/skills` 或 `ai-plugins/dev-skills/skills` 下新建对外分发 skill 时，必须区分**仓库源码视角**与**安装后技能视角**。skill 安装后会被同步到用户机的 `~/.agents/skills/<skill-name>/` 目录，因此脚本、文档和示例都应以该安装目录为基准：
+
+1. **脚本必须放在 skill 目录内部**：所有附属脚本、入口、兜底脚本均应位于 `ai-plugins/common-tools/skills/<skill-name>/scripts/`、`src/`、`fallback/` 等 skill 内部目录，禁止以 `scripts/<skill-name>` 等 monorepo 通用工具路径存放。
+2. **文档路径使用相对路径**：`SKILL.md` / `README.md` 中的命令示例必须使用相对路径（如 `scripts/sync.ts`、`fallback/sync.ps1`），并注明在 skill 安装目录下运行。禁止使用 `ai-plugins/...` 等仓库源码绝对路径。
+3. **不暴露开发期产物**：不要把 monorepo 内部测试文件、CI 配置、开发期报告写入用户分发的 `SKILL.md`「相关文件」或说明中。
+4. **计划文档与实现同步**：一旦进入执行阶段，设计/计划文档必须随实现同步更新，禁止出现计划代码块与实际落地文件不一致的情况。
+
+违反上述约束的具体案例与修复过程，参见 `.agents/skills/fix-bug/record-bug-fix-memory/2026-07-02-sync-local-global-agents-skills-design-pitfalls.md`。
+
 ## 主动问询实施细节
 
 在我与你沟通并要求你具体实施更改时，难免会遇到很多模糊不清的事情。
