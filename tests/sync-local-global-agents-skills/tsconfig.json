@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "./**/*.ts",
+    "../../ai-plugins/common-tools/skills/sync-local-global-agents-skills/src/**/*.ts"
+  ],
+  "exclude": ["**/node_modules", "**/dist"]
+}
