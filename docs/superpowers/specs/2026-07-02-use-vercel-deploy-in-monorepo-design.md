@@ -1,3 +1,5 @@
+<!-- 已完成 -->
+
 # 2026-07-02 use-vercel-deploy-in-monorepo Skill 设计
 
 ## 背景与目标

@@ -97,3 +97,15 @@ npm.
 - 避免过于复杂而导致 `favicon.svg` 在浏览器内阅读困难。我不想在浏览器内看到一团浆糊。
 
 优先去 iconify 图标库内去找设计灵感。
+
+## 008 <!-- TODO: --> 处理 WorkBuddy 内出现的 memorix MCP 故障
+
+尝试通过 memorix 查询记录，但 memorix MCP 服务器当前无法启动，原因是 better-sqlite3 的 native 绑定与当前 Node 版本（v22.14.0 / ABI 127）不匹配。错误信息核心如下：
+
+```log
+Could not locate the bindings file. Tried:
+ → ...\better-sqlite3\build\Release\better_sqlite3.node
+ → ...\compiled\22.14.0\win32\x64\better_sqlite3.node
+```
+
+我要求你解决这个故障，不要通过改写 WorkBuddy MCP 配置文件的方式来解决，去重点看看 better-sqlite3 本身的问题，去看看我们是不是要重新全局 build 一下？是不是要根据 node 版本来实现一次重新构建 memorix 对应的依赖项？
