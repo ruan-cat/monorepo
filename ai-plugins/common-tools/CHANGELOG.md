@@ -16,6 +16,11 @@
 - 步骤 6 新增回退检查：`.agents/skills/` 不存在时回退检查 `.claude/skills/` 并提示用户先执行迁移。
 - 模板文件 `templates/08.本项目的技能表.md` 与 `templates/record-bug-fix-memory/SKILL.md` 同步替换。
 - 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.4.0`。
+- **git-commit**（`metadata.version` `0.4.0` -> `0.5.0`）：
+- 「分门别类拆分提交规范」新增「文件移动（rename）检测」子章节。
+- 文件移动视为最高优先级拆分约束，高于 type/模块/文件类型维度。
+- 强制检测流程：`git status --short` 中 `D` 行与 `??` 行 basename 交叉比对，命中则合并为单一 rename 提交。
+- 明确识别 signal：`git diff --cached` 大量纯删除 + `git status` 同名 `??` 行 → 必然是文件移动。
 
 ## [7.1.1] - 2026-06-30
 
