@@ -753,3 +753,26 @@ metadata:
 1. `name` 建议使用 kebab-case（小写英文和短横线）。
 2. `description` 要写清楚“做什么 + 什么时候用”。
 3. frontmatter 之后再编写正文指令，不要把正文内容写进 YAML 区域。
+
+## 经验教训：git-commit 技能执行规范
+
+### 2026-07-02 — git-commit 技能执行违规复盘
+
+**问题现象**：AI agent 在执行 git-commit 分门别类拆分时，连续出现三次技能执行错误：
+- `style` 类型使用了 💅，但 `git-commit` 技能 `commit-types.ts` 规定 `style` 的 emoji 为 🌈
+- `publish` 发版时遗漏了 6 个 marketplace/plugin.json 版本文件同步
+- 反复 `git reset --soft` 补救导致提交过程混乱，最终推送时远端已有更新，触发 rebase 冲突
+
+**根因**：
+- 未查阅技能来源优先级（`git-commit` 技能要求先查 `commit-types.ts` 确认 emoji，而非凭记忆）
+- 未按 `release-ai-plugins` 技能要求同步全部版本文件
+- git 操作缺乏预规划，先提交再补救
+
+**后续约束**：
+1. 执行 `git-commit` 前**必须**查阅 `commit-types.ts` 或远程 raw 确认 emoji/type 映射，禁止凭记忆选取
+2. `publish` 提交**必须**先同步所有版本文件（2 个 marketplace + 4 个 plugin.json），缺一不可
+3. git 操作**先规划再执行**，禁止反复 `reset --soft` 补救。一次性确认拆分方案、emoji、type、scope 全部正确后再提交
+4. 提交前先 `git fetch origin` 确认远端状态，避免 push 被拒后再处理 rebase
+5. 本地有未提交文件时**先 stash 再 rebase**，避免无关文件干扰冲突处理
+
+**案例文件**：`.agents/skills/fix-bug/record-bug-fix-memory/2026-07-02-git-commit-skill-violation.md`
