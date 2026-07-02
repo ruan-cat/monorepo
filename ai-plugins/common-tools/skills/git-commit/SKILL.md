@@ -10,7 +10,7 @@ description: >-
   从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。
 user-invocable: true
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # Git Commit
@@ -71,8 +71,8 @@ metadata:
    - 使用 **Conventional Commits**（必需）：
      - 普通提交：`<emoji> type(scope): summary`
      - 破坏性变更：`<emoji> type(scope)!: summary`（感叹号紧跟在 `)` 之后，冒号之前）
-     - (空行)
-     - body (内容/原因，而非实现流水账)
+     - （空行）
+     - body （内容/原因，而非实现流水账）
      - footer：破坏性变更时必须包含 `BREAKING CHANGE: <说明>` 行
    - **Emoji 和 Type 规范**：必须查阅并遵循 `commit-types.ts` 中的定义，按以下优先级获取：
      - **首选（远程 raw，确保最新）**：从 GitHub 远程获取最新定义：
@@ -148,8 +148,6 @@ metadata:
 | 源码               | 对应模块的 test / typecheck / build 中最快且有意义的一项 |
 | 混合改动           | 选择覆盖主要风险面的最小组合校验                         |
 
-
-
 ## 分门别类拆分提交规范 [CRITICAL]
 
 当工作树中存在较多文件变更时，**必须**将变更拆分为独立小提交，而非全量提交。按以下决策流程执行：
@@ -168,7 +166,33 @@ metadata:
 所有变更都聚焦于同一职责 → 合并为一个提交
 ```
 
-**type与文件类型映射参考**：配置文件→`config`，文档→`docs`，测试→`test`，依赖→`deps`，核心源码→`feat`/`fix`/`refactor`
+### 文件移动（rename）检测 [CRITICAL]
+
+**在按 type/模块/文件类型拆分之前，必须先过文件移动检测**。文件移动是最优先级的拆分约束，高于其他任何维度。
+
+```plain
+检查 git status --short 中是否存在同名文件对
+    ↓
+同时出现 D <旧路径/文件名> 和 ?? <新路径/文件名> 且 basename 相同？
+    ↓ 是
+这些文件必须合并为一个 rename 提交，禁止拆成删除 + 新增两个提交
+    ↓ 否
+继续正常的 type/模块/文件类型拆分流程
+```
+
+**检测步骤**（每次执行 git-commit 时强制执行）：
+
+1. 运行 `git status --short`，分别收集 `D` 行（已删除）和 `??` 行（未追踪）中的文件名 basename。
+2. 对 `D` 行和 `??` 行的 basename 做交叉比对。
+3. 若命中（同名文件，不同父目录）：**必须**将对应的删除和新增合并为**一个** rename 提交。提交时用 `git add` 同时暂存旧路径删除和新路径新增，让 git 自动识别 rename。
+4. 若已拆分为独立的删除提交 → `git reset --soft HEAD~1` 撤销，补暂存新增路径后重提交。
+
+**识别 signal**：
+
+- `git diff --cached --stat` 中出现大量 `deletions(-)` 且 0 `insertions(+)` → 立即检查 `git status --short` 中是否有匹配的 `??` 行
+- `git status --short` 输出的 `D` 和 `??` 行中，basename 相同但父目录不同 → 几乎一定是文件移动
+
+**type 与文件类型映射参考**：配置文件→`config`，文档→`docs`，测试→`test`，依赖→`deps`，核心源码→`feat`/`fix`/`refactor`
 
 > 详细拆分示例（含 8 文件拆分方案）参见 `references/commit-splitting-example.md`。
 
@@ -180,14 +204,14 @@ metadata:
 
 **不要只等用户说"破坏性变更"才行动。** 在完成步骤 5 后（描述变更内容后），主动对照以下清单判断本次变更是否属于破坏性：
 
-| 判断维度 | 属于破坏性变更的情况 | 不属于破坏性变更的情况 |
-|:---------|:-------------------|:---------------------|
-| **API 签名变更** | 函数参数数量/顺序/类型变化、删除导出的函数或类、重命名公共 API | 新增仅额外可选参数的 API、内部私有函数改名 |
-| **配置格式变更** | 修改配置文件的字段名/类型/结构、删除已有配置项 | 新增配置项（默认值兼容旧行为）、仅调整注释 |
-| **行为语义变更** | 修改已有功能的预期行为、删除功能、改变错误处理策略 | 新增功能（不影响已有行为）、修复 Bug（恢复预期行为） |
-| **依赖升级** | 框架/运行时大版本升级（如 Vue 2→3、Node 16→20）、peerDependencies 范围收窄 | 补丁版本升级、开发依赖升级 |
-| **数据结构变更** | 修改数据库 schema、修改 API 响应格式、修改缓存键结构 | 新增字段（客户端可忽略）、仅增加索引 |
-| **删除/重命名文件** | 删除或重命名被其他模块引用的文件、删除导出的符号 | 删除未使用的文件、内部重组不影响外部 |
+| 判断维度            | 属于破坏性变更的情况                                                       | 不属于破坏性变更的情况                               |
+| :------------------ | :------------------------------------------------------------------------- | :--------------------------------------------------- |
+| **API 签名变更**    | 函数参数数量/顺序/类型变化、删除导出的函数或类、重命名公共 API             | 新增仅额外可选参数的 API、内部私有函数改名           |
+| **配置格式变更**    | 修改配置文件的字段名/类型/结构、删除已有配置项                             | 新增配置项（默认值兼容旧行为）、仅调整注释           |
+| **行为语义变更**    | 修改已有功能的预期行为、删除功能、改变错误处理策略                         | 新增功能（不影响已有行为）、修复 Bug（恢复预期行为） |
+| **依赖升级**        | 框架/运行时大版本升级（如 Vue 2→3、Node 16→20）、peerDependencies 范围收窄 | 补丁版本升级、开发依赖升级                           |
+| **数据结构变更**    | 修改数据库 schema、修改 API 响应格式、修改缓存键结构                       | 新增字段（客户端可忽略）、仅增加索引                 |
+| **删除/重命名文件** | 删除或重命名被其他模块引用的文件、删除导出的符号                           | 删除未使用的文件、内部重组不影响外部                 |
 
 **决策规则**：只要以上任意一维度命中"属于破坏性变更"，就必须使用 `!` 格式。
 
@@ -239,36 +263,36 @@ BREAKING CHANGE: 函数签名从 `getUser(id)` 改为 `getUser({ id, includeDele
 
 ### 核心类型（高频使用）
 
-| type | emoji | 适用场景 | 注意 |
-|:-----|:------|:---------|:-----|
-| `feat` | ✨ | 新增功能、新特性、新组件 | 有 `semver: minor`，CLI 用户可见的新能力 |
-| `fix` | 🐞 | 修复 Bug、修正异常行为 | 恢复预期行为，非新增功能 |
-| `refactor` | 🦄 | 代码重构——重写/重命名/拆分代码但**不改变外部行为** | 如果改变了行为 → 用 `feat` 或 `fix` |
-| `docs` | 📃 | 仅文档变更（README、JSDoc、注释、CHANGELOG） | 不包括源码注释——源码注释用 `chore` |
-| `test` | 🧪 | 新增/修改测试用例、测试配置 | 不包括测试工具链的升级 |
-| `style` | 🌈 | 代码格式化（缩进、分号、引号）、Lint 修复 | 不包括 CSS/UI 样式变更——那是 `feat` |
+| type       | emoji | 适用场景                                           | 注意                                     |
+| :--------- | :---- | :------------------------------------------------- | :--------------------------------------- |
+| `feat`     | ✨    | 新增功能、新特性、新组件                           | 有 `semver: minor`，CLI 用户可见的新能力 |
+| `fix`      | 🐞    | 修复 Bug、修正异常行为                             | 恢复预期行为，非新增功能                 |
+| `refactor` | 🦄    | 代码重构——重写/重命名/拆分代码但**不改变外部行为** | 如果改变了行为 → 用 `feat` 或 `fix`      |
+| `docs`     | 📃    | 仅文档变更（README、JSDoc、注释、CHANGELOG）       | 不包括源码注释——源码注释用 `chore`       |
+| `test`     | 🧪    | 新增/修改测试用例、测试配置                        | 不包括测试工具链的升级                   |
+| `style`    | 🌈    | 代码格式化（缩进、分号、引号）、Lint 修复          | 不包括 CSS/UI 样式变更——那是 `feat`      |
 
 ### 辅助类型（中频使用）
 
-| type | emoji | 适用场景 | 注意 |
-|:-----|:------|:---------|:-----|
-| `config` | 🔧 | 配置文件新增/修改 | 仅限配置本身，不包括配置变更引起的代码改动 |
-| `build` | 🔨 | 构建系统变更（构建工具、打包配置、tsconfig） | 与 `config` 的边界：`build` 只用于"影响构建产物"的配置变更 |
-| `deps` | 📦 | 依赖包的新增/升级/移除 | 当依赖变更伴随代码调整时，代码部分另开提交 |
-| `chore` | 🐳 | **不属于以上任何类别的杂项**——如 `.gitignore`、`.editorconfig`、源码注释清理 | **兜底 type**——只有其他 type 都不匹配时才用 |
-| `ci` | 🐎 | CI/CD 配置文件变更（GitHub Actions、CI 脚本） | 不影响生产代码 |
-| `perf` | 🎈 | 性能优化 | 如果优化时重构了代码 → 用 `refactor`；优化且改变行为 → 用 `feat` |
-| `i18n` | 🌐 | 国际化翻译文本的新增/修改 | 不包括国际化基础设施——那算 `feat` 或 `config` |
+| type     | emoji | 适用场景                                                                     | 注意                                                             |
+| :------- | :---- | :--------------------------------------------------------------------------- | :--------------------------------------------------------------- |
+| `config` | 🔧    | 配置文件新增/修改                                                            | 仅限配置本身，不包括配置变更引起的代码改动                       |
+| `build`  | 🔨    | 构建系统变更（构建工具、打包配置、tsconfig）                                 | 与 `config` 的边界：`build` 只用于"影响构建产物"的配置变更       |
+| `deps`   | 📦    | 依赖包的新增/升级/移除                                                       | 当依赖变更伴随代码调整时，代码部分另开提交                       |
+| `chore`  | 🐳    | **不属于以上任何类别的杂项**——如 `.gitignore`、`.editorconfig`、源码注释清理 | **兜底 type**——只有其他 type 都不匹配时才用                      |
+| `ci`     | 🐎    | CI/CD 配置文件变更（GitHub Actions、CI 脚本）                                | 不影响生产代码                                                   |
+| `perf`   | 🎈    | 性能优化                                                                     | 如果优化时重构了代码 → 用 `refactor`；优化且改变行为 → 用 `feat` |
+| `i18n`   | 🌐    | 国际化翻译文本的新增/修改                                                    | 不包括国际化基础设施——那算 `feat` 或 `config`                    |
 
 ### 特殊类型（低频使用）
 
-| type | emoji | 适用场景 | 注意 |
-|:-----|:------|:---------|:-----|
-| `revert` | 🔙 | 仅用于 `git revert` 生成的提交 | 不要手动编写此 type，让 `git revert` 自动生成 |
-| `delete` | 🔪 | 删除已废弃的代码/文件/注释 | 删除可能被引用的东西 → 用破坏性变更 `!` |
-| `init` | 🎉 | 项目/模块/子包的初始化或重新初始化。如：新建 monorepo 子包、首次接入构建工具链、初始化文档站脚手架、为新目录建立基础结构和约定 | 适用于**从无到有**搭建基础设施的场景。不要用于已有项目的增量功能开发（那用 `feat`） |
-| `publish` | 📢 | 发布 npm 包新版本（CHANGELOG + version bump） | 仅限发布流程专用 |
-| `save-file` | 🤔 | **仅用于"临时保存进度，不构成有意义变更"** | 尽量避免，用有意义的 type 代替 |
+| type        | emoji | 适用场景                                                                                                                       | 注意                                                                                |
+| :---------- | :---- | :----------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
+| `revert`    | 🔙    | 仅用于 `git revert` 生成的提交                                                                                                 | 不要手动编写此 type，让 `git revert` 自动生成                                       |
+| `delete`    | 🔪    | 删除已废弃的代码/文件/注释                                                                                                     | 删除可能被引用的东西 → 用破坏性变更 `!`                                             |
+| `init`      | 🎉    | 项目/模块/子包的初始化或重新初始化。如：新建 monorepo 子包、首次接入构建工具链、初始化文档站脚手架、为新目录建立基础结构和约定 | 适用于**从无到有**搭建基础设施的场景。不要用于已有项目的增量功能开发（那用 `feat`） |
+| `publish`   | 📢    | 发布 npm 包新版本（CHANGELOG + version bump）                                                                                  | 仅限发布流程专用                                                                    |
+| `save-file` | 🤔    | **仅用于"临时保存进度，不构成有意义变更"**                                                                                     | 尽量避免，用有意义的 type 代替                                                      |
 
 ### 边界类型判断流程
 
@@ -317,10 +341,10 @@ BREAKING CHANGE: 函数签名从 `getUser(id)` 改为 `getUser({ id, includeDele
 
 ### 已验证的 Co-authored-by 账号
 
-| 工具名称    | GitHub 账号 / 邮箱类型 | 关注者数 / 验证来源 | Co-authored-by 格式                                                       |
-| :---------- | :--------------------- | :------------------ | :------------------------------------------------------------------------ |
-| Cursor      | cursoragent            | 1,856               | `Co-authored-by: Cursor <199161495+cursoragent@users.noreply.github.com>` |
-| Claude Code | 公司邮箱               | 官方文档            | `Co-authored-by: Claude <noreply@anthropic.com>`                          |
+| 工具名称    | GitHub 账号 / 邮箱类型 | 关注者数 / 验证来源   | Co-authored-by 格式                                                       |
+| :---------- | :--------------------- | :-------------------- | :------------------------------------------------------------------------ |
+| Cursor      | cursoragent            | 1,856                 | `Co-authored-by: Cursor <199161495+cursoragent@users.noreply.github.com>` |
+| Claude Code | 公司邮箱               | 官方文档              | `Co-authored-by: Claude <noreply@anthropic.com>`                          |
 | MiniMax     | 组织邮箱               | 6,703 (org followers) | `Co-authored-by: MiniMax <model@minimax.io>`                              |
 | MIMO        | 组织邮箱               | 1,741 (org followers) | `Co-authored-by: MIMO <mimo@xiaomi.com>`                                  |
 
@@ -342,16 +366,16 @@ BREAKING CHANGE: 函数签名从 `getUser(id)` 改为 `getUser({ id, includeDele
 
 以下账号均已通过 GitHub API 验证为非官方账号，**严禁在 Co-authored-by 中使用**：
 
-| 冒充目标 | 假冒账号 | 判定依据简述 |
-|:---------|:---------|:------------|
-| Claude Code | `anthropics-claude` | 不在 `anthropics` 组织；含加密货币诈骗项目 |
-| Gemini CLI | `google-gemini-cli` | 不在 `google-gemini` 组织；全是 fork 无原创 |
-| Codex CLI | `codex-cli` | 不属于 `openai` 组织；Codex 发布 5 天后抢注 |
-| VS Code | `vscode-triage-bot` | 是 Issue 分流机器人，非 VS Code 本体 |
-| GLM-5 | `zhipuch` | 普通个人用户，与智谱 AI 无关联 |
-| Trae | `Trae-AI-Admin` | 不属于任何组织；0 个公开仓库 |
-| Codebuddy | `CodeBuddy-Official-Account` | 不属于任何组织；无法确认为官方账号 |
-| 其他（Antigravity/Qoder/Kiro/MiniMax/Kimi/MIMO） | 各假冒账号 | 均不在对应组织中，0 或极少公开仓库 |
+| 冒充目标                                         | 假冒账号                     | 判定依据简述                                |
+| :----------------------------------------------- | :--------------------------- | :------------------------------------------ |
+| Claude Code                                      | `anthropics-claude`          | 不在 `anthropics` 组织；含加密货币诈骗项目  |
+| Gemini CLI                                       | `google-gemini-cli`          | 不在 `google-gemini` 组织；全是 fork 无原创 |
+| Codex CLI                                        | `codex-cli`                  | 不属于 `openai` 组织；Codex 发布 5 天后抢注 |
+| VS Code                                          | `vscode-triage-bot`          | 是 Issue 分流机器人，非 VS Code 本体        |
+| GLM-5                                            | `zhipuch`                    | 普通个人用户，与智谱 AI 无关联              |
+| Trae                                             | `Trae-AI-Admin`              | 不属于任何组织；0 个公开仓库                |
+| Codebuddy                                        | `CodeBuddy-Official-Account` | 不属于任何组织；无法确认为官方账号          |
+| 其他（Antigravity/Qoder/Kiro/MiniMax/Kimi/MIMO） | 各假冒账号                   | 均不在对应组织中，0 或极少公开仓库          |
 
 > 完整黑名单（含 ID 和详细判定依据）参见 `references/co-authored-by-blacklist.md`。
 
@@ -367,13 +391,13 @@ BREAKING CHANGE: 函数签名从 `getUser(id)` 改为 `getUser({ id, includeDele
 
 以下文件存放在本技能目录的 `references/` 下，按需查阅：
 
-| 文件 | 何时查阅 |
-|:-----|:---------|
-| `commit-types.ts` | emoji/type 映射的本地 fallback 数据源 |
-| `commit-message-template.md` | 提交信息写作模板与结构参考 |
+| 文件                          | 何时查阅                                 |
+| :---------------------------- | :--------------------------------------- |
+| `commit-types.ts`             | emoji/type 映射的本地 fallback 数据源    |
+| `commit-message-template.md`  | 提交信息写作模板与结构参考               |
 | `commit-splitting-example.md` | 拆分逻辑复杂、文件众多时需要详细拆分示例 |
-| `staging-priority.md` | 对暂存区处理逻辑有疑问时 |
-| `input-requirements.md` | 用户信息不足需要确认输入时 |
-| `co-authored-by-blacklist.md` | 发现未知 Co-authored-by 账号需验证时 |
-| `breaking-change-examples.md` | 编写复杂破坏性变更提交信息时 |
-| `command-reference.md` | PowerShell/POSIX 具体命令记不清时 |
+| `staging-priority.md`         | 对暂存区处理逻辑有疑问时                 |
+| `input-requirements.md`       | 用户信息不足需要确认输入时               |
+| `co-authored-by-blacklist.md` | 发现未知 Co-authored-by 账号需验证时     |
+| `breaking-change-examples.md` | 编写复杂破坏性变更提交信息时             |
+| `command-reference.md`        | PowerShell/POSIX 具体命令记不清时        |
