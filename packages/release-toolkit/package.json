@@ -16,7 +16,7 @@
 	},
 	"scripts": {
 		"build": "tsup",
-		"prebuild": "automd",
+		"prebuild": "node ../../scripts/run-automd.cjs",
 		"dev": "tsup --watch",
 		"test": "tsx src/tests/run-tests.ts",
 		"test:build": "pnpm build && node dist/tests/run-tests.js"

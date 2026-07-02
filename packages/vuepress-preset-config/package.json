@@ -18,7 +18,7 @@
 		"docs:dev": "vuepress-vite dev docs --clean-cache --open",
 		"docs:build": "vuepress-vite build docs",
 		"build": "tsup",
-		"prebuild": "automd",
+		"prebuild": "node ../../scripts/run-automd.cjs",
 		"build:vite": "vite build",
 		"build:vite:watch": "vite build --watch",
 		"vp-update": "pnpm dlx vp-update"

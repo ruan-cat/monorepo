@@ -20,7 +20,7 @@
 		"build": "tsup",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"prebuild": "automd",
+		"prebuild": "node ../../scripts/run-automd.cjs",
 		"docs:dev-vp": "vuepress-vite dev docs --clean-cache --open",
 		"build:docs-vp": "vuepress-vite build docs"
 	},

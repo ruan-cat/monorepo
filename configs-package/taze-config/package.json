@@ -19,7 +19,7 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:cli": "node dist/cli.js init",
-		"prebuild": "automd"
+		"prebuild": "node ../../scripts/run-automd.cjs"
 	},
 	"bin": {
 		"@ruan-cat/taze-config": "./dist/cli.js"

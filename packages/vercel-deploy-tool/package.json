@@ -23,7 +23,7 @@
 		"build": "tsup",
 		"docs:dev": "vitepress dev src/docs",
 		"build:docs": "vitepress build src/docs",
-		"prebuild": "automd",
+		"prebuild": "node ../../scripts/run-automd.cjs",
 		"test:cli": "node dist/cli.js deploy",
 		"test:prod": "node ./dist/index.js",
 		"test:dev": "tsx ./src/cli.ts deploy",
