@@ -2,6 +2,26 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [7.3.0] - 2026-07-02
+
+### Changed
+
+- **init-pure-admin-iconify**（`metadata.version` `0.3.0` -> `0.5.0`，重大调整）：
+- 第 14 章「图标动效与渐变」重构为渐进加载模式，详细内容从 SKILL.md 内联移至 `references/` 目录。
+- `references/useIconEffect.md`：完整 API 参考、渐变注入核心原理（排除法判别+定时重试链）、三层动画策略（GSAP/CSS/Auto）、策略选择指南、7 项已知约束与坑位。
+- `references/breath-coordinator.md`：按实例独立使用的 5 项代价量化表、全局协调器模式（Pinia/Composable 双版本）、决策树与 KeepAlive 配合建议。
+- 修正 14.4 多卡片示例：`target` CSS 选择器仅匹配首个元素的问题已修复，改为独立调用示例。
+- 新增 `useIconEffect` 约束：按实例独立使用会丢失全局控制。
+- 新增「全局协调与性能考量」精简摘要。
+
+### Added
+
+- **init-pure-admin-iconify**：
+- `templates/breathCoordinator.pinia.ts`（105 行）：Pinia Store 全局协调器模板，含 `register` / `unregister` / `pauseAll` / `resumeAll` / `destroyAll`，Map 保证 O（1） 注销。
+- `templates/breathCoordinator.composable.ts`（83 行）：纯 Composable 全局协调器模板（零依赖），模块级单例共享状态。
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.3.0`。
+
 ## [7.2.0] - 2026-07-01
 
 ### Added
