@@ -2,6 +2,13 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [7.8.0] - 2026-07-02
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.8.0`。
+- 本次 `dev-skills` 技能树无内容变更；功能更新集中在 `common-tools` 的 **sync-local-global-agents-skills** 新技能。
+
 ## [7.7.0] - 2026-07-02
 
 ### Added

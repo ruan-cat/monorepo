@@ -5,6 +5,23 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.8.0] - 2026-07-02
+
+### Added
+
+- **sync-local-global-agents-skills**（新技能，`metadata.version` `0.1.0`）：
+- 将本机全局 agent skills（`~/.agents/skills`）作为唯一数据源，批量同步到多个本地 agent 平台。
+- 已内置 WorkBuddy、QoderWork、Kimi Work 三个平台目标目录，注册表硬编码于 `src/platforms.ts`。
+- 提供 TypeScript 主脚本 `scripts/sync.ts`（推荐通过 `tsx` 运行）与 PowerShell / Bash 兜底脚本。
+- 采用目录级符号链接分发：Windows 优先原生目录软链接，权限不足时自动 fallback 到 junction。
+- 支持 `--dry-run` 预览、`--source` 自定义源目录、`--no-backup` 关闭备份。
+- 重复执行幂等；遇到真实目录自动备份为 `skills.bak.<timestamp>-<uuid>`；遇到错误链接直接替换。
+- 在 monorepo `tests/sync-local-global-agents-skills/` 下提供 vitest 单元测试，覆盖创建、幂等、备份、错误链接、dry-run、源目录缺失等场景。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.8.0`。
+
 ## [7.7.0] - 2026-07-02
 
 ### Changed
