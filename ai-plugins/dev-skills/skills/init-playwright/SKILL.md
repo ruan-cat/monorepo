@@ -31,18 +31,18 @@ metadata:
 
 **headless（无头）≠ 轻量**。无头 Chromium 仍然运行完整的浏览器引擎（Blink 排版、V8 JS 执行、WebGL/WebGPU 渲染管线），只是不显示窗口。在 **大屏 3D/可视化项目** 下，headless 模式的 CPU/GPU 消耗与 headed（有头）几乎无异：
 
-| 场景 | 风险等级 | 说明 |
-|------|----------|------|
-| **pw_core MCP 持久化连接** | 🔴 高 | MCP 下的浏览器是**长连接进程**，AI 会话期间一直存活，不会用完即销毁。多个 Agent 反复调用 → 进程常驻 → 内存泄漏 → CPU 100% |
-| **大屏 3D 页面反复渲染** | 🔴 高 | ECharts WebGL/3D 图表在无头模式下仍完整执行 GPU 渲染管线。每次截图/快照都触发重绘 |
-| **pw_core + pw_visual 同时运行** | 🟠 中高 | 两个 Chromium 进程并行，每个 200-500MB 内存，大屏项目可能飙到 1GB+ |
-| **CI 一次性测试** | 🟢 低 | 测试完成后进程自动退出，风险可控 |
+| 场景                             | 风险等级 | 说明                                                                                                                      |
+| -------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **pw_core MCP 持久化连接**       | 🔴 高    | MCP 下的浏览器是**长连接进程**，AI 会话期间一直存活，不会用完即销毁。多个 Agent 反复调用 → 进程常驻 → 内存泄漏 → CPU 100% |
+| **大屏 3D 页面反复渲染**         | 🔴 高    | ECharts WebGL/3D 图表在无头模式下仍完整执行 GPU 渲染管线。每次截图/快照都触发重绘                                         |
+| **pw_core + pw_visual 同时运行** | 🟠 中高  | 两个 Chromium 进程并行，每个 200-500MB 内存，大屏项目可能飙到 1GB+                                                        |
+| **CI 一次性测试**                | 🟢 低    | 测试完成后进程自动退出，风险可控                                                                                          |
 
 **因此，使用本技能初始化的项目，必须阅读并遵循「无头浏览器安全使用规范」章节的约束**。尤其在大屏/可视化/3D 密集型项目上，优先使用 pw_visual（headed）驱动浏览器，避免让 pw_core（headless）长时间常驻。
 
 ## 工作流总览
 
-```
+```plain
 装三件套 → 端口固定 → 写根级 playwright.config.ts
     → visual-stability.css → .mcp.json + MCP 配置
     → playwright-cli + AI skills 生成
@@ -61,11 +61,11 @@ pnpm exec playwright --version  # 验证
 
 三件套职责：
 
-| 包 | 用途 | 何时用 |
-|---|---|---|
-| `@playwright/test` | 编写和运行 e2e/visual 测试 | CI 固化、`pnpm test:e2e` |
-| `@playwright/cli` | 为 AI agent 生成 skills | `playwright-cli install --skills` |
-| `playwright-mcp` | AI 通过 MCP 直接驱动浏览器 | pw_core（headless，省 token **但高 CPU**）、pw_visual（headed，视觉推理） |
+| 包                 | 用途                       | 何时用                                                                    |
+| ------------------ | -------------------------- | ------------------------------------------------------------------------- |
+| `@playwright/test` | 编写和运行 e2e/visual 测试 | CI 固化、`pnpm test:e2e`                                                  |
+| `@playwright/cli`  | 为 AI agent 生成 skills    | `playwright-cli install --skills`                                         |
+| `playwright-mcp`   | AI 通过 MCP 直接驱动浏览器 | pw_core（headless，省 token **但高 CPU**）、pw_visual（headed，视觉推理） |
 
 ## 步骤 2：monorepo 子 app dev server 端口固定
 
@@ -89,47 +89,38 @@ const CI = !!process.env.CI;
 const baseURL = "http://127.0.0.1:5174";
 
 export default defineConfig({
-  testDir: "./tests",
-  testMatch: "**/*.spec.ts",        // isolate from vitest *.test.ts
-  outputDir: "artifacts/test-results",
-  expect: {
-    toHaveScreenshot: { maxDiffPixelRatio: 0.001 },
-  },
-  fullyParallel: false,              // 大屏 3D 资源，并行争抢 GPU
-  workers: 1,
-  retries: CI ? 2 : 0,
-  reporter: [
-    ["list"],
-    ["html", { open: "never", outputFolder: "artifacts/playwright-report" },
-    ],
-  ],
-  use: {
-    baseURL,
-    /** 显式声明 headless，不依赖默认值——确保 CI 和非 CI 行为一致 */
-    headless: true,
-    /** 禁用 GPU 及相关加速，降低 headless 模式下的 CPU 消耗 */
-    launchOptions: {
-      args: [
-        "--disable-gpu",
-        "--disable-software-rasterizer",
-        "--disable-dev-shm-usage",
-        "--no-sandbox",
-      ],
-    },
-    timezoneId: "Asia/Shanghai",     // 中国大屏用上海时区
-    viewport: { width: 1440, height: 900 },
-    stylePath: "tests/visual/visual-stability.css",
-    screenshot: "only-on-failure",
-    trace: "retain-on-failure",
-  },
-  snapshotPathTemplate: "tests/visual/__screenshots__/{testFilePath}/{arg}{ext}",
-  projects: [{ name: "chromium-desktop", use: { ...devices["Desktop Chrome"] } }],
-  webServer: {
-    command: "pnpm --filter <pkg-name> dev",  // 见坑 #2
-    url: baseURL,
-    reuseExistingServer: !CI,
-    timeout: 120_000,
-  },
+	testDir: "./tests",
+	testMatch: "**/*.spec.ts", // isolate from vitest *.test.ts
+	outputDir: "artifacts/test-results",
+	expect: {
+		toHaveScreenshot: { maxDiffPixelRatio: 0.001 },
+	},
+	fullyParallel: false, // 大屏 3D 资源，并行争抢 GPU
+	workers: 1,
+	retries: CI ? 2 : 0,
+	reporter: [["list"], ["html", { open: "never", outputFolder: "artifacts/playwright-report" }]],
+	use: {
+		baseURL,
+		/** 显式声明 headless，不依赖默认值——确保 CI 和非 CI 行为一致 */
+		headless: true,
+		/** 禁用 GPU 及相关加速，降低 headless 模式下的 CPU 消耗 */
+		launchOptions: {
+			args: ["--disable-gpu", "--disable-software-rasterizer", "--disable-dev-shm-usage", "--no-sandbox"],
+		},
+		timezoneId: "Asia/Shanghai", // 中国大屏用上海时区
+		viewport: { width: 1440, height: 900 },
+		stylePath: "tests/visual/visual-stability.css",
+		screenshot: "only-on-failure",
+		trace: "retain-on-failure",
+	},
+	snapshotPathTemplate: "tests/visual/__screenshots__/{testFilePath}/{arg}{ext}",
+	projects: [{ name: "chromium-desktop", use: { ...devices["Desktop Chrome"] } }],
+	webServer: {
+		command: "pnpm --filter <pkg-name> dev", // 见坑 #2
+		url: baseURL,
+		reuseExistingServer: !CI,
+		timeout: 120_000,
+	},
 });
 ```
 
@@ -140,17 +131,18 @@ export default defineConfig({
 **根因**：prettier 3.8.1 的 `--experimental-cli` 依赖 worktank worker 池，在部分 Node 22 环境不稳定。
 
 **修复**：
+
 ```js
 // lint-staged.config.js
 export default {
-  /**
-   * 临时去掉 prettier 的 --experimental-cli 标志。
-   * prettier 3.8.1 的 --experimental-cli worktank worker
-   * 在 Node 22 沙箱崩溃，回退到普通 --write，待上游修复后恢复。
-   *
-   * 另加 --ignore-unknown：跳过无 parser 的文件（如 .gitignore）
-   */
-  "*": "prettier --write --ignore-unknown",
+	/**
+	 * 临时去掉 prettier 的 --experimental-cli 标志。
+	 * prettier 3.8.1 的 --experimental-cli worktank worker
+	 * 在 Node 22 沙箱崩溃，回退到普通 --write，待上游修复后恢复。
+	 *
+	 * 另加 --ignore-unknown：跳过无 parser 的文件（如 .gitignore）
+	 */
+	"*": "prettier --write --ignore-unknown",
 };
 ```
 
@@ -179,11 +171,11 @@ webServer: {
 
 ## 步骤 4：vitest 与 playwright 命名隔离
 
-| 测试类型 | 文件尾缀 | 目录 | 谁跑 |
-|---|---|---|---|
-| 单元/组件/composable | `*.test.ts` | `**/tests/` | vitest (`pnpm test`) |
-| e2e/页面集成 | `*.e2e.spec.ts` | `tests/e2e/` | playwright (`pnpm test:e2e`) |
-| 视觉回归 | `*.visual.spec.ts` | `tests/visual/` | playwright (`pnpm test:e2e`) |
+| 测试类型             | 文件尾缀           | 目录            | 谁跑                         |
+| -------------------- | ------------------ | --------------- | ---------------------------- |
+| 单元/组件/composable | `*.test.ts`        | `**/tests/`     | vitest (`pnpm test`)         |
+| e2e/页面集成         | `*.e2e.spec.ts`    | `tests/e2e/`    | playwright (`pnpm test:e2e`) |
+| 视觉回归             | `*.visual.spec.ts` | `tests/visual/` | playwright (`pnpm test:e2e`) |
 
 两套配置天然隔离（vitest `include` 用 `*.test.ts`，playwright `testMatch` 用 `*.spec.ts`），无需互相 exclude。
 
@@ -203,11 +195,11 @@ headless Chromium **不是轻量模式**，它在后台运行完整的浏览器�
 
 不是所有场景都适合 headless。按优先级选择：
 
-| 推荐顺序 | 驱动方式 | 适用场景 | 理由 |
-|----------|---------|----------|------|
-| ✅ 最推荐 | pw_visual（headed） | AI agent 日常驱动 | 视觉效果可见、省 CPU 不会"空转" |
-| ⚠️ 酌情 | pw_core（headless） | token 敏感、纯数据验证 | **省 token 不省 CPU**，大屏 3D 下 CPU 消耗与 headed 几乎相同 |
-| ✅ 推荐 | playwright test（CI） | 自动化测试、回归验证 | 短生命周期，用完即销毁，风险可控 |
+| 推荐顺序  | 驱动方式              | 适用场景               | 理由                                                         |
+| --------- | --------------------- | ---------------------- | ------------------------------------------------------------ |
+| ✅ 最推荐 | pw_visual（headed）   | AI agent 日常驱动      | 视觉效果可见、省 CPU 不会"空转"                              |
+| ⚠️ 酌情   | pw_core（headless）   | token 敏感、纯数据验证 | **省 token 不省 CPU**，大屏 3D 下 CPU 消耗与 headed 几乎相同 |
+| ✅ 推荐   | playwright test（CI） | 自动化测试、回归验证   | 短生命周期，用完即销毁，风险可控                             |
 
 ### ② MCP 浏览器进程是持久化的，必须管理生命周期
 
@@ -237,6 +229,7 @@ headless Chromium **不是轻量模式**，它在后台运行完整的浏览器�
 
 ```markdown
 ### Playwright 浏览器进程使用规则（CPU 安全）
+
 - AI 驱动浏览器默认使用 pw_visual（headed），仅 token 敏感场景用 pw_core
 - 每次使用浏览器后检查任务管理器，确认 Chromium 进程已退出
 - 禁止在 headless 模式下对 3D 大屏页面做高频截图（每 10 秒 1 次以上）
@@ -266,16 +259,16 @@ tasklist /FI "IMAGENAME eq chrome.exe" 2>NUL | find /I /N "chrome.exe"
 
 ### 事故时间线
 
-| 时间 | 事件 | 状态 |
-|------|------|------|
-| **Day 1** | Playwright 工具链初始化完成：pw_core（headless）+ pw_visual（headed）MCP、playwright.config.ts、e2e 冒烟测试、视觉基线、AI 记忆三处同步 | ✅ 12 项验收全通过 |
-| **Day 1→3** | AI agent 通过 pw_core 反复驱动 headless 浏览器，对大屏 3D 页面做截图/快照/页面验证 | 🔄 持续运行 |
-| **Day 3** | 主机 CPU 飙升至 100%，系统明显卡顿。浏览器进程长期驻留不退出 | 🔴 严重 |
-| **Day 3** | 用户决定彻底删除 Playwright 工具链，涵盖 17 项：MCP 配置、测试代码、配置文件、基线截图、AI 技能文件、package.json 依赖、AI 记忆章节 | 🗑️ 全部清除 |
+| 时间        | 事件                                                                                                                                    | 状态               |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **Day 1**   | Playwright 工具链初始化完成：pw_core（headless）+ pw_visual（headed）MCP、playwright.config.ts、e2e 冒烟测试、视觉基线、AI 记忆三处同步 | ✅ 12 项验收全通过 |
+| **Day 1→3** | AI agent 通过 pw_core 反复驱动 headless 浏览器，对大屏 3D 页面做截图/快照/页面验证                                                      | 🔄 持续运行        |
+| **Day 3**   | 主机 CPU 飙升至 100%，系统明显卡顿。浏览器进程长期驻留不退出                                                                            | 🔴 严重            |
+| **Day 3**   | 用户决定彻底删除 Playwright 工具链，涵盖 17 项：MCP 配置、测试代码、配置文件、基线截图、AI 技能文件、package.json 依赖、AI 记忆章节     | 🗑️ 全部清除        |
 
 ### 根因分析
 
-```
+```plain
 初始化 Playwright（pw_core headless MCP）
   ↓ AI agent 在 3 天内反复通过 pw_core 驱动浏览器 "查看" 大屏 3D 页面
   ↓ headless Chromium 在后台完整执行 WebGL 渲染管线（3D 环形图、3D 地图等）
@@ -305,12 +298,12 @@ tasklist /FI "IMAGENAME eq chrome.exe" 2>NUL | find /I /N "chrome.exe"
 
 ### 症状速查表
 
-| 症状 | 排查方向 | 紧急程度 |
-|------|---------|----------|
-| 电脑风扇狂转、系统变卡 | 打开任务管理器，检查是否有多个 `chrome.exe` 进程（每个 200-500MB 内存） | 🔴 立即处理 |
-| AI agent 每次回复都变慢 | 检查是否每个 AI 消息循环都触发了浏览器截图/快照 | 🟠 尽快优化 |
-| `pnpm test:e2e` 跑完风扇还在转 | 检查是否有残留 Chromium 进程未被测试框架关闭 | 🟠 尽快修复 |
-| 浏览器自动弹出窗口（headed） | 确认是否混用了 pw_core 配置但误启动了 headed 模式 | 🟡 观察调整 |
+| 症状                           | 排查方向                                                                | 紧急程度    |
+| ------------------------------ | ----------------------------------------------------------------------- | ----------- |
+| 电脑风扇狂转、系统变卡         | 打开任务管理器，检查是否有多个 `chrome.exe` 进程（每个 200-500MB 内存） | 🔴 立即处理 |
+| AI agent 每次回复都变慢        | 检查是否每个 AI 消息循环都触发了浏览器截图/快照                         | 🟠 尽快优化 |
+| `pnpm test:e2e` 跑完风扇还在转 | 检查是否有残留 Chromium 进程未被测试框架关闭                            | 🟠 尽快修复 |
+| 浏览器自动弹出窗口（headed）   | 确认是否混用了 pw_core 配置但误启动了 headed 模式                       | 🟡 观察调整 |
 
 ### 紧急止损步骤
 
@@ -345,11 +338,12 @@ taskkill /F /IM chrome.exe 2>NUL
 ```markdown
 ## Playwright 工具链
 
-三件套职责：@playwright/test (CI 固化) | @playwright/cli (生成 skills) | playwright-mcp (AI 驱动浏览器)
+三件套职责：@playwright/test (CI 固化） | @playwright/cli （生成 skills) | playwright-mcp (AI 驱动浏览器）
 
 命名：vitest→*.test.ts，playwright→*.spec.ts
 
 ⚠️ 浏览器进程安全规则：
+
 - AI 驱动浏览器默认用 pw_visual（headed），仅 token 敏感场景用 pw_core
 - 每次使用浏览器后检查任务管理器，确保 Chromium 进程已退出
 - 禁止在 headless 模式下对 3D 大屏页面做高频截图
@@ -360,7 +354,7 @@ taskkill /F /IM chrome.exe 2>NUL
 
 ## 环境注意
 
-- **Node 22 + Windows**：所有 node/pnpm 命令加 `NODE_OPTIONS= ` 前缀（清空有问题的 `NODE_OPTIONS=--use-system-ca`）
+- **Node 22 + Windows**：所有 node/pnpm 命令加 `NODE_OPTIONS=` 前缀（清空有问题的 `NODE_OPTIONS=--use-system-ca`）
 - **git commit**：必须用 `git-commit` 技能（查远程 commit-types.ts emoji + commitlint 预校验 + -F 文件方式）
 - **pre-commit hook**：修改 lint-staged.config.js 后验证一次 commit 能通过
 
@@ -371,7 +365,7 @@ taskkill /F /IM chrome.exe 2>NUL
 3. `pnpm test:e2e` 3 个测试全 pass（smoke + visual）
 4. `pnpm run ci` 全流程通过（vitest → build → test:e2e）
 5. `.mcp.json` 含 pw_core/pw_visual
-6. `.claude/skills/playwright-cli/` 有技能文件
+6. `.agents/skills/playwright-cli/` 有技能文件
 7. AI 记忆三处 Playwright 工具链章节一致
 8. 子 app vite.config.ts 端口显式固定
 9. artifacts/ 被 gitignore

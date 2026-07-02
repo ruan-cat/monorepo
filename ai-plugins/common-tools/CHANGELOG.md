@@ -5,6 +5,18 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.4.0] - 2026-07-02
+
+### Changed
+
+- **init-ai-md**（`metadata.version` `0.19.1` -> `0.20.0`，破坏性变更）：
+- 项目技能路径从 `.claude/skills/` 迁移至 `.agents/skills/`，所有路径引用全局替换。
+- 步骤 5 新增「检测旧格式遗留」子步骤：检测 `.claude/skills/` 残留并标记 `[旧格式可迁移]`。
+- 步骤 5 新增「情况 D」：完整的旧格式迁移流程（创建 `.agents/`、移动文件、删除旧目录）。
+- 步骤 6 新增回退检查：`.agents/skills/` 不存在时回退检查 `.claude/skills/` 并提示用户先执行迁移。
+- 模板文件 `templates/08.本项目的技能表.md` 与 `templates/record-bug-fix-memory/SKILL.md` 同步替换。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.4.0`。
+
 ## [7.1.1] - 2026-06-30
 
 ### Fixed
@@ -388,7 +400,7 @@
 
 ### Added
 
-- **📝 技能增强**: `init-ai-md` - 新增技能表管理和内置技能部署能力 (v0.15.0 → v0.16.0)
+- **📝 技能增强**: `init-ai-md` - 新增技能表管理和内置技能部署能力 （v0.15.0 → v0.16.0）
   - **技能表管理**：新增步骤 6「生成/更新本项目的技能表」，自动扫描项目 `.claude/skills/` 目录下的所有技能，在 CLAUDE.md 中创建并维护「本项目的技能表」章节，确保 agent 读取 CLAUDE.md 时能快速了解可用技能清单
   - **内置技能初始化**：新增步骤 5「初始化本地技能」，支持将 `record-bug-fix-memory` 内置技能模板部署到项目的 `.claude/skills/fix-bug/record-bug-fix-memory/` 目录中，通过交互式询问用户确认后执行部署
   - **新增模板文件** `08.本项目的技能表.md`：技能表章节模板，定义技能条目的标准格式（名称、路径、用途、触发时机、参考作用、约束）
@@ -400,7 +412,7 @@
 
 ### Added
 
-- **🎉 新增技能**: `init-vscode` - VSCode 配置初始化技能 (v0.1.0)
+- **🎉 新增技能**: `init-vscode` - VSCode 配置初始化技能 （v0.1.0）
   - **核心功能**：初始化或更新项目的 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json）
   - **智能合并策略**：数组去重合并，对象深度合并，用户配置优先
   - **项目支持**：适用于 monorepo 和单体项目
@@ -415,7 +427,7 @@
 
 ### Changed
 
-- **✨ 技能增强**: `init-claude-code-statusline` - 优化状态栏路径显示 (v0.14.1 → v0.15.0)
+- **✨ 技能增强**: `init-claude-code-statusline` - 优化状态栏路径显示 （v0.14.1 → v0.15.0）
   - **核心功能**：添加路径缩短显示，仅显示最后 2 级目录
   - **跨平台支持**：统一处理 Unix 路径（`/`）和 Windows 路径（`\`）
   - **显示格式**：超过 2 级目录时显示为 `📁 .../parent/current`
@@ -426,7 +438,7 @@
 
 ### Fixed
 
-- **🐞 技能修复**: `git-commit` - 添加 Claude Code 官方邮箱到 Co-authored-by 对照表 (v0.3.3 → v0.3.4)
+- **🐞 技能修复**: `git-commit` - 添加 Claude Code 官方邮箱到 Co-authored-by 对照表 （v0.3.3 → v0.3.4）
   - **核心变更**：将 `Co-authored-by: Claude <noreply@anthropic.com>` 添加到已验证账号表
   - **来源验证**：通过 Claude Code 官方文档（https://code.claude.com/docs/en/settings）确认
   - **文档更新**：
@@ -449,7 +461,7 @@
 
 ### Fixed
 
-- **🐞 技能修复**: `git-commit` - 移除 Co-authored-by 对照表中的错误账号归属 (v0.3.2 → v0.3.3)
+- **🐞 技能修复**: `git-commit` - 移除 Co-authored-by 对照表中的错误账号归属 （v0.3.2 → v0.3.3）
 
   **背景**：上一版本（v0.3.2）在补全 Co-authored-by 对照表时，存在多处严重的账号错误归属问题。错误的 `Co-authored-by` 会导致 GitHub 将提交归属到**完全无关的陌生人**，污染仓库的贡献者列表。本次修复通过 GitHub API（`https://api.github.com/user/:id`）逐一验证了所有条目后，删除了无法核实为官方账号的条目。
 
@@ -474,7 +486,7 @@
 
 ### Changed
 
-- **🔧 技能更新**: `git-commit` - 补全并修正 Co-authored-by 模型与邮箱映射 (v0.3.1 → v0.3.2)
+- **🔧 技能更新**: `git-commit` - 补全并修正 Co-authored-by 模型与邮箱映射 （v0.3.1 → v0.3.2）
   - **GitHub 账号归属修正**：将多组 `Co-authored-by` 邮箱从厂商域名邮箱调整为可被 GitHub 正确识别的 `users.noreply.github.com` 地址，减少提交后无法关联到正确用户名的问题
   - **OpenAI 模型补全**：在技能文档中补充 `OpenAI GPT-5.2`、`OpenAI GPT-5.3`、`OpenAI GPT-5.4` 的模型识别示例与 Co-authored-by 对照项
   - **文档说明增强**：明确说明 GitHub 对 Co-authored-by 的识别依赖邮箱归属账号，避免后续继续误用无法归属的外部邮箱
@@ -483,7 +495,7 @@
 
 ### Fixed
 
-- **🐞 技能修复**: `git-commit` - 修复技能执行顺序问题 (v0.3.0 → v0.3.1)
+- **🐞 技能修复**: `git-commit` - 修复技能执行顺序问题 （v0.3.0 → v0.3.1）
   - **问题背景**：原流程中步骤 6 直接执行提交，但后续步骤 7/8 又涉及验证和 Co-authored-by，导致逻辑混乱
   - **修复方案**：调整执行顺序
     - 步骤 6：只创建临时提交信息文件（不提交）
@@ -495,7 +507,7 @@
 
 ### Added
 
-- **✨ 技能增强**: `git-commit` - 新增 Co-authored-by 协同提交能力 (v0.2.0 → v0.3.0)
+- **✨ 技能增强**: `git-commit` - 新增 Co-authored-by 协同提交能力 （v0.2.0 → v0.3.0）
   - **核心功能**：在 git 提交时自动追加 AI 客户端和模型的 Co-authored-by 信息
   - **获取方式**：从当前系统提示词（system prompt）内解析 AI 客户端型号和模型型号，无需专门查询
   - **完整对照表**：涵盖主流 AI IDE（Cursor、Trae 等）、CLI 工具（Claude Code、Gemini CLI 等）、大模型系列（Claude、OpenAI、Gemini、MiniMax、GLM）
@@ -510,7 +522,7 @@
 
 ### Changed
 
-- **🔧 技能迭代**: `init-claude-code-statusline` - 优化状态栏布局为两行显示 (v0.14.0 → v0.14.1)
+- **🔧 技能迭代**: `init-claude-code-statusline` - 优化状态栏布局为两行显示 （v0.14.0 → v0.14.1）
   - **问题背景**：原状态栏将目录、Git 分支、模型信息都放在同一行，当目录地址或模型信息过长时导致显示不清楚
   - **优化方案**：将状态栏拆分为两行显示
     - 第一行：仅显示目录路径
@@ -522,21 +534,21 @@
 
 ### Added
 
-- **✨ 新增技能**: `use-other-model` - 驱动其他 AI 模型完成任务,实现 50-80% token 节省 (v0.2.0)
-  - **核心功能**：智能评估任务复杂度,选择最优方案(MCP 工具 vs 独立会话)驱动 MiniMax/Gemini 等模型
+- **✨ 新增技能**: `use-other-model` - 驱动其他 AI 模型完成任务，实现 50-80% token 节省 （v0.2.0）
+  - **核心功能**：智能评估任务复杂度，选择最优方案（MCP 工具 vs 独立会话）驱动 MiniMax/Gemini 等模型
   - **两种方案**：
-    - 方案 A(MCP 工具)：适合简单任务、单次调用,token 节省 20-40%
-    - 方案 B(独立会话)：适合复杂任务、批量操作,token 节省 50-80%
-  - **关键技术**：绕过嵌套检查(`unset CLAUDECODE`)、Bash 后台任务、Heredoc 任务传递、文件通信机制
-  - **完整文档**：包含决策流程、环境变量识别、代码模板、实战案例(批量 Git 提交)、10 个常见问题解答
-  - **渐进式加载**：主 SKILL.md 297 行,详细内容分散在 7 个参考文档中(references/ 目录)
+    - 方案 A(MCP 工具）：适合简单任务、单次调用，token 节省 20-40%
+    - 方案 B（独立会话）：适合复杂任务、批量操作，token 节省 50-80%
+  - **关键技术**：绕过嵌套检查（`unset CLAUDECODE`)、Bash 后台任务、Heredoc 任务传递、文件通信机制
+  - **完整文档**：包含决策流程、环境变量识别、代码模板、实战案例（批量 Git 提交）、10 个常见问题解答
+  - **渐进式加载**：主 SKILL.md 297 行，详细内容分散在 7 个参考文档中（references/ 目录）
   - **README 更新**：在 `.claude-plugin/README.md` 可用技能列表中新增 `use-other-model` 安装入口
 
 ## [2.8.0] - 2026-02-28
 
 ### Added
 
-- **✨ 新增技能**: `rebase2main` - 将开发分支通过 rebase 同步到 main 分支 (v0.1.0)
+- **✨ 新增技能**: `rebase2main` - 将开发分支通过 rebase 同步到 main 分支 （v0.1.0）
   - **核心功能**：记录当前分支 → 切换到 main → `git rebase <原分支>` → `git push origin main` → 切回原分支
   - **安全约束**：不使用 `--force` 推送；工作树必须干净；rebase 冲突时立即停止并告知用户
   - **触发关键词**：「同步到 main」「rebase 到 main」「更新 main」「推送到主分支」
@@ -546,7 +558,7 @@
 
 ### Changed
 
-- **🔧 技能迭代**: `git-commit` - 规范增强与提交流程优化 (v0.0.3 → v0.2.0)
+- **🔧 技能迭代**: `git-commit` - 规范增强与提交流程优化 （v0.0.3 → v0.2.0）
   - **优先处理暂存区机制**：新增明确的指令约束（`CRITICAL`），要求在收集工作树变更前，优先通过 `git diff --cached --stat` 探查暂存区是否已有被手动 `add` 的文件。若存在则**只提交**暂存区文件，避免因过度自动化抹杀了用户手动预设的提交意图。
   - **分门别类的拆分规范**：当在工作树上发现混合变更时，强制基于「**四个维度**」进行分析与分门别类的梳理（按文件类型、业务功能模块、修改类型、修改范围拆分）。不再容忍粗暴无脑的 `git add .`。附带详细流程和拆分全景样例。
   - **规范化破坏性变更格式**：对特殊场景明确提出了 `Conventional Commits` 下唯一的「感叹号位置控制法」（`type(scope)!: summary`）。用正误判例清单对过去「随便把感叹号插在任意位置」的模糊习惯进行了根治性修正。通过更新 `commit-message-template.md`，也同时清晰隔离了普通与破坏性提交的双模版。
@@ -562,7 +574,7 @@
 
 ### Changed
 
-- **🔧 技能迭代**: `nitro-api-development` - 从 11comm 项目提取技能并重构为通用版本 (v0.13.4 -> v0.13.4)
+- **🔧 技能迭代**: `nitro-api-development` - 从 11comm 项目提取技能并重构为通用版本 （v0.13.4 -> v0.13.4）
   - **文档结构重组**：彻底移除了原来的 `reference.md` 和 `templates.md`，替换为更结构化的 `references/` 和 `templates/` 子目录，极大增强了可读性和专项针对性。
   - **核心规范增强**：重写 `SKILL.md`，融入 11comm 中沉淀的核心原则、响应返回值类型约束规范、时间字段格式化建议、类型回填方案、以及多平台数据库连接等宝贵实践经验。
   - **类型系统泛化**：新增 `templates/types.ts` 和 `templates/format-date.ts`。原 11comm 专有的 `@01s-11comm/type`（如 `JsonVO` / `PageDTO`）全部被替换为可直接复用的通用形态 `ApiResponse<T>` 和 `PageData<T>`。
@@ -581,7 +593,7 @@
 
 ### Changed
 
-- **🔧 技能迭代**: `init-prettier-git-hooks` - 新增严谨的开发依赖检查步骤 (v0.13.4 → v0.14.0)
+- **🔧 技能迭代**: `init-prettier-git-hooks` - 新增严谨的开发依赖检查步骤 （v0.13.4 → v0.14.0）
   - **功能增强**：在初始化格式化流程前，新增了「定位根 package.json 并检查依赖」的核心步骤
   - **Monorepo 支持**：能够智能识别 pnpm 和 npm/yarn 的 workspaces 项目架构，并确保在正确的 monorepo 根目录下执行依赖检查和安装
   - **精准查漏补缺**：要求逐一扫描并核对 6 个必需的 Node.js 开发依赖包（`prettier`, `@prettier/plugin-oxc`, `prettier-plugin-lint-md`, `lint-staged`, `simple-git-hooks`, `commitlint`）是否已经存在
@@ -598,7 +610,7 @@
 
 ### Changed
 
-- **🔧 技能迭代**: `openspec` - 拓展细化任务清单质量规范并重构技能文件结构 (v1.1.0 → v1.2.0)
+- **🔧 技能迭代**: `openspec` - 拓展细化任务清单质量规范并重构技能文件结构 （v1.1.0 → v1.2.0）
 
   #### 功能增强：补充 tasks.md 编写规范（v1.1.0）
 
@@ -1012,7 +1024,7 @@ ENABLE_GEMINI_SUMMARY="${GEMINI_SUMMARY_ENABLED:-false}"
 
 ### Changed
 
-- **Skill 重做**: `openspec` - OpenSpec 规范驱动开发助手技能 (v1.0.0)
+- **Skill 重做**: `openspec` - OpenSpec 规范驱动开发助手技能 （v1.0.0）
   - **完全重写技能文档**，从 `@org-hex/openspec-chinese` 工具文档升级为基于 OPSX 工作流的 AI 辅助编程框架
   - **核心理念变更**：从工具使用指南转变为规范驱动开发框架
   - **新增核心原则**：
@@ -1055,8 +1067,8 @@ ENABLE_GEMINI_SUMMARY="${GEMINI_SUMMARY_ENABLED:-false}"
 
 ### References
 
-- OpenSpec 仓库: https://github.com/Fission-AI/OpenSpec
-- OPSX 工作流文档: https://github.com/Fission-AI/OpenSpec/blob/main/docs/opsx.md
+- OpenSpec 仓库： https://github.com/Fission-AI/OpenSpec
+- OPSX 工作流文档： https://github.com/Fission-AI/OpenSpec/blob/main/docs/opsx.md
 
 ## [0.14.0] - 2026-02-01
 
@@ -1076,8 +1088,8 @@ ENABLE_GEMINI_SUMMARY="${GEMINI_SUMMARY_ENABLED:-false}"
 
 ### References
 
-- Agent Skills 规范文档: https://agentskills.io/specification#metadata-field
-- Claude Code Skills 文档: https://code.claude.com/docs/zh-CN/skills
+- Agent Skills 规范文档： https://agentskills.io/specification#metadata-field
+- Claude Code Skills 文档： https://code.claude.com/docs/zh-CN/skills
 
 ## [0.13.4] - 2026-02-01
 
@@ -1104,8 +1116,8 @@ ENABLE_GEMINI_SUMMARY="${GEMINI_SUMMARY_ENABLED:-false}"
 
 ### References
 
-- Agent Skills 规范文档: https://agentskills.io/specification#metadata-field
-- Claude Code Skills 文档: https://code.claude.com/docs/zh-CN/skills
+- Agent Skills 规范文档： https://agentskills.io/specification#metadata-field
+- Claude Code Skills 文档： https://code.claude.com/docs/zh-CN/skills
 
 ## [0.13.3] - 2026-01-28
 
@@ -1160,7 +1172,7 @@ ENABLE_GEMINI_SUMMARY="${GEMINI_SUMMARY_ENABLED:-false}"
 
 ### References
 
-- Nitro v3 官方文档: https://v3.nitro.build/
+- Nitro v3 官方文档： https://v3.nitro.build/
 
 ## [0.12.0] - 2026-01-27
 
@@ -1240,9 +1252,9 @@ ENABLE_GEMINI_SUMMARY="${GEMINI_SUMMARY_ENABLED:-false}"
 
 ### References
 
-- Claude Code Skills 文档: https://code.claude.com/docs/zh-CN/skills
-- 技能最佳实践: https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
-- Agent Skills 规范: https://agentskills.io/home
+- Claude Code Skills 文档： https://code.claude.com/docs/zh-CN/skills
+- 技能最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+- Agent Skills 规范： https://agentskills.io/home
 
 ## [0.11.0] - 2026-01-22
 
@@ -1309,9 +1321,9 @@ ENABLE_GEMINI_SUMMARY="${GEMINI_SUMMARY_ENABLED:-false}"
 
 ### References
 
-- Claude Code Skills 文档: https://code.claude.com/docs/zh-CN/skills
-- 技能最佳实践: https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
-- Agent Skills 规范: https://agentskills.io/home
+- Claude Code Skills 文档： https://code.claude.com/docs/zh-CN/skills
+- 技能最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+- Agent Skills 规范： https://agentskills.io/home
 
 ## [0.10.0] - 2026-01-20
 
@@ -1351,8 +1363,8 @@ ENABLE_GEMINI_SUMMARY="${GEMINI_SUMMARY_ENABLED:-false}"
 
 ### References
 
-- Claude Code Skills 文档: https://code.claude.com/docs/zh-CN/skills
-- 技能最佳实践: https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+- Claude Code Skills 文档： https://code.claude.com/docs/zh-CN/skills
+- 技能最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
 
 ## [0.9.2] - 2026-01-05
 
@@ -1812,7 +1824,7 @@ exit 0
 
 #### Windows 环境特殊处理
 
-Windows Git Bash (MSYS) 环境下的进程管理问题：
+Windows Git Bash （MSYS） 环境下的进程管理问题：
 
 - 子进程可能不会被父进程的 `wait` 正确回收
 - `timeout` 命令的实现与 Linux 不同
@@ -1893,7 +1905,7 @@ fi
   - `cleanup-orphan-processes.sh` 的 timeout: `10` → `15` 秒
 
 - **性能优化** (`cleanup-orphan-processes.sh`):
-  - 预期清理时间: `8` → `6` 秒
+  - 预期清理时间： `8` → `6` 秒
   - 批量并行处理进程，显著提升效率
 
 ## [0.7.0] - 2025-11-19
@@ -2023,11 +2035,11 @@ timeout 3s claude-notifier ... &
 
 ### References
 
-- 问题分析：`.github/prompts/index.md` (任务截图和排查过程)
+- 问题分析：`.github/prompts/index.md` （任务截图和排查过程）
 - 修复的脚本：
-  - `hooks/hooks.json` (移除 PostToolUse，改用全局包)
-  - `scripts/task-complete-notifier.sh` (改进进程管理)
-  - `scripts/cleanup-orphan-processes.sh` (新增)
+  - `hooks/hooks.json` （移除 PostToolUse，改用全局包）
+  - `scripts/task-complete-notifier.sh` （改进进程管理）
+  - `scripts/cleanup-orphan-processes.sh` （新增）
 
 ## [0.6.7] - 2025-11-19
 
@@ -2067,8 +2079,8 @@ timeout 3s claude-notifier ... &
     - `user-prompt-logger.sh` (UserPromptSubmit hook): 1 处返回格式错误
     - 所有使用这些 hooks 的功能都会失败
   - **修复方案**: 更新为符合新规范的输出格式
-    - 错误陷阱: `{"decision": "approve"}` → `{}`（空 JSON）
-    - 正常输出: `{"decision": "approve", "additionalContext": "..."}` → `{"continue": true, "stopReason": "..."}`
+    - 错误陷阱： `{"decision": "approve"}` → `{}`（空 JSON）
+    - 正常输出： `{"decision": "approve", "additionalContext": "..."}` → `{"continue": true, "stopReason": "..."}`
     - UserPromptSubmit: `{"decision": "approve"}` → `{}`
 
 ### Technical Details
@@ -2147,10 +2159,10 @@ echo "{}"  # ✅ 返回空 JSON，允许继续处理
 
 ### References
 
-- Claude Code Hooks 文档: https://code.claude.com/docs/en/hooks.md
-- 修复的脚本:
-  - `scripts/task-complete-notifier.sh` (2 处修复)
-  - `scripts/user-prompt-logger.sh` (1 处修复)
+- Claude Code Hooks 文档： https://code.claude.com/docs/en/hooks.md
+- 修复的脚本：
+  - `scripts/task-complete-notifier.sh` (2 处修复）
+  - `scripts/user-prompt-logger.sh` (1 处修复）
 
 ## [0.6.4] - 2025-11-07
 
@@ -2257,7 +2269,7 @@ tsx transcript-reader.ts <file> --format=keywords
 - 修复的脚本：`scripts/transcript-reader.ts:43-48, 186-213`
 - 相关日志分析：
   - `C:\Users\pc\AppData\Local\Temp\claude-code-task-complete-notifier-logs\2025-11-07__00-03-46__*.log`
-  - 所有日志显示 "Extracted Context Length: 6 characters" (仅包含默认文本)
+  - 所有日志显示 "Extracted Context Length: 6 characters" （仅包含默认文本）
 
 ## [0.6.2] - 2025-11-06
 
@@ -2364,11 +2376,11 @@ input = input.replace(/\x00/g, "\\\\");
 ### References
 
 - 修复的脚本：
-  - `scripts/transcript-reader.ts` (新)
-  - `scripts/parse-hook-data.ts` (新)
-  - `scripts/task-complete-notifier.sh` (更新)
+  - `scripts/transcript-reader.ts` （新）
+  - `scripts/parse-hook-data.ts` （新）
+  - `scripts/task-complete-notifier.sh` （更新）
 - 删除的文件：
-  - `scripts/transcript-reader.js` (已废弃)
+  - `scripts/transcript-reader.js` （已废弃）
 
 ## [0.6.1] - 2025-11-04
 
@@ -2568,7 +2580,7 @@ Stop              ──→  task-complete-notifier.sh
      - Gemini flash: 5s（快速响应）
      - Gemini pro: 5s（从 8s 优化）
      - Default model: 4s（更短超时）
-     - 通知器: 8s（后台运行）
+     - 通知器： 8s（后台运行）
 
 - **测试结果**：
   - ✅ 脚本在约 17 秒内完成（包括 3 次 Gemini 调用）
