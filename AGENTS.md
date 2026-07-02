@@ -416,28 +416,31 @@ Error: Cannot find package '.../consola/index.js' imported from '.../automd/dist
 
 `pnpm patch` 在本地与 CI 的 `build` 阶段生效，但在 `build:docs` 阶段（turbo 再次触发 `prebuild`、remote cache 恢复）未能稳定生效。
 
-### 修复
+### 修复（最终方案）
 
-1. 使用 `pnpm patch` 持久化重写 `consola@3.4.2` 的 `package.json`：
-   - 将 `main` 改为 `./dist/index.mjs`。
-   - 简化 `exports["."]` 和 `exports["./basic"]` 为扁平的 `types` / `import` / `require` / `default` 映射。
-   - 在 `pnpm-workspace.yaml` 中注册 `patchedDependencies`，并将 `pnpm-lock.yaml` 纳入版本控制。
-2. 重写 `scripts/ensure-consola-patch.ts` 作为 prebuild 运行时兜底：
-   - 通过 `require.resolve('consola')` 定位当前 workspace 包解析到的 consola 真实目录。
-   - 同时尝试从 `automd` 的上下文解析其依赖的 consola 目录，覆盖 automd 实际使用的副本。
-   - 校验 `main` 与 `exports` 字段，不正确则重写为 patch 后的内容。
-   - **在 consola 包根目录下创建 `index.js` 垫片**，重新导出 `dist/index.mjs`，直接满足 Node.js 24 `legacyMainResolve` fallback 尝试的文件路径。
-   - 在 `packages/utils/package.json` 的 `prebuild` 脚本中先执行该脚本：`pnpm exec tsx ../../scripts/ensure-consola-patch.ts && automd`。
+前期尝试通过 `pnpm patch` 重写 `consola@3.4.2` 的 `package.json` 并在 prebuild 时动态创建 `index.js` 垫片，但 CI 仍间歇性失败。根本原因是 `automd@0.4.3` 的 CLI 入口 `dist/cli.mjs` 会静态导入 `consola`，在 Node.js 24 下触发 `legacyMainResolve` fallback；而 `automd` 的 API 入口 `dist/index.mjs` 并不依赖 `consola`。
+
+最终修复是**绕过有问题的 automd CLI 入口**：
+
+1. 新增 `scripts/run-automd.cjs`：
+   - 使用 CommonJS 的 `require("automd")` 加载 API 入口。
+   - 调用 `automd({ dir: process.cwd() })`。
+   - 自己处理结果输出和错误退出码。
+2. 将 10 个使用 `automd` 作为 `prebuild` 的子包统一改为：
+   ```json
+   "prebuild": "node ../../scripts/run-automd.cjs"
+   ```
+3. 保留 `patches/consola.patch` 和 `scripts/ensure-consola-patch.ts` 作为历史兜底，但 `prebuild` 不再执行它们。
 
 详细记录见 `.claude/skills/fix-bug/record-bug-fix-memory/2026-06-30-consola-node24-esm-resolve.md`。
 
 ### 后续约束
 
-1. 升级 consola 前必须同步更新 `patches/consola.patch` 与 `scripts/ensure-consola-patch.ts` 中的目标字段。
-2. 不要将 `scripts/fix-consola-esm.ts` 重新启用为 `postinstall`；`pnpm patch + ensure-consola-patch` 是当前确定的修复方式。
-3. CI 诊断步骤继续保留，用于快速确认 patch 状态。
-4. `pnpm-lock.yaml` 必须持续纳入版本控制，否则 patch hash 无法在 CI 中一致应用。
-5. `ensure-consola-patch` 在 prebuild 入口强制创建 `index.js` 垫片，是覆盖 CI 阶段依赖状态不一致的防御性兜底，不是 turbo cache 问题。
+1. 如果未来 automd 升级后 API 入口也发生变化，需要同步更新 `scripts/run-automd.cjs`。
+2. 不要再试图通过增强 `scripts/ensure-consola-patch.ts` 来修复 automd 的 CI 失败；这个方向已经被证明不可靠。
+3. `patches/consola.patch` 与 `scripts/ensure-consola-patch.ts` 仅作为其他可能触发 consola ESM 解析问题的代码路径的兜底保留。
+4. 当同一 bug 连续多次修复无效时，必须停下来重新评估根因，优先考虑绕过问题入口而不是继续修依赖。
+5. `pnpm-lock.yaml` 必须持续纳入版本控制，否则 patch hash 无法在 CI 中一致应用。
 
 ## RULE 4: Session End — Store Decision Chain Summary
 
