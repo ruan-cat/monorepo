@@ -27,7 +27,7 @@
 	"code-runner.executorMap": {
 		"typescript": "pnpm dotenvx run -- tsx $fullFileName"
 	},
-	"vue.server.includeLanguages": ["vue", "markdown"],
+	"vue.server.includeLanguages": ["vue"],
 	"iconify.annotations": true,
 	"iconify.inplace": true
 }
