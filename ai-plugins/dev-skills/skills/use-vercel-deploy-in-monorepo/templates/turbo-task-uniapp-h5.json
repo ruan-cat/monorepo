@@ -1,0 +1,14 @@
+{
+	"$comment": "适用形态 1 / 模式 A：UniApp H5 子包，产物搬运到 monorepo 根目录；形态 1 / 模式 B 不需要此任务",
+	"$schema": "https://turbo.build/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"build:h5:prod": {
+			"outputs": ["dist/build/h5/**"]
+		},
+		"move-h5-output-to-root": {
+			"dependsOn": ["build:h5:prod"],
+			"outputs": [".vercel/output/**"]
+		}
+	}
+}

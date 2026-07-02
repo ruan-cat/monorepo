@@ -1,0 +1,14 @@
+{
+	"$comment": "适用形态 1 / 模式 A：Nuxt 子包，产物搬运到 monorepo 根目录",
+	"$schema": "https://turbo.build/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"nuxt:build:vercel": {
+			"outputs": [".vercel/output/**"]
+		},
+		"move-vercel-output-to-root": {
+			"dependsOn": ["nuxt:build:vercel"],
+			"outputs": [".vercel/output/**"]
+		}
+	}
+}
