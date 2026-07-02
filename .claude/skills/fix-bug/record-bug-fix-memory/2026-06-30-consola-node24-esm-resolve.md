@@ -11,7 +11,7 @@ Error: Cannot find package '/home/runner/work/monorepo/monorepo/packages/utils/n
 
 错误后常伴随 `Segmentation fault` 或 `Bus error`，退出码 `139` / `135`。
 
-关键转折：第一次 `pnpm run build` 阶段 `@ruan-cat/utils:prebuild` 成功；在随后的 `pnpm run build:docs` 阶段，`@ruan-cat/utils:prebuild` 被再次触发时失败。
+关键转折：第一次 `pnpm run build` 阶段 `@ruan-cat/utils:prebuild` 成功；在随后的 `pnpm run build:docs` 阶段，`@ruan-cat/utils:prebuild` 被再次触发时失败。说明问题不是持续性的，而是与 CI 阶段状态（remote cache、多次 prebuild 触发）相关。
 
 ## 根因
 
@@ -23,7 +23,7 @@ Error: Cannot find package '/home/runner/work/monorepo/monorepo/packages/utils/n
 
 ## 修复
 
-### 第一层：`pnpm patch` 持久化修改
+### 第一层：pnpm patch 持久化修改
 
 使用 `pnpm patch` 修改 `consola@3.4.2` 的 `package.json`：
 
@@ -31,18 +31,22 @@ Error: Cannot find package '/home/runner/work/monorepo/monorepo/packages/utils/n
 - 简化 `exports["."]` 和 `exports["./basic"]` 的条件嵌套，使用扁平的 `types` / `import` / `require` / `default` 映射。
 - 在 `pnpm-workspace.yaml` 中注册 `patchedDependencies`，并将 `pnpm-lock.yaml` 纳入版本控制。
 
-### 第二层：prebuild 运行时兜底
+### 第二层：prebuild 运行时兜底创建 index.js
 
-由于 `pnpm patch` 在 CI 的 `build:docs` 阶段未能稳定生效，新增 `scripts/ensure-consola-patch.ts`：
+由于 `pnpm patch` 在 CI 的 `build:docs` 阶段未能稳定生效，重写 `scripts/ensure-consola-patch.ts`：
 
-- 通过 `require.resolve('consola')` 定位 consola 真实目录。
+- 通过 `require.resolve('consola')` 定位当前 workspace 包解析到的 consola 真实目录。
+- 同时尝试从 `automd` 的上下文解析其依赖的 consola 目录，覆盖 automd 实际使用的副本。
 - 校验 `main` 与 `exports` 字段；不正确则重写为 patch 后的内容。
-- 在 `packages/utils/package.json` 的 `prebuild` 脚本中先执行该脚本，再运行 `automd`：
-  ```json
-  "prebuild": "pnpm exec tsx ../../scripts/ensure-consola-patch.ts && automd"
-  ```
+- **在 consola 包根目录下创建 `index.js` 垫片**，重新导出 `dist/index.mjs`，直接满足 Node.js 24 `legacyMainResolve` fallback 尝试的文件路径。
 
-同时清理了此前的 `index.js` 垫片方案和 workflow 兜底步骤。
+在 `packages/utils/package.json` 的 `prebuild` 脚本中先执行该脚本，再运行 `automd`：
+
+```json
+"prebuild": "pnpm exec tsx ../../scripts/ensure-consola-patch.ts && automd"
+```
+
+同时清理了此前的 `postinstall` 垫片方案和 workflow 兜底步骤，避免多方案并存掩盖根因。
 
 ## 验证
 
@@ -52,16 +56,27 @@ Error: Cannot find package '/home/runner/work/monorepo/monorepo/packages/utils/n
 
 ```log
 $ cd packages/utils
-$ pnpm exec automd --help
-Your automated markdown maintainer! (automd v0.4.3)
-...
-
-$ pnpm run prebuild
-[ensure-consola-patch] consola/package.json 已正确: ...
-√ Automd updated (72.89ms)
+$ NODE_OPTIONS= pnpm exec tsx ../../scripts/ensure-consola-patch.ts
+[ensure-consola-patch] 已修复 index.js: D:\code\ruan-cat\monorepo\node_modules\.pnpm\consola@3.4.2_patch_hash=...\node_modules\consola
 ```
 
-2. 将 consola package.json 还原为原始状态后，运行 `ensure-consola-patch` 脚本可自动修复，随后 `automd` 正常启动。
+2. 验证 `automd` 可正常启动：
+
+```log
+$ NODE_OPTIONS= pnpm exec automd --help
+Your automated markdown maintainer! (automd v0.4.3)
+...
+```
+
+3. 验证 `packages/utils` 的 `prebuild` 通过：
+
+```log
+$ NODE_OPTIONS= pnpm run prebuild
+[ensure-consola-patch] 已正确: ...\node_modules\consola
+√ Automd updated (66.9ms)
+
+  ─    README.md already up-to-date (4.83ms)
+```
 
 ### 云端 Linux CI
 
@@ -69,10 +84,11 @@ $ pnpm run prebuild
 
 ## 教训
 
-1. **CI 与本地不一致时，优先用 `pnpm patch` 持久化修复**，而非依赖运行时脚本或 workflow 兜底。patch 随 lockfile 生效，跨平台确定性强。
+1. **当错误信息明确指向某个文件时，优先确保这个文件存在**。`consola/index.js` 是 Node.js 24 错误堆栈中直接尝试的路径，创建它就是最确定性的修复。
 2. **`legacyMainResolve` 出现在 ESM 错误堆栈中，意味着 `exports` 字段未命中**。应优先怀疑 package.json 的解析结果，而非假设包损坏。
 3. **pnpm isolated 模式下，workspace 包解析的依赖可能来自 `.pnpm/<direct-dependent>@*/node_modules/<dep>`**。修复或诊断时必须覆盖实际被解析的副本。
 4. **monorepo 应将 lockfile 纳入版本控制**，否则 CI 与本地 transitive dependency 版本漂移会导致同类症状反复出现。
 5. **当 patch 在大部分场景生效、仅在 CI 复杂阶段间歇失效时，应在触发点增加轻量级运行时兜底**，而不是继续追加假设性 patch 或 workflow 调整。
 6. **诊断步骤应覆盖失败发生的精确时刻**。仅在 setup 阶段诊断不足以定位阶段性问题；在 prebuild 脚本内增加状态打印能捕获失败前的真实状态。
-7. **根治后应及时清理临时 hack**，避免多方案并存掩盖真实根因。
+7. **根治后应及时清理临时 hack**，避免多方案并存掩盖真实根因。`postinstall` 和 workflow 兜底步骤已清理，最终只保留 `pnpm patch + ensure-consola-patch` 两层防御。
+8. **不是 turbo cache 问题**。日志中 `cache bypass, force executing` 表明失败与缓存无关，而是 CI 阶段依赖状态不一致。
