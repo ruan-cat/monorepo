@@ -103,6 +103,7 @@ metadata:
 - `2026-04-01-codex-memorix-mcp-startup.md` — Windows 下 Codex 无法拉起 Memorix MCP
 - `2026-04-01-codex-memorix-roots-list.md` — Codex 与 Memorix 的 roots/list 兼容问题
 - `2026-06-30-consola-node24-esm-resolve.md` — consola@3.4.2 在 Node.js 24 CI 下导致 automd 崩溃；前期尝试 pnpm patch 与运行时 index.js 垫片，最终通过 CJS wrapper 绕过 automd CLI 入口彻底规避
+- `2026-07-02-git-commit-broken-rename.md` — AI agent 在执行 git-commit 分门别类拆分时将文件移动误判为删除+新增两个独立提交，导致 rename 追踪断裂；修复方式为 soft reset + 合并暂存重提交
 
 新增事故记录时，先创建独立案例文件，再在本索引追加一行摘要。**禁止**将完整事故正文直接写入 SKILL.md。
 
