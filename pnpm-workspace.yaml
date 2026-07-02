@@ -15,4 +15,4 @@ onlyBuiltDependencies:
   - vitepress-carbon
   - vue-demi
 patchedDependencies:
-  consola: patches/consola.patch
+  consola@3.4.2: patches/consola@3.4.2.patch
