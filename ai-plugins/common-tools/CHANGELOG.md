@@ -5,6 +5,34 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.6.0] - 2026-07-02
+
+### Added
+
+- **init-simple-memorix**（`metadata.version` `1.2.0` -> `2.0.0`，重大升级）：
+- 新增全局级 hooks 模板体系，覆盖 `templates-global/` 目录下 4 个全局模板文件。
+- `templates-global/claude.hooks.json`：结构 A，保留 SessionStart / UserPromptSubmit / PreCompact / Stop，移除 PostToolUse。
+- `templates-global/codex.hooks.json`：结构 A，保留 SessionStart / UserPromptSubmit / Stop，带 `--agent codex` 参数。
+- `templates-global/cursor.hooks.json`：结构 B，保留 sessionStart / beforeSubmitPrompt / preCompact / stop，移除 afterFileEdit / beforeShellExecution / afterMCPExecution。
+- `templates-global/antigravity.hooks.json`：结构 C，顶层 `"memorix"` key，保留 PreInvocation / PostInvocation / Stop，移除 PreToolUse / PostToolUse。
+- 新增项目级 `templates/antigravity.hooks.json`，目标路径 `.agents/hooks.json`。
+- 新增 Codex 和 Antigravity 两个 Agent 的项目级与全局级覆盖，补齐原有 8 个缺口。
+- 新增「作用域」章节：定义项目级 / 全局级双模式，通过 `--global` 参数切换，明确双作用域执行模型。
+- 新增「与 memorix setup 的配合」章节：推荐先 `memorix setup --global` 再 `init-simple-memorix --global` 的协作工作流。
+- 新增「升级覆盖风险」章节：说明 Claude 缓存路径含版本号、memorix 升级后需重新精简。
+- 扩展触发场景：新增 `memorix setup 后处理`、`全局 memorix hooks`、`memorix 噪音全局`、`setup 完以后精简`、`升级后重新精简` 5 个关键词。
+- 扩展自检清单：新增全局级 4 项检查（Claude / Codex / Cursor / Antigravity 全局无噪音 hooks）。
+
+### Changed
+
+- **init-simple-memorix** SKILL.md 文档结构重组：
+- 将「配置模板」拆分为「项目级模板」和「全局级模板」两个子章节。
+- 执行流程从 4 步扩展为 8 步（步骤 0 作用域判断 + 全局模式 1-4 步 + 项目模式 5-8 步），项目模式标注「现有逻辑，不变」。
+- 生命周期 hooks 表格从 5 列扩展为 7 列（新增 Codex / Antigravity）。
+- 模板格式说明重新归类为结构 A（Claude Code / Codex）、结构 A+（WorkBuddy）、结构 B（Cursor）、结构 C（Antigravity）。
+- 原有 5 个项目级模板文件缩进从 TAB 统一为 2 空格，与 SKILL.md 规范一致。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.6.0`。
+
 ## [7.5.0] - 2026-07-02
 
 ### Changed
