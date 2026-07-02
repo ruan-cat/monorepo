@@ -5,9 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  consola@3.4.2:
+  consola:
     hash: df98da844ab9a2e48eaa8a92792e699ad87cbef76e24af199d34ea36142a8a60
-    path: patches/consola@3.4.2.patch
+    path: patches/consola.patch
 
 importers:
   .:

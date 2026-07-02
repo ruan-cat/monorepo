@@ -11,14 +11,15 @@ import { dirname, join } from "node:path";
  * legacyMainResolve，最终尝试 `consola/index.js` 并失败。
  *
  * 修复策略：
- * 1. 通过 pnpm patch 在 consola 包根目录生成 `index.js` + `index.d.ts` 垫片，并把 `main` 指向 `index.js`。
+ * 1. 通过 pnpm patch（通用补丁 patches/consola.patch）在 consola 包根目录生成 `index.js` + `index.d.ts`
+ *    垫片，并把 `main` 指向 `index.js`。
  * 2. 本脚本作为运行时兜底：在 automd 等工具实际执行前，校验并补齐相同的垫片。
  *
  * 注意：
  * 此脚本在 `packages/utils` 的 `prebuild` 中运行，因此它看到的是 automd 实际能解析到的 consola 实例。
  */
 
-// 与 patches/consola@3.4.2.patch 目标保持一致
+// 与通用补丁 patches/consola.patch 目标保持一致；垫片内容以 consola@3.4.2 的目录结构为准。
 const TARGET_MAIN = "./index.js";
 const TARGET_EXPORTS = {
 	".": {
@@ -110,8 +111,7 @@ function resolveAutomdConsolaDir(): string | undefined {
 	return undefined;
 }
 
-function fixPackageJson(pkgPath: string): boolean {
-	const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+function fixPackageJson(pkgPath: string, pkg: any): boolean {
 	const needsFix = pkg.main !== TARGET_MAIN || JSON.stringify(pkg.exports) !== JSON.stringify(TARGET_EXPORTS);
 	if (needsFix) {
 		pkg.main = TARGET_MAIN;
@@ -136,7 +136,18 @@ function fixConsolaDir(consolaDir: string) {
 		console.log(`[ensure-consola-patch] 跳过非 consola 目录: ${consolaDir}`);
 		return;
 	}
-	const pkgFixed = fixPackageJson(pkgPath);
+	const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+	if (pkg.name !== "consola") {
+		console.log(`[ensure-consola-patch] 跳过非 consola 目录: ${consolaDir}`);
+		return;
+	}
+	if (pkg.version !== "3.4.2") {
+		console.warn(
+			`[ensure-consola-patch] 警告: 当前 consola 版本为 ${pkg.version}，运行时目标结构仅针对 3.4.2 验证。` +
+				` 若升级后补丁无法自动应用，请重新生成 patches/consola.patch（或转回版本化补丁）。`,
+		);
+	}
+	const pkgFixed = fixPackageJson(pkgPath, pkg);
 	const indexFixed = ensureFile(join(consolaDir, "index.js"), INDEX_JS_SHIM);
 	const dtsFixed = ensureFile(join(consolaDir, "index.d.ts"), INDEX_D_TS_SHIM);
 	const status = [pkgFixed ? "package.json" : null, indexFixed ? "index.js" : null, dtsFixed ? "index.d.ts" : null]
