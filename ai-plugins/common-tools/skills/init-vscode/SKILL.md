@@ -8,7 +8,7 @@ description: >-
   幽灵修改、团队规范，都应该使用本技能。
 user-invocable: true
 metadata:
-  version: "0.2.1"
+  version: "0.3.0"
 ---
 
 # Init VSCode
@@ -62,6 +62,48 @@ mkdir -p .vscode
 - 写回文件时保留已有注释与分组；如果所用工具无法保留注释，改用最小文本插入方式补齐缺失扩展，不要把 JSONC 退化成无注释 JSON
 - 保持格式美观（2 空格缩进；如果保留注释则按 JSONC 处理）
 
+### 2.5 配置检查
+
+在合并模板之前，先检查目标项目现有 `.vscode/settings.json` 中是否存在过时或不合适的配置。参照 `init-ai-md` 的迁移检测机制，对问题配置进行分类标记并提示用户。
+
+**检查项**：
+
+1. **`vue.server.includeLanguages` 包含 `"markdown"`**
+   - 原因：该配置会导致 Vue 语言服务器错误地处理 Markdown 文件，产生不良影响
+   - 标记：`[需移除 markdown]`
+   - 修复方式：将值收敛为 `["vue"]`
+
+2. **`files.eol` 不是 `"\n"`**
+   - 原因：Windows 上容易产生 CRLF/LF 漂移与 git 幽灵修改
+   - 标记：`[需收敛为 LF]`
+   - 修复方式：覆盖为 `"\n"`
+
+**执行流程**：
+
+1. 如果 `.vscode/settings.json` 不存在，跳过本步骤
+2. 读取现有配置
+3. 扫描上述检查项，生成分类标记
+4. 如果存在任何标记项，使用 `AskUserQuestion` 工具询问用户是否修复
+5. 用户确认修复后，先执行修正，再进入步骤 3 的合并流程
+6. 用户选择不修复时，保留原配置并进入合并流程（但 `files.eol` 仍按策略键强制收敛）
+
+**询问示例**：
+
+```plain
+检测到以下 VSCode 配置问题：
+
+- vue.server.includeLanguages 包含 "markdown" [需移除 markdown] - 会导致 Vue 语言服务器错误处理 Markdown 文件
+- files.eol 为 "auto" [需收敛为 LF] - 建议统一为 "\n" 避免行尾漂移
+
+请选择要修复的项（可多选，用逗号分隔，如：1,2），或输入 0 跳过。
+```
+
+**修复策略**：
+
+- 用户确认修复后，在合并模板前先修正这些配置
+- 修正时保留用户的其他自定义配置
+- 修复后的配置再按步骤 3 的合并逻辑处理
+
 ### 3. 处理 settings.json
 
 读取模板配置（见 `templates/settings.json`），然后：
@@ -76,10 +118,11 @@ mkdir -p .vscode
 - 如果现有文件包含注释，按 JSONC 文件处理，并复用后续 Prettier JSONC override 规则
 - 深度合并对象：
   - 对于嵌套对象（如 `search.exclude`、`files.watcherExclude`、`explorer.fileNesting.patterns`），合并所有键值对
-  - 对于数组（如 `vue.server.includeLanguages`），去重合并
+  - 对于数组，默认去重合并
   - 对于简单值（字符串、布尔值、数字），默认仍然是**用户现有值优先**
 - 但对以下策略键，必须使用模板值覆盖冲突值：
   - `files.eol`：必须收敛为 `"\n"`，不允许保留 `"\r\n"` 或 `"auto"`
+  - `vue.server.includeLanguages`：必须收敛为 `["vue"]`，移除 `"markdown"`，避免 Vue 语言服务器错误处理 Markdown 文件
 - 保留用户配置中的其他字段
 - 写回文件，保持 JSON/JSONC 格式美观（2 空格缩进）
 
@@ -355,7 +398,7 @@ pnpm exec prettier --check .vscode/settings.json
 
 ### 数组合并
 
-对于 `recommendations`、`unwantedRecommendations`、`vue.server.includeLanguages` 等数组字段：
+对于 `recommendations`、`unwantedRecommendations` 等数组字段，默认去重合并：
 
 ```javascript
 // 伪代码
@@ -363,6 +406,8 @@ merged = [...new Set([...userArray, ...templateArray])];
 ```
 
 去重后保留所有项。
+
+`vue.server.includeLanguages` 虽为数组，但属于策略键，不适用默认去重合并，必须收敛为 `["vue"]`，不得包含 `"markdown"`。
 
 ### 对象深度合并
 
@@ -390,6 +435,7 @@ merged = {
 以下键不走“用户优先”，而是必须按模板收敛：
 
 - `files.eol` → 必须为 `"\n"`
+- `vue.server.includeLanguages` → 必须为 `["vue"]`，不得包含 `"markdown"`
 
 ### 可选插件配置合并
 
