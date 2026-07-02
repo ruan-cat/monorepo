@@ -71,5 +71,9 @@ runs:
         node -e "console.log(JSON.stringify(require('./node_modules/consola/package.json').exports, null, 2))" || true
         echo "=== utils 包 consola package.json ==="
         node -e "console.log(JSON.stringify(require('./packages/utils/node_modules/consola/package.json').exports?.['.'], null, 2))" || true
+        echo "=== consola index.js / index.d.ts 垫片 ==="
+        ls -la ./node_modules/consola/index.js ./node_modules/consola/index.d.ts || true
+        echo "=== 验证 ESM import ==="
+        node -e "import('consola').then(m => console.log('consola import ok:', typeof m.default)).catch(e => { console.error(e); process.exit(1) })" || true
         echo "=== automd 入口 ==="
         ls -la ./node_modules/.pnpm/automd@*/node_modules/automd/dist/cli.mjs || true
