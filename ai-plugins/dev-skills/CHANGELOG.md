@@ -2,6 +2,23 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [7.7.0] - 2026-07-02
+
+### Added
+
+- **use-vercel-deploy-in-monorepo**（新技能，`metadata.version` `1.0.0`）：
+- 在 pnpm workspace monorepo 或独立仓库中完成 Vercel 部署的辅助型技能。
+- 引入“部署形态分层”：形态 1（Monorepo 子包部署）与形态 2（独立仓库部署）。
+- 形态 1 进一步拆分为模式 A（产物搬运到根目录 `.vercel/output`）与模式 B（Output Directory 直接指向子包产物路径）。
+- 覆盖 Nuxt、Nitro、Vite / Vue3、UniApp H5 四种框架的 `package.json` 脚本与 `turbo.json` 任务链模板。
+- 新增 `references/vercel-cli-remote-inspection.md`，说明使用 `vercel project inspect` 与 Vercel API 核对远程项目配置。
+- 新增 `templates/standalone-repo-nitro.md`，提供独立仓库 Nitro 部署模板。
+- 明确 `move-vercel-output-to-root` bin 来自 `@ruan-cat/utils` 包。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.7.0`。
+
 ## [7.4.0] - 2026-07-02
 
 ### Changed
