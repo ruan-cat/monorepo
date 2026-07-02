@@ -5,6 +5,21 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.5.0] - 2026-07-02
+
+### Changed
+
+- **init-vscode**（`metadata.version` `0.2.1` -> `0.3.0`）：
+- 新增「2.5 配置检查」步骤：在合并模板前扫描现有 `.vscode/settings.json` 中的过时配置。
+- 参照 `init-ai-md` 的迁移检测机制，对问题配置分类标记（`[需移除 markdown]`、`[需收敛为 LF]`）并提示用户。
+- 将 `vue.server.includeLanguages` 纳入策略键例外，要求必须收敛为 `["vue"]`。
+
+### Fixed
+
+- **init-vscode**：
+- `templates/settings.json` 中 `vue.server.includeLanguages` 从 `["vue", "markdown"]` 收敛为 `["vue"]`，避免 Vue 语言服务器错误处理 Markdown 文件。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.5.0`。
+
 ## [7.4.0] - 2026-07-02
 
 ### Changed
