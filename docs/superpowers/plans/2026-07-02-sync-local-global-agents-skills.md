@@ -1,3 +1,5 @@
+<!-- 已完成 -->
+
 # sync-local-global-agents-skills 实现计划
 
 > **For agentic workers:** 已实现完毕。本计划记录最终落地结构，供后续归档或复盘参考。

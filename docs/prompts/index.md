@@ -98,7 +98,7 @@ npm.
 
 优先去 iconify 图标库内去找设计灵感。
 
-## 008 <!-- TODO: --> 处理 WorkBuddy 内出现的 memorix MCP 故障
+## 008 <!-- Kimi Work正在处理 已完成 --> 处理 WorkBuddy 内出现的 memorix MCP 故障
 
 尝试通过 memorix 查询记录，但 memorix MCP 服务器当前无法启动，原因是 better-sqlite3 的 native 绑定与当前 Node 版本（v22.14.0 / ABI 127）不匹配。错误信息核心如下：
 
@@ -109,3 +109,7 @@ Could not locate the bindings file. Tried:
 ```
 
 我要求你解决这个故障，不要通过改写 WorkBuddy MCP 配置文件的方式来解决，去重点看看 better-sqlite3 本身的问题，去看看我们是不是要重新全局 build 一下？是不是要根据 node 版本来实现一次重新构建 memorix 对应的依赖项？
+
+---
+
+需额外构建一个 ABI 127 的副本并存入 lib/binding/node-v127-win32-x64/，我需要你做这一步。
