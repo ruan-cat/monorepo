@@ -210,3 +210,11 @@ $ cd packages/utils && pnpm run prebuild
 3. **错误堆栈中的被导入文件不是唯一需要修的东西**。`consola/index.js` 缺失只是表象，真正的触发点是 `automd/dist/cli.mjs` 的静态导入。
 4. **pnpm isolated 模式下，CJS 与 ESM 的解析路径可能不一致**。试图通过 CJS 的 `require.resolve` 去预测 ESM 的解析路径是脆弱的。
 5. **阶段性修复要及时复盘**。如果同一 bug 多次复发，要停下来重新评估根因，而不是继续沿着之前的路径加补丁。
+
+## 后续约束
+
+1. **未来升级 `automd` 时必须同步更新 `scripts/run-automd.cjs`**。如果 API 入口的签名或返回值发生变化，wrapper 需要对应调整。
+2. **不要再试图通过增强 `scripts/ensure-consola-patch.ts` 来修复 `automd` 的 CI 失败**。这个方向已被证明不可靠。
+3. **`patches/consola.patch` 与 `scripts/ensure-consola-patch.ts` 仅作为其他可能触发 `consola` ESM 解析问题的代码路径的兜底保留**。
+4. **当同一 bug 连续多次修复无效时，必须停下来重新评估根因**，优先考虑绕过问题入口而不是继续修依赖。
+5. **`pnpm-lock.yaml` 必须持续纳入版本控制**，否则 patch hash 无法在 CI 中一致应用。
