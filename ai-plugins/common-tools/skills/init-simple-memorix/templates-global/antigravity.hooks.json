@@ -1,0 +1,25 @@
+{
+  "memorix": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "memorix hook --agent antigravity --event PreInvocation",
+        "timeout": 10
+      }
+    ],
+    "PostInvocation": [
+      {
+        "type": "command",
+        "command": "memorix hook --agent antigravity --event PostInvocation",
+        "timeout": 10
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "memorix hook --agent antigravity --event Stop",
+        "timeout": 10
+      }
+    ]
+  }
+}
