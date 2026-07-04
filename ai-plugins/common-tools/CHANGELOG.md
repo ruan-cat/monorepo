@@ -5,6 +5,24 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.9.0] - 2026-07-04
+
+### Added
+
+- **init-simple-memorix**（`metadata.version` `2.0.0` -> `2.1.0`，新增 MCP 配置维护能力）：
+- 新增「Memorix MCP 配置维护」章节，覆盖 7 个 AI agent 平台（Claude Code、Cursor、Codex、WorkBuddy、ZCode、Qoder、Kiro）。
+- 新增 `src/platforms.ts`：MCP 平台注册表，定义各 agent 的配置文件路径与格式（JSON / TOML）。
+- 新增 `src/install-mcp.ts`：核心 MCP 安装逻辑，支持 JSON 和 TOML 双格式，零外部依赖。
+- 新增 `scripts/install-mcp.ts`：CLI 入口，支持 `--dry-run` 预览模式与 `--config` 自定义配置文件。
+- 新增 `fallback/install-mcp.ps1`：Windows PowerShell 兜底脚本。
+- 新增 `fallback/install-mcp.sh`：Bash 兜底脚本（macOS / Linux / WSL）。
+- 执行行为：配置文件不存在则创建，存在但非 full 模式则更新，已是 full 模式则跳过，保留其他 server 配置不删除。
+- 目标启动参数统一收敛为 `memorix serve --mode full`，确保暴露完整 26 个工具集（含 `memorix_promote` 等高级工具）。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.9.0`。
+
 ## [7.8.0] - 2026-07-02
 
 ### Added
