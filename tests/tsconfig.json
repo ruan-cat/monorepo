@@ -1,0 +1,13 @@
+{
+	"extends": "../tsconfig.base.json",
+	"compilerOptions": {
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true
+	},
+	"include": [
+		"./**/*.ts",
+		"../ai-plugins/common-tools/skills/*/src/**/*.ts",
+		"../ai-plugins/dev-skills/skills/*/src/**/*.ts"
+	],
+	"exclude": ["**/node_modules", "**/dist", "**/useIconEffect"]
+}
