@@ -3,13 +3,14 @@ name: init-simple-memorix
 user-invocable: true
 description: >-
   初始化或精简 Memorix hooks 配置，移除高频噪音触发器，仅保留会话生命周期事件。
+  同时维护本地 AI agent 工具的 MCP 配置，确保 memorix 以 full 模式运行（暴露全部 26 个工具）。
   支持项目级和全局级两种模式，覆盖 Claude Code、Cursor、Windsurf、Gemini CLI、Kiro、
   WorkBuddy、Codex、Antigravity 等多种 AI IDE/工具。
   用于"初始化 memorix""精简 memorix hooks""移除 memorix 噪音""配置 memorix"
   "init-simple-memorix""全局 memorix hooks""memorix 噪音全局""setup 完以后精简"
-  "升级后重新精简"等场景。
+  "升级后重新精简""配置 memorix MCP""memorix full 模式""修复 memorix 工具缺失"等场景。
 metadata:
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # 初始化/精简 Memorix Hooks 配置
@@ -371,3 +372,104 @@ Memorix 插件升级后，各 IDE 的全局 hooks 配置可能被重置为默认
 - **Antigravity**：`~/.gemini/config/plugins/memorix/hooks.json` 路径固定，但插件升级后可能覆盖文件内容，需重新精简
 
 **建议**：每次 Memorix 插件升级后，重新执行 `init-simple-memorix --global` 确保全局 hooks 配置保持精简。
+
+## Memorix MCP 配置维护
+
+除 hooks 精简外，本技能还负责维护各 AI agent 工具的 MCP（Model Context Protocol）配置文件，确保 memorix 以 `full` 模式启动，从而暴露完整的 26 个工具集（包括 `memorix_promote`、`memorix_skills` 等高级工具）。
+
+### 背景：为什么需要维护 MCP 配置
+
+memorix 默认以 `micro` 或 `lite` 模式运行，仅暴露 7~17 个基础工具。关键的高级工具（如 `memorix_promote`，用于将观察记忆提升为持久化 mini-skills）仅在 `full` 模式下可用。如果 MCP 配置未指定 `--mode full`，这些工具将不可用。
+
+| 模式 | 工具数 | 说明 |
+| :--- | :--- | :--- |
+| `micro` | 7 个 | 默认模式，仅高信号核心工具 |
+| `lite` | 17 个 | 扩展的独立记忆操作面 |
+| `team` | 20 个 | lite + 团队协调工具 |
+| `full` | 26 个 | team + 高级/治理工具（含 `memorix_promote`） |
+
+### 目标 MCP 配置格式
+
+各 agent 的 MCP 配置中，memorix 服务器的启动参数应为：
+
+```json
+{
+    "mcpServers": {
+        "memorix": {
+            "command": "memorix",
+            "args": ["serve", "--mode", "full"]
+        }
+    }
+}
+```
+
+### 已支持的 MCP 配置平台
+
+| 平台 | 配置文件路径（基于用户主目录） | 格式 |
+| :--- | :--- | :--- |
+| Codex | `~/.codex/config.toml`, `~/.codex/config-2026-6-13-bg.toml` | TOML |
+| Claude Code | `~/.claude.json` | JSON |
+| Cursor | `~/.cursor/mcp.json` | JSON |
+| WorkBuddy | `~/.workbuddy/mcp.json`, `~/.workbuddy/.mcp.json` | JSON |
+| ZCode | `~/.zcode/cli/config.json` | JSON |
+| Qoder | `~/AppData/Roaming/Qoder/SharedClientCache/mcp.json` | JSON |
+| Kiro | `~/.kiro/settings/mcp.json` | JSON |
+
+> **平台扩展**：新增平台时，只需在 `src/platforms.ts` 的 `DEFAULT_MCP_PLATFORMS` 数组中追加条目即可，无需修改核心逻辑。
+
+### 脚本入口
+
+在 skill 安装目录下运行：
+
+```bash
+# TypeScript 主脚本（推荐，需要 tsx）
+tsx scripts/install-mcp.ts
+
+# 预览模式（不实际写入文件）
+tsx scripts/install-mcp.ts --dry-run
+
+# 额外自定义配置文件
+tsx scripts/install-mcp.ts -c ~/.my-agent/mcp.json -c ~/.my-agent/extra.toml
+
+# Windows PowerShell 兜底脚本（无 tsx 环境时使用）
+.\fallback\install-mcp.ps1
+.\fallback\install-mcp.ps1 -DryRun
+.\fallback\install-mcp.ps1 -Config "C:\custom\mcp.json"
+
+# Bash 兜底脚本（macOS/Linux/WSL）
+./fallback/install-mcp.sh
+./fallback/install-mcp.sh -d
+./fallback/install-mcp.sh -c ~/.my-agent/mcp.json
+```
+
+### 执行行为
+
+脚本对每个平台执行以下操作：
+
+1. **扫描候选路径**：按优先级检查各平台的候选配置文件路径
+2. **创建或更新**：
+   - 配置文件不存在 → 创建新文件，写入完整 memorix 配置
+   - 配置文件存在但无 memorix → 追加 memorix 配置，保留其他配置
+   - 配置文件有 memorix 但非 full 模式 → 更新 args 为 `["serve", "--mode", "full"]`
+   - 配置文件已是 full 模式 → 跳过
+3. **输出结果**：每行输出一个 JSON 对象，包含 `platform`、`configFile`、`status`、`previousArgs`（如适用）
+
+### 状态说明
+
+| 状态 | 含义 |
+| :--- | :--- |
+| `created` | 配置文件不存在，已创建新文件 |
+| `updated` | 配置文件已存在，已更新 memorix 配置 |
+| `skipped` | 配置已是 full 模式，无需更改 |
+| `error` | 处理过程中发生错误（如 JSON 解析失败） |
+
+### 相关文件索引
+
+| 文件 | 说明 |
+| :--- | :--- |
+| `src/platforms.ts` | MCP 平台注册表，定义各 agent 的配置文件路径和格式 |
+| `src/install-mcp.ts` | 核心 MCP 安装逻辑，支持 JSON 和 TOML 格式 |
+| `scripts/install-mcp.ts` | CLI 入口，支持 `--dry-run` 和 `--config` 参数 |
+| `fallback/install-mcp.ps1` | Windows PowerShell 兜底脚本 |
+| `fallback/install-mcp.sh` | Bash 兜底脚本（macOS/Linux/WSL） |
+
