@@ -1,6 +1,6 @@
 import { execSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync } from "node:fs";
+import { createHash, randomUUID } from "node:crypto";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 
@@ -467,4 +467,242 @@ export function listSkillsFromLocal(skillsDir: string): string[] {
 	} catch {
 		return [];
 	}
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * 将 SkillFiles 写入目标目录。
+ * 自动创建不存在的父目录，覆盖已有文件。
+ */
+function writeSkillFiles(targetDir: string, files: SkillFiles): void {
+	if (!existsSync(targetDir)) {
+		mkdirSync(targetDir, { recursive: true });
+	}
+	for (const [relativePath, content] of files) {
+		const fullPath = path.join(targetDir, relativePath);
+		const dirPath = path.dirname(fullPath);
+		if (!existsSync(dirPath)) {
+			mkdirSync(dirPath, { recursive: true });
+		}
+		writeFileSync(fullPath, content);
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Source resolution
+// ---------------------------------------------------------------------------
+
+/**
+ * 根据 RefreshOptions.source 自动解析 skills 来源。
+ *
+ * 支持四种模式：
+ * - "github": 直接从 GitHub 拉取
+ * - "local":  扫描本地候选目录，读最新来源
+ * - "cli":    扫描本地获取 skill 名称，逐个通过 memorix CLI 获取
+ * - "auto":   github → local → cli 链式回退
+ *
+ * @param opts 刷新选项
+ * @returns skillName → SkillFiles 的映射
+ */
+export async function resolveSourceSkills(opts: RefreshOptions): Promise<Record<string, SkillFiles>> {
+	const source = opts.source ?? "auto";
+	const agent = opts.agent ?? DEFAULT_AGENT;
+	const ref = opts.githubRef ?? DEFAULT_GITHUB_REF;
+
+	if (source === "github") {
+		return fetchFromGitHub(ref, agent, {
+			token: opts.githubToken,
+			mirror: opts.githubRawMirror,
+		});
+	}
+
+	if (source === "local") {
+		const sources = scanLocalSources();
+		const localDir = pickLatestLocalSource(sources);
+		if (!localDir) {
+			throw new Error("无法获取 memorix skills：未找到本地 skills 目录");
+		}
+		return readSkillsDir(localDir);
+	}
+
+	if (source === "cli") {
+		const sources = scanLocalSources();
+		const localDir = pickLatestLocalSource(sources) ?? DEFAULT_TARGET_DIR;
+		const skillNames = listSkillsFromLocal(localDir);
+		const cliSkills: Record<string, SkillFiles> = {};
+		for (const name of skillNames) {
+			const content = fetchFromCli(name);
+			if (content) {
+				cliSkills[name] = new Map([["SKILL.md", Buffer.from(content)]]);
+			}
+		}
+		if (Object.keys(cliSkills).length === 0) {
+			throw new Error("无法获取 memorix skills：CLI 未返回任何 skill");
+		}
+		return cliSkills;
+	}
+
+	// auto: github → local → cli chain fallback
+	try {
+		return await fetchFromGitHub(ref, agent, {
+			token: opts.githubToken,
+			mirror: opts.githubRawMirror,
+		});
+	} catch {
+		// fall through to local
+	}
+
+	const localDir = pickLatestLocalSource(scanLocalSources());
+	if (localDir) {
+		return readSkillsDir(localDir);
+	}
+
+	const skillNames = listSkillsFromLocal(localDir ?? DEFAULT_TARGET_DIR);
+	const cliSkills: Record<string, SkillFiles> = {};
+	for (const name of skillNames) {
+		const content = fetchFromCli(name);
+		if (content) {
+			cliSkills[name] = new Map([["SKILL.md", Buffer.from(content)]]);
+		}
+	}
+	if (Object.keys(cliSkills).length > 0) {
+		return cliSkills;
+	}
+
+	throw new Error("无法获取 memorix skills：所有来源均失败");
+}
+
+// ---------------------------------------------------------------------------
+// Single skill refresh
+// ---------------------------------------------------------------------------
+
+/**
+ * 刷新单个 skill：SHA 比对、dry-run、force 覆盖与备份。
+ *
+ * @param skillName   skill 名称（如 memorix-calendar）
+ * @param sourceFiles 来源文件映射
+ * @param opts        刷新选项
+ * @param metadata    当前元数据（有则参与 SHA 比对和更新）
+ * @returns 刷新结果
+ */
+export function refreshSkill(
+	skillName: string,
+	sourceFiles: SkillFiles,
+	opts: RefreshOptions,
+	metadata: MemorixMetadata | undefined,
+): RefreshResult {
+	const skillTargetDir = path.join(opts.targetDir ?? DEFAULT_TARGET_DIR, skillName);
+
+	// Compute SHA-256 of all source files (sorted by path for determinism)
+	const sorted: { p: string; c: Buffer }[] = [];
+	for (const [relativePath, content] of sourceFiles) {
+		sorted.push({ p: relativePath, c: content });
+	}
+	sorted.sort((a, b) => a.p.localeCompare(b.p));
+	const parts: Buffer[] = [];
+	for (const { p, c } of sorted) {
+		parts.push(Buffer.from(p, "utf-8"));
+		parts.push(c);
+	}
+	const sourceSha = sha256(Buffer.concat(parts));
+
+	// Already up-to-date?
+	const existingMeta = metadata?.skills[skillName];
+	if (existingMeta && existingMeta.sourceSha256 === sourceSha) {
+		return { skill: skillName, status: "skipped" };
+	}
+
+	const source = (opts.source ?? "auto") as MemorixSource;
+
+	// dryRun: report only
+	if (opts.dryRun) {
+		const status = existsSync(skillTargetDir) ? "updated" : "created";
+		return { skill: skillName, status, source };
+	}
+
+	// Target exists and has changes
+	if (existsSync(skillTargetDir)) {
+		if (!opts.force) {
+			return { skill: skillName, status: "updated", source };
+		}
+
+		// force: backup then overwrite
+		let backupPath: string | undefined;
+		if (opts.backup !== false) {
+			backupPath = `${skillTargetDir}.bak.${Date.now()}-${randomUUID()}`;
+			renameSync(skillTargetDir, backupPath);
+		} else {
+			rmSync(skillTargetDir, { recursive: true, force: true });
+		}
+
+		writeSkillFiles(skillTargetDir, sourceFiles);
+
+		if (metadata) {
+			metadata.skills[skillName] = {
+				sourceSha256: sourceSha,
+				localSha256: sourceSha,
+				updatedAt: new Date().toISOString(),
+				source,
+			};
+		}
+
+		return { skill: skillName, status: "updated", source, backupPath };
+	}
+
+	// Target doesn't exist: create
+	writeSkillFiles(skillTargetDir, sourceFiles);
+
+	if (metadata) {
+		metadata.skills[skillName] = {
+			sourceSha256: sourceSha,
+			localSha256: sourceSha,
+			updatedAt: new Date().toISOString(),
+			source,
+		};
+	}
+
+	return { skill: skillName, status: "created", source };
+}
+
+// ---------------------------------------------------------------------------
+// Main entry point
+// ---------------------------------------------------------------------------
+
+/**
+ * 主入口：加载元数据 → 解析来源 → 逐个刷新 skill → 汇总结果 → 保存元数据。
+ *
+ * @param opts 刷新选项
+ * @returns 所有 skill 的刷新结果数组
+ */
+export async function refreshMemorixSkills(opts: RefreshOptions = {}): Promise<RefreshResult[]> {
+	let metadata = loadMetadata();
+	if (!metadata) {
+		metadata = {
+			version: "1.0.0",
+			lastRefreshAt: new Date().toISOString(),
+			source: (opts.source ?? "auto") as MemorixSource,
+			agent: opts.agent ?? DEFAULT_AGENT,
+			skills: {},
+		};
+	}
+
+	const sourceFiles = await resolveSourceSkills(opts);
+
+	const results: RefreshResult[] = [];
+	for (const [skillName, files] of Object.entries(sourceFiles)) {
+		const result = refreshSkill(skillName, files, opts, metadata);
+		results.push(result);
+	}
+
+	if (!opts.dryRun) {
+		metadata.lastRefreshAt = new Date().toISOString();
+		metadata.source = (opts.source ?? "auto") as MemorixSource;
+		metadata.agent = opts.agent ?? DEFAULT_AGENT;
+		saveMetadata(metadata);
+	}
+
+	return results;
 }
