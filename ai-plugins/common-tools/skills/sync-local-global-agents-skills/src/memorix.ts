@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -412,4 +413,58 @@ export function pickLatestLocalSource(sources: LocalSourceEntry[]): string | und
 		return undefined;
 	}
 	return valid[0].path;
+}
+
+// ---------------------------------------------------------------------------
+// CLI source
+// ---------------------------------------------------------------------------
+
+/**
+ * 通过 memorix CLI 获取指定 skill 的 SKILL.md 内容。
+ *
+ * 执行 `memorix skills show --name "${skillName}" --json`，
+ * 从返回的 JSON 中提取 `content` 字段。
+ *
+ * CLI 命令失败或 JSON 解析失败时返回 undefined（不抛异常，因为 CLI 是兜底源）。
+ *
+ * @param skillName  skill 名称（如 memorix-calendar）
+ * @returns SKILL.md 文本内容，获取失败时返回 undefined
+ */
+export function fetchFromCli(skillName: string): string | undefined {
+	try {
+		const raw = execSync(`memorix skills show --name "${skillName}" --json`, {
+			encoding: "utf-8",
+			timeout: 15000,
+		});
+		const parsed = JSON.parse(raw);
+		return typeof parsed.content === "string" ? parsed.content : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+/**
+ * 列出指定目录下所有以 memorix- 开头的子目录名称。
+ *
+ * @param skillsDir  skills 根目录绝对路径
+ * @returns skill 名称数组（如 ["memorix-calendar", "memorix-notes"]）
+ */
+export function listSkillsFromLocal(skillsDir: string): string[] {
+	if (!existsSync(skillsDir)) {
+		return [];
+	}
+
+	try {
+		const entries = readdirSync(skillsDir);
+		return entries.filter((entry) => {
+			const fullPath = path.join(skillsDir, entry);
+			try {
+				return statSync(fullPath).isDirectory() && entry.startsWith("memorix-");
+			} catch {
+				return false;
+			}
+		});
+	} catch {
+		return [];
+	}
 }
