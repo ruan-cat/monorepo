@@ -36,10 +36,11 @@
 ## 3. 设计目标
 
 1. **自动化**：运行一次 `scripts/sync.ts` 即可完成 memorix skills 刷新 + 平台同步。
-2. **最新优先**：默认优先从 npm 官方包 `memorix@latest` 获取；npm 不可用时按本地已安装插件目录链回退；必要时再回退到 GitHub release tag。同时支持 CLI 作为内容校验/兜底。
-3. **安全**：默认启用 dry-run 感知、备份、跳过已存在目录等保护机制。
-4. **兼容**：保持现有平台同步逻辑不变，只新增前置刷新步骤。
-5. **可测试**：新增独立测试覆盖刷新逻辑。
+2. **最新优先**：默认从 GitHub release tag raw 文件获取最新 skills；GitHub 不可用时按本地已安装插件目录链回退；必要时再回退到 memorix CLI `skills show` 作为内容校验/兜底。
+3. **零外部依赖**：skill 附属脚本在用户机器上通过 `tsx` 直接运行，**不依赖任何外部 npm 包**。所有实现使用 Node.js 22 内置模块（`node:fs`、`node:path`、`node:https`、`node:crypto`、`node:child_process`、`node:os`、`node:zlib`）。
+4. **安全**：默认启用 dry-run 感知、备份、跳过已存在目录等保护机制。
+5. **兼容**：保持现有平台同步逻辑不变，只新增前置刷新步骤。
+6. **可测试**：新增独立测试覆盖刷新逻辑。
 
 ## 4. 方案设计
 
@@ -64,48 +65,40 @@ ai-plugins/common-tools/skills/sync-local-global-agents-skills/
 ### 4.2 `src/memorix.ts` 核心职责
 
 - **定义数据来源**（可配置，优先级从高到低）：
-  1. **npm 官方包 `memorix@latest`**：通过 `npm pack memorix@<version>` 下载 tarball，解压到临时目录，从 `plugins/<agent>/memorix/skills/` 递归复制整个 skill 目录。版本可配置，默认 `latest`。
-  2. **本地已安装插件目录**：按以下顺序扫描，选择存在且包含最多 `memorix-*` skill 目录、或版本号最高、或修改时间最新的来源：
+  1. **GitHub 官方仓库**：`https://raw.githubusercontent.com/AVIDS2/memorix/<ref>/plugins/<agent>/memorix/skills/...`，默认 ref 为最新 release tag（当前 `v1.1.5`），可配置为 `main` 或其他 tag。这是首选来源，因为 GitHub 是 memorize 的权威发布渠道，且基于 HTTPS 实现零 npm 依赖。
+  2. **本地已安装插件目录**：按以下顺序扫描，选择存在且包含最多 `memorix-*` skill 目录、或修改时间最新的来源：
      - `~/.cursor/skills/`
      - `~/.codex/plugins/memorix/skills/`
      - `~/.claude/plugins/marketplaces/memorix-local/plugins/memorix/skills/`
      - `~/.claude/plugins/cache/memorix-local/memorix/*/skills/`
      - `~/.codex/plugins/cache/personal/memorix/*/skills/`
-  3. **memorix CLI `skills show`**：当需要从 CLI 获取当前运行时认为最新的 `SKILL.md` 内容时，执行 `memorix skills show --name <skill> --json` 提取 `content` 字段。仅覆盖 `SKILL.md`，不替换整个目录。
-  4. **GitHub 官方仓库**：`https://raw.githubusercontent.com/AVIDS2/memorix/<ref>/plugins/<agent>/memorix/skills/...`，默认 ref 为最新 release tag（`v1.1.5` 当前），可配置为 `main` 或其他 tag。
+     - 使用 `node:fs` + 手动递归实现目录扫描，**零外部依赖**。
+  3. **memorix CLI `skills show`**：当需要从 CLI 获取当前运行时认为最新的 `SKILL.md` 内容时，通过 `node:child_process.execSync` 执行 `memorix skills show --name <skill> --json` 提取 `content` 字段。
 - **源选择与合并策略**：
-  - 默认 `auto`：先尝试 npm；npm 失败或返回空则扫描本地目录；本地无可用内容则回退 CLI；CLI 不可用则回退 GitHub。
-  - `--source npm` / `--source local` / `--source cli` / `--source github`：固定使用单一来源。
-  - 本地扫描时，如果多个来源存在同一 skill，按以下规则取“最新”：
-    - 优先取版本号最高（如 `1.1.0` > 无版本号）；
-    - 版本相同则取文件修改时间最新；
-    - 仍相同则按候选顺序（cursor > codex-plugin > claude-marketplace > claude-cache > codex-cache）。
-- **npm 包处理**：
-  - 使用 `npm pack memorix@<version>` 下载到临时目录（`os.tmpdir()`）。
-  - 使用 Node.js 内置 `node:zlib` 或 `tar` 库解压（优先使用 `tar`，如项目未安装则动态使用 `node:child_process` 调用系统 `tar`；Windows 环境需保证 Git Bash 或系统 tar 可用）。
-  - 校验 tarball 内存在 `plugins/<agent>/memorix/skills/` 目录。
-  - 清理临时目录，不残留。
-- **GitHub 访问优化**：
-  - 读取 `GITHUB_TOKEN` 环境变量进行认证，将 GitHub API rate limit 从 60 次/小时提升到 5000 次/小时。
+  - 默认 `auto`：先尝试 GitHub；GitHub 失败则扫描本地目录；本地无可用内容则回退 CLI。
+  - `--source github` / `--source local` / `--source cli`：固定使用单一来源。
+  - 本地扫描时，如果多个来源存在同一 skill，按文件修改时间最新优先。
+- **GitHub 访问实现（纯 `node:https`）**：
+  - 使用 Node.js 内置 `node:https.get` 发起请求，设置 User-Agent 和 Accept 头。
+  - 读取 `GITHUB_TOKEN` 环境变量进行认证，将 rate limit 从 60 次/小时提升到 5000 次/小时。
   - 读取 `GITHUB_RAW_MIRROR` 环境变量作为 `raw.githubusercontent.com` 的镜像回退，缓解中国大陆网络抖动。
-  - 设置请求超时 15 秒，并捕获 `ETIMEDOUT`/`ECONNRESET`/`EAI_AGAIN` 等错误。
+  - 设置请求超时 15 秒，捕获网络错误。
+  - 先通过 GitHub Content API 列目录（`https://api.github.com/repos/AVIDS2/memorix/contents/plugins/<agent>/memorix/skills?ref=<ref>`），再逐个通过 raw URL 下载文件。
 - **获取 skill 文件**：
-  - npm 源：从解压后的包中递归复制整个 skill 目录。
-  - 本地源：递归复制整个 skill 目录。
+  - GitHub 源：递归下载整个 skill 目录（API 列目录 → raw 下载每个文件）。
+  - 本地源：用 `node:fs.cpSync` 递归复制整个 skill 目录。
   - CLI 源：只获取 `SKILL.md` 内容，附属文件从本地源补充。
-  - GitHub 源：递归下载整个 skill 目录（先通过 GitHub API 列目录，再逐个下载 raw 文件）。
   - 校验 HTTP 状态码为 200；非 200 不写入。
 - **落盘到 ~/.agents/skills/**：
   - 目标路径：`~/.agents/skills/<skill>/SKILL.md` 及其附属文件。
-  - 写入前校验 YAML frontmatter 至少存在且可解析。
-  - 写入后计算 SHA-256 并记录到 `~/.memorix/memorix-skills/memorix-meta.json`，避免污染 `~/.agents/skills/` 目录内容。
-  - **默认行为**：如果目标目录不存在，直接下载；如果目标目录已存在，通过 `~/.memorix/memorix-skills/memorix-meta.json` 中的来源 SHA 与当前来源 SHA 比对：
+  - 写入前校验 YAML frontmatter 至少存在且可解析（使用简单的字符串匹配，不引入 yaml 库）。
+  - 写入后计算 SHA-256（`node:crypto.createHash('sha256')`）并记录到 `~/.memorix/memorix-skills/memorix-meta.json`。
+  - **默认行为**：如果目标目录不存在，直接写入；如果目标目录已存在，通过元数据中的来源 SHA 比对：
     - 来源无变化 → 跳过。
-    - 来源有变化 → 默认提示用户更新可用（dry-run 输出差异），仅在显式 `--force` 时覆盖。
-    - 无本地元数据 → 视为首次同步，下载并记录元数据。
+    - 来源有变化 → dry-run 输出差异，仅在显式 `--force` 时覆盖。
+    - 无本地元数据 → 视为首次同步，下载并记录。
   - 支持 `dryRun`：只输出计划，不写入。
-  - 支持 `force`：覆盖已存在目录，覆盖前按 `src/sync.ts` 的备份命名格式（`*.bak.<Date.now()>-<randomUUID>`）备份。
-  - 支持 `backup`：与 `force` 配合，控制是否备份。
+  - 支持 `force`：覆盖已存在目录，覆盖前按 `.bak.<timestamp>-<uuid>` 格式备份。
 
 ### 4.3 元数据目录结构
 
@@ -127,7 +120,7 @@ ai-plugins/common-tools/skills/sync-local-global-agents-skills/
 {
 	"version": 1,
 	"lastRefreshAt": "2026-07-06T02:00:00.000Z",
-	"source": "npm:memorix@1.1.5",
+	"source": "github:v1.1.5",
 	"agent": "cursor",
 	"skills": {
 		"memorix-memory": {
@@ -157,22 +150,20 @@ ai-plugins/common-tools/skills/sync-local-global-agents-skills/
 - 新增 CLI 参数：
   - `--skip-memorix-refresh`：跳过 memorix 刷新步骤。
   - `--force-memorix-refresh`：强制覆盖已存在的 memorix skills（透传给 `refreshMemorixSkills`）。
-  - `--memorix-source <npm|local|cli|github|auto>`：选择 memorix skills 来源策略，默认 `auto`。
-  - `--memorix-npm-version <version>`：指定 npm 包版本，默认 `latest`。
+  - `--memorix-source <github|local|cli|auto>`：选择 memorix skills 来源策略，默认 `auto`。
+  - `--memorix-agent <agent>`：选择 agent 来源（默认 `cursor`，可选 `claude`/`codex`）。
   - `--memorix-github-ref <ref>`：指定 GitHub ref，默认最新 release tag。
   - 保持 `--source`、`--dry-run`、`--no-backup`、`--help` 不变。
-- 默认行为：在同步平台前，先调用 `refreshMemorixSkills({ dryRun, backup, force, source, npmVersion, githubRef })`。
+- 默认行为：在同步平台前，先调用 `refreshMemorixSkills({ dryRun, backup, force, source, agent, githubRef })`。
 - 刷新成功后，继续使用现有 `syncSkills()` 逻辑同步平台。
-- 如果 `~/.agents/skills` 在刷新前不存在，由 `refreshMemorixSkills` 创建，避免后续 `syncSkills` 抛错。
 
 ### 4.5 新增 `scripts/fetch-memorix-skills.ts`
 
 - 独立的 memorix 刷新脚本，便于单独运行和节省 token。
 - 支持参数：
   - `--target <path>`：目标 skills 目录（默认 `~/.agents/skills`）。
-  - `--agent <agent>`：选择 agent 来源（默认 `cursor`，可选 `claude`/`codex`/`copilot` 等）。
-  - `--source <npm|local|cli|github|auto>`：选择来源策略，默认 `auto`。
-  - `--npm-version <version>`：npm 包版本，默认 `latest`。
+  - `--agent <agent>`：选择 agent 来源（默认 `cursor`，可选 `claude`/`codex`）。
+  - `--source <github|local|cli|auto>`：选择来源策略，默认 `auto`。
   - `--github-ref <ref>`：GitHub ref，默认最新 release tag。
   - `--dry-run`：只输出计划。
   - `--force`：覆盖已存在目录（默认关闭）。
@@ -220,51 +211,48 @@ ai-plugins/common-tools/skills/sync-local-global-agents-skills/
 
 ## 5. 关键决策
 
-| 决策                    | 方案                                                                                                                                                                                                                                                   | 理由                                                                                                                                                                     |
-| :---------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 来源优先级              | 默认 `auto`：npm 官方包 `memorix@latest` → 本地已安装插件目录（cursor/codex/claude 多源扫描）→ CLI `skills show` → GitHub release tag。                                                                                                                | npm 包是官方发布形态，版本明确且不受 GitHub rate limit 影响；本地多源扫描覆盖用户已安装环境，避免只依赖 cursor；CLI 可获取运行时认为最新的 `SKILL.md`；GitHub 作为兜底。 |
-| 本地源扫描              | 扫描 `~/.cursor/skills/`、`~/.codex/plugins/memorix/skills/`、`~/.claude/plugins/marketplaces/memorix-local/plugins/memorix/skills/`、`~/.claude/plugins/cache/memorix-local/memorix/*/skills/`、`~/.codex/plugins/cache/personal/memorix/*/skills/`。 | 用户明确要求“本地源不能只有 cursor”。多源扫描后按版本号/修改时间/候选顺序取最新，避免遗漏任何已安装副本。                                                                |
-| 冲突处理                | 默认按 SHA 比对决定是否更新；无变化则跳过，有变化时默认提示、`--force` 时覆盖。                                                                                                                                                                        | 用户原选择“跳过已存在”，但单纯跳过会导致旧版本永远保留，无法“确保最新”。通过 `~/.memorix/memorix-skills/memorix-meta.json` 实现版本感知，兼顾安全与最新。                |
-| 刷新默认启用            | `sync.ts` 默认执行 memorix 刷新，可通过 `--skip-memorix-refresh` 关闭；`--force-memorix-refresh` 强制覆盖。                                                                                                                                            | 符合“执行一次同步即可拿到最新 skills”的诉求，同时给用户强制刷新入口。                                                                                                    |
-| 独立刷新脚本            | 新增 `scripts/fetch-memorix-skills.ts`。                                                                                                                                                                                                               | 便于单独调试、节省 token，且职责单一。                                                                                                                                   |
-| 目录级符号链接不变      | 仍然以 `~/.agents/skills` 为唯一数据源进行平台同步。                                                                                                                                                                                                   | 保持现有架构简单，只需把 memorix skills 先补充到数据源。                                                                                                                 |
-| 递归复制整个 skill 目录 | 不只复制 `SKILL.md`，保留 `references/` 等附属文件。                                                                                                                                                                                                   | 当前 memorix skills 虽无附属文件，但 skill 规范支持 `references/`；未来扩展时无需改代码。                                                                                |
-| 认证与镜像              | 读取 `GITHUB_TOKEN` 和 `GITHUB_RAW_MIRROR` 环境变量。                                                                                                                                                                                                  | 提升 GitHub API rate limit，缓解中国大陆 raw 访问不稳定。                                                                                                                |
+| 决策                    | 方案                                                                                                                                                                                                                                                   | 理由                                                                                                                                                      |
+| :---------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 来源优先级              | 默认 `auto`：GitHub release tag raw（权威源）→ 本地已安装插件目录（cursor/codex/claude 多源扫描）→ CLI `skills show`（内容校验）。                                                                                                                     | GitHub 是 memorize 的权威发布渠道，raw 文件基于 HTTPS，零 npm 依赖；本地多源扫描覆盖用户已安装环境。                                                      |
+| 本地源扫描              | 扫描 `~/.cursor/skills/`、`~/.codex/plugins/memorix/skills/`、`~/.claude/plugins/marketplaces/memorix-local/plugins/memorix/skills/`、`~/.claude/plugins/cache/memorix-local/memorix/*/skills/`、`~/.codex/plugins/cache/personal/memorix/*/skills/`。 | 用户明确要求“本地源不能只有 cursor”。多源扫描后按版本号/修改时间/候选顺序取最新，避免遗漏任何已安装副本。                                                 |
+| 零外部依赖              | `src/memorix.ts` 和其附属脚本**不使用任何外部 npm 包**。HTTP 下载用 `node:https`，文件遍历用 `node:fs` 手动递归，SHA 用 `node:crypto`，子进程用 `node:child_process`。                                                                                 | skill 附属脚本在用户机器上通过 `tsx` 直接运行，必须自包含。引入 `tar`/`tinyglobby` 会导致运行时缺失依赖。                                                 |
+| 冲突处理                | 默认按 SHA 比对决定是否更新；无变化则跳过，有变化时默认提示、`--force` 时覆盖。                                                                                                                                                                        | 用户原选择“跳过已存在”，但单纯跳过会导致旧版本永远保留，无法“确保最新”。通过 `~/.memorix/memorix-skills/memorix-meta.json` 实现版本感知，兼顾安全与最新。 |
+| 刷新默认启用            | `sync.ts` 默认执行 memorix 刷新，可通过 `--skip-memorix-refresh` 关闭；`--force-memorix-refresh` 强制覆盖。                                                                                                                                            | 符合“执行一次同步即可拿到最新 skills”的诉求，同时给用户强制刷新入口。                                                                                     |
+| 独立刷新脚本            | 新增 `scripts/fetch-memorix-skills.ts`。                                                                                                                                                                                                               | 便于单独调试、节省 token，且职责单一。                                                                                                                    |
+| 目录级符号链接不变      | 仍然以 `~/.agents/skills` 为唯一数据源进行平台同步。                                                                                                                                                                                                   | 保持现有架构简单，只需把 memorix skills 先补充到数据源。                                                                                                  |
+| 递归复制整个 skill 目录 | 不只复制 `SKILL.md`，保留 `references/` 等附属文件。                                                                                                                                                                                                   | 当前 memorix skills 虽无附属文件，但 skill 规范支持 `references/`；未来扩展时无需改代码。                                                                 |
+| 认证与镜像              | 读取 `GITHUB_TOKEN` 和 `GITHUB_RAW_MIRROR` 环境变量。                                                                                                                                                                                                  | 提升 GitHub API rate limit，缓解中国大陆 raw 访问不稳定。                                                                                                 |
 
 ## 6. 风险与缓解
 
-| 风险                                         | 影响                                                        | 缓解措施                                                                                                                       |
-| :------------------------------------------- | :---------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------- |
-| npm 包下载失败                               | 无法获取官方最新 skills                                     | 自动回退到本地已安装插件目录；本地也失败时回退 GitHub release tag。                                                            |
-| npm 包静态 skills 与 CLI 运行时内容不一致    | 同步到 `~/.agents/skills` 的版本不是 CLI 实际使用的最新版本 | 默认 `auto` 模式下，获取 npm 包后可用 CLI `skills show` 覆盖 `SKILL.md`；或选择 `--source local` 直接使用本地已安装副本。      |
-| GitHub API rate limit                        | 无法获取目录列表                                            | 支持 `GITHUB_TOKEN` 认证；设置 15 秒超时；403 时显式提示用户设置 token 或稍后重试；失败时回退本地扫描。                        |
-| `raw.githubusercontent.com` 在中国大陆不稳定 | 下载失败或返回错误内容                                      | 支持 `GITHUB_RAW_MIRROR` 镜像；超时后回退本地；校验 HTTP 状态码，非 200 不写入。                                               |
-| 官方仓库路径变更                             | 刷新失败                                                    | 将 `owner/repo/agent/branch` 抽离为 CLI 参数和环境变量；提供 `--repo` / `--branch` / `--agent` 参数。                          |
-| 本地所有 memorix 插件均未安装                | 回退源也不可用                                              | 脚本报错并提示用户安装 memorix 插件（cursor/codex/claude 任一），或检查网络/npm 可用性。                                       |
-| 同名 skill 冲突                              | 用户自定义 skill 被覆盖                                     | 默认按 SHA 比对，只有来源变化时才提示；`--force` 覆盖前备份。                                                                  |
-| 默认跳过导致不更新                           | 旧版本永远保留                                              | 通过 `~/.memorix/memorix-skills/memorix-meta.json` 实现版本感知，dry-run 输出差异提示；`--force-memorix-refresh` 强制更新。    |
-| 下载到损坏或错误内容                         | 写入非法文件                                                | 校验 HTTP 状态码、文件大小 > 0、YAML frontmatter 可解析；计算并记录 SHA-256。                                                  |
-| 多 agent 来源分化                            | 未来 codex/claude/cursor 内容不一致                         | 将 `agent` 作为可配置参数，文档明确当前以 cursor 为 canonical；`auto` 模式以 npm 包中对应 agent 为准。                         |
-| 平台差异（Windows 权限/路径）                | 写入或链接失败                                              | 统一使用 `os.homedir()` 和 `path.join`；Windows 创建目录时递归确认父目录存在；tar 解压优先使用跨平台库 `tar`，回退系统 `tar`。 |
-| 依赖解析失败                                 | `tinyglobby` / `tar` 找不到                                 | 在根 `package.json` 中显式声明 `tinyglobby`；`tar` 按需声明，或实现系统 `tar` 回退逻辑。                                       |
+| 风险                                         | 影响                                | 缓解措施                                                                                                |
+| :------------------------------------------- | :---------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| GitHub API rate limit                        | 无法获取目录列表                    | 支持 `GITHUB_TOKEN` 认证；设置 15 秒超时；403 时显式提示用户设置 token 或稍后重试；失败时回退本地扫描。 |
+| `raw.githubusercontent.com` 在中国大陆不稳定 | 下载失败或返回错误内容              | 支持 `GITHUB_RAW_MIRROR` 镜像；超时后回退本地；校验 HTTP 状态码，非 200 不写入。                        |
+| 官方仓库路径变更                             | 刷新失败                            | 将 `owner/repo/agent/branch` 抽离为 CLI 参数和环境变量；提供 `--repo` / `--branch` / `--agent` 参数。   |
+| 本地所有 memorix 插件均未安装                | 回退源也不可用                      | 脚本报错并提示用户安装 memorix 插件（cursor/codex/claude 任一），或检查网络/npm 可用性。                |
+| 同名 skill 冲突                              | 用户自定义 skill 被覆盖             | 默认按 SHA 比对，只有来源变化时才提示；`--force` 覆盖前备份。                                           |
+| 默认跳过导致不更新                           | 旧版本永远保留                      | 通过元数据 SHA 比对实现版本感知，`--force-memorix-refresh` 强制更新。                                   |
+| 下载到损坏或错误内容                         | 写入非法文件                        | 校验 HTTP 状态码、文件大小 > 0、YAML frontmatter 可解析；计算并记录 SHA-256。                           |
+| 多 agent 来源分化                            | 未来 codex/claude/cursor 内容不一致 | 将 `agent` 作为可配置参数。                                                                             |
+| 平台差异（Windows 路径）                     | 写入失败                            | 统一使用 `os.homedir()` 和 `path.join`；递归确认父目录存在。                                            |
 
 ## 7. 实现步骤
 
-1. 在根 `package.json` 的 `devDependencies` 中声明 `tinyglobby`（如需 npm 包解压则同时声明 `tar`）。
-2. 创建 `src/memorix.ts`，实现 `refreshMemorixSkills()`，支持 npm / local / cli / github 多源与 `auto` 策略。
-3. 创建 `scripts/fetch-memorix-skills.ts`，封装独立刷新 CLI。
-4. 修改 `scripts/sync.ts`，默认调用刷新并在完成后执行平台同步。
-5. 更新 `fallback/sync.ps1` 和 `fallback/sync.sh`，扫描全部本地候选目录。
-6. 新增 `tests/sync-local-global-agents-skills/memorix.test.ts`。
-7. 更新 `README.md` 和 `SKILL.md`。
-8. 运行类型检查、测试、格式化。
-9. 提交并记录变更集。
+1. 创建 `src/memorix.ts`，实现多源获取（github → local → cli）、SHA 比对、落盘、元数据持久化。所有实现使用 Node.js 内置模块。
+2. 创建 `scripts/fetch-memorix-skills.ts`，封装独立刷新 CLI。
+3. 修改 `scripts/sync.ts`，默认调用刷新并在完成后执行平台同步。
+4. 更新 `fallback/sync.ps1` 和 `fallback/sync.sh`，扫描全部本地候选目录。
+5. 新增 `tests/sync-local-global-agents-skills/memorix.test.ts`。
+6. 更新 `README.md` 和 `SKILL.md`。
+7. 运行类型检查、测试、格式化。
+8. 提交并记录变更集。
 
 ## 8. 验证方式
 
 - `tsx scripts/fetch-memorix-skills.ts --dry-run` 输出计划。
 - `tsx scripts/fetch-memorix-skills.ts` 在 `~/.agents/skills/` 下创建 `memorix-*` 目录和 `~/.memorix/memorix-skills/memorix-meta.json`。
-- `tsx scripts/fetch-memorix-skills.ts --source npm` 强制从 npm 包获取。
+- `tsx scripts/fetch-memorix-skills.ts --source github` 强制从 GitHub 获取。
 - `tsx scripts/fetch-memorix-skills.ts --source local` 强制从本地已安装插件目录获取。
 - `tsx scripts/fetch-memorix-skills.ts --force` 在有更新的 skill 上执行覆盖并生成备份。
 - `tsx scripts/sync.ts --dry-run` 显示 memorix 刷新 + 平台同步两步计划。

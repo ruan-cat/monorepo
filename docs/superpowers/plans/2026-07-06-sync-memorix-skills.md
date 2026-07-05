@@ -4,9 +4,9 @@
 
 **Goal:** 让 `sync-local-global-agents-skills` 在同步平台 skills 之前，先把 memorix 官方内部 skills 刷新到 `~/.agents/skills/`，并把版本元数据写入 `~/.memorix/memorix-skills/memorix-meta.json`。
 
-**Architecture:** 新增 `src/memorix.ts` 负责多源获取（npm → 本地 agent 插件 → CLI → GitHub）、SHA 比对、目标目录写入与元数据持久化；新增 `scripts/fetch-memorix-skills.ts` 作为独立 CLI；修改 `scripts/sync.ts` 默认前置调用刷新；兜底脚本与文档同步更新。
+**Architecture:** 新增 `src/memorix.ts` 负责多源获取（GitHub raw → 本地 agent 插件 → CLI）、SHA 比对、目标目录写入与元数据持久化；新增 `scripts/fetch-memorix-skills.ts` 作为独立 CLI；修改 `scripts/sync.ts` 默认前置调用刷新；兜底脚本与文档同步更新。
 
-**Tech Stack:** TypeScript, Node.js 22, vitest, pnpm, tar, tinyglobby.
+**Tech Stack:** TypeScript, Node.js 22 内置模块（`node:fs`、`node:path`、`node:https`、`node:crypto`、`node:child_process`、`node:os`）、vitest、pnpm。**零外部 npm 依赖。**
 
 **提交规范（所有 Task 通用）**
 
@@ -35,55 +35,11 @@ ai-plugins/common-tools/skills/sync-local-global-agents-skills/
 tests/sync-local-global-agents-skills/
   sync.test.ts               # 已存在
   memorix.test.ts            # 新增
-package.json                 # 根：新增 devDependencies
 ```
 
 ---
 
-### Task 1: 在根 package.json 声明依赖
-
-**Files:**
-
-- Modify: `package.json:55-113`
-
-- [ ] **Step 1: 在根 devDependencies 中新增 `tar` 和 `tinyglobby`**
-
-```json
-{
-	"devDependencies": {
-		"tar": "^7.4.0",
-		"tinyglobby": "^0.2.10"
-	}
-}
-```
-
-- [ ] **Step 2: 安装依赖**
-
-Run: `pnpm install`
-
-Expected: `pnpm-lock.yaml` 更新，无错误。
-
-- [ ] **Step 3: 提交**
-
-```bash
-git add package.json pnpm-lock.yaml
-pnpm exec commitlint --edit commit-message.txt --strict
-git commit -F commit-message.txt
-rm -- commit-message.txt
-```
-
-commit-message.txt 内容：
-
-```text
-📦 deps: add tar and tinyglobby for memorix skills refresh
-
-- tar: cross-platform tarball extraction for npm pack downloads
-- tinyglobby: fast globbing for local skill directory scanning
-```
-
----
-
-### Task 2: 创建 src/memorix.ts 类型与元数据基础
+### Task 1: 创建 src/memorix.ts 类型与元数据基础
 
 **Files:**
 
@@ -98,7 +54,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 
 /** memorix skills 来源策略 */
-export type MemorixSource = "npm" | "local" | "cli" | "github" | "auto";
+export type MemorixSource = "github" | "local" | "cli" | "auto";
 
 /** 单个 skill 目录内的文件映射（相对路径 -> Buffer） */
 export type SkillFiles = Map<string, Buffer>;
@@ -110,8 +66,6 @@ export interface RefreshOptions {
 	agent?: string;
 	/** 来源策略（默认：auto） */
 	source?: MemorixSource;
-	/** npm 包版本（默认：latest） */
-	npmVersion?: string;
 	/** GitHub ref（默认：latest release tag） */
 	githubRef?: string;
 	/** GitHub API token */
@@ -259,7 +213,7 @@ commit-message.txt 内容：
 
 ---
 
-### Task 3: 实现 npm 来源获取
+### Task 2: 实现 GitHub 来源获取
 
 **Files:**
 
@@ -383,7 +337,7 @@ commit-message.txt 内容：
 
 ---
 
-### Task 4: 实现本地来源扫描
+### Task 3: 实现本地来源扫描
 
 **Files:**
 
@@ -511,7 +465,7 @@ commit-message.txt 内容：
 
 ---
 
-### Task 5: 实现 CLI 与 GitHub 来源
+### Task 4: 实现 CLI 来源
 
 **Files:**
 
@@ -658,7 +612,7 @@ commit-message.txt 内容：
 
 ---
 
-### Task 6: 实现主刷新逻辑与元数据持久化
+### Task 5: 实现主刷新逻辑与元数据持久化
 
 **Files:**
 
@@ -949,7 +903,7 @@ commit-message.txt 内容：
 
 ---
 
-### Task 7: 创建独立刷新 CLI
+### Task 6: 创建独立刷新 CLI
 
 **Files:**
 
@@ -1101,7 +1055,7 @@ commit-message.txt 内容：
 
 ---
 
-### Task 8: 修改 scripts/sync.ts 集成 memorix 刷新
+### Task 7: 修改 scripts/sync.ts 集成 memorix 刷新
 
 **Files:**
 
@@ -1288,7 +1242,7 @@ commit-message.txt 内容：
 
 ---
 
-### Task 9: 更新 fallback 脚本
+### Task 8: 更新 fallback 脚本
 
 **Files:**
 
@@ -1445,7 +1399,7 @@ commit-message.txt 内容：
 
 ---
 
-### Task 10: 补充完整测试
+### Task 9: 补充完整测试
 
 **Files:**
 
@@ -1512,7 +1466,7 @@ commit-message.txt 内容：
 
 ---
 
-### Task 11: 更新文档
+### Task 10: 更新文档
 
 **Files:**
 
@@ -1586,7 +1540,7 @@ commit-message.txt 内容：
 
 ---
 
-### Task 12: 最终验证与类型检查
+### Task 11: 最终验证与类型检查
 
 - [ ] **Step 1: 运行类型检查**
 
