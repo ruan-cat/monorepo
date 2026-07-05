@@ -8,7 +8,8 @@
 
 ### 2.1 memorix 内部 skills 的来源
 
-- **npm 官方包 `memorix@latest`**：当前最权威的分发形态。`memorix-1.1.5.tgz` 解压后在 `plugins/{claude,codex,cursor,copilot,...}/memorix/skills/` 下包含 7 个 `memorix-*` skills。该包同时包含 CLI 与静态 skill 文件，因此作为首选主源。
+- **GitHub 官方仓库**：`AVIDS2/memorix` 的 `plugins/<agent>/memorix/skills/` 是最权威的分发源。鉴于 skill 附属脚本的自包含性要求（零外部 npm 依赖），GitHub raw 是首选来源。但需注意：实测 `main` 分支与最新 release tag `v1.1.5` 的静态 skill 文件在 `memorix-memory`、`memorix-orchestrate` 两个 skill 上**落后于本机已安装版本**（本地多出一些内容行）。因此本地已安装版本仍可作为回退源。
+- **npm 官方包 `memorix@1.1.5`**：作为补充参考，其内容与 GitHub release tag 完全一致，已通过 SHA 对比验证。仅在设计文档中记录此信息，附属脚本不实现 npm 下载（避免引入 tar 等外部依赖）。
 - **memorix CLI**：`memorix skills show --name <skill> --json` 可输出单个 skill 的完整 markdown 内容，返回字段包含 `sourcePath`、`sourceAgent`、`content`、`generated`。`memorix skills` 没有 `list` 子命令，但支持 `show` 和 `write`；其中 `show` 读取的是当前已激活 agent 的本地 skill 文件，因此 CLI 本身并不能直接“批量导出”内部预写 skills，只能作为单文件内容校验或兜底。
 - **本地已安装插件 / 暴露目录**（按可靠性与刷新程度排序）：
   1. `~/.cursor/skills/` — 全局 skills 视角下 memorix 内部 skills 的当前暴露位置（`skills list -g` 显示为 `~\.cursor\skills\memorix-*`）。
@@ -16,7 +17,7 @@
   3. `~/.claude/plugins/marketplaces/memorix-local/plugins/memorix/skills/` — Claude Code 本地 marketplace 插件（对应 marketplace 版本 1.1.4，插件版本 1.1.0）。
   4. `~/.claude/plugins/cache/memorix-local/memorix/<version>/skills/` — Claude Code 插件缓存（当前版本 1.1.0）。
   5. `~/.codex/plugins/cache/personal/memorix/<version>/skills/` — Codex 插件缓存（当前版本 1.1.0）。
-- **GitHub 官方仓库**：`AVIDS2/memorix` 的 `plugins/<agent>/memorix/skills/`。但需注意：实测 `main` 分支与最新 release tag `v1.1.5` 的静态 skill 文件在 `memorix-memory`、`memorix-orchestrate` 两个 skill 上**落后于本机已安装版本**（本地多出 `memorix_project_context` 表格行与 orchestrate 参数说明）。可能原因是 npm 包内的静态 skill 文件与 CLI 运行时嵌入的字符串/生成的 skill 存在版本差；本地已安装插件由运行时生成或拉取了比 GitHub 静态文件更新的内容。因此 GitHub 仅作为兜底源，不默认优先。
+- **GitHub 官方仓库**：`AVIDS2/memorix` 的 `plugins/<agent>/memorix/skills/`。这是首选来源，因为 raw 文件基于 HTTPS、零 npm 依赖。但需注意：实测 `main` 分支与最新 release tag `v1.1.5` 的静态 skill 文件在 `memorix-memory`、`memorix-orchestrate` 两个 skill 上**落后于本机已安装版本**（本地多出一些内容行）。因此本地已安装版本作为重要的回退源。
 - **Skills 数量**：7 个（不是 8 个）：
   - `memorix-git-memory`
   - `memorix-memory`
@@ -187,12 +188,7 @@ ai-plugins/common-tools/skills/sync-local-global-agents-skills/
   - `--memorix-source <source>` / `-MemorixSource <source>`（如 shell 实现复杂度可控）
 - 注意：fallback 脚本仅做本地回退，无法从 npm/GitHub 拉取；文档中需明确说明其定位。
 
-### 4.7 依赖声明
-
-- 在根 `package.json` 的 `devDependencies` 中显式声明 `tinyglobby`，确保 `tsx scripts/fetch-memorix-skills.ts` 在根 `node_modules` 下可解析。
-- 若使用 npm 包解压，需在根 `package.json` 的 `devDependencies` 中声明 `tar`（或实现时优先使用系统 `tar` 命令，避免新增依赖）。
-
-### 4.8 测试策略
+### 4.7 测试策略
 
 在 `tests/sync-local-global-agents-skills/` 下新增 `memorix.test.ts`，覆盖：
 

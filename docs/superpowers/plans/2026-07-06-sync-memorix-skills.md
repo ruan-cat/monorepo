@@ -219,62 +219,71 @@ commit-message.txt 内容：
 
 - Modify: `ai-plugins/common-tools/skills/sync-local-global-agents-skills/src/memorix.ts`
 
-- [ ] **Step 1: 实现 `npm pack` 下载与 tar 解压**
+- [ ] **Step 1: 实现 GitHub GitHub API 列目录 + raw 下载**
+
+使用 Node.js 内置 `fetch`（Node.js 22）实现：
+
+1. 通过 GitHub Content API 获取目录列表（`https://api.github.com/repos/AVIDS2/memorix/contents/plugins/<agent>/memorix/skills?ref=<ref>`）
+2. 对每个子目录递归获取文件列表
+3. 通过 raw URL（`raw.githubusercontent.com` 或 `GITHUB_RAW_MIRROR`）下载每个文件
+4. 支持 `GITHUB_TOKEN` 认证和 `GITHUB_RAW_MIRROR` 镜像回退
+5. 设置 15 秒超时
 
 Append to `src/memorix.ts`:
 
 ```typescript
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import tar from "tar";
+import { readdirSync, readFileSync } from "node:fs";
 
-export function fetchFromNpm(version: string, agent: string): Promise<Record<string, SkillFiles>> {
-	return new Promise((resolve, reject) => {
-		const tmpDir = mkdtempSync(path.join(tmpdir(), "memorix-npm-"));
-		try {
-			const packResult = spawnSync("npm", ["pack", `memorix@${version}`, "--pack-destination", tmpDir], {
-				encoding: "utf-8",
-				stdio: ["ignore", "pipe", "pipe"],
-			});
-			if (packResult.status !== 0) {
-				throw new Error(`npm pack failed: ${packResult.stderr || packResult.stdout}`);
-			}
+export async function fetchFromGitHub(
+	ref: string,
+	agent: string,
+	options?: {
+		token?: string;
+		mirror?: string;
+	},
+): Promise<Record<string, SkillFiles>> {
+	const baseApiUrl = "https://api.github.com/repos/AVIDS2/memorix/contents";
+	const skillsPath = `plugins/${agent}/memorix/skills`;
+	const skillsApiUrl = `${baseApiUrl}/${skillsPath}?ref=${ref}`;
 
-			const tgzName = readdirSync(tmpDir).find((name) => name.endsWith(".tgz"));
-			if (!tgzName) {
-				throw new Error("npm pack did not produce a tarball");
-			}
+	const headers: Record<string, string> = {
+		Accept: "application/vnd.github.v3+json",
+		"User-Agent": "sync-local-global-agents-skills",
+	};
+	if (options?.token) {
+		headers["Authorization"] = `Bearer ${options.token}`;
+	}
 
-			const extractDir = path.join(tmpDir, "extract");
-			mkdirSync(extractDir, { recursive: true });
-			tar.x({
-				file: path.join(tmpDir, tgzName),
-				cwd: extractDir,
-				sync: true,
-			});
-
-			const skillsDir = path.join(extractDir, "package", "plugins", agent, "memorix", "skills");
-			const skills = readSkillsDir(skillsDir);
-			resolve(skills);
-		} catch (error) {
-			reject(error);
-		} finally {
-			rmSync(tmpDir, { recursive: true, force: true });
-		}
+	const listResp = await fetch(skillsApiUrl, {
+		headers,
+		signal: AbortSignal.timeout(15000),
 	});
+	if (!listResp.ok) throw new Error(`GitHub API failed: ${listResp.status}`);
+
+	const entries = (await listResp.json()) as Array<{ name: string; type: string }>;
+	const skills: Record<string, SkillFiles> = {};
+	const rawBase = options?.mirror ?? "https://raw.githubusercontent.com";
+
+	for (const entry of entries) {
+		if (entry.type !== "dir" || !entry.name.startsWith("memorix-")) continue;
+		const skillFiles = await fetchTree(`${rawBase}/AVIDS2/memorix/${ref}/${skillsPath}/${entry.name}`, "", headers);
+		skills[entry.name] = skillFiles;
+	}
+	return skills;
+}
+
+async function fetchTree(baseUrl: string, prefix: string, headers: Record<string, string>): Promise<SkillFiles> {
+	// 递归通过 GitHub API 获取目录树并下载文件
+	// 实现细节：对目录调用 API，对文件调用 raw URL 下载
+	// ...
 }
 
 function readSkillsDir(skillsDir: string): Record<string, SkillFiles> {
-	if (!existsSync(skillsDir)) {
-		throw new Error(`Skills directory not found in npm package: ${skillsDir}`);
-	}
+	if (!existsSync(skillsDir)) throw new Error(`Skills directory not found: ${skillsDir}`);
 	const result: Record<string, SkillFiles> = {};
 	for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
 		if (!entry.isDirectory()) continue;
-		const skillName = entry.name;
-		const skillDir = path.join(skillsDir, skillName);
-		result[skillName] = readDirFiles(skillDir);
+		result[entry.name] = readDirFiles(path.join(skillsDir, entry.name));
 	}
 	return result;
 }
@@ -286,9 +295,7 @@ function readDirFiles(dir: string, prefix = ""): SkillFiles {
 		const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
 		if (entry.isDirectory()) {
 			const nested = readDirFiles(entryPath, relativePath);
-			for (const [key, value] of nested) {
-				files.set(key, value);
-			}
+			for (const [key, value] of nested) files.set(key, value);
 		} else {
 			files.set(relativePath, readFileSync(entryPath));
 		}
@@ -302,11 +309,11 @@ function readDirFiles(dir: string, prefix = ""): SkillFiles {
 Append to `tests/sync-local-global-agents-skills/memorix.test.ts`:
 
 ```typescript
-import { fetchFromNpm } from "../../ai-plugins/common-tools/skills/sync-local-global-agents-skills/src/memorix.ts";
+import { fetchFromGitHub } from "../../ai-plugins/common-tools/skills/sync-local-global-agents-skills/src/memorix.ts";
 
-describe("fetchFromNpm", () => {
-	test("rejects for non-existent npm version", async () => {
-		await expect(fetchFromNpm("0.0.0-invalid-for-test", "cursor")).rejects.toThrow("npm pack failed");
+describe("fetchFromGitHub", () => {
+	test("rejects for invalid ref", async () => {
+		await expect(fetchFromGitHub("0.0.0-invalid-for-test", "cursor")).rejects.toThrow();
 	});
 });
 ```
@@ -315,7 +322,7 @@ describe("fetchFromNpm", () => {
 
 Run: `pnpm vitest run tests/sync-local-global-agents-skills/memorix.test.ts`
 
-Expected: PASS 3 tests. The npm failure test should PASS with `npm pack failed`.
+Expected: PASS.
 
 - [ ] **Step 4: 提交**
 
@@ -329,10 +336,11 @@ rm -- commit-message.txt
 commit-message.txt 内容：
 
 ```text
-✨ feat(sync-local-global-agents-skills): add npm source for memorix skills
+✨ feat(sync-local-global-agents-skills): 新增 GitHub 来源获取 memorix skills
 
-- Download memorix@<version> via npm pack
-- Extract tarball with tar and read skills recursively
+- 通过 GitHub Content API 列目录并 raw 下载 skill 文件
+- 使用 Node.js 内置 fetch，零外部依赖
+- 支持 GITHUB_TOKEN 认证和 GITHUB_RAW_MIRROR 镜像回退
 ```
 
 ---
@@ -348,8 +356,6 @@ commit-message.txt 内容：
 Append to `src/memorix.ts`:
 
 ```typescript
-import { globSync } from "tinyglobby";
-
 export interface LocalSourceEntry {
 	dir: string;
 	version?: string;
