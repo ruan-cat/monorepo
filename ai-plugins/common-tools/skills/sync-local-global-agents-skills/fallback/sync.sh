@@ -9,6 +9,8 @@ set -euo pipefail
 SOURCE="${HOME}/.agents/skills"
 DRY_RUN=0
 NO_BACKUP=0
+SKIP_MEMORIX_REFRESH=0
+FORCE_MEMORIX_REFRESH=0
 
 usage() {
   cat <<EOF
@@ -19,6 +21,8 @@ Options:
   -d, --dry-run         Print the plan without modifying the filesystem
   -n, --no-backup       Do not backup existing directories before replacing
   -h, --help            Show this help message
+  --skip-memorix-refresh    Skip scanning local memorix skills sources before sync
+  --force-memorix-refresh   Overwrite existing memorix skills in target directory
 EOF
 }
 
@@ -40,6 +44,14 @@ while [[ $# -gt 0 ]]; do
       usage
       exit 0
       ;;
+    --skip-memorix-refresh)
+      SKIP_MEMORIX_REFRESH=1
+      shift
+      ;;
+    --force-memorix-refresh)
+      FORCE_MEMORIX_REFRESH=1
+      shift
+      ;;
     *)
       echo "Unknown argument: $1" >&2
       usage
@@ -47,6 +59,26 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+# ---------- memorix refresh ----------
+if [ "$SKIP_MEMORIX_REFRESH" != "1" ]; then
+    CANDIDATES="$HOME/.cursor/skills $HOME/.codex/plugins/memorix/skills $HOME/.claude/plugins/marketplaces/memorix-local/plugins/memorix/skills"
+    SOURCE_DIR=""
+    for dir in $CANDIDATES; do
+        if [ -d "$dir" ]; then SOURCE_DIR="$dir"; break; fi
+    done
+    if [ -n "$SOURCE_DIR" ]; then
+        for skill in "$SOURCE_DIR"/memorix-*; do
+            [ -d "$skill" ] || continue
+            target="$HOME/.agents/skills/$(basename "$skill")"
+            if [ ! -d "$target" ] || [ "$FORCE_MEMORIX_REFRESH" = "1" ]; then
+                cp -r "$skill" "$target"
+            fi
+        done
+    else
+        echo "WARN: 未找到本地 memorix skills 来源，跳过刷新" >&2
+    fi
+fi
 
 if [[ ! -d "$SOURCE" ]]; then
   echo "Source directory does not exist: $SOURCE" >&2

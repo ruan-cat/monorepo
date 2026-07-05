@@ -12,7 +12,9 @@ param(
     [string]$Source = "$env:USERPROFILE\.agents\skills",
     [switch]$DryRun,
     [switch]$NoBackup,
-    [switch]$Help
+    [switch]$Help,
+    [switch]$SkipMemorixRefresh,
+    [switch]$ForceMemorixRefresh
 )
 
 if ($Help) {
@@ -22,10 +24,35 @@ Usage: sync.ps1 [options]
 Options:
   -Source <path>   Source skills directory (default: ~\.agents\skills)
   -DryRun         Print the plan without modifying the filesystem
-  -NoBackup       Do not backup existing directories before replacing
-  -Help           Show this help message
+  -NoBackup                Do not backup existing directories before replacing
+  -Help                    Show this help message
+  -SkipMemorixRefresh      Skip scanning local memorix skills sources before sync
+  -ForceMemorixRefresh     Overwrite existing memorix skills in target directory
 "@
     exit 0
+}
+
+# ---------- memorix refresh ----------
+if (-not $SkipMemorixRefresh) {
+    $candidates = @(
+        "$env:USERPROFILE\.cursor\skills",
+        "$env:USERPROFILE\.codex\plugins\memorix\skills",
+        "$env:USERPROFILE\.claude\plugins\marketplaces\memorix-local\plugins\memorix\skills"
+    )
+    $sourceDir = $null
+    foreach ($dir in $candidates) {
+        if (Test-Path $dir) { $sourceDir = $dir; break }
+    }
+    if ($sourceDir) {
+        Get-ChildItem $sourceDir -Directory -Filter "memorix-*" | ForEach-Object {
+            $target = Join-Path "$env:USERPROFILE\.agents\skills" $_.Name
+            if (-not (Test-Path $target) -or $ForceMemorixRefresh) {
+                Copy-Item $_.FullName $target -Recurse -Force
+            }
+        }
+    } else {
+        Write-Warning "未找到本地 memorix skills 来源，跳过刷新"
+    }
 }
 
 $platforms = @(
