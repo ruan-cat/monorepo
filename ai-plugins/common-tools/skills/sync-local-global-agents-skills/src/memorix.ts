@@ -317,3 +317,99 @@ export function readSkillsDir(skillsDir: string): Record<string, SkillFiles> {
 
 	return result;
 }
+
+// ---------------------------------------------------------------------------
+// Local source scanning
+// ---------------------------------------------------------------------------
+
+/** 本地 skills 多源候选目录 */
+export const LOCAL_SOURCE_CANDIDATES: string[] = [
+	path.join(homedir(), ".cursor", "skills"),
+	path.join(homedir(), ".codex", "plugins", "memorix", "skills"),
+	path.join(homedir(), ".claude", "plugins", "marketplaces", "memorix-local", "plugins", "memorix", "skills"),
+];
+
+/** 本地来源条目 */
+export interface LocalSourceEntry {
+	path: string;
+	mtime: number;
+	skillCount: number;
+}
+
+/**
+ * 递归收集目录下所有 SKILL.md 文件的最大修改时间（毫秒时间戳）。
+ */
+function collectMaxMtime(dir: string): number {
+	let maxMtime = 0;
+	try {
+		const entries = readdirSync(dir);
+		for (const entry of entries) {
+			const fullPath = path.join(dir, entry);
+			try {
+				const stat = statSync(fullPath);
+				if (stat.isDirectory()) {
+					maxMtime = Math.max(maxMtime, collectMaxMtime(fullPath));
+				} else if (stat.isFile() && entry === "SKILL.md") {
+					maxMtime = Math.max(maxMtime, stat.mtimeMs);
+				}
+			} catch {
+				// 跳过无法访问的条目
+			}
+		}
+	} catch {
+		// 跳过无法访问的目录
+	}
+	return maxMtime;
+}
+
+/**
+ * 扫描本地候选目录，收集 memorix skills 来源信息。
+ *
+ * 对每个存在的目录：
+ * 1. 统计 memorix-* 子目录数量
+ * 2. 计算目录下所有 SKILL.md 的最新 mtime
+ *
+ * @returns 按 mtime 降序排列的来源列表
+ */
+export function scanLocalSources(): LocalSourceEntry[] {
+	const results: LocalSourceEntry[] = [];
+
+	for (const dir of LOCAL_SOURCE_CANDIDATES) {
+		if (!existsSync(dir)) {
+			continue;
+		}
+
+		const entries = readdirSync(dir);
+		const skillCount = entries.filter((e) => {
+			const fullPath = path.join(dir, e);
+			try {
+				return statSync(fullPath).isDirectory() && e.startsWith("memorix-");
+			} catch {
+				return false;
+			}
+		}).length;
+
+		const mtime = collectMaxMtime(dir);
+
+		if (skillCount > 0 || mtime > 0) {
+			results.push({ path: dir, mtime, skillCount });
+		}
+	}
+
+	results.sort((a, b) => b.mtime - a.mtime);
+	return results;
+}
+
+/**
+ * 从扫描结果中选择 mtime 最新且 skillCount > 0 的来源路径。
+ *
+ * @param sources scanLocalSources() 的返回值
+ * @returns 最佳来源路径，无有效来源时返回 undefined
+ */
+export function pickLatestLocalSource(sources: LocalSourceEntry[]): string | undefined {
+	const valid = sources.filter((s) => s.skillCount > 0);
+	if (valid.length === 0) {
+		return undefined;
+	}
+	return valid[0].path;
+}
