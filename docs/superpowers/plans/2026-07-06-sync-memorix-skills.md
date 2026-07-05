@@ -8,6 +8,12 @@
 
 **Tech Stack:** TypeScript, Node.js 22, vitest, pnpm, tar, tinyglobby.
 
+**提交规范（所有 Task 通用）**
+
+- 严格遵循 `git-commit` 技能：中文摘要、带 emoji 的 Conventional Commits、预校验 `commitlint --strict`。
+- **禁止添加 `Co-authored-by` trailer**：WorkBuddy/Kimi 不在 git-commit 技能的 allowlist 中。
+- 每个 Task 独立提交，不要在一个 Task 中夹带其他 Task 的变更。
+
 ---
 
 ### File Structure
@@ -73,8 +79,6 @@ commit-message.txt 内容：
 
 - tar: cross-platform tarball extraction for npm pack downloads
 - tinyglobby: fast globbing for local skill directory scanning
-
-Co-authored-by: Kimi <kimi@codebuddy.cn>
 ```
 
 ---
@@ -251,8 +255,6 @@ commit-message.txt 内容：
 
 - Define MemorixSource, RefreshOptions, RefreshResult, MemorixMetadata
 - Add SHA-256 helper, metadata path resolution, load/save/backup helpers
-
-Co-authored-by: Kimi <kimi@codebuddy.cn>
 ```
 
 ---
@@ -377,8 +379,6 @@ commit-message.txt 内容：
 
 - Download memorix@<version> via npm pack
 - Extract tarball with tar and read skills recursively
-
-Co-authored-by: Kimi <kimi@codebuddy.cn>
 ```
 
 ---
@@ -507,8 +507,6 @@ commit-message.txt 内容：
 
 - Scan cursor/codex/claude plugin directories
 - Pick latest by version or mtime
-
-Co-authored-by: Kimi <kimi@codebuddy.cn>
 ```
 
 ---
@@ -656,8 +654,6 @@ commit-message.txt 内容：
 
 - memorix skills show --json for CLI source
 - GitHub API + raw download with mirror fallback
-
-Co-authored-by: Kimi <kimi@codebuddy.cn>
 ```
 
 ---
@@ -949,8 +945,6 @@ commit-message.txt 内容：
 - Auto source resolution: npm -> local -> cli -> github
 - SHA comparison, dry-run, force, backup support
 - Persist metadata to ~/.memorix/memorix-skills/memorix-meta.json
-
-Co-authored-by: Kimi <kimi@codebuddy.cn>
 ```
 
 ---
@@ -1103,8 +1097,6 @@ commit-message.txt 内容：
 
 - Standalone CLI wrapping refreshMemorixSkills
 - Supports --source, --agent, --npm-version, --github-ref, --dry-run, --force
-
-Co-authored-by: Kimi <kimi@codebuddy.cn>
 ```
 
 ---
@@ -1292,8 +1284,6 @@ commit-message.txt 内容：
 
 - Default refresh before platform sync
 - Add --skip-memorix-refresh, --force-memorix-refresh, --memorix-source, etc.
-
-Co-authored-by: Kimi <kimi@codebuddy.cn>
 ```
 
 ---
@@ -1451,8 +1441,6 @@ commit-message.txt 内容：
 
 - sync.ps1: scan local agent sources and copy memorix-* skills
 - sync.sh: same behavior with --skip-memorix-refresh and --force-memorix-refresh
-
-Co-authored-by: Kimi <kimi@codebuddy.cn>
 ```
 
 ---
@@ -1520,8 +1508,6 @@ commit-message.txt 内容：
 🧪 test(sync-local-global-agents-skills): add memorix refresh integration tests
 
 - Cover dry-run, force, backup, and metadata scenarios
-
-Co-authored-by: Kimi <kimi@codebuddy.cn>
 ```
 
 ---
@@ -1596,8 +1582,6 @@ commit-message.txt 内容：
 
 - Update README.md with fetch-memorix-skills.ts usage
 - Update SKILL.md with refresh behavior and metadata path
-
-Co-authored-by: Kimi <kimi@codebuddy.cn>
 ```
 
 ---
