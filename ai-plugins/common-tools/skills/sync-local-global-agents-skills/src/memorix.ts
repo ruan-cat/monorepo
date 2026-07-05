@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 
@@ -154,4 +154,166 @@ export function backupBrokenMetadata(): void {
 		const backupPath = `${metaPath}.broken.${Date.now()}`;
 		renameSync(metaPath, backupPath);
 	}
+}
+
+// ---------------------------------------------------------------------------
+// GitHub source
+// ---------------------------------------------------------------------------
+
+/**
+ * 通过 GitHub Content API 获取 memorix skills。
+ *
+ * 先列目录（名为 memorix-*），再递归下载每个 skill 目录中的全部文件。
+ *
+ * @param ref    GitHub 分支或 Tag
+ * @param agent  Agent 平台名称
+ * @param options.token  GitHub Personal Access Token（可选，提高调用限额）
+ * @param options.mirror GitHub raw 镜像地址（可选，如 ghproxy.net）
+ */
+export async function fetchFromGitHub(
+	ref: string,
+	agent: string,
+	options?: { token?: string; mirror?: string },
+): Promise<Record<string, SkillFiles>> {
+	const apiUrl = `https://api.github.com/repos/AVIDS2/memorix/contents/plugins/${agent}/memorix/skills?ref=${ref}`;
+	const headers: Record<string, string> = {
+		Accept: "application/vnd.github.v3+json",
+		"User-Agent": "sync-local-global-agents-skills",
+	};
+	if (options?.token) {
+		headers.Authorization = `Bearer ${options.token}`;
+	}
+
+	const response = await fetch(apiUrl, {
+		headers,
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (response.status !== 200) {
+		throw new Error(`GitHub Content API returned ${response.status} for skills directory`);
+	}
+
+	const entries: any[] = await response.json();
+	const skillDirs = entries.filter((e: any) => e.type === "dir" && e.name.startsWith("memorix-"));
+
+	const result: Record<string, SkillFiles> = {};
+	for (const dir of skillDirs) {
+		result[dir.name] = await fetchTree(dir.url, "", headers, options?.mirror);
+	}
+
+	return result;
+}
+
+/**
+ * 递归通过 GitHub Content API 拉取整个目录树。
+ *
+ * @param baseUrl  GitHub API URL（目录入口）
+ * @param prefix   当前路径前缀（用于生成相对路径 key）
+ * @param headers  HTTP 请求头
+ * @param rawMirror  可选 raw 镜像域名，替换 raw.githubusercontent.com
+ */
+export async function fetchTree(
+	baseUrl: string,
+	prefix: string,
+	headers: Record<string, string>,
+	rawMirror?: string,
+): Promise<SkillFiles> {
+	const response = await fetch(baseUrl, {
+		headers,
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (response.status !== 200) {
+		throw new Error(`fetchTree: API returned ${response.status} for ${baseUrl}`);
+	}
+
+	const entries: any[] = await response.json();
+	const files: SkillFiles = new Map();
+
+	for (const entry of entries) {
+		const entryPath = prefix ? `${prefix}/${entry.name}` : entry.name;
+		if (entry.type === "dir") {
+			const subFiles = await fetchTree(entry.url, entryPath, headers, rawMirror);
+			for (const [key, value] of subFiles) {
+				files.set(key, value);
+			}
+		} else if (entry.type === "file") {
+			const downloadUrl = rawMirror
+				? entry.download_url.replace("raw.githubusercontent.com", rawMirror)
+				: entry.download_url;
+
+			const fileResponse = await fetch(downloadUrl, {
+				headers,
+				signal: AbortSignal.timeout(15000),
+			});
+
+			if (fileResponse.status !== 200) {
+				throw new Error(`Failed to download ${entryPath}: HTTP ${fileResponse.status}`);
+			}
+
+			const buffer = Buffer.from(await fileResponse.arrayBuffer());
+			files.set(entryPath, buffer);
+		}
+	}
+
+	return files;
+}
+
+// ---------------------------------------------------------------------------
+// Local filesystem helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * 递归读取整个目录，返回 path → Buffer 的映射。
+ *
+ * @param dir    目录绝对路径
+ * @param prefix 相对路径前缀，递归时自动拼接
+ */
+export function readDirFiles(dir: string, prefix?: string): SkillFiles {
+	const files: SkillFiles = new Map();
+	const entries = readdirSync(dir);
+
+	for (const entry of entries) {
+		const fullPath = path.join(dir, entry);
+		const relativePath = prefix ? `${prefix}/${entry}` : entry;
+		const stat = statSync(fullPath);
+
+		if (stat.isDirectory()) {
+			const subFiles = readDirFiles(fullPath, relativePath);
+			for (const [key, value] of subFiles) {
+				files.set(key, value);
+			}
+		} else if (stat.isFile()) {
+			files.set(relativePath, readFileSync(fullPath));
+		}
+	}
+
+	return files;
+}
+
+/**
+ * 读取本地 skills 目录，返回 skill 名称到文件的映射。
+ *
+ * 只会读取以 memorix- 开头的子目录。
+ *
+ * @param skillsDir skills 根目录绝对路径
+ */
+export function readSkillsDir(skillsDir: string): Record<string, SkillFiles> {
+	if (!existsSync(skillsDir)) {
+		return {};
+	}
+
+	const result: Record<string, SkillFiles> = {};
+	const entries = readdirSync(skillsDir);
+
+	for (const entry of entries) {
+		const fullPath = path.join(skillsDir, entry);
+		const stat = statSync(fullPath);
+
+		if (stat.isDirectory() && entry.startsWith("memorix-")) {
+			result[entry] = readDirFiles(fullPath);
+		}
+	}
+
+	return result;
 }
