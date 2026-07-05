@@ -3,7 +3,8 @@ name: sync-local-global-agents-skills
 description: >-
   同步本机全局 agent skills 到多个本地 agent 平台（WorkBuddy、QoderWork、Kimi Work 等）。
   以 C:\Users\<user>\.agents\skills 为唯一真理数据源，通过目录级符号链接分发安装，避免重复拷贝。
-  支持 dry-run、自动备份、错误链接替换。触发关键词：sync-local-global-agents-skills、同步 skills、全局 skills 同步。
+  支持 dry-run、自动备份、错误链接替换。已集成 memorix 内部 skills 刷新能力，同步前自动从 memorix 官方仓库拉取最新 skills。
+  触发关键词：sync-local-global-agents-skills、同步 skills、全局 skills 同步。
 metadata:
   version: "0.1.0"
 ---
@@ -84,6 +85,19 @@ fallback/sync.sh
 3. 目标目录是真实目录 → 备份后替换为链接
 4. 目标目录是错误链接 → 直接替换（不备份）
 5. 目标路径是普通文件 → 删除后创建链接
+
+## Memorix Skills 刷新
+
+本版本已集成 memorix 内部 skills 刷新能力。运行 `sync.ts` 时会自动先从 memorix 官方仓库（GitHub raw）刷新最新的内部 skills 到 `~/.agents/skills/`，然后再同步到各 agent 平台。
+
+| 参数                                          | 说明                            |
+| --------------------------------------------- | ------------------------------- |
+| `--skip-memorix-refresh`                      | 跳过 memorix 刷新步骤           |
+| `--force-memorix-refresh`                     | 强制覆盖已存在的 memorix skills |
+| `--memorix-source <github\|local\|cli\|auto>` | 来源策略（默认：auto）          |
+| `--memorix-agent <agent>`                     | agent 来源（默认：cursor）      |
+
+独立刷新脚本：`scripts/fetch-memorix-skills.ts`（支持 `--dry-run`、`--force` 参数）。
 
 ## 相关文件
 

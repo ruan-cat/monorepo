@@ -19,6 +19,34 @@ tsx scripts/sync.ts
 --help            显示帮助信息
 ```
 
+### Memorix Skills 刷新
+
+从现在开始，运行 `sync.ts` 时会**自动**先从 memorix 官方仓库（GitHub raw）刷新最新的内部 skills 到 `~/.agents/skills/`，然后再同步到各 agent 平台。
+
+独立刷新脚本：
+
+```bash
+# 预览（dry-run）
+tsx scripts/fetch-memorix-skills.ts --dry-run
+
+# 执行刷新
+tsx scripts/fetch-memorix-skills.ts
+
+# 强制覆盖
+tsx scripts/fetch-memorix-skills.ts --force
+```
+
+新增 CLI 参数：
+
+| 参数                                          | 说明                            |
+| --------------------------------------------- | ------------------------------- |
+| `--skip-memorix-refresh`                      | 跳过 memorix 刷新步骤           |
+| `--force-memorix-refresh`                     | 强制覆盖已存在的 memorix skills |
+| `--memorix-source <github\|local\|cli\|auto>` | 来源策略（默认：auto）          |
+| `--memorix-agent <agent>`                     | agent 来源（默认：cursor）      |
+
+元数据文件路径：`~/.memorix/memorix-skills/memorix-meta.json`
+
 ## 项目结构
 
 ```text
