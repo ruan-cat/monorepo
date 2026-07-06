@@ -2,16 +2,16 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    安装/更新 Memorix MCP 配置到本地 AI Agent 工具。
+    Install or update Memorix MCP config for local AI agent tools.
 .DESCRIPTION
-    扫描常见 MCP 配置文件位置，确保 memorix 的 args 为 ["serve", "--mode", "full"]。
-    支持 JSON 和 TOML 格式。
+    Scans common MCP config files and ensures memorix args are ["serve", "--mode", "full"].
+    Supports JSON and TOML formats.
 .PARAMETER DryRun
-    预览模式，不实际写入文件。
+    Preview mode; do not write files.
 .PARAMETER Config
-    额外的配置文件路径（可多次指定）。
+    Extra config file path. Can be specified multiple times.
 .PARAMETER Help
-    显示帮助信息。
+    Show help.
 .EXAMPLE
     .\install-mcp.ps1
     .\install-mcp.ps1 -DryRun
@@ -25,7 +25,7 @@ param(
 )
 
 if ($Help) {
-    @"
+    $helpText = @"
 Usage: .\install-mcp.ps1 [-DryRun] [-Config <path>] [-Help]
 
 Options:
@@ -34,50 +34,51 @@ Options:
   -Help      Show this help message.
 
 Supported platforms: codex, claude, cursor, workbuddy, zcode, qoder, kiro
-"@ | Write-Output
+"@
+    $helpText | Write-Output
     exit 0
 }
 
 # ---------------------------------------------------------------------------
-# 配置文件定义：platform => 路径数组（基于 $env:USERPROFILE）
+# Config definitions: platform => path array based on $env:USERPROFILE.
 # ---------------------------------------------------------------------------
 $configs = @{
     codex = @(
         "$env:USERPROFILE\.codex\config.toml",
         "$env:USERPROFILE\.codex\config-2026-6-13-bg.toml"
-    )
+    );
     claude = @(
         "$env:USERPROFILE\.claude.json"
-    )
+    );
     cursor = @(
         "$env:USERPROFILE\.cursor\mcp.json"
-    )
+    );
     workbuddy = @(
         "$env:USERPROFILE\.workbuddy\mcp.json",
         "$env:USERPROFILE\.workbuddy\.mcp.json"
-    )
+    );
     zcode = @(
         "$env:USERPROFILE\.zcode\cli\config.json"
-    )
+    );
     qoder = @(
         "$env:USERPROFILE\AppData\Roaming\Qoder\SharedClientCache\mcp.json"
-    )
+    );
     kiro = @(
         "$env:USERPROFILE\.kiro\settings\mcp.json"
-    )
+    );
 }
 
-# 加入用户传入的额外路径（统一放到 custom platform）
+# Add user-provided extra paths as the custom platform.
 if ($Config) {
     $configs['custom'] = $Config
 }
 
-# 期望的 memorix 配置块
+# Expected memorix config.
 $memorixCommand = 'memorix'
 $memorixArgs = @('serve', '--mode', 'full')
 
 # ---------------------------------------------------------------------------
-# Helper：输出结构化 JSON 行
+# Helper: output one compact JSON line.
 # ---------------------------------------------------------------------------
 function Emit-Result {
     param(
@@ -96,7 +97,7 @@ function Emit-Result {
 }
 
 # ---------------------------------------------------------------------------
-# JSON 文件处理
+# JSON file handling.
 # ---------------------------------------------------------------------------
 function Process-JsonConfig {
     param(
@@ -110,7 +111,7 @@ function Process-JsonConfig {
             return
         }
 
-        # 创建目录
+        # Create directory.
         $dir = Split-Path -Parent $FilePath
         if ($dir -and -not (Test-Path -LiteralPath $dir)) {
             try {
@@ -121,7 +122,7 @@ function Process-JsonConfig {
             }
         }
 
-        # 创建新文件并写入 memorix 配置
+        # Create a new file with memorix config.
         $newConfig = [ordered]@{
             mcpServers = [ordered]@{
                 memorix = [ordered]@{
@@ -139,7 +140,7 @@ function Process-JsonConfig {
         return
     }
 
-    # 文件存在，读取并更新
+    # Read and update existing file.
     try {
         $content = Get-Content -LiteralPath $FilePath -Raw -Encoding UTF8 -ErrorAction Stop
         $json = $content | ConvertFrom-Json -ErrorAction Stop
@@ -148,7 +149,7 @@ function Process-JsonConfig {
         return
     }
 
-    # 确保 mcpServers.memorix 存在
+    # Ensure mcpServers.memorix exists.
     if (-not $json.mcpServers) {
         $json | Add-Member -NotePropertyName 'mcpServers' -NotePropertyValue ([PSCustomObject]@{}) -Force
     }
@@ -156,7 +157,7 @@ function Process-JsonConfig {
         $json.mcpServers | Add-Member -NotePropertyName 'memorix' -NotePropertyValue ([PSCustomObject]@{}) -Force
     }
 
-    # 检查是否需要更新
+    # Check whether an update is needed.
     $needsUpdate = $false
     $existingCmd = $json.mcpServers.memorix.command
     $existingArgs = $json.mcpServers.memorix.args
@@ -178,7 +179,7 @@ function Process-JsonConfig {
         return
     }
 
-    # 更新配置
+    # Update config.
     $json.mcpServers.memorix.command = $memorixCommand
     $json.mcpServers.memorix.args = $memorixArgs
 
@@ -191,7 +192,7 @@ function Process-JsonConfig {
 }
 
 # ---------------------------------------------------------------------------
-# TOML 文件处理（仅 Codex）
+# TOML file handling for Codex.
 # ---------------------------------------------------------------------------
 function Process-TomlConfig {
     param(
@@ -205,7 +206,7 @@ function Process-TomlConfig {
             return
         }
 
-        # 创建目录
+        # Create directory.
         $dir = Split-Path -Parent $FilePath
         if ($dir -and -not (Test-Path -LiteralPath $dir)) {
             try {
@@ -216,7 +217,7 @@ function Process-TomlConfig {
             }
         }
 
-        # 创建新 TOML 文件
+        # Create a new TOML file.
         $tomlContent = @"
 [mcpServers.memorix]
 command = "memorix"
@@ -231,7 +232,7 @@ args = ["serve", "--mode", "full"]
         return
     }
 
-    # 文件存在，读取内容
+    # Read existing content.
     try {
         $content = Get-Content -LiteralPath $FilePath -Raw -Encoding UTF8 -ErrorAction Stop
     } catch {
@@ -239,20 +240,20 @@ args = ["serve", "--mode", "full"]
         return
     }
 
-    # 检查是否已有 [mcpServers.memorix] 部分
+    # Check whether [mcpServers.memorix] already exists.
     $sectionPattern = '(?ms)^\s*\[mcpServers\.memorix\]\s*$'
     $hasSection = $content -match $sectionPattern
 
     if ($hasSection) {
-        # 已有 section，尝试替换 args
+        # Existing section: replace args.
         $argsPattern = '(?ms)(\[mcpServers\.memorix\].*?args\s*=\s*)\[[^\]]*\]'
         $replacement = "`${1}[`"serve`", `"--mode`", `"full`"]"
 
         $newContent = $content -replace $argsPattern, $replacement
 
-        # 如果没有匹配到 args，则在 section 后面追加
+        # If args was not matched, insert it after the section header.
         if ($newContent -eq $content) {
-            # 在 section 行后插入 args
+            # Insert args after the section line.
             $sectionLinePattern = '(^\s*\[mcpServers\.memorix\]\s*$)'
             $newContent = $content -replace $sectionLinePattern, "`$1`nargs = [`"serve`", `"--mode`", `"full`"]"
         }
@@ -274,7 +275,7 @@ args = ["serve", "--mode", "full"]
             Emit-Result -Platform $Platform -ConfigFile $FilePath -Status 'error' -ErrorMsg "Failed to write file: $_"
         }
     } else {
-        # 没有 section，追加到文件末尾
+        # No section: append to the end.
         $appendContent = @"
 
 [mcpServers.memorix]
@@ -298,7 +299,7 @@ args = ["serve", "--mode", "full"]
 }
 
 # ---------------------------------------------------------------------------
-# 主逻辑：遍历所有配置
+# Main loop: process every configured path.
 # ---------------------------------------------------------------------------
 foreach ($platform in $configs.Keys) {
     foreach ($filePath in $configs[$platform]) {
