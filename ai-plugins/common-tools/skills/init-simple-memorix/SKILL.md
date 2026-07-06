@@ -4,7 +4,7 @@ user-invocable: true
 description: >-
   Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、full 模式、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、setup 或升级后重新精简等场景。
 metadata:
-  version: "2.3.0"
+  version: "2.4.0"
 ---
 
 # init-simple-memorix
@@ -80,28 +80,30 @@ metadata:
 
 支持的 hooks 配置目标：
 
-| 工具        | 项目级目标                                | 全局级目标                                                                 |
-| :---------- | :---------------------------------------- | :------------------------------------------------------------------------- |
-| Claude Code | `.claude/settings.local.json`             | `~/.claude/plugins/cache/memorix-local/memorix/{version}/hooks/hooks.json` |
-| Codex       | 不提供项目级模板                          | `~/.codex/plugins/memorix/hooks/hooks.json`                                |
-| Cursor      | `.cursor/hooks.json`                      | `~/.cursor/hooks.json`                                                     |
-| Windsurf    | `.windsurf/hooks.json`                    | 暂不支持                                                                   |
-| Gemini CLI  | `.gemini/settings.json`                   | 暂不支持                                                                   |
-| Kiro        | `.kiro/hooks/memorix-file-save.kiro.hook` | 暂不支持                                                                   |
-| WorkBuddy   | `.workbuddy/hooks/hooks.json`             | 暂不支持                                                                   |
-| Antigravity | `.agents/hooks.json`                      | `~/.gemini/config/plugins/memorix/hooks.json`                              |
+| 工具        | 项目级目标                                            | 全局级目标                                                                 |
+| :---------- | :---------------------------------------------------- | :------------------------------------------------------------------------- |
+| Claude Code | `.claude/settings.local.json`                         | `~/.claude/plugins/cache/memorix-local/memorix/{version}/hooks/hooks.json` |
+| Codex       | 不提供项目级模板                                      | `~/.codex/plugins/memorix/hooks/hooks.json`                                |
+| Cursor      | `.cursor/hooks.json`                                  | `~/.cursor/hooks.json`                                                     |
+| Windsurf    | `.windsurf/hooks.json`                                | 暂不支持                                                                   |
+| Gemini CLI  | `.gemini/settings.json`                               | 暂不支持                                                                   |
+| Kiro        | `.kiro/hooks/memorix-file-save.kiro.hook`             | 暂不支持                                                                   |
+| WorkBuddy   | `.workbuddy/hooks/hooks.json`（实验性，待运行时验证） | 暂不支持                                                                   |
+| ZCode       | `.zcode/config.json` 或 `zcode.json`                  | 暂不支持                                                                   |
+| Antigravity | `.agents/hooks.json`                                  | `~/.gemini/config/plugins/memorix/hooks.json`                              |
 
 项目级模板：
 
-| 工具        | 模板                                         | 目标形态                                  |
-| :---------- | :------------------------------------------- | :---------------------------------------- |
-| Claude Code | `templates/claude-code.settings.local.json`  | `.claude/settings.local.json`             |
-| Cursor      | `templates/cursor.hooks.json`                | `.cursor/hooks.json`                      |
-| Windsurf    | `templates/windsurf.hooks.json`              | `.windsurf/hooks.json`                    |
-| Gemini CLI  | `templates/gemini-cli.settings.json`         | `.gemini/settings.json`                   |
-| Kiro        | `templates/kiro.memorix-file-save.kiro.hook` | `.kiro/hooks/memorix-file-save.kiro.hook` |
-| WorkBuddy   | `templates/workbuddy.hooks.json`             | `.workbuddy/hooks/hooks.json`             |
-| Antigravity | `templates/antigravity.hooks.json`           | `.agents/hooks.json`                      |
+| 工具        | 模板                                                     | 目标形态                                  |
+| :---------- | :------------------------------------------------------- | :---------------------------------------- |
+| Claude Code | `templates/claude-code.settings.local.json`              | `.claude/settings.local.json`             |
+| Cursor      | `templates/cursor.hooks.json`                            | `.cursor/hooks.json`                      |
+| Windsurf    | `templates/windsurf.hooks.json`                          | `.windsurf/hooks.json`                    |
+| Gemini CLI  | `templates/gemini-cli.settings.json`                     | `.gemini/settings.json`                   |
+| Kiro        | `templates/kiro.memorix-file-save.kiro.hook`             | `.kiro/hooks/memorix-file-save.kiro.hook` |
+| WorkBuddy   | `templates/workbuddy.hooks.json`（实验性，待运行时验证） | `.workbuddy/hooks/hooks.json`             |
+| ZCode       | `templates/zcode.config.json`                            | `.zcode/config.json` 或 `zcode.json`      |
+| Antigravity | `templates/antigravity.hooks.json`                       | `.agents/hooks.json`                      |
 
 全局模板：
 
@@ -114,16 +116,17 @@ metadata:
 
 应移除或禁用的高频事件：
 
-| 工具        | 高频噪音事件                                                 |
-| :---------- | :----------------------------------------------------------- |
-| Claude Code | `PreToolUse`, `PostToolUse`                                  |
-| Codex       | `PostToolUse`                                                |
-| Cursor      | `afterFileEdit`, `afterMCPExecution`, `beforeShellExecution` |
-| Windsurf    | `post_write_code`, `post_run_command`, `post_mcp_tool_use`   |
-| Gemini CLI  | `AfterTool`                                                  |
-| Kiro        | 文件保存 hook 保持 `enabled: false`                          |
-| WorkBuddy   | `PreToolUse`, `PostToolUse`                                  |
-| Antigravity | `PreToolUse`, `PostToolUse`                                  |
+| 工具        | 高频噪音事件                                                           |
+| :---------- | :--------------------------------------------------------------------- |
+| Claude Code | `PreToolUse`, `PostToolUse`                                            |
+| Codex       | `PostToolUse`                                                          |
+| Cursor      | `afterFileEdit`, `afterMCPExecution`, `beforeShellExecution`           |
+| Windsurf    | `post_write_code`, `post_run_command`, `post_mcp_tool_use`             |
+| Gemini CLI  | `AfterTool`                                                            |
+| Kiro        | 文件保存 hook 保持 `enabled: false`                                    |
+| WorkBuddy   | `PreToolUse`, `PostToolUse`                                            |
+| ZCode       | `PreToolUse`, `PermissionRequest`, `PostToolUse`, `PostToolUseFailure` |
+| Antigravity | `PreToolUse`, `PostToolUse`                                            |
 
 应保留的生命周期事件：
 
@@ -135,12 +138,16 @@ metadata:
 | Windsurf    | `pre_user_prompt`, `post_cascade_response`                 |
 | Gemini CLI  | `SessionStart`, `PreCompress`, `AfterAgent`                |
 | WorkBuddy   | `SessionStart`, `UserPromptSubmit`, `PreCompact`, `Stop`   |
+| ZCode       | `SessionStart`, `UserPromptSubmit`, `Stop`                 |
 | Antigravity | `PreInvocation`, `PostInvocation`, `Stop`                  |
 
 格式要点：
 
 - Cursor hooks 是对象数组，例如 `{ "command": "memorix.cmd hook" }`，不是 command 字符串数组。
-- WorkBuddy hooks 使用 matcher 嵌套结构，每个事件数组内包含 `{ "matcher": "*", "hooks": [...] }`。
+- WorkBuddy hooks 使用 matcher 嵌套结构，每个事件数组内包含 `{ "matcher": "*", "hooks": [...] }`；项目级目标和模板为实验性、待运行时验证。
+- ZCode 配置文件 hooks 使用 top-level `hooks.enabled: true` + `hooks.events`，事件条目使用 matcher + hooks 嵌套，hook 命令为 `memorix.cmd hook`，不要写成插件 hooks 结构；`matcher` 是大小写敏感正则，可省略，不能写 `*`，匹配全部时用 `.*`。
+- ZCode 配置文件 hooks 默认禁用；模板必须显式设置 `hooks.enabled: true`，可使用 `hooks.timeoutMs` 设置总体超时。
+- ZCode 当前支持的配置文件事件是 `SessionStart`、`UserPromptSubmit`、`PreToolUse`、`PermissionRequest`、`PostToolUse`、`PostToolUseFailure`、`Stop`；不支持 `PreCompact`，生命周期模板不要包含它。
 - Antigravity 项目级模板真实存在于 `templates/antigravity.hooks.json`。
 - 项目级 Codex hooks 模板不存在；Codex 只在全局模板中说明。
 - Claude Code 全局路径包含 `{version}`，必须动态发现已安装的最新 Memorix 插件版本目录。
@@ -243,7 +250,9 @@ Bash 兜底：
 - YAML frontmatter 合法，`metadata.version` 已更新。
 - `description` 只写触发条件，不写流程说明，不使用第一人称。
 - 项目级模板表包含 `templates/antigravity.hooks.json`。
+- 项目级模板表包含 `templates/zcode.config.json`，目标形态是 `.zcode/config.json` 或 `zcode.json`。
 - 项目级模板表没有 Codex；Codex 只出现在 `templates-global/codex.hooks.json`。
+- ZCode 文档明确配置文件 hooks 必须 `hooks.enabled: true` 且事件写在 `hooks.events`，不包含不支持的 `PreCompact`。
 - Cursor 格式说明是对象数组，不是 command 字符串数组。
 - 文档没有写死 full 模式工具数量。
 - 命令示例只有帮助或 dry-run，不会写入用户配置。
@@ -266,26 +275,27 @@ tsx scripts/install-mcp.ts --dry-run
 
 ## Resource Index
 
-| 路径                                         | 用途                                                                  |
-| :------------------------------------------- | :-------------------------------------------------------------------- |
-| `scripts/install-mcp.ts`                     | MCP 配置检查与安装 CLI 入口                                           |
-| `fallback/install-mcp.ps1`                   | Windows PowerShell 兜底入口                                           |
-| `fallback/install-mcp.sh`                    | Bash 兜底入口                                                         |
-| `src/platforms.ts`                           | MCP 平台注册表                                                        |
-| `src/install-mcp.ts`                         | MCP 配置读写逻辑                                                      |
-| `templates/`                                 | 项目级 hooks 模板目录                                                 |
-| `templates/claude-code.settings.local.json`  | Claude Code 项目级模板                                                |
-| `templates/cursor.hooks.json`                | Cursor 项目级模板                                                     |
-| `templates/windsurf.hooks.json`              | Windsurf 项目级模板                                                   |
-| `templates/gemini-cli.settings.json`         | Gemini CLI 项目级模板                                                 |
-| `templates/kiro.memorix-file-save.kiro.hook` | Kiro 项目级模板                                                       |
-| `templates/workbuddy.hooks.json`             | WorkBuddy 项目级模板                                                  |
-| `templates/antigravity.hooks.json`           | Antigravity 项目级模板                                                |
-| `templates-global/`                          | 全局 hooks 模板目录                                                   |
-| `templates-global/claude.hooks.json`         | Claude Code 全局模板                                                  |
-| `templates-global/codex.hooks.json`          | Codex 全局模板                                                        |
-| `templates-global/cursor.hooks.json`         | Cursor 全局模板                                                       |
-| `templates-global/antigravity.hooks.json`    | Antigravity 全局模板                                                  |
-| `references/hooks-reference.md`              | hooks 作用域、噪音事件、生命周期事件、模板格式与合并策略详解          |
-| `references/workbuddy-mcp-notes.md`          | WorkBuddy MCP 连接、信任审批、`NODE_OPTIONS`、Node ABI 与日志检查详解 |
-| `references/memorix-setup-notes.md`          | `memorix setup` / 插件升级后的全局配置影响与重新精简策略              |
+| 路径                                         | 用途                                                                         |
+| :------------------------------------------- | :--------------------------------------------------------------------------- |
+| `scripts/install-mcp.ts`                     | MCP 配置检查与安装 CLI 入口                                                  |
+| `fallback/install-mcp.ps1`                   | Windows PowerShell 兜底入口                                                  |
+| `fallback/install-mcp.sh`                    | Bash 兜底入口                                                                |
+| `src/platforms.ts`                           | MCP 平台注册表                                                               |
+| `src/install-mcp.ts`                         | MCP 配置读写逻辑                                                             |
+| `templates/`                                 | 项目级 hooks 模板目录                                                        |
+| `templates/claude-code.settings.local.json`  | Claude Code 项目级模板                                                       |
+| `templates/cursor.hooks.json`                | Cursor 项目级模板                                                            |
+| `templates/windsurf.hooks.json`              | Windsurf 项目级模板                                                          |
+| `templates/gemini-cli.settings.json`         | Gemini CLI 项目级模板                                                        |
+| `templates/kiro.memorix-file-save.kiro.hook` | Kiro 项目级模板                                                              |
+| `templates/workbuddy.hooks.json`             | WorkBuddy 项目级模板                                                         |
+| `templates/zcode.config.json`                | ZCode 项目级配置文件 hooks 模板，可用于 `.zcode/config.json` 或 `zcode.json` |
+| `templates/antigravity.hooks.json`           | Antigravity 项目级模板                                                       |
+| `templates-global/`                          | 全局 hooks 模板目录                                                          |
+| `templates-global/claude.hooks.json`         | Claude Code 全局模板                                                         |
+| `templates-global/codex.hooks.json`          | Codex 全局模板                                                               |
+| `templates-global/cursor.hooks.json`         | Cursor 全局模板                                                              |
+| `templates-global/antigravity.hooks.json`    | Antigravity 全局模板                                                         |
+| `references/hooks-reference.md`              | hooks 作用域、噪音事件、生命周期事件、模板格式与合并策略详解                 |
+| `references/workbuddy-mcp-notes.md`          | WorkBuddy MCP 连接、信任审批、`NODE_OPTIONS`、Node ABI 与日志检查详解        |
+| `references/memorix-setup-notes.md`          | `memorix setup` / 插件升级后的全局配置影响与重新精简策略                     |
