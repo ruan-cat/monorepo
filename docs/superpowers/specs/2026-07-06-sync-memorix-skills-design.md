@@ -1,3 +1,5 @@
+<!-- 已完成 -->
+
 # 2026-07-06 sync-local-global-agents-skills 增加 memorix 内部 skills 同步能力
 
 ## 1. 概述

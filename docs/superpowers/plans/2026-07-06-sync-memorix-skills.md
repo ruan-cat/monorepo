@@ -1,3 +1,5 @@
+<!-- 已完成 -->
+
 # sync-local-global-agents-skills 增加 memorix 内部 skills 同步能力 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
