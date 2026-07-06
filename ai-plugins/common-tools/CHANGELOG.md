@@ -5,6 +5,26 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.9.1] - 2026-07-06
+
+### Added
+
+- **init-simple-memorix**（`metadata.version` `2.1.0` -> `2.3.0`，补强参考文档分层）：
+- 新增 `references/hooks-reference.md`，承接 hooks 作用域、噪音事件、生命周期事件、模板格式与合并策略细节。
+- 新增 `references/workbuddy-mcp-notes.md`，记录 WorkBuddy MCP 连接、信任审批、`NODE_OPTIONS`、Node ABI 与日志检查规则。
+- 新增 `references/memorix-setup-notes.md`，说明 `memorix setup` / 插件升级后的全局配置影响与重新精简策略。
+
+### Changed
+
+- **init-simple-memorix** 主技能正文新增 `Reference Routing`，按 hooks 噪音、WorkBuddy MCP、setup / 升级三类场景按需加载参考文件。
+- **init-simple-memorix** 主技能正文继续保持分发视角，只使用技能安装目录内相对路径，避免把开发期报告、测试路径或仓库源码路径写入用户分发文档。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.9.1`。
+
+### Fixed
+
+- **init-simple-memorix** 修正 Windows PowerShell 兜底脚本在 PowerShell 5.1 下的 UTF-8 注释解析风险。
+- `fallback/install-mcp.ps1` 的帮助文本与注释改为 ASCII，并修正 here-string 与 hashtable 写法以提升解析兼容性。
+
 ## [7.9.0] - 2026-07-04
 
 ### Added
