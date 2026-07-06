@@ -5,6 +5,21 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.10.0] - 2026-07-06
+
+### Added
+
+- **init-simple-memorix**（`metadata.version` `2.3.0` -> `2.4.0`，新增 ZCode 项目级 hooks 模板）：
+- 新增 `templates/zcode.config.json`，可用于项目根目录 `.zcode/config.json` 或 `zcode.json`。
+- ZCode lifecycle 模板只保留 `SessionStart`、`UserPromptSubmit`、`Stop`，避免加入不支持的 `PreCompact`。
+- ZCode 配置文档明确使用 `hooks.enabled: true`、`hooks.timeoutMs` 与 `hooks.events` 结构。
+
+### Changed
+
+- **init-simple-memorix** 在 hooks 快速参考与 `references/hooks-reference.md` 中补充 ZCode 事件、模板格式与合并策略。
+- **init-simple-memorix** 将 WorkBuddy 项目级 hooks 目标和模板标注为实验性、待运行时验证。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.10.0`。
+
 ## [7.9.1] - 2026-07-06
 
 ### Added
@@ -755,9 +770,9 @@
 
 #### 新增文件
 
-- `claude-code-marketplace/common-tools/skills/openspec/references/tasks-writing-guide.md`
-- `claude-code-marketplace/common-tools/skills/openspec/references/delta-specs-format.md`
-- `claude-code-marketplace/common-tools/skills/openspec/references/configuration.md`
+- `ai-plugins/common-tools/skills/openspec/references/tasks-writing-guide.md`
+- `ai-plugins/common-tools/skills/openspec/references/delta-specs-format.md`
+- `ai-plugins/common-tools/skills/openspec/references/configuration.md`
 
 ## [2.3.0] - 2026-02-28
 
@@ -1217,7 +1232,7 @@ ENABLE_GEMINI_SUMMARY="${GEMINI_SUMMARY_ENABLED:-false}"
 
 ### Changed
 
-- **版本升级操作规范增强**: 更新 `claude-code-marketplace` 项目级别技能文档
+- **版本升级操作规范增强**: 更新 `ai-plugins` 项目级别技能文档
   - 新增"Skills 文档的 metadata.version 字段"章节，明确需要更新的 skills 文档列表
   - 更新"升级流程步骤"，增加同步更新 skills 文档版本号的要求
   - 更新"验证一致性"步骤，增加 skills 文档版本号一致性检查
@@ -2948,7 +2963,7 @@ tail -f /tmp/claude-code-task-complete-notifier-logs/$(ls -t /tmp/claude-code-ta
 - **Agents**:
   - `format-markdown`: 格式化 Markdown 文档的专用子代理
 
-- **插件架构**: 基于 [claude-code-marketplace](https://github.com/ananddtyagi/claude-code-marketplace) 的代码结构设计
+- **插件架构**: 基于 `ai-plugins` 的代码结构设计
 
 ---
 
