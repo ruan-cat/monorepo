@@ -2,6 +2,24 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [7.11.0] - 2026-07-10
+
+### Changed
+
+- **use-vercel-deploy-in-monorepo**（`metadata.version` `1.0.0` -> `1.1.0`，Vercel monorepo 配置边界加固）：
+- Root Directory 规则改为区分“仓库根安装模式”和“官方 app 目录 Root Directory 模式”，避免混用 install、build 与 output 口径。
+- 新增 Dashboard / API、`vercel.json`、`.vercel/project.json` 三类配置来源的边界说明。
+- 多项目 monorepo 场景将仓库根 `vercel.json` 标记为高风险共享覆盖项，优先排查跨项目配置污染。
+- 远程复核清单新增 `link.repo`、`link.org`、`installCommand`、`.vercel/project.json` 绑定目录与部署执行目录一致性。
+- UniApp H5 模板改为先按项目实测链路判断模式 A 或模式 B，不再因框架类型自动推断 Output Directory。
+- `11comm` admin / app / api 当前口径收敛为仓库根 `pnpm run build:vercel:<name>` 入口和根 `.vercel/output` 产物链路。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.11.0`。
+
+### Fixed
+
+- **use-vercel-deploy-in-monorepo** 修正旧模板把 `11comm-app-h5` 直接指向 `apps/app/dist/build/h5` 的误导性口径。
+- **use-vercel-deploy-in-monorepo** 修正旧说明把 `11comm-admin` 输出目录推回 `apps/admin/dist` 的风险。
+
 ## [7.10.0] - 2026-07-06
 
 ### Changed

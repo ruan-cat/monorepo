@@ -5,6 +5,19 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.11.0] - 2026-07-10
+
+### Changed
+
+- **init-vscode**（`metadata.version` `0.3.0` -> `0.4.0`，大型 monorepo 性能默认值）：
+- 触发条件新增 VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化与 tsserver 高占用场景。
+- 工作区配置合并新增 `files.exclude`、`files.watcherExclude`、`search.exclude` 三层排除规则同步要求。
+- `templates/settings.json` 补齐依赖、构建产物、缓存、日志、测试报告和 sourcemap 等常见高噪音目录。
+- `search.indexing.maxFileSize` 默认收敛为 `1048576`，避免大文件进入搜索索引。
+- TypeScript Server 默认补齐 `maxTsServerMemory`、`disableAutomaticTypeAcquisition`、`watchOptions` 与项目内 `typescript.tsdk`。
+- 新增高风险项目加固建议，覆盖 AI 扩展索引、Windows Defender、根 `tsconfig.json` 范围和开发期路径污染边界。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.11.0`。
+
 ## [7.10.0] - 2026-07-06
 
 ### Added
