@@ -3,12 +3,14 @@ name: init-vscode
 description: >-
   初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json），
   并在合并现有配置时把 `files.eol` 明确收敛为 `"\n"`，配合 `.gitattributes`、
-  `.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题。
+  `.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题，
+  同时补齐大型 monorepo 的 VSCode 启动慢、文件监听、搜索索引与 TypeScript Server 性能优化默认值。
   只要用户提到初始化 vscode、编辑器配置、工作区设置、行尾统一、EOL、CRLF/LF、
-  幽灵修改、团队规范，都应该使用本技能。
+  幽灵修改、团队规范、VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化，
+  都应该使用本技能。
 user-invocable: true
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Init VSCode
@@ -21,8 +23,15 @@ metadata:
 
 - 扩展推荐（extensions.json）
 - 工作区设置（settings.json）
+- 大型 monorepo 性能默认值：三层排除、搜索索引收敛、TypeScript Server 限制与监听策略
 
 配置采用智能合并策略，尊重用户现有配置的同时补充最佳实践。但本技能存在一个**强策略例外**：`files.eol` 必须收敛为 `"\n"`。
+
+大型 monorepo 必须同步维护三层排除：
+
+- `files.exclude`：隐藏文件树中的依赖、构建产物、缓存、日志和 sourcemap，降低资源管理器渲染压力。
+- `files.watcherExclude`：减少 VSCode 文件监听器对无效目录的扫描，降低启动后持续 CPU 与磁盘 I/O。
+- `search.exclude`：减少搜索与索引对象，避免 `rg`、搜索索引和 AI 扩展重复扫描生成文件。
 
 ## 工作流程
 
@@ -108,6 +117,13 @@ mkdir -p .vscode
 
 读取模板配置（见 `templates/settings.json`），然后：
 
+**大型 monorepo 性能策略**：
+
+- `files.exclude`、`files.watcherExclude`、`search.exclude` 必须按同一批目录同步补齐；只改其中一层会留下文件树、监听器或搜索索引的性能缺口。
+- 默认排除常见依赖、构建产物、缓存、日志、测试报告和 sourcemap，例如 `node_modules`、`.git`、`dist`、`dist-ssr`、`build`、`.next`、`.nuxt`、`.output`、`.vite`、`.vitepress/dist`、`.vitepress/cache`、`.vuepress/dist`、`.vuepress/cache`、`.turbo`、`.vercel`、`.cache`、`.temp`、`.tmp`、`coverage`、`.nyc_output`、`.vitest-reporter-html`、`.eslintcache`、`.stylelintcache`、`*.tsbuildinfo`、`*.map`、`logs`、`*.log`。
+- `search.indexing.maxFileSize` 默认收敛为 `1048576`，避免 500MB 级别设置导致搜索索引吞入大文件。
+- TypeScript 默认补齐 `typescript.tsserver.maxTsServerMemory: 4096`、`typescript.disableAutomaticTypeAcquisition: true`、`typescript.tsserver.watchOptions` 和 `typescript.tsdk: "node_modules/typescript/lib"`。
+
 **如果文件不存在**：
 
 - 直接创建并写入模板内容
@@ -117,12 +133,17 @@ mkdir -p .vscode
 - 读取现有配置
 - 如果现有文件包含注释，按 JSONC 文件处理，并复用后续 Prettier JSONC override 规则
 - 深度合并对象：
-  - 对于嵌套对象（如 `search.exclude`、`files.watcherExclude`、`explorer.fileNesting.patterns`），合并所有键值对
+  - 对于嵌套对象（如 `files.exclude`、`files.watcherExclude`、`search.exclude`、`explorer.fileNesting.patterns`），合并所有键值对
   - 对于数组，默认去重合并
   - 对于简单值（字符串、布尔值、数字），默认仍然是**用户现有值优先**
 - 但对以下策略键，必须使用模板值覆盖冲突值：
   - `files.eol`：必须收敛为 `"\n"`，不允许保留 `"\r\n"` 或 `"auto"`
   - `vue.server.includeLanguages`：必须收敛为 `["vue"]`，移除 `"markdown"`，避免 Vue 语言服务器错误处理 Markdown 文件
+  - `search.indexing.maxFileSize`：必须收敛为 `1048576`，不要保留 500MB 级别的大文件索引上限
+  - `typescript.disableAutomaticTypeAcquisition`：默认收敛为 `true`，避免大仓库自动拉取和扫描额外类型包
+  - `typescript.tsserver.watchOptions`：必须补齐 `watchFile: "useFsEvents"`、`watchDirectory: "useFsEvents"`、`fallbackPolling: "dynamicPriority"`
+  - `typescript.tsdk`：默认使用项目内 `node_modules/typescript/lib`
+  - `typescript.tsserver.maxTsServerMemory`：缺失或低于 `4096` 时补为 `4096`；高风险 monorepo 可提高到 `8192`
 - 保留用户配置中的其他字段
 - 写回文件，保持 JSON/JSONC 格式美观（2 空格缩进）
 
@@ -182,6 +203,17 @@ mkdir -p .vscode
 5. 如果已有 `overrides`，只追加缺失项或修正同一文件的 parser / `trailingComma`，不要删除现有 parser、plugins、printWidth、tabWidth、endOfLine 等项目配置。
 6. 不要把 `**/*.json` 全部设置为 `jsonc`。`package.json`、lockfile、以及第三方严格 JSON parser 读取的配置仍应保持严格 JSON。
 7. 如果目标项目没有 Prettier 配置，或格式化命令不会覆盖 `.vscode/extensions.json`，也要在反馈中明确说明判断结果，不要无声跳过。
+
+### 3.3 高风险项目加固
+
+当项目是大型 pnpm/turbo monorepo、打开 VSCode 明显变慢、`Code.exe`/`rg.exe`/`tsserver.js` 持续占用 CPU，或存在大量生成产物时，按以下策略加固：
+
+- 可把 `typescript.tsserver.maxTsServerMemory` 从 `4096` 提高到 `8192`，但不要用它替代精确 `tsconfig` 与排除规则。
+- 禁用或限制会索引全仓的 AI 扩展，例如将 `Codegeex.RepoIndex` 设为 `false`，或在扩展自身配置中限定索引范围。
+- `.gitignore` 与 VSCode 三层排除规则需要同步维护；Git 忽略只影响版本控制，不会自动减少 VSCode 文件树、监听器和搜索索引压力。
+- Windows Defender 可按需排除项目内的 `node_modules`、`.git`、`.tmp` 等高频 I/O 目录，减少实时扫描对 VSCode 启动和搜索的干扰。
+- 根 `tsconfig.json` 的 `include` 应精确到源码目录，不要把 `.md`、`.github`、`.cursor` 等无关目录纳入 TypeScript 范围。
+- 对外分发的技能文档只写通用经验与相对路径，不要求用户读取本机诊断报告或开发期绝对路径。
 
 ### 4. 验证结果
 
@@ -411,7 +443,7 @@ merged = [...new Set([...userArray, ...templateArray])];
 
 ### 对象深度合并
 
-对于嵌套对象（如 `search.exclude`、`files.watcherExclude`）：
+对于嵌套对象（如 `files.exclude`、`files.watcherExclude`、`search.exclude`）：
 
 ```javascript
 // 伪代码
@@ -436,6 +468,11 @@ merged = {
 
 - `files.eol` → 必须为 `"\n"`
 - `vue.server.includeLanguages` → 必须为 `["vue"]`，不得包含 `"markdown"`
+- `search.indexing.maxFileSize` → 必须为 `1048576`
+- `typescript.disableAutomaticTypeAcquisition` → 必须为 `true`
+- `typescript.tsserver.watchOptions` → 必须补齐 `useFsEvents` 与 `dynamicPriority`
+- `typescript.tsdk` → 默认使用 `node_modules/typescript/lib`
+- `typescript.tsserver.maxTsServerMemory` → 缺失或低于 `4096` 时补齐，高风险项目可升到 `8192`
 
 ### 可选插件配置合并
 
@@ -453,13 +490,15 @@ merged = {
 - `templates/extensions.json` - 扩展推荐列表
 - `templates/settings.json` - 工作区设置
 
-这些模板包含了常用的开发工具扩展和性能优化设置，适用于大多数前端项目。
+这些模板包含了常用的开发工具扩展、三层排除规则和性能优化设置，适用于大多数前端项目与大型 monorepo。
 
 ## 注意事项
 
 - 不会删除用户的任何现有配置
 - 不会强制覆盖用户的自定义值
 - 但 `files.eol` 属于显式策略键，必须按本技能要求统一为 `"\n"`
+- `files.exclude`、`files.watcherExclude`、`search.exclude` 要同步维护；新增或移除性能排除项时不要只改其中一层
+- 不要把 `.vscode/extensions.json` 说成纯文本；它应保持 JSONC 语义，并通过精确 Prettier JSONC override 兼容格式化链路
 - JSON / JSONC 文件格式保持美观（2 空格缩进，无尾随逗号）
 - 对保留注释的配置文件，不要使用 `JSON.parse` 作为验收标准；应使用 JSONC parser 或 Prettier `--parser jsonc`
 - 如果 JSONC 解析失败，报告错误并建议用户手动检查文件格式
@@ -475,5 +514,10 @@ merged = {
 - "添加 vscode 推荐扩展"
 - "更新工作区设置"
 - "团队开发规范配置"
+- "VSCode 启动慢"
+- "大仓库打开很卡"
+- "优化文件监听"
+- "优化搜索索引"
+- "tsserver 占用很高"
 
 即使用户没有明确说 "vscode"，只要提到项目初始化、开发环境设置、编辑器配置等相关概念，都应该考虑使用此技能。
