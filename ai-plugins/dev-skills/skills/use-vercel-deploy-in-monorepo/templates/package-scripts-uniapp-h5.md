@@ -2,6 +2,8 @@
 >
 > 模式 B 下 Vercel 直接读取子包产物路径，不需要搬运到根目录 `.vercel/output`。
 > 若需要形态 1 / 模式 A 的 `.vercel/output` 结构，见文件末尾“切换到形态 1 / 模式 A（可选）”。
+>
+> 注意：如果项目已有根入口 Build Command 和 `.vercel/output` 搬运链路，不要照搬模式 B。11comm app H5 当前口径是 `pnpm run build:vercel:app`，先生成 `dist/build/h5`，再搬运到仓库根 `.vercel/output`。
 
 前置依赖
 
@@ -61,7 +63,7 @@ Vercel 项目设置
 | Root Directory   | `./` 或留空                                                                       |
 | Output Directory | `apps/<子包>/dist/build/h5`                                                       |
 | Build Command    | `pnpm -F @your-scope/your-app run build:vercel` 或 `pnpm run build:vercel:<name>` |
-| Install Command  | `pnpm install`                                                                    |
+| Install Command  | `pnpm install` 或项目确认后的等价命令                                             |
 
 切换到形态 1 / 模式 A（可选）
 
@@ -109,4 +111,4 @@ Vercel 项目设置
 | Root Directory   | `./` 或留空                                                                       |
 | Output Directory | `.vercel/output`                                                                  |
 | Build Command    | `pnpm -F @your-scope/your-app run build:vercel` 或 `pnpm run build:vercel:<name>` |
-| Install Command  | `pnpm install`                                                                    |
+| Install Command  | `pnpm install` 或项目确认后的等价命令                                             |

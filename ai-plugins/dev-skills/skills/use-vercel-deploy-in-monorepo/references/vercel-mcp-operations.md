@@ -2,6 +2,8 @@
 
 本地 Vercel 配置完成后，可通过支持 Vercel MCP 的 AI 客户端检查项目与部署状态。MCP 仅作为状态校验与触发部署的辅助手段，不替代本地配置。
 
+注意：`.vercel/project.json` 只证明本地 CLI link 绑定，不证明云端 `buildCommand`、`outputDirectory`、`installCommand` 正确。`vercel.json` 可覆盖 Build Command、Install Command、Output Directory、Framework Preset；多项目 monorepo 中必须同时核对 MCP/API 返回值、仓库配置文件和部署日志。
+
 ## 1. mcp__vercel__list_teams
 
 ### 用途
@@ -56,7 +58,9 @@
 			"name": "11comm-nitro-server",
 			"framework": "other",
 			"rootDirectory": null,
-			"outputDirectory": ".vercel/output"
+			"outputDirectory": ".vercel/output",
+			"buildCommand": "pnpm run build:vercel:api",
+			"installCommand": "ls -A && pnpm install"
 		}
 	]
 }
@@ -69,8 +73,10 @@
 | `id`              | 项目 ID，对应 `.vercel/project.json` 中的 `projectId` |
 | `name`            | 项目名称                                              |
 | `framework`       | 框架预设，monorepo 场景通常为 `other`                 |
-| `rootDirectory`   | Root Directory，正确应为 `null` 或 `./`               |
-| `outputDirectory` | Output Directory，正确应为 `.vercel/output`           |
+| `rootDirectory`   | Root Directory，仓库根模式应为 `null` 或 `./`         |
+| `outputDirectory` | Output Directory，模式 A 通常为 `.vercel/output`      |
+| `buildCommand`    | Build Command，应与云端根入口脚本一致                 |
+| `installCommand`  | Install Command，应与项目期望值一致                   |
 
 ## 3. mcp__vercel__get_project
 
@@ -92,21 +98,21 @@
 	"framework": "other",
 	"rootDirectory": null,
 	"outputDirectory": ".vercel/output",
-	"buildCommand": "pnpm -F @01s-11comm/api run build:vercel",
-	"installCommand": "pnpm install",
+	"buildCommand": "pnpm run build:vercel:api",
+	"installCommand": "ls -A && pnpm install",
 	"env": ["NODE_OPTIONS"]
 }
 ```
 
 ### 关键字段说明
 
-| 字段              | 含义           | 期望值                              |
-| :---------------- | :------------- | :---------------------------------- |
-| `rootDirectory`   | 构建根目录     | `null` 或 `./`                      |
-| `outputDirectory` | 产物输出目录   | `.vercel/output`                    |
-| `buildCommand`    | 构建命令       | `pnpm -F <子包名> run build:vercel` |
-| `installCommand`  | 安装命令       | `pnpm install`                      |
-| `env`             | 已配置环境变量 | 包含部署所需变量                    |
+| 字段              | 含义           | 期望值                                              |
+| :---------------- | :------------- | :-------------------------------------------------- |
+| `rootDirectory`   | 构建根目录     | `null` 或 `./`                                      |
+| `outputDirectory` | 产物输出目录   | `.vercel/output`                                    |
+| `buildCommand`    | 构建命令       | `pnpm run build:vercel:<name>` 或项目确认后的根入口 |
+| `installCommand`  | 安装命令       | `pnpm install` 或项目确认后的等价命令               |
+| `env`             | 已配置环境变量 | 包含部署所需变量                                    |
 
 ## 4. mcp__vercel__list_deployments
 
@@ -191,8 +197,10 @@
 ### 调用前提
 
 1. 本地已登录 Vercel：`vercel login`
-2. 根目录已存在 `.vercel/project.json` 或目标 `projectId` / `orgId` 已配置。
+2. 当前执行目录已存在 `.vercel/project.json` 或目标 `projectId` / `orgId` 已配置，且绑定的是本次要部署的项目。
 3. 根目录 `.vercel/output` 已生成且完整。
+
+多项目 monorepo 中，仓库根 `.vercel/project.json` 是单槽绑定；部署 admin/app/api 前都要重新确认目标 `projectId`。
 
 ### 示例输出字段
 
