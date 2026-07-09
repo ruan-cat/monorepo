@@ -92,6 +92,13 @@
   - 参考作用：与 monorepo 包规范一致。
   - 约束：以本仓库既有包与 `package-linter` 技能正文为准。
 
+- `skill-hardening-from-incidents`
+  - 路径：`.agents/skills/skill-hardening-from-incidents/SKILL.md`
+  - 用途：把报告、事故复盘、历史经验转化为可复用的 skills 加固规则与执行流程。
+  - 触发时机：根据报告、事故复盘、历史经验升级、加固或新建 skill 时。
+  - 参考作用：明确写集、证据读取、角色闭环、路径污染扫描、AI 记忆与 Memorix 收口。
+  - 约束：区分项目局部 skill、对外分发 skill、全局 skill；对外分发 skill 不写入本机绝对路径、开发期报告或 monorepo 内部测试/CI 路径。
+
 ### 对外分发技能（ai-plugins）
 
 - `release-ai-plugins`
