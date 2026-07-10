@@ -5,6 +5,15 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.12.0] - 2026-07-10
+
+### Added
+
+- **init-ai-md**（`metadata.version` `0.20.0` -> `0.21.0`，superpower 个人偏好模板增强）：
+- `templates/10.使用superpower技能的个人偏好.md` 新增「superpower 产物不要擅自标记完成」偏好。
+- `templates/10.使用superpower技能的个人偏好.md` 新增「superpower 流程不要擅自 git commit」偏好。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.12.0`。
+
 ## [7.11.0] - 2026-07-10
 
 ### Changed
