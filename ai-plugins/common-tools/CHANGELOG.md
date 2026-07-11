@@ -5,6 +5,20 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.13.0] - 2026-07-11
+
+### Added
+
+- **use-pnpm**（新技能，`metadata.version` `0.1.0`）：
+- 新增 pnpm 包管理、workspace 命令和 npm/npx/yarn 到 pnpm 的替换场景。
+- 覆盖 Windows/PowerShell 下 `ERR_PNPM_UNEXPECTED_VIRTUAL_STORE`、Corepack 管理 pnpm 与 NVM Desktop 切换 Node 后的路径错位排障。
+- 明确区分 `PNPM_HOME`、`pnpm root -g`、`pnpm bin -g`、`store-dir` 与 `virtual-store-dir`，避免全局区和虚拟 store 混淆。
+- 新增全局依赖树恢复、workspace 依赖安装边界、验证清单与未来 `references/` / `scripts/` 扩展策略。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.13.0`。
+
 ## [7.12.0] - 2026-07-10
 
 ### Added
