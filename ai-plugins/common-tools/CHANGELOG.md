@@ -16,6 +16,10 @@
 - `-Force` 只能配合 `-Apply` 使用，并作为普通停止失败后的第二道门。
 - 监听 TCP 端口的 Node 进程默认阻断自动清理，避免误杀开发服务器或 MCP transport。
 
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.14.0`。
+
 ## [7.13.0] - 2026-07-11
 
 ### Added
