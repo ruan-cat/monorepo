@@ -17,6 +17,14 @@
 
 ### Changed
 
+- **do-long-task**（`metadata.version` `1.3.1` -> `1.3.2`，OpenSpec 长任务纪律加固）：
+- `description` 改为中文在前、英文保留的双语触发说明。
+- 执行纪律新增项目级 OpenSpec skills 发现和读取规则，确保项目规则优先于外部分发 skill 默认规则。
+- 明确 `proposal.md`、`design.md`、`tasks.md`、`specs/*/spec.md`、`agent-progress.md`、`agent-findings.md` 不得移动、重命名或日期化。
+- 过程报告、进度文档、调研文档和验证证据必须写入 `tasks.md` 或项目 OpenSpec 规范定义的 `YYYY-MM-DD-*.md` 子目录。
+- `agent-progress.md` / `agent-findings.md` 收敛为摘要、checkpoint、核心痛点、待办和证据索引，避免承载超长执行流水。
+- `/goal` 提示词模板同步补齐项目级 OpenSpec skill、固定工件保护、文档落点和摘要索引纪律。
+- `evals/evals.json` 新增过程文档落点、固定产物保护、根目录散乱 markdown 与超长流水的触发测试场景。
 - 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.13.0`。
 
 ## [7.12.0] - 2026-07-10
