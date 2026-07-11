@@ -27,6 +27,10 @@
 - OpenSpec strict validate 通过，或说明该项目没有对应命令。
 - 验证结果写入 `agent-progress.md`。
 - 重要风险写入 `agent-findings.md`。
+- 没有在 change 根目录散放新的 markdown 过程文档。
+- `proposal.md`、`design.md`、`tasks.md`、`specs/*/spec.md` 未移动、未改名、未日期化。
+- 根目录 `agent-progress.md` 和 `agent-findings.md` 未移动、未改名、未日期化。
+- `agent-progress.md` / `agent-findings.md` 只保留摘要、checkpoint、风险和索引，没有变成长流水。
 - 没有未解决的 CRITICAL 问题。
 
 不得因为“代码已经写完”就标记完成。
@@ -78,4 +82,7 @@
 - 相关验证命令已经通过，或者已记录替代验证。
 - `agent-progress.md` 记录本轮进展和验证结果。
 - `agent-findings.md` 记录重要发现、失败尝试或剩余风险。
+- change 根目录没有散落的过程报告、进度文档、调研文档或验证报告 markdown。
+- 核心工件和固定产物仍在规范位置，未被移动、重命名或日期化。
+- `agent-progress.md` / `agent-findings.md` 没有承载超长执行流水；详情已索引到 `tasks.md` 或项目规范定义的日期化证据文件。
 - 没有未解决的 CRITICAL 问题。

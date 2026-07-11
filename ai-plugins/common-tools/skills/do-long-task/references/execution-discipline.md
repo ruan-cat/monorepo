@@ -34,12 +34,13 @@
 - `AGENT_LONGTASK.md`
 - 当前 task 需要的 `references/*.md`
 - 当前 skill 的 `SKILL.md`
+- 业务项目内 `.claude/skills`、`.codex/skills`、`.agents/skills`、`.agent/skills` 中与 OpenSpec 相关的项目级 skill
 - `proposal.md`
 - `design.md`
-- `specs/`
+- `specs/*/spec.md`
 - `tasks.md`
-- `agent-progress.md`
-- `agent-findings.md`
+- change 根目录的 `agent-progress.md`
+- change 根目录的 `agent-findings.md`
 
 刷新后，在 `agent-progress.md` 写入当前状态确认。
 
@@ -87,6 +88,23 @@
 - 已排除的方案。
 - 不能重复走的错误路径。
 - 需要用户决策的问题。
+
+## 固定产物与压缩纪律
+
+以下文件是固定产物，位置和名称不能被优化、移动、重命名或日期化：
+
+- OpenSpec 核心工件：`proposal.md`、`design.md`、`tasks.md`、`specs/*/spec.md`
+- do-long-task 固定产物：change 根目录的 `agent-progress.md`、`agent-findings.md`
+
+`agent-progress.md` 和 `agent-findings.md` 不是长流水容器。它们只保留：
+
+- 当前状态。
+- 当前 task 或 checkpoint。
+- 核心痛点和已知风险。
+- 待办入口。
+- 验证、报告、调研和失败详情的索引。
+
+当这两个文件变长时，先压缩为当前状态、核心痛点、待办和索引；把完整日志、证据、调研记录放到 `tasks.md` 或项目 OpenSpec 规范指定的日期化证据文件。不得通过移动固定产物、改名为日期文件或在根目录新建报告来“整理”长流水。
 
 ## 文件和 Git 持久化
 

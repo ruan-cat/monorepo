@@ -79,6 +79,18 @@ openspec/changes/<change-name>/tasks.md
 - OpenSpec strict validate 通过。
 - 没有未解决的 CRITICAL 残留。
 
+## 过程文档与证据落点
+
+OpenSpec change 根目录不是报告目录。若执行中需要保存过程报告、进度文档、调研文档、验证证据或审计记录，必须先确认落点：
+
+- 落点必须由当前 change 的 `tasks.md` 或项目 OpenSpec 规范明确指定。
+- 文件必须位于指定子目录中，不能直接散放在 change 根目录。
+- Markdown 文件名使用 `YYYY-MM-DD-*.md`，便于按时间检索和归档。
+- `agent-progress.md` 与 `agent-findings.md` 只写摘要、checkpoint、核心风险和证据索引；不要承载完整长报告。
+- 若 `tasks.md` 没有定义过程文档落点，先补写任务或请项目规范明确，再创建文档。
+
+允许的根级 markdown 只包括 OpenSpec 核心工件、do-long-task 固定产物，以及项目规范明确允许的根级文件。不得因为“只是过程记录”就在根目录新建额外 markdown。
+
 ## OpenSpec 的定位
 
 OpenSpec 负责 change 的规格、设计、任务拆分、验收验证和归档，是长任务的文件记忆来源。
