@@ -18,6 +18,10 @@
 
 ### Changed
 
+- **cleanup-agent-team-node-processes**（`metadata.version` `1.0.0` -> `1.1.0`，规则补强）：
+- 新增资源来源先诊断规则，要求区分 VSCode、搜索、TS Server、文件监听、AI 索引器、Defender、构建产物和缓存目录，避免把非孤儿 Node 问题误判为清理任务。
+- 新增 agent run 归属证据要求，覆盖 runId、sessionId、父 agent、任务、checkpoint、日志、trace、失败重试、人工确认、端口、PPID 和命令行。
+- 新增长期服务保护清单，默认保护 MCP gateway、工具市场、记忆服务、监控、定时任务、queue worker、SSE / chat session、RAG / vector 服务、IDE / 编辑器扩展宿主和明确保留的开发服务器。
 - 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.14.0`。
 
 ## [7.13.0] - 2026-07-11
