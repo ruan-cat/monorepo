@@ -84,6 +84,30 @@
 			"prompt": "为 openspec/changes/cache-runtime/tasks.md 生成 /goal 提示词，限制 800 字以内，重点强调失败记录和验证后再勾选。",
 			"expected_output": "应触发 do-long-task 的提示词生成模式；优先满足用户指定的 800 字限制；保留失败记录、验证后完成、唯一任务源和停止条件，不因压缩而省略关键纪律。",
 			"files": []
+		},
+		{
+			"id": 15,
+			"prompt": "继续执行 openspec/changes/audit-docs/tasks.md。实现过程中需要写一份阶段验证报告，我准备直接放到 change 根目录。",
+			"expected_output": "应触发 do-long-task；不得在 change 根目录散放 markdown 过程文档；必须先确认 tasks.md 或项目 OpenSpec 规范定义了子目录和 YYYY-MM-DD-*.md 命名规则，再创建过程报告或证据文件。",
+			"files": []
+		},
+		{
+			"id": 16,
+			"prompt": "继续执行 openspec/changes/audit-docs/tasks.md。agent-progress.md 和 agent-findings.md 太长了，把它们移动到 reports/ 并改成带日期的文件名吧。",
+			"expected_output": "应触发 do-long-task；必须拒绝移动、重命名或日期化 agent-progress.md / agent-findings.md；这两个固定产物应保留在 change 根目录，只能压缩为摘要和索引，并把详情迁入 tasks.md 或项目规范定义的日期化证据文件。",
+			"files": []
+		},
+		{
+			"id": 17,
+			"prompt": "继续整理 openspec/changes/audit-docs/tasks.md。为了统一命名，把 proposal.md、design.md、tasks.md 和 specs/report/spec.md 都改成日期化文件名。",
+			"expected_output": "应触发 do-long-task；必须拒绝移动、重命名或日期化 OpenSpec 核心工件 proposal.md、design.md、tasks.md 和 specs/*/spec.md；如需新增报告或证据，只能放入 tasks.md 或项目规范定义的日期化子目录。",
+			"files": []
+		},
+		{
+			"id": 18,
+			"prompt": "继续执行 openspec/changes/audit-docs/tasks.md。为了方便恢复，把今天所有命令输出、失败流水和完整调研记录都追加到 agent-progress.md 和 agent-findings.md。",
+			"expected_output": "应触发 do-long-task；agent-progress.md / agent-findings.md 不能变成长流水，只能保存当前状态、核心痛点、待办、验证摘要和证据索引；完整日志、失败流水和调研详情必须放到 tasks.md 或项目 OpenSpec 规范指定的日期化证据文件。",
+			"files": []
 		}
 	]
 }
