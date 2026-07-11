@@ -5,6 +5,17 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.14.0] - 2026-07-11
+
+### Added
+
+- **cleanup-agent-team-node-processes**（新技能，`metadata.version` `1.0.0`）：
+- 新增 Windows / PowerShell 下 agent team 执行后的孤儿 `node.exe` 进程审计与清理流程。
+- 默认使用 dry-run 输出 JSON 进程归属台账，避免按进程名或单一关键词批量清理。
+- `-Apply` 必须同时提供 `-IncludePattern` 与 `-OutputPath`，确保真实清理前范围已收窄且证据可复核。
+- `-Force` 只能配合 `-Apply` 使用，并作为普通停止失败后的第二道门。
+- 监听 TCP 端口的 Node 进程默认阻断自动清理，避免误杀开发服务器或 MCP transport。
+
 ## [7.13.0] - 2026-07-11
 
 ### Added
