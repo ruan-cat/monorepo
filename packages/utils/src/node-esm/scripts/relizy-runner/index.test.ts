@@ -4,12 +4,21 @@ import { tmpdir } from "node:os";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import {
+	type BootstrapGitRunner,
 	buildBootstrapInstructions,
+	getBootstrapTagName,
+	getBootstrapTagNames,
+	getPackagesMissingBootstrapTags,
 	getRelizyRunnerHelpText,
 	getWorkspacePackages,
 	parseRelizyRunnerCliArgs,
+	prepareBootstrapTags,
 	prepareRelizySpawnArgs,
+	runRelizyRunner,
 	shouldCheckIndependentBootstrap,
+	shouldPushBootstrapTags,
+	shouldWriteBootstrapTags,
+	type WorkspacePackageInfo,
 } from "./index";
 
 function createWorkspaceFixture() {
@@ -47,6 +56,33 @@ function createWorkspaceFixture() {
 	);
 
 	return { tempRoot };
+}
+
+function createFakeBootstrapGitRunner(existingTags: Record<string, string[]> = {}) {
+	const calls = {
+		create: [] as { message: string; tagName: string }[],
+		delete: [] as string[],
+		list: [] as string[],
+		push: [] as string[][],
+	};
+
+	const runner: BootstrapGitRunner = {
+		createAnnotatedTag(tagName, message) {
+			calls.create.push({ message, tagName });
+		},
+		deleteTag(tagName) {
+			calls.delete.push(tagName);
+		},
+		listTags(packageName) {
+			calls.list.push(packageName);
+			return existingTags[packageName] ?? [];
+		},
+		pushTags(tagNames) {
+			calls.push.push([...tagNames]);
+		},
+	};
+
+	return { calls, runner };
 }
 
 describe("relizy-runner", () => {
@@ -92,16 +128,22 @@ describe("relizy-runner", () => {
 			);
 			expect(instructions).toContain("- @my-project/admin@1.0.0");
 			expect(instructions).toContain("- @my-project/type@0.1.0");
-			expect(instructions).toContain('git tag "@my-project/admin@1.0.0"');
-			expect(instructions).toContain('git tag "@my-project/type@0.1.0"');
-			expect(instructions).toContain('git push origin "@my-project/admin@1.0.0" "@my-project/type@0.1.0"');
+			expect(instructions).toContain(
+				'git tag -a "@my-project/admin@1.0.0" -m "chore(release): bootstrap @my-project/admin@1.0.0"',
+			);
+			expect(instructions).toContain(
+				'git tag -a "@my-project/type@0.1.0" -m "chore(release): bootstrap @my-project/type@0.1.0"',
+			);
+			expect(instructions).toContain('git push --atomic origin "@my-project/admin@1.0.0" "@my-project/type@0.1.0"');
 		});
 
 		test("单个包时仅生成一条 tag 命令", () => {
 			const instructions = buildBootstrapInstructions([{ name: "@my-project/admin", version: "2.0.0" }]);
 
-			expect(instructions).toContain('git tag "@my-project/admin@2.0.0"');
-			expect(instructions).toContain('git push origin "@my-project/admin@2.0.0"');
+			expect(instructions).toContain(
+				'git tag -a "@my-project/admin@2.0.0" -m "chore(release): bootstrap @my-project/admin@2.0.0"',
+			);
+			expect(instructions).toContain('git push --atomic origin "@my-project/admin@2.0.0"');
 			expect(instructions).not.toContain("@my-project/type");
 		});
 
@@ -112,6 +154,213 @@ describe("relizy-runner", () => {
 				"[release:relizy] 检测到本仓库尚未为以下包建立基线 tag（independent 模式首次发版前需要）：",
 			);
 			expect(instructions).not.toContain("git tag");
+		});
+	});
+
+	describe("bootstrap tag preparation", () => {
+		const missingPackages: WorkspacePackageInfo[] = [
+			{ name: "@my-project/admin", version: "1.0.0" },
+			{ name: "@my-project/type", version: "0.1.0" },
+		];
+
+		test("按包名和版本生成 baseline tag 名", () => {
+			expect(getBootstrapTagName({ name: "@my-project/admin", version: "1.0.0" })).toBe("@my-project/admin@1.0.0");
+			expect(getBootstrapTagNames(missingPackages)).toEqual(["@my-project/admin@1.0.0", "@my-project/type@0.1.0"]);
+		});
+
+		test("按已有 git tags 过滤缺失 baseline tag 的包", () => {
+			const { calls, runner } = createFakeBootstrapGitRunner({
+				"@my-project/admin": ["@my-project/admin@1.0.0"],
+			});
+
+			const packages = getPackagesMissingBootstrapTags(
+				{},
+				{
+					gitRunner: runner,
+					packages: missingPackages,
+				},
+			);
+
+			expect(packages).toEqual([{ name: "@my-project/type", version: "0.1.0" }]);
+			expect(calls.list).toEqual(["@my-project/admin", "@my-project/type"]);
+		});
+
+		test("只有非 dry-run 且非 no-commit 时才允许写入 bootstrap tags", () => {
+			expect(shouldWriteBootstrapTags(["release"])).toBe(true);
+			expect(shouldWriteBootstrapTags(["release", "--no-push"])).toBe(true);
+			expect(shouldWriteBootstrapTags(["release", "--dry-run"])).toBe(false);
+			expect(shouldWriteBootstrapTags(["bump", "--no-commit"])).toBe(false);
+		});
+
+		test("只有未传入 --no-push 时才推送 bootstrap tags", () => {
+			expect(shouldPushBootstrapTags(["release"])).toBe(true);
+			expect(shouldPushBootstrapTags(["release", "--no-push"])).toBe(false);
+		});
+
+		test("自动创建 annotated baseline tags 并推送到 origin", () => {
+			const { calls, runner } = createFakeBootstrapGitRunner();
+
+			const result = prepareBootstrapTags(missingPackages, ["release"], {}, runner);
+
+			expect(result).toMatchObject({
+				ok: true,
+				pushed: true,
+				tagNames: ["@my-project/admin@1.0.0", "@my-project/type@0.1.0"],
+				wrote: true,
+			});
+			expect(calls.create).toEqual([
+				{
+					message: "chore(release): bootstrap @my-project/admin@1.0.0",
+					tagName: "@my-project/admin@1.0.0",
+				},
+				{
+					message: "chore(release): bootstrap @my-project/type@0.1.0",
+					tagName: "@my-project/type@0.1.0",
+				},
+			]);
+			expect(calls.push).toEqual([["@my-project/admin@1.0.0", "@my-project/type@0.1.0"]]);
+		});
+
+		test("--no-push 只创建本地 annotated baseline tags", () => {
+			const { calls, runner } = createFakeBootstrapGitRunner();
+
+			const result = prepareBootstrapTags(missingPackages, ["release", "--no-push"], {}, runner);
+
+			expect(result).toMatchObject({
+				ok: true,
+				pushed: false,
+				wrote: true,
+			});
+			expect(calls.create).toHaveLength(2);
+			expect(calls.push).toEqual([]);
+		});
+
+		test("--dry-run 和 --no-commit 禁止真实创建 bootstrap tags 并返回手工兜底说明", () => {
+			for (const args of [
+				["release", "--dry-run"],
+				["bump", "--no-commit"],
+			]) {
+				const { calls, runner } = createFakeBootstrapGitRunner();
+
+				const result = prepareBootstrapTags(missingPackages, args, {}, runner);
+
+				expect(result).toMatchObject({
+					ok: false,
+					pushed: false,
+					wrote: false,
+				});
+				expect(result.instructions).toContain(
+					'git tag -a "@my-project/admin@1.0.0" -m "chore(release): bootstrap @my-project/admin@1.0.0"',
+				);
+				expect(calls.create).toEqual([]);
+				expect(calls.push).toEqual([]);
+			}
+		});
+
+		test("创建 tag 失败时返回手工 annotated tag 兜底说明", () => {
+			const { calls, runner } = createFakeBootstrapGitRunner();
+			runner.createAnnotatedTag = (tagName, message) => {
+				calls.create.push({ message, tagName });
+				if (tagName === "@my-project/type@0.1.0") {
+					throw new Error("git tag failed");
+				}
+			};
+
+			const result = prepareBootstrapTags(missingPackages, ["release"], {}, runner);
+
+			expect(result).toMatchObject({
+				ok: false,
+				pushed: false,
+			});
+			expect(result.error).toBeInstanceOf(Error);
+			expect(result.instructions).toContain(
+				'git tag -a "@my-project/admin@1.0.0" -m "chore(release): bootstrap @my-project/admin@1.0.0"',
+			);
+			expect(calls.delete).toEqual(["@my-project/admin@1.0.0"]);
+			expect(calls.push).toEqual([]);
+		});
+
+		test("推送 bootstrap tags 失败时回滚本轮已创建的本地 tags", () => {
+			const { calls, runner } = createFakeBootstrapGitRunner();
+			runner.pushTags = (tagNames) => {
+				calls.push.push([...tagNames]);
+				throw new Error("git push failed");
+			};
+
+			const result = prepareBootstrapTags(missingPackages, ["release"], {}, runner);
+
+			expect(result).toMatchObject({
+				ok: false,
+				pushed: false,
+				wrote: true,
+			});
+			expect(result.error).toBeInstanceOf(Error);
+			expect(calls.create.map((call) => call.tagName)).toEqual(["@my-project/admin@1.0.0", "@my-project/type@0.1.0"]);
+			expect(calls.push).toEqual([["@my-project/admin@1.0.0", "@my-project/type@0.1.0"]]);
+			expect(calls.delete).toEqual(["@my-project/type@0.1.0", "@my-project/admin@1.0.0"]);
+		});
+	});
+
+	describe("runRelizyRunner bootstrap rollback", () => {
+		function createRelizyEntrypoint() {
+			const tempRoot = fs.mkdtempSync(path.join(tmpdir(), "relizy-runner-entry-"));
+			temporaryDirectories.add(tempRoot);
+
+			const relizyEntrypoint = path.join(tempRoot, "relizy.mjs");
+			fs.writeFileSync(relizyEntrypoint, "", "utf8");
+
+			return relizyEntrypoint;
+		}
+
+		const missingPackages: WorkspacePackageInfo[] = [
+			{ name: "@my-project/admin", version: "1.0.0" },
+			{ name: "@my-project/type", version: "0.1.0" },
+		];
+
+		test("--no-push 创建本地 bootstrap tags 后 relizy 失败会删除本轮 tags", () => {
+			const { calls, runner } = createFakeBootstrapGitRunner();
+
+			const exitCode = runRelizyRunner(["release", "--no-push"], {
+				bootstrapGitRunner: runner,
+				getMissingPackages: () => missingPackages,
+				relizyEntrypoint: createRelizyEntrypoint(),
+				spawnRelizy: () => 2,
+			});
+
+			expect(exitCode).toBe(2);
+			expect(calls.create.map((call) => call.tagName)).toEqual(["@my-project/admin@1.0.0", "@my-project/type@0.1.0"]);
+			expect(calls.push).toEqual([]);
+			expect(calls.delete).toEqual(["@my-project/type@0.1.0", "@my-project/admin@1.0.0"]);
+		});
+
+		test("--no-push 创建本地 bootstrap tags 后若 relizy 入口缺失也会删除本轮 tags", () => {
+			const { calls, runner } = createFakeBootstrapGitRunner();
+
+			const exitCode = runRelizyRunner(["release", "--no-push"], {
+				bootstrapGitRunner: runner,
+				getMissingPackages: () => missingPackages,
+				relizyEntrypoint: path.join(tmpdir(), "relizy-runner-missing-entrypoint.mjs"),
+			});
+
+			expect(exitCode).toBe(1);
+			expect(calls.create.map((call) => call.tagName)).toEqual(["@my-project/admin@1.0.0", "@my-project/type@0.1.0"]);
+			expect(calls.push).toEqual([]);
+			expect(calls.delete).toEqual(["@my-project/type@0.1.0", "@my-project/admin@1.0.0"]);
+		});
+
+		test("bootstrap tags 已推送后 relizy 失败不会回滚本地或远端 tags", () => {
+			const { calls, runner } = createFakeBootstrapGitRunner();
+
+			const exitCode = runRelizyRunner(["release"], {
+				bootstrapGitRunner: runner,
+				getMissingPackages: () => missingPackages,
+				relizyEntrypoint: createRelizyEntrypoint(),
+				spawnRelizy: () => 2,
+			});
+
+			expect(exitCode).toBe(2);
+			expect(calls.push).toEqual([["@my-project/admin@1.0.0", "@my-project/type@0.1.0"]]);
+			expect(calls.delete).toEqual([]);
 		});
 	});
 
@@ -323,6 +572,8 @@ describe("relizy-runner", () => {
 
 			expect(helpText).toContain("--no-yes");
 			expect(helpText).toContain("release / bump");
+			expect(helpText).toContain("annotated");
+			expect(helpText).toContain("git push --follow-tags");
 		});
 	});
 });
