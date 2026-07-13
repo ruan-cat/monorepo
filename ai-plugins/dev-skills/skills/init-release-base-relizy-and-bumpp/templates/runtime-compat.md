@@ -19,7 +19,9 @@
 | `@ruan-cat/utils` 安装版本或 semver 范围                  | （以 `package.json` / 锁文件为准） |
 | 根脚本是否指向 `relizy-runner`（而非自建 `scripts/*.ts`） | 是 / 否                            |
 | `pnpm-workspace.yaml` 与 `relizy.config.ts` 是否一致      | 是 / 否                            |
-| 是否已阅读 `packages/utils/.../relizy-runner/index.md`    | 是 / 否                            |
+| 是否理解 `--no-push` 仅本地创建 annotated baseline tags   | 是 / 否                            |
+| 是否理解 `--dry-run` / `--no-commit` 不创建 baseline tags | 是 / 否                            |
+| 是否已查看 `relizy-runner --help` 与包内文档              | 是 / 否                            |
 
 ## 选择 pnpm patch 时填写
 
@@ -40,4 +42,4 @@
 
 ## 理由
 
-（描述选择原因，注意：兼容层**不修改 relizy 的版本语义**，只补齐调用链前置条件。）
+（描述选择原因，注意：兼容层**不修改 relizy 的版本计算语义**，只补齐调用链前置条件与 baseline tag bootstrap。）

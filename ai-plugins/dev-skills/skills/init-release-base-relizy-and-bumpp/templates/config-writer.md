@@ -1,7 +1,7 @@
 # 配置落盘骨架（模板）
 
 > 插槽语义、字段约束与类型收口见 [`references/config-templates.md`](../references/config-templates.md) 与 [`references/type-compatibility.md`](../references/type-compatibility.md)。
-> `relizy-runner` 行为与参数见 `packages/utils/src/node-esm/scripts/relizy-runner/index.md`；兼容策略见 [`references/windows-compatibility.md`](../references/windows-compatibility.md) 与 [`references/baseline-tags.md`](../references/baseline-tags.md)。
+> `relizy-runner` 行为与参数以 `relizy-runner --help` 与 `@ruan-cat/utils` 包内文档为准；兼容策略见 [`references/windows-compatibility.md`](../references/windows-compatibility.md) 与 [`references/baseline-tags.md`](../references/baseline-tags.md)。
 > 组合发版架构见 [`references/release-workflow-architecture.md`](../references/release-workflow-architecture.md)。
 
 ## 1. 依赖（根 `package.json`）
@@ -74,9 +74,11 @@ pnpm why release-it
 
 ## 5. 不在仓库内新建 runner 脚本
 
-接入时**不要**复制或编写本地 `scripts/relizy-runner.ts`。基线 tag 预检与工作区包发现由 `@ruan-cat/utils` 内置实现。
+接入时**不要**复制或编写本地 `scripts/relizy-runner.ts`。基线 tag 自动准备与工作区包发现由 `@ruan-cat/utils` 内置实现。
 
-## 6. `pnpm-workspace.yaml`
+注意：`release --dry-run --no-commit` 不会创建 baseline tag；若首次接入时需要 bootstrap tags，应通过实际 `release:sub --no-push` 创建本地 annotated tags，或按 runner 输出的兜底命令手工处理。
+
+## 6`pnpm-workspace.yaml`
 
 仅在需要调整工作区范围时修改；`relizy.config.ts` 的 `readWorkspacePackageGlobs()` 会自动读取。
 

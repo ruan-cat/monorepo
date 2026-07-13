@@ -4,10 +4,10 @@
 
 Runner 同时解决两个独立的、在任意 monorepo 中都可能出现的问题：
 
-| 问题                             | 机制                                                                  | 适用场景             |
-| -------------------------------- | --------------------------------------------------------------------- | -------------------- |
-| Windows `grep`/`head`/`sed` 缺失 | `ensureRelizyShellEnv()` 注入 Git for Windows 的 `usr/bin` 到 PATH    | Windows 开发环境     |
-| Baseline package tags 缺失       | `getPackagesMissingBootstrapTags()` 预检，缺失则阻断并打印补 tag 指令 | 任意操作系统首次接入 |
+| 问题                             | 机制                                                               | 适用场景             |
+| -------------------------------- | ------------------------------------------------------------------ | -------------------- |
+| Windows `grep`/`head`/`sed` 缺失 | `ensureRelizyShellEnv()` 注入 Git for Windows 的 `usr/bin` 到 PATH | Windows 开发环境     |
+| Baseline package tags 缺失       | 自动创建 annotated bootstrap tags；禁写模式下只打印兜底命令并停止  | 任意操作系统首次接入 |
 
 **第二个问题与操作系统无关**。这是为什么 **`relizy-runner`（`@ruan-cat/utils`）** 应该成为**默认安全层**——而不只是「Windows 专属选项之一」。
 
@@ -41,6 +41,7 @@ Runner 同时解决两个独立的、在任意 monorepo 中都可能出现的问
 **不要**在目标仓库新建本地 runner 脚本。按 **`@ruan-cat/utils`** 文档操作：
 
 1. 安装依赖：在目标仓库执行 `pnpm add -D @ruan-cat/utils relizy`（或与该仓库包管理器等价的安装命令）。
-2. 将根 `package.json` 的 `release` / `changelog` 脚本指向 **`relizy-runner` bin**，并在**脚本中显式附加 `--yes`**（例如 `relizy-runner release --no-publish --no-provider-release --yes`，`changelog` 示例见 [`templates/config-writer.md`](../templates/config-writer.md)）。**禁止**使用 `tsx @ruan-cat/utils/relizy-runner` 等非 bin 写法（见 `packages/utils/.../relizy-runner/index.md`）。
-3. 工作区包发现与基线 tag 预检由包内实现驱动；确保根目录存在 **`pnpm-workspace.yaml`**，且与 `relizy.config.ts` 的 `monorepo.packages` 一致。
-4. 完整说明、常用命令与编程式 API 见 `packages/utils/src/node-esm/scripts/relizy-runner/index.md`。
+2. 将根 `package.json` 的 `release` / `changelog` 脚本指向 **`relizy-runner` bin**，并在**脚本中显式附加 `--yes`**（例如 `relizy-runner release --no-publish --no-provider-release --yes`，`changelog` 示例见 [`templates/config-writer.md`](../templates/config-writer.md)）。**禁止**使用 `tsx @ruan-cat/utils/relizy-runner` 等非 bin 写法。
+3. 工作区包发现与基线 tag 自动准备由包内实现驱动；确保根目录存在 **`pnpm-workspace.yaml`**，且与 `relizy.config.ts` 的 `monorepo.packages` 一致。
+4. 理解 tag 写入边界：`--no-push` 只创建本地 annotated tags，后续 `git push --follow-tags` 会携带；`--dry-run` / `--no-commit` 不创建 tag，只输出兜底命令。
+5. 完整说明、常用命令与编程式 API 以安装到目标仓库的 `relizy-runner --help` 与 `@ruan-cat/utils` 包内文档为准。

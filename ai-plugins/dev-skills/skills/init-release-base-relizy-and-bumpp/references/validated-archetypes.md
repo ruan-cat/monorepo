@@ -2,19 +2,19 @@
 
 以下三类场景来自真实接入过程的**抽象**，用于对照决策；**不**绑定任何具体仓库名，也不假设目标仓库开源。每条原型附有「期望决策」，可用于验证技能理解是否正确。
 
-## 原型 A：Runner + baseline 预检（Windows 兼容 + 标准 workspace）
+## 原型 A：Runner + baseline 自动准备（Windows 兼容 + 标准 workspace）
 
 **触发信号**：pnpm monorepo，主要开发环境为 Windows；dry-run 报 `grep`/`head`/`sed` 类错误；要求各包独立版本线；部分包缺 baseline package tags；团队接受依赖 `@ruan-cat/utils` 并使用其 **`relizy-runner` bin**（不在仓库内自建 runner 脚本）。
 
 **特征**：多应用目录 + 标准 workspace；Unix 工具依赖在 Windows PowerShell 下直接失败。
 
-**策略要点**：`independent`；`monorepo.packages` 与真实 workspace 对齐；发版前检查 package baseline tags；用 **`relizy-runner`** 解决环境前置问题而非改 relizy 语义。
+**策略要点**：`independent`；`monorepo.packages` 与真实 workspace 对齐；发版前由 **`relizy-runner`** 自动准备缺失的 annotated baseline tags；用 **`relizy-runner`** 解决环境前置问题与 baseline bootstrap，而非改变 relizy 版本计算语义。
 
 **期望决策（检查项）**：
 
 - `versionMode` 应为 `independent`，不得用 `selective` 冒充独立版本线。
-- 兼容策略应倾向 `@ruan-cat/utils` 的 **`relizy-runner`**（或等价可测封装），并理解其 precheck 逻辑。
-- 缺 baseline tags 时应阻断并给出可执行的补 tag 建议，不得伪装成「正常无输出」。
+- 兼容策略应倾向 `@ruan-cat/utils` 的 **`relizy-runner`**（或等价可测封装），并理解其自动创建 annotated baseline tags 的逻辑。
+- 缺 baseline tags 时，非禁写 release/bump 应自动准备；dry-run/no-commit 应阻断并给出可执行的补 tag 建议，不得伪装成「正常无输出」。
 
 ---
 
@@ -57,5 +57,5 @@
 
 - 先侦察再写配置；`selective` 不替代独立版本线。
 - `private` 与 tag 必须显式确认。
-- **`@ruan-cat/utils` 的 `relizy-runner` 是推荐默认策略**：它同时解决 Windows 工具依赖与 baseline tag 预检，两者都是 `independent` 模式下普遍存在的风险点，不仅限于特定平台。
-- 无法确认所有子包 baseline tag 状态时，应始终选择 **`relizy-runner`** 或等价的自动化预检机制。
+- **`@ruan-cat/utils` 的 `relizy-runner` 是推荐默认策略**：它同时解决 Windows 工具依赖与 baseline tag 自动准备，两者都是 `independent` 模式下普遍存在的风险点，不仅限于特定平台。
+- 无法确认所有子包 baseline tag 状态时，应始终选择 **`relizy-runner`** 或等价的自动化 bootstrap 机制。

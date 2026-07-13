@@ -1,14 +1,12 @@
 ---
 name: init-release-base-relizy-and-bumpp
 description: >-
-  为任意 pnpm monorepo 从零接入 relizy + bumpp 组合发版方案：子包独立版本由
-  relizy 管理，根包版本由 bumpp 管理，GitHub Release 由 CI 工作流自动创建。
-  覆盖仓库侦察、配置落盘、依赖对齐、故障预检与验证。触发关键词：init relizy、
-  init bumpp、接入发版、monorepo 发版初始化、relizy + bumpp、relizy.config、
-  bump.config、changelog.config、独立版本、GitHub Release 自动化。
+  Use when 需要为 pnpm monorepo 从零接入 relizy + bumpp 组合发版方案，或处理
+  init relizy、init bumpp、接入发版、monorepo 发版初始化、relizy + bumpp、
+  relizy.config、bump.config、changelog.config、独立版本、GitHub Release 自动化。
 user-invocable: true
 metadata:
-  version: "3.0.1"
+  version: "3.0.2"
 ---
 
 # Init Release Base — Relizy + Bumpp Monorepo 发版配置落地技能
@@ -29,10 +27,12 @@ metadata:
 
 ## Runner：必须使用 `@ruan-cat/utils` 的 `relizy-runner`（禁止自建脚本）
 
-兼容层（Windows GNU 工具补齐 + independent 基线 tag 预检）由 **`@ruan-cat/utils`** 包实现，通过 **`relizy-runner` bin** 调用。**不得**在目标仓库内新建 `scripts/relizy-runner.ts` 或任何本地 runner 副本。
+兼容层（Windows GNU 工具补齐 + independent 基线 tag 自动准备）由 **`@ruan-cat/utils`** 包实现，通过 **`relizy-runner` bin** 调用。**不得**在目标仓库内新建 `scripts/relizy-runner.ts` 或任何本地 runner 副本。
 
-- **权威说明**：`packages/utils/src/node-esm/scripts/relizy-runner/index.md`
+- **权威说明**：以安装到目标仓库的 `relizy-runner --help` 与 `@ruan-cat/utils` 包内 relizy-runner 文档为准。
 - **调用约定**：须使用 `package.json` 的 `bin`（如 `npx relizy-runner …` / `pnpm exec relizy-runner …`），**禁止**使用 `tsx @ruan-cat/utils/relizy-runner` 等绕过 exports 的写法。
+- **baseline 行为**：`release` / `bump` 在缺少 independent 基线 tag 时，会按当前 package.json 版本创建 annotated bootstrap tags。带 `--no-push` 时只保留本地 tag，后续 `git push --follow-tags` 会携带；不带 `--no-push` 时使用 atomic push 推送本轮 tags。
+- **禁写行为**：`--dry-run` 或 `--no-commit` 下不会创建 tag，缺少基线时只打印手工兜底命令并停止。
 
 ## `--yes` 与非交互发版
 
@@ -44,6 +44,7 @@ relizy 在 `release` / `bump` 等流程中可能弹出交互；在无 TTY 或 CI
 pnpm release
     │
     ├── 1. pnpm run release:sub（relizy）
+    │   ├── 必要时创建本地 annotated baseline tags（--no-push 下不推送）
     │   ├── 分析各子包 commits → bump → CHANGELOG → commit → tag
     │   └── 不 push（--no-push）
     │
@@ -140,7 +141,7 @@ Task Progress:
 ## 核心决策（速查）
 
 1. **versionMode**：「每包独立版本线」→ `independent`；「只 bump 变更包且共享一次发布语义」≠ 独立版本线。
-2. **兼容策略**：**首选** `relizy-runner`（Windows GNU 工具 + baseline tag 预检）。
+2. **兼容策略**：**首选** `relizy-runner`（Windows GNU 工具 + baseline tag 自动准备）。
 3. **文档边界**：`rootChangelog` 与 README 更新是两条链路；`formatCmd` 不应宽到误改 README。
 4. **根包发版**：由 bumpp 独立负责，`bump.config.ts` 不写死 push；串行入口 `release:root` 用 `--no-push`，单独入口 `release:bumpp` 用 `--push`，并通过 `execute` 函数调用 `changelogen --output CHANGELOG.md -r <newVersion>`。
 5. **GitHub Release**：由 CI 使用 `gh release create` 从 CHANGELOG.md 提取，不依赖 changelogithub / relizy provider-release。
@@ -204,5 +205,7 @@ git ls-remote --tags origin "v0.0.1"
 期望根包 changelog 生成版本标题 `## v0.0.1`，而不是区间标题 `## v0.0.0...main`。
 
 若本地已有根包 tag，但 GitHub Actions 的 `release.yaml` 未触发，应先检查远程 tag 是否存在，而不是第一时间怀疑工作流的 CHANGELOG 提取逻辑。
+
+若 `release:dry` 或验证矩阵中的 dry-run 提示缺少 independent 基线 tags，这是预期的禁写保护：dry-run 不会创建 tag。首次接入时应通过真实 `release:sub --no-push` 自动创建本地 annotated baseline tags，或按提示手工创建后再重新 dry-run。
 
 若输出为「无可 bump 包」且无配置/跨平台错误，应解释为**验证通过但当前无变更可发**。

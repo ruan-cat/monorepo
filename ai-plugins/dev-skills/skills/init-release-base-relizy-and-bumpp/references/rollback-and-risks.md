@@ -3,7 +3,7 @@
 ## 立即停止落盘
 
 - `private` 风险未获批准。
-- tag 历史不足以支撑首次 `independent` release，且用户不接受补 tag。
+- tag 历史不足以支撑首次 `independent` release，且用户不接受通过 `relizy-runner` 自动创建 annotated baseline tags 或手工补 tag。
 - 上游 relizy 升级导致兼容矩阵失效且未重新评估。
 
 ## 降级模式

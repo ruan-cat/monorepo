@@ -24,6 +24,7 @@
 pnpm release
     │
     ├── 1. pnpm run release:sub（relizy）
+    │   ├── relizy-runner 必要时创建本地 annotated baseline tags
     │   ├── 分析各子包 commits
     │   ├── bump 有变更的子包 package.json version
     │   ├── 生成子包 CHANGELOG.md + 根 CHANGELOG.md
@@ -98,11 +99,11 @@ GitHub Actions 工作流通过 `if [[ "$TAG" == v* ]]` 判断 tag 类型，分�
 
 1. 安装依赖（详见 SKILL.md 依赖清单）
 2. 创建 5 个配置文件（详见 templates/）
-3. 补充 baseline tag（relizy independent 模式需要每个子包有初始 tag）
+3. 准备 baseline tag（使用 relizy-runner 时，真实 `release:sub --no-push` 会自动创建本地 annotated bootstrap tags；不使用 runner 时才手工补齐）
 4. 配置 package.json scripts（详见 templates/package-scripts.md）
 5. 创建 GitHub Actions 工作流（详见 templates/release.yaml）
 6. 确保子包非 private（relizy independent 模式忽略 `private: true` 的包）
-7. 处理 Windows 兼容性（使用 relizy-runner）
+7. 处理 Windows 兼容性与 baseline bootstrap（使用 relizy-runner）
 
 ## 工作流未触发时先查远程 tag
 

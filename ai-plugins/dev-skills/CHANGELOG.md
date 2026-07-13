@@ -2,6 +2,23 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [7.14.1] - 2026-07-13
+
+### Fixed
+
+- **init-release-base-relizy-and-bumpp**（`metadata.version` `3.0.1` -> `3.0.2`，`relizy-runner` 行为同步）：
+- `relizy-runner` 口径从 baseline tag 预检更新为 annotated baseline tag 自动准备。
+- `references/baseline-tags.md` 明确 `--no-push` 只创建本地 annotated tags。
+- `references/baseline-tags.md` 明确后续 `git push --follow-tags` 会携带本地 annotated tags。
+- `references/baseline-tags.md` 补充非 `--no-push` 时使用 atomic push 推送本轮 tags。
+- `references/verification-matrix.md` 补充 `--dry-run` / `--no-commit` 禁写模式下只输出兜底命令的解释。
+- `templates/package-scripts.md` 与 `templates/config-writer.md` 同步首次接入 independent 时的 bootstrap 处理说明。
+- `templates/docs-sync.md` 与 `templates/runtime-compat.md` 移除对仓库源码路径的依赖，改为引用 `relizy-runner --help` 与包内文档。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.14.1`。
+
 ## [7.14.0] - 2026-07-11
 
 ### Changed

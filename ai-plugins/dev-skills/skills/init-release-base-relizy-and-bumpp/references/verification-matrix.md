@@ -26,6 +26,8 @@ pnpm why release-it
 pnpm exec relizy-runner release --dry-run --no-publish --no-provider-release --no-push --no-commit --no-clean --yes
 ```
 
+若首次接入时该命令提示缺少 independent 基线 tags，这是预期的禁写保护：`--dry-run` / `--no-commit` 下 runner 不会创建 tag。应按 [`baseline-tags.md`](baseline-tags.md) 先通过真实 `release:sub --no-push` 自动创建本地 annotated baseline tags，或按兜底命令手工创建后再重跑 dry-run。
+
 ## 阶段 2：bumpp 根包验证
 
 | 命令                                        | 期望                   |
@@ -67,6 +69,7 @@ pnpm exec relizy release --dry-run --no-publish --no-provider-release --no-push 
 - 若提示无可 bump 包且无配置/平台错误 → **接入验证通过**，当前无变更可发。
 - 若报类型错误 → 查 `type-compatibility` 与 tsconfig。
 - 若报 `grep`/`head`/`sed` → 查 `windows-compatibility`（应优先改用 `relizy-runner`）。
+- 若 dry-run 提示缺 baseline tags → 查 `baseline-tags`；这不是跨平台失败，而是 runner 在禁写模式下拒绝创建 tag。
 - 若发现仓库中仍保留旧的根包发版工具 → 查 `dependency-conflict-precheck`。
 - 若 `release.yaml` 未触发 → 先用 `git ls-remote --tags origin "<tag>"` 确认远程 tag 是否存在，再排查工作流逻辑。
 
@@ -90,5 +93,5 @@ pnpm exec relizy release --dry-run --no-publish --no-provider-release --no-push 
 | ----------------------------- | ------------------------------- |
 | 上游 `relizy-runner` 单测     | 贡献 `@ruan-cat/utils` 时       |
 | 目标子包 `typecheck`          | 仓库有该脚本时                  |
-| baseline tag 检查             | `independent` 且首次接入时      |
+| baseline tag 检查/自动准备    | `independent` 且首次接入时      |
 | GitHub Actions 工作流 dry-run | 推送 test tag 验证 release 创建 |
