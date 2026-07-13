@@ -6,7 +6,7 @@
 
 1. **`release` / `bump` 的 `--yes` 预设**：当前仍然有效。对这两个子命令，若参数中尚未包含 `--yes`，runner 会在调用 relizy 前**自动追加** `--yes`，避免 bump 前交互确认在 CI 或非 TTY 下阻塞。若你需要本地逐步人工确认，请传入 runner 专用参数 **`--no-yes`**（不会转发给 relizy，且会关闭上述自动注入）。
 2. **Windows GNU 工具补齐**：这是**历史兼容能力**。它只对**尚未包含** PR #58 的 relizy 版本仍然有意义；一旦你使用的 relizy 已经包含 PR #58，这部分能力就属于过时兜底。
-3. **Independent 基线 tag 硬性预检**：这也是**历史兼容能力**。它同样只对**尚未包含** PR #58 的 relizy 版本仍然有意义；如果上游已支持 first-release bootstrap，这里的“先补 baseline tag 再继续”就不再是长期推荐路径。
+3. **Independent 基线 tag 自动准备**：这也是**历史兼容能力**。它同样只对**尚未包含** PR #58 的 relizy 版本仍然有意义；如果上游已支持 first-release bootstrap，这里的“由 runner 先准备 baseline tag 再继续”就不再是长期推荐路径。
 
 ## 先说结论：上游现在到底修没修？
 
@@ -22,7 +22,7 @@
 
 - 如果你问的是“`LouisMazel/relizy` 这个仓库里有没有修复提交”，答案是：**有**。
 - 如果你问的是“今天直接安装最新稳定版 npm 包就一定拿到了这些修复吗”，答案是：**不一定，至少最新稳定版 `v1.2.1` 还没有**。
-- 如果你问的是“`relizy-runner` 文档里哪些能力应该标记为历史能力”，答案是：**Windows GNU 工具补齐**与**independent 基线 tag 硬性预检**都该标记为“随上游版本推进而过时”的内容。
+- 如果你问的是“`relizy-runner` 文档里哪些能力应该标记为历史能力”，答案是：**Windows GNU 工具补齐**与**independent 基线 tag 自动准备**都该标记为“随上游版本推进而过时”的内容。
 
 ## 两个关键 PR 分别修了什么？
 
@@ -71,7 +71,7 @@ PR #53 的修复方式，是先把 `relative(...)` 的结果做成 POSIX 风格�
 这意味着：**一旦你使用的 relizy 版本真正包含 PR #58，runner 里的两类历史兼容能力就会明显过时**：
 
 - Windows GNU 工具补齐
-- “没有 baseline tag 就直接阻断”的硬性预检
+- 缺少 baseline tag 时的 runner 自动准备兜底
 
 ## 现在还要不要用这个兼容层？
 
@@ -135,7 +135,7 @@ PR #53 的修复方式，是先把 `relative(...)` 的结果做成 POSIX 风格�
 
 所以，当前这份文档的写法故意保留了两个层次：
 
-- 一方面明确说明：Windows GNU 工具补齐与 baseline tag 预检，属于**会随 upstream 演进而过时的历史兼容能力**；
+- 一方面明确说明：Windows GNU 工具补齐与 baseline tag 自动准备，属于**会随 upstream 演进而过时的历史兼容能力**；
 - 另一方面也明确写出：**在 2026-04-14 这次实测里，当前 canary 还没证明这些能力已经可以整体移除**。
 
 ## 关于 Windows 下的误报「No packages to bump」
@@ -163,12 +163,12 @@ PR #53 的修复方式，是先把 `relative(...)` 的结果做成 POSIX 风格�
 
 这里要区分清楚：
 
-- `relizy-runner` **负责**：仓库级参数包装（默认补 `--yes`）、旧版 relizy 的 Windows GNU 工具补齐、旧版 relizy 的 baseline tag 预检
+- `relizy-runner` **负责**：仓库级参数包装（默认补 `--yes`）、旧版 relizy 的 Windows GNU 工具补齐、旧版 relizy 的 baseline tag 自动准备
 - `relizy-runner` **不负责**：改写 relizy 自身的 bump 计算、commit 过滤、版本推导、first-release 语义
 
 所以：
 
-- 在**旧版** relizy 上，runner 只是“补环境、补前置校验”，并**不能替代** PR #53 的路径分隔符修复。
+- 在**旧版** relizy 上，runner 只是“补环境、补 baseline tag 前置条件”，并**不能替代** PR #53 的路径分隔符修复。
 - 在**新版且已包含 PR #58** 的 relizy 上，runner 里的 GNU / baseline 两项又会逐渐显得**过时**，因为这些逻辑本来就应该由上游 relizy 自己承担。
 
 ## 顺带结论：`move-vercel-output-to-root` 不是这次过时点
@@ -271,7 +271,7 @@ relizy-runner changelog --dry-run --yes
 # 预览完整 release 流程
 relizy-runner release --dry-run --no-publish --no-provider-release
 
-# 仅本地生成提交与 tag、不 push
+# 仅本地生成提交、release tag 与 runner bootstrap tags，不 push
 relizy-runner release --no-publish --no-provider-release --no-push
 
 # 指定 semver 升级策略
@@ -288,6 +288,9 @@ pnpm release:relizy -- --minor
 补充说明：
 
 - `release` / `bump`：若未显式传入 `--yes`，runner 会自动补一个。
+- `release` / `bump`：若缺少 independent baseline tags，runner 会按当前 `package.json` 版本先创建 annotated tags。
+- `--no-push`：runner 只创建本地 baseline tags；后续执行 `git push --follow-tags` 会携带这些 annotated tags。
+- `--dry-run` / `--no-commit`：runner 不会真实创建 baseline tags；若发现缺失，会打印缺失 tags 与手工兜底命令并返回 1。
 - `changelog`：runner 不会自动补 `--yes`。
 - `changelog --yes`：runner 会兼容接受该参数，但会在调用 relizy 前将其吃掉。
 - `--no-yes` 只关闭自动注入；如果你在 `release` / `bump` 下显式写了 `--yes`，仍会按显式参数透传。
@@ -298,11 +301,11 @@ pnpm release:relizy -- --minor
 
 | 参数                                 | 含义                                                                                                             |
 | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `--dry-run`                          | 预览，不写文件、不打 tag、不提交、不 publish                                                                     |
-| `--no-push`                          | 不 push 到远端                                                                                                   |
+| `--dry-run`                          | 预览，不写文件、不打 tag、不提交、不 publish；runner 也不会创建 bootstrap tags                                   |
+| `--no-push`                          | 不 push 到远端；runner 创建的 bootstrap tags 也只保留在本地，后续可由 `git push --follow-tags` 携带              |
 | `--no-publish`                       | 不执行 npm publish                                                                                               |
 | `--no-provider-release`              | 不在 GitHub/GitLab 创建 Release                                                                                  |
-| `--no-commit`                        | 不创建提交与 tag（与其它跳过项组合使用）                                                                         |
+| `--no-commit`                        | 不创建提交与 tag（与其它跳过项组合使用）；runner 也不会创建 bootstrap tags                                       |
 | `--no-changelog`                     | 不生成 changelog 文件                                                                                            |
 | `--no-verify`                        | 提交时跳过 git hooks                                                                                             |
 | `--yes`                              | 跳过 relizy 确认提示；`release` / `bump` 下 runner 也会自动追加（除非使用 `--no-yes`）；`changelog` 下仅兼容忽略 |
@@ -318,15 +321,17 @@ npx relizy release --help
 
 ## 首次接入 independent 模式（旧版 relizy 的历史流程）
 
-如果你使用的 relizy **尚未包含** PR #58，那么首次接入 independent 时，仍应按旧流程先补基线 tag（版本号以当前 `package.json` 为准）。此时 relizy-runner 会在 `release` / `bump` 前自动检查，若缺少基线 tag 会打印类似以下命令：
+如果你使用的 relizy **尚未包含** PR #58，那么首次接入 independent 时，仍需要先补基线 tag（版本号以当前 `package.json` 为准）。此时 relizy-runner 会在 `release` / `bump` 前自动检查缺失包，并在非 `--dry-run` 且非 `--no-commit` 时自动创建 annotated baseline tags：
 
 ```bash
-git tag "@my-scope/admin@1.0.0"
-git tag "@my-scope/type@0.1.0"
-git push origin "@my-scope/admin@1.0.0" "@my-scope/type@0.1.0"
+git tag -a "@my-scope/admin@1.0.0" -m "chore(release): bootstrap @my-scope/admin@1.0.0"
+git tag -a "@my-scope/type@0.1.0" -m "chore(release): bootstrap @my-scope/type@0.1.0"
+git push --atomic origin "@my-scope/admin@1.0.0" "@my-scope/type@0.1.0"
 ```
 
-执行上述命令补齐基线 tag 后，即可继续旧版 relizy 的发版流程。
+如果传入 `--no-push`，runner 只创建本地 annotated tags，不会执行 `git push --atomic origin <tag...>`；后续执行 `git push --follow-tags` 会携带这些 annotated tags。如果传入 `--dry-run` 或 `--no-commit`，runner 不会真实创建 tags，会打印缺失 tag 列表和上述手工兜底命令并返回 1，避免 dry-run 偷偷写 tag，也避免旧版 relizy 在无 tag 情况下继续失败。
+
+如果自动创建或推送失败，runner 会保留上述 `git tag -a ... -m ...` 形式的手工兜底命令，便于你人工补齐后继续旧版 relizy 的发版流程。
 
 如果你使用的 relizy **已经包含** PR #58，请优先以该版本的 first-release bootstrap 行为为准，不要再把“必须手工补 baseline tag”视为唯一正确流程。
 
@@ -357,7 +362,13 @@ export default defineConfig({
 如果需要在 TypeScript/JavaScript 代码中调用本脚本的功能：
 
 ```typescript
-import { runRelizyRunner, getWorkspacePackages, buildBootstrapInstructions } from "@ruan-cat/utils/node-esm";
+import {
+	runRelizyRunner,
+	getWorkspacePackages,
+	buildBootstrapInstructions,
+	getBootstrapTagNames,
+	prepareBootstrapTags,
+} from "@ruan-cat/utils/node-esm";
 
 // 运行 relizy（release / bump 会自动追加 --yes，除非传入 --no-yes）
 const exitCode = runRelizyRunner(["release", "--no-publish", "--no-provider-release"]);
@@ -365,8 +376,12 @@ const exitCode = runRelizyRunner(["release", "--no-publish", "--no-provider-rele
 // 获取工作区包信息
 const packages = getWorkspacePackages();
 
-// 生成基线 tag 提示
+// 生成基线 tag 提示 / 名称
 const instructions = buildBootstrapInstructions(packages);
+const tagNames = getBootstrapTagNames(packages);
+
+// 必要时也可注入 fake git runner 测试 bootstrap tag 准备逻辑
+const result = prepareBootstrapTags(packages, ["release", "--no-push"]);
 ```
 
 ## 自动化测试
