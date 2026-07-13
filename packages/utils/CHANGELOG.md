@@ -1,5 +1,13 @@
 # @ruan-cat/utils 更新日志
 
+## 4.25.2
+
+### Patch Changes
+
+- 1. 修复 `relizy-runner` 在 relizy independent 模式首次发版时缺少基线 tag 会直接中断的问题。 ([`8ef46f1`](https://github.com/ruan-cat/monorepo/commit/8ef46f194c55ebede331e4ee5d277de3b39eed73))
+  2. `relizy-runner` 现在会按当前子包版本自动准备 annotated baseline tags，减少首次接入 relizy 时的人工补 tag 成本。
+  3. 在 `--dry-run` 或 `--no-commit` 禁写场景下保持只提示兜底命令，不会产生实际 tag 写入。
+
 ## 4.25.1
 
 ### Patch Changes
@@ -386,7 +394,7 @@
 
 破坏性变更：
 
-1. 本库不再对外直接提供 ts 文件。内部的类型声明跳转只能跳转到纯粹的.d.ts 文件，而不是原来的 ts 源码。
+1. 本库不再对外直接提供 ts 文件。内部的类型声明跳转只能跳转到纯粹的。d.ts 文件，而不是原来的 ts 源码。
 2. 内部做重构，不再提供显性的 ts 尾缀导入。
 
 ## 4.1.1

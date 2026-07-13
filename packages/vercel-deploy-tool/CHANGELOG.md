@@ -1,5 +1,12 @@
 # @ruan-cat/vercel-deploy-tool 更新日志
 
+## 2.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`8ef46f1`](https://github.com/ruan-cat/monorepo/commit/8ef46f194c55ebede331e4ee5d277de3b39eed73)]:
+  - @ruan-cat/utils@4.25.2
+
 ## 2.0.0
 
 ### Major Changes
@@ -698,7 +705,7 @@
 ### Minor Changes
 
 - 增加 isShowCommand 命令。控制是否显示出目前正在运行的命令。
-- 显示的命令为渐变彩色。使用和 turborepo 相同的渐变色。rgb(0, 153, 247) 到 rgb(241, 23, 18)。
+- 显示的命令为渐变彩色。使用和 turborepo 相同的渐变色。rgb（0, 153, 247） 到 rgb(241, 23, 18)。
 
 ## 0.4.2
 

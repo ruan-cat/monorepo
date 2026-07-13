@@ -1,5 +1,12 @@
 # @ruan-cat/commitlint-config 更新日志
 
+## 4.11.2
+
+### Patch Changes
+
+- Updated dependencies [[`8ef46f1`](https://github.com/ruan-cat/monorepo/commit/8ef46f194c55ebede331e4ee5d277de3b39eed73)]:
+  - @ruan-cat/utils@4.25.2
+
 ## 4.11.1
 
 ### Patch Changes
@@ -243,7 +250,7 @@
   - **build**: `🔧` → `🔨`
   - **config**: `⚙️` → `🔧`
   - **revert**: `↩` → `🔙`
-  - **delete** (原 del): `🗑` → `🔪`
+  - **delete** （原 del): `🗑` → `🔪`
 
   **影响**：已有的提交历史中的 emoji 显示可能与新版本不一致
 
@@ -373,12 +380,12 @@
 
 - ## 添加基于 glob 模式的智能范围匹配功能 ([`d9e70a5`](https://github.com/ruan-cat/monorepo/commit/d9e70a54a7a82af7cc37b726cbe9567dd6e8965a))
 
-  新增功能:
+  新增功能：
   - 支持根据 commonScopes 配置中的 glob 字段自动匹配文件路径
   - 当文件匹配到 glob 模式时，自动添加对应的提交范围
   - 保留现有的包路径匹配逻辑，实现范围的叠加匹配
 
-  示例:
+  示例：
   - `configs-package/commitlint-config/prompts/test.md` → 匹配到 `commitlint-config` + `prompt`
   - `packages/utils/turbo.json` → 匹配到 `utils` + `config` + `turbo`
 
