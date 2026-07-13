@@ -36,7 +36,7 @@ order: 8000
 
 大体同意该方案。
 
-copyClaudeAgents(target) 函数的参数，改成 copyClaudeAgents(options?) 的写法，copyClaudeAgents 函数传入一个配置对象，将 target 路径也放到 options 配置对象内。
+copyClaudeAgents（target） 函数的参数，改成 copyClaudeAgents（options?） 的写法，copyClaudeAgents 函数传入一个配置对象，将 target 路径也放到 options 配置对象内。
 
 请实施该方案。
 
@@ -130,3 +130,64 @@ copyClaudeAgents(target) 函数的参数，改成 copyClaudeAgents(options?) 的
 ## 006 <!-- 已完成 --> 调整加固代码
 
 阅读 `D:\code\ruan-cat\01s-11comm\apps\admin\src\docs\reports\2026-04-17-relizy-runner-changelog-yes-upgrade-plan.md` 的报告，加固我们代码。
+
+## 007 <!-- TODO: Codex正在做 --> 增强 `packages\utils\src\node-esm\scripts\relizy-runner\index.ts` 的能力
+
+请你阅读 D:\code\ruan-cat\gzpc-big-screen\package.json 的 `release:sub` 命令，这个命令执行后会出现这样的错误：
+
+```log
+正在执行任务: pnpm run release:sub
+
+
+> gzpc-big-screen@1.4.0 release:sub D:\code\ruan-cat\gzpc-big-screen
+> relizy-runner release --include-private --no-publish --no-provider-release --no-push --yes
+
+[08:40:59] ◐ [release:relizy] 执行命令：relizy release --include-private --no-publish --no-provider-release --no-push --yes
+[08:41:00] ℹ [release:relizy] Windows 下已补齐 GNU 工具路径：D:\dev-evn\git\usr\bin
+[08:41:00] ℹ [release:relizy] 检查 independent 基线 tag...
+
+[08:41:00]  ERROR  [release:relizy] 检测到本仓库尚未为以下包建立基线 tag（independent 模式首次发版前需要）：
+- @gzpc/phase1-amap@0.2.2
+- @gzpc/phase2-three@1.0.0
+- @gzpc/guangzhou-data@0.1.0
+- @gzpc/mini3d@0.1.0
+- @gzpc/phase2-presentation@0.1.0
+- @gzpc/shared-config@0.1.0
+- @gzpc/shared-theme@0.1.0
+
+请按当前 package.json 版本创建基线 tag，并推送到远端：
+git tag "@gzpc/phase1-amap@0.2.2"
+git tag "@gzpc/phase2-three@1.0.0"
+git tag "@gzpc/guangzhou-data@0.1.0"
+git tag "@gzpc/mini3d@0.1.0"
+git tag "@gzpc/phase2-presentation@0.1.0"
+git tag "@gzpc/shared-config@0.1.0"
+git tag "@gzpc/shared-theme@0.1.0"
+git push origin "@gzpc/phase1-amap@0.2.2" "@gzpc/phase2-three@1.0.0" "@gzpc/guangzhou-data@0.1.0" "@gzpc/mini3d@0.1.0" "@gzpc/phase2-presentation@0.1.0" "@gzpc/shared-config@0.1.0" "@gzpc/shared-theme@0.1.0"
+```
+
+说明 relizy 没有处理好基线 tag 的故障问题。我曾经给 relizy 这个包提交过 pr，专门修复这个故障，但是还是没有完成全面的修复。我现在没有耐心去重新提交 pr 来解决故障了。我们就直接通过修复 relizy-runner 脚本的方式来解决故障。
+
+### 我期望达到的效果
+
+independent 模式你可以自己提交好，准备好这些基线。你自己用 node 来调度命令，完成这些 git 操作行为。我只在乎 git 存在 git tag、github workflow 能正常触发，且这个命令能正常完成预期的任务。
+
+### 和本命令高度相关的知识性技能和文档
+
+1. 本仓库的 `ai-plugins\dev-skills\skills\init-release-base-relizy-and-bumpp` 技能预期会给你更多的知识点。但是只能作为参考，很可能过时。未来我甚至还需要新建额外的 AI 任务来完成这个技能的及时更改。
+2. `packages\utils\src\node-esm\scripts\relizy-runner\index.md` 文档。
+
+### 完成本命令相关的工具
+
+- github MCP 和 gh cli ： 你可能要查询 relizy 包历史相关的 pr 和 issue 信息。
+
+### 自我验证方案
+
+1. 不要通过直接修改 D:\code\ruan-cat\gzpc-big-screen\ 项目代码的方式来完成你的测试。我希望你直接在 gzpc-big-screen 写一个临时性质的 patch 包补丁文件，你通过一个包补丁文件，在这个项目内来运行 release:sub 命令。进而来验证你的代码逻辑是否正确。当你成功时，你就修改我们的 `packages\utils\src\node-esm\scripts\relizy-runner\index.ts` ，进而永久解决问题。
+2. 随后，你在 gzpc-big-screen 项目删除掉你的临时 patch 补丁。
+3. 在 pnpm 内，应用 patch 补丁生效需要重新 pnpm 安装依赖。你预期会至少运行两次，来重新建立依赖。第一次是生效 patch 补丁；第二次是移除临时 patch 后恢复正常的依赖树。
+
+### 挖掘技术细节，沉淀面试谈资
+
+最后在 `docs\resume` 目录内新建一个报告文档，编写合适的面试谈资，我在 `D:\code\ruan-cat\resume\简历\阮中楠-前端开发-3年经验.md` 目录内有说明本包的情况。我希望你沉淀出面试谈资，便于我更好的和面试官吹牛逼，展示我的问题解决能力和思考能力，便于我求职。
+利用这个故障，转换成我的求职谈资和机会。不仅仅修复问题，而且还要变成我的谈资和机会跳板。
