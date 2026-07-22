@@ -5,6 +5,27 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.15.0] - 2026-07-22
+
+### Added
+
+- **install-mcp**（新技能，`metadata.version` `1.0.0`）：
+- 新增面向 Codex、Claude Code、Cursor、WorkBuddy、ZCode、Qoder、Kiro 等 agent 的 MCP 配置清单入口。
+- 覆盖 JSON 与 TOML 形态的 `mcpServers` 合并边界，要求保留未知字段和其他 server entries。
+- 明确 dry-run、备份、解析失败停止写入，以及 WorkBuddy `NODE_OPTIONS` 隔离建议。
+- Memorix full mode 的实际安装与校验继续调度 `init-simple-memorix`。
+- 第三方 MCP server entry 必须先确认 schema、`command`、`args`、`env` 与信任审批影响。
+- **install-skills**（新技能，`metadata.version` `1.0.0`）：
+- 新增面向 AI agent skills 目录的清单与调度入口。
+- 已验证可执行目标以已安装 `sync-local-global-agents-skills` 的 `src/platforms.ts` 为运行时权威。
+- `DEFAULT_PLATFORMS` 仍是可执行目标清单来源，文档表格只作为发布时快照。
+- 找不到已安装同步技能或其 `src/platforms.ts` 时，不得继续宣称“已验证可执行目标”。
+- 项目级 `.agents/skills`、`.claude/skills`、`.agent/skills` 只作为候选目录，需逐项目确认授权与目录语义。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.15.0`。
+
 ## [7.14.1] - 2026-07-13
 
 ### Changed
