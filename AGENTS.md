@@ -101,6 +101,20 @@
 
 ### 对外分发技能（ai-plugins）
 
+- `install-mcp`
+  - 路径：`ai-plugins/common-tools/skills/install-mcp/SKILL.md`
+  - 用途：维护常见与非常见 AI agent 的 MCP 配置目标清单、格式差异、合并/备份策略与安装调度边界。
+  - 触发时机：用户要盘点、规划或批量安装 MCP 配置，或需要确认某个 agent 的 MCP 配置文件位置时。
+  - 参考作用：清楚区分可写目标、候选目标与专用技能调度关系；Memorix full mode 的实际安装仍交给 `init-simple-memorix`。
+  - 约束：本技能只承担清单与调度职责，不新增脚本逻辑，不覆盖未知 MCP 配置字段，不凭印象写死候选平台路径。
+
+- `install-skills`
+  - 路径：`ai-plugins/common-tools/skills/install-skills/SKILL.md`
+  - 用途：维护常见与非常见 AI agent 的 skills 源目录、目标目录、软链接适配性与项目级候选目录清单。
+  - 触发时机：用户要盘点、规划或分发 AI agent skills，或需要确认哪些 agent 可以批量同步 skills 时。
+  - 参考作用：承担 skills 目录清单职责；已验证目标的实际安装动作交给 `sync-local-global-agents-skills`。
+  - 约束：仅把已验证目标列为可执行同步目标；未验证 agent 只能列为候选，不能编造独立 skills 目录或默认替换项目级目录。
+
 - `release-ai-plugins`
   - 路径：`ai-plugins/common-tools/skills/release-ai-plugins/SKILL.md`
   - 用途：管理 `ai-plugins` 多插件与多平台（Claude/Cursor）插件商城版本与文档链接。

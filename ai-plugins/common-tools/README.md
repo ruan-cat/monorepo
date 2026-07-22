@@ -103,18 +103,18 @@
 
 ## 功能特性
 
-### Commands (命令)
+### Commands （命令）
 
 - **markdown-title-order**: 设置并维护 Markdown 文档的标题序号
 - **close-window-port**: 关闭指定端口的窗口进程
 
-### Agents (代理)
+### Agents （代理）
 
 - **format-markdown**: 格式化 Markdown 文档的专用子代理
 - **migrate-iconify-use-pure-admin**: 将 pure-admin 的 iconify 图标方案迁移到 vite+vue3 项目
 - **add-git-mcp**: 在 `.mcp.json` 文件中配置 git-mcp 服务器，实现对 GitHub 仓库的精准索引
 
-### Skills (技能)
+### Skills （技能）
 
 通用开发辅助技能，覆盖 Git 工作流、项目初始化、AI 记忆管理等高频场景：
 
@@ -126,12 +126,14 @@
 - **init-claude-code-statusline**: 初始化 Claude Code 状态栏配置文件（`.claude/settings.json` + `statusline.sh`），展示目录、分支、模型、上下文窗口
 - **init-prettier-git-hooks**: 初始化基于 lint-staged + simple-git-hooks + prettier 的 Git 提交前代码格式化流程
 - **init-vscode**: 初始化或更新 VSCode 配置文件（`extensions.json`、`settings.json`），支持 monorepo 和单体项目，智能合并现有配置
+- **install-mcp**: 维护常见与非常见 AI agent 的 MCP 配置目标清单、格式差异、合并/备份策略与安装调度边界
+- **install-skills**: 维护常见与非常见 AI agent 的 skills 源目录、目标目录、软链接适配性与项目级候选目录清单
 - **pr-ruancat-repo**: 对固定清单内的多个 GitHub 仓库批量发起统一内容 PR（协调者 + 多子代理；仓库清单见 `references/target-repos.md`）
 - **rebase2main**: 将当前开发分支通过 git rebase 同步到 main 分支，推送后切回原分支
 - **release-ai-plugins**: 管理 `ai-plugins` 多插件与多平台（Claude/Cursor）插件商城版本与文档链接，负责版本同步、清单校验、更新日志与安装文档一致性
 - **use-other-model**: 指导主代理驱动其他 AI 模型（MiniMax、Gemini）完成任务，实现 50–80% token 节省
 
-### Hooks (钩子)
+### Hooks （钩子）
 
 提供基于 Claude Code 各个生命周期事件的通知系统：
 
@@ -453,6 +455,8 @@ common-tools/
 │   ├── init-claude-code-statusline/SKILL.md # Claude Code 状态栏初始化
 │   ├── init-prettier-git-hooks/SKILL.md    # Prettier + Git Hooks 初始化
 │   ├── init-vscode/SKILL.md                # VSCode 配置初始化
+│   ├── install-mcp/SKILL.md                # AI agent MCP 配置清单与调度
+│   ├── install-skills/SKILL.md             # AI agent skills 目录清单与调度
 │   ├── pr-ruancat-repo/                     # 多仓库批量 PR
 │   │   ├── SKILL.md
 │   │   └── references/                      # 目标仓库清单与执行模板
@@ -477,7 +481,7 @@ MIT License
 
 ## 作者
 
-**ruan-cat** (阮喵喵)
+**ruan-cat** （阮喵喵）
 
 - Email: 1219043956@qq.com
 - GitHub: [@ruan-cat](https://github.com/ruan-cat)
