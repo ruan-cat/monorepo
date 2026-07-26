@@ -5,6 +5,19 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [8.0.0] - 2026-07-27
+
+### Changed
+
+- **do-long-task**（`metadata.version` `1.3.2` -> `1.3.3`，破坏性存储契约调整）。
+- `agent-progress.md` 和 `agent-findings.md` 只能位于具体 active OpenSpec change 或 archive change 目录。
+- 新建固定产物前必须先确定唯一 `openspec/changes/<change-name>` 或 `openspec/changes/archive/**/<change-name>` 根目录。
+- 启动、恢复、上下文压缩后、创建前和完成前必须扫描错位固定产物并警告用户。
+- 可唯一归属时迁移或合并错位文件；无法唯一归属时停止询问，禁止继续累积到全局文件。
+- `/goal` 模板与 reference 文档同步补齐固定产物位置门禁。
+- `evals/evals.json` 从 18 条扩展到 22 条，覆盖仓库根、`.agent/`、普通 reports、archive 和多候选场景。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 统一提升至 `8.0.0`。
+
 ## [7.16.0] - 2026-07-26
 
 ### Changed
