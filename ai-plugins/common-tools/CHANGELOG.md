@@ -5,6 +5,17 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [7.16.0] - 2026-07-26
+
+### Changed
+
+- **cleanup-agent-team-node-processes**（`metadata.version` `1.1.0` -> `1.2.0`，agent team 残留进程清理增强）：
+- 默认审计范围从 `node.exe` 扩展到 `node.exe`、`npx.exe`、Windows 命令处理程序、agent browser 浏览器进程和 agent browser CLI。
+- 台账新增 `ProcessFamily`、`AgentBrowserEvidence`、`Summary.TargetProcessCount` 与 `Summary.ProcessNameCounts`。
+- 浏览器进程缺少 agent browser / Playwright / profile / run / session / workspace 等归属证据时，默认保持 `audit-only`。
+- `-Apply` 新增宽泛 include 拒绝规则，避免按进程名、通配 regex 或通用 agent 关键词批量清理。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.16.0`。
+
 ## [7.15.0] - 2026-07-22
 
 ### Added
