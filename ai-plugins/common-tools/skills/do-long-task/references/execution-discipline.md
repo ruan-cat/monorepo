@@ -39,10 +39,11 @@
 - `design.md`
 - `specs/*/spec.md`
 - `tasks.md`
+- 工作区内全部 `agent-progress.md` / `agent-findings.md` 的位置扫描结果
 - change 根目录的 `agent-progress.md`
 - change 根目录的 `agent-findings.md`
 
-刷新后，在 `agent-progress.md` 写入当前状态确认。
+刷新后，先确认 `agent-progress.md` / `agent-findings.md` 位于具体 active/archive change 根目录；若发现错位文件，先警告并迁移或合并，再在规范位置的 `agent-progress.md` 写入当前状态确认。
 
 ## 单一任务生命周期
 
@@ -63,7 +64,7 @@
 3. 理清验收标准、修改范围、依赖关系和验证命令。
 4. 只做最小可验证改动。
 5. 运行相关测试、lint、typecheck、OpenSpec validate 或替代验证。
-6. 把结果写进 `agent-progress.md`。
+6. 把结果写进规范 change 根目录的 `agent-progress.md`。
 7. 只有满足验收标准才把 task 勾为完成。
 8. 再进入下一个 task 前，重新读取文件状态。
 
@@ -89,12 +90,29 @@
 - 不能重复走的错误路径。
 - 需要用户决策的问题。
 
+## 位置门禁与错位迁移
+
+在读取、创建、更新状态文件前，先得到唯一 `changeRoot`：
+
+- active change：`openspec/changes/<change-name>`
+- archived change：`openspec/changes/archive/**/<change-name>`
+
+`changeRoot` 必须来自用户显式路径、当前目录所属的 OpenSpec change，或扫描后唯一匹配的 `tasks.md`。无法唯一确定时，不创建状态文件，先向用户索要 change 路径。
+
+搜索现有 `agent-progress.md` / `agent-findings.md` 时，任何不在具体 active/archive change 根目录下的命中都是错位文件。处理方式：
+
+1. 警告用户并说明错位路径。
+2. 能确定 active/archive 归属时，迁移或合并到 `changeRoot`。
+3. 目标文件已存在时追加迁移小节，不覆盖原记录。
+4. 迁移后回读目标文件，再删除源文件。
+5. 无法确定归属时停止询问；不要把内容塞进仓库根目录或单一全局文件。
+
 ## 固定产物与压缩纪律
 
 以下文件是固定产物，位置和名称不能被优化、移动、重命名或日期化：
 
 - OpenSpec 核心工件：`proposal.md`、`design.md`、`tasks.md`、`specs/*/spec.md`
-- do-long-task 固定产物：change 根目录的 `agent-progress.md`、`agent-findings.md`
+- do-long-task 固定产物：具体 active/archive change 根目录的 `agent-progress.md`、`agent-findings.md`
 
 `agent-progress.md` 和 `agent-findings.md` 不是长流水容器。它们只保留：
 

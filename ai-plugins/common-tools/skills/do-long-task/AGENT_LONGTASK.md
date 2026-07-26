@@ -12,7 +12,8 @@
 - 改变用户可见行为时先同步 `specs/`；改变技术路线时先同步 `design.md`。
 - 业务项目内若存在项目级 OpenSpec skills，先按项目根目录优先读取相关入口，再执行当前 change；项目规则优先于外部分发 skill 默认规则。
 - OpenSpec 核心工件固定为 `proposal.md`、`design.md`、`tasks.md`、`specs/*/spec.md`；不得移动、重命名或日期化。
-- `agent-progress.md` 与 `agent-findings.md` 固定在 change 根目录；不得移动、重命名或日期化。
+- `agent-progress.md` 与 `agent-findings.md` 固定在具体 active/archive change 根目录；不得移动、重命名、日期化，也不得落在仓库根目录、普通 reports 目录或多个长任务共用的位置。
+- 新建或更新 `agent-progress.md` / `agent-findings.md` 前，先确定唯一 change 根目录并扫描错位文件；发现错位时先警告并迁移或合并到对应 active/archive change。
 - 进度和验证结果写入根目录 `agent-progress.md`，只保留 checkpoint、当前状态、验证摘要和证据索引。
 - 失败路径、风险、已排除方案和连续失败写入根目录 `agent-findings.md`，只保留核心痛点、禁止重复路径和索引。
 - 过程报告、进度文档、调研文档若要保存在 change 内，必须先由 `tasks.md` 或项目 OpenSpec 规范定义子目录，并使用 `YYYY-MM-DD-*.md` 命名；禁止在 change 根目录散放 markdown。
@@ -41,7 +42,7 @@
 3. 按场景选中的 `references/*.md`。
 4. 业务项目内 `.claude/skills`、`.codex/skills`、`.agents/skills`、`.agent/skills` 中与 OpenSpec 相关的项目级 skill。
 5. 当前 OpenSpec change 的 `proposal.md`、`design.md`、`specs/`、`tasks.md`。
-6. `agent-progress.md` 和 `agent-findings.md`；不存在时先创建在 change 根目录。
+6. 扫描工作区中的 `agent-progress.md` 和 `agent-findings.md`，先处理错位文件，再读取或创建 change 根目录内的固定产物。
 
 恢复中断或上下文压缩后的任务时，先读 `agent-progress.md` 最近 checkpoint，再读 `tasks.md` 当前状态，不凭聊天记忆继续。
 
@@ -50,14 +51,15 @@
 执行模式用于真正推进长任务。
 
 1. 选定 `tasks.md` 中一个未完成 task。
-2. 理清该 task 的验收标准、修改范围、依赖关系和验证命令。
-3. 做最小可验证改动。
-4. 运行相关测试、lint、typecheck、OpenSpec validate 或替代验证。
-5. 把进度、文件变化和验证结果写入 `agent-progress.md`。
-6. 把失败路径、风险和不能重复走的方案写入 `agent-findings.md`。
-7. 若需要保存过程报告、调研记录或证据文档，先确认落点由 `tasks.md` 或项目 OpenSpec 规范定义，且文件名为 `YYYY-MM-DD-*.md`。
-8. 满足完成条件后，才把 task 勾选为 `[x]`。
-9. 进入下一个 task 前，重新读取文件状态。
+2. 确定唯一 change 根目录，并扫描、警告、迁移错位的 `agent-progress.md` / `agent-findings.md`。
+3. 理清该 task 的验收标准、修改范围、依赖关系和验证命令。
+4. 做最小可验证改动。
+5. 运行相关测试、lint、typecheck、OpenSpec validate 或替代验证。
+6. 把进度、文件变化和验证结果写入规范 change 根目录的 `agent-progress.md`。
+7. 把失败路径、风险和不能重复走的方案写入规范 change 根目录的 `agent-findings.md`。
+8. 若需要保存过程报告、调研记录或证据文档，先确认落点由 `tasks.md` 或项目 OpenSpec 规范定义，且文件名为 `YYYY-MM-DD-*.md`。
+9. 满足完成条件后，才把 task 勾选为 `[x]`。
+10. 进入下一个 task 前，重新读取文件状态。
 
 ## 提示词生成模式
 
@@ -92,6 +94,8 @@
 - 不要让子代理直接修改主任务源，除非主代理明确分配了写入范围。
 - 不要为了压缩提示词删掉唯一任务源、验证后完成、失败记录和停止条件。
 - 不要移动、重命名或日期化 `proposal.md`、`design.md`、`tasks.md`、`specs/*/spec.md`、`agent-progress.md`、`agent-findings.md`。
+- 不要在无法唯一确定 OpenSpec change 时创建 `agent-progress.md` 或 `agent-findings.md`。
+- 不要把错位的 `agent-progress.md` / `agent-findings.md` 继续留在仓库根目录、普通 reports 目录、skill 目录或任何多个长任务共用的位置；先警告，再按归属迁移到 active/archive change。
 - 不要把阶段报告、验证报告、调研记录或长流水直接写到 change 根目录。
 - 不要把超长执行流水塞进 `agent-progress.md` 或 `agent-findings.md`；它们只做摘要索引。
 
@@ -104,6 +108,7 @@
 - `agent-findings.md` 已记录重要发现、失败尝试和剩余风险。
 - change 根目录没有散落的新增 markdown 过程文档。
 - 核心工件和固定产物未移动、未改名、未日期化。
+- 工作区没有错位的 `agent-progress.md` / `agent-findings.md`；如曾发现，已迁移到唯一 active/archive change 并回读确认。
 - `agent-progress.md` / `agent-findings.md` 没有变成超长流水，只保留摘要和索引。
 - 相关验证命令已经运行，或替代验证和剩余风险已写明。
 - 没有未解决的 CRITICAL 问题。

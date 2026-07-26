@@ -108,6 +108,30 @@
 			"prompt": "继续执行 openspec/changes/audit-docs/tasks.md。为了方便恢复，把今天所有命令输出、失败流水和完整调研记录都追加到 agent-progress.md 和 agent-findings.md。",
 			"expected_output": "应触发 do-long-task；agent-progress.md / agent-findings.md 不能变成长流水，只能保存当前状态、核心痛点、待办、验证摘要和证据索引；完整日志、失败流水和调研详情必须放到 tasks.md 或项目 OpenSpec 规范指定的日期化证据文件。",
 			"files": []
+		},
+		{
+			"id": 19,
+			"prompt": "继续执行 openspec/changes/payment-rewrite/tasks.md。仓库根目录已经有 agent-progress.md 和 agent-findings.md，就沿用它们记录这轮进度吧。",
+			"expected_output": "应触发 do-long-task；必须拒绝沿用仓库根目录的错位文件，先警告用户并说明规范位置，再把能归属当前 change 的内容迁移或合并到 openspec/changes/payment-rewrite/agent-progress.md 和 agent-findings.md，回读确认后再继续执行。",
+			"files": []
+		},
+		{
+			"id": 20,
+			"prompt": "恢复 openspec/changes/cache-runtime/tasks.md 时发现 .agent/agent-progress.md 里是之前这个 change 的记录。请继续，不用管位置。",
+			"expected_output": "应触发 do-long-task；必须把 .agent/agent-progress.md 判定为错位文件，警告用户并迁移/合并到 openspec/changes/cache-runtime/agent-progress.md；不得在 .agent/ 或任何多个任务共用位置继续累积长任务记录。",
+			"files": []
+		},
+		{
+			"id": 21,
+			"prompt": "整理已经归档的 OpenSpec change：agent-findings.md 放在 reports 目录里，内容属于 openspec/changes/archive/2026-07-01-cache-runtime/。请把归档记录也补好。",
+			"expected_output": "应触发 do-long-task；必须识别普通 reports 目录下的 agent-findings.md 是错位文件，警告用户，并在能唯一确定归档 change 时迁移或合并到 openspec/changes/archive/2026-07-01-cache-runtime/agent-findings.md，而不是放在普通报告目录。",
+			"files": []
+		},
+		{
+			"id": 22,
+			"prompt": "我这里有一个 agent-progress.md，但不知道属于 audit-docs 还是 cache-runtime。你先新建一个全局 agent-findings.md，后面再分。",
+			"expected_output": "应触发 do-long-task；无法唯一确定 active/archive change 归属时必须停止并询问用户，不得新建全局 agent-findings.md，也不得把多个长任务继续累积到同一个 agent-progress.md 或 agent-findings.md。",
+			"files": []
 		}
 	]
 }

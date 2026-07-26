@@ -36,7 +36,8 @@
 - 声明 `tasks.md` 是唯一任务源。
 - 要求每次只处理一个 task 或 checkpoint。
 - 发现遗漏任务时先补写 `tasks.md`；涉及用户可见行为先同步 `specs/`；涉及技术路线先同步 `design.md`。
-- 要求持续维护 `agent-progress.md` 和 `agent-findings.md`。
+- 要求先确定唯一 active/archive change 根目录，再创建或维护 `agent-progress.md` 和 `agent-findings.md`。
+- 要求启动、恢复、上下文压缩后和完成前扫描错位的 `agent-progress.md` / `agent-findings.md`，警告用户并迁移或合并到具体 active/archive change。
 - 要求 `proposal.md`、`design.md`、`tasks.md`、`specs/*/spec.md`、`agent-progress.md`、`agent-findings.md` 不移动、不改名、不日期化。
 - 要求过程报告、进度文档、调研文档只能放到 `tasks.md` 或项目 OpenSpec 规范定义的日期化子目录，禁止 change 根目录散放 markdown。
 - 要求 `agent-progress.md` / `agent-findings.md` 只做摘要索引，过长时压缩并把详情移到指定证据文件。
@@ -53,7 +54,7 @@
 2. 合并重复的读取文件、验证和停止条件。
 3. 删除工具职责说明、长篇背景和历史约定。
 4. 保留路径、唯一任务源、动态补全、进度文件、失败记录、验证后完成。
-5. 保留项目级 OpenSpec skill、固定工件不可移动、过程文档落点、根目录无散落 markdown、progress/findings 摘要索引纪律。
+5. 保留项目级 OpenSpec skill、固定工件位置门禁、错位迁移、固定工件不可移动、过程文档落点、根目录无散落 markdown、progress/findings 摘要索引纪律。
 
 如果用户指定 800 字、1000 字等更短限制，继续压缩表达，但不要删掉唯一任务源、验证和停止条件。
 
@@ -80,6 +81,8 @@
 - 只以 `tasks.md` 为唯一任务源，不创建第二套任务列表，不依赖聊天 checklist。
 - 每次只处理一个 task 或 checkpoint；开始前确认验收标准、修改范围和验证命令。
 - 发现遗漏任务时，先补写 `tasks.md` 再继续；若改变用户可见行为，先同步 `specs/`；若改变技术路线，先同步 `design.md`。
+- 先确定唯一 active/archive change 根目录；`agent-progress.md` / `agent-findings.md` 只能位于该目录。
+- 启动、恢复和完成前扫描工作区内的 `agent-progress.md` / `agent-findings.md`；发现仓库根目录、reports、skill 目录等错位文件时，先警告并迁移/合并到对应 active/archive change，无法唯一归属就暂停询问。
 - 不移动、不重命名、不日期化 `proposal.md`、`design.md`、`tasks.md`、`specs/*/spec.md`、`agent-progress.md`、`agent-findings.md`。
 - change 根目录禁止散放过程报告、进度文档、调研或验证报告；需要保存时，先由 `tasks.md` 或项目规范定义子目录，文件名用 `YYYY-MM-DD-*.md`。
 - `agent-progress.md` 写进展、验证和 checkpoint；`agent-findings.md` 写失败路径、风险、已排除方案和连续失败。
@@ -97,10 +100,10 @@
 启动 `/goal` 时，应要求 Claude Code 或 Codex：
 
 1. 先读取本 skill 入口和相关 reference，再读取业务项目内与 OpenSpec 相关的项目级 skills。
-2. 再读取当前 OpenSpec change 的 `proposal.md`、`design.md`、`specs/*/spec.md`、`tasks.md`、`agent-progress.md`、`agent-findings.md`。
+2. 再确定唯一 active/archive change 根目录，扫描并处理错位的 `agent-progress.md` / `agent-findings.md`，然后读取当前 OpenSpec change 的 `proposal.md`、`design.md`、`specs/*/spec.md`、`tasks.md`、`agent-progress.md`、`agent-findings.md`。
 3. 持续执行 `tasks.md` 中未完成的任务，并把遗漏任务、规格变化或设计变化先写回对应 OpenSpec 工件。
 4. 不移动、不重命名、不日期化 OpenSpec 核心工件和 do-long-task 固定产物。
 5. 过程报告、进度文档、调研文档只放到 `tasks.md` 或项目规范定义的日期化子目录。
-6. 每完成一个阶段，就更新 `agent-progress.md`；失败、风险和不可重复路径写入 `agent-findings.md`。
+6. 每完成一个阶段，就更新规范 change 根目录的 `agent-progress.md`；失败、风险和不可重复路径写入同目录 `agent-findings.md`。
 7. 只有实现完成、验收满足、验证通过或替代验证已记录，且没有 CRITICAL 残留时，才能把 checkbox 改为 `[x]`。
 8. 直到所有任务完成、验证通过，或遇到真正阻塞才停止。

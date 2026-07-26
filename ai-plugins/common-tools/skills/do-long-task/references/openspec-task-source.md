@@ -104,7 +104,30 @@ OpenSpec 负责 change 的规格、设计、任务拆分、验收验证和归档
 5. `agent-progress.md`
 6. `agent-findings.md`
 
-如果 `agent-progress.md` 或 `agent-findings.md` 不存在，先创建。恢复任务时，先读取 `agent-progress.md` 最近 checkpoint，再读取 `tasks.md`。
+如果 `agent-progress.md` 或 `agent-findings.md` 不存在，必须先确定唯一 change 根目录，再创建到该目录。恢复任务时，先读取规范位置的 `agent-progress.md` 最近 checkpoint，再读取 `tasks.md`。
+
+## 固定产物归属与迁移
+
+`agent-progress.md` 和 `agent-findings.md` 是具体 OpenSpec change 的附属文件，不是仓库级长任务总账。
+
+规范归属只有两种：
+
+- active change：`openspec/changes/<change-name>/`
+- archived change：`openspec/changes/archive/**/<change-name>/`
+
+启动、恢复、上下文压缩后、创建固定产物前和完成前，先搜索工作区内现有的 `agent-progress.md` / `agent-findings.md`。命中后逐个判定：
+
+- 位于 active/archive 具体 change 根目录：有效。
+- 位于仓库根目录、`openspec/changes/` 顶层、`openspec/changes/archive/` 顶层、普通报告目录、skill 目录或普通临时目录：无效。
+
+发现无效位置时：
+
+1. 先警告用户，列出无效路径、目标 change、归属依据和迁移策略。
+2. 若能唯一确定当前 active change，迁移或合并到该 change 根目录的同名文件。
+3. 若能唯一确定内容属于已归档 change，迁移或合并到 archive 下的具体 change 根目录。
+4. 目标文件已存在时，不覆盖；追加 `## Migrated from <relative-path> on <YYYY-MM-DD>` 小节保存原文、来源和迁移原因。
+5. 迁移后回读目标文件确认内容存在，再删除源文件。
+6. 若无法唯一确定归属或存在多个候选，暂停询问用户；不要猜测，也不要把多个长任务继续累积到同一个文件。
 
 ## 多任务源风险
 
