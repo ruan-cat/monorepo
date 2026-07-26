@@ -3,6 +3,20 @@ param(
   [switch]$Apply,
   [string[]]$IncludePattern = @(),
   [string[]]$ExcludePattern = @(),
+  [ValidateNotNullOrEmpty()]
+  [string[]]$ProcessName = @(
+    "node.exe",
+    "npx.exe",
+    "cmd.exe",
+    "powershell.exe",
+    "pwsh.exe",
+    "conhost.exe",
+    "chrome.exe",
+    "msedge.exe",
+    "chromium.exe",
+    "agent-browser.exe",
+    "agent-browser-cli.exe"
+  ),
   [int]$MinAgeMinutes = 30,
   [string]$OutputPath,
   [switch]$Force
@@ -104,6 +118,126 @@ function Get-ProcessMap {
   return $map
 }
 
+function Normalize-ProcessNames {
+  param([string[]]$Names)
+
+  $normalized = @()
+  foreach ($name in $Names) {
+    if ([string]::IsNullOrWhiteSpace($name)) {
+      continue
+    }
+
+    $trimmed = $name.Trim()
+    if (-not $trimmed.EndsWith(".exe", [System.StringComparison]::OrdinalIgnoreCase)) {
+      $trimmed = "$trimmed.exe"
+    }
+
+    $normalized += $trimmed.ToLowerInvariant()
+  }
+
+  $uniqueNames = @($normalized | Select-Object -Unique)
+  if ($uniqueNames.Count -eq 0) {
+    throw "ProcessName must contain at least one executable name."
+  }
+
+  return @($uniqueNames)
+}
+
+function Get-TargetProcesses {
+  param(
+    [hashtable]$ProcessMap,
+    [string[]]$ProcessNames
+  )
+
+  $nameSet = @{}
+  foreach ($name in $ProcessNames) {
+    $nameSet[$name] = $true
+  }
+
+  return @(
+    $ProcessMap.Values |
+      Where-Object { $nameSet.ContainsKey(([string]$_.Name).ToLowerInvariant()) } |
+      Sort-Object ProcessId
+  )
+}
+
+function Get-ProcessFamily {
+  param(
+    [string]$Name,
+    [string]$CommandLine
+  )
+
+  $lowerName = if ($null -ne $Name) { $Name.ToLowerInvariant() } else { "" }
+  $lowerCommandLine = if ($null -ne $CommandLine) { $CommandLine.ToLowerInvariant() } else { "" }
+
+  if ($lowerName -eq "node.exe") {
+    if ($lowerCommandLine -match "agent-browser|agent_browser") {
+      return "agent-browser-node"
+    }
+
+    return "node-runtime"
+  }
+
+  if ($lowerName -eq "npx.exe") {
+    return "package-runner"
+  }
+
+  if ($lowerName -in @("cmd.exe", "powershell.exe", "pwsh.exe", "conhost.exe")) {
+    return "windows-command-wrapper"
+  }
+
+  if ($lowerName -eq "agent-browser.exe" -or $lowerName -eq "agent-browser-cli.exe") {
+    return "agent-browser-cli"
+  }
+
+  if ($lowerName -in @("chrome.exe", "msedge.exe", "chromium.exe")) {
+    if ($lowerCommandLine -match "agent-browser|agent_browser|playwright|remote-debugging-port") {
+      return "agent-browser-runtime"
+    }
+
+    return "browser-runtime"
+  }
+
+  return "target-process"
+}
+
+function Get-ProcessNameCounts {
+  param([object[]]$Entries)
+
+  $counts = [ordered]@{}
+  foreach ($entry in $Entries) {
+    $name = [string]$entry.Name
+    if (-not $counts.Contains($name)) {
+      $counts[$name] = 0
+    }
+
+    $counts[$name] += 1
+  }
+
+  return $counts
+}
+
+function Get-AgentBrowserEvidenceMatches {
+  param([string]$Text)
+
+  $evidencePatterns = @(
+    "agent-browser",
+    "agent_browser",
+    "playwright",
+    "remote-debugging-port",
+    "user-data-dir",
+    "browser-profile",
+    "restore-state",
+    "codex",
+    "session",
+    "runid",
+    "run-id",
+    "workspace"
+  )
+
+  return @(Get-RegexMatches -Text $Text -Patterns $evidencePatterns)
+}
+
 function Get-ParentPidSet {
   param(
     [hashtable]$ProcessMap,
@@ -188,8 +322,98 @@ function Get-ProcessExists {
   return ($null -ne $process)
 }
 
+function Normalize-ApplyScopePattern {
+  param([string]$Pattern)
+
+  $value = $Pattern.Trim().ToLowerInvariant()
+  $value = $value -replace '^\(\?i\)', ''
+  $value = $value -replace '\\\.', '.'
+  $value = $value -replace '\\b', ''
+  $value = $value -replace '^\^', ''
+  $value = $value -replace '\$$', ''
+
+  $previous = $null
+  while ($previous -ne $value) {
+    $previous = $value
+    $value = $value -replace '^\(\?:', ''
+    $value = $value -replace '^\(', ''
+    $value = $value -replace '\)$', ''
+    $value = $value -replace '^\.\*', ''
+    $value = $value -replace '\.\*$', ''
+    $value = $value -replace '^\.\+', ''
+    $value = $value -replace '\.\+$', ''
+    $value = $value -replace '^\[.*?\]', ''
+    $value = $value -replace '\[.*?\]$', ''
+  }
+
+  return $value
+}
+
+function Assert-ApplyScope {
+  param(
+    [string[]]$Patterns,
+    [string[]]$TargetProcessNames
+  )
+
+  $broadPatterns = @(
+    "node",
+    "node.exe",
+    "npx",
+    "npx.exe",
+    "cmd",
+    "cmd.exe",
+    "chrome",
+    "chrome.exe",
+    "msedge",
+    "msedge.exe",
+    "chromium",
+    "chromium.exe",
+    "agent",
+    "agent-team",
+    "agent-browser",
+    "agent_browser",
+    "playwright",
+    "remote-debugging-port",
+    "codex",
+    "claude",
+    "cursor",
+    "mcp",
+    "memorix"
+  )
+
+  foreach ($name in $TargetProcessNames) {
+    $broadPatterns += $name
+    $broadPatterns += ($name -replace "\.exe$", "")
+  }
+
+  foreach ($pattern in $Patterns) {
+    if ([string]::IsNullOrWhiteSpace($pattern)) {
+      continue
+    }
+
+    $simplified = Normalize-ApplyScopePattern -Pattern $pattern
+
+    if ([string]::IsNullOrWhiteSpace($simplified) -or $simplified -eq ".") {
+      throw "-Apply requires a task-specific -IncludePattern. Refusing broad cleanup by wildcard regex: $pattern"
+    }
+
+    if ($broadPatterns -contains $simplified) {
+      throw "-Apply requires a task-specific -IncludePattern. Refusing broad cleanup by process name or generic agent keyword: $pattern"
+    }
+
+    $alternatives = @($simplified -split "\|")
+    foreach ($alternative in $alternatives) {
+      $normalizedAlternative = Normalize-ApplyScopePattern -Pattern $alternative
+      if ($broadPatterns -contains $normalizedAlternative) {
+        throw "-Apply requires a task-specific -IncludePattern. Refusing broad cleanup by process name or generic agent keyword: $pattern"
+      }
+    }
+  }
+}
+
 Assert-RegexList -Patterns $IncludePattern -Name "IncludePattern"
 Assert-RegexList -Patterns $ExcludePattern -Name "ExcludePattern"
+$targetProcessNames = Normalize-ProcessNames -Names $ProcessName
 
 if ($Apply -and $IncludePattern.Count -eq 0) {
   throw "-Apply requires at least one -IncludePattern. Refusing broad cleanup."
@@ -201,6 +425,10 @@ if ($Apply -and [string]::IsNullOrWhiteSpace($OutputPath)) {
 
 if ($Force -and -not $Apply) {
   throw "-Force is only valid with -Apply."
+}
+
+if ($Apply) {
+  Assert-ApplyScope -Patterns $IncludePattern -TargetProcessNames $targetProcessNames
 }
 
 $agentKeywordPatterns = @(
@@ -216,6 +444,13 @@ $agentKeywordPatterns = @(
   "mcp",
   "memorix",
   "agent-team",
+  "agent-browser",
+  "agent_browser",
+  "playwright",
+  "user-data-dir",
+  "browser-profile",
+  "restore-state",
+  "remote-debugging-port",
   "subagent",
   "agent"
 )
@@ -224,14 +459,15 @@ $sampledAt = Get-Date
 $processMap = Get-ProcessMap
 $listeningPortMap = Get-ListeningPortMap
 $protectedPids = Get-ParentPidSet -ProcessMap $processMap -StartPid $PID
-$nodeProcesses = Get-CimInstance -ClassName Win32_Process -Filter "Name = 'node.exe'"
+$targetProcesses = Get-TargetProcesses -ProcessMap $processMap -ProcessNames $targetProcessNames
 $entries = @()
 
-foreach ($process in $nodeProcesses) {
+foreach ($process in $targetProcesses) {
   $pidValue = [int]$process.ProcessId
   $parentPid = [int]$process.ParentProcessId
   $commandLine = [string]$process.CommandLine
   $executablePath = [string]$process.ExecutablePath
+  $processFamily = Get-ProcessFamily -Name ([string]$process.Name) -CommandLine $commandLine
   $creationTime = Convert-CimDate $process.CreationDate
   $ageMinutes = $null
 
@@ -262,6 +498,7 @@ foreach ($process in $nodeProcesses) {
   $includeMatches = Get-RegexMatches -Text $evidenceText -Patterns $IncludePattern
   $excludeMatches = Get-RegexMatches -Text $evidenceText -Patterns $ExcludePattern
   $agentKeywordMatches = Get-RegexMatches -Text $evidenceText -Patterns $agentKeywordPatterns
+  $agentBrowserEvidenceMatches = Get-AgentBrowserEvidenceMatches -Text $evidenceText
 
   $safetyIssues = @()
   $riskFlags = @()
@@ -305,6 +542,18 @@ foreach ($process in $nodeProcesses) {
     $riskFlags += "no-agent-keyword"
   }
 
+  if ($processFamily -in @("agent-browser-runtime", "browser-runtime")) {
+    $hasBrowserOwnershipEvidence = (
+      $agentBrowserEvidenceMatches.Count -gt 0 -and
+      ($includeMatches.Count -gt 0 -or -not [string]::IsNullOrWhiteSpace($workingDirectoryHint))
+    )
+
+    if (-not $hasBrowserOwnershipEvidence) {
+      $riskFlags += "browser-ownership-unproven"
+      $safetyIssues += "browser-ownership-unproven"
+    }
+  }
+
   $decision = "audit-only"
   if ($excludeMatches.Count -gt 0) {
     $decision = "excluded"
@@ -326,6 +575,7 @@ foreach ($process in $nodeProcesses) {
     ParentAlive          = $parentAlive
     ParentName           = $parentName
     Name                 = [string]$process.Name
+    ProcessFamily        = $processFamily
     ExecutablePath       = $executablePath
     CommandLine          = $commandLine
     CreationTime         = if ($null -ne $creationTime) { $creationTime.ToString("o") } else { $null }
@@ -335,6 +585,7 @@ foreach ($process in $nodeProcesses) {
     IncludeMatches       = @($includeMatches)
     ExcludeMatches       = @($excludeMatches)
     AgentKeywordMatches  = @($agentKeywordMatches)
+    AgentBrowserEvidence = @($agentBrowserEvidenceMatches)
     OwnershipScore       = $ownershipScore
     RiskFlags            = @($riskFlags)
     SafetyIssues         = @($safetyIssues)
@@ -347,15 +598,18 @@ $ledger = [ordered]@{
   Tool                 = "agent-team-node-cleanup"
   Mode                 = if ($Apply) { "apply" } else { "dry-run" }
   SampledAt            = $sampledAt.ToString("o")
+  ProcessName          = @($targetProcessNames)
   MinAgeMinutes        = $MinAgeMinutes
   IncludePattern       = @($IncludePattern)
   ExcludePattern       = @($ExcludePattern)
   ProtectedPids        = @($protectedPids.Keys | Sort-Object)
   Summary              = [ordered]@{
-    NodeProcessCount = $entries.Count
-    CandidateCount   = $candidateEntries.Count
-    ExcludedCount    = @($entries | Where-Object { $_.Decision -eq "excluded" }).Count
-    AuditOnlyCount   = @($entries | Where-Object { $_.Decision -eq "audit-only" }).Count
+    NodeProcessCount   = @($entries | Where-Object { $_.Name -ieq "node.exe" }).Count
+    TargetProcessCount = $entries.Count
+    ProcessNameCounts  = (Get-ProcessNameCounts -Entries $entries)
+    CandidateCount     = $candidateEntries.Count
+    ExcludedCount      = @($entries | Where-Object { $_.Decision -eq "excluded" }).Count
+    AuditOnlyCount     = @($entries | Where-Object { $_.Decision -eq "audit-only" }).Count
   }
   Processes            = @($entries)
   StopResults          = @()
