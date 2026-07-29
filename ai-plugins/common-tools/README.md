@@ -4,7 +4,16 @@
 
 ## 版本
 
-**当前版本**: `6.11.0`
+**当前版本**: `8.0.1`
+
+⚠️ **v8.0.1 非 OpenAI Agent 简单安装任务防偏治理**:
+
+- `install-skills` 补充完整 `skills add` 命令优先执行规则，避免安装任务先进入清单治理或同步规划。
+- `sync-local-global-agents-skills` 明确全局安装成功或用户要求同步后才进入同步器，fallback 只作为失败后的降级路径。
+- `release-ai-plugins` 补充普通安装 URL 不触发发布流程的反触发边界。
+- `use-other-model` 明确完整命令型简单任务不委托，外部模型只可按用户明确要求做只读复核。
+- `init-ai-md` 同步更新简单任务模板，避免新项目初始化后缺失完整命令型简单任务优先级。
+- 版本号与 marketplace 主版本同步至 `8.0.1`。
 
 ⚠️ **v6.11.0 do-long-task Claude Code `/goal` 与 Codex `/goal` 提示词生成与长文拆分增强**:
 

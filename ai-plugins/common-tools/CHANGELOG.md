@@ -5,6 +5,17 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [8.0.1] - 2026-07-29
+
+### Changed
+
+- **install-skills**（`metadata.version` `1.0.0` -> `1.0.1`）：补充完整 `skills add` 命令优先执行规则，避免安装任务先进入清单治理或同步规划。
+- **sync-local-global-agents-skills**（`metadata.version` `0.1.0` -> `0.1.1`）：明确全局安装成功或用户要求同步后才进入同步器，fallback 只作为失败后的降级路径。
+- **release-ai-plugins**（`metadata.version` `0.16.0` -> `0.16.1`）：补充普通安装 URL 不触发发布流程的反触发边界。
+- **use-other-model**（`metadata.version` `0.4.0` -> `0.4.1`）：明确完整命令型简单任务不委托，外部模型只可按用户明确要求做只读复核。
+- **init-ai-md**（`metadata.version` `0.21.0` -> `0.21.1`）：同步更新 `07.简单任务的高效执行原则.md` 模板，避免新项目初始化后缺失完整命令型简单任务优先级。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 统一提升至 `8.0.1`。
+
 ## [8.0.0] - 2026-07-27
 
 ### Changed
