@@ -59,6 +59,8 @@ skills add https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/common-tools
 
 > 注意：上述命令使用 `skills`（全局安装后可直接调用），而不是 `npx skills`；且指向 `dev` 分支，以获取最新开发版技能。若需要稳定版，请将 URL 中的 `dev` 改为 `main`。
 
+> 维护者提示：这两条命令属于完整命令型简单任务。用户要求执行时，agent 应先执行原命令并读取退出码和关键输出；只有失败，或用户另外要求同步、发布时，才进入同步器或 release。
+
 ## 单独安装某个技能
 
 ```bash

@@ -1,17 +1,28 @@
 ---
 name: sync-local-global-agents-skills
 description: >-
-  同步本机全局 agent skills 到多个本地 agent 平台（WorkBuddy、QoderWork、Kimi Work 等）。
-  以 C:\Users\<user>\.agents\skills 为唯一真理数据源，通过目录级符号链接分发安装，避免重复拷贝。
-  支持 dry-run、自动备份、错误链接替换。已集成 memorix 内部 skills 刷新能力，同步前自动从 memorix 官方仓库拉取最新 skills。
+  Use when 已完成全局 skills 安装后，需要把 `~/.agents/skills` 后置同步到 WorkBuddy、QoderWork、Kimi Work 等本地平台，或显式修复本地 skills 链接。
+  这是后置同步、显式同步和链接修复工具，不是 `skills add` 的替代安装器。
+  支持 dry-run、自动备份、错误链接替换，并可按需刷新 memorix 内部 skills。
   触发关键词：sync-local-global-agents-skills、同步 skills、全局 skills 同步。
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # 本地全局 Agent Skills 同步器
 
 本技能用于将 Vercel `skills` CLI 全局安装的 skills（`~/.agents/skills`）作为唯一数据源，批量同步到本机其他本地 agent 平台的 skills 目录。
+
+## 触发边界
+
+合法触发包括：
+
+- `skills add ... -g` 已成功后，用户要求继续同步到本地平台。
+- 用户明确要求把全局 `~/.agents/skills` 同步到 WorkBuddy、QoderWork、Kimi Work。
+- 新增平台完成目录语义和链接能力核验后，需要执行同步。
+- 目标 skills 链接失效、误删或指向错误位置，需要重建。
+
+用户给出尚未执行的完整 `skills add` 命令时，不抢在原命令前运行本同步器；应先执行或按用户语义确认原命令，失败后再按错误分流。
 
 ## 使用场景
 
@@ -29,9 +40,9 @@ metadata:
 4. **安全备份**：遇到真实目录时自动备份为 `skills.bak.<timestamp>-<uuid>`
 5. **错误链接修复**：遇到指向错误位置的符号链接时自动删除并重建
 
-## 已支持平台（硬编码）
+## 已支持平台
 
-平台注册表硬编码在 `src/platforms.ts` 中，新增平台需修改该文件并升级技能版本。
+平台注册表在 `src/platforms.ts` 中维护，新增平台需修改该文件并升级技能版本。
 
 | 平台      | 目标目录                                                    |
 | :-------- | :---------------------------------------------------------- |
@@ -53,7 +64,7 @@ tsx scripts/sync.ts
 tsx scripts/sync.ts --dry-run
 
 # 指定自定义源目录
-tsx scripts/sync.ts --source D:\custom\.agents\skills
+tsx scripts/sync.ts --source <custom-skills-root>
 
 # 不备份直接替换
 tsx scripts/sync.ts --no-backup
@@ -61,7 +72,9 @@ tsx scripts/sync.ts --no-backup
 
 ### 兜底脚本
 
-当无法使用 Node/TypeScript 时，可使用同目录下的 fallback 脚本：
+fallback 只在同步主脚本不可用、Node/TypeScript 不可用、权限不足、符号链接能力失败，或同步脚本已经失败后作为降级路径；它不是 `skills add` 前的默认路径。
+
+当需要降级执行时，可使用同目录下的 fallback 脚本：
 
 ```powershell
 # Windows PowerShell

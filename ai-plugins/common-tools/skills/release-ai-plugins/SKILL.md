@@ -1,18 +1,15 @@
 ---
 name: release-ai-plugins
 description: >-
-  管理 ai-plugins 多插件与多平台（Claude/Cursor）插件商城的版本升级，
-  包括同步 marketplace/plugin 版本号、校验路径、维护更新日志与文档安装链接。
-  在用户要求升级插件版本、发布插件、更新插件商城或更新日志时使用。
-  触发关键词：release-ai-plugins、ai-plugins、插件升级、版本更新、
-  发布插件、更新日志、cursor-plugin。
+  Use when 需要升级插件版本、发布插件、同步 manifest/marketplace 版本号、
+  维护 CHANGELOG，或校验 README 与安装文档的发布一致性。
+  触发关键词：release-ai-plugins、插件升级、版本更新、
+  发布插件、更新日志、manifest、marketplace、CHANGELOG、README 发布一致性、cursor-plugin。
 metadata:
-  version: "0.16.0"
+  version: "0.16.1"
 ---
 
 # AI Plugins 多平台发布助手
-
-本技能是 `ai-plugins/common-tools` 下的对外分发 skill，唯一真实来源路径为 `ai-plugins/common-tools/skills/release-ai-plugins/SKILL.md`。
 
 本技能用于自动化处理 `ai-plugins` 的多插件、多平台发布流程，确保单一主版本一致性和路径稳定性。
 
@@ -24,6 +21,12 @@ metadata:
 - 更新 Claude/Cursor 双平台 marketplace 版本号
 - 同步多个 plugin manifest 的版本号
 - 更新发布说明、安装文档、README 链接
+
+## 不使用场景 / 反触发
+
+仅安装、列出或验证 `skills add` 命令，确认安装 URL，同步本机 skills，或修复本地 skills 链接时，不使用本技能。
+
+如果用户明确说明这些安装文档、命令或链接变更属于发布、版本、marketplace、manifest、CHANGELOG 或 README 发布一致性工作，则正向发布信号优先，继续使用本技能。
 
 ## 核心职责
 

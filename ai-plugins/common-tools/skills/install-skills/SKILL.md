@@ -4,7 +4,7 @@ description: >-
   Use when 用户需要盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略时。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # install-skills
@@ -13,10 +13,24 @@ metadata:
 
 本技能是 skills 的清单与调度入口，不提供安装脚本，也不维护第二份 skills 副本。规范源目录为 `~/.agents/skills`。
 
+- 本技能仍负责通用 skills 安装规划、安装命令确认、多 agent 同步目标判断，以及全局安装完成后的同步调度闭环。
 - 对已验证的目录级链接目标，将具体安装动作交给 `sync-local-global-agents-skills`。
 - 对未验证的 agent 或项目级目录，只记录候选与前置核验项；不得凭印象编造独立 skills 目录。
 - 已验证目标只能调度 `sync-local-global-agents-skills` 执行目录级链接、备份和替换。
 - 待验证候选或项目级候选只做核验和决策记录，不执行链接、复制或替换。
+
+## 已给完整 CLI 安装命令时的短路规则
+
+仅当用户消息已经给出待执行、确认、复述或解释的完整 `skills add` / `npx skills add` 命令，且命令已包含安装源、`--skill` 或具体 skill 名、`-g`、`-y`、明确的 `-a` / `--agent` 目标时，才进入本短路规则。此时先做最小检查；检查通过后，按用户意图执行原命令，或按用户语义原样复述该命令。
+
+最小检查只包括：
+
+- 用户意图是执行命令，还是只要求确认、复述或解释命令。
+- 对本仓库 `ai-plugins` 一键安装命令，安装源 URL 是否限制在 `ai-plugins/common-tools/skills` 或 `ai-plugins/dev-skills/skills`；其他来源的命令不走本短路规则，回到常规安装规划与核验流程。
+- 引号、占位符或明显截断是否破损。
+- 目标 agent 列表是否来自用户命令本身。
+
+在原命令尚未执行或尚未按用户语义确认前，禁止把这类任务提前改写为读取 `DEFAULT_PLATFORMS`、调用 `sync-local-global-agents-skills`、进入 release、fallback、agent team 或长计划。原命令成功后，如果用户还要求同步到本地 agent 平台，或任务本身是清单盘点、目录级同步、新平台核验，仍按下方清单流程调度 `sync-local-global-agents-skills`。
 
 ## 清单来源与同步维护纪律
 
