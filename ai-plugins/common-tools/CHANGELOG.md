@@ -7,6 +7,13 @@
 
 ## [Unreleased]
 
+## [8.1.0] - 2026-07-31
+
+### Changed
+
+- **cleanup-agent-team-node-processes**（`metadata.version` `1.2.0` -> `1.3.0`）：新增受显式开关保护的卡死一次性 Node CLI 恢复门禁。仅当精确任务范围、父子命令特征、CPU 增量、无监听端口和既有安全检查同时满足时，才停止 Node 子进程；不自动终止父 `cmd.exe`。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 统一提升至 `8.1.0`。
+
 ## [8.0.2] - 2026-07-31
 
 ### Added

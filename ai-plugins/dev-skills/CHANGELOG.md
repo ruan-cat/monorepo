@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [8.1.0] - 2026-07-31
+
+### Changed
+
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 统一提升至 `8.1.0`。
+- 本次 `dev-skills` 技能树无内容变更；功能更新集中在 `common-tools` 的 **cleanup-agent-team-node-processes**。
+
 ## [8.0.2] - 2026-07-31
 
 ### Added
