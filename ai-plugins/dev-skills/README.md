@@ -2,6 +2,10 @@
 
 阮喵喵开发时使用的工程化开发技能集合，聚焦于特定技术栈的项目初始化、架构搭建与规范驱动开发。
 
+## Codex 插件市场
+
+Codex 通过 `.codex-plugin/plugin.json` 加载本插件共享的 `skills/`。安装、更新与卸载命令见 [`../../.agents/plugins/README.md`](../../.agents/plugins/README.md)。
+
 ## 版本
 
 **当前版本**: `8.0.1`

@@ -44,6 +44,7 @@
 - 多平台总览：[`ai-plugins/docs/README.md`](../ai-plugins/docs/README.md)
 - 使用 `npx skills` 安装：[`ai-plugins/docs/use-vercel-skills-install.md`](../ai-plugins/docs/use-vercel-skills-install.md)
 - Cursor 插件说明：[`../.cursor-plugin/README.md`](../.cursor-plugin/README.md)
+- Codex 插件市场：[`../.agents/plugins/README.md`](../.agents/plugins/README.md)
 
 ## 风险提示
 

@@ -6,6 +6,12 @@
 
 **当前版本**: `8.0.1`
 
+## Codex 插件市场
+
+Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现有 `commands/`、`agents/` 和 `hooks/` 保持为 Claude Code 专用能力，不会被 Codex manifest 声明或加载。
+
+安装、更新与卸载命令见 [`../../.agents/plugins/README.md`](../../.agents/plugins/README.md)。
+
 ⚠️ **v8.0.1 非 OpenAI Agent 简单安装任务防偏治理**:
 
 - `install-skills` 补充完整 `skills add` 命令优先执行规则，避免安装任务先进入清单治理或同步规划。

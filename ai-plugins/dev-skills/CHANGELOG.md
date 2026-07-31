@@ -2,6 +2,13 @@
 
 本文件记录 `dev-skills` 插件的变更历史，遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/) 与语义化版本。
 
+## [Unreleased]
+
+### Added
+
+- 新增 Codex 插件 manifest 与 `ruan-cat-tools` marketplace；Codex 复用共享的 `skills/`。
+- 补充 Codex 的中文展示名称、中文介绍、默认提示、官网与品牌色。
+
 ## [8.0.1] - 2026-07-29
 
 ### Changed

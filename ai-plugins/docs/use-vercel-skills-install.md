@@ -81,3 +81,4 @@ npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/dev-ski
 - 多平台总览：[`./README.md`](./README.md)
 - Claude 插件安装：[`../../.claude-plugin/README.md`](../../.claude-plugin/README.md)
 - Cursor 插件安装：[`../../.cursor-plugin/README.md`](../../.cursor-plugin/README.md)
+- Codex 插件市场：[`../../.agents/plugins/README.md`](../../.agents/plugins/README.md)

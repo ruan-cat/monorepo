@@ -5,6 +5,15 @@
 本文档格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 项目遵循[语义化版本规范](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+### Added
+
+- 新增 Codex 插件 manifest 与 `ruan-cat-tools` marketplace；Codex 仅分发共享的 `skills/`。
+- 补充 Codex 市场和两个插件的中文展示名称、完整中文介绍、默认提示、官网与品牌色。
+- **release-ai-plugins**：`metadata.version` `0.16.1` -> `0.16.2`，将 Codex marketplace、manifest 与 CLI smoke test 纳入发版清单。
+- **init-ai-md**：`metadata.version` `0.21.1` -> `0.21.2`，模板补充多平台插件市场同步与真实安装验证规则。
+
 ## [8.0.1] - 2026-07-29
 
 ### Changed

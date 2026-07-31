@@ -122,7 +122,7 @@ taze 配置。
 
 [![Claude Code Plugin Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fruan-cat%2Fmonorepo%2Fmain%2F.claude-plugin%2Fmarketplace.json&query=%24.metadata.version&label=Claude%20Code%20Plugin&color=blueviolet&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0wIDE4Yy00LjQyIDAtOC0zLjU4LTgtOHMzLjU4LTggOC04IDggMy41OCA4IDgtMy41OCA4LTggOHoiLz48cGF0aCBkPSJNMTIgNmMtMy4zMSAwLTYgMi42OS02IDZzMi42OSA2IDYgNiA2LTIuNjkgNi02LTIuNjktNi02LTZ6bTAgMTBjLTIuMjEgMC00LTEuNzktNC00czEuNzktNCA0LTQgNCAxLjc5IDQgNC0xLjc5IDQtNCA0eiIvPjwvc3ZnPg==)](https://github.com/ruan-cat/monorepo/tree/main/.claude-plugin)
 
-本仓库提供多平台 AI 插件与技能分发，当前支持 Claude Code 与 Cursor。
+本仓库提供多平台 AI 插件与技能分发，当前支持 Claude Code、Cursor 与 Codex。
 
 ### 文档入口
 
@@ -130,3 +130,4 @@ taze 配置。
 - [`ai-plugins/docs/README.md`](./ai-plugins/docs/README.md)
 - [`.claude-plugin/README.md`](./.claude-plugin/README.md)
 - [`.cursor-plugin/README.md`](./.cursor-plugin/README.md)
+- [`.agents/plugins/README.md`](./.agents/plugins/README.md)

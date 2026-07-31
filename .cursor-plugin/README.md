@@ -22,3 +22,4 @@
 - 多平台总览：[`ai-plugins/docs/README.md`](../ai-plugins/docs/README.md)
 - 使用 `npx skills` 安装：[`ai-plugins/docs/use-vercel-skills-install.md`](../ai-plugins/docs/use-vercel-skills-install.md)
 - Claude 插件说明：[`../.claude-plugin/README.md`](../.claude-plugin/README.md)
+- Codex 插件市场：[`../.agents/plugins/README.md`](../.agents/plugins/README.md)
