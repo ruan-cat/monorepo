@@ -1,10 +1,10 @@
 ---
 name: install-skills
 description: >-
-  Use when 用户需要盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略时。
+  Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略时。
 user-invocable: true
 metadata:
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 # install-skills
@@ -26,11 +26,52 @@ metadata:
 最小检查只包括：
 
 - 用户意图是执行命令，还是只要求确认、复述或解释命令。
-- 对本仓库 `ai-plugins` 一键安装命令，安装源 URL 是否限制在 `ai-plugins/common-tools/skills` 或 `ai-plugins/dev-skills/skills`；其他来源的命令不走本短路规则，回到常规安装规划与核验流程。
+- 安装源 URL 是否指向用户已确认的可信 skills 目录；不能根据当前工作区目录或未验证来源自行改写。来源不明确时不走本短路规则，回到常规安装规划与核验流程。
 - 引号、占位符或明显截断是否破损。
 - 目标 agent 列表是否来自用户命令本身。
 
 在原命令尚未执行或尚未按用户语义确认前，禁止把这类任务提前改写为读取 `DEFAULT_PLATFORMS`、调用 `sync-local-global-agents-skills`、进入 release、fallback、agent team 或长计划。原命令成功后，如果用户还要求同步到本地 agent 平台，或任务本身是清单盘点、目录级同步、新平台核验，仍按下方清单流程调度 `sync-local-global-agents-skills`。
+
+## 全局技能卸载流程
+
+当用户要求删除、卸载或移除某个全局 skill、某组 skills，或要求某类技能不再被多个 agent 入口发现时，必须优先使用 `skills remove`。文件系统删除只能处理 CLI 无法管理的已确认残留，不能替代正式卸载。
+
+### 标准顺序
+
+1. 先写明任务契约：要卸载的技能或主题范围、必须不再显示的 agent 入口、验收 pattern，以及“不把物理删除作为主路径”的限制。
+2. 使用 `skills list -g --json`，或用户指定 agent 的 `skills list -g -a <agent...> --json`，盘点已注册候选。
+3. 当用户给出产品、厂商或主题系列时，同时按名称、别名、description 和用户范围词识别候选；不能只按一个前缀匹配。删除前列出候选，若保留同义技能，必须说明理由。
+4. 对已注册的目标使用 `skills remove -g -y <skill...>`。不要默认传 `-a '*'`；若当前 CLI 不接受该通配符，省略 `-a`，以 CLI 实际管理范围和输出为准。
+5. 卸载成功后，按已安装 `sync-local-global-agents-skills` 的说明同步已验证平台。同步器只负责卸载后的分发和链接收敛，不替代 `skills remove`。
+6. 用 CLI 注册表和实际目录做双重验收；任一侧仍有未解释的匹配时，不得声称完成。
+
+### 文件系统兜底边界
+
+只有同时满足以下条件，才能检查或处理文件系统残留：
+
+- `skills remove -g -y <skill>` 明确报告找不到目标，或目标已不在 `skills list --json` 注册表中。
+- 规范源目录、已验证同步目标或用户明确指定的 agent 目录仍有目标残留。
+- 已确认残留是坏链接、空目录或 CLI 不管理的旧目录，并回读其绝对路径、`LinkType` 和 `Target`。
+- 操作范围只包含该残留项，且不会触及规范源目录之外的非目标内容。
+
+对 junction 或 symlink 只能移除链接本身，不能递归删除其目标。目录职责、链接目标或影响范围任一项不明确时，停止并向用户说明待确认信息。
+
+### 卸载验收
+
+卸载开始前先确定目标 pattern。完成前至少检查以下两类证据：
+
+```powershell
+$items = skills list -g --json | ConvertFrom-Json
+$matches = @($items | Where-Object {
+  $_.name -match '<pattern>' -or $_.path -match '<pattern>'
+})
+"MATCH_COUNT=$($matches.Count)"
+```
+
+- CLI 注册表中目标 pattern 的 `MATCH_COUNT` 为 `0`。
+- `~/.agents/skills`、从 `DEFAULT_PLATFORMS` 确认的已验证同步目标，以及用户明确要求覆盖的 agent skills 目录中，目标 pattern 的匹配数均为 `0`。
+
+若保留某个同义或关联 skill，或残留目录不归 CLI 管理，必须逐项说明其来源、是否注册、保留或后续处理理由。
 
 ## 清单来源与同步维护纪律
 
@@ -85,6 +126,6 @@ Claude Code、Codex、Cursor、Antigravity、Trae、Qoder 等通常通过全局 
 
 ## 调度与验收
 
-1. 确认规范源目录为 `~/.agents/skills`，并确定本次目标属于已验证目标、待验证候选或项目级候选。
+1. 先区分本次是安装、卸载、盘点还是目录级同步。卸载任务先完成“全局技能卸载流程”；安装和同步任务再确认规范源目录为 `~/.agents/skills`，并确定目标属于已验证目标、待验证候选或项目级候选。
 2. 已验证目标调用 `sync-local-global-agents-skills` 执行；其余目标先完成目录语义与兼容性核验。
-3. 执行前列出将创建、跳过、备份或替换的目录；执行后确认目标是正确链接，且源目录未被复制为多份副本。
+3. 执行前列出将创建、跳过、备份或替换的目录；执行后确认目标是正确链接，且源目录未被复制为多份副本。卸载场景同时满足 CLI 注册表与目录残留的双重验收。
