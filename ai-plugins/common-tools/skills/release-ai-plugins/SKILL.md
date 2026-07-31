@@ -6,7 +6,7 @@ description: >-
   触发关键词：release-ai-plugins、插件升级、版本更新、
   发布插件、更新日志、manifest、marketplace、CHANGELOG、README 发布一致性、cursor-plugin。
 metadata:
-  version: "0.16.1"
+  version: "0.16.2"
 ---
 
 # AI Plugins 多平台发布助手
@@ -18,7 +18,7 @@ metadata:
 当遇到以下情况时使用本技能：
 
 - 需要发布 `common-tools` 或 `dev-skills` 插件的新版本
-- 更新 Claude/Cursor 双平台 marketplace 版本号
+- 更新 Claude/Cursor/Codex 三平台插件市场与 manifest
 - 同步多个 plugin manifest 的版本号
 - 更新发布说明、安装文档、README 链接
 
@@ -30,9 +30,9 @@ metadata:
 
 ## 核心职责
 
-1. **版本号管理**：以主版本驱动双平台与双插件版本同步
+1. **版本号管理**：以主版本驱动三平台与双插件版本同步
 2. **更新日志维护**：编写符合规范的版本更新说明
-3. **清单校验**：校验 Cursor/Claude 清单路径与字段
+3. **清单校验**：校验 Claude、Cursor 与 Codex 清单路径及字段
 4. **文档同步**：确保安装文档中的路径、命令、链接均指向 `ai-plugins`
 
 ## 相关文件目录
@@ -42,6 +42,7 @@ metadata:
 - 根级 marketplace
   - `.claude-plugin/marketplace.json`
   - `.cursor-plugin/marketplace.json`
+  - `.agents/plugins/marketplace.json`
 - 插件目录
   - `ai-plugins/common-tools`
   - `ai-plugins/dev-skills`
@@ -50,6 +51,8 @@ metadata:
   - `ai-plugins/common-tools/.cursor-plugin/plugin.json`
   - `ai-plugins/dev-skills/.claude-plugin/plugin.json`
   - `ai-plugins/dev-skills/.cursor-plugin/plugin.json`
+  - `ai-plugins/common-tools/.codex-plugin/plugin.json`
+  - `ai-plugins/dev-skills/.codex-plugin/plugin.json`
 
 ## 主版本策略
 
@@ -58,7 +61,7 @@ metadata:
 1. 主版本源：`.claude-plugin/marketplace.json` 的 `metadata.version`
 2. 同步目标：
    - `.cursor-plugin/marketplace.json` 的 `metadata.version`
-   - 两个插件在 Claude/Cursor 的 `plugin.json` 中 `version`
+   - 两个插件在 Claude/Cursor/Codex 的 `plugin.json` 中 `version`
 
 ### Skills 文档的 metadata.version 字段
 
@@ -86,6 +89,7 @@ Skill 文档版本号保持独立演进：仅在该 Skill 内容有变更时更�
 - `ai-plugins/docs/use-vercel-skills-install.md`
 - `.claude-plugin/README.md`
 - `.cursor-plugin/README.md`
+- `.agents/plugins/README.md`
 - 根 `README.md`
 
 所有安装命令必须使用 `ai-plugins/...` 路径，不允许出现 `claude-code-marketplace/...` 旧路径。
@@ -178,12 +182,12 @@ Skill 文档版本号保持独立演进：仅在该 Skill 内容有变更时更�
 
 1. **确定主版本号**
    - 根据变更类型确定主版本增量（MAJOR/MINOR/PATCH）
-2. **同步双平台 marketplace**
+2. **同步三平台 marketplace 与 manifest**
    - 更新 `.claude-plugin/marketplace.json` 的 `metadata.version`
    - 更新 `.cursor-plugin/marketplace.json` 的 `metadata.version`
 3. **同步双插件 manifest**
-   - 更新 `ai-plugins/common-tools` 的 Claude/Cursor `plugin.json` 版本
-   - 更新 `ai-plugins/dev-skills` 的 Claude/Cursor `plugin.json` 版本
+   - 更新 `ai-plugins/common-tools` 的 Claude/Cursor/Codex `plugin.json` 版本
+   - 更新 `ai-plugins/dev-skills` 的 Claude/Cursor/Codex `plugin.json` 版本
 4. **按需更新 Skills 版本**
    - 仅更新变更过的 `SKILL.md` 的 `metadata.version`
 5. **更新文档与 changelog**
@@ -201,8 +205,8 @@ Skill 文档版本号保持独立演进：仅在该 Skill 内容有变更时更�
 
 ## 注意事项
 
-1. **主版本一致性**：双平台 marketplace + 双插件 manifest 必须一致。
-2. **平台规范分离**：Cursor 与 Claude 字段可能不同，按各自规范维护。
+1. **主版本一致性**：Claude/Cursor marketplace 与两个插件的三平台 manifest 必须一致；Codex marketplace 没有版本字段。
+2. **平台规范分离**：Claude、Cursor 与 Codex 字段可能不同，按各自 schema 维护。
 3. **旧路径禁用**：发布前必须确认无 `claude-code-marketplace` 路径残留。
 4. **Skills 独立版本**：Skill 的 `metadata.version` 只在该 Skill 变更时更新。
 5. **更新日志优先可读性**：如果 changelog 一眼看上去像“压成一团的说明书”，说明写法失败，需要重排。
@@ -212,3 +216,25 @@ Skill 文档版本号保持独立演进：仅在该 Skill 内容有变更时更�
 - [语义化版本规范](https://semver.org/lang/zh-CN/)
 - [Keep a Changelog](https://keepachangelog.com/zh-CN/)
 - [Cursor Plugins Reference](https://cursor.com/docs/reference/plugins)
+
+## Codex marketplace 维护
+
+Codex 市场使用仓库根的 `.agents/plugins/marketplace.json`。调用 `codex plugin marketplace add <仓库根>` 时，条目的 `source.path` 相对仓库根解析；本仓库固定使用 `./ai-plugins/common-tools` 和 `./ai-plugins/dev-skills`，不得误写成相对 `.agents/plugins/` 的回退路径。
+
+每次插件版本发布时，除 Claude Code 与 Cursor 的 manifest 外，还必须同步两个 `.codex-plugin/plugin.json` 的 `version`。Codex marketplace 本身没有版本字段，不能虚构 `metadata.version`；仍须校验两个条目的 `name`、source 路径、`policy.installation`、`policy.authentication` 和 `category`。
+
+Codex manifest 仅声明已验证的 Codex 组件。本仓库的两个插件都只声明 `skills: "./skills"`；禁止将 Claude Code 的 `hooks`、`commands` 或 `agents` 字段复制进去。
+
+面向用户展示的 Codex 元数据必须使用中文：市场 `interface.displayName`，以及插件 `description`、`interface.displayName`、`shortDescription`、`longDescription`、`developerName`、`category`、`capabilities`、`defaultPrompt`。仅保留不可替代的技术标识，如 marketplace 名称、插件名称和 `Codex`。`websiteURL`、`privacyPolicyURL`、`termsOfServiceURL`、图标和截图只在存在真实地址或资产时填写。
+
+发布前执行以下 smoke test，并在测试结束后移除临时安装，避免污染维护者机器：
+
+```powershell
+codex plugin marketplace add <仓库根> --json
+codex plugin list --available --json --marketplace ruan-cat-tools
+codex plugin add common-tools@ruan-cat-tools --json
+codex plugin add dev-skills@ruan-cat-tools --json
+codex plugin remove common-tools@ruan-cat-tools --json
+codex plugin remove dev-skills@ruan-cat-tools --json
+codex plugin marketplace remove ruan-cat-tools --json
+```
