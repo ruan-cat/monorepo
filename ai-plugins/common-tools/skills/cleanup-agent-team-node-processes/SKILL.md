@@ -4,7 +4,7 @@ description: |-
   当 Windows 或 PowerShell 的 agent team 会话结束后，出现疑似残留 node / npx / Windows 命令处理程序 / agent browser 浏览器或 CLI 进程、可证明归属当前 run 的残留 MCP 或开发服务器子进程、残留监听器，或多代理自动化后的进程归属不清时使用。
   Use when Windows or PowerShell agent-team sessions leave suspected stale node, npx, Windows command processor, agent-browser browser or CLI processes, stale MCP or dev-server children provably owned by the current run, lingering listeners, or unclear process ownership after multi-agent automation.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 user-invocable: true
 ---
 
@@ -31,6 +31,7 @@ user-invocable: true
 - 清理前必须保存执行日志、checkpoint 位置和 dry-run 台账。涉及监听端口、长期服务关键词、父进程仍存活或归属不清的高风险停止，必须先取得人工确认。
 - 只有显式传入 `-Apply`、足够窄的 `-IncludePattern`，并保存 `-OutputPath` 台账时，才允许调用 `Stop-Process`。
 - `-Force` 只能作为第二道门：普通停止路径失败后，且 PID 仍然可复核时才使用。
+- 对仍有直接父 `cmd.exe` 的一次性 Node CLI，默认仍拒绝自动清理。只有已保存常规 dry-run 台账、用户显式开启卡死恢复门禁，并同时证明命令特征、持续 CPU 自旋和无监听端口时，才允许停止 Node 子进程；绝不由此自动停止父 `cmd.exe`。
 - 保护长期服务：MCP gateway、工具市场、记忆服务、监控服务、定时任务、queue worker、SSE / chat session、RAG / vector 服务、IDE / 编辑器扩展宿主、用户明确保留的开发服务器和包管理器后台任务默认不清理。
 - 清理后必须重新采样目标 PID 和监听端口，确认结果后再说环境已清理。
 
@@ -87,6 +88,26 @@ powershell -ExecutionPolicy Bypass -File scripts/agent-team-node-cleanup.ps1 -In
 powershell -ExecutionPolicy Bypass -File scripts/agent-team-node-cleanup.ps1 -IncludePattern "run-id-fragment|session-id-fragment|workspace-fragment|task-token" -ExcludePattern "vite|next|storybook|mcp|gateway|tool-market|memory|monitor|cron|scheduler|queue|sse|rag|vector|extensionHost|tsserver" -MinAgeMinutes 30 -OutputPath .\agent-process-ledger.force.json -Apply -Force
 ```
 
+### 已证实卡死的一次性 Node CLI 例外
+
+这一例外只适用于已由证据证明为同步 CPU 自旋的一次性命令，例如 Windows 路径边界导致 `--help`、`--version` 或查询命令在无输出、无端口的情况下持续占用 CPU。它不是网络连接、鉴权、MCP、开发服务器或一般 Node 高 CPU 的清理入口。
+
+先保存常规 dry-run 台账，并在执行记录中保存命令、Node PID、直接父 `cmd.exe` PID、开始时间、CPU 与 stdout/stderr 采样、监听端口和复现证据。确认该命令不应长期运行后，才可执行受限恢复：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/agent-team-node-cleanup.ps1 -Apply -EnableStuckOneShotRecovery -IncludePattern "run-id-fragment|task-token" -OneShotCommandPattern "(?i)cli\.js\s+--help|neonctl.*--help" -ExcludePattern "mcp|gateway|memory|monitor|cron|scheduler|queue|sse|rag|vector|extensionHost|tsserver|vite|next|storybook" -MinAgeMinutes 5 -CpuSampleIntervalSeconds 5 -MinCpuDeltaSeconds 3 -OutputPath .\agent-process-ledger.stuck-one-shot.json
+```
+
+启用 `-EnableStuckOneShotRecovery` 时，脚本强制要求 `-Apply`、任务级 `-IncludePattern`、带参数而非仅可执行文件名的 `-OneShotCommandPattern` 与 `-OutputPath`。恢复候选必须同时满足：
+
+- 仅为 `node.exe`，直接父进程仍为 `cmd.exe`；
+- 子进程和直接父进程的命令行都命中同一条一次性命令模式；
+- 达到 `-MinAgeMinutes`，命中 include，不命中 exclude，没有监听端口，也不属于脚本自身父进程链；
+- 两次 CPU 采样的增量达到 `-MinCpuDeltaSeconds`；
+- 除 `parent-process-alive` 外不存在任何安全阻断项。
+
+候选将以 `candidate-stuck-one-shot` 写入台账。脚本只先普通终止 Node 子进程；父 `cmd.exe` 未自行退出时必须回到人工审计，不能因为子进程异常而批量终止包装器。`-Force` 仍仅用于该 Node PID 的普通终止失败，不改变父进程处理规则。
+
 5. 复核重新采样结果。
    - 确认 `Verification.RemainingCandidatePids` 为空；如果不为空，逐个解释剩余 PID。
    - 如果终端、编辑器或 MCP 运行时仍然明显变慢或噪音很大，再跑一次 dry-run 台账。
@@ -104,21 +125,24 @@ powershell -ExecutionPolicy Bypass -File scripts/agent-team-node-cleanup.ps1 -In
 - 它的父进程已经不存在；
 - 它没有监听 TCP 端口。
 - 如果它是 `chrome.exe`、`msedge.exe` 或 `chromium.exe` 浏览器进程，还必须具备 agent browser / Playwright / profile / run / session / workspace 等多证据；普通用户浏览器默认只进入 `audit-only`。
+- `candidate-stuck-one-shot` 是受 `-EnableStuckOneShotRecovery` 保护的窄范围例外：只豁免直接父 `cmd.exe` 存活这一项，其他候选门禁全部保留。
 
 其他进程都会保持为 `audit-only` 或 `excluded`。
 
 ## 常见错误
 
-| 错误做法                                                           | 修正方式                                                                        |
-| :----------------------------------------------------------------- | :------------------------------------------------------------------------------ |
-| agent team 结束后杀掉所有 `node.exe`、命令处理程序或浏览器进程。   | 先生成台账，再复核归属证据。                                                    |
-| 把 VSCode、搜索、TS Server 或 Defender 的高占用当成残留进程。      | 先定位资源来源；不是当前 agent run 残留时转配置治理。                           |
-| 把包装器关键词当作唯一证据。                                       | 组合命令行、父进程状态、年龄、路径、端口和 include/exclude 范围一起判断。       |
-| 只看父进程不存在就清理。                                           | 继续核对 runId、sessionId、checkpoint、日志、trace、端口、PPID 链路和人工确认。 |
-| 误伤 MCP gateway、记忆、监控、队列、SSE、RAG / vector 或定时任务。 | 把长期服务加入排除规则；高风险停止必须先人工确认。                              |
-| 忽略监听端口。                                                     | 记录端口，并判断它是残留服务还是有意保留的开发服务器。                          |
-| 不保存证据就运行 `-Apply`。                                        | 始终使用 `-OutputPath`，保证清理前后的台账可复核。                              |
-| 不重新采样就宣称清理完成。                                         | 检查脚本的 `Verification` 区块，或清理后重新执行 dry-run。                      |
+| 错误做法                                                           | 修正方式                                                                                         |
+| :----------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
+| agent team 结束后杀掉所有 `node.exe`、命令处理程序或浏览器进程。   | 先生成台账，再复核归属证据。                                                                     |
+| 把 VSCode、搜索、TS Server 或 Defender 的高占用当成残留进程。      | 先定位资源来源；不是当前 agent run 残留时转配置治理。                                            |
+| 把包装器关键词当作唯一证据。                                       | 组合命令行、父进程状态、年龄、路径、端口和 include/exclude 范围一起判断。                        |
+| 只看父进程不存在就清理。                                           | 继续核对 runId、sessionId、checkpoint、日志、trace、端口、PPID 链路和人工确认。                  |
+| 误伤 MCP gateway、记忆、监控、队列、SSE、RAG / vector 或定时任务。 | 把长期服务加入排除规则；高风险停止必须先人工确认。                                               |
+| 忽略监听端口。                                                     | 记录端口，并判断它是残留服务还是有意保留的开发服务器。                                           |
+| 不保存证据就运行 `-Apply`。                                        | 始终使用 `-OutputPath`，保证清理前后的台账可复核。                                               |
+| 不重新采样就宣称清理完成。                                         | 检查脚本的 `Verification` 区块，或清理后重新执行 dry-run。                                       |
+| 把一次性 CLI 的无输出或高 CPU 当成可直接杀进程的理由。             | 先保存常规台账与复现证据；只在受限恢复门禁同时命中精确命令、CPU 增量和无端口时停止 Node 子进程。 |
+| 因一次性 Node CLI 卡死而停止它的父 `cmd.exe`。                     | 只先停止 `candidate-stuck-one-shot` 的 Node PID；父包装器是否退出必须人工复核。                  |
 
 ## 资源索引
 

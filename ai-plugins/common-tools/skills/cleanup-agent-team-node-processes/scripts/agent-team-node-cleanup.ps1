@@ -19,7 +19,13 @@ param(
   ),
   [int]$MinAgeMinutes = 30,
   [string]$OutputPath,
-  [switch]$Force
+  [switch]$Force,
+  [switch]$EnableStuckOneShotRecovery,
+  [string[]]$OneShotCommandPattern = @(),
+  [ValidateRange(1, 60)]
+  [int]$CpuSampleIntervalSeconds = 5,
+  [ValidateRange(0.1, 600)]
+  [double]$MinCpuDeltaSeconds = 3
 )
 
 $ErrorActionPreference = "Stop"
@@ -322,6 +328,30 @@ function Get-ProcessExists {
   return ($null -ne $process)
 }
 
+function Get-ProcessCpuSeconds {
+  param([int]$ProcessId)
+
+  $process = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
+  if ($null -eq $process -or $null -eq $process.CPU) {
+    return $null
+  }
+
+  return [math]::Round([double]$process.CPU, 2)
+}
+
+function Get-ProcessCpuSamples {
+  param([object[]]$Processes)
+
+  $samples = @{}
+  foreach ($process in $Processes) {
+    if ([string]$process.Name -ieq "node.exe") {
+      $samples[[int]$process.ProcessId] = Get-ProcessCpuSeconds -ProcessId ([int]$process.ProcessId)
+    }
+  }
+
+  return $samples
+}
+
 function Normalize-ApplyScopePattern {
   param([string]$Pattern)
 
@@ -411,6 +441,21 @@ function Assert-ApplyScope {
   }
 }
 
+function Assert-OneShotCommandScope {
+  param(
+    [string[]]$Patterns,
+    [string[]]$TargetProcessNames
+  )
+
+  Assert-ApplyScope -Patterns $Patterns -TargetProcessNames $TargetProcessNames
+
+  foreach ($pattern in $Patterns) {
+    if ($pattern -notmatch "\\s|\s") {
+      throw "-EnableStuckOneShotRecovery requires each -OneShotCommandPattern to match a command argument, not only an executable name: $pattern"
+    }
+  }
+}
+
 Assert-RegexList -Patterns $IncludePattern -Name "IncludePattern"
 Assert-RegexList -Patterns $ExcludePattern -Name "ExcludePattern"
 $targetProcessNames = Normalize-ProcessNames -Names $ProcessName
@@ -427,8 +472,20 @@ if ($Force -and -not $Apply) {
   throw "-Force is only valid with -Apply."
 }
 
+if ($EnableStuckOneShotRecovery -and -not $Apply) {
+  throw "-EnableStuckOneShotRecovery is only valid with -Apply. First save a normal dry-run ledger, then use this narrow recovery path with explicit evidence."
+}
+
+if ($EnableStuckOneShotRecovery -and $OneShotCommandPattern.Count -eq 0) {
+  throw "-EnableStuckOneShotRecovery requires at least one exact -OneShotCommandPattern."
+}
+
 if ($Apply) {
   Assert-ApplyScope -Patterns $IncludePattern -TargetProcessNames $targetProcessNames
+}
+
+if ($EnableStuckOneShotRecovery) {
+  Assert-OneShotCommandScope -Patterns $OneShotCommandPattern -TargetProcessNames $targetProcessNames
 }
 
 $agentKeywordPatterns = @(
@@ -460,6 +517,15 @@ $processMap = Get-ProcessMap
 $listeningPortMap = Get-ListeningPortMap
 $protectedPids = Get-ParentPidSet -ProcessMap $processMap -StartPid $PID
 $targetProcesses = Get-TargetProcesses -ProcessMap $processMap -ProcessNames $targetProcessNames
+$cpuSamplesBefore = @{}
+$cpuSamplesAfter = @{}
+
+if ($EnableStuckOneShotRecovery) {
+  $cpuSamplesBefore = Get-ProcessCpuSamples -Processes $targetProcesses
+  Start-Sleep -Seconds $CpuSampleIntervalSeconds
+  $cpuSamplesAfter = Get-ProcessCpuSamples -Processes $targetProcesses
+}
+
 $entries = @()
 
 foreach ($process in $targetProcesses) {
@@ -499,6 +565,24 @@ foreach ($process in $targetProcesses) {
   $excludeMatches = Get-RegexMatches -Text $evidenceText -Patterns $ExcludePattern
   $agentKeywordMatches = Get-RegexMatches -Text $evidenceText -Patterns $agentKeywordPatterns
   $agentBrowserEvidenceMatches = Get-AgentBrowserEvidenceMatches -Text $evidenceText
+  $oneShotChildMatches = Get-RegexMatches -Text $commandLine -Patterns $OneShotCommandPattern
+  $oneShotParentMatches = Get-RegexMatches -Text $parentCommandLine -Patterns $OneShotCommandPattern
+  $oneShotCommandMatches = @($oneShotChildMatches | Where-Object { $oneShotParentMatches -contains $_ })
+  $cpuSecondsBefore = $null
+  $cpuSecondsAfter = $null
+  $cpuDeltaSeconds = $null
+
+  if ($cpuSamplesBefore.ContainsKey($pidValue)) {
+    $cpuSecondsBefore = $cpuSamplesBefore[$pidValue]
+  }
+
+  if ($cpuSamplesAfter.ContainsKey($pidValue)) {
+    $cpuSecondsAfter = $cpuSamplesAfter[$pidValue]
+  }
+
+  if ($null -ne $cpuSecondsBefore -and $null -ne $cpuSecondsAfter) {
+    $cpuDeltaSeconds = [math]::Round(([double]$cpuSecondsAfter - [double]$cpuSecondsBefore), 2)
+  }
 
   $safetyIssues = @()
   $riskFlags = @()
@@ -554,9 +638,24 @@ foreach ($process in $targetProcesses) {
     }
   }
 
+  $recoverySafetyIssues = @($safetyIssues | Where-Object { $_ -ne "parent-process-alive" })
+  $isStuckOneShotCandidate = (
+    $EnableStuckOneShotRecovery -and
+    ([string]$process.Name -ieq "node.exe") -and
+    $parentAlive -and
+    ([string]$parentName -ieq "cmd.exe") -and
+    $oneShotCommandMatches.Count -gt 0 -and
+    $null -ne $cpuDeltaSeconds -and
+    $cpuDeltaSeconds -ge $MinCpuDeltaSeconds -and
+    $recoverySafetyIssues.Count -eq 0
+  )
+
   $decision = "audit-only"
   if ($excludeMatches.Count -gt 0) {
     $decision = "excluded"
+  }
+  elseif ($isStuckOneShotCandidate) {
+    $decision = "candidate-stuck-one-shot"
   }
   elseif ($safetyIssues.Count -eq 0) {
     $decision = "candidate"
@@ -586,6 +685,16 @@ foreach ($process in $targetProcesses) {
     ExcludeMatches       = @($excludeMatches)
     AgentKeywordMatches  = @($agentKeywordMatches)
     AgentBrowserEvidence = @($agentBrowserEvidenceMatches)
+    StuckOneShotRecovery = [ordered]@{
+      Enabled                = [bool]$EnableStuckOneShotRecovery
+      OneShotCommandMatches  = @($oneShotCommandMatches)
+      CpuSecondsBefore       = $cpuSecondsBefore
+      CpuSecondsAfter        = $cpuSecondsAfter
+      CpuDeltaSeconds        = $cpuDeltaSeconds
+      CpuSampleIntervalSeconds = if ($EnableStuckOneShotRecovery) { $CpuSampleIntervalSeconds } else { $null }
+      MinCpuDeltaSeconds     = if ($EnableStuckOneShotRecovery) { $MinCpuDeltaSeconds } else { $null }
+      DirectParentCmd        = ([string]$parentName -ieq "cmd.exe")
+    }
     OwnershipScore       = $ownershipScore
     RiskFlags            = @($riskFlags)
     SafetyIssues         = @($safetyIssues)
@@ -593,7 +702,8 @@ foreach ($process in $targetProcesses) {
   }
 }
 
-$candidateEntries = @($entries | Where-Object { $_.Decision -eq "candidate" })
+$candidateEntries = @($entries | Where-Object { $_.Decision -in @("candidate", "candidate-stuck-one-shot") })
+$stuckOneShotCandidateEntries = @($entries | Where-Object { $_.Decision -eq "candidate-stuck-one-shot" })
 $ledger = [ordered]@{
   Tool                 = "agent-team-node-cleanup"
   Mode                 = if ($Apply) { "apply" } else { "dry-run" }
@@ -602,12 +712,19 @@ $ledger = [ordered]@{
   MinAgeMinutes        = $MinAgeMinutes
   IncludePattern       = @($IncludePattern)
   ExcludePattern       = @($ExcludePattern)
+  StuckOneShotRecovery = [ordered]@{
+    Enabled                  = [bool]$EnableStuckOneShotRecovery
+    OneShotCommandPattern    = @($OneShotCommandPattern)
+    CpuSampleIntervalSeconds = if ($EnableStuckOneShotRecovery) { $CpuSampleIntervalSeconds } else { $null }
+    MinCpuDeltaSeconds       = if ($EnableStuckOneShotRecovery) { $MinCpuDeltaSeconds } else { $null }
+  }
   ProtectedPids        = @($protectedPids.Keys | Sort-Object)
   Summary              = [ordered]@{
     NodeProcessCount   = @($entries | Where-Object { $_.Name -ieq "node.exe" }).Count
     TargetProcessCount = $entries.Count
     ProcessNameCounts  = (Get-ProcessNameCounts -Entries $entries)
     CandidateCount     = $candidateEntries.Count
+    StuckOneShotCandidateCount = $stuckOneShotCandidateEntries.Count
     ExcludedCount      = @($entries | Where-Object { $_.Decision -eq "excluded" }).Count
     AuditOnlyCount     = @($entries | Where-Object { $_.Decision -eq "audit-only" }).Count
   }
@@ -630,6 +747,8 @@ if ($Apply) {
         Pid    = $entry.Pid
         Status = "stopped"
         Force  = [bool]$Force
+        Decision = $entry.Decision
+        ParentProcessStopAttempted = $false
         Error  = $null
       }
     }
@@ -638,6 +757,8 @@ if ($Apply) {
         Pid    = $entry.Pid
         Status = "error"
         Force  = [bool]$Force
+        Decision = $entry.Decision
+        ParentProcessStopAttempted = $false
         Error  = $_.Exception.Message
       }
     }
@@ -658,7 +779,7 @@ if ($Apply) {
     StoppedCount            = @($stopResults | Where-Object { $_.Status -eq "stopped" }).Count
     ErrorCount              = @($stopResults | Where-Object { $_.Status -eq "error" }).Count
     RemainingCandidatePids  = @($remaining)
-    VerificationInstruction = "If any PID remains or respawns, inspect its parent service before running another apply."
+    VerificationInstruction = "If any PID remains or respawns, inspect its parent service before running another apply. Stuck one-shot recovery only stops the Node child; review a remaining cmd.exe wrapper manually."
   }
 }
 else {
