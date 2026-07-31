@@ -4,10 +4,17 @@
 
 ## [Unreleased]
 
+## [8.0.2] - 2026-07-31
+
 ### Added
 
 - 新增 Codex 插件 manifest 与 `ruan-cat-tools` marketplace；Codex 复用共享的 `skills/`。
 - 补充 Codex 的中文展示名称、中文介绍、默认提示、官网与品牌色。
+
+### Changed
+
+- 根级 marketplace 与 `common-tools` / `dev-skills` 三平台 `plugin.json` 统一提升至 `8.0.2`。
+- 本次 `dev-skills` 技能树无内容变更；功能更新集中在 `common-tools` 的 **install-skills** 卸载流程治理。
 
 ## [8.0.1] - 2026-07-29
 

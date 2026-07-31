@@ -4,13 +4,20 @@
 
 ## 版本
 
-**当前版本**: `8.0.1`
+**当前版本**: `8.0.2`
 
 ## Codex 插件市场
 
 Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现有 `commands/`、`agents/` 和 `hooks/` 保持为 Claude Code 专用能力，不会被 Codex manifest 声明或加载。
 
 安装、更新与卸载命令见 [`../../.agents/plugins/README.md`](../../.agents/plugins/README.md)。
+
+⚠️ **v8.0.2 Codex 市场与技能卸载治理**:
+
+- 新增 Codex 插件 manifest 与 `ruan-cat-tools` marketplace；Codex 仅分发共享的 `skills/`。
+- `install-skills` 新增全局 skills 卸载 SOP：`skills remove` 为主路径，同步器后置执行，文件系统处理仅限已确认残留。
+- 卸载验收同时覆盖 CLI 注册表、规范源目录与已验证同步目标，并要求按同义词识别系列技能。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 三平台 `plugin.json` 统一提升至 `8.0.2`。
 
 ⚠️ **v8.0.1 非 OpenAI Agent 简单安装任务防偏治理**:
 

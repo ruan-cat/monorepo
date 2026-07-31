@@ -7,12 +7,21 @@
 
 ## [Unreleased]
 
+## [8.0.2] - 2026-07-31
+
 ### Added
 
 - 新增 Codex 插件 manifest 与 `ruan-cat-tools` marketplace；Codex 仅分发共享的 `skills/`。
 - 补充 Codex 市场和两个插件的中文展示名称、完整中文介绍、默认提示、官网与品牌色。
 - **release-ai-plugins**：`metadata.version` `0.16.1` -> `0.16.2`，将 Codex marketplace、manifest 与 CLI smoke test 纳入发版清单。
 - **init-ai-md**：`metadata.version` `0.21.1` -> `0.21.2`，模板补充多平台插件市场同步与真实安装验证规则。
+
+### Changed
+
+- **install-skills**（`metadata.version` `1.0.1` -> `1.0.2`）：全局 skills 卸载以 `skills remove` 为主路径，目录处理仅限 CLI 无法管理的已确认残留。
+- **install-skills**：卸载后才调度已验证平台同步，并以 CLI 注册表和实际目录的双重检查作为完成条件。
+- **install-skills**：按产品名、别名、description 与用户范围词识别系列技能，避免只按名称前缀遗漏同义目标。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 三平台 `plugin.json` 统一提升至 `8.0.2`。
 
 ## [8.0.1] - 2026-07-29
 
