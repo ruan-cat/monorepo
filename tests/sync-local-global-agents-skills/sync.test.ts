@@ -8,10 +8,13 @@ import {
 	symlinkSync,
 	writeFileSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, test, afterEach } from "vitest";
-import type { AgentPlatform } from "../../ai-plugins/common-tools/skills/sync-local-global-agents-skills/src/platforms.ts";
+import {
+	DEFAULT_PLATFORMS,
+	type AgentPlatform,
+} from "../../ai-plugins/common-tools/skills/sync-local-global-agents-skills/src/platforms.ts";
 import { syncSkills } from "../../ai-plugins/common-tools/skills/sync-local-global-agents-skills/src/sync.ts";
 
 /**
@@ -190,5 +193,14 @@ describe("syncSkills", () => {
 
 		// 断言：当源目录不存在时，syncSkills 应抛出包含提示信息的错误。
 		expect(() => syncSkills("/nonexistent/source", platforms)).toThrow("Source directory does not exist");
+	});
+});
+
+describe("DEFAULT_PLATFORMS", () => {
+	test("registers CodeBuddy at the user-level skills directory", () => {
+		const codeBuddy = DEFAULT_PLATFORMS.find((platform) => platform.name === "CodeBuddy");
+
+		expect(codeBuddy).toBeDefined();
+		expect(codeBuddy?.skillsDir).toBe(path.join(homedir(), ".codebuddy", "skills"));
 	});
 });
