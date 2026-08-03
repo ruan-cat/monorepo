@@ -7,6 +7,24 @@
 
 ## [Unreleased]
 
+## [8.2.0] - 2026-08-04
+
+### Added
+
+- **sync-local-global-agents-skills**：新增已验证的 CodeBuddy 同步目标，使用 `~/.codebuddy/skills` 接收全局 skills 目录级链接。
+- **sync-local-global-agents-skills**：Node.js、PowerShell 和 Bash 三种同步入口均支持 CodeBuddy，并补充平台注册表回归测试。
+
+### Changed
+
+- **install-skills**（`metadata.version` `1.0.2` -> `1.0.3`）：在上一版本确立的全局 `skills remove` 主路径和卸载后同步流程基础上，补充 CodeBuddy 已验证目标。
+- **sync-local-global-agents-skills**（`metadata.version` `0.1.1` -> `0.1.2`）：同步说明与平台清单扩展至 CodeBuddy，并保持安装后从 `~/.agents/skills` 分发的模型。
+- 本次 `dev-skills` 技能树同步包含 **init-shadcn-docs-nuxt** 的 Nuxt Content 事故排错与兼容基线加固，详见 `ai-plugins/dev-skills/CHANGELOG.md`。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.2.0`。
+
+### Fixed
+
+- **sync-local-global-agents-skills**：修正 PowerShell 5.1 兜底脚本帮助输出的兼容性，并补齐 UTF-8 BOM，降低脚本解析失败风险。
+
 ## [8.1.0] - 2026-07-31
 
 ### Changed

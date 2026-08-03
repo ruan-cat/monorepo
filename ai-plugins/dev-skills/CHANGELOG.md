@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [8.2.0] - 2026-08-04
+
+### Changed
+
+- **init-shadcn-docs-nuxt**（`metadata.version` `1.0.0` -> `1.0.1`）：将技能从文档站初始化扩展为 Nuxt Content/H3、prerender、SSR externalization 与 Windows 构建故障检修入口。
+- **init-shadcn-docs-nuxt**：新增 Nuxt Content/H3 事故参考，记录版本漂移、Content API 500、H3 导出失配和 workspace 生产缺包的因果链与排查顺序。
+- **init-shadcn-docs-nuxt**：固定已验证的 Nuxt 3 兼容基线（`shadcn-docs-nuxt@1.1.9`、`@ztl-uwu/nuxt-content@2.13.9`、`nuxt@3.21.2`、`h3@1.15.11`），并要求 fresh install 后核对实际解析树。
+- **init-shadcn-docs-nuxt**：将 `prerender:routes` / `routes.clear()` 和 NFT trace 关闭收敛为有条件的历史 workaround，避免破坏 document-driven Content 或泄漏到 Linux/Vercel。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.2.0`。
+
 ## [8.1.0] - 2026-07-31
 
 ### Changed
