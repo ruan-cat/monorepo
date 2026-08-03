@@ -91,6 +91,7 @@ platforms=(
   "WorkBuddy:${HOME_WIN}/.workbuddy/skills"
   "QoderWork:${HOME_WIN}/.qoderworkcn/skills"
   "Kimi Work:${HOME_WIN}/AppData/Roaming/kimi-desktop/daimon-share/daimon/skills"
+  "CodeBuddy:${HOME_WIN}/.codebuddy/skills"
 )
 
 backup_dir() {

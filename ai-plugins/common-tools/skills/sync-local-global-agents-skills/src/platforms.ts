@@ -23,4 +23,8 @@ export const DEFAULT_PLATFORMS: AgentPlatform[] = [
 		name: "Kimi Work",
 		skillsDir: path.join(homedir(), "AppData", "Roaming", "kimi-desktop", "daimon-share", "daimon", "skills"),
 	},
+	{
+		name: "CodeBuddy",
+		skillsDir: path.join(homedir(), ".codebuddy", "skills"),
+	},
 ];
