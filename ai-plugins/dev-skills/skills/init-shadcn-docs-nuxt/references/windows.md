@@ -46,19 +46,23 @@ ls .output/server/ 2>$null                # 应为空或不存在
 
 ### 修复
 
-在 `nuxt.config.ts` 中关闭 trace：
+> 以下是历史 workaround，不是默认配置。它只适用于已经确认 Windows + pnpm workspace 的 NFT trace 是当前瓶颈、且项目不依赖 document-driven Content prerender 的场景。对 `shadcn-docs-nuxt` 默认文档站，先使用临时 8 GiB 堆、单进程复现和完整 Content API 验证；如果采用该 workaround，必须让 Linux/Vercel 保留 trace，并另行验证部署。
+
+在 `nuxt.config.ts` 中条件化关闭 trace：
 
 ```ts
 nitro: {
   externals: {
-    trace: false,
+    ...(process.platform === "win32" && process.env.SHADCN_DOCS_SKIP_NFT_TRACE === "1"
+      ? { trace: false }
+      : {}),
   },
 },
 ```
 
-### 附加优化：关闭预渲染
+### 历史 workaround：关闭预渲染
 
-文档站在 `node-server` 模式下通常不需要构建期预渲染。预渲染会拉起额外的 `nitro-prerender` 进程，加载完整 SSR 包，在默认堆限制下容易 OOM：
+> 这段信息保留用于识别旧配置和回滚原因。它只适用于不使用 document-driven Nuxt Content 的纯 node-server 项目；`shadcn-docs-nuxt` 文档站不能默认采用，因为 Content 需要 prerender 生成结构化索引。
 
 ```ts
 nitro: {
@@ -186,7 +190,7 @@ IDE 的 TypeScript 语言服务（`tsserver`）会加载并持有原生 `.node` 
 
 ```powershell
 # 在独立终端中（非 IDE 内置终端）
-cd D:\code\your-monorepo
+cd <monorepo-root>
 pnpm install
 ```
 

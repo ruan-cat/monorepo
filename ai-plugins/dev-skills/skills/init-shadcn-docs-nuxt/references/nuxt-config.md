@@ -38,11 +38,13 @@
 
 仅在构建阶段出问题时添加：
 
-| 问题                 | 补丁                                                          | 参考                                                                                            |
-| -------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Nitro 卡住           | `nitro.externals.trace: false`                                | [`nuxt.config.full.ts`](../templates/nuxt.config.full.ts) nitro 段 + [`windows.md`](windows.md) |
-| 预渲染 OOM           | `nitro.prerender.crawlLinks: false` + `prerender:routes` 清空 | 同上                                                                                            |
-| ohash transpile 报错 | `build.transpile: ["ohash"]`                                  | 同上 build 段                                                                                   |
+| 问题                 | 补丁                                                                                     | 参考                                                                                                      |
+| -------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Nitro 卡住           | 先诊断残留进程/资源；确认 Windows NFT trace 后再条件化 `trace: false` 或精准 inline      | [`templates/nuxt.config.full.ts`](../templates/nuxt.config.full.ts) nitro 段 + [`windows.md`](windows.md) |
+| 预渲染 OOM           | Windows 临时提高堆并保留 Content prerender；非 Content 的纯 node-server 才可另行评估关闭 | [`references/incident-repair.md`](incident-repair.md)                                                     |
+| ohash transpile 报错 | `build.transpile: ["ohash"]`                                                             | 同上 build 段                                                                                             |
+
+> 历史说明：`crawlLinks: false` 与 `prerender:routes` 中的 `routes.clear()` 曾是绕过 Windows 构建长尾的 workaround。它们不应从记忆中删除，但对 document-driven Nuxt Content 会导致运行时内容数据库为空，不能作为本技能的默认配置。
 
 ---
 

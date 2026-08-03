@@ -202,24 +202,35 @@ export default defineNuxtConfig({
 			 * 这不是"卡死"，是 trace 在递归扫描 pnpm 的硬链 / .pnpm store，
 			 * 扫描范围爆炸性增长，做不完。
 			 *
-			 * 关闭 trace 后，单进程 `nuxi build --logLevel=verbose`
-			 * 可正常生成 .output/server/index.mjs 并打印 Build complete!
+			 * 仅在设置 `SHADCN_DOCS_SKIP_NFT_TRACE=1` 后跳过 trace；
+			 * 单进程 `nuxi build --logLevel=verbose` 可验证是否生成
+			 * .output/server/index.mjs 并打印 Build complete!
 			 */
-			trace: false,
+			...(process.platform === "win32" && process.env.SHADCN_DOCS_SKIP_NFT_TRACE === "1" ? { trace: false } : {}),
 		},
 		prerender: {
 			/**
 			 * node-server 产物不依赖构建期全站静态化。
 			 * 预渲染会拉起额外的 nitro-prerender 进程并加载完整 SSR 包，
 			 * 在默认 Node 堆限制（约 4GB）下容易 OOM。
-			 * 若需要纯静态托管，可改用 nuxi generate 或在有足够内存的环境执行。
+			 *
+			 * 但 shadcn-docs-nuxt 的 document-driven Content 依赖 prerender
+			 * 解析 Markdown 并生成结构化索引，因此默认必须保留预渲染。
+			 * 若项目确认不使用 Content document-driven 数据，才可另行评估
+			 * `crawlLinks: false` 或旧的 `prerender:routes` workaround。
 			 */
-			crawlLinks: false,
+			crawlLinks: true,
 		},
-		hooks: {
-			"prerender:routes"(routes: Set<string>) {
-				routes.clear();
-			},
-		},
+		/*
+		 * 历史 workaround（不要在 document-driven Content 项目中默认启用）：
+		 *
+		 * hooks: {
+		 *   "prerender:routes"(routes: Set<string>) {
+		 *     routes.clear();
+		 *   },
+		 * },
+		 *
+		 * 它曾用于绕过 Windows 构建长尾，但会让 Content 运行时数据库为空。
+		 */
 	},
 });

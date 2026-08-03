@@ -1,13 +1,17 @@
 ---
 name: init-shadcn-docs-nuxt
 description: >-
-  初始化或重构任意组件库/项目的 `shadcn-docs-nuxt` 文档站。用于快速建立可运行、
-  可构建、可维护的 Nuxt 文档底座，并规避常见误区（配置复杂化、模块兼容、
-  MDC 语法错误、Windows 构建假卡死）。当用户提及"搭建组件库文档"
-  "接入 shadcn-docs-nuxt""重做 Nuxt 文档站""迁移文档模板"时触发。
+  Use when initializing or rebuilding any component-library/project documentation site based on
+  `shadcn-docs-nuxt`, or troubleshooting its Nuxt Content/H3, prerender, SSR externalization,
+  module-compatibility, MDC syntax, or Windows build issues. 适用于初始化或重构任意组件库/项目的
+  `shadcn-docs-nuxt` 文档站，快速建立可运行、可构建、可维护的 Nuxt 文档底座，或排查配置复杂化、
+  模块兼容、Nuxt Content/H3 版本漂移、prerender、SSR externalization、MDC 语法错误、
+  Windows 构建假卡死等故障。触发词包括“搭建组件库文档”“接入 shadcn-docs-nuxt”“重做 Nuxt 文档站”、
+  “迁移文档模板”以及 Content cache/search API 500、`ERR_INVALID_URL`、`sendError` 导出缺失、
+  `entities/decode`、`@vueuse/core`、`registerMessageResolver`、`prerender:routes` 等错误信号。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # 初始化 `shadcn-docs-nuxt` 组件库文档
@@ -43,14 +47,15 @@ metadata:
 
 ## 参考文档索引（references/）
 
-| 文件                                                       | 内容                                                      |
-| ---------------------------------------------------------- | --------------------------------------------------------- |
-| [`references/nuxt-config.md`](references/nuxt-config.md)   | 按需补丁策略、禁改项清单                                  |
-| [`references/compat.md`](references/compat.md)             | ESM/CJS 兼容速查表、排查顺序、常见误判表                  |
-| [`references/tailwind-css.md`](references/tailwind-css.md) | content 扫描规则、CSS 变量格式、常见样式问题排查          |
-| [`references/mdc-prettier.md`](references/mdc-prettier.md) | MDC 标准语法、5 种错误写法对照、hydration mismatch 因果链 |
-| [`references/windows.md`](references/windows.md)           | 构建假卡死、子进程链清理、EPERM 文件锁、单进程复现法      |
-| [`references/workspace.md`](references/workspace.md)       | 别名顺序陷阱、plugin 注册、i18n 单语、OG Image、目录结构  |
+| 文件                                                             | 内容                                                               |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [`references/nuxt-config.md`](references/nuxt-config.md)         | 按需补丁策略、禁改项清单                                           |
+| [`references/compat.md`](references/compat.md)                   | ESM/CJS 兼容速查表、排查顺序、常见误判表                           |
+| [`references/tailwind-css.md`](references/tailwind-css.md)       | content 扫描规则、CSS 变量格式、常见样式问题排查                   |
+| [`references/mdc-prettier.md`](references/mdc-prettier.md)       | MDC 标准语法、5 种错误写法对照、hydration mismatch 因果链          |
+| [`references/windows.md`](references/windows.md)                 | 构建假卡死、子进程链清理、EPERM 文件锁、单进程复现法               |
+| [`references/workspace.md`](references/workspace.md)             | 别名顺序陷阱、依赖矩阵、plugin 注册、i18n 单语、OG Image、目录结构 |
+| [`references/incident-repair.md`](references/incident-repair.md) | Nuxt Content/H3 版本漂移、prerender 钩子历史与构建故障分层排查     |
 
 ---
 
@@ -64,7 +69,7 @@ metadata:
 
 ---
 
-## 历史事故强约束（6 条记忆）
+## 历史事故强约束（8 条记忆）
 
 执行本技能时，**必须默认带着这些"已发生过"的事故记忆**：
 
@@ -74,6 +79,25 @@ metadata:
 4. **不要在 Windows 下把"日志停住"直接判定为"进程卡死"**，先排查残留子进程。→ 见 [`references/windows.md`](references/windows.md)
 5. **不要一开始就重写 i18n / icon 体系**；先拿模板默认链路跑通。→ 见 [`references/nuxt-config.md`](references/nuxt-config.md)
 6. **不要直接启用 `ogImage` 模块**；会触发 `vue.runtime.mjs does not provide an export named toValue` 的 500 错误。→ 见 [`references/nuxt-config.md`](references/nuxt-config.md)
+7. **核心运行时包要按兼容矩阵固定**：至少同时审查 `shadcn-docs-nuxt`、`@ztl-uwu/nuxt-content`、`nuxt`、`h3`，不能只看主题的传递依赖范围。
+8. **`prerender:routes` 不是无条件禁用项，而是历史 workaround**：它曾用于缓解 Windows 构建长尾，但对 document-driven Nuxt Content 会导致内容数据库为空；只有确认项目不依赖 Content prerender 且完成等价验证时才可讨论。→ 见 [`references/incident-repair.md`](references/incident-repair.md)
+
+---
+
+## 故障检修入口（命中信号后必须执行）
+
+当出现 Content cache/search API `500`、`ERR_INVALID_URL`、H3 `sendError` 导出缺失、
+`entities/decode` 或 `@vueuse/core` 缺包、`registerMessageResolver`、Nitro prerender 失败、
+`page._id` 为空、Windows 构建长时间无输出等信号时，**先读取**
+[`references/incident-repair.md`](references/incident-repair.md)，再修改配置或内容。
+
+检修时必须先回答三件事：
+
+1. 实际安装的 `shadcn-docs-nuxt`、`@ztl-uwu/nuxt-content`、`nuxt`、`h3` 是否属于同一兼容世代；
+2. 当前错误属于 Content/H3 运行时失配、Windows OOM/NFT 构建长尾，还是 SSR externalization/生产依赖追踪；
+3. 当前配置是否误用了历史 `prerender:routes` / `routes.clear()`、无条件 `trace: false` 或全量 `inline`。
+
+不要用单次首页 `200` 或本地 Windows 构建成功替代 Content API、fresh 依赖树和 Linux/Vercel 验证。
 
 ---
 
@@ -123,6 +147,7 @@ docs-site/
 - 如需消费 workspace 组件库，补 `workspace:*` 依赖
 - devDependencies：`@iconify-json/lucide`（Nuxt Icon 必需）
 - 脚本必须包含 `predev` / `prebuild` / `postinstall` 三处 `nuxt prepare`
+- fresh install 后必须检查实际解析树，并提交 lockfile；不要让 `^2.13.9` 之类的传递范围决定 Content 版本
 
 ### 第 3 步：Nuxt 配置
 
@@ -147,6 +172,8 @@ docs-site/
 | 验证项  | 方法                                                     |
 | ------- | -------------------------------------------------------- |
 | 启动    | `pnpm --filter <pkg> dev` → 首页 HTTP 200                |
+| 依赖    | `pnpm list` / `pnpm why h3` → 核心包实际版本可解释       |
+| Content | fresh dev 请求 cache/search API → HTTP 200 且索引非空    |
 | 构建    | `pnpm --filter <pkg> build` → 有 `.output` 产物          |
 | 交互    | 暗黑模式切换、侧边栏折叠可用                             |
 | 内容    | 抽查至少 1 个 `::demo-playground` 页面，无裸 marker 文本 |
@@ -161,6 +188,8 @@ docs-site/
 1. **先**看浏览器 console 是否有模块导入错误 → [`references/compat.md`](references/compat.md)
 2. **再**修依赖入口兼容（alias / optimizeDeps / dedupe / ssr.noExternal）
 3. **最后**再做 Tailwind / 主题样式检查 → [`references/tailwind-css.md`](references/tailwind-css.md)
+
+Content API 500、H3 导出错误或版本漂移时 → [`references/incident-repair.md`](references/incident-repair.md)
 
 构建卡住时 → [`references/windows.md`](references/windows.md)
 
@@ -187,6 +216,7 @@ MDC 裸文本 / hydration mismatch → [`references/mdc-prettier.md`](references
 5. 只报"看起来好了"，不附任何可重复验证证据。
 6. 把 `::demo-playground` 写成 `## ::demo-playground`。
 7. 在 Windows 下把"日志停住"直接判定为"进程卡死"而不先清理旧进程。
+8. 把历史上的 `prerender:routes` 清空钩子当成所有 `shadcn-docs-nuxt` 项目的默认配置；应先判断是否使用 document-driven Content。
 
 ---
 

@@ -170,3 +170,34 @@ monorepo/
 ### Nuxt Content 目录编号约定
 
 `content/` 下的文件和目录使用数字前缀控制排序，数字前缀只影响排序，不出现在 URL 路径中。
+
+---
+
+## Nuxt Content 兼容矩阵门禁
+
+`shadcn-docs-nuxt` 的主题传递依赖不能单独决定 Content 版本。Nuxt 3 文档站至少要同时检查：
+
+```json
+{
+	"shadcn-docs-nuxt": "1.1.9",
+	"@ztl-uwu/nuxt-content": "2.13.9",
+	"nuxt": "3.21.2",
+	"h3": "1.15.11"
+}
+```
+
+这是一条已验证的保守基线，不是生态中唯一正确的组合。fresh install 后必须运行：
+
+```powershell
+pnpm --filter <docs-package> list nuxt shadcn-docs-nuxt @ztl-uwu/nuxt-content h3 nitropack --depth 4
+pnpm --filter <docs-package> why h3
+```
+
+Content 运行时可能直接 import `h3` 却没有在上游 manifest 中声明，因此文档包必须显式声明 H3，不能依赖 hoist 或根 workspace 间接安装。
+
+### SSR 与 prerender 的边界
+
+- `vite.ssr.noExternal` 处理 Vite SSR 阶段的 workspace 包外部化。
+- `nitro.externals.inline` 处理 Nitro Rollup 阶段，不能替代 `vite.ssr.noExternal`。
+- `nitro.externals.trace` 是 NFT 依赖追踪；Windows workaround 必须条件化，不能无条件泄漏到 Vercel。
+- document-driven Content 依赖 prerender 生成结构化内容；不要把 `prerender:routes` 的 `routes.clear()` 当成默认优化。
