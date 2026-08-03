@@ -2,7 +2,7 @@
 
 本地全局 Agent Skills 同步器。
 
-将 Vercel `skills` CLI 全局安装的 skills（`~/.agents/skills`）作为唯一数据源，通过目录级符号链接批量同步到本机其他本地 agent 平台。
+将 Vercel `skills` CLI 全局安装的 skills（`~/.agents/skills`）作为唯一数据源，通过目录级符号链接批量同步到本机其他本地 agent 平台，包括 CodeBuddy。
 
 ## 快速开始
 
@@ -11,6 +11,8 @@ tsx scripts/sync.ts
 ```
 
 ## 命令行选项
+
+已支持的平台包括 WorkBuddy、QoderWork、Kimi Work 和 CodeBuddy，其中 CodeBuddy 使用 `~/.codebuddy/skills`。
 
 ```text
 --source <path>   指定源 skills 目录（默认：~/.agents/skills）
@@ -47,23 +49,6 @@ tsx scripts/fetch-memorix-skills.ts --force
 
 元数据文件路径：`~/.memorix/memorix-skills/memorix-meta.json`
 
-## 项目结构
+## 技能文件
 
-```text
-ai-plugins/common-tools/skills/sync-local-global-agents-skills/
-  scripts/
-    sync.ts          # CLI 入口
-  src/
-    platforms.ts     # 硬编码平台注册表
-    sync.ts          # 核心同步逻辑
-  fallback/
-    sync.ps1         # Windows PowerShell 兜底脚本
-    sync.sh          # Bash 兜底脚本
-```
-
-## 测试
-
-```bash
-cd tests/sync-local-global-agents-skills
-pnpm vitest run
-```
+安装后技能目录包含 `scripts/sync.ts`、`src/platforms.ts`、`src/sync.ts`、`fallback/sync.ps1` 和 `fallback/sync.sh`。

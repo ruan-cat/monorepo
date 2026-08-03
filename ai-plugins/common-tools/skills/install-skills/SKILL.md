@@ -4,7 +4,7 @@ description: >-
   Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略时。
 user-invocable: true
 metadata:
-  version: "1.0.2"
+  version: "1.0.3"
 ---
 
 # install-skills
@@ -93,6 +93,7 @@ $matches = @($items | Where-Object {
 | WorkBuddy | `~/.workbuddy/skills`                                       | 交给 `sync-local-global-agents-skills` |
 | QoderWork | `~/.qoderworkcn/skills`                                     | 交给 `sync-local-global-agents-skills` |
 | Kimi Work | `~/AppData/Roaming/kimi-desktop/daimon-share/daimon/skills` | 交给 `sync-local-global-agents-skills` |
+| CodeBuddy | `~/.codebuddy/skills`                                       | 交给 `sync-local-global-agents-skills` |
 
 ## 生态入口与待验证候选
 
