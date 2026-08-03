@@ -1,10 +1,10 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 
 <#
 .SYNOPSIS
     本地全局 Agent Skills 同步器兜底脚本（Windows PowerShell）。
 .DESCRIPTION
-    将 ~/.agents/skills 作为目录级链接分发到 WorkBuddy、QoderWork、Kimi Work 平台。
+    将 ~/.agents/skills 作为目录级链接分发到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy 平台。
     此脚本在无法使用 Node/TypeScript 主脚本时作为兜底方案。
 #>
 
@@ -18,17 +18,7 @@ param(
 )
 
 if ($Help) {
-    Write-Host @"
-Usage: sync.ps1 [options]
-
-Options:
-  -Source <path>   Source skills directory (default: ~\.agents\skills)
-  -DryRun         Print the plan without modifying the filesystem
-  -NoBackup                Do not backup existing directories before replacing
-  -Help                    Show this help message
-  -SkipMemorixRefresh      Skip scanning local memorix skills sources before sync
-  -ForceMemorixRefresh     Overwrite existing memorix skills in target directory
-"@
+    Write-Host "Usage: sync.ps1 [options]`n`nOptions:`n  -Source <path>   Source skills directory (default: ~\.agents\skills)`n  -DryRun          Print the plan without modifying the filesystem`n  -NoBackup        Do not backup existing directories before replacing`n  -Help            Show this help message`n  -SkipMemorixRefresh  Skip scanning local memorix skills sources before sync`n  -ForceMemorixRefresh Overwrite existing memorix skills in target directory"
     exit 0
 }
 
@@ -58,7 +48,8 @@ if (-not $SkipMemorixRefresh) {
 $platforms = @(
     @{ Name = "WorkBuddy"; Path = "$env:USERPROFILE\.workbuddy\skills" },
     @{ Name = "QoderWork"; Path = "$env:USERPROFILE\.qoderworkcn\skills" },
-    @{ Name = "Kimi Work"; Path = "$env:USERPROFILE\AppData\Roaming\kimi-desktop\daimon-share\daimon\skills" }
+    @{ Name = "Kimi Work"; Path = "$env:USERPROFILE\AppData\Roaming\kimi-desktop\daimon-share\daimon\skills" },
+    @{ Name = "CodeBuddy"; Path = "$env:USERPROFILE\.codebuddy\skills" }
 )
 
 if (-not (Test-Path -Path $Source -PathType Container)) {
