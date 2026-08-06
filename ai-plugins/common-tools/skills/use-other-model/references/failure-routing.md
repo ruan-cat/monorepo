@@ -1,17 +1,19 @@
 # 失败分流与回退策略
 
-方案 B 失败时，不要笼统说“模型不工作”。
+方案 B、方案 C 或方案 D 失败时，不要笼统说“模型不工作”。
 
 必须先判断它属于哪一层失败，再处理。
 
 ## 分流总表
 
-| 失败类型       | 典型表现                                      | 第一动作                                   |
-| -------------- | --------------------------------------------- | ------------------------------------------ |
-| 启动失败       | CLI 参数报错、进程起不来、provider 配置不生效 | 跑 `claude --help` 和配置核对              |
-| 执行失败       | 子会话跑起来了，但命令失败或任务理解错        | 读 JSON 结果、execution log、stdout/stderr |
-| 浏览器验收失败 | 构建通过，但页面显示或交互不对                | 记录具体视觉问题，决定继续委托还是本地接管 |
-| 连续两轮失败   | 已经修过一轮仍失败                            | 停止委托，主代理接管                       |
+| 失败类型               | 典型表现                                             | 第一动作                                   |
+| ---------------------- | ---------------------------------------------------- | ------------------------------------------ |
+| 启动失败               | CLI 参数报错、进程起不来、OpenCode/Claude CLI 不可用 | 跑 `claude --help` 或 `opencode --help`    |
+| 方案 C provider 层失败 | 配置未注入、认证拒绝、模型名不可用、安全策略拒绝注入 | 核对当前 shell、显式 `--model` 和原始输出  |
+| 方案 D 默认模型层失败  | 默认模型选择、变体不可用、OpenCode 配置错误          | 读取原始 JSONL 和 `opencode models` 输出   |
+| 执行失败               | 子会话跑起来了，但命令失败或任务理解错               | 读 JSON 结果、execution log、stdout/stderr |
+| 浏览器验收失败         | 构建通过，但页面显示或交互不对                       | 记录具体视觉问题，决定继续委托还是本地接管 |
+| 连续两轮失败           | 已经修过一轮仍失败                                   | 停止委托，主代理接管                       |
 
 ## 1. 启动失败
 
@@ -19,7 +21,7 @@
 
 - `claude` 不接受某个参数
 - 进程直接退出
-- provider 环境变量没有生效
+- 显式 provider 路径中的环境变量没有生效
 - 没进入可编辑模式
 
 ### 处理步骤
@@ -31,9 +33,10 @@
    - `--tools`
    - `--output-format`
    - `--append-system-prompt`
-3. 检查 provider 环境变量
+3. 如果是方案 C 或其他显式 provider 路径，检查 provider 环境变量；方案 D 不要求这些变量
 4. 检查主代理是否把系统提示和任务封包路径写对了
-5. 必要时做一次最小 smoke check
+5. 如果是方案 C 或 D，运行 `opencode --help`
+6. 必要时做一次最小 smoke check
 
 ### 最小 smoke check
 
@@ -43,7 +46,61 @@ claude -p --output-format json "reply with ok"
 
 如果 smoke check 都失败，先修启动层问题，不要继续怀疑任务内容。
 
-## 2. 执行失败
+方案 C 的 OpenCode 直连 provider 最小 smoke check：
+
+```powershell
+$env:ANTHROPIC_API_KEY = "<api-key>"
+$env:OPENCODE_CONFIG_CONTENT = '{"provider":{"anthropic":{"options":{"baseURL":"https://<anthropic-compatible-endpoint>/v1"}}}}'
+opencode run --model "anthropic/claude-fable-5" "reply with ok"
+```
+
+方案 D 的 OpenCode 裸启动最小 smoke check：
+
+```bash
+opencode run --format json --variant max "只回答 OPENCODE_DEFAULT_MODEL_SMOKE_OK，不调用工具，完成后退出。"
+```
+
+如果 OpenCode CLI 可以启动但指定 provider/model 失败，方案 C 转入 provider 层；默认模型选择或变体失败，方案 D 转入默认模型层。不要互相代替，也不要改 Claude Code 启动器。
+
+## 2. 方案 C provider 层失败
+
+### 常见症状
+
+- 当前 shell 中没有 API key 或 provider 配置
+- 聊天消息里给了 `$env:` 赋值，但没有进入实际子进程环境
+- provider 返回 401、403、404、model not found 或 endpoint 错误
+- 宿主环境在子进程创建前拒绝注入 API key
+
+### 处理步骤
+
+1. 核对当前 shell 的环境变量，而不是只看聊天文本。
+2. 读取 OpenCode 或 Claude CLI 的原始 stdout/stderr。
+3. 区分四种状态：
+   - `配置未注入`
+   - `provider 拒绝认证`
+   - `模型名不可用`
+   - `宿主安全策略拒绝注入`
+4. 安全策略阻断写成 `BLOCKED_EXTERNAL_POLICY`。
+5. 不把 provider 层失败改写成启动器失败、模型能力失败或任务执行失败。
+
+如果显式 provider 层失败，先修配置传播、认证或模型名；不要增加启动 wrapper、进程扫描或 cleanup 逻辑。
+
+## 3. 方案 D 默认模型层失败
+
+### 常见症状
+
+- 默认模型无法选择或本机 OpenCode 配置不可用
+- `--variant max` 不被当前默认模型支持
+- OpenCode 返回默认模型元数据或本机认证链路错误
+
+### 处理步骤
+
+1. 读取原始 JSONL 和 stderr。
+2. 仅在错误给出 provider 线索时运行 `opencode models <provider> --verbose`，核对当前模型和可用变体。
+3. 只在有具体错误时调整 `--variant` 或 OpenCode 配置。
+4. 不要因为默认模型失败就自动改写为方案 C。
+
+## 4. 执行失败
 
 ### 常见症状
 
@@ -76,7 +133,7 @@ claude -p --output-format json "reply with ok"
 - 编译/测试错误 → 明确验证命令和目标范围
 - 运行错误 → 补启动顺序、依赖、环境说明
 
-## 3. 浏览器验收失败
+## 5. 浏览器验收失败
 
 ### 常见症状
 
@@ -105,7 +162,7 @@ claude -p --output-format json "reply with ok"
 - 不要把“浏览器不可用”当成默认免责
 - 不要只写“看起来正常”这种模糊日志
 
-## 4. 连续两轮失败
+## 6. 连续两轮失败
 
 这是硬停止条件。
 
@@ -127,8 +184,10 @@ claude -p --output-format json "reply with ok"
 每次失败后按这个顺序判断：
 
 1. **启动层** 有没有错
-2. **执行层** 有没有错
-3. **浏览器验收层** 有没有错
-4. 是否已经达到 **两轮失败**
+2. **方案 C provider 层** 有没有错
+3. **方案 D 默认模型层** 有没有错
+4. **执行层** 有没有错
+5. **浏览器验收层** 有没有错
+6. 是否已经达到 **两轮失败**
 
 只有层级判断清楚，修复才会有效。

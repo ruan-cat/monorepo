@@ -1,20 +1,20 @@
 # 代码模板
 
-本文件现在不是方案 B 的主入口,但仍然保留“可以直接抄”的模板骨架。
+本文件现在不是方案 B 的主入口，但仍然保留“可以直接抄”的模板骨架。
 
-如果你想按新主线严谨执行,优先看:
+如果你想按新主线严谨执行，优先看：
 
 1. `claude-code-launch-templates.md`
 2. `context-packet-template.md`
 3. `frontend-browser-verification-template.md`
 4. `failure-routing.md`
 
-如果你只是想快速拿一个模板起手,本文件仍然有价值。
+如果你只是想快速拿一个模板起手，本文件仍然有价值。
 
 ## A. 任务封包模板 (`context-packet.md`)
 
 > 这是旧“执行计划模板”的升级版。  
-> 旧模板偏步骤列表,新模板偏执行契约。
+> 旧模板偏步骤列表，新模板偏执行契约。
 
 ```markdown
 # Task Packet
@@ -100,7 +100,8 @@ cd "$WORKDIR"
 
 export ANTHROPIC_AUTH_TOKEN="[用户提供的 API Key]"
 export ANTHROPIC_BASE_URL="[用户提供的 Base URL]"
-export ANTHROPIC_MODEL="[用户提供的模型名称]"
+# 可选：只有用户明确指定模型时才设置
+# export ANTHROPIC_MODEL="[用户提供的模型名称]"
 
 claude -p \
   --permission-mode bypassPermissions \
@@ -118,7 +119,7 @@ $ErrorActionPreference = "Stop"
 
 Remove-Item Env:CLAUDECODE -ErrorAction SilentlyContinue
 
-$workdir = "D:\path\to\repo"
+$workdir = "<repo-root>"
 $taskDir = Join-Path $workdir ".use-other-model\task-001"
 $contextPacket = Join-Path $taskDir "context-packet.md"
 $systemPromptFile = Join-Path $taskDir "unattended-system-prompt.txt"
@@ -130,7 +131,8 @@ Set-Location $workdir
 
 $env:ANTHROPIC_AUTH_TOKEN = "[用户提供的 API Key]"
 $env:ANTHROPIC_BASE_URL = "[用户提供的 Base URL]"
-$env:ANTHROPIC_MODEL = "[用户提供的模型名称]"
+# 可选：只有用户明确指定模型时才设置
+# $env:ANTHROPIC_MODEL = "[用户提供的模型名称]"
 
 claude -p `
   --permission-mode bypassPermissions `
@@ -159,7 +161,7 @@ claude -p `
 
 ANTHROPIC_AUTH_TOKEN=sk-ant-xxxxx
 ANTHROPIC_BASE_URL=https://api.minimaxi.com/anthropic
-ANTHROPIC_MODEL=MiniMax-M2.5-highspeed
+# ANTHROPIC_MODEL=MiniMax-M2.5-highspeed  # 可选，按需设置
 ```
 
 **使用方式**:
@@ -172,13 +174,13 @@ source .env
 
 ### 为什么还保留这个文件
 
-因为很多人仍然习惯先找“模板合集”,再决定看哪份细文档。  
-所以这个文件保留,但不再承担全部规则说明。
+因为很多人仍然习惯先找“模板合集”，再决定看哪份细文档。
+所以这个文件保留，但不再承担全部规则说明。
 
 ### 现在它和新文档的关系
 
 - 这里给你“可以直接抄”的骨架
-- 细规则去看:
+- 细规则去看：
   - `claude-code-launch-templates.md`
   - `context-packet-template.md`
   - `frontend-browser-verification-template.md`

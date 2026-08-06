@@ -4,7 +4,7 @@
 
 ## 核实依据
 
-以下参数已在 **2026-04-15** 通过本机 `claude --help` 和 `claude -p --help` 核实可用:
+以下参数已在 **2026-04-15** 通过本机 `claude --help` 和 `claude -p --help` 核实可用：
 
 - `-p, --print`
 - `--permission-mode`
@@ -16,7 +16,7 @@
 
 ## 默认参数
 
-方案 B 默认使用:
+方案 B 默认使用：
 
 - `claude -p`
 - `--permission-mode bypassPermissions`
@@ -64,7 +64,8 @@ cd "$WORKDIR"
 # 参见 environment-variables.md
 export ANTHROPIC_AUTH_TOKEN="..."
 export ANTHROPIC_BASE_URL="..."
-export ANTHROPIC_MODEL="..."
+# 可选：只有用户明确指定模型时才设置
+# export ANTHROPIC_MODEL="..."
 
 claude -p \
   --permission-mode bypassPermissions \
@@ -82,7 +83,7 @@ $ErrorActionPreference = "Stop"
 
 Remove-Item Env:CLAUDECODE -ErrorAction SilentlyContinue
 
-$workdir = "D:\path\to\repo"
+$workdir = "<repo-root>"
 $taskDir = Join-Path $workdir ".use-other-model\task-001"
 $contextPacket = Join-Path $taskDir "context-packet.md"
 $systemPromptFile = Join-Path $taskDir "unattended-system-prompt.txt"
@@ -96,7 +97,8 @@ Set-Location $workdir
 # 参见 environment-variables.md
 $env:ANTHROPIC_AUTH_TOKEN = "..."
 $env:ANTHROPIC_BASE_URL = "..."
-$env:ANTHROPIC_MODEL = "..."
+# 可选：只有用户明确指定模型时才设置
+# $env:ANTHROPIC_MODEL = "..."
 
 claude -p `
   --permission-mode bypassPermissions `
@@ -134,15 +136,15 @@ claude -p `
 
 ## 兼容回退
 
-只有在确认当前环境 **不支持** `--permission-mode` 时,才考虑回退到兼容命令。
+只有在确认当前环境 **不支持** `--permission-mode` 时，才考虑回退到兼容命令。
 
-回退前必须:
+回退前必须：
 
 1. 运行 `claude --help`
 2. 记录为什么不能用 `--permission-mode bypassPermissions`
 3. 确认运行环境是受控的
 
-兼容回退示例:
+兼容回退示例：
 
 ```bash
 claude -p \
