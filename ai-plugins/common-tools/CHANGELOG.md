@@ -7,6 +7,20 @@
 
 ## [Unreleased]
 
+## [8.3.0] - 2026-08-07
+
+### Added
+
+- **use-other-model**：新增 OpenCode 直连 provider 的启动参考、环境变量说明与 provider smoke 脚本。
+- **use-other-model**：新增 OpenCode 裸启动模式，直接调用 OpenCode 自带内部默认模型，并补充 headless 启动参考与脚本。
+
+### Changed
+
+- **use-other-model**：方案从三种扩展为四种，保留原有 Claude Code 独立会话方案，并同时支持 OpenCode 直连 provider 与裸启动内部模型。
+- **use-other-model**：明确 `ANTHROPIC_MODEL` 为可选变量，补充 shell 环境传播、最小 smoke check 和启动器职责边界要求。
+- **use-other-model**：保留技术报告并通过渐进式参考文档加载，避免技能升级后丢失历史方案依据。
+- 根级 marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.3.0`。
+
 ## [8.2.0] - 2026-08-04
 
 ### Added

@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [8.3.0] - 2026-08-07
+
+### Changed
+
+- 本次技能功能变更集中在 `common-tools/use-other-model`，`dev-skills` 技能树本身无内容变更。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.3.0`。
+
 ## [8.2.0] - 2026-08-04
 
 ### Changed
