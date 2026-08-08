@@ -10,7 +10,7 @@ description: >-
   从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。
 user-invocable: true
 metadata:
-  version: "0.5.0"
+  version: "0.6.0"
 ---
 
 # Git Commit
@@ -18,6 +18,36 @@ metadata:
 ## 目标
 
 仅包含预期的变更 → 逻辑拆分 → 信息描述变更内容和原因
+
+## 预解析任务包（快速路径）
+
+当主代理已经完成范围分析并提供任务封包时，执行代理可以走快速路径，跳过重复扫描对话历史和无关目录。任务封包必须同时包含以下字段：
+
+```yaml
+scope: [允许提交的仓库相对路径或绝对路径]
+exclude: [明确排除的工作区修改]
+groups:
+  - type: publish
+    scope: ai-plugins
+    emoji: 📢
+    files: [本组文件列表]
+    summary: 发布元数据
+verification: [每组提交前后的最小验证命令]
+identityCheck:
+  client: 客户端名称及 allowlist 结果
+  model: 模型名称及 allowlist 结果
+  trailer: 追加或不追加 Co-authored-by 的结论
+```
+
+快速路径的硬门槛：
+
+1. 先用 `git status --short --branch`、`git diff --cached` 和目标组文件清单确认封包仍与工作树一致；不一致时退回完整工作流程并报告差异。
+2. 只允许暂存 `scope` 和当前 `groups` 的文件，`exclude` 中的修改始终保持未暂存；禁止回退范围外文件。
+3. 仍必须执行 staged diff 审查、敏感信息扫描、commitlint、最小验证、提交后 `git log -1` 与 `git status` 复核；快速路径只能省略重复发现，不能省略证据门。
+4. 同一任务只解析一次远程或本地 `commit-types.ts`，后续分组复用 `type/emoji` 结果；`identityCheck` 也只按封包结论执行一次，不重复猜测。
+5. 每个提交返回 commit hash、提交正文、实际文件集合和原始验证输出；最终确认没有 `commit-message.txt` 或其他临时文件残留，且不执行 `git push`。
+
+如果封包缺少任一字段、白名单含糊或验证命令不可复现，不得使用快速路径。
 
 ## 规则来源优先级 [CRITICAL]
 
@@ -87,6 +117,7 @@ metadata:
        - 读取该文件，解析 `commitTypes` 数组，定位本次要使用的 `type`。
        - 该文件是随技能一起分发的快照副本，版本可能落后于远程，但可确保离线可用。
      - **禁止仅依据搜索摘要或缓存判断 emoji**——必须读取完整文件后定位 type。在继续之前，显式复述本次解析结果：`selected type`、`resolved emoji`、命中的原始片段。
+     - 同一任务包含多个逻辑提交时，只需在第一个分组解析一次；后续分组复用已确认的映射，并在执行记录中标明复用，不要重复读取和推断。
      - 若远程和本地都获取失败 → **停止**，报告"无法获取 commit-types.ts，无法确定合法 type 与 emoji"，不得猜测或回退到旧表格。
    - **推荐使用文件方式**（避免 shell 参数传递导致的编码与转义问题）：
      - 对于包含中文的 commit message，默认使用 `git commit -F commit-message.txt`

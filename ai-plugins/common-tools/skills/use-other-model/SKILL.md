@@ -16,7 +16,7 @@ description: >-
   MCP 工具、独立 Claude Code 会话、OpenCode 直连 provider、OpenCode 裸启动内部模型之间选择时使用。
 user-invocable: true
 metadata:
-  version: "0.7.0"
+  version: "0.8.0"
 ---
 
 # Use Other Model
@@ -56,6 +56,29 @@ metadata:
    - 只要任务涉及页面、组件、样式、交互、可视化，就不能只看 `build/test`
    - 浏览器不可用时必须记录原因，不能静默跳过
 
+## 委托路径互斥与 Git 提交路由
+
+OpenCode 直启和原生临时子代理是两条互斥的执行路径，不能因为“都使用其他模型”而套娃：
+
+1. 用户明确要求 **OpenCode 默认模型**、未指定 `--model`，或给出裸 `opencode run` 命令时，直接执行方案 D；不要创建原生临时子代理。
+2. 用户明确要求 **临时子代理** 但没有指定 OpenCode 时，使用原生协作代理；不要再启动方案 D，也不要在子代理内嵌套 OpenCode。
+3. 只有用户同时明确要求“通过 OpenCode 驱动独立执行器”时，才允许组合两层；必须分别记录 OpenCode 与执行器的启动命令、模型/Provider、退出码和原始输出。
+4. 简单 Git 提交默认由主代理直接完成。只有批量逻辑提交、预计超过 5 分钟，或用户明确要求独立验证时才委托；委托时只保留一个执行代理，安全审计仅在 staged diff 含密钥、权限、外部发布或用户明确要求时后置启动。
+
+委托前必须生成最小任务封包，而不是转发完整会话历史。封包至少包含：
+
+```text
+仓库/工作目录：...
+目标与禁止事项：...
+scope：允许修改或提交的白名单
+exclude：明确排除的工作区修改
+groups：每组 type、scope、emoji、文件列表和摘要
+verification：每组及最终验证命令
+identityCheck：客户端、模型、allowlist 结果与 trailer 结论
+```
+
+执行器使用 `fork_turns: none` 或等价的最小上下文启动，不重复读取无关技能、历史对话和已完成的范围分析。主代理验收时必须能从日志确认实际 CLI、模型路径、退出码、commit hash（如适用）及临时文件清理结果。
+
 ## 模型分层策略
 
 方案 A-D 是调用路径，不是模型强度。先分配角色和风险等级，再选择调用路径；不要因为已经启动了某个 CLI 就让它承担不匹配的职责。
@@ -69,7 +92,7 @@ metadata:
 
 ### 硬性路由规则
 
-1. **先定角色，再选 A-D 路径**：同一任务可以分别使用执行、诊断和审计角色，但不能让一个代理覆盖全部职责。
+1. **先定角色，再选 A-D 路径**：复杂任务可以分别使用执行、诊断和审计角色，但简单 Git 提交不启动多余角色；不能让一个代理覆盖全部职责。
 2. **风险决定最低模型层级**：复杂根因、安全判断和架构取舍不得下放给弱模型；不确定时升级到主代理或强模型。
 3. **执行必须是封包化的**：给出工作目录、文件清单、明确 diff、禁止事项、验证命令和完成条件；执行者只回传改动与原始证据。
 4. **审计必须后置且独立**：所有实现和诊断结果先冻结，再把最终工作树、`git diff`、必要历史/配置/日志交给独立审计者；审计者不得修改文件。
@@ -78,6 +101,29 @@ metadata:
 推荐顺序：
 
 `主代理冻结范围 → 执行/诊断取证 → 主代理整合与复核 → 工作树冻结 → 独立审计 → 主代理最终验收`
+
+## 委托临时目录契约
+
+每次执行本技能（方案 A-D，包括 smoke check、诊断取证和独立编码代理）都必须在对应项目的工作目录内建立临时证据闭包：
+
+1. 在当前项目/工作区根目录创建 `.use-other-model` 目录；不得把任务封包、启动脚本、结果或日志写入用户目录、系统临时目录或仓库根目录的散落文件。
+2. `.use-other-model/.gitignore` 必须存在且内容严格为单独一行 `*`，用于完全忽略该临时目录；若文件已存在但内容不同，先修正后再启动任务。
+3. 每个新子任务使用唯一目录名 `task-YYYYMMDD-XXX`，例如 `task-20260806-opencode-headless`、`task-20260805-probe`；日期使用当前本地日期，`XXX` 使用简短的小写 ASCII 语义 slug，不使用空格。
+4. `context-packet.md`、`unattended-system-prompt.txt`、`result*.json`/`result*.jsonl`、`execution-log*.md`、`stderr.log`、启动脚本、进程台账和其他临时文件，必须放在对应的 `task-YYYYMMDD-XXX` 目录中。重试或子任务产生的文件使用同一任务目录内的带后缀文件，或创建新的唯一 task 目录，禁止覆盖既有证据。
+5. `.use-other-model` 根目录原则上只保留 `.gitignore` 和任务子目录；不要在根目录写入未归属任务的 `result.json`、`launch.ps1` 或报告。
+6. 任务完成后保留该临时证据闭包供主代理复核，不得把“清理临时文件”理解为删除任务目录；仅清理包含密钥的临时环境或文件，并在执行日志中记录清理结果。
+
+目录最小形态：
+
+```text
+.use-other-model/
+├─ .gitignore        # 内容仅为：*
+└─ task-YYYYMMDD-XXX/
+   ├─ context-packet.md
+   ├─ unattended-system-prompt.txt
+   ├─ result.json
+   └─ execution-log.md
+```
 
 ## 能力保留清单
 
@@ -97,32 +143,36 @@ metadata:
 
 以下顺序是硬约束，不得因“先做一个更完整的脚本”而跳过、合并或重排：
 
-0. **先选模型角色，不按 CLI 默认分配职责**
+0. **先建立任务目录，再选模型角色**
+   - 按「委托临时目录契约」创建 `.use-other-model/.gitignore` 和唯一的 `task-YYYYMMDD-XXX` 目录，并把后续所有临时产物写入该目录。
+   - 目录未创建、`.gitignore` 内容不为单独一行 `*` 或任务目录命名不合规时，不得启动任何外部模型或子代理。
+
+1. **选模型角色，不按 CLI 默认分配职责**
    - 明确 diff 的机械编辑、批量 env/文件操作和格式转换，优先分给弱/中执行型子代理。
    - 认证、代理、运行时等复杂根因由主代理诊断；可让强诊断协作者独立采证，但不把最终结论外包。
    - 敏感信息、方案 pros/cons 和最终 diff 复核由独立强审计型子代理承担，且必须在改动冻结后进行。
 
-1. **再选路径，不混用职责**
+2. **再选路径，不混用职责**
    - 用户明确给出 API key、baseURL 和 `--model provider/model` 时，选方案 C，使用 OpenCode 直连 provider。
    - 用户要求 OpenCode 使用自身默认模型、未指定 `--model`，或要求裸启动无头委托时，选方案 D，直接使用 OpenCode 内部模型。
    - 只有确实需要独立编码代理读写文件、执行验证并写 `execution log` 时，才选方案 B。方案 C、D 都不替换方案 B，也不互相替换。
 
-2. **只信实际调用 shell，不从聊天文本推断配置已生效**
+3. **只信实际调用 shell，不从聊天文本推断配置已生效**
    - 聊天中的 `$env:` 赋值不会自动传入当前 PowerShell 或其子进程。必须在实际执行 `opencode run` 或 `claude -p` 的同一个 shell 会话中注入后再调用；裸启动默认不需要 provider 环境变量。
    - `ANTHROPIC_MODEL` 对 Claude Code 是可选值：仅当用户明确指定模型时设置；不得把它加入通用环境检查或启动门禁。
 
-3. **先做最小 smoke check，再谈封装或任务执行**
+4. **先做最小 smoke check，再谈封装或任务执行**
    - 方案 C：在同一 shell 注入 provider 配置后，运行 `opencode run --model "provider/model" "reply with ok"`。
    - 方案 D：`opencode run --format json --variant max "只回答 OPENCODE_DEFAULT_MODEL_SMOKE_OK，不调用工具，完成后退出。"`。
    - 方案 B：`claude -p --output-format json "reply with ok"`。
    - 没有这条直接命令的原始 stdout/stderr 与退出码，就不得新增 wrapper、预检、进程树、超时、脱敏、元数据或 cleanup 逻辑。
 
-4. **按层报告结论，不能跨层代偿**
+5. **按层报告结论，不能跨层代偿**
    - CLI 能启动，只证明 CLI 和当前认证路径可启动；它不证明用户指定的 provider、模型名、baseURL 或真实任务可用。
    - provider 失败先检查当前 shell 的配置传播、认证、endpoint 和模型名；不要改 Claude Code 启动器，也不要把失败归咎于模型能力。
    - 启动、provider、任务执行、浏览器验收和清理是独立层。每一层只记录并处理自己的证据。
 
-5. **治理动作后置且独立**
+6. **治理动作后置且独立**
    - 脱敏由调用方输出处理，cleanup 仅在任务结束后按独立流程进行，并应有归属证据和 dry-run。
    - 不把预检、脱敏、进程树、批量终止、超时、状态写入和清理塞进 `launch-probe.ps1` 或任何启动器。启动器只调用 CLI、保存真实输出并返回退出码。
 
@@ -303,7 +353,7 @@ opencode run --format json --variant max "只回答 OPENCODE_DEFAULT_MODEL_SMOKE
 - 把 `ANTHROPIC_MODEL` 当成通用必需变量；它只在用户明确指定模型时注入，不能成为普遍启动硬门禁。
 - 启动器自己生成 `result.json` 表示 `BLOCKED`、`PARTIAL` 或 `DRY_RUN_PASS`；`result.json` 只接收子会话真实 stdout。
 - 把 token 脱敏、cleanup、批量 kill、MCP 进程治理塞进 launcher；这些属于调用方环境、安全报告或 `cleanup-agent-team-node-processes`。
-- 启动脚本、任务封包、系统提示、结果和日志没有放在同一个 `.use-other-model/task-<id>` 目录闭包中。
+- 启动脚本、任务封包、系统提示、结果和日志没有放在同一个 `.use-other-model/task-YYYYMMDD-XXX` 目录闭包中。
 
 只有同时满足以下三点，才允许突破这些红线：
 
@@ -323,8 +373,8 @@ opencode run --format json --variant max "只回答 OPENCODE_DEFAULT_MODEL_SMOKE
    - 如果这些内容仍然模糊，不要启动外部代理
 
 3. **写任务封包**
-   - 使用 `references/context-packet-template.md`
-   - 让子会话先读任务封包，而不是先读一大段 prompt
+   - 使用 `references/context-packet-template.md`，并将封包写入当前项目 `.use-other-model/task-YYYYMMDD-XXX/context-packet.md`。
+   - 让子会话先读任务封包，而不是先读一大段 prompt；启动提示、结果和执行日志也必须写入同一任务目录。
 
 4. **如果是前端任务，补浏览器验收模板**
    - 使用 `references/frontend-browser-verification-template.md`
