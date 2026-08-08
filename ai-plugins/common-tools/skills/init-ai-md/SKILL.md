@@ -7,7 +7,7 @@ description: >-
   init-ai-md 等关键词时主动调用。
 user-invocable: true
 metadata:
-  version: "0.21.2"
+  version: "0.21.3"
 ---
 
 # init-ai-md 技能说明
@@ -22,6 +22,12 @@ metadata:
 4. **多文件同步**：支持同步更新 AGENTS.md 和 GEMINI.md
 5. **技能表管理**：扫描项目中 `.agents/skills/` 目录下的现有技能，在 CLAUDE.md 中创建并维护「本项目的技能表」章节
 6. **内置技能初始化**：支持将 `record-bug-fix-memory` 等内置技能模板部署到项目的 `.agents/skills/` 目录中
+
+## 文档读取策略
+
+- 第一次只读目录/标题结构（grep "^##" file）
+- 根据任务需要，用 offset/limit 只读相关章节
+- 更新文档时用 Edit 的精准替换，不要 Read 全文再 Write 全文
 
 ## 执行流程
 

@@ -4,13 +4,19 @@
 
 ## 版本
 
-**当前版本**: `8.0.2`
+**当前版本**: `8.3.1`
 
 ## Codex 插件市场
 
 Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现有 `commands/`、`agents/` 和 `hooks/` 保持为 Claude Code 专用能力，不会被 Codex manifest 声明或加载。
 
 安装、更新与卸载命令见 [`../../.agents/plugins/README.md`](../../.agents/plugins/README.md)。
+
+⚠️ **v8.3.1 init-ai-md 文档读取策略**:
+
+- `init-ai-md` 新增文档读取策略，要求首次只读标题结构，再按任务读取相关章节。
+- 更新文档时要求使用精准替换，避免全文读取后整体重写。
+- 版本号与 marketplace 主版本同步至 `8.3.1`。
 
 ⚠️ **v8.0.2 Codex 市场与技能卸载治理**:
 
