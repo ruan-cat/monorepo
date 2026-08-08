@@ -7,7 +7,7 @@ description: >-
   init-ai-md 等关键词时主动调用。
 user-invocable: true
 metadata:
-  version: "0.21.3"
+  version: "0.21.4"
 ---
 
 # init-ai-md 技能说明
@@ -279,6 +279,7 @@ init-ai-md/
     ├── 08.本项目的技能表.md          # 技能表章节模板
     ├── 09.Karpathy Guidelines.md     # Karpathy 编码行为准则模板
     ├── 10.使用superpower技能的个人偏好.md
+    ├── 11.文档读取策略.md
     ├── 99.获取技术栈对应的上下文.md
     └── record-bug-fix-memory/       # 内置技能模板
         └── SKILL.md                 # record-bug-fix-memory 技能模板
