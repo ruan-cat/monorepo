@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [8.3.3] - 2026-08-09
+
+### Changed
+
+- **release-ai-plugins**：`metadata.version` `0.17.2` -> `0.17.3`。
+- 强化 release-ai-plugins 发布流程，补齐自动发现、安装文档和 Codex manifest 校验
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.3.3`。
+
 ## [8.3.2] - 2026-08-09
 
 ### Changed
