@@ -4,6 +4,21 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **nitro-api-development**: `metadata.version` `0.13.4` -> `0.13.5`。
+
+### Fixed
+
+- **nitro-api-development**: 补充 Nitro v3 `serverDir: "server"` 配置陷阱，避免 `server/` 下路由未进入构建产物而导致端点 404。
+
+## [8.3.1] - 2026-08-09
+
+### Changed
+
+- 本次技能功能变更集中在 `common-tools/init-ai-md`，`dev-skills` 技能树本身无内容变更。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.3.1`。
+
 ## [8.3.0] - 2026-08-07
 
 ### Changed

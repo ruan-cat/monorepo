@@ -8,7 +8,12 @@ Codex 通过 `.codex-plugin/plugin.json` 加载本插件共享的 `skills/`。�
 
 ## 版本
 
-**当前版本**: `8.0.1`
+**当前版本**: `8.3.1`
+
+⚠️ **v8.3.1 版本同步**:
+
+- 版本号与 marketplace 主版本同步至 `8.3.1`。
+- 本次 `dev-skills` 技能树无内容变更；功能更新集中在 `common-tools` 的 **init-ai-md** 文档读取策略。
 
 ⚠️ **v8.0.1 版本同步**:
 
@@ -186,7 +191,7 @@ Codex 通过 `.codex-plugin/plugin.json` 加载本插件共享的 `skills/`。�
 
 ### nitro-api-development
 
-**版本**: `0.13.4`
+**版本**: `0.13.5`
 
 核心规范：
 

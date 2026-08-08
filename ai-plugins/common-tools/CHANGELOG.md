@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [8.3.1] - 2026-08-09
+
+### Changed
+
+- **init-ai-md**：`metadata.version` `0.21.2` -> `0.21.3`。
+- **init-ai-md**：新增「文档读取策略」，要求首次只读标题结构、按章节读取相关内容，并使用精准替换更新文档。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.3.1`。
+
 ## [8.3.0] - 2026-08-07
 
 ### Added
