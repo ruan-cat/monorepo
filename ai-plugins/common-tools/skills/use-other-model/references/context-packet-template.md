@@ -1,14 +1,14 @@
 # 任务封包模板
 
-方案 B 启动前,主代理必须先写任务封包。
+方案 B 启动前，主代理必须先写任务封包。
 
-这份封包不是可选附录,而是子会话能否稳定工作的前提。
+这份封包不是可选附录，而是子会话能否稳定工作的前提。
 
 ## 使用要求
 
 1. 封包必须在启动子会话前写好
 2. 子会话的第一步必须是阅读封包
-3. 如果封包本身存在冲突,子会话应直接停止并报告冲突
+3. 如果封包本身存在冲突，子会话应直接停止并报告冲突
 4. 不要把关键约束只写在聊天 prompt 里
 
 ## 标准模板
@@ -36,10 +36,28 @@
 
 - [用 2-4 条写清楚最终目标]
 
+## Delegation role
+
+- Role: `execution` / `diagnostic` / `audit`
+- Model tier: `weak` / `medium` / `strong`
+- Primary output: [明确写出要交付的 diff、证据或审计 findings]
+- Final decision owner: 主代理
+
+### Role boundaries
+
+- `execution`: 只处理下列明确 diff，不做架构判断、根因诊断或安全签字。
+- `diagnostic`: 只提交原始证据、候选假设、复现步骤和排除链；主代理负责定案。
+- `audit`: 在工作树冻结后只读检查最终 diff、配置、日志和必要历史；不得修改文件，也不得复用执行者的结论作为证据。
+
 ## Allowed edits
 
 - `path/to/allowed-file-a`
 - `path/to/allowed-dir/**`
+
+## Explicit diff
+
+- Required changes: [逐文件列出允许的新增/删除/替换]
+- Out of scope: [明确禁止的文件、重构和副作用]
 
 ## Do not do
 
@@ -73,6 +91,7 @@ Write an execution log that includes:
 7. Problems encountered
 8. End time
 9. Final status
+10. Evidence paths or command output excerpts supporting each acceptance item
 
 ## Completion rule
 
@@ -87,7 +106,7 @@ You are done only if:
 
 ## 推荐补充字段
 
-如果任务较复杂,建议再加:
+如果任务较复杂，建议再加：
 
 - `## Acceptance checklist`
 - `## Known constraints`
@@ -99,16 +118,16 @@ You are done only if:
 
 ### Working directory
 
-必须是明确的绝对路径,不要写“当前目录”。
+必须是明确的绝对路径，不要写“当前目录”。
 
 ### Read first
 
-只列真正需要先读的文件,不要把整个仓库目录都塞进去。
+只列真正需要先读的文件，不要把整个仓库目录都塞进去。
 
 ### Allowed edits
 
 要能清楚约束子会话的写入范围。  
-如果范围不清楚,就先不要启动方案 B。
+如果范围不清楚，就先不要启动方案 B。
 
 ### Verification commands
 
@@ -117,4 +136,4 @@ You are done only if:
 
 ### Completion rule
 
-这一节必须显式写出“什么时候算完成”,否则子会话很容易提前停。
+这一节必须显式写出“什么时候算完成”，否则子会话很容易提前停。

@@ -4,18 +4,19 @@ description: >-
   Use when the agent needs to delegate work to OpenCode, Claude Code, MiniMax,
   Gemini, or another model/provider for token savings, batch work, long-running
   tasks, independent verification, OpenCode provider/model checks, or OpenCode
-  headless internal-model checks; use when the user mentions another model,
+  headless internal-model checks, model-tier routing, execution agents, or
+  independent security audits; use when the user mentions another model,
   provider, saving tokens, batch operations, multi-file work, or a task expected
   to run longer than 5 minutes; use when choosing MCP tools, an independent
   Claude Code session, OpenCode direct provider access, or OpenCode internal
   model launch. 当代理需要驱动 OpenCode、Claude Code、MiniMax、Gemini 或其他模型/Provider，
-  进行节省 token、批量操作、长任务、独立验证、OpenCode 直连 provider/model 检查或
-  OpenCode 裸启动内部模型检查时使用；当用户提到“使用其他模型”“provider”“节省 token”
-  “批量操作”“多文件处理”或“执行时间超过 5 分钟”，或需要在 MCP 工具、独立 Claude Code
-  会话、OpenCode 直连 provider、OpenCode 裸启动内部模型之间选择时使用。
+  进行 token 节省、批量操作、长任务、独立验证、OpenCode provider/model 检查或裸启动内部模型检查时使用；
+  当用户提到“使用其他模型”“provider”“节省 token”
+  “批量操作”“多文件处理”“执行时间超过 5 分钟”“模型分层”或“安全审计”，或需要在
+  MCP 工具、独立 Claude Code 会话、OpenCode 直连 provider、OpenCode 裸启动内部模型之间选择时使用。
 user-invocable: true
 metadata:
-  version: "0.6.0"
+  version: "0.7.0"
 ---
 
 # Use Other Model
@@ -55,9 +56,32 @@ metadata:
    - 只要任务涉及页面、组件、样式、交互、可视化，就不能只看 `build/test`
    - 浏览器不可用时必须记录原因，不能静默跳过
 
+## 模型分层策略
+
+方案 A-D 是调用路径，不是模型强度。先分配角色和风险等级，再选择调用路径；不要因为已经启动了某个 CLI 就让它承担不匹配的职责。
+
+| 角色         | 默认模型层级           | 允许承担的工作                                                  | 必须保留的边界                                                      |
+| ------------ | ---------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------- |
+| 主代理       | 强模型                 | 任务规划、用户沟通、纠偏、复杂根因诊断、跨代理整合、最终验收    | 不把最终判断、完成声明或合并决策外包                                |
+| 执行型子代理 | 弱/中模型              | 有明确 diff 的代码/文档修改、批量操作、格式转换、按清单运行命令 | 只改允许范围；不得自行扩展需求、做架构决策、下根因结论或兼任审计    |
+| 诊断协作者   | 强模型                 | 独立收集日志、配置、复现和候选假设，挑战主代理判断              | 主代理读取原始证据后作最终根因判断；未经证据不得定案                |
+| 审计型子代理 | 强模型，且独立于执行者 | 蓝军复核、方案 pros/cons、安全审计、敏感信息和最终 diff 检查    | 在工作树冻结后启动；只读报告 findings，不修改实现，不沿用执行者结论 |
+
+### 硬性路由规则
+
+1. **先定角色，再选 A-D 路径**：同一任务可以分别使用执行、诊断和审计角色，但不能让一个代理覆盖全部职责。
+2. **风险决定最低模型层级**：复杂根因、安全判断和架构取舍不得下放给弱模型；不确定时升级到主代理或强模型。
+3. **执行必须是封包化的**：给出工作目录、文件清单、明确 diff、禁止事项、验证命令和完成条件；执行者只回传改动与原始证据。
+4. **审计必须后置且独立**：所有实现和诊断结果先冻结，再把最终工作树、`git diff`、必要历史/配置/日志交给独立审计者；审计者不得修改文件。
+5. **主代理是唯一验收门**：核对文件范围、原始命令输出、测试/构建、浏览器证据和审计 findings 后，才向用户声明完成。
+
+推荐顺序：
+
+`主代理冻结范围 → 执行/诊断取证 → 主代理整合与复核 → 工作树冻结 → 独立审计 → 主代理最终验收`
+
 ## 能力保留清单
 
-本次加固新增 OpenCode 方案 C、方案 D 和执行防错规则，不删除原有能力。以下入口仍然有效：
+本次模型分层升级不删除原有能力。以下入口仍然有效：
 
 - 方案 A：MCP 工具，处理简单任务和单次调用。
 - 方案 B：独立 Claude Code 无人值守编码代理，负责读文件、改文件、运行验证并写 `execution log`。
@@ -73,7 +97,12 @@ metadata:
 
 以下顺序是硬约束，不得因“先做一个更完整的脚本”而跳过、合并或重排：
 
-1. **先选路径，不混用职责**
+0. **先选模型角色，不按 CLI 默认分配职责**
+   - 明确 diff 的机械编辑、批量 env/文件操作和格式转换，优先分给弱/中执行型子代理。
+   - 认证、代理、运行时等复杂根因由主代理诊断；可让强诊断协作者独立采证，但不把最终结论外包。
+   - 敏感信息、方案 pros/cons 和最终 diff 复核由独立强审计型子代理承担，且必须在改动冻结后进行。
+
+1. **再选路径，不混用职责**
    - 用户明确给出 API key、baseURL 和 `--model provider/model` 时，选方案 C，使用 OpenCode 直连 provider。
    - 用户要求 OpenCode 使用自身默认模型、未指定 `--model`，或要求裸启动无头委托时，选方案 D，直接使用 OpenCode 内部模型。
    - 只有确实需要独立编码代理读写文件、执行验证并写 `execution log` 时，才选方案 B。方案 C、D 都不替换方案 B，也不互相替换。
@@ -155,7 +184,11 @@ metadata:
    - 能否用一份清晰的任务封包交给外部代理
    - 如果连主代理都说不清任务边界，不要委托
 
-3. **最后判断验收方式**
+3. **再判断模型角色**
+   - 执行型子代理只接收明确 diff 和可复现命令；复杂根因、安全审计和最终判断升级到强模型/主代理。
+   - 审计型子代理必须与执行上下文隔离，并在最终工作树冻结后读取证据。
+
+4. **最后判断验收方式**
    - 只靠命令行就能证明完成：可委托
    - 必须看页面、交互、布局：可委托，但必须附带浏览器验收模板
 
