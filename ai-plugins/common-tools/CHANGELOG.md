@@ -7,6 +7,15 @@
 
 ## [Unreleased]
 
+## [8.3.5] - 2026-08-09
+
+### Changed
+
+- **git-commit**：`metadata.version` `0.5.0` -> `0.6.0`。
+- **use-other-model**：`metadata.version` `0.7.0` -> `0.8.0`。
+- 强化 Git 提交委托与临时任务目录约束
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.3.5`。
+
 ## [8.3.4] - 2026-08-09
 
 ### Changed
