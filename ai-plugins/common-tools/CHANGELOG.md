@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [8.3.6] - 2026-08-09
+
+### Changed
+
+`common-tools` 技能树本身无内容变更，插件主版本随发布链路同步至 `8.3.6`。
+
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.3.6`。
+
 ## [8.3.5] - 2026-08-09
 
 ### Changed

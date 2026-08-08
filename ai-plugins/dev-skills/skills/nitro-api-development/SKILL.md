@@ -6,7 +6,7 @@ description: >-
   进行数据库交互。当需要开发新的 Nitro 接口、初始化 Nitro 配置、
   或咨询 Nitro 开发规范时使用此技能。
 metadata:
-  version: "0.13.4"
+  version: "0.13.6"
 ---
 
 # Nitro v3 接口开发技能规范
@@ -23,11 +23,11 @@ metadata:
 
 ## 2. 核心原则 [CRITICAL]
 
-1. **框架 (Framework)**: 使用 **Nitro v3** 和 **H3** 事件处理器 (`defineHandler`)。
-2. **数据库 (Database)**: 推荐使用 **Drizzle ORM** 进行所有数据库交互。新开发**不建议使用 Mock JSON 文件**。
-3. **响应格式 (Response Format)**: 必须严格遵循 `ApiResponse` 和 `PageData` 结构返回 `{ success, code, message, data }`。类型定义参见 [templates/types.ts](templates/types.ts)。
-4. **错误处理 (Error Handling)**: 所有 Handler **必须**使用 `try-catch` 包裹全部业务逻辑，catch 块返回标准化错误响应。
-5. **无状态 (Stateless)**: 保持 API 处理器无状态，所有数据持久化必须通过数据库。
+1. **框架 （Framework）**: 使用 **Nitro v3** 和 **H3** 事件处理器 (`defineHandler`)。
+2. **数据库 （Database）**: 推荐使用 **Drizzle ORM** 进行所有数据库交互。新开发**不建议使用 Mock JSON 文件**。
+3. **响应格式 （Response Format）**: 必须严格遵循 `ApiResponse` 和 `PageData` 结构返回 `{ success, code, message, data }`。类型定义参见 [templates/types.ts](templates/types.ts)。
+4. **错误处理 （Error Handling）**: 所有 Handler **必须**使用 `try-catch` 包裹全部业务逻辑，catch 块返回标准化错误响应。
+5. **无状态 （Stateless）**: 保持 API 处理器无状态，所有数据持久化必须通过数据库。
 
 ## 3. 核心依赖
 
@@ -112,7 +112,7 @@ export default defineHandler(async (event) => {
 
 仅 `import type { ApiResponse }` 是**不够的**——这只是一个死导入，TypeScript **不会**检查返回值结构。
 
-**必须**将 `ApiResponse` 用作响应变量的**类型注解 (type annotation)**：
+**必须**将 `ApiResponse` 用作响应变量的**类型注解 （type annotation）**：
 
 ```typescript
 // ❌ 错误：仅导入类型，直接返回字面量 → TypeScript 不做任何检查
@@ -138,11 +138,11 @@ return response; // 如果字段名/类型不符合 ApiResponse，编译期立�
 
 ## 6. 开发工作流
 
-1. **定义路由 (Define Route)**: 在 `server/api/` 或 `server/routes/` 创建文件。文件路径即 API 路由。
-2. **实现处理器 (Implement Handler)**: 使用 `defineHandler` 定义处理函数，**必须**使用 `try-catch` 包裹。
-3. **导入类型约束 (Import Types)**: 从你的类型文件导入 `ApiResponse`（列表接口额外导入 `PageData`）。
-4. **查询数据库 (Query Database)**: 导入 `db` 与 schema，使用 Drizzle 查询构建器。
-5. **返回数据 (Return Data)**: 确保返回对象严格符合 `ApiResponse<T>` 结构。
+1. **定义路由 （Define Route）**: 在 `server/api/` 或 `server/routes/` 创建文件。文件路径即 API 路由。
+2. **实现处理器 （Implement Handler）**: 使用 `defineHandler` 定义处理函数，**必须**使用 `try-catch` 包裹。
+3. **导入类型约束 （Import Types）**: 从你的类型文件导入 `ApiResponse`（列表接口额外导入 `PageData`）。
+4. **查询数据库 （Query Database）**: 导入 `db` 与 schema，使用 Drizzle 查询构建器。
+5. **返回数据 （Return Data）**: 确保返回对象严格符合 `ApiResponse<T>` 结构。
 
 ## 7. 时间字段格式化
 
@@ -165,7 +165,7 @@ const list = data.map((item) => ({
 }));
 ```
 
-## 8. 类型回填 (Type Recovery)
+## 8. 类型回填 （Type Recovery）
 
 当 `readValidatedBody` 的类型推导不足以满足 Drizzle `values()` 的严格类型要求时，必须显式回填 Insert 类型。
 
@@ -220,6 +220,10 @@ export default defineConfig({
 });
 ```
 
+> **CRITICAL：Nitro v3 的 `serverDir` 配置陷阱**
+>
+> Nitro v3 默认从项目根目录扫描 `routes/`、`plugins/` 和 `middleware/`。当服务端代码放在 `server/` 子目录时，必须在 `nitro.config.ts` 中设置 `serverDir: "server"`；否则这些路由不会被构建打包，构建产物中不包含端点，访问时会全部返回 404。Nitro v2 默认扫描 `server/`，升级到 v3 时尤其容易遗漏此配置。
+
 ### 10.2 Vite 集成
 
 ```typescript
@@ -257,7 +261,7 @@ export default defineConfig({
 });
 ```
 
-## 11. 常见陷阱 (Common Pitfalls)
+## 11. 常见陷阱 （Common Pitfalls）
 
 - **错误的导入源**: 必须从 `nitro/h3` 导入，而非 `h3`。必须使用 `defineHandler` 而非 `defineEventHandler`。
 - **缺失类型注解**: 仅导入类型不够，必须使用类型注解约束响应变量。
@@ -268,6 +272,7 @@ export default defineConfig({
 - **重复定义格式化函数**: 必须使用共享的工具函数，禁止在 Handler 内重复定义 `formatDateTime`。
 - **模块顶层创建数据库连接**: Cloudflare Worker 环境下会导致连接失败。必须在 handler 内创建。
 - **错误的 Cloudflare 环境变量路径**: Nitro v3 使用 `event.req.runtime?.cloudflare?.env`，而非 `event.context.cloudflare?.env`。
+- **`serverDir` 配置遗漏**: Nitro v3 默认扫描项目根目录的 `routes/`、`plugins/` 和 `middleware/`。若代码位于 `server/` 子目录，必须配置 `serverDir: "server"`，否则路由不会进入构建产物，所有端点返回 404。
 
 ## 12. 常见错误对比
 
@@ -286,6 +291,7 @@ export default defineConfig({
 - [ ] 安装 `nitro` 依赖包
 - [ ] 创建 `server/routes/` 目录结构
 - [ ] 创建 `nitro.config.ts` 配置文件
+- [ ] 核对 `nitro.config.ts` 已设置 `serverDir: "server"`，确保 `server/` 下的路由、插件和中间件会被构建打包
 - [ ] 添加开发和构建脚本到 `package.json`
 - [ ] 创建 `server/types/` 并复制 [templates/types.ts](templates/types.ts) 中的类型定义
 
@@ -295,6 +301,7 @@ export default defineConfig({
 - [ ] 在 Vite 插件配置中添加 `nitro()` 插件
 - [ ] 创建 `server/` 目录结构
 - [ ] 创建 `nitro.config.ts` 配置文件
+- [ ] 核对 `nitro.config.ts` 已设置 `serverDir: "server"`，确保 `server/` 下的路由、插件和中间件会被构建打包
 - [ ] 创建 `server/types/` 并复制 [templates/types.ts](templates/types.ts) 中的类型定义
 
 ### 13.3 数据库集成
