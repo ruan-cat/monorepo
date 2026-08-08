@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [8.3.4] - 2026-08-09
+
+### Changed
+
+- **init-ai-md**：`metadata.version` `0.21.5` -> `0.21.6`。
+- 补充全局技能目录越权修改限制
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.3.4`。
+
 ## [8.3.3] - 2026-08-09
 
 ### Changed
