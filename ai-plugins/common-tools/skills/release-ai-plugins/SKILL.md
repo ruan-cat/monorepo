@@ -1,89 +1,84 @@
 ---
 name: release-ai-plugins
 description: >-
-  Use when 需要升级插件版本、发布插件、同步 manifest/marketplace 版本号、
-  维护 CHANGELOG，或校验 README 与安装文档的发布一致性。
-  触发关键词：release-ai-plugins、插件升级、版本更新、
-  发布插件、更新日志、manifest、marketplace、CHANGELOG、README 发布一致性、cursor-plugin。
+  固定化 ai-plugins 的版本发布流程：同步 skill metadata.version、六个插件
+  manifest、三个 marketplace、两个 CHANGELOG，并在新增 skill 时强制校验 README。
+  适用于 release-ai-plugins、插件升级、版本更新、发布插件、更新日志、manifest、marketplace、
+  CHANGELOG、README 发布一致性、cursor-plugin。
+  English: Use when releasing or upgrading the common-tools or dev-skills plugins,
+  synchronizing Claude/Cursor/Codex manifests and marketplaces, updating CHANGELOG
+  files, or validating README and installation-document consistency.
 metadata:
-  version: "0.16.2"
+  version: "0.17.3"
 ---
 
-# AI Plugins 多平台发布助手
+# AI Plugins 发布流程
 
-本技能用于自动化处理 `ai-plugins` 的多插件、多平台发布流程，确保单一主版本一致性和路径稳定性。
+这是一个高频机械任务，禁止凭记忆逐项手改。每次执行必须使用同目录的
+`scripts/release-ai-plugins.ps1`，并按本文件的固定顺序完成。脚本失败即停止，
+未通过最后验收不得声称完成。
 
-## 使用场景
+## 固定输入
 
-当遇到以下情况时使用本技能：
+- `-Version`：插件发布版本，必须是 `MAJOR.MINOR.PATCH`。
+- `-Skill`：本次确实修改过的 skill 名称；可重复传入。省略时由脚本从
+  `git diff HEAD` 和未跟踪文件自动发现，发现不到就失败。
+- `-ChangeType`：`added`、`major`、`minor` 或 `patch`，用于升级每个被修改 skill 的
+  `metadata.version`。
+- `-Summary`：写入两个 CHANGELOG 的简短变更说明。
+- `-NewSkill`：新增 skill 名称；新增时必须同时更新对应插件根目录 README，脚本会
+  将 README 缺失视为阻断错误。
+- `-Apply`：明确允许写文件。没有 `-Apply` 时只能 DryRun。
 
-- 需要发布 `common-tools` 或 `dev-skills` 插件的新版本
-- 更新 Claude/Cursor/Codex 三平台插件市场与 manifest
-- 同步多个 plugin manifest 的版本号
-- 更新发布说明、安装文档、README 链接
+## 强制执行顺序
 
-## 不使用场景 / 反触发
+1. 读取并核对输入；确认 skill 位于 `ai-plugins/common-tools/skills` 或
+   `ai-plugins/dev-skills/skills`，且每个目录都有 `SKILL.md`。
+2. 计算每个 `-Skill` 的旧版本并按 `-ChangeType` 只升级这些 skill 的
+   `metadata.version`。不得顺手升级未修改 skill。
+3. 更新以下九个固定 JSON（不得扩展或遗漏白名单）：
+   - `ai-plugins/common-tools/.claude-plugin/plugin.json`
+   - `ai-plugins/common-tools/.cursor-plugin/plugin.json`
+   - `ai-plugins/common-tools/.codex-plugin/plugin.json`
+   - `ai-plugins/dev-skills/.claude-plugin/plugin.json`
+   - `ai-plugins/dev-skills/.cursor-plugin/plugin.json`
+   - `ai-plugins/dev-skills/.codex-plugin/plugin.json`
+   - `.claude-plugin/marketplace.json`
+   - `.cursor-plugin/marketplace.json`
+   - `.agents/plugins/marketplace.json`
+4. 让 Claude/Cursor marketplace 和六个 `plugin.json` 的版本全部等于
+   `-Version`。Codex marketplace 没有版本字段，只校验两个插件的 `name`、
+   `source.path`、`policy.installation`、`policy.authentication` 和 `category`。
+5. 在 `ai-plugins/common-tools/CHANGELOG.md` 与 `ai-plugins/dev-skills/CHANGELOG.md`
+   顶部写入同一版本和日期；没有文件则创建。条目必须列出版本同步、被修改 skill
+   的旧新版本和 `-Summary`。
+6. `-NewSkill` 非空时，必须先把 skill 名称写入对应插件 README，再运行脚本；脚本
+   会验证 README 已包含该名称，缺失则失败。
+7. 运行脚本的最终验收：九个 JSON 可解析且版本关系正确、skill metadata 与输入
+   一致、README 条件满足、CHANGELOG 顶部版本正确、`git diff --check` 通过。
 
-仅安装、列出或验证 `skills add` 命令，确认安装 URL，同步本机 skills，或修复本地 skills 链接时，不使用本技能。
+## 使用边界与核心职责
 
-如果用户明确说明这些安装文档、命令或链接变更属于发布、版本、marketplace、manifest、CHANGELOG 或 README 发布一致性工作，则正向发布信号优先，继续使用本技能。
+适用场景：发布 `common-tools` 或 `dev-skills` 新版本、同步 Claude/Cursor/Codex
+市场与 manifest、维护发布说明，以及修正安装文档中的插件路径。
 
-## 核心职责
+不适用场景：只安装、列出或验证 `skills add`，只确认安装 URL，只同步本机 skills，
+或只修复本地 skills 链接。若这些文档或命令变更同时属于版本发布一致性工作，仍按本技能执行。
 
-1. **版本号管理**：以主版本驱动三平台与双插件版本同步
-2. **更新日志维护**：编写符合规范的版本更新说明
-3. **清单校验**：校验 Claude、Cursor 与 Codex 清单路径及字段
-4. **文档同步**：确保安装文档中的路径、命令、链接均指向 `ai-plugins`
+核心职责固定为四项：版本号管理、CHANGELOG 维护、三平台清单校验、README/安装文档同步。
 
-## 相关文件目录
+## 版本与文件契约
 
-发布流程的核心文件位于：
+- 插件主版本采用 `MAJOR.MINOR.PATCH`，来源是 `.claude-plugin/marketplace.json` 的
+  `metadata.version`，必须同步到 Cursor marketplace 与六个 `plugin.json` 的 `version`。
+- Skill 的 `metadata.version` 独立演进，只在该 Skill 确实变更时升级；扫描范围是
+  `ai-plugins/common-tools/skills/**/SKILL.md` 和 `ai-plugins/dev-skills/skills/**/SKILL.md`。
+- 固定发布白名单就是本文件步骤 3 列出的九个 JSON、两个 CHANGELOG，以及新增 skill
+  对应的插件根 README。禁止凭记忆扩展文件范围。
 
-- 根级 marketplace
-  - `.claude-plugin/marketplace.json`
-  - `.cursor-plugin/marketplace.json`
-  - `.agents/plugins/marketplace.json`
-- 插件目录
-  - `ai-plugins/common-tools`
-  - `ai-plugins/dev-skills`
-- 插件 manifest
-  - `ai-plugins/common-tools/.claude-plugin/plugin.json`
-  - `ai-plugins/common-tools/.cursor-plugin/plugin.json`
-  - `ai-plugins/dev-skills/.claude-plugin/plugin.json`
-  - `ai-plugins/dev-skills/.cursor-plugin/plugin.json`
-  - `ai-plugins/common-tools/.codex-plugin/plugin.json`
-  - `ai-plugins/dev-skills/.codex-plugin/plugin.json`
+## README 与安装文档同步
 
-## 主版本策略
-
-采用单一总版本（Single Source of Truth）：
-
-1. 主版本源：`.claude-plugin/marketplace.json` 的 `metadata.version`
-2. 同步目标：
-   - `.cursor-plugin/marketplace.json` 的 `metadata.version`
-   - 两个插件在 Claude/Cursor/Codex 的 `plugin.json` 中 `version`
-
-### Skills 文档的 metadata.version 字段
-
-Skill 文档版本号保持独立演进：仅在该 Skill 内容有变更时更新，不强制随插件主版本同步。
-
-**扫描范围**：
-
-- `ai-plugins/common-tools/skills/**/SKILL.md`
-- `ai-plugins/dev-skills/skills/**/SKILL.md`
-
-### 主版本号格式
-
-遵循语义化版本规范（Semantic Versioning）：
-
-- `MAJOR.MINOR.PATCH`（例如：`2.12.1`）
-- MAJOR：不兼容的 API 修改
-- MINOR：向下兼容的功能性新增
-- PATCH：向下兼容的问题修正
-
-## README 与文档同步规则
-
-发布时至少校验以下文档路径与命令：
+发布时至少检查以下路径：
 
 - `ai-plugins/docs/README.md`
 - `ai-plugins/docs/use-vercel-skills-install.md`
@@ -92,149 +87,66 @@ Skill 文档版本号保持独立演进：仅在该 Skill 内容有变更时更�
 - `.agents/plugins/README.md`
 - 根 `README.md`
 
-所有安装命令必须使用 `ai-plugins/...` 路径，不允许出现 `claude-code-marketplace/...` 旧路径。
+安装命令和 source 路径必须使用 `ai-plugins/...`；禁止残留
+`claude-code-marketplace/...` 旧路径。新增 skill 还必须出现在对应插件根 README。
 
-## 更新日志文件
+## CHANGELOG 契约
 
-每次版本更新的内容**必须**记录在以下文件中：
+两个 CHANGELOG 遵循 Keep a Changelog：版本标题必须是 `## [版本] - YYYY-MM-DD`，
+随后使用 `### Added`、`### Changed`、`### Fixed` 等分类和扁平 bullet。技能名、
+文件名、命令、版本号、字段名统一使用反引号。
 
-- `ai-plugins/common-tools/CHANGELOG.md`
-- `ai-plugins/dev-skills/CHANGELOG.md`（如不存在则创建）
+每条 bullet 只承载一个独立信息块；版本同步与功能变化分开书写；禁止把多个文件、
+原因和效果压进一个超长段落。major 变更必须拆成行为、配置、风险边界和版本同步等独立条目。
+具体示例和排版检查见 [`references/release-contract.md`](references/release-contract.md)。
 
-### 更新日志格式
+## Codex marketplace 契约
 
-遵循 [Keep a Changelog](https://keepachangelog.com/) 规范：
+`.agents/plugins/marketplace.json` 以仓库根为相对路径解析，两个插件必须使用：
 
-```markdown
-## [版本号] - YYYY-MM-DD
+- `./ai-plugins/common-tools`
+- `./ai-plugins/dev-skills`
 
-### Added
+Codex marketplace 本身没有版本字段，禁止虚构 `metadata.version`；仍须校验两个条目的
+`name`、`source.path`、`policy.installation`、`policy.authentication` 和 `category`。
+两个 `.codex-plugin/plugin.json` 只声明 `skills: "./skills"`，禁止复制 Claude Code 的
+`hooks`、`commands` 或 `agents` 字段。Codex 展示元数据使用中文，真实 URL/图标存在时才填写。
+发布 smoke test 与字段矩阵见 [`references/release-contract.md`](references/release-contract.md)。
 
-- 新增的功能
+## 唯一入口
 
-### Changed
+在仓库根目录执行：
 
-- 变更的功能
-
-### Deprecated
-
-- 即将废弃的功能
-
-### Removed
-
-- 已移除的功能
-
-### Fixed
-
-- 修复的问题
-
-### Security
-
-- 安全相关的修复
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File ai-plugins/common-tools/skills/release-ai-plugins/scripts/release-ai-plugins.ps1 `
+  -Version 8.3.3 -ChangeType patch -Skill release-ai-plugins `
+  -Summary "强化发布流程并增加脚本化校验" -DryRun
 ```
 
-### 更新日志排版要求
+PowerShell 7 环境可把命令开头替换为 `pwsh -NoProfile -File`；脚本兼容 Windows PowerShell 5.1。
 
-写 `CHANGELOG.md` 时，**优先保证可读性，再保证信息完整**。不要把 4 到 6 个变化点硬堆进一条超长 bullet。
+确认 DryRun 输出的清单后，追加 `-Apply` 才允许写入。新增 skill 时追加
+`-NewSkill <skill-name>`，并先修改对应的 `ai-plugins/<plugin>/README.md`。
 
-#### 必须遵守
+脚本不是替代验收的黑盒：Apply 后仍须阅读输出、检查 `git diff`，并确认没有修改白名单之外的文件。
 
-1. 先写版本节与分类节，再写 bullet；不要先堆内容后补结构。
-2. 一类变化尽量拆成多条 flat bullets，每条只承载一个独立信息块。
-3. 技能或插件名放在 bullet 开头，版本变化紧跟其后，便于扫读。
-4. 文件名、命令、版本号、字段名统一用反引号包裹。
-5. “版本同步”与“功能变化”分开写，不能混进同一长句。
-6. major 级变更优先按“行为变化 / 配置变化 / 风险边界变化 / 版本同步”拆开。
+## 禁止完成条件
 
-#### 明确禁止
-
-- 禁止单条 bullet 同时塞入多个分号串联的大段说明。
-- 禁止把多个文件、多个原因、多个效果揉成一个 3 到 5 行的大段落。
-- 禁止为了“信息完整”牺牲扫读体验。
-- 禁止生成视觉上发紧、读者必须逐字解析的 changelog。
-
-#### 推荐写法
-
-```markdown
-## [5.0.0] - 2026-04-15
-
-### Changed
-
-- **init-release-base-relizy-and-bumpp**（`metadata.version` `1.1.1` -> `2.0.0`，重大调整）：
-- 根包 changelog 默认链路从 `conventional-changelog` 收口到 `changelogen`。
-- `templates/bump.config.ts` 改为 `execute(newVersion)`，显式把目标版本传给根 `CHANGELOG.md` 生成流程。
-- `templates/release.yaml` 保留原注释风格，仅补 `set +e` / `set -e` 提升 notes 提取容错。
-- 预检范围从“旧 angular preset 冲突”收缩为“遗留根包发版工具是否还残留”。
-- 根级 marketplace 中 `common-tools` / `dev-skills` 双平台 `plugin.json` 统一提升至 `5.0.0`。
-```
-
-#### 反例
-
-```markdown
-- **init-release-base-relizy-and-bumpp**（`metadata.version` `1.1.1` -> `2.0.0`，重大调整）：将根包 changelog 默认生成链路从 `conventional-changelog` 收口到 `changelogen`，并同步重写根包 `bumpp` 模板的执行方式与发版预检边界，`templates/bump.config.ts` 改为 `execute` 函数并传 `newVersion`，`templates/release.yaml` 保留既有注释风格，只最小补充 `set +e` / `set -e`，预检也从旧 angular preset 冲突收缩为遗留根包发版工具残留……
-```
-
-上面的反例信息并没有错，但排版是错的。以后生成 changelog 时，必须主动把这种长句拆开。
-
-## 升级流程
-
-执行版本升级时，按顺序执行：
-
-1. **确定主版本号**
-   - 根据变更类型确定主版本增量（MAJOR/MINOR/PATCH）
-2. **同步三平台 marketplace 与 manifest**
-   - 更新 `.claude-plugin/marketplace.json` 的 `metadata.version`
-   - 更新 `.cursor-plugin/marketplace.json` 的 `metadata.version`
-3. **同步双插件 manifest**
-   - 更新 `ai-plugins/common-tools` 的 Claude/Cursor/Codex `plugin.json` 版本
-   - 更新 `ai-plugins/dev-skills` 的 Claude/Cursor/Codex `plugin.json` 版本
-4. **按需更新 Skills 版本**
-   - 仅更新变更过的 `SKILL.md` 的 `metadata.version`
-5. **更新文档与 changelog**
-   - 修正安装命令路径与插件列表
-   - 在对应 `CHANGELOG.md` 顶部追加新版本条目
-   - 先把 changelog 草稿整理成易扫读的 Markdown 结构，再填充细节
-   - 对 major 变更，至少检查一次是否仍存在“单条 bullet 过长”的问题
-6. **一致性校验**
-   - 校验 marketplace 与 plugin 版本是否一致
-   - 校验 `source`/`pluginRoot` 指向是否存在
-   - 校验文档命令路径是否只使用 `ai-plugins`
-   - 校验 `CHANGELOG.md` 是否由短句 bullet 组成，而不是一整段拥挤长句
-7. **提交发布改动**
-   - 推荐提交信息：`chore(plugin): release version X.Y.Z`
-
-## 注意事项
-
-1. **主版本一致性**：Claude/Cursor marketplace 与两个插件的三平台 manifest 必须一致；Codex marketplace 没有版本字段。
-2. **平台规范分离**：Claude、Cursor 与 Codex 字段可能不同，按各自 schema 维护。
-3. **旧路径禁用**：发布前必须确认无 `claude-code-marketplace` 路径残留。
-4. **Skills 独立版本**：Skill 的 `metadata.version` 只在该 Skill 变更时更新。
-5. **更新日志优先可读性**：如果 changelog 一眼看上去像“压成一团的说明书”，说明写法失败，需要重排。
+- 只改了部分 manifest 或漏掉 Codex manifest。
+- 只改了一个 CHANGELOG，或 CHANGELOG 顶部不是本次版本。
+- 未提供被修改 skill 的旧新 metadata 版本证据。
+- 新增 skill 未出现在对应 README。
+- 仅凭构建成功、口头说明或 `git status` 声称完成。
 
 ## 相关资源
 
-- [语义化版本规范](https://semver.org/lang/zh-CN/)
+- [`scripts/release-ai-plugins.ps1`](scripts/release-ai-plugins.ps1)：唯一写入入口。
+- [`references/release-contract.md`](references/release-contract.md)：详细字段矩阵、CHANGELOG 示例和 Codex smoke test。
+- [Semantic Versioning](https://semver.org/lang/zh-CN/)
 - [Keep a Changelog](https://keepachangelog.com/zh-CN/)
-- [Cursor Plugins Reference](https://cursor.com/docs/reference/plugins)
 
-## Codex marketplace 维护
+## 验收清单
 
-Codex 市场使用仓库根的 `.agents/plugins/marketplace.json`。调用 `codex plugin marketplace add <仓库根>` 时，条目的 `source.path` 相对仓库根解析；本仓库固定使用 `./ai-plugins/common-tools` 和 `./ai-plugins/dev-skills`，不得误写成相对 `.agents/plugins/` 的回退路径。
-
-每次插件版本发布时，除 Claude Code 与 Cursor 的 manifest 外，还必须同步两个 `.codex-plugin/plugin.json` 的 `version`。Codex marketplace 本身没有版本字段，不能虚构 `metadata.version`；仍须校验两个条目的 `name`、source 路径、`policy.installation`、`policy.authentication` 和 `category`。
-
-Codex manifest 仅声明已验证的 Codex 组件。本仓库的两个插件都只声明 `skills: "./skills"`；禁止将 Claude Code 的 `hooks`、`commands` 或 `agents` 字段复制进去。
-
-面向用户展示的 Codex 元数据必须使用中文：市场 `interface.displayName`，以及插件 `description`、`interface.displayName`、`shortDescription`、`longDescription`、`developerName`、`category`、`capabilities`、`defaultPrompt`。仅保留不可替代的技术标识，如 marketplace 名称、插件名称和 `Codex`。`websiteURL`、`privacyPolicyURL`、`termsOfServiceURL`、图标和截图只在存在真实地址或资产时填写。
-
-发布前执行以下 smoke test，并在测试结束后移除临时安装，避免污染维护者机器：
-
-```powershell
-codex plugin marketplace add <仓库根> --json
-codex plugin list --available --json --marketplace ruan-cat-tools
-codex plugin add common-tools@ruan-cat-tools --json
-codex plugin add dev-skills@ruan-cat-tools --json
-codex plugin remove common-tools@ruan-cat-tools --json
-codex plugin remove dev-skills@ruan-cat-tools --json
-codex plugin marketplace remove ruan-cat-tools --json
-```
+- [ ] DryRun 已执行且输出了 skill、九个 JSON、两个 CHANGELOG、README 检查结果。
+- [ ] `-Apply` 后再次执行验证，所有步骤均为 PASS。
+- [ ] `git diff --check` 无输出，且 `git status --short` 只包含预期文件。
