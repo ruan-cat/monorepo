@@ -8,12 +8,12 @@ Codex 通过 `.codex-plugin/plugin.json` 加载本插件共享的 `skills/`。�
 
 ## 版本
 
-**当前版本**: `8.3.1`
+**当前版本**: `8.3.2`
 
-⚠️ **v8.3.1 版本同步**:
+⚠️ **v8.3.2 版本同步**:
 
-- 版本号与 marketplace 主版本同步至 `8.3.1`。
-- 本次 `dev-skills` 技能树无内容变更；功能更新集中在 `common-tools` 的 **init-ai-md** 文档读取策略。
+- 版本号与 marketplace 主版本同步至 `8.3.2`。
+- 本次 `dev-skills` 技能树无内容变更；功能更新集中在 `common-tools` 的 **init-ai-md** 文档读取策略与报告规范。
 
 ⚠️ **v8.0.1 版本同步**:
 

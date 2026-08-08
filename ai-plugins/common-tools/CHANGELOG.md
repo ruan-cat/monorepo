@@ -7,6 +7,15 @@
 
 ## [Unreleased]
 
+## [8.3.2] - 2026-08-09
+
+### Changed
+
+- **init-ai-md**：`metadata.version` 从 `0.21.4` 提升至 `0.21.5`。
+- **init-ai-md**：新增 `templates/11.文档读取策略.md`，让初始化项目学习渐进式读取和精准编辑规则。
+- **init-ai-md**：更新 `templates/03.报告编写规范.md`，要求报告开头说明所使用的 agent 工具和 AI 模型。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.3.2`。
+
 ## [8.3.1] - 2026-08-09
 
 ### Changed

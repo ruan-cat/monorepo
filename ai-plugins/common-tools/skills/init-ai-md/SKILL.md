@@ -7,7 +7,7 @@ description: >-
   init-ai-md 等关键词时主动调用。
 user-invocable: true
 metadata:
-  version: "0.21.4"
+  version: "0.21.5"
 ---
 
 # init-ai-md 技能说明
