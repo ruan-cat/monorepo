@@ -12,6 +12,14 @@
 
 - **nitro-api-development**: 补充 Nitro v3 `serverDir: "server"` 配置陷阱，避免 `server/` 下路由未进入构建产物而导致端点 404。
 
+## [9.0.1] - 2026-08-10
+
+### Changed
+
+`dev-skills` 技能树本身无内容变更，插件主版本随发布链路同步至 `9.0.1`。
+
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `9.0.1`。
+
 ## [9.0.0] - 2026-08-10
 
 ### Changed

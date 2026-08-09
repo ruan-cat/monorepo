@@ -7,11 +7,20 @@
 
 ## [Unreleased]
 
+## [9.0.1] - 2026-08-10
+
+### Changed
+
+- **init-prettier-git-hooks**：`metadata.version` `1.1.4` -> `2.0.0`。
+- 将 Prettier Git Hooks 升级为 AI 审计式迁移流程，固定 lint-md 对象插件与串行 experimental CLI 规则
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `9.0.1`。
+
 ## [9.0.0] - 2026-08-10
 
 ### Changed
 
 `common-tools` 技能树本身无内容变更，插件主版本随发布链路同步至 `9.0.0`。
+
 - 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `9.0.0`。
 
 ## [8.3.7] - 2026-08-09
