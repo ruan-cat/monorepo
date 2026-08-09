@@ -41,6 +41,13 @@ export interface MoveVercelOutputToRootOptions {
 	skipClean?: boolean;
 
 	/**
+	 * 是否解引用符号链接，将链接目标复制为实体文件或目录。
+	 *
+	 * @default false
+	 */
+	dereference?: boolean;
+
+	/**
 	 * 仅打印解析结果，不实际复制文件。
 	 *
 	 * @default false
@@ -54,6 +61,7 @@ export interface ResolvedMoveVercelOutputToRootOptions {
 	sourceDir: string;
 	targetDir: string;
 	skipClean: boolean;
+	dereference: boolean;
 	dryRun: boolean;
 }
 
@@ -114,6 +122,7 @@ export function resolveMoveVercelOutputToRootOptions(
 		sourceDir,
 		targetDir,
 		skipClean: options.skipClean ?? false,
+		dereference: options.dereference ?? false,
 		dryRun: options.dryRun ?? false,
 	};
 }
@@ -121,13 +130,14 @@ export function resolveMoveVercelOutputToRootOptions(
 /**
  * 复制目录内容，而不是把源目录本身嵌套复制进去。
  */
-function copyDirectoryContents(sourceDir: string, targetDir: string) {
+function copyDirectoryContents(sourceDir: string, targetDir: string, dereference: boolean) {
 	fs.mkdirSync(targetDir, { recursive: true });
 
 	for (const entryName of fs.readdirSync(sourceDir)) {
 		const sourceEntry = path.join(sourceDir, entryName);
 		const targetEntry = path.join(targetDir, entryName);
 		fs.cpSync(sourceEntry, targetEntry, {
+			dereference,
 			force: true,
 			recursive: true,
 		});
@@ -159,6 +169,7 @@ export function moveVercelOutputToRoot(options: MoveVercelOutputToRootOptions = 
 	consola.log(`- sourceDir: ${resolvedOptions.sourceDir}`);
 	consola.log(`- targetDir: ${resolvedOptions.targetDir}`);
 	consola.log(`- skipClean: ${resolvedOptions.skipClean}`);
+	consola.log(`- dereference: ${resolvedOptions.dereference}`);
 	consola.log(`- dryRun: ${resolvedOptions.dryRun}`);
 
 	if (resolvedOptions.dryRun) {
@@ -176,7 +187,7 @@ export function moveVercelOutputToRoot(options: MoveVercelOutputToRootOptions = 
 		});
 	}
 
-	copyDirectoryContents(resolvedOptions.sourceDir, resolvedOptions.targetDir);
+	copyDirectoryContents(resolvedOptions.sourceDir, resolvedOptions.targetDir, resolvedOptions.dereference);
 
 	consola.success(`已将 ${resolvedOptions.sourceDir} 搬运到 ${resolvedOptions.targetDir}`);
 
@@ -219,6 +230,9 @@ export function parseMoveVercelOutputToRootCliArgs(args: string[]): MoveVercelOu
 			case "--skip-clean":
 				options.skipClean = true;
 				break;
+			case "--dereference":
+				options.dereference = true;
+				break;
 			case "--dry-run":
 				options.dryRun = true;
 				break;
@@ -246,6 +260,7 @@ export function getMoveVercelOutputToRootHelpText() {
 		"  --source-dir <path>  指定子包内构建产物目录，默认 .vercel/output",
 		"  --target-dir <path>  指定根目录内目标目录，默认 .vercel/output",
 		"  --skip-clean         跳过目标目录清理",
+		"  --dereference        解引用符号链接，将链接目标复制为实体文件或目录",
 		"  --dry-run            仅打印路径解析结果，不执行复制",
 		"  -h, --help           查看帮助信息",
 	].join("\n");

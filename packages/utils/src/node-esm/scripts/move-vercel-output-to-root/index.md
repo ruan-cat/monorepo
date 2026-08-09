@@ -62,6 +62,7 @@ npx move-vercel-output-to-root
 --source-dir <path>  指定子包内构建产物目录，默认 .vercel/output
 --target-dir <path>  指定根目录内目标目录，默认 .vercel/output
 --skip-clean         跳过目标目录清理
+--dereference        复制时解引用符号链接与 Windows Junction
 --dry-run            仅打印路径解析结果，不执行复制
 -h, --help           查看帮助信息
 ```
@@ -71,6 +72,8 @@ npx move-vercel-output-to-root
 - `--root-dir` 相对路径基于当前子包目录解析。
 - `--source-dir` 相对路径基于当前子包目录解析。
 - `--target-dir` 相对路径基于 monorepo 根目录解析。
+- `--dereference` 默认关闭，保持 Node.js 原生的链接复制策略；不同平台和链接类型的最终文件形态可能不同。
+- 仅应对受信任的构建产物启用 `--dereference`，因为链接目标会被复制进根目录产物，可能增加文件体积。
 
 ## 子包 package.json 示例
 
@@ -98,6 +101,14 @@ npx move-vercel-output-to-root
 npx move-vercel-output-to-root --dry-run
 ```
 
+## 符号链接解引用示例
+
+部分 Nitro/Vercel 构建产物会在 `.vercel/output/functions` 中复用函数目录。若部署环境需要每个 `.func` 目录都是物理目录，可以显式解引用：
+
+```bash
+npx move-vercel-output-to-root --dereference
+```
+
 ## 显式指定路径示例
 
 ```bash
@@ -113,6 +124,7 @@ npx move-vercel-output-to-root --root-dir ../../.. --source-dir .vercel/output -
 import { moveVercelOutputToRoot } from "@ruan-cat/utils/node-esm";
 
 moveVercelOutputToRoot({
+	dereference: true,
 	dryRun: true,
 });
 ```
