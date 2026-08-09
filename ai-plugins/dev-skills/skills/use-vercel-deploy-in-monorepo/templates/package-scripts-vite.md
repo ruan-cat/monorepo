@@ -1,59 +1,30 @@
-> 适用形态：形态 1 / 模式 A（Monorepo 子包，产物搬运到根目录）
+> 适用：Monorepo 中的 Vite 子包。先确认 Vite 的 Vercel 产物位置，再选择一致的部署模式。
 
-前置依赖
+## 模式 A：根目录 `.vercel/output`
 
-```bash
-pnpm add -D cross-env turbo vite-plugin-vercel @ruan-cat/utils
-```
-
-package.json
+目标子包：
 
 ```json
 {
-	"scripts": {
-		"build:vercel": "turbo move-vercel-output-to-root",
-		"vite:build:vercel": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode production --configLoader runner",
-		"move-vercel-output-to-root": "move-vercel-output-to-root"
-	}
+  "scripts": {
+    "build": "vite build --mode production",
+    "move-vercel-output-to-root": "move-vercel-output-to-root"
+  }
 }
 ```
 
-vite.config.ts
-
-```typescript
-import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-import vercel from "vite-plugin-vercel";
-
-export default defineConfig({
-	plugins: [vue(), vercel()],
-});
-```
-
-.env.production
-
-根据项目实际环境变量配置，例如：
-
-```bash
-NODE_ENV=production
-```
-
-确保 `vite-plugin-vercel` 已在插件链中启用，否则产物不会生成 `.vercel/output` 结构。
-
-turbo.json
+根 `package.json`：
 
 ```json
 {
-	"$schema": "https://turbo.build/schema.json",
-	"extends": ["//"],
-	"tasks": {
-		"vite:build:vercel": {
-			"outputs": [".vercel/output/**"]
-		},
-		"move-vercel-output-to-root": {
-			"dependsOn": ["vite:build:vercel"],
-			"outputs": [".vercel/output/**"]
-		}
-	}
+  "scripts": {
+    "build:vercel": "turbo run move-vercel-output-to-root --filter=<target-package>"
+  }
 }
 ```
+
+Root Directory、Build Command 和 Output Directory 分别为仓库根、`pnpm run build:vercel` 和 `.vercel/output`。搬运前确认 Vite 构建实际生成了预期产物；任务配置见 [turbo-task-vite.json](turbo-task-vite.json)。
+
+## 模式 B：子包直接产物
+
+当 Vercel 的 Root Directory、Install Command、Build Command 和 Output Directory 都已验证使用目标子包口径时，在该 Root Directory 中执行 `pnpm run build`，Output Directory 指向实际静态产物目录。模式 B 不创建或调用根搬运任务，不能混用模式 A 的根 Build Command。

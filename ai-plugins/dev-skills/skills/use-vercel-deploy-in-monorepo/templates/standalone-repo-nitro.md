@@ -1,56 +1,29 @@
-> 适用形态：形态 2（独立仓库，非 monorepo 或只有一个可部署目标）
+> 适用：独立 Nitro 仓库或只有一个可部署目标的仓库。单一步骤构建不强制使用 Turbo，也不需要根产物搬运。
 
-前置依赖
-
-```bash
-pnpm add -D cross-env
-```
-
-> 说明：独立仓库 Nitro 模板不调用 `move-vercel-output-to-root`，因此不需要 `@ruan-cat/utils`。若项目其他脚本需要该依赖，请单独说明用途。
-
-package.json
+## package.json
 
 ```json
 {
-	"scripts": {
-		"build:nitro:vercel": "nitro build --preset vercel"
-	}
+  "scripts": {
+    "build": "nitro build --preset vercel"
+  }
 }
 ```
 
-nitro.config.ts
+## Nitro 配置与检查
+
+先读取 `nitro.config.*`。如果服务端源码不在默认位置，使用实际目录设置 `serverDir`，并确认目录与路由文件存在：
 
 ```typescript
 import { defineConfig } from "nitro";
 
 export default defineConfig({
-	serverDir: "server",
-	imports: false,
-	compatibilityDate: "2024-09-19",
+  serverDir: "<server-source-directory>",
 });
 ```
 
-产物路径
+构建后确认 `.vercel/output/functions` 非空，并在首次 Git 部署的 E2E 中请求一个由该目录提供的 API。若 API 404，不以“构建通过”宣布运行时成功，依次检查 `serverDir`、路由清单和 Vercel 输出。
 
-- 构建输出：`01s-11comm-app/.vercel/output/`
-- Vercel 读取：`01s-11comm-app/.vercel/output/`
+## Vercel 设置
 
-.vercel/project.json
-
-```json
-{
-	"projectName": "11comm-app-nitro-server",
-	"orgId": "team_<your-team-id>",
-	"projectId": "prj_<your-project-id>"
-}
-```
-
-Vercel 项目设置
-
-| 设置项           | 值                            |
-| :--------------- | :---------------------------- |
-| Framework Preset | `Nitro`（自动识别）           |
-| Root Directory   | `./` 或留空                   |
-| Output Directory | `.vercel/output`              |
-| Build Command    | `pnpm run build:nitro:vercel` |
-| Install Command  | `pnpm install`                |
+Root Directory 为仓库根；Build Command 为 `pnpm run build`；Output Directory 为 `.vercel/output`。独立仓库不引入根聚合脚本或搬运任务。

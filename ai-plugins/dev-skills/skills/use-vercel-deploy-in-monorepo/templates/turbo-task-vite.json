@@ -1,14 +1,15 @@
 {
-	"$comment": "适用形态 1 / 模式 A：Vite / Vue3 子包，产物搬运到 monorepo 根目录",
-	"$schema": "https://turbo.build/schema.json",
-	"extends": ["//"],
-	"tasks": {
-		"vite:build:vercel": {
-			"outputs": [".vercel/output/**"]
-		},
-		"move-vercel-output-to-root": {
-			"dependsOn": ["vite:build:vercel"],
-			"outputs": [".vercel/output/**"]
-		}
-	}
+  "$comment": "子包 turbo.json，模式 A。build 运行 Vite 构建；^build 使其先等待 workspace 依赖的 build。",
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "move-vercel-output-to-root": {
+      "dependsOn": ["build"],
+      "outputs": ["$TURBO_ROOT$/.vercel/output/**"]
+    }
+  }
 }

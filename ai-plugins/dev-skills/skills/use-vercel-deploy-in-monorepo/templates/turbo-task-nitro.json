@@ -1,14 +1,15 @@
 {
-	"$comment": "适用形态 1 / 模式 A：Nitro 子包，产物搬运到 monorepo 根目录",
-	"$schema": "https://turbo.build/schema.json",
-	"extends": ["//"],
-	"tasks": {
-		"nitro:build:vercel": {
-			"outputs": [".vercel/output/**"]
-		},
-		"move-vercel-output-to-root": {
-			"dependsOn": ["nitro:build:vercel"],
-			"outputs": [".vercel/output/**"]
-		}
-	}
+  "$comment": "子包 turbo.json，模式 A。默认 ^build 使用 workspace 依赖图；只有依赖图无法表达且已验证必须强制顺序时，才替换为 <core-package>#build。核心包自身的 build 必须声明真实构建产物。",
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".vercel/output/**"]
+    },
+    "move-vercel-output-to-root": {
+      "dependsOn": ["build"],
+      "outputs": ["$TURBO_ROOT$/.vercel/output/**"]
+    }
+  }
 }

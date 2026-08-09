@@ -1,114 +1,40 @@
-> 适用形态：形态 1 / 模式 B（Monorepo 子包，Output Directory 直接指向子包产物路径）
->
-> 模式 B 下 Vercel 直接读取子包产物路径，不需要搬运到根目录 `.vercel/output`。
-> 若需要形态 1 / 模式 A 的 `.vercel/output` 结构，见文件末尾“切换到形态 1 / 模式 A（可选）”。
->
-> 注意：如果项目已有根入口 Build Command 和 `.vercel/output` 搬运链路，不要照搬模式 B。11comm app H5 当前口径是 `pnpm run build:vercel:app`，先生成 `dist/build/h5`，再搬运到仓库根 `.vercel/output`。
+> 适用：Monorepo 中的 UniApp H5 子包。先确定 Vercel 是读取子包静态产物，还是读取仓库根 `.vercel/output`。
 
-前置依赖
+## 模式 B：子包直接静态产物
 
-```bash
-pnpm add -D shx
-```
-
-package.json
+目标子包的构建脚本保持原子：
 
 ```json
 {
-	"scripts": {
-		"build": "uni build",
-		"build:h5:prod": "uni build --mode production",
-		"build:vercel": "pnpm run build:vercel:h5",
-		"build:vercel:h5": "pnpm run build:h5:prod",
-		"move-h5-output-to-root": "shx rm -rf ../../.vercel/output && shx mkdir -p ../../.vercel/output/static && shx cp -r dist/build/h5/* ../../.vercel/output/static/",
-		"preview:h5": "vite preview --outDir dist/build/h5",
-		"ci": "turbo run build:h5:prod --filter=@your-scope/your-app"
-	}
+  "scripts": {
+    "build": "uni build --mode production"
+  }
 }
 ```
 
-> 说明：`move-h5-output-to-root` 仅在切换到形态 1 / 模式 A 时才需要启用，默认模式 B 下不调用。
+Vercel 的 Root Directory、Install Command、Build Command 和 Output Directory 必须都采用目标子包口径：在该 Root Directory 中执行 `pnpm run build`，Output Directory 指向实际 H5 产物目录。模式 B 不创建根搬运任务。
 
-turbo.json
+## 模式 A：根目录 `.vercel/output`
+
+当根目录统一收集部署产物时，目标子包添加单一搬运动作：
 
 ```json
 {
-	"$schema": "https://turbo.build/schema.json",
-	"extends": ["//"],
-	"tasks": {
-		"build:h5:prod": {
-			"outputs": ["dist/build/h5/**"]
-		}
-	}
+  "scripts": {
+    "build": "uni build --mode production",
+    "move-h5-output-to-root": "move-h5-output-to-root"
+  }
 }
 ```
 
-> 说明：默认模式 B 下不需要 `move-h5-output-to-root` 任务。若切换到模式 A，才需要补充该任务，详见末尾“切换到形态 1 / 模式 A（可选）”。
-
-根目录 package.json（可选）
+根 `package.json` 仅运行最终 Turbo 任务：
 
 ```json
 {
-	"scripts": {
-		"build:vercel:app": "pnpm -F=@your-scope/your-app run build:vercel"
-	}
+  "scripts": {
+    "build:vercel": "turbo run move-h5-output-to-root --filter=<target-package>"
+  }
 }
 ```
 
-Vercel 项目设置
-
-| 设置项           | 值                                                                                |
-| :--------------- | :-------------------------------------------------------------------------------- |
-| Framework Preset | `Other`                                                                           |
-| Root Directory   | `./` 或留空                                                                       |
-| Output Directory | `apps/<子包>/dist/build/h5`                                                       |
-| Build Command    | `pnpm -F @your-scope/your-app run build:vercel` 或 `pnpm run build:vercel:<name>` |
-| Install Command  | `pnpm install` 或项目确认后的等价命令                                             |
-
-切换到形态 1 / 模式 A（可选）
-
-如果需要统一 `.vercel/output` 结构（例如配合其他搬运脚本或平台要求），可启用 `move-h5-output-to-root` 脚本，并把 Vercel **Output Directory** 改为 `.vercel/output`。
-
-模式 A 下的子包 `package.json`：
-
-```json
-{
-	"scripts": {
-		"build": "uni build",
-		"build:h5:prod": "uni build --mode production",
-		"build:vercel": "pnpm run build:vercel:h5",
-		"build:vercel:h5": "pnpm run build:h5:prod && pnpm run move-h5-output-to-root",
-		"move-h5-output-to-root": "shx rm -rf ../../.vercel/output && shx mkdir -p ../../.vercel/output/static && shx cp -r dist/build/h5/* ../../.vercel/output/static/",
-		"preview:h5": "vite preview --outDir dist/build/h5",
-		"ci": "turbo run build:h5:prod --filter=@your-scope/your-app"
-	}
-}
-```
-
-模式 A 下的子包 `turbo.json`：
-
-```json
-{
-	"$schema": "https://turbo.build/schema.json",
-	"extends": ["//"],
-	"tasks": {
-		"build:h5:prod": {
-			"outputs": ["dist/build/h5/**"]
-		},
-		"move-h5-output-to-root": {
-			"dependsOn": ["build:h5:prod"],
-			"outputs": [".vercel/output/**"]
-		}
-	}
-}
-```
-
-模式 A 下的 Vercel 项目设置：
-
-| 设置项           | 值                                                                                |
-| :--------------- | :-------------------------------------------------------------------------------- |
-| Framework Preset | `Other`                                                                           |
-| Root Directory   | `./` 或留空                                                                       |
-| Output Directory | `.vercel/output`                                                                  |
-| Build Command    | `pnpm -F @your-scope/your-app run build:vercel` 或 `pnpm run build:vercel:<name>` |
-| Install Command  | `pnpm install` 或项目确认后的等价命令                                             |
+此模式的 Root Directory、Build Command 和 Output Directory 分别为仓库根、`pnpm run build:vercel` 和 `.vercel/output`。任务配置见 [turbo-task-uniapp-h5.json](turbo-task-uniapp-h5.json)。

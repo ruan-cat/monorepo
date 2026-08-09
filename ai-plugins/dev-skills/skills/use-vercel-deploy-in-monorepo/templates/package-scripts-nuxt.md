@@ -1,52 +1,30 @@
-> 适用形态：形态 1 / 模式 A（Monorepo 子包，产物搬运到根目录）
+> 适用：Monorepo 中的 Nuxt 子包。构建脚本只执行 Nuxt 构建；跨包依赖和根产物搬运由 Turbo 任务图表达。
 
-前置依赖
+## 模式 A：根目录 `.vercel/output`
 
-```bash
-pnpm add -D cross-env turbo @ruan-cat/utils
-```
-
-package.json
+目标子包：
 
 ```json
 {
-	"scripts": {
-		"build:vercel": "turbo run move-vercel-output-to-root --filter=@your-scope/your-app",
-		"nuxt:build:vercel": "cross-env NODE_OPTIONS=--max-old-space-size=8192 nuxi build --preset vercel",
-		"move-vercel-output-to-root": "move-vercel-output-to-root"
-	}
+  "scripts": {
+    "build": "nuxi build --preset vercel",
+    "move-vercel-output-to-root": "move-vercel-output-to-root"
+  }
 }
 ```
 
-nuxt.config.ts
-
-```typescript
-export default defineNuxtConfig({
-	experimental: {
-		payloadExtraction: false,
-	},
-	$production: {
-		experimental: {
-			payloadExtraction: false,
-		},
-	},
-});
-```
-
-turbo.json
+根 `package.json`：
 
 ```json
 {
-	"$schema": "https://turbo.build/schema.json",
-	"extends": ["//"],
-	"tasks": {
-		"nuxt:build:vercel": {
-			"outputs": [".vercel/output/**"]
-		},
-		"move-vercel-output-to-root": {
-			"dependsOn": ["nuxt:build:vercel"],
-			"outputs": [".vercel/output/**"]
-		}
-	}
+  "scripts": {
+    "build:vercel": "turbo run move-vercel-output-to-root --filter=<target-package>"
+  }
 }
 ```
+
+Root Directory、Build Command 和 Output Directory 分别为仓库根、`pnpm run build:vercel` 和 `.vercel/output`。任务配置见 [turbo-task-nuxt.json](turbo-task-nuxt.json)。
+
+## 模式 B：子包直接产物
+
+当 Vercel 的 Root Directory、Install Command、Build Command 和 Output Directory 均为目标子包口径时，不创建根搬运任务。在该 Root Directory 中执行 `pnpm run build`，Output Directory 指向子包的 `.vercel/output`；不能与模式 A 的根设置混用。

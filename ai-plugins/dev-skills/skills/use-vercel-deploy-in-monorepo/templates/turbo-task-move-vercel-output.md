@@ -1,15 +1,34 @@
 # Turbo 任务模板索引
 
-> 本目录下的 turbo 任务模板主要适用于**形态 1 / 模式 A**：子包构建产物需要搬运到 monorepo 根目录 `.vercel/output` 的场景。形态 1 / 模式 B 和形态 2 通常不需要单独的搬运任务。
+> 本目录模板仅表达任务依赖和产物缓存。包级 `turbo.json` 定义原子任务；根 `package.json` 只调用最终任务，避免同名脚本和任务互相递归。
 
-本目录为每种框架提供独立的子包级 `turbo.json` 模板。一个子包通常只使用一种框架，因此只应复制对应模板中的任务，不要混合多个框架任务。
+## 模式 A：根目录 `.vercel/output`
 
-- [turbo-task-nuxt.json](turbo-task-nuxt.json)：Nuxt 子包模板（形态 1 / 模式 A）
-- [turbo-task-nitro.json](turbo-task-nitro.json)：Nitro 子包模板（形态 1 / 模式 A）
-- [turbo-task-vite.json](turbo-task-vite.json)：Vite / Vue3 子包模板（形态 1 / 模式 A）
-- [turbo-task-uniapp-h5.json](turbo-task-uniapp-h5.json)：UniApp H5 子包模板（形态 1 / 模式 A 时使用搬运脚本；模式 B 时仅 `build:h5:prod` 任务有效）
+目标子包选择一个框架模板，并在根目录运行：
 
-通用原则：
+```json
+{
+  "scripts": {
+    "build:vercel": "turbo run <final-task> --filter=<target-package>"
+  }
+}
+```
 
-- 构建任务（如 `nuxt:build:vercel` / `vite:build:vercel`）必须声明 `outputs: [".vercel/output/**"]`。
-- 搬运任务（`move-vercel-output-to-root` / `move-h5-output-to-root`）必须声明 `dependsOn` 指向构建任务，并同样声明 `outputs` 使 Turbo 能缓存搬运结果。
+`<final-task>` 是该框架的搬运任务：
+
+- [turbo-task-nitro.json](turbo-task-nitro.json)：`move-vercel-output-to-root`
+- [turbo-task-nuxt.json](turbo-task-nuxt.json)：`move-vercel-output-to-root`
+- [turbo-task-vite.json](turbo-task-vite.json)：`move-vercel-output-to-root`
+- [turbo-task-uniapp-h5.json](turbo-task-uniapp-h5.json)：`move-h5-output-to-root`
+
+每个最终任务依赖本包 `build`，并声明 `$TURBO_ROOT$/.vercel/output/**`；因此根 `.vercel/output` 是最终产物，而不是各包脚本串接出来的副作用。
+
+## 跨包依赖选择
+
+- 目标子包在 `package.json` 中已声明核心包依赖时，用 `^build`，由 workspace 依赖图解析。
+- 只有当构建依赖未体现在 workspace 依赖图中、且已确认必须强制顺序时，才用 `<core-package>#build` 明确指定。
+- 核心包的 `build` 应声明自身真实构建目录为 `outputs`；框架 `build` 声明自身 Vercel 或静态产物；搬运任务才声明根 `.vercel/output`。
+
+## 模式 B 与独立仓库
+
+模式 B 直接读取子包产物，不调用根搬运任务。独立仓库的单一步骤构建也不强制使用 Turbo；不要为了统一外观虚构根 `.vercel/output` 搬运链。
