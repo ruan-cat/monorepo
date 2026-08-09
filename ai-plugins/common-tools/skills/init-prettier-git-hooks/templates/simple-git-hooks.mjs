@@ -2,16 +2,17 @@
  * @filename: simple-git-hooks.mjs
  * @description 配置 simple-git-hooks 的 git 钩子。
  *
- * 每次修改该文件后 务必执行一次 `npx simple-git-hooks` 命令
- * 否则这些钩子不会生效
+ * 每次修改该文件后，需要在用户明确授权后执行一次 `pnpm exec simple-git-hooks` 命令，
+ * 否则这些钩子不会生效。
  */
 export default {
 	/**
 	 * @see https://juejin.cn/post/7381372081915166739#heading-8
 	 * @see https://fabric.modyqyw.top/zh-Hans/guide/git/commitlint.html#%E6%95%B4%E5%90%88-simple-git-hooks
 	 */
-	"commit-msg": "npx --no-install commitlint --edit ${1}",
-	"pre-commit": "npx lint-staged",
+	"pre-commit": "pnpm exec lint-staged",
+	// 仅当项目已有有效 commitlint 配置时启用：
+	// "commit-msg": "pnpm exec commitlint --edit ${1}",
 
 	/**
 	 * [可选] post-commit：提交完成后将本次提交涉及的文件从 index（LF）写回工作区，
@@ -31,7 +32,7 @@ export default {
 	 *   - 若同一文件同时存在"已暂存"和"未暂存"两份改动，恢复会丢失未暂存部分
 	 *     （AI 工具通常全量写文件，该情况在 AI 协作中极少触发）
 	 *
-	 * 使用方式：取消下一行注释，然后执行 `npx simple-git-hooks` 重新初始化钩子。
+	 * 使用方式：取消下一行注释，然后在用户明确授权后执行 `pnpm exec simple-git-hooks` 重新初始化钩子。
 	 */
 	// "post-commit": "git diff HEAD~1..HEAD --diff-filter=ACMR --name-only -z 2>/dev/null | xargs -0 git restore --worktree -- 2>/dev/null || true",
 };

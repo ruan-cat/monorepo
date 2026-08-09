@@ -4,7 +4,7 @@ import prettierPluginLintMd from "prettier-plugin-lint-md";
 // @ts-check
 /** @type {import("prettier").Config} */
 const config = {
-	plugins: ["prettier-plugin-lint-md"],
+	plugins: [prettierPluginLintMd],
 
 	/** @see https://github.com/prettier/prettier/tree/main/packages/plugin-oxc */
 	overrides: [

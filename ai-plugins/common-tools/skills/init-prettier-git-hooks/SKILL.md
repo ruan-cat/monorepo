@@ -1,369 +1,103 @@
 ---
 name: init-prettier-git-hooks
 description: >-
-  初始化或补强基于 lint-staged + simple-git-hooks + prettier 的 git 提交前代码
-  格式化流程，并统一 `.gitattributes`、`.editorconfig`、`prettier.config.mjs`
-  的 LF 行尾策略，解决 Windows 上常见的 git 幽灵修改、CRLF 漂移、
-  已有配置缺项或冲突配置未收敛的问题。只要用户提到 prettier、git hooks、
-  lint-staged、simple-git-hooks、行尾统一、EOL、CRLF/LF、gitattributes、
-  editorconfig、ghost modified、幽灵修改，都应该使用本技能，
-  而不是把它当成"只能无脑覆盖模板"的初始化脚本。
+  初始化或补强 Node.js 项目的 Prettier、lint-staged、simple-git-hooks 与 LF
+  行尾配置。适用于 prettier、git hooks、EOL、CRLF/LF 和幽灵修改问题。
 user-invocable: true
 metadata:
-  version: "1.1.4"
+  version: "2.0.0"
 ---
 
-# 初始化 Prettier + Git Hooks 格式化流程
+# 初始化 Prettier + Git Hooks
 
-本技能用于在任何 Node.js 项目中初始化或补强基于 `lint-staged` + `simple-git-hooks` + `prettier` 的 git 提交前格式化流程。重点不是“把模板复制进去”，而是对目标项目做**检查、合并、补全、精确覆盖**。
+本技能完全由 AI 按后续流程审计目标项目，再直接、精准地修改目标配置；只分发操作说明与五份配置模板。不得创建或调用独立迁移程序，也不得绕过审计批量覆盖或自动盲改。
 
-## 目标结果
+## 1. 先确认操作根与现状
 
-当用户要求处理本技能时，最终应让项目具备这一整条 LF 统一链路：
+1. 从当前目录向上定位根 package.json。pnpm monorepo 以 `pnpm-workspace.yaml` 所在目录为根；npm/yarn workspace 以声明 `workspaces` 的 `package.json` 所在目录为根。
+2. 读取根 `package.json`、五个目标配置，并用 `git status --short`、`git diff`、`git diff --cached` 检查 Git 状态。已有改动默认属于用户，禁止覆盖、回滚或纳入无关修改。
+3. 扫描并逐个读取所有 Prettier 配置候选：根 `package.json` 的 `prettier` 字段、`prettier.config.*` 与 `.prettierrc*`。统计实际有效的配置来源；发现多个活跃来源、配置继承关系不明或无法判断哪个配置生效时，停止修改并请用户确认，禁止直接创建新配置造成双配置。
+4. 先向用户列出将创建、覆盖或定点修改的文件。依赖安装、Git Hook 安装、`git add --renormalize .` 等会修改 package、lockfile、`.git/hooks` 或暂存区的动作，必须获得用户明确授权后才能执行。
 
-1. `.gitattributes`：`* text=auto eol=lf`
-2. `.editorconfig`：`[*]` 区块内存在 `end_of_line = lf`
-3. `prettier.config.mjs`：`endOfLine: "lf"`，禁止保留 `"auto"`
-4. `package.json`、`lint-staged.config.js`、`simple-git-hooks.mjs` 的格式化链路可正常工作
-5. 执行 `git add --renormalize .` 后，git 行尾归一化完成
-6. 带注释的 `.json` 配置文件具备精确的 Prettier `parser: "jsonc"` override，不会在 `pnpm format` 或 lint-staged 中失败
+## 2. 五份模板
 
-## 1. 定位根 package.json 并检查依赖
+- `templates/.editorconfig`
+- `templates/.gitattributes`
+- `templates/prettier.config.mjs`
+- `templates/lint-staged.config.mjs`
+- `templates/simple-git-hooks.mjs`
 
-在安装任何依赖之前，必须先定位到项目的**根 `package.json`** 文件所在位置，并检查必需依赖是否已经安装。
+目标文件不存在时可直接复制对应模板。目标文件存在时逐文件精准合并，保留项目特化规则与事故说明注释；不要整文件覆盖。
 
-### 1.1. 定位根 package.json
+## 3. 精确依赖与命令
 
-|              项目类型              |                                   定位方式                                    |              识别标志               |
-| :--------------------------------: | :---------------------------------------------------------------------------: | :---------------------------------: |
-|   **Monorepo（pnpm workspace）**   | 从当前目录向上查找 `pnpm-workspace.yaml` 文件，其所在目录即为 monorepo 根目录 |     存在 `pnpm-workspace.yaml`      |
-| **Monorepo（npm/yarn workspace）** |          从当前目录向上查找含有 `"workspaces"` 字段的 `package.json`          | `package.json` 含 `workspaces` 字段 |
-|            **普通项目**            |                    当前项目目录的 `package.json` 即为根包                     |             无上述标志              |
+在根 `devDependencies` 检查 `prettier`、`@prettier/plugin-oxc`、`prettier-plugin-lint-md`、`lint-staged`、`simple-git-hooks`。只有项目已有有效 commitlint 配置时，才检查并使用 `@commitlint/cli`，否则不生成 `commit-msg`。
 
-**操作步骤**：
+`prettier-plugin-lint-md` 必须精确安装为 `prettier-plugin-lint-md@1.0.1`。仅在用户授权后安装缺失依赖，例如：
 
-1. 读取当前项目的 `package.json`，检查是否存在 `workspaces` 字段
-2. 检查当前目录及其上级目录是否存在 `pnpm-workspace.yaml`
-3. 如果发现 monorepo 标志，切换到 monorepo 根目录操作；否则在当前目录操作
-4. 确认根 `package.json` 的绝对路径，后续所有依赖安装和检查都针对该文件
-
-### 1.2. 检查必需依赖
-
-必须在根 `package.json` 的 `devDependencies` 中逐一检查以下 **6 个必需依赖包**是否已安装：
-
-|  #  |         依赖名称          |                说明                 | 必需 |
-| :-: | :-----------------------: | :---------------------------------: | :--: |
-|  1  |        `prettier`         |         核心代码格式化工具          |  ✅  |
-|  2  |  `@prettier/plugin-oxc`   |   使用 oxc 引擎解析 JS/TS，更快速   |  ✅  |
-|  3  | `prettier-plugin-lint-md` |       Markdown 文件格式化插件       |  ✅  |
-|  4  |       `lint-staged`       | 只对 git 暂存区文件执行 lint/format |  ✅  |
-|  5  |    `simple-git-hooks`     |      轻量级 git hooks 管理工具      |  ✅  |
-|  6  |       `commitlint`        |        git 提交信息规范校验         |  ✅  |
-
-**检查流程**：
-
-1. 读取根 `package.json` 的 `devDependencies` 字段
-2. 逐一检查上表中的 6 个依赖名称是否存在于 `devDependencies` 键列表中
-3. 记录检查结果，标记哪些依赖**已安装**、哪些**缺失**
-4. 输出检查报告（示例见下方）
-
-**检查报告格式**：
-
-```markdown
-### 依赖检查结果
-
-根 package.json 路径：`/path/to/root/package.json`
-项目类型：Monorepo（pnpm workspace）
-
-|         依赖名称          |        状态         |
-| :-----------------------: | :-----------------: |
-|        `prettier`         | ✅ 已安装 (^3.7.4)  |
-|  `@prettier/plugin-oxc`   | ✅ 已安装 (^0.1.3)  |
-| `prettier-plugin-lint-md` | ✅ 已安装 (^1.0.1)  |
-|       `lint-staged`       | ✅ 已安装 (^16.2.6) |
-|    `simple-git-hooks`     | ✅ 已安装 (^2.13.1) |
-|       `commitlint`        |       ❌ 缺失       |
-
-缺失依赖数量：1
+```powershell
+pnpm add -Dw prettier @prettier/plugin-oxc prettier-plugin-lint-md@1.0.1 lint-staged simple-git-hooks
 ```
 
-### 1.3. 安装缺失依赖
-
-根据检查结果决定后续操作：
-
-- **全部已安装**：跳过安装步骤，直接进入步骤 2（配置文件创建）
-- **存在缺失**：仅安装缺失的依赖，不重复安装已有的
-
-```bash
-# 仅安装缺失的依赖（示例：仅缺失 commitlint）
-pnpm add -D commitlint
-```
-
-如果是全新项目（所有依赖都缺失），执行完整安装命令：
-
-```bash
-pnpm add -D prettier @prettier/plugin-oxc prettier-plugin-lint-md lint-staged simple-git-hooks commitlint
-```
-
-> **注意**：在 monorepo 项目中，务必在**根目录**执行安装命令（使用 `-w` 标志或确保 cwd 是根目录），以将这些开发依赖安装到根 `package.json`。
-
-## 2. 必须创建或修改的配置文件
-
-### 2.0. 合并总原则
-
-本技能必须默认采用**合并策略**，而不是无条件覆盖：
-
-1. 文件不存在：直接从模板创建。
-2. 文件已存在：以模板为基线，对目标文件做**定向补全和冲突覆盖**。
-3. 用户已有的项目特化配置应尽量保留，例如额外的二进制后缀、额外的 EditorConfig 区块、额外的 Prettier 插件配置。
-4. 对于本技能明确要求的策略键，必须覆盖到位，不允许保留冲突值。
-
-本技能本轮最重要的策略键只有三个：
-
-- `.gitattributes` 的全局文本规则必须收敛为 `* text=auto eol=lf`
-- `.editorconfig` 的通用区块必须收敛为 `end_of_line = lf`
-- `prettier.config.mjs` 的 `endOfLine` 必须收敛为 `"lf"`
-
-### 2.1. 创建 `prettier.config.mjs`
-
-模板：参见 [templates/prettier.config.mjs](./templates/prettier.config.mjs)
-
-**如果文件不存在**：
-
-- 直接使用模板创建
-
-**如果文件已存在**：
-
-- 优先保留用户已有的插件、overrides、printWidth、单双引号、缩进等项目风格
-- 只针对 `endOfLine` 做精确处理：
-  - 如果已存在且不是 `"lf"`，必须改成 `"lf"`
-  - 如果不存在，则补写 `endOfLine: "lf"`
-- 明确禁止保留 `endOfLine: "auto"`，因为它在 Windows 上会继续保留或引入 CRLF
-
-### 2.1.1. JSONC 配置文件 override
-
-本技能负责建立格式化链路，因此不能只添加通用 `format` 命令。只要项目中存在带注释的 `.json` 配置文件，就必须检查它们是否需要 Prettier `jsonc` parser override。
-
-优先检查这些文件：
-
-- `.vscode/extensions.json`
-- `.vscode/settings.json`
-- `tsconfig.json`
-- `tsconfig.*.json`
-- `jsconfig.json`
-- `.devcontainer/devcontainer.json`
-- `.hintrc`
-- 任何本次技能模板中带注释、块注释或尾逗号的 `*.json`
-
-判断流程：
-
-1. 扫描本次将创建或更新的 `*.json` 配置文件。
-2. 判断文件是否包含 JSONC 语法：`//` 行注释、块注释、尾逗号，或目标工具明确支持 JSONC。
-3. 检查 `package.json` 的 `format` 脚本、`lint-staged.config.*`、`simple-git-hooks.mjs` 是否会格式化 `*.json` 或所有文件。
-4. 如果 JSONC 文件会进入 Prettier，合并精确 override；若该文件需要保持无尾逗号风格，同步写入 `trailingComma: "none"`：
-
-   ```text
-   /** @type {import("prettier").Config} */
-   const config = {
-     overrides: [
-       {
-         files: [".vscode/extensions.json", ".vscode/settings.json"],
-         parser: "jsonc",
-         trailingComma: "none",
-       },
-     ],
-   };
-
-   export default config;
-   ```
-
-5. 如果已有 `overrides`，追加缺失项；如果同一文件已有 override 但 parser 不是 `jsonc`，除非项目有明确理由，否则改为 `jsonc` 并补齐所需的 `trailingComma` 策略。
-6. 不要把 `**/*.json` 全部设置为 JSONC。`package.json`、lockfile、以及第三方严格 JSON parser 读取的配置文件仍应保持严格 JSON。
-7. 不要通过删除注释来绕过 parser 问题。模板注释是维护信息，正确处理是保留注释并让格式化器使用正确 parser。
-
-### 2.2. 创建或更新 `.gitattributes`
-
-模板：参见 [templates/.gitattributes](./templates/.gitattributes)
-
-**如果文件不存在**：
-
-- 直接使用模板创建
-
-**如果文件已存在**：
-
-- 把全局文本规则收敛为单条：`* text=auto eol=lf`
-- 如果已有以下这类宽泛规则，必须精准替换，而不是继续并存：
-  - `* text=auto`
-  - `*.* text eol=lf`
-  - 任何把全局文本规则指向 `crlf` 的写法
-- 保留已有的项目特化二进制规则，例如额外的媒体、办公文档、引擎资源、字体后缀
-- 如果现有文件缺少模板中的常见二进制后缀，可以按模板补齐
-- 不要删除用户手写注释，除非这些注释只是在说明旧的冲突规则
-
-### 2.3. 创建或更新 `.editorconfig`
-
-模板：参见 [templates/.editorconfig](./templates/.editorconfig)
-
-**如果文件不存在**：
-
-- 直接使用模板创建
-
-**如果文件已存在**：
-
-- 优先保留现有的缩进风格、每种语言的局部区块、项目特化规则
-- 检查通用区块 `[*]`
-  - 如果不存在 `[*]` 区块，创建一个最小通用区块并补上 `end_of_line = lf`
-  - 如果已存在 `[*]` 区块但 `end_of_line` 不是 `lf`，必须改成 `lf`
-  - 如果 `[*]` 区块缺少 `end_of_line`，则补上 `end_of_line = lf`
-- 不要因为补 EOL 而抹掉现有的 `[*.yaml]`、`[*.md]`、`[Makefile]` 等局部区块
-
-### 2.4. 创建 `lint-staged.config.js`
-
-模板：参见 [templates/lint-staged.config.js](./templates/lint-staged.config.js)
-
-如果文件已存在，确认它仍会对暂存区文件执行 `prettier --experimental-cli --write --no-parallel` 或等价命令。
-
-**关于 `--no-parallel` 的说明：**
-
-- Prettier 3.6+ 的 `--experimental-cli` 默认会启动并行 worker pool，默认 worker 数为 `CPU 核心数 - 1`。
-- 在 lint-staged / pre-commit 场景中，某些文件（如大型 markdown、特殊字符、或特定插件处理的文件）可能导致 worker 线程崩溃，抛出 `WorkTankWorkerError`，从而阻塞提交。
-- 提交钩子的第一优先级是**稳定性**，因此模板中关闭并行；`package.json` 中的 `format` 脚本等全量格式化场景可保留并行以换取速度。
-
-### 2.5. 创建 `simple-git-hooks.mjs`
-
-模板：参见 [templates/simple-git-hooks.mjs](./templates/simple-git-hooks.mjs)
-
-如果文件已存在，确认：
-
-- `pre-commit` 仍然会执行 `lint-staged`
-- `commit-msg` 仍然会执行 `commitlint`
-
-### 2.6. 更新 `package.json`
-
-需要在 `package.json` 中添加/修改以下内容：
-
-**scripts 部分新增命令：**
+`package.json` 的活动命令应为：
 
 ```json
 {
 	"scripts": {
-		"format": "prettier --experimental-cli --write .",
-		"prepare": "<原有的 prepare 命令> && simple-git-hooks"
+		"format": "prettier --experimental-cli --write --no-parallel .",
+		"prepare": "simple-git-hooks"
 	}
 }
 ```
 
-说明：
+已有 `prepare` 时保留原命令并串联 `simple-git-hooks`。所有包含 `--experimental-cli` 的活动命令必须在同一命令内带且只带一个 `--no-parallel`；这是避免 lint-staged/pre-commit 场景出现 `WorkTankWorkerError` 的事故规则。
 
-|   命令    |                 说明                  |
-| :-------: | :-----------------------------------: |
-| `format`  |     手动格式化整个项目的所有文件      |
-| `prepare` | 在 npm install 后自动初始化 git hooks |
+## 4. 逐文件处理
 
-**注意：** 如果项目原本没有 `prepare` 命令，则直接设置为 `"prepare": "simple-git-hooks"`。
+### Prettier
 
-## 3. 初始化 Git Hooks
+保留已有项目风格与 overrides，并保证 `endOfLine: "lf"`。lint-md 1.0.1 必须以对象形式注册：
 
-配置文件创建完成后，需要执行以下命令来初始化 git hooks：
+```js
+import prettierPluginLintMd from "prettier-plugin-lint-md";
 
-```bash
-# 如果 simple-git-hooks 的 postinstall 脚本被阻止，需要先批准
-pnpm approve-builds simple-git-hooks
-
-# 执行初始化 git hooks
-npx simple-git-hooks
+export default {
+	plugins: [prettierPluginLintMd],
+};
 ```
 
-成功后会看到类似输出：
+只有在唯一有效旧配置是采用 ESM 的 JavaScript/MJS 文件，并且能够合法加入上述 default import 时，才允许自动迁移。其顶层 `plugins` 还必须是静态数组，且数组中包含精确字符串元素 `"prettier-plugin-lint-md"`；AI 可以定点加入上述 default import，并只把该字符串元素替换为 `prettierPluginLintMd`。同一数组可以包含其他字面量插件；必须保留其他元素、原有顺序和注释。
 
-```log
-[INFO] Successfully set the pre-commit with command: npx lint-staged
-[INFO] Successfully set the commit-msg with command: npx --no-install commitlint --edit ${1}
-[INFO] Successfully set all git hooks
+若字符串插件位于 `package.json#prettier`、JSON/JSONC/YAML `.prettierrc*`、CJS 配置或其他不能合法使用 ESM default import 的载体中，必须停止修改并请用户决定：迁移为 `prettier.config.mjs`，或采用用户指定的人工方案。遇到动态 plugins、spread、computed key、变量间接引用、多个 Prettier 配置或无法唯一定位顶层配置时，同样停止修改并请用户人工处理；不得把 import 插入非 JavaScript 载体，也不得用正则猜测迁移。
+
+带注释 JSON 只添加精确文件列表的 `parser: "jsonc"` override，禁止把全部 `**/*.json` 改为 JSONC，也不得删除事故说明注释来绕过格式化问题。
+
+### LF 三层
+
+1. `.gitattributes` 的全局文本规则收敛为 `* text=auto eol=lf`，保留二进制与路径特化规则。
+2. `.editorconfig` 的 `[*]` 区块收敛为 `end_of_line = lf`，保留其他区块。
+3. `prettier.config.mjs` 收敛为 `endOfLine: "lf"`。
+
+只改 `.gitattributes` 不会刷新 Git index。`git add --renormalize .` 会改变暂存区，必须先展示影响并获得授权；多分支需要分别处理。
+
+### lint-staged 与 Hooks
+
+`lint-staged.config.mjs` 使用 `prettier --experimental-cli --write --no-parallel`。`simple-git-hooks.mjs` 默认只配置 `pre-commit`；仅在确认项目已有有效 commitlint 配置后保留或加入 `commit-msg`。遇到 Husky、lefthook、自定义 `core.hooksPath` 或其他 Hook 管理器时停止并请用户决定，不得覆盖。
+
+模板中的可选 `post-commit` 事故注释必须保留；该命令可能覆盖同一文件的未暂存改动，默认不得启用。
+
+## 5. 验证
+
+配置编辑后先运行只读验证：
+
+```powershell
+pnpm exec prettier --check <本次修改的文件>
+pnpm exec prettier --check <中英文与数字混排的 Markdown 样例>
+node --check lint-staged.config.mjs
+git diff --check
+git status --short
 ```
 
-## 4. Git 行尾归一化
+需要验证 VSCode 时，用项目实际 `prettier.config.mjs` 格式化同一小型样例，确认 lint-md 对象插件生效。不得用全仓 `pnpm format` 代替定点检查。
 
-完成配置文件修改后，**必须**执行一次：
-
-```bash
-git add --renormalize .
-```
-
-这一步是 LF 统一链路的一部分，不要省略。它负责把已追踪文件重新按 `.gitattributes` 规则归一化并**刷新索引中的 blob**，否则历史对象里仍是 CRLF、工作区却是 LF 时，会出现「内容看似未改但 `git status` 永远脏」的幽灵差异。只改 `.gitattributes` 而不执行 `renormalize` **不会**自动重写已入库的历史行尾。
-
-若 `git diff --cached` 出现预期内的批量行尾变更，应**单独提交**规范化（例如 `chore: normalize line endings per .gitattributes`）。**每个仍受影响的分支**都需要各自执行并提交一次 renormalize，不能指望只在主干做一次就消除所有分支的脏状态。
-
-复盘与团队案例：[加了 `.gitattributes` 就万事大吉？必须 `git add --renormalize`](https://notes.ruan-cat.com/bug/025-gitattributes-must-use-renormalize/)。
-
-## 5. 自检清单
-
-完成初始化后，请逐项检查以下内容：
-
-- [ ] 1. **依赖安装**：`package.json` 的 `devDependencies` 中包含以下依赖：
-  - [ ] `prettier`
-  - [ ] `@prettier/plugin-oxc`
-  - [ ] `prettier-plugin-lint-md`
-  - [ ] `lint-staged`
-  - [ ] `simple-git-hooks`
-  - [ ] `commitlint`（或 `@commitlint/cli`）
-
-- [ ] 2. **配置文件存在**：
-  - [ ] `.gitattributes` 存在
-  - [ ] `.editorconfig` 存在
-  - [ ] `prettier.config.mjs` 存在
-  - [ ] `lint-staged.config.js` 存在
-  - [ ] `simple-git-hooks.mjs` 存在
-
-- [ ] 3. **package.json scripts**：
-  - [ ] 存在 `format` 命令
-  - [ ] `prepare` 命令包含 `simple-git-hooks`
-
-- [ ] 4. **EOL 策略已收敛**：
-  - [ ] `.gitattributes` 中存在 `* text=auto eol=lf`
-  - [ ] `.editorconfig` 中 `[*]` 区块存在 `end_of_line = lf`
-  - [ ] `prettier.config.mjs` 中 `endOfLine` 为 `"lf"`
-
-- [ ] 5. **JSONC 配置文件兼容**：
-  - [ ] 已检查 `.vscode/extensions.json`、`.vscode/settings.json`、`tsconfig*.json` 等带注释 JSON 配置
-  - [ ] 需要 JSONC 的文件已在 `prettier.config.mjs` 中配置精确 `parser: "jsonc"` override
-  - [ ] 未把 `**/*.json` 全部改成 JSONC
-
-- [ ] 6. **Git hooks 初始化**：
-  - [ ] 执行 `npx simple-git-hooks` 成功
-
-- [ ] 7. **功能验证**：
-  - [ ] 执行 `pnpm format` 能正常格式化代码
-  - [ ] git commit 时会自动触发 lint-staged 格式化
-  - [ ] 执行 `git add --renormalize .` 后，git 状态只保留预期改动
-  - [ ] 如项目存在 `.vscode/extensions.json` 注释文件，执行 `pnpm exec prettier --parser jsonc --trailing-comma none --check .vscode/extensions.json`
-  - [ ] 如项目级 Prettier 应接管该文件，执行 `pnpm exec prettier --check .vscode/extensions.json`
-
-## 6. 工作流程说明
-
-当你执行 `git commit` 时，会自动触发以下流程：
-
-1. **pre-commit 钩子**触发 → 执行 `npx lint-staged`
-2. lint-staged 对暂存区的文件执行 `prettier --experimental-cli --write --no-parallel`
-3. **commit-msg 钩子**触发 → 执行 `npx --no-install commitlint --edit ${1}` 校验提交信息格式
-
-> **为什么 lint-staged 要加 `--no-parallel`？**
-> `--experimental-cli` 默认启用并行 worker pool，但 worker 崩溃会导致 `WorkTankWorkerError` 并阻塞提交。提交钩子场景优先保证稳定性，因此关闭并行。
-
-## 7. 模板清单
-
-本技能应优先复用这些模板：
-
-- `templates/.gitattributes`
-- `templates/.editorconfig`
-- `templates/prettier.config.mjs`
-- `templates/lint-staged.config.js`
-- `templates/simple-git-hooks.mjs`
-
-## 8. 注意事项
-
-1. **修改 `simple-git-hooks.mjs` 后**，务必重新执行 `npx simple-git-hooks` 命令来更新 git hooks。
-2. **首次安装依赖时**，如果 pnpm 提示 `simple-git-hooks` 的 postinstall 脚本被忽略，需要执行 `pnpm approve-builds simple-git-hooks` 来允许其运行。
-3. **Prettier 使用 `--experimental-cli` 参数**，这是启用实验性 CLI 功能的必要参数。
-4. **lint-staged 中必须带 `--no-parallel`**：`--experimental-cli` 默认会启动并行 worker pool，worker 崩溃时会抛出 `WorkTankWorkerError` 阻塞提交。提交钩子场景优先稳定性，因此关闭并行；`package.json` 的 `format` 脚本等全量格式化场景可保留并行。
-5. **不要把补 EOL 配置理解成“整文件覆盖”**。这个技能的职责就是在保留项目现状的前提下，收敛冲突键，补齐缺失键。
+`pnpm exec lint-staged --debug` 不是只读检查：它会执行 lint-staged 任务，可能改写文件、暂存区并触发 stash 流程。只有用户授权后，才运行该命令、`pnpm exec simple-git-hooks`、真实提交验证或 `git add --renormalize .`；执行前后必须展示 `git status --short`、`git diff` 和 `git diff --cached`。
