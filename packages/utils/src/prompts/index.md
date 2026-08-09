@@ -195,3 +195,12 @@ independent 模式你可以自己提交好，准备好这些基线。你自己�
 ---
 
 你评估一下，你认为本仓库的 `ai-plugins\dev-skills\skills\init-release-base-relizy-and-bumpp` 技能，有必要也做出同步的更改么？说明你的想法。如果你觉得要改，你就直接做出更改即可；如果不需要，你就跟我说明清楚即可。
+
+## 008 <!-- 已完成 Codex正在做 --> `move-vercel-output-to-root` 符号链接解引用升级设计
+
+完整阅读 ：
+
+- D:\code\ruan-cat\SmallAliceWeb\reports\2026-8-10-move-vercel-output-to-root-dereference\2026-08-10-move-vercel-output-to-root-dereference-design.md
+- D:\code\ruan-cat\SmallAliceWeb\reports\2026-8-10-move-vercel-output-to-root-dereference\2026-08-10-move-vercel-output-to-root-dereference-plan.md
+
+我们准备升级依赖包。你看看还有什么纰漏或者是遗漏的，避免你执行的时候返工。
