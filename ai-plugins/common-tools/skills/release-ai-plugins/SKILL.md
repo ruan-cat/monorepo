@@ -9,7 +9,7 @@ description: >-
   synchronizing Claude/Cursor/Codex manifests and marketplaces, updating CHANGELOG
   files, or validating README and installation-document consistency.
 metadata:
-  version: "0.17.3"
+  version: "0.17.4"
 ---
 
 # AI Plugins 发布流程
@@ -66,6 +66,14 @@ metadata:
 或只修复本地 skills 链接。若这些文档或命令变更同时属于版本发布一致性工作，仍按本技能执行。
 
 核心职责固定为四项：版本号管理、CHANGELOG 维护、三平台清单校验、README/安装文档同步。
+
+## 插件市场变更边界
+
+本节只约束 `ai-plugins` 的市场维护与发布，不应被复制到通用 AI 记忆模板或一般项目的 AI 记忆文档；当前仓库可在项目级记忆中保留简短入口，并由本技能执行细则。
+
+每次新增或修改市场时，先建立“客户端 → marketplace → plugin manifest → 已发布组件 → 安装/更新/卸载文档 → 真实验证命令 → 清理动作”的映射。共享 skills 目录可以复用，但 Claude Code、Cursor 和 Codex 的字段、hooks、commands、agents 与路径假设必须按各自 schema 维护，禁止跨客户端复制专属配置。
+
+静态 JSON/schema 校验只是前置门禁，不是发布完成证据。除本技能的版本、CHANGELOG 和文档同步外，还必须运行目标客户端的真实 CLI 或官方安装验证路径；临时添加的 marketplace 或插件必须执行对应 remove 命令，并检查没有残留。若受环境、账号或客户端限制而无法取得真实安装证据，明确记录为“未验证”，不得用静态校验替代。
 
 ## 版本与文件契约
 
