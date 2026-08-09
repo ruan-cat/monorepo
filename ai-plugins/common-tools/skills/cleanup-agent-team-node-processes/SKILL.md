@@ -4,7 +4,7 @@ description: |-
   Use when Windows or PowerShell agent-team sessions leave suspected stale node, npx, Windows command processor, agent-browser browser or CLI processes, stale MCP or dev-server children provably owned by the current run, lingering listeners, unclear process ownership after multi-agent automation, or unexplained WorkBuddy prewarm pools, MCP subtrees, native agent-browser workers, or shell-snapshot bash processes.
   当 Windows 或 PowerShell 的 agent team 会话结束后，出现疑似残留 node / npx / Windows 命令处理程序 / agent browser 浏览器或 CLI 进程、可证明归属当前 run 的残留 MCP 或开发服务器子进程、残留监听器、多代理自动化后的进程归属不清，或无法解释的 WorkBuddy prewarm 池、MCP 子树、原生 agent-browser worker、shell snapshot bash 进程时使用。
 metadata:
-  version: "1.4.1"
+  version: "1.4.2"
 user-invocable: true
 ---
 

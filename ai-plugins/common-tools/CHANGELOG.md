@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [8.3.7] - 2026-08-09
+
+### Changed
+
+- **cleanup-agent-team-node-processes**：`metadata.version` `1.4.1` -> `1.4.2`。
+- 补强 Agent Team 进程清理的无副作用审计、WorkBuddy 归属门禁与模块化实现
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `8.3.7`。
+
 ## [8.3.6] - 2026-08-09
 
 ### Changed
