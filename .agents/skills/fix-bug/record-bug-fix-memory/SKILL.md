@@ -108,6 +108,7 @@ metadata:
 - `2026-07-02-git-commit-skill-violation.md` — AI agent 在 git-commit 分门别类拆分时连续违反技能规范：emoji 错误（style 用 💅 而非 🌈）、publish 发版遗漏 6 个版本文件、反复 reset 补救导致 rebase 冲突；修复方式为先查阅 commit-types.ts 再提交、同步全部版本文件、stash 无关文件后 rebase
 - `2026-07-02-use-vercel-deploy-skill-pitfalls.md` — 新建 use-vercel-deploy-in-monorepo skill 时因未先验证 Git 仓库连接、未追溯 bin 来源、通用 skill 写死 AI 客户端名称、模板形态与脚本不一致导致多次返工；修复方式为 Vercel CLI/API 实锤核对、按部署形态分层、明确依赖来源、删除硬编码、统一模板逻辑
 - `2026-07-02-sync-local-global-agents-skills-design-pitfalls.md` — 新建 sync-local-global-agents-skills 通用 skill 时把仓库源码路径与安装后路径混用，脚本位置、SKILL.md 示例、测试文件引用均出现偏差；修复方式为脚本迁入 skill 目录、文档使用相对路径、删除 monorepo 专属引用、重写计划与代码一致
+- `2026-08-10-init-prettier-git-hooks-overengineering.md` — 升级分发技能时把 AI 操作流程误做成迁移器产品，导致脚本、测试和复核过度膨胀；修复方式为先判定交付模型、用户要求收缩即废止旧架构，并以最小契约验证收口
 
 新增事故记录时，先创建独立案例文件，再在本索引追加一行摘要。**禁止**将完整事故正文直接写入 SKILL.md。
 
