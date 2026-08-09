@@ -5,7 +5,7 @@ description: >-
   本地 link 绑定、Project Settings 漂移、Shared Environment Variables、Node 22.x/24.x、
   Turbo 任务链、Nitro 产物或 Vercel 部署日志诊断。
 metadata:
-  version: "1.2.0"
+  version: "2.0.0"
 ---
 
 # Monorepo 与独立仓库的 Vercel 部署
