@@ -1,4 +1,4 @@
-<!-- 等待使用并完成对 git-commit 和 use-other-model 技能的升级 -->
+<!-- 已使用； 等待使用并完成对 git-commit 和 use-other-model 技能的升级； -->
 
 # 2026-08-09 git-commit 与 use-other-model 委托流程优化报告
 
