@@ -1,5 +1,13 @@
 import { defineConfig } from "vitest/config";
 import { resolve } from "node:path";
+
+const cleanupProjectName = "cleanup-agent-team-node-processes";
+const cleanupProjectSelected = process.argv.some(
+	(arg, index) =>
+		arg === `--project=${cleanupProjectName}` ||
+		(arg === "--project" && process.argv[index + 1] === cleanupProjectName),
+);
+
 export default defineConfig({
 	plugins: [
 		// 放弃在vitest内使用路径别名 跳过
@@ -17,8 +25,8 @@ export default defineConfig({
 	],
 
 	test: {
-		reporters: ["html"],
-		outputFile: "./.vitest-reporter-html/index.html",
+		reporters: cleanupProjectSelected ? ["default"] : ["html"],
+		outputFile: cleanupProjectSelected ? undefined : "./.vitest-reporter-html/index.html",
 		// 放弃在测试用例中使用别名 这些配置都无效
 		// alias: {
 		// 	"@utils": resolve(__dirname, "packages/utils/src/index.ts"),

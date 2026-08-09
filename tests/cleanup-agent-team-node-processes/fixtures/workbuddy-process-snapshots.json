@@ -1,0 +1,304 @@
+{
+	"ListenerObservation": {
+		"Status": "known",
+		"Reason": null
+	},
+	"Processes": [
+		{
+			"ProcessId": 100,
+			"ParentProcessId": 1,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe main\\daemon-app-server-entry.js --stdio",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 110,
+			"ParentProcessId": 100,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe --type=renderer",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 120,
+			"ParentProcessId": 100,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": null,
+			"ExecutablePath": null,
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 200,
+			"ParentProcessId": 100,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe main\\sidecar-entry.js --token fixture-secret-token",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 210,
+			"ParentProcessId": 200,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe codebuddy --serve --mcp-config fixture.json --port 0",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 300,
+			"ParentProcessId": 100,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe codebuddy --prewarm --prewarm-id wb-pool-safe",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 310,
+			"ParentProcessId": 300,
+			"Name": "cmd.exe",
+			"CommandLine": "cmd.exe /c node memorix/dist/cli/index.js serve --mode team",
+			"ExecutablePath": "C:\\Windows\\System32\\cmd.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 320,
+			"ParentProcessId": 310,
+			"Name": "node.exe",
+			"CommandLine": "node memorix/dist/cli/index.js serve --mode team --token nested-secret",
+			"ExecutablePath": "C:\\Runtime\\node.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 330,
+			"ParentProcessId": 320,
+			"Name": "agent-browser-win32-x64.exe",
+			"CommandLine": "agent-browser-win32-x64.exe mcp --tools all",
+			"ExecutablePath": "C:\\Runtime\\agent-browser-win32-x64.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 400,
+			"ParentProcessId": 100,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe codebuddy --prewarm --prewarm-id wb-pool-listening",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 410,
+			"ParentProcessId": 400,
+			"Name": "node.exe",
+			"CommandLine": "node active-server.js",
+			"ExecutablePath": "C:\\Runtime\\node.exe",
+			"CreationDate": "2020-01-01T00:00:00Z",
+			"ListeningPorts": [
+				{
+					"Protocol": "TCP",
+					"LocalAddress": "127.0.0.1",
+					"LocalPort": 43110,
+					"State": "Listen"
+				}
+			]
+		},
+		{
+			"ProcessId": 600,
+			"ParentProcessId": 1,
+			"Name": "bash.exe",
+			"CommandLine": "bash.exe C:\\WorkBuddyData\\shell-snapshots\\snapshot-bash-old.sh",
+			"ExecutablePath": "C:\\Git\\bin\\bash.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 601,
+			"ParentProcessId": 1,
+			"Name": "bash.exe",
+			"CommandLine": "bash.exe --login -i",
+			"ExecutablePath": "C:\\Git\\bin\\bash.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 700,
+			"ParentProcessId": 1,
+			"Name": "agent-browser-win32-x64.exe",
+			"CommandLine": "agent-browser-win32-x64.exe mcp --tools all",
+			"ExecutablePath": "C:\\Runtime\\agent-browser-win32-x64.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 800,
+			"ParentProcessId": 100,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe --prewarm-id wb-pool-low",
+			"ExecutablePath": null,
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 900,
+			"ParentProcessId": 100,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe codebuddy --prewarm --prewarm-id wb-pool-protected",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 910,
+			"ParentProcessId": 900,
+			"Name": "node.exe",
+			"CommandLine": "node current-session-worker.js",
+			"ExecutablePath": "C:\\Runtime\\node.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 990,
+			"ParentProcessId": 1,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": null,
+			"ExecutablePath": null,
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 991,
+			"ParentProcessId": 990,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": null,
+			"ExecutablePath": null,
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1000,
+			"ParentProcessId": 990,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": null,
+			"ExecutablePath": null,
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1001,
+			"ParentProcessId": 1000,
+			"Name": "cmd.exe",
+			"CommandLine": "cmd.exe /c daemon-service-branch.exe",
+			"ExecutablePath": "C:\\Windows\\System32\\cmd.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1010,
+			"ParentProcessId": 1000,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": null,
+			"ExecutablePath": null,
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1020,
+			"ParentProcessId": 1010,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": null,
+			"ExecutablePath": null,
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1021,
+			"ParentProcessId": 1020,
+			"Name": "cmd.exe",
+			"CommandLine": "cmd.exe /c node topology-mcp-worker.js",
+			"ExecutablePath": "C:\\Windows\\System32\\cmd.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1030,
+			"ParentProcessId": 1000,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": null,
+			"ExecutablePath": null,
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1031,
+			"ParentProcessId": 1030,
+			"Name": "node.exe",
+			"CommandLine": "node topology-pool-worker.js",
+			"ExecutablePath": "C:\\Runtime\\node.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1600,
+			"ParentProcessId": 100,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe codebuddy --prewarm --prewarm-id wb-pool-duplicate",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1601,
+			"ParentProcessId": 1600,
+			"Name": "node.exe",
+			"CommandLine": "node duplicate-a.js",
+			"ExecutablePath": "C:\\Runtime\\node.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1700,
+			"ParentProcessId": 100,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe codebuddy --prewarm --prewarm-id wb-pool-duplicate",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1701,
+			"ParentProcessId": 1700,
+			"Name": "node.exe",
+			"CommandLine": "node duplicate-b.js",
+			"ExecutablePath": "C:\\Runtime\\node.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1800,
+			"ParentProcessId": 100,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe codebuddy --prewarm --prewarm-id wb-pool-subtree-protected",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1810,
+			"ParentProcessId": 1800,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe main\\daemon-app-server-entry.js --stdio",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1820,
+			"ParentProcessId": 1800,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": null,
+			"ExecutablePath": null,
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1830,
+			"ParentProcessId": 1800,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1840,
+			"ParentProcessId": 1800,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe --type=renderer",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		},
+		{
+			"ProcessId": 1850,
+			"ParentProcessId": 1800,
+			"Name": "WorkBuddy.exe",
+			"CommandLine": "WorkBuddy.exe codebuddy --prewarm --prewarm-id wb-pool-nested",
+			"ExecutablePath": "C:\\Program Files\\WorkBuddy\\WorkBuddy.exe",
+			"CreationDate": "2020-01-01T00:00:00Z"
+		}
+	]
+}
