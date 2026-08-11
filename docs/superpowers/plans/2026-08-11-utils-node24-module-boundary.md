@@ -35,9 +35,7 @@
 
 ```ts
 test("在禁止解析 consola 时加载 conditions", () => {
-	expect(runEntrypoint("@ruan-cat/utils/conditions", "isConditionsSome")).toBe(
-		0,
-	);
+	expect(runEntrypoint("@ruan-cat/utils/conditions", "isConditionsSome")).toBe(0);
 });
 ```
 
@@ -103,11 +101,11 @@ test("在禁止解析 consola 时加载 conditions", () => {
 
 - [x] **步骤 3：以入口测试确定最小 ESM 内联边界**
 
-默认 ESM 与 `node-esm` 仅内联 `consola`、`tinyglobby`：前者单独内联不足，后者为同一 Node.js 24 + pnpm ESM 解析失败路径；全量内联会使 CJS `yaml` 在 ESM 中触发动态 `require`，因此不扩散到全部依赖、CJS 或 CLI。
+默认 ESM 与 `node-esm` 仅内联 `consola`、`tinyglobby`、`pnpm-workspace-yaml`：前两个包的单独内联不足，最新远端入口测试进一步暴露第三个包处于同一 Node.js 24 + pnpm ESM 解析失败路径；全量内联会使 CJS `yaml` 在 ESM 中触发动态 `require`，因此 `yaml` 保持外部依赖，且不扩散到全部依赖、CJS 或 CLI。
 
 - [x] **步骤 4：验证完整 CI**
 
-运行：`pnpm run ci`、`pnpm --filter @ruan-cat/utils test:entrypoints`，随后推送并确认 GitHub Actions 的 Node.js 24 job 成功。
+运行：`pnpm run ci`、`pnpm --filter @ruan-cat/utils test:entrypoints`，随后推送并确认**当前提交**的 GitHub Actions Node.js 24 job 成功；本次最终证据为 [run 31498466901](https://github.com/ruan-cat/monorepo/actions/runs/31498466901)。
 
 ### 任务 4：更新事故记录并按职责提交
 
