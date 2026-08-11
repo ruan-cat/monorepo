@@ -25,17 +25,33 @@
 
 ---
 
-# AI Agent 实施入口
+# AI Agent 首要阅读入口
 
-如果由新的 AI Agent 接手实现，必须先阅读：
+任何新的 AI Agent 在开始实现前，必须首先阅读：
 
-1. `README.md`
-2. `architecture.md`
-3. `implementation-spec.md`
-4. `agent-execution-guide.md`
-5. `nitro-v3-cloudflare-integration.md`
+```text
+ai-agent-implementation-plan.md
+        ↓
+README.md
+        ↓
+architecture.md
+        ↓
+implementation-spec.md
+        ↓
+nitro-v3-cloudflare-integration.md
+        ↓
+mcp-protocol-design.md
+        ↓
+testing-plan.md
+```
 
-禁止跳过实施规格直接编码。
+禁止跳过阅读阶段直接编码。
+
+完整执行规则见：
+
+- `ai-agent-implementation-plan.md`
+- `agent-execution-guide.md`
+- `agent-handoff-checklist.md`
 
 ---
 
@@ -49,6 +65,7 @@
 ## MCP 协议
 
 - `mcp-protocol-design.md`：MCP JSON-RPC、tools、resources 设计
+- `mcp-client-validation-guide.md`：客户端连接验收
 
 ## Runtime 实现
 
@@ -67,6 +84,7 @@
 
 ## Agent 执行与部署
 
+- `ai-agent-implementation-plan.md`：AI Agent 阅读和实施计划
 - `agent-execution-guide.md`：AI Agent 实施流程
 - `agent-handoff-checklist.md`：Agent 交接检查清单
 - `deployment-runbook.md`：上线部署手册
