@@ -100,7 +100,8 @@
 		"lodash-es": "^4.18.1",
 		"pkg-types": "^2.3.0",
 		"pnpm-workspace-yaml": "^1.6.0",
-		"tinyglobby": "^0.2.15"
+		"tinyglobby": "^0.2.15",
+		"yaml": "^2.9.0"
 	},
 	"devDependencies": {
 		"@antfu/utils": "^9.3.0",

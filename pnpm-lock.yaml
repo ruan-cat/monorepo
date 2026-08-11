@@ -548,6 +548,9 @@ importers:
       tinyglobby:
         specifier: ^0.2.15
         version: 0.2.17
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.0
     devDependencies:
       "@antfu/utils":
         specifier: ^9.3.0
