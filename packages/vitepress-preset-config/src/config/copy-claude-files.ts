@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import consola from "consola";
-import { findMonorepoRoot } from "@ruan-cat/utils/node-esm";
+import { findMonorepoRoot } from "@ruan-cat/utils/monorepo";
 
 /**
  * Claude 文件夹名称类型
@@ -44,7 +44,10 @@ function resolveRootDir(rootDir?: string): string {
  * @returns 是否存在指定的 Claude 文件夹
  * @internal 该函数为内部使用，不对外暴露
  */
-function hasClaudeFolder(folderPath: string, options?: { rootDir?: string }): boolean {
+function hasClaudeFolder(
+	folderPath: string,
+	options?: { rootDir?: string },
+): boolean {
 	const root = resolveRootDir(options?.rootDir);
 	const claudeFolderPath = path.join(root, folderPath);
 	const exists = fs.existsSync(claudeFolderPath);

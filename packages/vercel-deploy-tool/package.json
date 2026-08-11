@@ -1,6 +1,6 @@
 {
 	"name": "@ruan-cat/vercel-deploy-tool",
-	"version": "2.0.1",
+	"version": "2.0.3",
 	"description": "阮喵喵自用的vercel部署工具，用于实现复杂项目的部署。",
 	"type": "module",
 	"main": "./dist/index.js",
@@ -86,6 +86,8 @@
 		"@types/picomatch": "^4.0.3",
 		"automd": "^0.4.3",
 		"execa": "^9.6.1",
+		"tsup": "^8.5.1",
+		"typescript": "^5.9.3",
 		"vitepress": "^1.6.4"
 	},
 	"peerDependencies": {

@@ -43,3 +43,6 @@ jobs:
 
       - name: turbo并发打包全部子项目
         run: pnpm run ci
+
+      - name: 验证utils发布入口
+        run: pnpm --filter @ruan-cat/utils test:entrypoints
