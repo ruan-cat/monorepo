@@ -2,55 +2,52 @@
 
 ## 文档目的
 
-本文冻结 ChatGPT Web Remote MCP Server 的协议框架选择。
-
-目标协议基线：
-
-```text
-MCP 2026-07-28
-```
+本文冻结 **ChatGPT Web compatibility-first** 的 MCP Server 框架选择。
 
 最终分层：
 
 ```text
 ChatGPT Web
   ↓
-Streamable HTTP
+Remote MCP / Streamable HTTP
   ↓
 Cloudflare Worker
   ↓
 Nitro v3 Runtime
   ↓
-MCP TypeScript SDK v2 server package
+@modelcontextprotocol/sdk / McpServer
   ↓
-McpServer / tool definitions
+Tool Definitions
   ↓
-Skill Router domain services
+Skill Router Services
 ```
 
 ---
 
-# 1. 选型更新：MCP TypeScript SDK v2
+# 1. 当前生产选型
 
-早期规格曾固定：
+当前 OpenAI 官方 `Build an MCP server` 文档明确使用：
 
 ```text
 @modelcontextprotocol/sdk
+zod
 ```
 
-该包属于 v1 单体 SDK，并以 2025-era initialize/session lifecycle 为主要模型。
+并：
 
-本项目在真正实现时应使用支持最终 MCP `2026-07-28` 的 v2 稳定包线：
+```ts
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
+```
+
+因此当前 production baseline 固定为 OpenAI 官方这条 SDK 路径。
+
+不要仅因为 MCP upstream 发布新 major/package split 就抢跑改成另一套 server/client package。
+
+详细规则：
 
 ```text
-@modelcontextprotocol/server
+chatgpt-web-mcp-compatibility-profile.md
 ```
-
-测试客户端使用对应 v2 client package。
-
-不要为了保留早期文档而新建一个现代 Remote MCP Server 却继续锁在 legacy protocol era。
-
-具体 minor/patch 必须实施时核对官方 release 并由 lockfile 固化。
 
 ---
 
@@ -61,77 +58,65 @@ Skill Router domain services
 ```text
 Nitro Handler
   ↓
-手写 JSON-RPC lifecycle / headers / negotiation
-  ↓
-MCP response
+hand-written JSON-RPC / initialization / transport
 ```
 
-原因：
+官方 SDK 已提供：
 
-- 2026-era 协议已经改变 handshake/session 模型。
-- HTTP method/name/version metadata 有正式 wire contract。
-- server identity / tools / errors 应由 SDK schema 保证。
-- 手写实现会把协议升级成本转嫁给本项目。
+- server scaffolding。
+- schema helpers。
+- initialization/protocol negotiation。
+- tool registration/list/call。
+- Streamable HTTP transport support。
 
-Nitro 只提供最薄 HTTP/runtime adapter。
+Nitro 只负责 Worker HTTP runtime adapter。
 
 ---
 
-# 3. Modern MCP 生命周期
+# 3. 为什么当前不抢跑 MCP Upstream Major
 
-MCP `2026-07-28` 不再把：
-
-```text
-initialize
-initialized
-Mcp-Session-Id
-```
-
-作为现代协议的前置握手/session。
-
-协议采用 per-request stateless core。
-
-如果客户端需要预先查看 server capability，可使用现代 discovery RPC；Tool catalog 仍通过标准：
+MCP upstream 和 SDK 会演进，但我们的产品目标是：
 
 ```text
-tools/list
+ChatGPT Web 真实使用
 ```
 
-取得。
+所以 protocol/SDK major 迁移的必要条件是：
 
-Server identity 通过每个 modern response 的 serverInfo `_meta` 暴露。
+```text
+OpenAI 当前官方 ChatGPT MCP 文档支持
++
+MCP Inspector pass
++
+ChatGPT Web Developer Mode pass
+```
+
+如果 OpenAI 当前文档仍使用 `@modelcontextprotocol/sdk` + initialization，那么 production 继续保持该 compatibility profile。
 
 ---
 
-# 4. Nitro / MCP SDK 职责
+# 4. Nitro / SDK 分工
 
 ## Nitro v3
 
-负责：
+- Cloudflare build/runtime abstraction。
+- HTTP endpoint。
+- bindings extraction。
+- thin Request/Response adapter。
 
-- Cloudflare Worker build/runtime abstraction。
-- HTTP route/handler。
-- runtime bindings 提取。
-- Request/Response 与 MCP handler 的薄适配。
+## MCP SDK
 
-## MCP SDK v2
-
-负责：
-
-- 2026-era wire protocol。
-- protocol version handling。
-- discovery/capabilities。
-- server identity metadata。
-- `tools/list` / `tools/call`。
-- tool schemas/results/errors。
+- MCP initialization / protocol handling。
+- stable server name/version。
+- server instructions。
+- tools/list / tools/call。
+- schemas/results/errors/annotations。
 
 ## Skill Router
 
-负责：
-
-- tool definitions。
-- Skill discovery/search/load 业务逻辑。
-- Git exact-commit SourceSnapshot。
+- `get_server_info`。
+- Skill discovery/search/load。
+- SourceSnapshot。
 
 ---
 
@@ -143,19 +128,17 @@ Server identity 通过每个 modern response 的 serverInfo `_meta` 暴露。
 Streamable HTTP
 ```
 
-不使用：
+推荐：
 
-- stdio 作为公网 ChatGPT Web transport。
-- 自定义 MCP-over-REST。
-- 旧式 server session 作为 consistency 机制。
+```text
+/mcp
+```
 
-MCP 2026-era stateless 请求模型与 Cloudflare Worker 横向扩展边界天然一致。
+不使用 stdio 作为 ChatGPT Web 公网 transport，不创建自定义 REST imitation。
 
 ---
 
 # 6. Core Tools
-
-第一版核心工具固定为：
 
 ```text
 get_server_info
@@ -164,120 +147,86 @@ search_skills
 load_skill
 ```
 
-其中：
+所有 tools 从统一 `toolDefinitions` 注册。
 
-## `get_server_info`
-
-返回 MCP application/protocol/Worker/build 版本以及动态 tool catalog。
-
-## `list_skills`
-
-读取当前 exact Git snapshot 的 registry summary。
-
-## `search_skills`
-
-在 minimal registry 内做确定性搜索。
-
-## `load_skill`
-
-支持 latest 或 optional `sourceCommitSha` pin。
-
-如果以后需要 `get_skill_metadata`，必须由真实使用需求驱动，不要和 `list/search/load` 重复堆工具。
+`tools/list` 是标准目录能力；`get_server_info` 是用户/ChatGPT 友好的版本与部署诊断 facade。
 
 ---
 
-# 7. Tool Registry 单一真源
+# 7. Server Identity
 
-实现必须拥有统一：
-
-```text
-toolDefinitions
-```
-
-它同时驱动：
-
-- MCP tool registration。
-- 标准 `tools/list`。
-- `get_server_info.tools`。
-- contract tests。
-
-不要硬编码多套 tool names。
-
----
-
-# 8. Server Identity 与版本
-
-MCP package `package.json` version 是唯一 MCP application SemVer 来源。
-
-SDK Server identity：
+创建 server 时：
 
 ```text
 name = skill-router-mcp
-version = package.json version
+version = package.json.version
 ```
 
-它与：
-
-- protocol revision `2026-07-28`。
-- Cloudflare Worker Version ID/tag。
-- build Git SHA。
-- Skill source commit SHA。
-
-必须分别表达。
-
-详细见：
-
-```text
-mcp-release-versioning-and-production-maintenance.md
-```
+MCP application version 不与 Worker Version ID、Skill version 或 sourceCommitSha 混淆。
 
 ---
 
-# 9. Cloudflare Worker 适配约束
+# 8. ChatGPT Tool Snapshot
 
-第一版：
+框架层还必须承认 ChatGPT 产品自己的 metadata snapshot 生命周期。
+
+Tool contract 不变的 runtime patch：Worker deploy 即可，但仍做 smoke。
+
+Tool name/schema/description/annotation 变化：
 
 ```text
-stateless modern MCP over Streamable HTTP
+Worker candidate
+  ↓
+Inspector / Developer Mode
+  ↓
+refresh/rescan tool metadata
+  ↓
+review/publish when applicable
 ```
 
-禁止因为框架选择引入：
+仅 Skill data 高频变化不触发该流程。
 
-- Durable Object session store。
-- KV session table。
-- local memory session affinity。
-- Node HTTP listening server。
+---
 
-Git source snapshot consistency 使用显式 commit SHA，而不是 transport session。
+# 9. Cloudflare Worker 约束
+
+MVP 不增加：
+
+- KV/R2/D1/DO session/state。
+- Node listening server。
+- filesystem persistence。
+
+Git snapshot consistency 使用 exact commit SHA，不使用 transport session 存储。
 
 ---
 
 # 10. AI Agent 实施顺序
 
 ```text
-1. 核对 MCP 2026-07-28 + TypeScript SDK v2 当前官方 API
-2. 安装 package-local v2 server/client 依赖并锁版本
-3. 创建 server identity / tool definitions
-4. 创建 Nitro <-> MCP SDK HTTP adapter
-5. 实现 get_server_info
-6. 实现 list/search/load + SourceSnapshot
-7. Node Vitest contract tests
-8. Workers Vitest/workerd tests
-9. production build harness
-10. Cloudflare Preview / production smoke
-11. ChatGPT Web Developer Mode 验收
+1. 读取 OpenAI 当前 Build an MCP server 文档
+2. 锁定当前 OpenAI-supported @modelcontextprotocol/sdk 版本
+3. 创建 McpServer stable name/version
+4. 创建统一 toolDefinitions
+5. Nitro <-> MCP SDK Streamable HTTP adapter
+6. get_server_info
+7. list/search/load + SourceSnapshot
+8. Node / Workers Vitest / production harness
+9. MCP Inspector
+10. ChatGPT Web Developer Mode
+11. versioned Cloudflare release
+12. Tool contract 变化时执行 ChatGPT refresh/review gate
 ```
 
 ---
 
-# 11. 验收标准
+# 11. Definition of Done
 
-- [ ] 不使用 v1 legacy `initialize` 作为现代协议完成证据。
-- [ ] MCP SDK v2 支持 `2026-07-28`。
-- [ ] serverInfo 可读并包含 MCP application version。
-- [ ] `tools/list` 返回完整 tool catalog。
-- [ ] `get_server_info` 与 `tools/list` 同源。
-- [ ] Streamable HTTP / Cloudflare Worker 正常。
-- [ ] 无 server-side MCP session requirement。
+- [ ] SDK 与当前 OpenAI ChatGPT 官方文档一致。
+- [ ] 不手写 MCP lifecycle/transport。
+- [ ] initialization / server instructions / tool discovery 正常。
+- [ ] Streamable HTTP 正常。
+- [ ] server version 来自 package.json。
+- [ ] `tools/list` / `get_server_info.tools` 同源。
 - [ ] latest/pinned Skill snapshot 正常。
-- [ ] ChatGPT Web 可以连接和调用。
+- [ ] Tool contract 更新考虑 ChatGPT metadata snapshot。
+- [ ] Future MCP major 只在 OpenAI compatibility 明确后升级。
