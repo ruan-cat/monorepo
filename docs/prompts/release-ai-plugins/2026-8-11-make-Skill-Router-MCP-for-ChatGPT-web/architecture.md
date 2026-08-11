@@ -2,15 +2,17 @@
 
 ## 文档定位
 
-本文档定义 Skill Router MCP Server 的生产级系统架构。
+本文档定义生产级 Remote MCP Server 架构。
 
-目标不是构建一个执行型 Agent，而是构建一个专门向 ChatGPT Web Developer Mode 提供技能上下文的 Remote MCP 服务。
+目标：
 
-核心职责：
+构建一个可被 ChatGPT Web Developer Mode 直接连接的 Cloudflare Remote MCP Server。
 
-> 负责技能发现、技能检索、技能加载和技能版本管理。
+核心：
 
-不负责代码执行。
+- Skill Router 提供技能上下文。
+- MCP SDK 提供协议能力。
+- 其他 MCP Server 提供执行能力。
 
 ---
 
@@ -19,214 +21,156 @@
 ```text
 ChatGPT Web Developer Mode
           |
-          | MCP Client
+          v
+Remote MCP Client
           |
           v
-Remote MCP Endpoint
+Streamable HTTP
           |
           v
 Cloudflare Worker
           |
           v
-Nitro v3 + H3 Application Layer
+Nitro v3 + H3
           |
-   -----------------------------
-   |             |              |
-   v             v              v
-MCP Handler  Skill Services  Cache Layer
-   |             |              |
-   |             |              |
-   v             v              v
-JSON-RPC     Registry       KV / Cache API
-                 |
-                 |
-                 v
-        GitHub ai-plugins/dev-skills
+          v
+MCP TypeScript SDK
+          |
+          v
+McpServer
+          |
+   ------------------------
+   |                      |
+   v                      v
+Skill Tools          Runtime Adapter
+   |                      |
+   v                      v
+Skill Services      Cloudflare Binding
+   |
+   v
+Registry Repository
+   |
+   +---------+
+             |
+             v
+   Cloudflare KV / GitHub ai-plugins
 ```
 
 ---
 
-# 2. 系统边界
+# 2. MCP 层职责
 
-## Skill Router MCP Server 负责
+MCP SDK 负责：
+
+- initialize
+- capability negotiation
+- tools/list
+- tools/call
+- resources
+
+业务层不重复实现 MCP 协议。
+
+---
+
+# 3. Skill Router 职责
+
+负责：
 
 - Skill Discovery
 - Skill Search
 - Skill Loading
-- Skill Metadata
-- Skill Version
+- Metadata
+- Version
 
-## Skill Router MCP Server 不负责
+不负责：
 
-禁止承担：
-
-- 修改代码
-- 创建 GitHub PR
-- 执行 Shell
-- 执行 Docker
-- 运行 CI
-- 管理开发环境
-
-这些能力由其他 MCP Server 提供。
-
----
-
-# 3. MCP 生态分工
-
-```text
-Skill Router MCP
-        |
-        | 提供方法论和上下文
-        v
-Agent
-        |
-        +------ GitHub MCP
-        |          |
-        |          v
-        |      修改代码
-        |
-        +------ Docker MCP
-        |          |
-        |          v
-        |      执行测试
-        |
-        +------ Filesystem MCP
-                   |
-                   v
-              文件操作
-```
-
-核心原则：
-
-> Skill 决定如何做，Tool 决定能做什么。
+- GitHub 修改
+- Shell
+- Docker
+- CI
+- 文件执行
 
 ---
 
 # 4. 分层架构
 
-## 4.1 MCP Transport Layer
-
-职责：
-
-- 接收 MCP 请求
-- JSON-RPC 校验
-- 返回 MCP Response
-
-实现：
+## MCP Layer
 
 ```text
 server/api/mcp.post.ts
 ```
 
-禁止包含业务逻辑。
+负责 transport adapter。
 
 ---
 
-## 4.2 Application Layer
-
-职责：
-
-- Skill Router
-- Skill Search
-- Skill Loading
-
-实现：
+## Application Layer
 
 ```text
-server/services/
+services/
 ```
+
+负责：
+
+- skill routing
+- search
+- loading
 
 ---
 
-## 4.3 Repository Layer
-
-职责：
-
-访问数据来源：
-
-- Cloudflare KV
-- Cache API
-- GitHub Source
-
-实现：
+## Repository Layer
 
 ```text
-server/repositories/
+repositories/
 ```
+
+负责：
+
+- KV
+- GitHub source
+- Cache
 
 ---
 
 # 5. 数据流
 
-## Skill 查询流程
-
 ```text
 ChatGPT
- |
- tools/list
  |
 search_skills
  |
-Skill Registry
+McpServer Tool
  |
-KV
+Skill Service
  |
-Response
+KV Registry
+ |
+Return Context
 ```
 
 ---
 
-## Skill 加载流程
+# 6. GitHub 同步
 
-```text
-ChatGPT
- |
-load_skill
- |
-skill id
- |
-Registry Lookup
- |
-KV content
- |
-返回 SKILL.md
-```
-
----
-
-# 6. 数据同步架构
-
-运行时不直接扫描 GitHub。
-
-推荐：
+运行时不扫描 GitHub。
 
 ```text
 GitHub ai-plugins
         |
-        |
 GitHub Actions
-        |
         |
 Registry Builder
         |
-        |
 Cloudflare KV
         |
-        |
-Skill Router MCP
+MCP Server
 ```
-
-原因：
-
-- 降低延迟
-- 避免 GitHub API 限制
-- 提高稳定性
 
 ---
 
-# 7. Runtime 架构
+# 7. Runtime 边界
 
-部署环境：
+部署：
 
 ```text
 Cloudflare Workers
@@ -235,68 +179,33 @@ Cloudflare Workers
 框架：
 
 ```text
-Nitro v3 + H3
+Nitro v3
 ```
 
-禁止：
+平台配置：
 
-- Node Server
-- filesystem
-- child_process
-- 长驻内存状态
+```text
+Wrangler
+```
 
-必须：
-
-- fetch API
-- KV
-- Cache API
-- Web Crypto
+禁止混合职责。
 
 ---
 
-# 8. Nitro 与 Wrangler 边界
-
-## Nitro
-
-负责：
-
-- 应用构建
-- Handler
-- Runtime abstraction
-- 路由
-
-## Wrangler
-
-负责：
-
-- Worker 部署
-- KV binding
-- Secrets
-- Domain
-- Cloudflare 配置
-
-两者不可混合。
-
----
-
-# 9. 最终部署形态
+# 8. 最终形态
 
 ```text
 ChatGPT Web
-     |
-Developer Mode MCP
-     |
-HTTPS
-     |
-mcp.ai.ruan-cat.com
-     |
+ |
+Remote MCP
+ |
 Cloudflare Worker
-     |
-Nitro v3 MCP Server
-     |
+ |
+Nitro v3
+ |
+MCP SDK
+ |
 Skill Router
-     |
-GitHub ai-plugins
+ |
+Skill Registry
 ```
-
-该系统是个人 AI Agent Skill Platform 的基础设施层。
