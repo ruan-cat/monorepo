@@ -2,32 +2,44 @@
 
 ## 文档目的
 
-本文档用于验证 Skill Router MCP Server 是否真正可以被 ChatGPT Web Developer Mode 使用。
+本文用于验证 Skill Router MCP Server 是否真正符合 ChatGPT Web Developer Mode Remote MCP 使用要求。
 
-目标不是测试普通 HTTP 接口，而是验证完整链路：
+本项目不是普通 HTTP API 验收，而是完整 MCP Client/Server 链路验收。
+
+目标链路：
 
 ```text
-ChatGPT Web
-    |
-Developer Mode MCP Client
-    |
-Remote MCP Endpoint
-    |
-Skill Router MCP Server
-    |
-Skill Registry
+ChatGPT Web Developer Mode
+        |
+        v
+Remote MCP Client
+        |
+        v
+Streamable HTTP MCP Endpoint
+        |
+        v
+Nitro v3 + MCP TypeScript SDK
+        |
+        v
+McpServer
+        |
+        v
+Skill Router Tools
 ```
+
+MCP Server 应使用 MCP TypeScript SDK 提供的协议能力，而不是手写 JSON-RPC。
 
 ---
 
 # 1. 前置条件
 
-必须具备：
+必须确认：
 
 - Cloudflare Worker 已部署。
-- 自定义 HTTPS 域名已生效。
-- MCP endpoint 可公网访问。
-- MCP Server 已实现 initialize、tools/list、tools/call。
+- HTTPS 域名正常。
+- Streamable HTTP endpoint 可访问。
+- MCP Server 已创建 `McpServer`。
+- tools 已注册。
 
 推荐地址：
 
@@ -37,29 +49,28 @@ https://mcp.ai.ruan-cat.com/mcp
 
 ---
 
-# 2. MCP 初始化验证
+# 2. MCP 生命周期验证
 
-验证目标：
+## initialize
 
-客户端可以识别 MCP Server。
+验证：
 
-检查：
+- protocol version。
+- server info。
+- capabilities。
+- tools capability。
 
-- protocol version
-- server capabilities
-- tools capability
+失败常见原因：
 
-失败原因通常：
-
-- JSON-RPC 格式错误。
-- endpoint 不支持 POST。
-- response schema 不符合 MCP。
+- transport 配置错误。
+- MCP SDK 初始化失败。
+- response schema 不符合协议。
 
 ---
 
 # 3. tools/list 验证
 
-必须返回：
+必须暴露：
 
 ```text
 list_skills
@@ -73,27 +84,54 @@ load_skill
 - description
 - inputSchema
 
+Tool annotation 必须准确：
+
+```json
+{
+  "readOnlyHint": true,
+  "destructiveHint": false
+}
+```
+
+Skill Router 不修改外部系统。
+
 ---
 
 # 4. tools/call 验证
 
-## list_skills
-
-验证：
-
-可以返回技能摘要。
-
 ## search_skills
 
+输入：
+
+```json
+{
+  "query": "Nitro API development"
+}
+```
+
 验证：
 
-输入关键词后可以匹配技能。
+- 返回匹配技能。
+- 返回 metadata。
+- 不泄露内部 Secret。
+
+---
 
 ## load_skill
 
+输入：
+
+```json
+{
+  "skillId": "nitro-api-development"
+}
+```
+
 验证：
 
-可以返回完整 SKILL.md 上下文。
+- SKILL.md 返回完整。
+- references 信息正确。
+- version 正确。
 
 ---
 
@@ -105,15 +143,15 @@ load_skill
 2. 添加 Remote MCP Server。
 3. 输入测试请求。
 
-示例：
+例如：
 
 ```text
-列出你当前可用的技能。
+列出当前可用技能。
 ```
 
 预期：
 
-ChatGPT 调用 list_skills。
+ChatGPT 调用 MCP tools/list 或对应 skill discovery tool。
 
 ---
 
@@ -121,9 +159,10 @@ ChatGPT 调用 list_skills。
 
 必须满足：
 
-- ChatGPT 可以连接 MCP。
-- tools/list 返回正常。
-- search_skills 正常。
-- load_skill 返回完整上下文。
-- 无敏感信息泄露。
-- 高并发读取稳定。
+- ChatGPT 可以连接 MCP endpoint。
+- initialize 成功。
+- tools/list 正常。
+- tools/call 正常。
+- Streamable HTTP 正常。
+- Skill 上下文完整返回。
+- 无 Secret 泄露。
