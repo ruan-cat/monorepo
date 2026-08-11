@@ -748,6 +748,8 @@ Monorepo 使用 **Turbo** 进行基于依赖关系的任务编排：
 - `build` 任务：输出到任务自身的 `dist/**` 和 `.output/**`，依赖 `^build`（上游包）。禁止使用 `**/dist/**` 这类可匹配依赖目录的宽输出 glob。
 - `build:docs` 任务：输出到 `**/.vitepress/dist/**` 和 `**/.vuepress/dist/**`，依赖 `^build`
 - 发布任务依赖于成功的构建
+- CI 模块找不到时，先绑定「第一个错误 + SHA + 任务命令 + 文件存在性」；历史绿灯、后续 `139`、全局 linker/Node 调整都不能代替因果证据。包内 `node_modules/.../bin` 物理路径不是稳定 CLI 合同。
+- 发布包必须自行声明构建脚本所需二进制和构建产物保留的外部 runtime import；只在最新代码 SHA 的完整构建后，以发布入口测试验收，不能用本机 hoist 或文档提交的缓存绿灯代替。
 
 **Turbo 远程缓存配置**：
 
