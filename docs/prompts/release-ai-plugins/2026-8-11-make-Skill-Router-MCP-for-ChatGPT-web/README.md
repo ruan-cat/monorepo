@@ -2,33 +2,28 @@
 
 ## 文档定位
 
-本文档集合是一套提供给独立 AI Agent 执行的生产级 Remote MCP Server 实施规格。
+本目录是一套生产级 Remote MCP Server 实施规格，用于指导独立 AI Agent 完成 Cloudflare Worker + Nitro v3 + MCP TypeScript SDK + GitHub exact-commit Skill Router MCP Server。
 
-目标：
-
-> 让一个没有历史上下文的 AI Agent，仅依靠本目录文档，即可完成 Cloudflare Worker + Nitro v3 + MCP TypeScript SDK + GitHub commit-snapshot Skill Router MCP Server 的设计、开发、测试和部署。
+真实工作负载：**Skill 数量中等，但会高频修改、维护和新增。**因此设计重点是 freshness、可复现性、低维护成本和轻量增长，而不是提前堆叠存储/索引系统。
 
 ---
 
-# 项目目标
-
-构建一个可直接被 ChatGPT Web Developer Mode 使用的 Remote MCP Server。
-
-核心目标：
+# 1. 项目目标
 
 - 将 `ruan-cat/monorepo` 的 `ai-plugins` skills 暴露为 MCP Skill Provider。
-- 使用 Cloudflare Worker 提供全球 HTTPS Serverless MCP 服务。
-- 使用 Nitro v3 作为应用 Runtime；H3 由 Nitro 依赖树管理。
-- 使用 MCP TypeScript SDK 实现协议层。
-- 使用 Streamable HTTP 作为 Remote MCP Transport。
-- 使用 GitHub 作为唯一 Skill Source of Truth。
-- 每次 tool call 将 `GITHUB_REF` 解析成 exact commit SHA，再从同一 SHA 读取 registry/skill。
-- 第一版不要求 Cloudflare KV、R2、D1、Durable Objects。
-- 推荐维护确定性生成的 `ai-plugins/skill-registry.json` 作为机器发现索引。
+- Cloudflare Worker 提供公网 HTTPS Remote MCP。
+- Nitro v3 作为应用 Runtime；H3 由 Nitro 依赖树管理。
+- MCP TypeScript SDK 实现协议层。
+- Streamable HTTP 作为 transport。
+- GitHub 是唯一 Skill Source of Truth。
+- `GITHUB_REF` 默认解析为 exact commit SHA，再从同一 SHA 读取 registry/skill。
+- discovery result 返回 `sourceCommitSha`，允许 `load_skill` 可选 pin 同一 snapshot。
+- 第一版不要求 KV、R2、D1、Durable Objects、vector database。
+- `ai-plugins/skill-registry.json` 是低 churn discovery index。
 
 ---
 
-# AI Agent 首要阅读入口
+# 2. AI Agent 强制阅读顺序
 
 ```text
 ai-agent-implementation-plan.md
@@ -38,6 +33,8 @@ README.md
 architecture.md
         ↓
 implementation-spec.md
+        ↓
+high-frequency-skill-churn-strategy.md
         ↓
 skill-registry-schema.md
         ↓
@@ -54,206 +51,235 @@ mcp-protocol-design.md
 testing-plan.md
 ```
 
-禁止跳过阅读阶段直接编码。
-
----
-
-# 核心技术决策
-
-## MCP Framework
-
-固定使用：
-
-```text
-@modelcontextprotocol/sdk
-```
-
-禁止手写 JSON-RPC lifecycle、自定义 MCP transport 或把普通 REST API 伪装成 MCP。
-
-## Remote Transport
-
-固定使用：
-
-```text
-Streamable HTTP
-```
-
-## Skill Source
-
-固定：
-
-```text
-GitHub ai-plugins
-+
-request-scoped exact commit SHA
-```
-
-不要把 Cloudflare KV/R2 当成 Skill 真源。
-
-## Freshness
-
-```text
-GITHUB_REF=dev
-      |
-      v
-resolve HEAD -> commit SHA
-      |
-      +-- registry @ SHA
-      +-- SKILL.md @ SHA
-      +-- references @ SHA
-```
-
-一次 tool call 内不跨 commit 混读；下一次新的 tool call 可以解析新的 branch HEAD。
-
----
-
-# 文档索引
-
-## 架构设计
-
-- `architecture.md`：整体架构、SourceSnapshot、一致性和缓存边界
-- `implementation-spec.md`：工程实施规格
-- `runtime-dependency-version-policy.md`：Nitro/H3/MCP SDK 依赖层与版本策略
-
-## Skill 系统
-
-- `skill-registry-schema.md`：`ai-plugins/skill-registry.json` 的确定性 schema 与生成规范
-- `release-ai-plugins-registry-integration.md`：本 MCP 规格包与 release 专项改造包之间的桥接契约
-
-### `release-ai-plugins` 专项改造提示词包
-
-真正实现 `release-ai-plugins` 的 registry generator、写入白名单、DryRun/Apply、CI stale gate 和测试时，必须继续阅读：
+如果任务包含真正修改 `release-ai-plugins` / generator / `skill-registry.json` / CI stale gate，必须继续阅读：
 
 ```text
 docs/prompts/release-ai-plugins/
 └── 2026-8-12-release-ai-plugins-add-skill-registry-json-for-MCP/
 ```
 
-该目录是 `release-ai-plugins` 支持 `Skill-Router-MCP` 的专项权威实施提示词，不要在本目录重复维护两套实现细节。
+---
 
-## MCP 协议
+# 3. 核心技术决策
 
-- `mcp-server-framework-selection.md`：MCP 框架选型
-- `mcp-protocol-design.md`：MCP SDK、transport、tools 设计
-- `mcp-client-validation-guide.md`：客户端连接验收
+## MCP
 
-## Runtime / Cloudflare
+```text
+@modelcontextprotocol/sdk
++
+Streamable HTTP
+```
 
-- `nitro-v3-development-guide.md`：Nitro v3 Runtime 开发规范
-- `nitro-v3-cloudflare-integration.md`：Nitro 与 Cloudflare Worker 边界规范
-- `runtime-binding-contract.md`：vars / secret 与 request runtime 契约
-- `cloudflare-worker-deployment.md`：无存储 binding 的第一版部署规范
-- `cloudflare-ai-gateway-strategy.md`：未来模型调用扩展策略
+禁止手写 JSON-RPC lifecycle。
 
-## 质量与交接
+## Runtime
 
-- `testing-plan.md`：协议、registry、freshness、一致性测试
-- `security-model.md`：安全模型
-- `ai-agent-implementation-plan.md`：AI Agent 阅读与实施计划
-- `agent-execution-guide.md`：Agent 执行流程
-- `agent-handoff-checklist.md`：交接检查
-- `deployment-runbook.md`：生产部署和回滚
+```text
+Cloudflare Worker
++
+Nitro v3 Runtime
++
+Nitro-managed H3 layer
+```
+
+## Skill Source
+
+```text
+GitHub ai-plugins
++
+exact commit SourceSnapshot
+```
+
+## Registry
+
+v1 只保存：
+
+```text
+id
+plugin
+name
+description
+version
+entry
+```
+
+不枚举 references/templates/examples，避免高频深层文件变化制造 registry churn。
+
+## Freshness + Reproducibility
+
+默认最新：
+
+```text
+GITHUB_REF=dev
+  ↓
+resolve current HEAD -> SHA
+```
+
+跨 tool call 可复现：
+
+```text
+search_skills @ A
+  -> sourceCommitSha=A
+load_skill(skillId, sourceCommitSha=A)
+```
+
+不需要 server session。
 
 ---
 
-# 最终架构
+# 4. 文档索引
+
+## 架构 / 实施
+
+- `architecture.md`
+- `implementation-spec.md`
+- `high-frequency-skill-churn-strategy.md`
+- `runtime-dependency-version-policy.md`
+
+## Skill Registry / Release Bridge
+
+- `skill-registry-schema.md`
+- `release-ai-plugins-registry-integration.md`
+- `../2026-8-12-release-ai-plugins-add-skill-registry-json-for-MCP/`
+
+## MCP
+
+- `mcp-server-framework-selection.md`
+- `mcp-protocol-design.md`
+- `mcp-client-validation-guide.md`
+
+## Nitro / Cloudflare
+
+- `nitro-v3-development-guide.md`
+- `nitro-v3-cloudflare-integration.md`
+- `runtime-binding-contract.md`
+- `cloudflare-worker-deployment.md`
+- `cloudflare-ai-gateway-strategy.md`
+
+## 质量 / 交接
+
+- `testing-plan.md`
+- `security-model.md`
+- `deployment-runbook.md`
+- `agent-execution-guide.md`
+- `agent-handoff-checklist.md`
+
+---
+
+# 5. 最终架构
 
 ```text
-ChatGPT Web Developer Mode
-          |
-          v
-Remote MCP Client
-          |
-          v
-Streamable HTTP
-          |
-          v
+ChatGPT Web
+  ↓
+Remote MCP / Streamable HTTP
+  ↓
 Cloudflare Worker
-          |
-          v
+  ↓
 Nitro v3 Runtime
-          |
-          v
-MCP TypeScript SDK / McpServer
-          |
-          v
-Skill Router Tools
-          |
-          v
-Skill Services
-          |
-          v
+  ↓
+MCP SDK / McpServer
+  ↓
+Skill Router
+  ↓
 GitHub Repository Adapter
-          |
-          v
+  ↓
 SourceSnapshot(commit SHA)
-          |
-          +-- ai-plugins/skill-registry.json @ SHA
-          +-- Skill files @ SHA
+  ├─ skill-registry.json @ SHA
+  ├─ selected SKILL.md @ SHA
+  └─ related files on demand @ SHA
 ```
 
 ---
 
-# 为什么第一版不使用 KV / R2
+# 6. 高频更新下的轻量维护模型
 
-该项目的真实工作流是 skills 高频更新，因此第一优先级是最新 commit 可见和版本可复现，而不是复制到第二套存储。
+发布侧：
 
-第一版采用 GitHub exact-commit reads 可以避免：
+```text
+many Skill changes
+ -> one release orchestration
+ -> one registry generation
+ -> one Git commit
+```
 
-- KV eventual-consistency freshness 问题成为主链路依赖。
-- R2/KV binding 增加本地与生产配置面。
-- GitHub -> Cloudflare storage 同步 pipeline 的额外失败点。
-- Skill 内容更新要求 Worker/storage 同步后才可见。
+运行时：
 
-只有真实性能数据证明需要时，再设计 commit-addressed cache。
+```text
+one tool call
+ -> one snapshot
+ -> one registry read
+ -> selected Skill only
+```
+
+这意味着：
+
+- 高频 Skill 更新不要求 Worker redeploy。
+- 不需要 Cloudflare storage sync。
+- 不需要 per-Skill cache purge。
+- 不需要增量 registry DB。
+- 不需要 vector search。
+
+只有真实性能数据证明简单方案成为瓶颈时才升级。
 
 ---
 
-# 服务职责
+# 7. 为什么第一版不使用 KV / R2
 
-Skill Router 负责：
+对高频更新，第二套存储会增加同步/调试/失效管理成本。
 
-1. 技能发现。
-2. 技能搜索。
-3. 技能加载。
-4. 技能版本与 source commit 报告。
-5. Registry 读取和一致性校验。
+MVP 直接利用 Git 的不可变 commit snapshot：
+
+```text
+new push -> new HEAD -> new unpinned call sees new commit
+```
+
+未来如果确实需要 cache，只允许 commit-addressed immutable key。
+
+---
+
+# 8. 服务职责
+
+负责：
+
+- Skill discovery/search/load。
+- Skill metadata/version。
+- source commit 报告/可选 pin。
+- Registry 读取/校验。
+- 已选 Skill 关联文件按需同 SHA 读取。
 
 不负责：
 
-- 执行 Shell。
-- 修改 GitHub。
-- 创建 PR。
-- 运行 Docker / CI。
-- 同步 KV/R2。
+- Shell/GitHub 写操作/PR/Docker/CI。
+- KV/R2 同步。
+- vector index。
+- server-side conversation snapshot state。
 
 ---
 
-# Definition of Done
+# 9. Definition of Done
 
 ## MCP
 
-- [ ] ChatGPT Web Developer Mode 可以添加 MCP。
+- [ ] ChatGPT Web 可添加 MCP。
 - [ ] MCP SDK / Streamable HTTP 正常。
-- [ ] initialize / tools/list / tools/call 成功。
+- [ ] list/search 返回 `sourceCommitSha`。
+- [ ] load_skill 可选 snapshot pin。
 
 ## Skill
 
-- [ ] `ai-plugins/skill-registry.json` 可确定性生成和校验。
-- [ ] `release-ai-plugins` 已有明确 registry generator 集成契约。
-- [ ] 2026-8-12 `release-ai-plugins` 专项改造提示词包完整。
-- [ ] 可以发现、搜索、加载 skills。
-- [ ] 同一 tool call 的 registry / skill 来自同一 commit SHA。
-- [ ] 新 push 后下一次新 snapshot 能看到新 HEAD。
+- [ ] Registry minimal/low-churn/deterministic。
+- [ ] `release-ai-plugins` 专项改造契约完整。
+- [ ] 多 Skill 高频发布只集中生成一次 registry。
+- [ ] 新 unpinned call 可看到最新 HEAD。
+- [ ] pinned load 可复现 discovery snapshot。
 
 ## Runtime
 
-- [ ] Cloudflare Worker 部署成功。
-- [ ] 无 KV/R2 binding 也可完整工作。
-- [ ] 无 Node Server 专属 API。
+- [ ] Worker 无 KV/R2 binding 也完整工作。
+- [ ] 深层文件按需读取，不默认递归加载。
+- [ ] 无 Node Server 专属实现。
 
-## Security
+## Growth
 
-- [ ] GitHub Token 不泄露。
-- [ ] GitHub 权限只读、最小化。
-- [ ] MCP 工具默认只读、非破坏性。
+- [ ] 没有增量 Registry DB/vector DB/session store 过度设计。
+- [ ] 未来优化由 Skill count、registry size、GitHub request 数和 P95 latency 等真实指标触发。
