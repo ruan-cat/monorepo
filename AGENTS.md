@@ -984,3 +984,4 @@ metadata:
 - 2026-07-02 — 新建 `use-vercel-deploy-in-monorepo` skill 时的误判链：`2026-07-02-use-vercel-deploy-skill-pitfalls.md`
 - 2026-06-30 — consola Node.js 24 ESM 解析失败：`2026-06-30-consola-node24-esm-resolve.md`
 - 2026-08-10 — `init-prettier-git-hooks` 将 AI 操作流程误做成迁移器产品：`2026-08-10-init-prettier-git-hooks-overengineering.md`
+- 2026-08-11 — Node.js 24 下 VitePress 宽 barrel 的 `consola` 间接解析与 utils 并行 tsup 清理声明竞态：`2026-08-11-vitepress-node24-pnpm-entrypoint.md`
