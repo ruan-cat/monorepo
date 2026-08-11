@@ -8,7 +8,7 @@
 		},
 		"build": {
 			"cache": true,
-			"outputs": ["**/dist/**", "**/.output/**"],
+			"outputs": ["dist/**", ".output/**"],
 			"dependsOn": ["^prebuild", "^build"]
 		},
 		"build:docs": {
