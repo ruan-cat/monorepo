@@ -10,7 +10,7 @@ ai-plugins/skill-registry.json
 
 与云端 `Skill-Router-MCP` 的职责边界。
 
-目标是避免后续实现时重新引入 KV/R2 同步、mutable branch 混读或 registry 自引用 commit SHA。
+目标是支持 Skill 高频更新，同时保持架构轻量：不重新引入 KV/R2 同步、mutable branch 混读、registry 自引用 commit SHA 或 server-side session。
 
 ---
 
@@ -25,76 +25,85 @@ Skill tree
   ↓
 release consistency
   ↓
-deterministic skill-registry.json
+deterministic low-churn skill-registry.json
   ↓
 commit together
 ```
 
 保证：
 
-- registry 与 Skill tree 在同一个 Git commit。
+- registry 与 Skill tree 在同一 Git commit。
 - registry 是当前 tree 的 canonical discovery manifest。
 - schema 可验证。
-- entry/reference paths 有效。
+- entry path 有效。
+- v1 不复制 reference/template/example 文件列表。
 
 ## Cloud MCP Side
 
 负责：
 
 ```text
-GITHUB_REF
+GITHUB_REF or pinned commit SHA
   ↓
-resolve exact commit SHA
+SourceSnapshot
   ↓
 read registry @ SHA
   ↓
 search/select
   ↓
-read skill @ same SHA
+read selected Skill @ same SHA
 ```
 
 保证：
 
-- 一次 tool call 不跨 commit。
-- 返回 source commit 用于诊断。
+- 单个 tool call 不跨 commit。
+- discovery 返回 source commit 用于诊断和可选 pin。
 - 不依赖 registry 内嵌 commit SHA。
 
 ---
 
 # 3. SourceSnapshot
 
-云 MCP 推荐内部模型：
+推荐内部模型：
 
 ```ts
 interface SourceSnapshot {
   owner: string
   repo: string
-  ref: string
+  ref?: string
   commitSha: string
 }
 ```
 
-注意：这是 MCP runtime 类型，不是 registry schema。
+创建模式有两种。
 
-创建流程：
+## Latest 模式
 
 ```text
 GITHUB_OWNER
 GITHUB_REPO
 GITHUB_REF
   ↓
-GitHub Repository Adapter.resolveRef()
+resolveRef()
   ↓
 SourceSnapshot(commitSha)
 ```
 
-此后本次 tool call 的所有 GitHub 内容读取都必须使用：
+## Pinned 模式
+
+当 tool input 带有此前由本 MCP 返回的 `sourceCommitSha`：
 
 ```text
-snapshot.commitSha
+configured owner/repo
++
+sourceCommitSha
+  ↓
+SourceSnapshot(commitSha)
 ```
 
-而不是继续用 mutable `dev`。
+Pinned 模式不允许客户端覆盖 owner/repo，避免把服务变成任意 GitHub 文件代理。
+
+此后本次调用所有读取都使用 `snapshot.commitSha`。
 
 ---
 
@@ -103,34 +112,29 @@ snapshot.commitSha
 流程：
 
 ```text
-resolve snapshot
+resolve latest snapshot
   ↓
-read ai-plugins/skill-registry.json @ snapshot.commitSha
+read skill-registry.json @ SHA
   ↓
 validate schemaVersion
   ↓
-return skill summaries + source commit
+return summaries + sourceCommitSha
 ```
 
-不需要：
-
-- GitHub directory traversal。
-- 读取每个 SKILL.md。
-- Cloudflare storage lookup。
+不需要目录遍历或逐个读取 `SKILL.md`。
 
 ---
 
 # 5. `search_skills`
 
-第一版搜索输入：
+第一版搜索字段：
 
 ```text
 id
 name
 description
+plugin
 ```
-
-全部来自 registry。
 
 流程：
 
@@ -142,92 +146,122 @@ normalize query
 keyword/token matching
   ↓
 rank candidates
+  ↓
+return candidates + sourceCommitSha
 ```
 
-不要为了搜索而一次读取所有 SKILL.md 正文。
+不要为了搜索读取所有 Skill 正文。
 
 ---
 
 # 6. `get_skill_metadata`
 
-如果实现该 tool，可以直接返回 registry entry，并附加：
+如果实现该 tool，可直接返回 registry entry + `sourceCommitSha`。
 
-```text
-sourceCommitSha
-```
-
-该 SHA 来自 SourceSnapshot。
+可选接受 `sourceCommitSha` pin；未提供则使用最新 snapshot。
 
 ---
 
 # 7. `load_skill`
 
-输入：
+推荐输入：
 
-```text
-skillId
+```json
+{
+  "skillId": "nitro-api-development",
+  "sourceCommitSha": "abc123"
+}
 ```
 
-流程：
+其中 `sourceCommitSha` 可选。
+
+## 未提供
 
 ```text
-resolve snapshot
+resolve GITHUB_REF -> latest SHA
+```
+
+适合“我要当前最新版 Skill”。
+
+## 已提供
+
+```text
+use exact SHA in configured repository
+```
+
+适合：
+
+```text
+search_skills @ A
   ↓
+load_skill(..., sourceCommitSha=A)
+```
+
+从而避免 branch 在两个 tool call 之间推进造成语义漂移。
+
+然后：
+
+```text
 read registry @ SHA
   ↓
 find skillId
   ↓
-entry path
+entry
   ↓
 read SKILL.md @ same SHA
 ```
 
-若需要 reference：
+---
 
-```text
-references[] path @ same SHA
-```
+# 8. 深层文件按需读取
 
-禁止：
+Registry v1 不枚举 references/templates/examples。
 
-```text
-registry @ abc123
-SKILL.md @ dev(latest=def456)
-```
+Cloud MCP 先读取所选 `SKILL.md @ SHA`，再根据 Skill 中明确的 repo-relative 引用按需读取关联文件。
+
+所有关联读取继续使用同一个 `SourceSnapshot.commitSha`。
+
+不要默认加载 Skill 目录全部文件，也不要为了发现深层文件给 registry 增加第二份目录镜像。
 
 ---
 
-# 8. Tool Call Snapshot 粒度
+# 9. Tool Call Snapshot 粒度
 
-第一版推荐：
-
-> 每个 MCP tool call 独立 resolve `GITHUB_REF`。
-
-这样高频 push 后：
+默认每个未 pin 的 MCP tool call 独立解析 `GITHUB_REF`：
 
 ```text
-call A -> abc123
-push def456
-call B -> def456
+call A -> commit A
+push B
+call B -> commit B
 ```
 
-新版本无需等待 Worker deployment/cache purge。
+这保证新 push 很快可见。
 
-一个 tool call 内则保持一致性。
+同一 tool call 内保持 exact-SHA 一致。
 
-未来如果一个高层 MCP operation 横跨多个 tool call，需要更强 transaction-like snapshot，再单独设计 snapshot token；第一版不要提前增加 session state。
+对于 search -> load 这种跨 tool call 链路，使用可选 `sourceCommitSha` pin，而不是新增 session state/snapshot token 服务。
 
 ---
 
-# 9. Registry Missing / Stale Runtime 行为
+# 10. 为什么 Snapshot Pin 是轻量方案
 
-理论上 CI/release 应阻止 stale registry 进入 Git。
+不需要：
 
-Runtime 仍需处理：
+- Durable Object session。
+- KV token store。
+- Worker memory session map。
+- database transaction state。
+- opaque snapshot service。
+
+Git commit SHA 本身已经是不可变 snapshot identifier。
+
+服务只允许在配置好的同一个 repository 中按 exact SHA 读取。
+
+---
+
+# 11. Registry Missing / Invalid Runtime 行为
 
 ## Registry missing
-
-返回可诊断错误：
 
 ```text
 REGISTRY_NOT_FOUND
@@ -243,7 +277,7 @@ schemaVersion
 sourceCommitSha
 ```
 
-## Skill entry points to missing file
+## Missing entry target
 
 ```text
 REGISTRY_ENTRY_INVALID
@@ -252,20 +286,20 @@ entry
 sourceCommitSha
 ```
 
-不要 fallback 到扫描整个仓库并静默隐藏 registry 错误，否则会掩盖发布契约破坏。
+不要 fallback 到扫描整个仓库并静默隐藏 registry 契约错误。
 
 ---
 
-# 10. 高频更新 Freshness
+# 12. 高频更新 Freshness
 
-该模型专门适合高频 skill 更新：
+模型：
 
 ```text
 push commit
   ↓
-GitHub branch HEAD changes
+branch HEAD changes
   ↓
-new MCP tool call resolves new HEAD
+new unpinned tool call resolves new HEAD
 ```
 
 没有：
@@ -277,63 +311,54 @@ Worker redeploy latency
 cache invalidation requirement
 ```
 
+同时，如果用户正在使用刚刚搜索到的旧 snapshot，可以用 `sourceCommitSha` pin 完成同一版本的后续 load。
+
 ---
 
-# 11. 可选缓存的未来边界
+# 13. 可选缓存未来边界
 
-只有性能数据证明有必要时，云 MCP 才允许增加：
+只有真实指标需要时允许：
 
 ```text
 registry:{commitSha}
 skill:{commitSha}:{skillId}
 ```
 
-这类 immutable commit-addressed cache。
+Release side 不感知缓存。
 
-Release side 不需要知道缓存存在。
-
-Release side 永远只负责 Git artifact。
+禁止 mutable cache key 作为 freshness 真源。
 
 ---
 
-# 12. GitHub API 优化原则
+# 14. GitHub API 轻量优化原则
 
-云 MCP 可以独立采用：
+运行时可以独立采用：
 
-- conditional requests。
-- ETag。
-- request coalescing。
-- short-lived in-isolate memoization（如果不会破坏 freshness/secret boundaries）。
+- conditional request / ETag（适用处）。
+- 同请求去重。
+- short-lived immutable in-isolate memoization（不作为正确性依赖）。
 
-这些属于 runtime optimization，不应写进 `skill-registry.json`。
+这些都不写入 registry，也不改变 release contract。
 
 ---
 
-# 13. Registry 更新不要求 Worker 重新部署
+# 15. Skill 更新不要求 Worker 重新部署
 
-这是必须保留的产品能力：
+必须保持：
 
 ```text
-Skill update
-!=
-Worker code update
+Skill update != Worker code update
 ```
 
-只修改 skills/registry：
+只修改 skills/registry：push Git commit 即可。
 
-```text
-push Git commit
-```
-
-即可被下一次 snapshot 使用。
-
-只有 MCP Server 自己的代码/配置变化才需要部署 Worker。
+只有 MCP Server 自身代码/配置变化才部署 Worker。
 
 ---
 
-# 14. Source Information in MCP Result
+# 16. Source Information in Tool Result
 
-推荐 MCP tool result 包含诊断信息：
+推荐：
 
 ```json
 {
@@ -345,35 +370,61 @@ push Git commit
 }
 ```
 
-不要返回 GitHub Token、认证 header 或内部 request details。
+`sourceCommitSha` 可以作为后续 pinned load 输入。
+
+不要返回 Token、Authorization header 或内部 request details。
 
 ---
 
-# 15. Release 与 MCP 的独立演进
+# 17. Release 与 MCP 的独立演进
 
 双方 contract 只有：
 
 ```text
-registry schema
+minimal registry schema
 +
 Git exact commit semantics
 ```
 
-因此：
+因此 release 可以独立改进 full-scan/generator；Worker 可以独立改进 transport/search/cache。
 
-- release script 可以独立改进实现。
-- Worker 可以独立优化 transport/search/cache。
-- 只要 schema 与 commit semantics 不变，双方无需同步发布。
+高频 Skill 内容维护不要求双方同步版本发布。
 
 ---
 
-# 16. Definition of Done
+# 18. 轻量增长政策
+
+对中等 Skill 数量，继续使用：
+
+```text
+one registry
++
+in-memory search
++
+selected Skill fetch
+```
+
+不要因为更新频繁就误判为“数据规模巨大”，从而引入数据库、向量搜索、后台同步。
+
+详细见：
+
+```text
+../2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web/high-frequency-skill-churn-strategy.md
+high-frequency-maintenance-and-growth-strategy.md
+```
+
+---
+
+# 19. Definition of Done
 
 - [ ] GitHub 是唯一 Skill 真源。
 - [ ] Release 只生成 Git artifact。
-- [ ] MCP 每个 tool call resolve exact SHA。
-- [ ] Registry/Skill 同 SHA 读取。
-- [ ] Registry 不内嵌 commit SHA。
-- [ ] stale/missing registry 不静默 fallback。
+- [ ] Unpinned tool call 可看到最新 HEAD。
+- [ ] 单 tool call exact-SHA 一致。
+- [ ] list/search 返回 sourceCommitSha。
+- [ ] load_skill 可选接受同 repository 的 sourceCommitSha pin。
+- [ ] 不需要 server-side session。
+- [ ] Registry v1 不枚举深层附属文件。
+- [ ] Related files 按需同 SHA 读取。
 - [ ] Skill push 不要求 Worker redeploy。
 - [ ] KV/R2 不进入第一版 contract。
