@@ -2,29 +2,35 @@
 
 ## 1. 测试目标
 
-本测试方案用于验证生产级 Cloudflare Worker + Nitro v3 + MCP Remote Server 是否满足 ChatGPT Web Developer Mode 使用要求。
+验证生产级：
+
+```text
+Cloudflare Worker
++
+Nitro v3
++
+MCP TypeScript SDK
++
+Streamable HTTP Remote MCP
+```
+
+是否可以被 ChatGPT Web Developer Mode 正常使用。
 
 测试对象：
 
 ```text
 ChatGPT Web
     |
-Remote MCP
+Remote MCP Client
     |
-Skill Router MCP Server
+Streamable HTTP
+    |
+McpServer
+    |
+Skill Router Tools
     |
 Skill Registry
-    |
-Cloudflare KV / GitHub Source
 ```
-
-测试目标：
-
-- MCP 协议完全兼容。
-- Skill 可以被发现、搜索、加载。
-- Serverless 环境稳定运行。
-- GitHub skills 同步链路可靠。
-- 安全策略有效。
 
 ---
 
@@ -35,9 +41,11 @@ Cloudflare KV / GitHub Source
 ```text
 Unit Test
 
+MCP SDK Integration Test
+
 Protocol Test
 
-Integration Test
+Runtime Test
 
 Deployment Test
 
@@ -48,58 +56,25 @@ Performance Test
 
 ---
 
-# 3. 单元测试
-
-## 3.1 Skill Parser
+# 3. MCP SDK 集成测试
 
 验证：
 
-- SKILL.md 解析。
-- metadata.yaml 解析。
-- frontmatter 格式。
-- markdown 内容完整性。
+- McpServer 创建成功。
+- tools 注册成功。
+- transport connect 正常。
+- tool schema 正确。
 
-异常：
-
-- 缺少 id。
-- 缺少版本。
-- 非法 YAML。
-
----
-
-## 3.2 Registry Builder
-
-验证：
-
-输入：
+重点测试：
 
 ```text
-ai-plugins/dev-skills
+McpServer
+    |
+    v
+search_skills
+load_skill
+list_skills
 ```
-
-输出：
-
-```json
-{
-  "skills": []
-}
-```
-
-检查：
-
-- 所有 skill 被发现。
-- 重复 id 被拒绝。
-- 版本格式正确。
-
----
-
-## 3.3 MCP Response Builder
-
-验证：
-
-- JSON-RPC 格式。
-- error 格式。
-- result 格式。
 
 ---
 
@@ -109,15 +84,17 @@ ai-plugins/dev-skills
 
 验证：
 
-- server 信息。
-- capabilities。
 - protocol version。
+- capabilities。
+- server metadata。
 
 ---
 
 ## tools/list
 
-验证返回：
+验证：
+
+返回：
 
 ```text
 list_skills
@@ -133,72 +110,79 @@ load_skill
 
 ### search_skills
 
-输入：
+输入 query。
 
-```json
-{
- "query":"Nitro API"
-}
-```
+验证：
 
-验证返回匹配 skill。
+- 匹配结果正确。
+- schema 校验正确。
 
 ### load_skill
 
 验证：
 
-- 内容完整。
-- 来源正确。
-- 版本正确。
+- 返回 skill context。
+- 不泄露 secret。
 
 ---
 
-# 5. Nitro v3 测试
-
-## Handler 测试
+# 5. Streamable HTTP 测试
 
 验证：
 
-- defineHandler 正常执行。
-- 请求解析正确。
-- 异常进入 catch。
-- 不泄露内部错误。
+- POST /mcp 正常。
+- transport 生命周期正常。
+- JSON response 正确。
+- Cloudflare Worker 无长连接依赖。
+
+第一版采用 stateless Streamable HTTP。
 
 ---
 
-## Service 测试
+# 6. Skill Registry 测试
+
+测试：
+
+- SKILL.md 解析。
+- metadata 解析。
+- registry build。
+- KV publish。
+- skill version。
+
+---
+
+# 7. Nitro v3 测试
 
 验证：
 
-```text
-mcp handler
-      |
-skill service
-      |
-registry service
+- defineEventHandler。
+- runtime binding 注入。
+- service 分层。
+- 错误处理。
+
+禁止：
+
+- process.env。
+- Node server。
+- 本地状态。
+
+---
+
+# 8. Cloudflare Worker 测试
+
+本地：
+
+```bash
+wrangler dev
 ```
 
-职责隔离。
-
----
-
-# 6. Cloudflare Worker 测试
-
-## 本地测试
-
-使用 Wrangler：
-
 验证：
 
-- Worker 启动。
+- vars 正常。
+- secret 正常。
 - KV binding 正常。
-- 环境变量读取。
 
----
-
-## 线上 Smoke Test
-
-部署后验证：
+线上：
 
 ```text
 GET /health
@@ -206,62 +190,44 @@ GET /health
 POST /mcp
 ```
 
-检查：
-
-- HTTPS。
-- TLS。
-- 延迟。
-- 错误率。
-
 ---
 
-# 7. ChatGPT Web 验收测试
+# 9. ChatGPT Web 验收
 
 真实流程：
 
 ```text
 ChatGPT Web
 
+↓
+
 添加 Remote MCP
 
-连接 endpoint
+↓
 
-调用 tools/list
+initialize
 
-调用 search_skills
+↓
 
-调用 load_skill
+tools/list
+
+↓
+
+search_skills
+
+↓
+
+load_skill
 ```
 
-必须验证：
-
-- Developer Mode 可识别。
-- 工具列表正常展示。
-- Skill 内容可以进入上下文。
-
 ---
 
-# 8. 性能测试
+# 10. 回归测试
 
-测试指标：
-
-- P95 延迟。
-- 并发请求。
-- KV 命中率。
-- GitHub fallback 次数。
-
-目标：
-
-运行时请求不依赖 GitHub API。
-
----
-
-# 9. 回归测试
-
-每次 skill 更新：
+Skill 更新流程：
 
 ```text
-Git push
+GitHub ai-plugins
 
 ↓
 
@@ -280,18 +246,16 @@ KV Publish
 MCP Verification
 ```
 
-确保旧 skill 不受影响。
-
 ---
 
-# 10. AI Agent 实施验收清单
+# 11. AI Agent 验收清单
 
-- [ ] MCP initialize 通过。
+- [ ] MCP SDK 集成完成。
+- [ ] Streamable HTTP 正常。
+- [ ] initialize 通过。
 - [ ] tools/list 通过。
 - [ ] tools/call 通过。
-- [ ] Nitro 测试通过。
 - [ ] Worker 部署成功。
-- [ ] KV 可读取。
+- [ ] KV 正常。
 - [ ] ChatGPT Web 可连接。
-- [ ] Skill 加载完整。
-- [ ] 安全测试通过。
+- [ ] Secret 未泄露。
