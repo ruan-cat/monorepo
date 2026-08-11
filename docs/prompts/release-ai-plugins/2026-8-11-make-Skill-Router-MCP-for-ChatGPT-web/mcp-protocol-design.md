@@ -2,51 +2,111 @@
 
 ## 1. 文档定位
 
-本文档不是 MCP 入门教程，而是提供给实现 Agent 的工程规格。
+本文档是提供给 AI Agent 实施 Remote MCP Server 的工程规格。
 
-目标：实现一个可被 ChatGPT Web Developer Mode 连接的 Remote MCP Server。
+目标：实现一个可以被 ChatGPT Web Developer Mode 直接连接的云端 MCP Server。
 
-## 2. Endpoint
+本项目不是手写 JSON-RPC 服务，而是基于 MCP TypeScript SDK 构建标准 MCP Server。
 
-生产地址：
+---
+
+# 2. MCP 技术选型
+
+## MCP Framework
+
+必须使用：
 
 ```text
-https://mcp.ai.ruan-cat.com/mcp
+@modelcontextprotocol/sdk
 ```
 
-运行环境：
+职责：
 
-- Cloudflare Worker
-- Nitro v3
-- H3 Handler
-- Streamable HTTP
+- MCP lifecycle
+- initialize
+- capability negotiation
+- tools/list
+- tools/call
+- resources
+- prompts
+- JSON-RPC protocol handling
 
-## 3. 协议生命周期
+禁止 AI Agent 自行实现 MCP 协议层。
 
-必须实现：
+---
 
-### initialize
+# 3. Transport 设计
 
-完成客户端与服务端能力协商。
+生产环境使用：
 
-### tools/list
+```text
+Streamable HTTP Transport
+```
 
-暴露 Skill Router 能力。
+原因：
 
-### tools/call
+- 适用于 Remote MCP Server。
+- 适用于 Cloudflare Worker HTTPS 环境。
+- 不依赖本地进程。
 
-执行技能检索和加载。
+不使用：
 
-可扩展：
+- stdio（本地 MCP 场景）
+- 自定义 JSON-RPC endpoint
+- 长连接 session state
 
-- resources/list
-- resources/read
+---
 
-## 4. Tool Contract
+# 4. 请求链路
 
-### list_skills
+```text
+ChatGPT Web MCP Client
+        |
+        v
+HTTPS Streamable HTTP
+        |
+        v
+Nitro v3 Endpoint
+        |
+        v
+MCP TypeScript SDK Transport
+        |
+        v
+McpServer
+        |
+        v
+Skill Router Tools
+```
 
-用途：返回技能目录。
+---
+
+# 5. Nitro 集成边界
+
+文件：
+
+```text
+server/api/mcp.post.ts
+```
+
+只负责：
+
+- 接收 HTTP 请求。
+- 获取 runtime bindings。
+- 调用 MCP SDK transport adapter。
+- 返回 MCP response。
+
+禁止：
+
+- 手写 JSON-RPC。
+- 解析 skill。
+- 查询 GitHub。
+- 操作 KV。
+
+---
+
+# 6. MCP Server Tools
+
+## list_skills
 
 返回：
 
@@ -56,9 +116,11 @@ https://mcp.ai.ruan-cat.com/mcp
 - description
 - tags
 
-### search_skills
+---
 
-用途：根据自然语言查询匹配技能。
+## search_skills
+
+用途：根据任务描述查找技能。
 
 输入：
 
@@ -66,9 +128,11 @@ https://mcp.ai.ruan-cat.com/mcp
 {"query":"Nitro API development"}
 ```
 
-### load_skill
+---
 
-用途：返回完整技能上下文。
+## load_skill
+
+用途：加载完整技能上下文。
 
 输入：
 
@@ -76,50 +140,69 @@ https://mcp.ai.ruan-cat.com/mcp
 {"skillId":"nitro-api-development"}
 ```
 
-## 5. JSON-RPC 处理链
+返回：
 
-实现必须遵循：
+- metadata
+- SKILL.md
+- references
 
+---
+
+# 7. Tool Annotation
+
+Skill Router 是只读能力。
+
+Tools 应标记：
+
+```json
+{
+ "readOnlyHint": true,
+ "destructiveHint": false
+}
 ```
-HTTP Request
- -> JSON Parse
- -> MCP Validation
- -> Method Router
- -> Skill Service
- -> Response Builder
+
+禁止伪装为执行工具。
+
+---
+
+# 8. Resources 扩展
+
+未来可以增加：
+
+```text
+skills://registry
 ```
+
+用于暴露技能资源。
+
+第一阶段只实现 tools。
+
+---
+
+# 9. Serverless 约束
+
+Cloudflare Worker 环境：
 
 禁止：
 
-- handler 直接读取 GitHub
-- handler 直接操作 KV
-- handler 存放业务规则
-
-## 6. Serverless 约束
-
-禁止依赖：
-
+- 本地 filesystem
 - session memory
 - websocket state
-- local filesystem
+- 常驻进程
 
-每次请求必须独立完成。
+必须：
 
-## 7. 错误规范
+- stateless request
+- KV
+- Cache API
 
-统一错误码：
+---
 
-- INVALID_REQUEST
-- METHOD_NOT_FOUND
-- SKILL_NOT_FOUND
-- REGISTRY_ERROR
-- INTERNAL_ERROR
+# 10. 验收标准
 
-## 8. 验收标准
+必须通过：
 
-实现完成后必须通过：
-
-- MCP initialize 测试
-- tools/list 测试
-- tools/call 测试
-- ChatGPT Developer Mode 连接测试
+- initialize
+- tools/list
+- tools/call
+- ChatGPT Web Developer Mode Remote MCP connection
