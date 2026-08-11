@@ -41,6 +41,8 @@ implementation-spec.md
         ↓
 skill-registry-schema.md
         ↓
+release-ai-plugins-registry-integration.md
+        ↓
 nitro-v3-cloudflare-integration.md
         ↓
 runtime-binding-contract.md
@@ -115,7 +117,8 @@ resolve HEAD -> commit SHA
 
 ## Skill 系统
 
-- `skill-registry-schema.md`：`ai-plugins/skill-registry.json` 的确定性生成规范与 `release-ai-plugins` 集成契约
+- `skill-registry-schema.md`：`ai-plugins/skill-registry.json` 的确定性 schema 与生成规范
+- `release-ai-plugins-registry-integration.md`：registry generator、`release-ai-plugins` 写入白名单、DryRun/Apply、CI stale-check 集成契约
 
 ## MCP 协议
 
@@ -226,6 +229,7 @@ Skill Router 负责：
 ## Skill
 
 - [ ] `ai-plugins/skill-registry.json` 可确定性生成和校验。
+- [ ] `release-ai-plugins` 已有明确 registry generator 集成契约。
 - [ ] 可以发现、搜索、加载 skills。
 - [ ] 同一 tool call 的 registry / skill 来自同一 commit SHA。
 - [ ] 新 push 后下一次新 snapshot 能看到新 HEAD。
