@@ -9,24 +9,26 @@
 ```text
 ChatGPT Web
   ↓
-Streamable HTTP / MCP 2026-07-28
+Streamable HTTP
   ↓
 Cloudflare Worker
   ↓
-Nitro v3 Runtime
+Nitro v3
   ↓
-MCP TypeScript SDK v2
+@modelcontextprotocol/sdk / McpServer
   ↓
 Skill Router
 ```
 
+MCP SDK 路径以 OpenAI 当前 ChatGPT 官方构建文档为 production compatibility baseline。
+
 ---
 
-# 1. Nitro v3 / H3 依赖边界
+# 1. Nitro / H3 边界
 
 Nitro v3 是应用 Runtime。
 
-H3 是 Nitro 管理的 HTTP runtime layer：
+H3 是 Nitro 管理的 HTTP runtime layer，不作为平行 framework 人工 pin 主版本。
 
 ```text
 Application
@@ -38,24 +40,21 @@ H3 runtime
 Cloudflare adapter
 ```
 
-默认禁止单独安装/pin 一个可能与 Nitro 不兼容的 H3 主版本。
-
 ---
 
 # 2. 直接依赖
 
-生产方向：
+生产：
 
 ```text
 nitro
-@modelcontextprotocol/server v2
+@modelcontextprotocol/sdk
+zod
 ```
 
-测试使用对应 `@modelcontextprotocol/client` v2。
+测试使用同一 MCP SDK version。
 
-不要继续把 v1 `@modelcontextprotocol/sdk` 单体包作为新项目协议层基线。
-
-H3 等 Nitro runtime dependencies 由 lockfile 固化。
+不要在 OpenAI ChatGPT compatibility 尚未确认时擅自换成 MCP upstream 新 major/package split。
 
 ---
 
@@ -64,66 +63,46 @@ H3 等 Nitro runtime dependencies 由 lockfile 固化。
 Nitro：
 
 - Worker runtime abstraction。
-- HTTP route/handler。
+- routes/handlers。
 - Cloudflare adapter。
-- runtime binding extraction boundary。
+- binding extraction boundary。
 
-MCP SDK v2：
+MCP SDK：
 
-- MCP `2026-07-28` modern wire protocol。
-- server identity metadata。
-- discovery/tool protocol surface。
-- `tools/list` / `tools/call`。
-
-H3：Nitro 底层 HTTP/event abstraction。
+- initialization/protocol negotiation。
+- server identity/instructions。
+- tools/list / tools/call。
+- Streamable HTTP protocol handling。
+- schemas/results/errors/annotations。
 
 Nitro handler 不实现 MCP lifecycle。
 
 ---
 
-# 4. Modern MCP 不使用旧初始化会话模型
+# 4. Handler 规范
 
-目标 MCP era 不再依赖：
+使用实施时 Nitro v3 当前官方 handler API。
+
+Handler 只做：
 
 ```text
-initialize
-initialized
-Mcp-Session-Id
+request runtime extraction
+  ↓
+MCP SDK adapter/transport
+  ↓
+Response
 ```
-
-因此不要在 Nitro middleware/handler 中建立：
-
-- MCP session table。
-- sticky session state。
-- initialize state machine。
-
-per-request stateless model 更适合 Cloudflare Workers。
-
----
-
-# 5. Handler 规范
-
-使用实现时 Nitro v3 当前公开 handler API；handler 只做 adapter：
-
-```ts
-export default defineEventHandler(async (event) => {
-  // extract current request runtime
-  // delegate Request to MCP v2 adapter/handler
-})
-```
-
-具体 helper 名称以实施时 Nitro v3 官方 API/类型为准。
 
 禁止：
 
 - handler 写 Skill search/load 业务。
-- handler 拼 GitHub Authorization。
+- handler 拼 GitHub auth header。
 - 自建 Node HTTP server。
-- 手写 MCP JSON-RPC/router/protocol headers。
+- 手写 JSON-RPC。
 
 ---
 
-# 6. Cloudflare Runtime 约束
+# 5. Cloudflare Runtime 约束
 
 禁止：
 
@@ -132,17 +111,16 @@ fs persistence
 child_process
 listen()
 Node HTTP server
-module-scope “latest Skill” state
-MCP session persistence
+module-scope latest Skill state
 ```
-
-优先：Web APIs / Cloudflare runtime APIs。
 
 MVP 不依赖 KV/R2/D1/DO。
 
+SourceSnapshot consistency 由 Git exact SHA 解决，不依赖 Cloudflare storage/session state。
+
 ---
 
-# 7. Runtime Bindings
+# 6. Runtime Bindings
 
 必需：
 
@@ -154,80 +132,116 @@ GITHUB_TOKEN
 CF_VERSION_METADATA
 ```
 
-其中 `CF_VERSION_METADATA` 来自 Wrangler：
+`CF_VERSION_METADATA`：
 
 ```toml
 [version_metadata]
 binding = "CF_VERSION_METADATA"
 ```
 
-用途：线上 Worker Version ID/tag/timestamp 查询。
+用于 Worker Version ID/tag/timestamp。
 
-具体 binding access 必须按当前 Nitro v3 Cloudflare adapter request runtime 获取，不复用 Nitro v2 旧 context 经验。
+具体访问方式必须遵循当前 Nitro v3 Cloudflare adapter request runtime，不能复用旧 Nitro v2 context 经验。
 
 ---
 
-# 8. Build Git SHA
+# 7. Build Git SHA
 
-Worker build commit 由 build-time injection 提供，而不是 runtime 执行 Git 命令。
-
-建议产生：
+Worker build commit 在 build time 注入：
 
 ```text
 build-info.generated.ts
 ```
 
-并被 `get_server_info` / `/health` 使用。
+来源 GitHub Actions `GITHUB_SHA` 或 build-time `git rev-parse HEAD`。
+
+运行时不执行 Git 命令。
 
 ---
 
-# 9. GitHub SourceSnapshot
+# 8. GitHub SourceSnapshot
 
-业务调用：
+Latest：
 
 ```text
-latest:
-GITHUB_REF -> exact SHA
+GITHUB_REF -> exact SHA once
+```
 
-pinned:
+Pinned：
+
+```text
 sourceCommitSha -> exact SHA
 ```
 
-之后 registry/Skill/related files 全部使用该 exact SHA。
-
-Nitro/H3 handler 不维护 source freshness/session state。
+随后 registry/Skill/related file 全部同 SHA。
 
 ---
 
-# 10. Error Boundary
+# 9. Server Version / Deployment Version
 
-区分：
+McpServer version：
 
-- MCP protocol/tool error。
-- GitHub auth/rate-limit/not-found。
-- registry invalid。
-- source snapshot failure。
-- deployment metadata configuration error。
+```text
+package.json.version
+```
 
-Secret/internal stack 不进入 MCP user-facing result。
+Worker deployment version：
+
+```text
+CF_VERSION_METADATA.id/tag/timestamp
+```
+
+build version：
+
+```text
+buildGitSha
+```
+
+不要混用。
 
 ---
 
-# 11. 发版边界
+# 10. 发版边界
 
-Skill-only update 不触发 Nitro/Worker build。
+## Skill-only
 
-MCP Runtime update 才执行：
+```text
+Git Skill update
+```
+
+不重新 build/deploy Nitro Worker。
+
+## MCP Runtime
 
 ```text
 SemVer bump
  -> Nitro production build
+ -> tests/harness
  -> Worker version upload
  -> Preview/Staging
- -> production promotion
+ -> exact production promote
+ -> smoke
 ```
 
-详细见 `mcp-release-versioning-and-production-maintenance.md`。
+## Tool Contract
+
+如果 MCP tool schema/metadata 变化，Worker 上线后还要执行 ChatGPT Developer Mode refresh/rescan 和必要的 Workspace review/publish。
+
+---
+
+# 11. MCP Protocol/SDK Upgrade
+
+未来升级 MCP upstream major 前：
+
+```text
+OpenAI current docs support
+Inspector pass
+ChatGPT Web pass
+```
+
+缺一不可。
+
+详细：`chatgpt-web-mcp-compatibility-profile.md`。
 
 ---
 
@@ -235,11 +249,12 @@ SemVer bump
 
 - [ ] Nitro v3。
 - [ ] H3 由 Nitro 管理。
-- [ ] MCP SDK v2 + `2026-07-28`。
-- [ ] 无 legacy initialize/session architecture。
-- [ ] Nitro endpoint 只做 adapter。
-- [ ] GitHub Skill 读取 exact SHA。
-- [ ] Worker version metadata binding 可读。
-- [ ] build SHA 由构建期注入。
+- [ ] MCP SDK 与 OpenAI 当前官方 ChatGPT 路径一致。
+- [ ] initialization/Streamable HTTP 正常。
+- [ ] handler 只做 adapter。
+- [ ] exact SHA source reads。
+- [ ] CF_VERSION_METADATA 可读。
+- [ ] build SHA 构建期注入。
+- [ ] Skill-only update 不部署 Worker。
+- [ ] Tool contract update 有 ChatGPT refresh gate。
 - [ ] 无 mandatory KV/R2/D1/DO。
-- [ ] 在 workerd + production build + Cloudflare preview 验证。
