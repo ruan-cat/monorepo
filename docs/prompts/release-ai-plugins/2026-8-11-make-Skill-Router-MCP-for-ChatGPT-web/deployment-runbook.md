@@ -2,152 +2,117 @@
 
 ## 目标
 
-本文描述生产部署、版本确认和回滚流程。
+本文描述生产部署、版本确认、ChatGPT tool metadata 更新和回滚。
 
-核心原则：
+核心：
 
 ```text
-Skill 内容发布
-!=
-MCP Runtime 发版
+Skill Content Release
+!= Worker Runtime Release
+!= ChatGPT Tool Metadata Release
 ```
-
-Skill-only 更新直接通过 GitHub exact snapshot 生效；MCP Runtime/code/config 更新才发布新的 Cloudflare Worker version。
 
 ---
 
-# 1. 生产架构
+# 1. Production Endpoint
 
 ```text
-ChatGPT Web
-  ↓
 https://mcp.ai.ruan-cat.com/mcp
-  ↓
-Cloudflare active Worker Version
-  ↓
-Nitro v3 + MCP SDK v2 / MCP 2026-07-28
-  ↓
-Skill Router
-  ↓
-GitHub exact SourceSnapshot
+GET https://mcp.ai.ruan-cat.com/health
 ```
+
+运行：Cloudflare Workers + Nitro v3 + OpenAI-current `@modelcontextprotocol/sdk` / `McpServer`。
 
 ---
 
-# 2. Runtime 配置
-
-公开：
+# 2. Wrangler 配置
 
 ```toml
 [vars]
 GITHUB_OWNER = "ruan-cat"
 GITHUB_REPO = "monorepo"
 GITHUB_REF = "dev"
+
+[version_metadata]
+binding = "CF_VERSION_METADATA"
 ```
 
-敏感：
+Secret：
 
 ```bash
 wrangler secret put GITHUB_TOKEN
 ```
 
-版本 metadata：
-
-```toml
-[version_metadata]
-binding = "CF_VERSION_METADATA"
-```
-
-MVP 不创建 KV/R2/D1/DO。
+MVP 无 KV/R2/D1/DO。
 
 ---
 
-# 3. MCP Application Version
+# 3. MCP Application SemVer
 
-MCP package `package.json.version` 是 server application SemVer。
-
-每次 Runtime production release 按变更类型 bump：
+MCP package `package.json.version` 是 server application version。
 
 ```text
-PATCH = bugfix/internal compatible
-MINOR = backward-compatible tool/optional capability
-MAJOR = breaking tool/input/output contract
+PATCH = compatible internal fix
+MINOR = backward-compatible new tool/optional contract
+MAJOR = breaking tool/schema behavior
 ```
 
 Skill version 更新不 bump MCP Server version。
 
 ---
 
-# 4. Build Metadata
+# 4. Build / Deployment Metadata
 
-生产 bundle 必须包含：
+Worker bundle 包含 buildGitSha。
 
-```text
-buildGitSha
-```
+Cloudflare binding 提供 Worker Version ID/tag/timestamp。
 
-来源于 CI commit SHA / build-time Git SHA。
-
-运行时 `get_server_info` / `/health` 可以报告：
-
-```text
-MCP app version
-MCP protocol revision
-Worker Version ID/tag/timestamp
-buildGitSha
-```
+`get_server_info` / health 用于报告安全 metadata。
 
 ---
 
-# 5. 本地/CI Gate
-
-发版前：
+# 5. Local / CI Gate
 
 ```text
 typecheck
-  ↓
 Node unit
-  ↓
 Workers Vitest/workerd
-  ↓
-MCP v2 modern contract
-  ↓
-Nitro Cloudflare production build
-  ↓
+MCP SDK initialization/tools contract
+Nitro production build
 createTestHarness integration
 ```
 
-不通过则不 upload production candidate。
+SDK/protocol标准以当前 OpenAI ChatGPT official compatibility profile 为准。
 
 ---
 
-# 6. 推荐 Worker Version Upload
+# 6. Candidate Version Upload
 
-生产不要把“构建成功”直接等同“立即切流量”。
+推荐：
 
-推荐先：
-
-```bash
-wrangler versions upload --tag skill-router-mcp-vX.Y.Z --message "git <sha>: <summary>"
+```text
+wrangler versions upload
 ```
 
-得到：
+Tag：
 
-- immutable Worker Version ID。
-- version tag。
-- preview URL。
+```text
+skill-router-mcp-vX.Y.Z
+```
 
-实际 CLI 以发版时 Wrangler 当前版本为准。
+Message：build Git SHA + summary。
+
+获得 immutable Worker Version ID / Preview URL。
 
 ---
 
 # 7. Preview / Staging Smoke
 
-在被 promote 前测试 exact candidate version：
+验证：
 
 ```text
 GET /health
-modern server identity
+MCP initialization/server info
 tools/list
 get_server_info
 search known Skill
@@ -155,82 +120,75 @@ load pinned
 load latest
 ```
 
-断言：
+精确确认 candidate：
 
 ```text
-server SemVer = X.Y.Z
-workerVersionId = uploaded version
-workerVersionTag = skill-router-mcp-vX.Y.Z
-buildGitSha = release commit
+MCP SemVer
+Worker Version ID/tag
+buildGitSha
 ```
 
 ---
 
 # 8. Production Promotion
 
-Preview/Staging 通过后，把**同一个 exact Worker version** promote 到 production。
+Preview/Staging 通过后，把刚测试过的 exact Worker version promote 到 production。
 
-默认 protocol-visible/tool schema 改动：
+Tool contract 变化默认：
 
 ```text
 100% atomic promotion
 ```
 
-概念：
-
-```bash
-wrangler versions deploy skill-router-mcp-vX.Y.Z@100% -y
-```
-
-第一版不为 tool catalog 改动默认做双版本 gradual rollout。
+避免不兼容 Worker 同时返回不同 tool catalog/schema。
 
 ---
 
 # 9. Production Post-deploy Smoke
 
-promote 后立即执行：
-
 ```text
-GET /health
-read modern serverInfo
+health
+initialization/server info
 tools/list
 get_server_info
 search known Skill
 load pinned
 ```
 
-确认线上实际：
-
-- MCP application version。
-- Worker Version ID/tag。
-- build Git SHA。
-- 完整 tool catalog。
-
-不要只凭 `git push` / CI 绿色 / Wrangler exit 0 宣称线上已更新。
+必须确认线上 exact MCP/Worker/build version。
 
 ---
 
-# 10. MCP 现代协议验收
+# 10. ChatGPT Tool Metadata Gate
 
-目标 protocol revision：
+如果 Runtime-only fix 且 tool metadata/schema 不变：Production smoke 后 Runtime release 完成。
+
+如果以下变化：
 
 ```text
-2026-07-28
+tool name/title/description
+input/output schema
+annotations
+plugin/server metadata relevant to ChatGPT scan
 ```
 
-不再把旧 `initialize/initialized` 作为 production modern protocol 成功条件。
+继续：
 
-验收：
+```text
+MCP Inspector
+  ↓
+ChatGPT Developer Mode refresh/rescan connection
+  ↓
+rerun evaluation/use cases
+  ↓
+Workspace review/publish when applicable
+```
 
-- modern server identity 可读。
-- standard `tools/list` 工作。
-- `get_server_info` 工作。
-- tools/call 工作。
-- 无 `Mcp-Session-Id` 持久会话依赖。
+不要把 Cloudflare 上线误认为 ChatGPT 已经刷新新工具定义。
 
 ---
 
-# 11. Tool Catalog 查询
+# 11. Standard Tool / Version Query
 
 标准工具目录：
 
@@ -238,15 +196,13 @@ load pinned
 tools/list
 ```
 
-面向 ChatGPT/人的诊断：
+用户版本诊断：
 
 ```text
 get_server_info
 ```
 
-两者都必须来自统一 `toolDefinitions`。
-
-第一版核心：
+第一版：
 
 ```text
 get_server_info
@@ -255,118 +211,113 @@ search_skills
 load_skill
 ```
 
+`get_server_info.tools` 与 toolDefinitions 同源。
+
 ---
 
-# 12. Skill-only 发布
-
-修改：
+# 12. Skill-only Release
 
 ```text
-ai-plugins/**
-```
-
-正常流程：
-
-```text
+ai-plugins change
+  ↓
 release-ai-plugins
   ↓
-registry generated/checked
+registry check/generation
   ↓
-Git commit / push
+Git push
   ↓
-next unpinned Skill call reads new HEAD
+next unpinned call reads new HEAD
 ```
 
-不执行 Worker version upload/deploy。
+不上传 Worker version，不刷新 ChatGPT tools。
 
 ---
 
-# 13. 自动部署 Trigger Boundary
+# 13. Auto-deploy Trigger Boundary
 
-Worker CI 只监听 MCP runtime/config/build input。
+Worker CI 只监听 MCP runtime/config/build inputs。
 
-`ai-plugins/**` 和纯 docs 变化不应单独触发 production Worker deployment。
+`ai-plugins/**` 和纯 docs 不单独触发 Worker deploy。
 
-使用 Cloudflare Build Watch Paths 或 GitHub Actions `paths` 实现。
+Cloudflare Build Watch Paths 或 GitHub Actions path filters 实现。
 
-本项目推荐一个 production deployment authority：GitHub Actions + Wrangler；如果最终改用 Cloudflare Git Integration，就停用 GitHub Actions 对同一 Worker 的自动 production deploy。
+推荐 GitHub Actions + package-local Wrangler 为唯一 production deployment authority；若使用 Cloudflare Git integration，则停用另一条自动 production deploy。
 
 ---
 
-# 14. Freshness 验收
+# 14. OpenAI Compatibility Upgrade
 
-Skill source：
+每次 MCP SDK/protocol major upgrade，先重新核对 OpenAI 当前官方 `Build an MCP server` 文档。
 
-```text
-search -> sourceCommitSha=A
-push B
-load(pin=A) -> A
-load(no pin) -> latest B
-```
-
-不需要 Worker redeploy。
-
-Worker version：
+必须：
 
 ```text
-candidate Worker version N
-promote N
-get_server_info -> Worker N
+OpenAI docs support
+Inspector pass
+ChatGPT Developer Mode pass
 ```
 
-两类 freshness 不要混淆。
+再改 production baseline。
 
 ---
 
 # 15. 回滚
 
-## MCP Runtime 故障
+## Runtime bug
 
-```bash
-wrangler rollback <stable-version-id>
+```text
+wrangler rollback stable Worker version
 ```
 
-然后立即运行 health / serverInfo / tools/list / get_server_info smoke。
+随后 health/initialization/tools/get_server_info smoke。
 
-## Skill 内容故障
+## Skill content bug
 
-Git revert/fix Skill commit，产生新 target ref HEAD。
+Git revert/fix，产生新 Skill source HEAD，不回滚 Worker。
 
-不要为了 Skill 内容问题回滚 Worker。
+## Tool-contract bug
+
+Worker rollback 后，还要确认 ChatGPT 当前 tool metadata snapshot 与回滚版本兼容；必要时 refresh/review 恢复。
 
 ---
 
-# 16. 发版完成证据
+# 16. Release Completion Evidence
 
-MCP Runtime release 完成需要：
+Runtime release：
 
 ```text
 1. SemVer bump
-2. all tests pass
-3. production build pass
+2. automated gates green
+3. production build green
 4. immutable Worker version uploaded
-5. preview/staging smoke pass
+5. Preview/Staging green
 6. exact version promoted
-7. production smoke pass
-8. get_server_info reports expected MCP/Worker/build version
-9. tools/list reports expected catalog
+7. Production smoke green
+8. get_server_info returns expected version
+9. tools/list matches expected catalog
 10. rollback target known
+```
+
+Tool-contract release 额外：
+
+```text
+11. Developer Mode tools refreshed/rescanned
+12. eval/use cases rerun
+13. workspace review/publish completed when applicable
 ```
 
 ---
 
-# 17. ChatGPT Web 最终验收
+# 17. ChatGPT Web Acceptance
 
-建议直接问：
-
-```text
-告诉我你当前 Skill Router MCP 的服务版本、协议版本、Cloudflare Worker 部署版本和全部可用工具。
-```
-
-再测试：
+版本：
 
 ```text
-搜索一个 Skill，并加载刚才搜索到的同一个 sourceCommitSha 版本。
+告诉我当前 Skill Router MCP 的服务版本、Cloudflare 部署版本、构建 commit，以及全部可用工具。
 ```
 
-这两类请求分别验证 MCP Runtime version 和 Skill snapshot version。
+Skill snapshot：
+
+```text
+搜索一个 Skill，并加载你刚才搜索到的同一个 sourceCommitSha 版本。
+```
