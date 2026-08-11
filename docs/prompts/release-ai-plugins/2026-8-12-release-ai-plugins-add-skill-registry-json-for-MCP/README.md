@@ -16,7 +16,7 @@ ai-plugins/skill-registry.json
 
 的确定性生成与 stale 校验能力，为 `Skill-Router-MCP` 云 MCP 提供 Git-native、machine-readable、commit-versioned 的 Skill Discovery Index。
 
-本方案按真实维护习惯设计：**Skill 数量中等，但 Skill 内容、references、templates 等会高频更新**。因此重点是降低维护摩擦和 stale 风险，而不是提前建设大型索引系统。
+本方案按真实维护习惯设计：**Skill 数量中等，但 Skill 内容、references、templates 等会高频更新**。因此重点是降低维护摩擦、stale 风险和测试回归成本，而不是提前建设大型索引系统。
 
 ---
 
@@ -110,8 +110,6 @@ Registry 描述“当前发布状态下机器可发现的 Skill 集合”，属�
 
 # 4. 高频维护下的核心增长策略
 
-本项目有意保持简单：
-
 ```text
 Skill 数量中等
 +
@@ -120,7 +118,7 @@ Skill 数量中等
 全量 deterministic scan + 低 churn schema
 ```
 
-具体规则：
+规则：
 
 - Registry 每次从两个 Skill roots 全量重建，不维护增量 state/database。
 - 一次 release 即使修改多个 Skill，也只运行一次 generator Apply + 一次最终 Check。
@@ -130,7 +128,7 @@ Skill 数量中等
 - schemaVersion 保持稳定，不随 Skill 内容高频更新变化。
 - 只有真实指标证明 full scan/registry/GitHub 读取成为瓶颈时才优化。
 
-详细见：
+详见：
 
 ```text
 high-frequency-maintenance-and-growth-strategy.md
@@ -162,7 +160,39 @@ ai-plugins/skill-registry.json
 
 ---
 
-# 6. 强制阅读顺序
+# 6. 测试 Runtime 决策
+
+`release-ai-plugins` / registry generator 的关键风险属于真实 PowerShell runtime，因此不强制把它们包装成 Vitest 主测试。
+
+正确分工：
+
+```text
+Generator / release behavior
+  -> Windows PowerShell 5.1
+  -> PowerShell 7
+
+Cloud MCP registry consumer
+  -> Vitest / workerd / Worker integration
+```
+
+至少验证：
+
+```text
+same fixture
+PS5.1 output == pwsh7 output byte-for-byte
+```
+
+详细见：
+
+```text
+test-runtime-and-ci-matrix.md
+```
+
+这避免为了“统一测试工具”反而漏掉 PowerShell 5.1 encoding/path/exit-code 的真实风险。
+
+---
+
+# 7. 强制阅读顺序
 
 ```text
 README.md
@@ -181,6 +211,8 @@ cloud-mcp-integration-contract.md
   ↓
 ci-stale-registry-gate.md
   ↓
+test-runtime-and-ci-matrix.md
+  ↓
 testing-and-acceptance.md
   ↓
 agent-handoff-checklist.md
@@ -190,7 +222,7 @@ agent-handoff-checklist.md
 
 ---
 
-# 7. 不允许改变的关键决策
+# 8. 不允许改变的关键决策
 
 ## Registry 与 Skill 必须同 commit
 
@@ -231,7 +263,7 @@ references/templates/examples 由云 MCP 在选中 Skill 后按 exact SHA 按需
 
 ---
 
-# 8. 最终数据链路
+# 9. 最终数据链路
 
 发布侧：
 
@@ -265,7 +297,7 @@ resolve HEAD -> abc123
 
 ---
 
-# 9. 本目录 Definition of Done
+# 10. 本目录 Definition of Done
 
 本提示词包应让独立 AI Agent 能正确实施：
 
@@ -276,6 +308,7 @@ resolve HEAD -> abc123
 - release 白名单与调用顺序。
 - add/modify/delete/rename 语义。
 - CI stale gate。
+- PS5.1 / pwsh7 cross-runtime deterministic test。
 - 高频 reference/template 变化为什么不进入 registry v1。
 - Cloud MCP exact-commit + optional snapshot pin 消费方式。
 - 为什么当前不需要 KV/R2/增量数据库/vector index。
