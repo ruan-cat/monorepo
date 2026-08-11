@@ -113,3 +113,9 @@ Could not locate the bindings file. Tried:
 ---
 
 需额外构建一个 ABI 127 的副本并存入 lib/binding/node-v127-win32-x64/，我需要你做这一步。
+
+## 009 <!-- TODO: --> 整个项目 vitest 基础设置全面升级问题
+
+Vitest 4 本身也已经把旧 workspace 配置迁向 projects；因此更没有必要借这个 MCP 项目顺手迁全仓测试基础设施。
+现在时间过了很久了，我想让你看看一个非常具有破坏性的变更，我们整个项目的基础设施可以完成统一的升级么？
+我们的 vite 可以到 vite8 么？vitest 可以到 vitest4 么？
