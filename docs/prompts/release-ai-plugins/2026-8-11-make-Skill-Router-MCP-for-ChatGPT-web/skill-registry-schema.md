@@ -2,116 +2,80 @@
 
 ## 1. 文档目的
 
-本文定义 Skill Router MCP Server 使用的仓库级 Skill Registry。
-
-推荐生成文件：
+本文定义 Skill Router MCP Server 使用的仓库级 Skill Registry：
 
 ```text
 ai-plugins/skill-registry.json
 ```
 
-它的定位是：
+定位：
 
-> **由现有 Skill 源文件确定性生成的机器可发现索引。**
+> **由现有 Skill 源文件确定性生成的、低 churn、机器可发现索引。**
 
-它不是数据库、不是缓存、不是独立 Source of Truth，也不需要发布到 Cloudflare KV/R2。
+它不是数据库、缓存、独立 Source of Truth，也不需要发布到 Cloudflare KV/R2。
 
-Source of Truth 始终是同一 Git commit 中的：
-
-```text
-ai-plugins/common-tools/skills/**
-ai-plugins/dev-skills/skills/**
-```
+真实工作负载：Skill 数量中等，但内容和附属文件高频更新，因此第一版优先减少重复索引和维护噪声。
 
 ---
 
 # 2. 为什么需要仓库级 Registry
 
-如果 MCP 每次 `list_skills` / `search_skills` 都通过 GitHub API 遍历两个 skills 目录并逐个读取 `SKILL.md`，请求数量、延迟和实现复杂度都会增加。
+MCP 的 `list_skills` / `search_skills` 如果每次都遍历两个 Skill roots 并逐个读取 `SKILL.md`，请求和实现复杂度都会上升。
 
-`ai-plugins/skill-registry.json` 将稳定的发现信息预先整理为一个小型 manifest：
+Registry 将 discovery 信息预整理为一个小型 manifest：
 
 ```text
-Git commit
+commit abc123
   |
   +-- ai-plugins/skill-registry.json
   +-- ai-plugins/common-tools/skills/**
   +-- ai-plugins/dev-skills/skills/**
 ```
 
-运行时只需：
+运行时：
 
 ```text
-resolve branch -> commit SHA
-          |
-          v
-read skill-registry.json @ SHA
-          |
-          +---- list/search
-          |
-          v
+resolve/pin commit SHA
+        |
+read registry @ SHA
+        |
+list/search
+        |
 load selected SKILL.md @ same SHA
 ```
 
 ---
 
-# 3. Registry 不保存自身 commit SHA
+# 3. Registry 不保存自身 Commit SHA
 
-不要生成：
+`sourceCommitSha` 由 MCP Runtime `SourceSnapshot` 提供，不写入 registry。
 
-```json
-{
-  "sourceCommitSha": "<当前文件所在 commit>"
-}
-```
-
-原因：Git commit SHA 由 commit 内容决定，而 registry 文件本身又属于 commit 内容；把“当前 commit SHA”写入文件会形成自引用，无法在提交前稳定求值。
-
-正确模型：
+正确：
 
 ```text
-runtime resolves GITHUB_REF -> abc123
-        |
-        +---- registry @ abc123
-        +---- skill files @ abc123
+GITHUB_REF -> abc123
+  +-- registry @ abc123
+  +-- Skill @ abc123
 ```
-
-`sourceCommitSha=abc123` 由 MCP runtime 加入响应或 `SourceSnapshot`，而不是写死在 registry 文件中。
 
 ---
 
 # 4. 生成范围
 
-第一版建议覆盖两个现有 plugin skill roots：
+覆盖：
 
 ```text
 ai-plugins/common-tools/skills/*
 ai-plugins/dev-skills/skills/*
 ```
 
-每个直接子目录视为一个 skill candidate，并要求存在：
+每个直接子目录必须有 `SKILL.md`。
 
-```text
-SKILL.md
-```
-
-skill id 默认使用目录名，例如：
-
-```text
-ai-plugins/dev-skills/skills/nitro-api-development/
-```
-
-得到：
-
-```json
-{"id":"nitro-api-development"}
-```
+`id` 默认使用目录名，并要求两个 roots 全局唯一。
 
 ---
 
-# 5. 推荐 Registry JSON
-
-示例：
+# 5. Registry v1 JSON
 
 ```json
 {
@@ -129,78 +93,78 @@ ai-plugins/dev-skills/skills/nitro-api-development/
       "plugin": "dev-skills",
       "name": "nitro-api-development",
       "description": "使用 Nitro v3 开发和维护服务端 API。",
-      "version": "0.13.5",
-      "entry": "ai-plugins/dev-skills/skills/nitro-api-development/SKILL.md",
-      "references": [
-        "ai-plugins/dev-skills/skills/nitro-api-development/references/api-reference.md"
-      ]
+      "version": "0.13.6",
+      "entry": "ai-plugins/dev-skills/skills/nitro-api-development/SKILL.md"
     }
   ]
 }
 ```
 
-字段说明：
+字段：
 
-- `schemaVersion`：registry 格式版本。
-- `source.repository`：用于诊断，不代表当前 commit。
-- `source.roots`：生成器允许扫描的固定 roots。
-- `id`：skill 目录名，必须全局唯一。
-- `plugin`：`common-tools` 或 `dev-skills`。
-- `name`：来自 `SKILL.md` frontmatter 的 `name`。
-- `description`：来自 frontmatter 的 `description`。
-- `version`：来自 `metadata.version`。
-- `entry`：完整 repo-relative `SKILL.md` 路径。
-- `references`：可选，生成器枚举存在的 reference Markdown 文件并排序。
+- `schemaVersion`：格式版本。
+- `source.repository`：诊断信息，不代表 commit。
+- `source.roots`：固定生成范围。
+- `id`：Skill 目录名，全局唯一。
+- `plugin`：`common-tools` / `dev-skills`。
+- `name`：frontmatter `name`。
+- `description`：frontmatter `description`。
+- `version`：`metadata.version`。
+- `entry`：repo-relative `SKILL.md` path。
 
-第一版不要求人为维护额外 metadata.yaml。
+第一版不要求额外 `metadata.yaml`。
 
 ---
 
-# 6. 确定性生成要求
+# 6. 为什么 v1 不包含 References / Templates / Examples
 
-Registry 必须满足：
+这些附属文件在高频维护中很容易变化，但 discovery/search 不需要它们。
+
+如果 registry 复制文件列表，会形成：
 
 ```text
-same working tree
-        =>
-same skill-registry.json bytes
+reference move/delete/add
+ -> registry churn
+ -> CI diff
 ```
 
-因此禁止无条件写入：
+而云 MCP 已经可以：
 
-- `generatedAt`
-- 当前时间
-- 随机 id
-- 本机绝对路径
-- 当前 commit SHA
+1. 读取选中的 `SKILL.md @ exact SHA`。
+2. 根据 Skill 中明确引用的 repo-relative 文件按需读取。
+3. 所有关联读取继续使用同一 SHA。
 
-生成规则：
+因此 v1 不建立深层文件第二索引。
+
+---
+
+# 7. 确定性生成要求
+
+```text
+same working tree => same registry bytes
+```
+
+禁止：
+
+- `generatedAt`。
+- 当前时间。
+- 随机 id。
+- 本机绝对路径。
+- current commit SHA。
+
+规则：
 
 1. roots 顺序固定。
-2. skills 按 `id` 字典序排序。
-3. references/files 按 repo-relative path 字典序排序。
-4. JSON 使用固定缩进。
-5. 使用 LF 和最终换行。
-6. 不序列化临时字段。
-
-这样 DryRun、CI 和发布脚本可以准确判断 registry 是否 stale。
+2. skills 按 id 稳定排序。
+3. object 属性顺序固定。
+4. JSON 固定缩进。
+5. UTF-8 / LF / final newline。
 
 ---
 
-# 7. Frontmatter 读取规则
+# 8. Frontmatter 来源
 
-现有 Skill 的最小来源字段：
-
-```yaml
----
-name: release-ai-plugins
-description: ...
-metadata:
-  version: "0.17.4"
----
-```
-
-生成器至少解析：
+至少解析：
 
 ```text
 name
@@ -208,160 +172,156 @@ description
 metadata.version
 ```
 
-`id` 从目录名派生，`plugin` 从 root 派生，避免要求所有现有 skill 立即迁移到新的 metadata schema。
+`id` 从目录名派生，`plugin` 从 root 派生。
 
-如果缺失 `name`、`description`、合法 `metadata.version` 或 `SKILL.md`，生成/校验失败。
+缺失/非法字段必须阻断 generator。
 
 ---
 
-# 8. Registry Builder
+# 9. Registry Builder
 
-推荐把生成逻辑做成独立、可复用脚本，例如：
+推荐独立脚本：
 
 ```text
 ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1
 ```
 
-它应支持两种模式：
+支持：
 
 ```text
-Check / DryRun
-Apply
+-Check
+-Apply
 ```
 
-Check：
+中等 Skill 数量下始终 full scan 两个 roots，不维护旧 registry 增量 state。
 
-```text
-scan skills
- -> build normalized registry in memory
- -> compare ai-plugins/skill-registry.json
- -> stale 则非零退出
-```
-
-Apply：
-
-```text
-scan skills
- -> validate
- -> deterministic generate
- -> write ai-plugins/skill-registry.json
-```
-
-不得调用 Cloudflare API。
+一次多 Skill release 只在所有 Skill 更新后调用一次 Apply，并在最终验收调用一次 Check。
 
 ---
 
-# 9. 与 release-ai-plugins 的集成
+# 10. 与 `release-ai-plugins` 集成
 
-`release-ai-plugins` 已经负责两个 skill roots 的版本发布一致性，因此推荐把 registry 生成纳入其发布契约。
-
-建议顺序：
+建议：
 
 ```text
-发现修改 skill
+发现全部 changed Skill
         |
-        v
-升级 metadata.version
+完成全部 metadata.version 更新
         |
-        v
-更新 plugin / marketplace / CHANGELOG
+完成 plugin/marketplace/CHANGELOG/README
         |
-        v
-生成 ai-plugins/skill-registry.json
+one registry Apply
         |
-        v
-最终一致性校验
+one final Check
 ```
 
-要求：
+Registry 加入严格写入白名单。
 
-- `ai-plugins/skill-registry.json` 加入 release 写入白名单。
-- DryRun 必须显示 registry 是否会变化。
-- Apply 后重新生成并比较，确保 committed registry 与 working tree 一致。
-- 新增/删除/重命名 skill 必须体现在 registry。
-- Skill `description` 或 `metadata.version` 变化必须体现在 registry。
+DryRun 不写 registry；Apply 才真实生成。
 
-为避免把 release 主脚本进一步做成不可维护的大文件，推荐独立 generator，由 `release-ai-plugins.ps1` 调用。
+详细专项契约：
+
+```text
+../2026-8-12-release-ai-plugins-add-skill-registry-json-for-MCP/
+```
 
 ---
 
-# 10. 高频修改与非发布提交
+# 11. 高频修改与 CI
 
-仅靠“发布时生成”无法保证所有任意 commit 都拥有最新 registry，因此推荐再提供 CI check：
+CI 使用 generator `-Check` 防止 stale registry。
 
-```text
-当 ai-plugins/**/skills/** 或 registry generator 发生变化
-        |
-        v
-run generate-skill-registry in check mode
-        |
-        v
-registry stale -> fail
-```
+CI：
 
-这样：
+- path-scoped。
+- 只读。
+- stale fail。
+- 不自动 commit/push。
 
-- 正常 release 由 `release-ai-plugins` 自动更新 registry。
-- 手工/特殊修改如果忘记更新 registry，会在 CI 被阻断。
-
-不推荐 GitHub Action 在 push 后自动提交 registry，因为会制造额外 bot commit、延迟和回写权限复杂度。
+高频 reference/template 变化如果 discovery 字段不变，不因为附属文件索引产生额外 registry diff；正常 release 仍应按 Skill 行为变化升级 `metadata.version`。
 
 ---
 
-# 11. 与 MCP Tool 映射
+# 12. 与 MCP Tool 映射
 
-## list_skills
+## `list_skills`
 
-读取：
+读取 registry @ SourceSnapshot SHA，返回 summaries + `sourceCommitSha`。
+
+## `search_skills`
+
+第一版基于：
 
 ```text
-skill-registry.json @ SourceSnapshot.commitSha
+id + name + description + plugin
 ```
 
-## search_skills
+做轻量关键词/token matching，无向量数据库。
 
-第一版基于 registry 中的：
+## `load_skill`
 
-- id
-- name
-- description
-- plugin
+通过 `entry` 读取真实 `SKILL.md`。
 
-做关键词匹配。
+输入可以带可选 `sourceCommitSha`：
 
-无需向量数据库。
+- 无 pin：解析最新 `GITHUB_REF`。
+- 有 pin：在配置好的同一 repository 使用 exact SHA。
 
-## load_skill
+这样 search -> load 可在高频 push 期间保持同 snapshot。
 
-根据 `entry` 从同一个 commit SHA 读取真实 `SKILL.md`。
-
-如果要加载 reference，也使用同一个 commit SHA。
+深层关联文件按需同 SHA 读取。
 
 ---
 
-# 12. 可选完整性字段
+# 13. Schema 演进政策
 
-未来如果需要更强诊断，可在不引入自引用的前提下增加：
+高频 Skill 内容更新不升级 `schemaVersion`。
 
-```text
-entrySha256
-```
+只有不兼容字段语义变化才升级 schema major。
 
-它由 `SKILL.md` 文件内容计算，与 Git commit SHA 不同，不存在 registry 自引用问题。
-
-第一版不是必需。
+不因为 MCP cache/transport/logging 内部变化修改 registry schema。
 
 ---
 
-# 13. 验收规则
+# 14. 轻量增长策略
 
-- [ ] Registry 覆盖两个 skill roots。
-- [ ] skill id 全局唯一。
+中等 Skill 数量继续：
+
+```text
+full-scan generator
++
+one small registry
++
+in-memory search
+```
+
+不要提前引入：
+
+- incremental registry DB。
+- vector search。
+- KV/R2 sync。
+- deep-file manifest。
+
+详细见：
+
+```text
+high-frequency-skill-churn-strategy.md
+../2026-8-12-release-ai-plugins-add-skill-registry-json-for-MCP/high-frequency-maintenance-and-growth-strategy.md
+```
+
+---
+
+# 15. 验收规则
+
+- [ ] Registry 覆盖两个 roots。
+- [ ] id 全局唯一。
 - [ ] 每个 entry 存在。
-- [ ] frontmatter name/description/version 可解析。
+- [ ] name/description/version 可解析。
 - [ ] 输出完全确定性。
-- [ ] 无 `generatedAt` 等非确定性字段。
-- [ ] 无 registry 自身 commit SHA。
-- [ ] `release-ai-plugins` 可调用 generator。
-- [ ] CI 可用 check mode 验证 registry 非 stale。
-- [ ] MCP 运行时按 exact commit SHA 读取 registry 和 skill。
+- [ ] 不含 timestamp/current commit SHA。
+- [ ] v1 不枚举 references/templates/examples。
+- [ ] 多 Skill release 只生成一次 registry。
+- [ ] CI 可检测 stale。
+- [ ] MCP exact-SHA list/search/load 正常。
+- [ ] search->load 可选 snapshot pin 正常。
+- [ ] 高频更新不要求 Cloudflare storage sync/Worker redeploy。
