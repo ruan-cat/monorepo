@@ -2,35 +2,90 @@
 
 ## 1. 文档定位
 
-本文提供给 AI Agent 实施 Remote MCP Server 的工程规格。
+本文提供给 AI Agent 实施 Remote MCP Server 的协议工程规格。
 
-本项目使用 MCP TypeScript SDK，不手写 JSON-RPC lifecycle。
+本项目目标协议基线：
 
-同时针对真实工作负载优化：Skill 数量中等但更新频率高，因此协议层需要同时支持“默认读取最新 HEAD”和“search -> load 可选固定同一 commit snapshot”。
+```text
+MCP 2026-07-28
+```
+
+真实工作负载：Skill 数量中等但更新频率高，因此同时支持：
+
+```text
+默认 latest HEAD
++
+可选 sourceCommitSha snapshot pin
+```
 
 ---
 
-# 2. MCP 技术选型
+# 2. MCP TypeScript SDK 技术选型
 
-必须使用：
+新实现不得再把 v1 单体包：
 
 ```text
 @modelcontextprotocol/sdk
 ```
 
+的 2025-era `initialize` lifecycle 当作目标架构。
+
+MCP `2026-07-28` 使用 TypeScript SDK v2 稳定包线，服务端主要依赖：
+
+```text
+@modelcontextprotocol/server
+```
+
+测试客户端使用对应 v2 client package。
+
+具体 minor/patch 由实施时 lockfile 固化。
+
 SDK 负责：
 
-- initialize。
-- capability negotiation。
-- tools/list。
-- tools/call。
-- JSON-RPC protocol lifecycle。
+- MCP 2026-era request/response wire codec。
+- `server/discover`（若启用/调用）。
+- `tools/list`。
+- `tools/call`。
+- server identity `_meta`。
+- protocol validation。
 
-Nitro 只负责 Web Runtime / transport adapter。
+Nitro 只负责 Web Runtime / Worker adapter 边界。
 
 ---
 
-# 3. Transport
+# 3. 2026-07-28 Modern Protocol
+
+现代协议不再使用：
+
+```text
+initialize
+initialized
+Mcp-Session-Id
+```
+
+作为连接前置握手/会话机制。
+
+每个请求自包含其 protocol/client/capability metadata；普通 tool 请求无需先建立 server-side session。
+
+如果客户端想先发现 server capability，可以使用：
+
+```text
+server/discover
+```
+
+但 Skill Router 的 tool 使用不依赖持久会话。
+
+Server identity 应通过每个 2026-era response 的标准：
+
+```text
+_meta["io.modelcontextprotocol/serverInfo"]
+```
+
+暴露。
+
+---
+
+# 4. Transport
 
 生产使用：
 
@@ -40,26 +95,30 @@ Streamable HTTP
 
 不使用：
 
-- stdio 作为远程部署 transport。
+- stdio 作为 ChatGPT Web 远程 transport。
 - 自定义 JSON-RPC endpoint。
-- server-side session state 作为第一版一致性机制。
+- server-side MCP session 作为一致性方案。
+
+Nitro/H3 adapter 必须保留 MCP SDK 对现代 HTTP header / protocol metadata 的处理，不自行吞掉或重写协议语义。
 
 ---
 
-# 4. 请求链路
+# 5. 请求链路
 
 ```text
 ChatGPT Web MCP Client
         |
 HTTPS Streamable HTTP
         |
-Nitro v3 endpoint
+Cloudflare Worker
         |
-MCP SDK transport
+Nitro v3 endpoint adapter
+        |
+MCP TypeScript SDK v2
         |
 McpServer
         |
-Skill Router Tools
+Tool Definitions
         |
 Skill Services
         |
@@ -68,24 +127,118 @@ GitHub exact-commit SourceSnapshot
 
 ---
 
-# 5. Nitro 集成边界
+# 6. Nitro 集成边界
 
-`server/api/mcp.post.ts` 只做：
+MCP endpoint 只做：
 
-- HTTP Request/Response 适配。
-- runtime binding 提取。
-- MCP SDK transport 调用。
+- Web Request/Response 适配。
+- Cloudflare runtime binding 提取。
+- MCP SDK handler/transport 调用。
 
 禁止：
 
 - 手写 MCP method router。
-- Skill parsing。
-- GitHub 查询逻辑。
-- Cloudflare KV/R2 业务逻辑。
+- 自己实现 protocol negotiation。
+- 在 endpoint 内解析 Skill。
+- endpoint 直接调用 GitHub。
+- 为 MCP 建立 server session store。
 
 ---
 
-# 6. Source Snapshot 协议语义
+# 7. Server Identity
+
+Server identity 的逻辑来源只有一份：
+
+```text
+MCP package package.json version
+```
+
+概念：
+
+```json
+{
+  "name": "skill-router-mcp",
+  "version": "1.4.0"
+}
+```
+
+SDK 必须把它作为 2026-era server identity 暴露。
+
+该 version 是 MCP Server 应用 SemVer，不是：
+
+- MCP protocol revision。
+- Cloudflare Worker version ID。
+- Skill version。
+- Skill source commit。
+
+详细见：
+
+```text
+mcp-release-versioning-and-production-maintenance.md
+```
+
+---
+
+# 8. 单一 Tool Definitions Registry
+
+当前所有 tools 必须从一个统一定义集合注册，例如：
+
+```text
+toolDefinitions
+  ├─ get_server_info
+  ├─ list_skills
+  ├─ search_skills
+  └─ load_skill
+```
+
+标准 `tools/list`、`get_server_info.tools`、测试 expected tool catalog 都必须从同一 source 派生。
+
+禁止维护三份手写 tool name 列表。
+
+---
+
+# 9. `get_server_info`
+
+用途：让 ChatGPT / MCP Client 可以直接回答：
+
+```text
+这个 MCP 是什么版本？
+当前生产 Worker 是哪一版？
+有哪些工具？
+```
+
+输入：
+
+```json
+{}
+```
+
+返回至少包括：
+
+```text
+server.name
+server.version
+server.protocolRevision
+server.buildGitSha
+
+deployment.workerVersionId
+deployment.workerVersionTag
+deployment.workerVersionTimestamp
+
+skillSource.repository
+skillSource.ref
+registrySchemaVersion
+
+tools[]
+```
+
+`tools[]` 必须动态来自 tool definitions。
+
+该工具默认不访问 GitHub HEAD；精确 Skill snapshot 由 discovery/load tools 返回。
+
+---
+
+# 10. Source Snapshot 协议语义
 
 默认未 pin tool call：
 
@@ -94,7 +247,7 @@ GITHUB_REF
   ↓
 resolve current HEAD -> exact SHA
   ↓
-all reads in this call use SHA
+all Skill reads in this call use SHA
 ```
 
 发现类结果必须暴露：
@@ -103,13 +256,11 @@ all reads in this call use SHA
 sourceCommitSha
 ```
 
-这样在高频 push 期间，后续 `load_skill` 可以可选复用 discovery 时的 exact SHA。
+后续 `load_skill` 可以可选复用 discovery 的 exact SHA。
 
 ---
 
-# 7. `list_skills`
-
-输入：无业务参数。
+# 11. `list_skills`
 
 行为：
 
@@ -118,10 +269,10 @@ resolve latest snapshot
   ↓
 read skill-registry.json @ SHA
   ↓
-return summaries
+return summaries + sourceCommitSha
 ```
 
-每个 summary 建议包含：
+summary：
 
 - id。
 - plugin。
@@ -129,19 +280,11 @@ return summaries
 - version。
 - description。
 
-结果还必须包含：
-
-```text
-sourceCommitSha
-```
-
-不要返回不存在于 registry v1 的 tags/references 字段。
+不要返回 Registry v1 不存在的深层索引字段。
 
 ---
 
-# 8. `search_skills`
-
-用途：根据任务描述查找 Skill。
+# 12. `search_skills`
 
 输入：
 
@@ -160,17 +303,15 @@ description
 plugin
 ```
 
-上做确定性关键词/token matching。
+上做确定性搜索。
 
 返回候选 + `sourceCommitSha`。
 
-不读取所有 Skill 正文，不使用 vector database/embedding。
+不读取所有 Skill 正文，不使用 vector DB/embedding。
 
 ---
 
-# 9. `load_skill`
-
-用途：加载选中的 Skill 正文。
+# 13. `load_skill`
 
 推荐输入：
 
@@ -185,13 +326,13 @@ plugin
 
 ## 未提供
 
-解析最新 `GITHUB_REF`，适合“加载当前最新版”。
+解析当前最新 `GITHUB_REF`。
 
 ## 已提供
 
-在配置好的同一个 `GITHUB_OWNER/GITHUB_REPO` 内使用该 exact SHA。
+在配置好的同一个 `GITHUB_OWNER/GITHUB_REPO` 内读取该 exact SHA。
 
-不允许 input 覆盖 owner/repo。
+调用方不能通过 tool input 覆盖 owner/repo。
 
 流程：
 
@@ -211,92 +352,63 @@ SKILL.md @ same SHA
 - SKILL.md content。
 - sourceCommitSha。
 
-第一版不要默认返回所有 references/templates/examples 内容。
+不默认递归加载 references/templates/examples。
 
 ---
 
-# 10. 深层关联文件策略
+# 14. 深层关联文件策略
 
-Registry v1 不枚举 references/templates/examples。
+Registry v1 不枚举深层文件。
 
-`load_skill` 首先加载 `SKILL.md`。
+`load_skill` 首先加载 `SKILL.md`；若需要相关文件，必须：
 
-如果 Skill 明确引用 repo-relative 关联文件，可由 Skill Router 在实际需要时继续按同一 SHA 读取。
+- 限制在已选 Skill 的允许目录范围。
+- 使用相同 sourceCommitSha。
+- 按需读取。
+- 不遍历整个仓库。
 
-第一版可以：
-
-- 在 `load_skill` 内只解析/加载明确必要的文件；或
-- 后续增加一个窄范围、只允许读取已选 Skill 目录内文件的 read tool。
-
-具体方式由实现 Agent根据实际 MCP SDK/tool UX 选择，但必须满足：
-
-- 不遍历/加载整个仓库。
-- 不允许任意 repository path 读取。
-- 所有关联读取固定在同一 commit SHA。
-
-不要为了方便而把深层文件列表重新塞回 registry v1。
+若未来新增窄范围 related-file tool，也必须继承 snapshot pin 语义。
 
 ---
 
-# 11. 可选 `get_skill_metadata`
+# 15. Tool Annotation
 
-如果需要独立 metadata tool：
+当前 tools 均为只读，应使用 SDK 当前 schema 支持的只读/非破坏性 annotations。
 
-输入：
-
-```json
-{
-  "skillId": "nitro-api-development",
-  "sourceCommitSha": "abc123"
-}
-```
-
-pin 规则与 `load_skill` 相同。
-
-输出 registry entry + `sourceCommitSha`。
-
-它不是第一版必须 tool；核心仍是 list/search/load。
-
----
-
-# 12. Tool Annotation
-
-所有当前 Skill Router tools 是只读能力，应设置 SDK 当前版本支持的只读/非破坏性 annotations，例如语义上：
+语义要求：
 
 ```text
-readOnlyHint = true
-destructiveHint = false
+readOnly = true
+destructive = false
 ```
 
-实现时以当前 MCP TypeScript SDK schema/API 为准，不自行发明字段签名。
+具体字段名以 v2 当前类型/API 为准。
 
 ---
 
-# 13. 高频更新下的跨 Tool Call 一致性
-
-典型：
+# 16. 高频更新下跨 Tool 一致性
 
 ```text
-search_skills @ commit A
-push commit B
+search_skills @ A
+push B
 load_skill(skillId, sourceCommitSha=A)
 ```
 
-必须仍能加载 A。
+必须仍加载 A。
 
-若调用方不传 pin：
+不传 pin：
 
 ```text
 load_skill(skillId)
 ```
 
-则读取当前最新 HEAD。
+则读取当时最新 HEAD。
 
-这是轻量一致性机制，不需要 session token store、KV、Durable Objects 或会话数据库。
+该设计不需要 MCP session、KV、Durable Objects 或 snapshot token store。
 
 ---
 
-# 14. Error Contract
+# 17. Error Contract
 
 至少区分：
 
@@ -305,58 +417,39 @@ REGISTRY_NOT_FOUND
 REGISTRY_SCHEMA_UNSUPPORTED
 SKILL_NOT_FOUND
 REGISTRY_ENTRY_INVALID
-SOURCE_COMMIT_INVALID / SOURCE_READ_FAILED
+SOURCE_COMMIT_INVALID
+SOURCE_READ_FAILED
 GITHUB_RATE_LIMITED
 GITHUB_AUTH_FAILED
 ```
 
-错误结果应包含足够诊断信息，例如 `sourceCommitSha`（如果 snapshot 已建立），但绝不能返回 GitHub Token/header。
+如果 snapshot 已建立，错误可安全返回 `sourceCommitSha`；绝不能返回 Token/auth header。
 
 ---
 
-# 15. Serverless 约束
+# 18. Serverless 约束
 
-Cloudflare Worker 第一版：
+Cloudflare Worker：
 
-- stateless request/tool call。
-- 不依赖 filesystem persistence。
-- 不依赖 server session。
-- 不要求 KV/R2/D1/DO。
+- per-request stateless。
+- 无 filesystem persistence。
+- 无 MCP session state。
+- 无 mandatory KV/R2/D1/DO。
 
-Git commit SHA 是已有的不可变版本边界，不需要另造 snapshot 状态服务。
-
----
-
-# 16. 轻量增长政策
-
-中等 Skill 数量继续使用：
-
-```text
-one registry fetch
-+
-in-memory search
-+
-selected Skill fetch
-```
-
-只有真实性能数据证明需要时才评估 commit-addressed immutable cache。
-
-详细见：
-
-```text
-high-frequency-skill-churn-strategy.md
-```
+这与 MCP 2026-07-28 的 stateless core 方向一致。
 
 ---
 
-# 17. 验收标准
+# 19. 验收标准
 
-- [ ] SDK initialize/tools lifecycle 正常。
+- [ ] 使用支持 `2026-07-28` 的 MCP TypeScript SDK v2 包线。
+- [ ] 不再把 `initialize/initialized` 作为现代协议验收条件。
+- [ ] server identity version 来自 MCP package SemVer。
+- [ ] 2026-era response 可读 serverInfo。
+- [ ] 标准 `tools/list` 返回完整当前 tool catalog。
+- [ ] `get_server_info` 返回应用/协议/Worker/构建版本与动态 tool catalog。
 - [ ] list/search 返回 `sourceCommitSha`。
-- [ ] `load_skill` 可选接受 `sourceCommitSha` pin。
-- [ ] 未 pin 调用能看到最新 HEAD。
-- [ ] pinned load 可复现 discovery snapshot。
-- [ ] 同一 tool call 所有读取 exact-SHA 一致。
-- [ ] Registry v1 不依赖 tags/references 深层索引。
-- [ ] 无 server-side session/KV/R2 依赖。
+- [ ] `load_skill` 支持 latest + optional pin。
+- [ ] 单 tool call 所有 Skill 读取同 SHA。
+- [ ] 无 server-side MCP session/KV/R2 依赖。
 - [ ] ChatGPT Web Developer Mode 可连接和调用。
