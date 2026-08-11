@@ -2,7 +2,7 @@
 
 ## 文档定位
 
-本文档用于指导独立 AI Agent 实现生产级 Remote MCP Server。
+本文用于指导独立 AI Agent 实现生产级 Remote MCP Server。
 
 目标：
 
@@ -13,12 +13,12 @@ Nitro v3 Runtime
 +
 MCP TypeScript SDK
 +
-GitHub commit-SHA Skill Source
+GitHub exact-commit Skill Source
 +
 Skill Router
 ```
 
-第一版优先保证 skills 高频更新时的最新可见性、单请求版本一致性、部署简单和调试可复现。
+真实工作负载：Skill 数量中等但更新频率高。第一版优先保证 freshness、版本一致性、部署简单、调试可复现，并避免为了“未来规模”提前增加复杂存储/搜索系统。
 
 ---
 
@@ -33,10 +33,10 @@ Skill Router
 | Transport | Streamable HTTP |
 | Skill Source of Truth | GitHub `ai-plugins` |
 | Version boundary | Git commit SHA |
+| Discovery Index | `ai-plugins/skill-registry.json` |
 | Persistent Cloudflare storage | MVP 不需要 |
-| Optional cache | 仅在指标需要时评估，key 必须包含 commit SHA |
-
-禁止把 KV、R2、D1 或 Durable Objects 当成第一版必需组件。
+| Search | Registry 内存关键词/token matching |
+| Optional cache | 仅在真实指标需要时评估，key 必须包含 commit SHA |
 
 ---
 
@@ -49,7 +49,7 @@ nitro
 @modelcontextprotocol/sdk
 ```
 
-H3 由 Nitro v3 依赖树和 lockfile 管理，不手动 pin 独立 H3 主版本。
+H3 由 Nitro v3 依赖树/lockfile 管理，不单独 pin 主版本。
 
 Wrangler 属于部署工具依赖。
 
@@ -61,64 +61,85 @@ Wrangler 属于部署工具依赖。
 
 禁止手写：
 
-- JSON-RPC lifecycle
-- initialize
-- tools/list
-- tools/call
-- MCP transport
+- JSON-RPC lifecycle。
+- initialize/tools/list/tools/call。
+- MCP transport。
 
-必须使用：
+必须使用 MCP TypeScript SDK + `McpServer` + Streamable HTTP transport。
 
-```text
-MCP TypeScript SDK
-+
-McpServer
-+
-Streamable HTTP Transport
-```
-
-Nitro endpoint 只做 Web Runtime 与 MCP SDK transport 的最薄适配。
+Nitro endpoint 只做最薄 Web Runtime adapter。
 
 ---
 
 # 4. Source Snapshot 契约
 
-任何读取 Skill 的 tool call 必须按以下顺序执行：
+默认未 pin tool call：
 
 ```text
-GITHUB_REF (例如 dev)
-      |
-      v
-resolve to exact commit SHA
-      |
-      v
+GITHUB_REF
+  ↓
+resolve exact commit SHA once
+  ↓
 SourceSnapshot
-      |
-      +---- registry read @ SHA
-      +---- SKILL.md read @ SHA
-      +---- references read @ SHA
+  ↓
+all reads use commitSha
 ```
 
-建议领域类型：
+领域类型：
 
 ```ts
 interface SourceSnapshot {
   repository: string
-  ref: string
+  ref?: string
   commitSha: string
 }
 ```
 
 规则：
 
-1. 每个 tool call 只解析一次 ref。
-2. 后续所有读取使用 `commitSha`，不再使用 mutable branch name。
-3. 返回结果包含 `sourceCommitSha`。
-4. 测试必须覆盖 branch 在调用途中推进时不会发生跨 commit 混读。
+1. 每个未 pin tool call 只解析一次 ref。
+2. 后续读取不再使用 mutable branch name。
+3. list/search/load 返回 `sourceCommitSha`。
+4. 测试覆盖 branch 在调用途中推进时不跨 commit 混读。
 
 ---
 
-# 5. 项目结构
+# 5. 跨 Tool Call 的 Optional Snapshot Pin
+
+高频更新可能发生：
+
+```text
+search @ commit A
+push commit B
+load @ latest B
+```
+
+第一版不增加 server session，而让 discovery tool result 返回：
+
+```text
+sourceCommitSha=A
+```
+
+`load_skill` / 可选 metadata tool 接受：
+
+```json
+{
+  "skillId": "...",
+  "sourceCommitSha": "A"
+}
+```
+
+规则：
+
+- 不传：解析最新 `GITHUB_REF`。
+- 传入：在配置好的同一 owner/repo 中读取 exact SHA。
+- input 不允许覆盖 owner/repo。
+
+Git commit SHA 本身就是不可变 snapshot identifier，不需要 KV/DO/session token store。
+
+---
+
+# 6. 项目结构
 
 概念结构：
 
@@ -142,60 +163,101 @@ skill-router-mcp/
 └── wrangler.toml
 ```
 
-实际路径可按仓库 Nitro 约定调整，但职责边界不可改变。
+实际路径可按仓库 Nitro 约定调整，但职责不可混淆。
 
 ---
 
-# 6. GitHub Skill Repository Adapter
+# 7. GitHub Repository Adapter
 
-该层负责：
+负责：
 
-- 使用 `GITHUB_OWNER` / `GITHUB_REPO` / `GITHUB_REF`
-- 使用 `GITHUB_TOKEN` 执行只读请求
-- 将 branch/tag/ref 解析成 exact commit SHA
-- 读取 `ai-plugins/skill-registry.json`（存在时）
-- 按 exact SHA 读取 Skill 文件
-- 将 GitHub 错误转换为领域错误
+- 使用 `GITHUB_OWNER/GITHUB_REPO/GITHUB_REF`。
+- 使用 `GITHUB_TOKEN` 只读访问。
+- resolve ref -> exact SHA。
+- 按 SHA 读取 registry。
+- 按 SHA 读取选中 Skill / 关联文件。
+- 转换 GitHub error 为领域错误。
 
-只有这一层接触 `GITHUB_TOKEN`。
+只有这一层接触 Token。
 
-禁止：
-
-- MCP tool handler 直接调用 GitHub
-- Service 拼接 Authorization header
-- 使用 branch name 分别读取 registry 与 skill 文件
+禁止 tool/service 拼 Authorization header 或用 branch 分别读 registry/skill。
 
 ---
 
-# 7. Skill Registry
+# 8. Skill Registry
 
-推荐仓库级生成文件：
+推荐：
 
 ```text
 ai-plugins/skill-registry.json
 ```
 
-定位：机器可发现索引，不是数据库，不是 Source of Truth。
+定位：低 churn discovery manifest，不是数据库。
+
+v1 entry 仅包含：
+
+```text
+id
+plugin
+name
+description
+version
+entry
+```
+
+不包含 references/templates/examples 文件列表。
 
 运行时：
 
 ```text
-SourceSnapshot.commitSha
-        |
-        v
-skill-registry.json @ commitSha
-        |
-        v
-search/list
+registry @ SourceSnapshot SHA
+  ↓
+list/search
+  ↓
+entry
+  ↓
+selected SKILL.md @ same SHA
 ```
 
-`load_skill` 再根据 registry 的 entry path 从同一个 commit SHA 读取真实文件。
-
-Registry 应由发布/校验工具确定性生成，详细规则见 `skill-registry-schema.md`。
+详细见 `skill-registry-schema.md`。
 
 ---
 
-# 8. Cloudflare 存储政策
+# 9. 深层文件读取
+
+references/templates/examples 不在 Registry v1 中建立第二份目录索引。
+
+Cloud MCP：
+
+1. 先读取已选 `SKILL.md`。
+2. 根据 Skill 中明确的 repo-relative 引用按需读取。
+3. 限制在已选 Skill 目录/允许范围。
+4. 全部使用同一 exact commit SHA。
+
+不要默认加载整个 Skill 目录到上下文。
+
+---
+
+# 10. 搜索策略
+
+对中等 Skill 数量第一版使用 Registry 内存搜索：
+
+```text
+id + name + description + plugin
+```
+
+不需要：
+
+- vector DB。
+- embedding pipeline。
+- D1 搜索表。
+- KV search index。
+
+如果以后真实查询样本证明搜索质量不足，再扩展权威 metadata，而不是 generator 猜关键词。
+
+---
+
+# 11. Cloudflare 存储政策
 
 MVP：
 
@@ -206,24 +268,20 @@ D1: 不需要
 Durable Objects: 不需要
 ```
 
-不要为了“Cloudflare 原生”而增加 binding。
-
-如果未来性能数据显示需要缓存：
+未来若指标证明需要 cache，只允许 immutable commit-addressed key：
 
 ```text
 registry:{commitSha}
 skill:{commitSha}:{skillId}
 ```
 
-缓存必须是 commit-addressed；禁止以 `skill:{id}` 这种 mutable key 作为 freshness 机制。
+禁止 `skill:{id}` / `registry:current` 作为 freshness 真源。
 
 ---
 
-# 9. Wrangler 配置
+# 12. Wrangler 配置
 
-第一版只需要公开 vars 和 GitHub Secret。
-
-示意：
+第一版：
 
 ```toml
 [vars]
@@ -232,41 +290,93 @@ GITHUB_REPO = "monorepo"
 GITHUB_REF = "dev"
 ```
 
-敏感值：
+Secret：
 
 ```bash
 wrangler secret put GITHUB_TOKEN
 ```
 
-第一版 `wrangler.toml` 不要求 `kv_namespaces`、R2 bucket 或其他存储 binding。
+不要求 storage bindings。
 
 ---
 
-# 10. AI Agent 实施顺序
+# 13. 高频维护/轻量增长原则
 
-1. 初始化 Nitro v3 Worker 项目。
-2. 配置最小 Wrangler vars / secret 契约。
-3. 安装并接入 MCP TypeScript SDK。
-4. 创建 `McpServer` factory 和只读 tools。
+发布侧：
+
+```text
+many Skill changes
+ -> one release
+ -> one deterministic registry generation
+ -> one Git commit
+```
+
+运行时：
+
+```text
+one tool call
+ -> one snapshot
+ -> one registry read
+ -> selected Skill only
+```
+
+不要把“更新频率高”误解成“数据规模巨大”。
+
+详细见：
+
+```text
+high-frequency-skill-churn-strategy.md
+../2026-8-12-release-ai-plugins-add-skill-registry-json-for-MCP/high-frequency-maintenance-and-growth-strategy.md
+```
+
+---
+
+# 14. 轻量观测指标
+
+第一版只要求能够通过日志/测试测量：
+
+- sourceCommitSha。
+- registry byte size。
+- Skill count。
+- GitHub requests per tool call。
+- tool P50/P95 latency。
+- GitHub rate-limit/auth/failure。
+
+不要求额外 observability database。
+
+这些指标用于决定以后是否需要 cache/search 升级。
+
+---
+
+# 15. AI Agent 实施顺序
+
+1. 初始化 Nitro v3 Worker。
+2. 配置最小 Wrangler vars/secret。
+3. 接入 MCP SDK + Streamable HTTP。
+4. 创建 `McpServer` 与只读 tools。
 5. 实现 GitHub Repository Adapter。
-6. 实现 `SourceSnapshot`：ref -> exact commit SHA。
-7. 实现 registry list/search 与 exact-SHA skill loading。
-8. 增加 freshness、一致性、GitHub 错误与协议测试。
-9. 使用 MCP Inspector 验证。
-10. 使用 ChatGPT Web Developer Mode 做真实验收。
+6. 实现 latest/pinned `SourceSnapshot`。
+7. 实现 registry list/search。
+8. 实现 exact-SHA `load_skill`。
+9. 实现深层文件按需读取边界。
+10. 增加 freshness/snapshot-pin/registry/protocol tests。
+11. MCP Inspector 验证。
+12. ChatGPT Web Developer Mode 验收。
+13. 最后根据真实指标决定是否需要缓存/搜索升级。
 
 ---
 
-# 11. Definition of Done
+# 16. Definition of Done
 
-必须满足：
-
-- ChatGPT Web 可连接 Remote MCP。
-- MCP initialize / tools/list / tools/call 正常。
-- `search_skills` 与 `load_skill` 可用。
-- 同一 tool call 的所有 Skill 数据来自同一 commit SHA。
-- 新 push 后下一次新 snapshot 可以解析到新 HEAD。
-- 返回结果可报告 `sourceCommitSha`。
-- Worker 部署不依赖 KV/R2。
-- GitHub Token 不泄露。
-- 无 Node Server 专属实现。
+- [ ] ChatGPT Web 可连接。
+- [ ] initialize/tools/list/tools/call 正常。
+- [ ] list/search 返回 sourceCommitSha。
+- [ ] load_skill 支持可选 sourceCommitSha pin。
+- [ ] 未 pin 新请求能看到最新 HEAD。
+- [ ] pinned load 可复现 discovery snapshot。
+- [ ] 单 tool call 所有 Skill 数据来自同一 SHA。
+- [ ] Registry v1 minimal/low-churn。
+- [ ] 深层文件按需同 SHA 读取。
+- [ ] Worker 无 KV/R2 也完整运行。
+- [ ] GitHub Token 不泄露。
+- [ ] 没有 vector DB/增量 registry state/server session 过度设计。
