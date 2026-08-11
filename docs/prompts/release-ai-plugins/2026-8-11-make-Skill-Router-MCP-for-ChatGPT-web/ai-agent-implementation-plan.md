@@ -66,10 +66,11 @@ implementation-spec.md
 - `GITHUB_REF` 只用于解析 exact commit SHA。
 - 第一版不要求 Cloudflare storage。
 
-## 第 2 阶段：Skill Registry
+## 第 2 阶段：Skill Registry 与发布集成
 
 ```text
 skill-registry-schema.md
+release-ai-plugins-registry-integration.md
 ```
 
 必须理解：
@@ -78,7 +79,9 @@ skill-registry-schema.md
 - registry 与 skills 一起进入 Git commit。
 - registry 不包含自身 commit SHA。
 - runtime 把 commit SHA 与 registry 组合为 SourceSnapshot。
-- `release-ai-plugins` 应生成/校验 registry，CI 应检查 stale。
+- `release-ai-plugins` 应在 skill version 更新后调用独立 registry generator。
+- CI 应使用 generator 的 check mode 检测 stale registry。
+- 不存在 registry -> KV/R2 发布步骤。
 
 ## 第 3 阶段：Nitro / Cloudflare Runtime
 
