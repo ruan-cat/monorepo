@@ -8,9 +8,6 @@ packages:
   - learn-create-compoents-lib/*
   - configs-package/*
 
-# CI 必须从工作区配置读取此项，确保各包的 CLI 链接完整。
-shamefullyHoist: true
-
 onlyBuiltDependencies:
   - "@parcel/watcher"
   - esbuild
