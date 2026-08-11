@@ -4,13 +4,13 @@
 
 **目标：** 让 VitePress 只加载所需的 `@ruan-cat/utils` 窄子路径，并以 Node.js 24 的真实构建产物测试取代对 `consola` patch 和 ESM 内联的猜测。
 
-**架构：** 为 `conditions` 与 `monorepo` 提供构建产物子路径；VitePress 配置改从这些子路径导入，避免经过会加载 `print.ts` 的宽 barrel。回归测试通过阻止 `consola` 解析来证明窄入口没有隐式日志依赖，并在 CI 的 Node.js 24 环境中执行。
+**架构：** 为 `conditions` 与 `monorepo` 提供构建产物子路径；VitePress 配置改从这些子路径导入，避免经过会加载 `print.ts` 的宽 barrel。回归测试通过阻止 `consola` 解析来证明窄入口没有隐式日志依赖，并在 CI 的 Node.js 24 环境中执行；默认 ESM 与 `node-esm` 仅内联经该测试证实无法从 pnpm 工作区解析的依赖。
 
 **技术栈：** pnpm workspace、tsup、Vitest、Node.js ESM loader、GitHub Actions。
 
 ## 全局约束
 
-- 不再扩大 `noExternal: ["consola"]` 的适用入口。
+- 不向 CJS、CLI 或全部依赖扩散 ESM `noExternal`；仅维护入口测试证实的兼容依赖列表。
 - 不使用 `@ruan-cat/utils/src/*` 作为 VitePress 的运行时导入路径。
 - 所有新增测试使用 `describe` 与 `test`，文件名为 `*.test.ts`。
 - 删除 `consola` patch 前必须获得 Node.js 24 CI 的发布入口测试证据。
@@ -91,7 +91,7 @@ test("在禁止解析 consola 时加载 conditions", () => {
 **接口：**
 
 - CI 在 `pnpm run ci` 后运行 `pnpm --filter @ruan-cat/utils test:entrypoints`。
-- utils 的 ESM 构建不再以 `noExternal` 内联 `consola`。
+- utils 的默认 ESM 与 `node-esm` 只内联测试证实无法经 pnpm 工作区解析的依赖。
 
 - [x] **步骤 1：保留真实入口回归门禁**
 
@@ -101,9 +101,9 @@ test("在禁止解析 consola 时加载 conditions", () => {
 
 移除 `patchedDependencies.consola`、`patches/consola.patch`、孤儿 `ensure-consola-patch.ts` 与 setup action 的历史 `consola` 诊断；保留 `run-automd.cjs`，因为它是 automd CLI 的独立兼容边界。
 
-- [x] **步骤 3：撤回两个临时 ESM 内联**
+- [x] **步骤 3：以入口测试确定最小 ESM 内联边界**
 
-删除默认 ESM 和 `node-esm` 配置中的 `noExternal: ["consola"]`，由 CI 回归测试证明官方包解析不再需要该止血措施。
+默认 ESM 与 `node-esm` 仅内联 `consola`、`tinyglobby`：前者单独内联不足，后者为同一 Node.js 24 + pnpm ESM 解析失败路径；全量内联会使 CJS `yaml` 在 ESM 中触发动态 `require`，因此不扩散到全部依赖、CJS 或 CLI。
 
 - [x] **步骤 4：验证完整 CI**
 

@@ -29,23 +29,24 @@ imported from '.../packages/utils/dist/node-esm/index.js'
 ## 关键误导点
 
 - `31490521146` 曾在同一 utils Turbo hash 下成功，而紧接着的 `31490863532` 又在外部 `consola` 路径失败；一次成功不能证明 resolver 已修复。
-- `noExternal: ["consola"]` 只会把问题掩盖在两个 ESM 产物中，不能成为所有入口的通用策略；CJS 与 CLI 仍有外部依赖边界。
+- 只内联 `consola` 会遗漏同样在 Node.js 24 + pnpm 工作区 ESM 解析失败的 `tinyglobby`；反过来，全量内联会把 CJS 版 `yaml` 打入 ESM 并触发不支持的动态 `require("process")`。兼容边界必须由真实入口测试约束。
 - `consola.patch` 重写第三方 `exports`/`main` 并添加 shim，影响整个工作区且依赖特定包布局。它不是 VitePress 只需两个工具函数的正确解决层。
 - 删除缓存、`pnpm i --force`、降低 Node 版本或改全局 linker 都未证明解决根因，且扩大了影响范围。
 
 ## 最终修复
 
 1. 为 `@ruan-cat/utils/conditions` 和 `@ruan-cat/utils/monorepo` 提供真实的 `dist` ESM 与声明产物；VitePress 两个消费者改用这两个窄子路径，不再穿过会加载日志模块的 barrel。
-2. 删除 `noExternal: ["consola"]`、`patchedDependencies.consola`、`patches/consola.patch` 和孤儿的 `ensure-consola-patch.ts`。保留 `scripts/run-automd.cjs`，因为它是 automd CLI 的独立 CJS 兼容边界。
+2. 删除全局 `patchedDependencies.consola`、`patches/consola.patch` 和孤儿的 `ensure-consola-patch.ts`。默认 ESM 与 `node-esm` 仅内联 Node.js 24 + pnpm 工作区中已证实不兼容的 `consola` 与 `tinyglobby`；不向 CJS、CLI 或所有依赖扩散。保留 `scripts/run-automd.cjs`，因为它是 automd CLI 的独立 CJS 兼容边界。
 3. 在 `build` 开始前只清理一次 `dist`，四组 tsup 构建均不再自行 `clean`，消除共享输出目录的声明删除竞态。
 4. 新增构建后入口测试：用 ESM loader 显式拒绝解析 `consola`，验证两个窄子路径可运行；同时断言 `node-cjs/index.d.cts` 保留 `isConditionsEvery`。
 
 ## 验证
 
-- [run 31494861244](https://github.com/ruan-cat/monorepo/actions/runs/31494861244) 在 Node.js `24.18.0` 的全新 GitHub Runner 成功完成 `turbo并发打包全部子项目`。
+- [run 31496037534](https://github.com/ruan-cat/monorepo/actions/runs/31496037534) 在 Node.js `24.18.0` 的全新 GitHub Runner 成功完成 `turbo并发打包全部子项目`。
 - 同一 run 的 `验证utils发布入口` 成功，证明默认 ESM、`node-esm`、`node-cjs` 以及两个窄子路径在构建产物上均可加载，且窄路径不解析 `consola`。
-- `git diff --check` 通过；最终代码提交为 `9d983230` 与 `5edbc70b`。
+- [run 31495666705](https://github.com/ruan-cat/monorepo/actions/runs/31495666705) 证明全量内联不可取：打入 CJS 版 `yaml` 会在 ESM 触发动态 `require("process")`。
+- `git diff --check` 通过；最终代码提交为 `9d983230`、`5edbc70b`、`a3fd0863` 与 `9f1d1a2a`。
 
 ## 后续约束
 
-遇到 Node.js 24 + pnpm monorepo 的模块找不到错误时，先在失败生命周期确认文件实际存在，再按真实导入栈收缩消费者，而不是全局 patch 或无差别内联依赖。为一个包新增多个 tsup 配置时，不能让共享输出目录的每个并行配置都执行 `clean`；清理必须在并行构建前只做一次。所有新增 public subpath 都要同时验证运行时产物、类型声明与真实消费者。
+遇到 Node.js 24 + pnpm monorepo 的模块找不到错误时，先在失败生命周期确认文件实际存在，再按真实导入栈收缩消费者。全局 patch、只内联一个失败包、或无差别内联所有依赖都不是默认方案：用真实发布入口测试确定最小 ESM 兼容列表。为一个包新增多个 tsup 配置时，不能让共享输出目录的每个并行配置都执行 `clean`；清理必须在并行构建前只做一次。所有新增 public subpath 都要同时验证运行时产物、类型声明与真实消费者。
