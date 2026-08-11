@@ -57,4 +57,4 @@ runs:
 
     - name: 安装整个项目的依赖
       shell: bash
-      run: pnpm i
+      run: pnpm install --frozen-lockfile --config.node-linker=hoisted
