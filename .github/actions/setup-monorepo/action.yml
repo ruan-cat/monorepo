@@ -59,18 +59,6 @@ runs:
       shell: bash
       run: pnpm i
 
-    - name: 诊断 VitePress 依赖物化
-      shell: bash
-      run: |
-        echo "=== VitePress 环境 ==="
-        printenv NODE_ENV || true
-        pnpm config get production
-        echo "=== workspace 软链接 ==="
-        ls -ld ./packages/vitepress-preset-config/node_modules/vitepress || true
-        readlink ./packages/vitepress-preset-config/node_modules/vitepress || true
-        echo "=== pnpm store 文件 ==="
-        ls -la ./node_modules/.pnpm/vitepress@*/node_modules/vitepress/bin/vitepress.js || true
-
     # 诊断：确认 consola package.json 与补丁状态
     - name: 诊断consola解析状态
       shell: bash
