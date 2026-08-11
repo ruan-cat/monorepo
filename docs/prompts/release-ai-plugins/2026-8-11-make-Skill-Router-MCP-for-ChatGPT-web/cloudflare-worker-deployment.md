@@ -28,7 +28,35 @@ Skill Registry
 
 ---
 
-# 2. 推荐域名
+# 2. 配置职责边界
+
+## Nitro 配置
+
+负责：
+
+- Nitro preset
+- 构建行为
+- runtime config
+- route rules
+
+## Wrangler 配置
+
+负责：
+
+- Worker 名称
+- compatibility_date
+- KV namespace
+- secrets
+- routes
+- deployment
+
+禁止：
+
+把 Cloudflare 平台配置写入 Nitro 配置文件。
+
+---
+
+# 3. 推荐域名
 
 建议：
 
@@ -53,28 +81,25 @@ GET /skills/:id
 
 ---
 
-# 3. Cloudflare Worker 架构
+# 4. Cloudflare Worker 架构
 
 ```text
-                    Request
-                       |
-                       v
-              Cloudflare Edge
-                       |
-                       v
-                 Nitro Worker
-                       |
-        --------------------------------
-        |              |               |
-     MCP Handler   Skill Service    Cache
-        |              |               |
-        |              |               |
-     JSON-RPC       KV Lookup     Cache API
+Request
+ |
+Cloudflare Edge
+ |
+Nitro Worker
+ |
+MCP Handler
+ |
+Service Layer
+ |
+KV / Cache API
 ```
 
 ---
 
-# 4. Runtime 约束
+# 5. Runtime 约束
 
 Cloudflare Worker 不是 Node Server。
 
@@ -84,13 +109,13 @@ Cloudflare Worker 不是 Node Server。
 fs
 child_process
 listen()
-process
+node:http
 ```
 
 禁止：
 
 - 本地文件写入。
-- 全局状态缓存。
+- 全局内存状态。
 - 长连接依赖。
 
 必须：
@@ -102,35 +127,22 @@ process
 
 ---
 
-# 5. Nitro v3 部署模式
-
-推荐：
-
-```text
-Nitro v3
-    |
-Cloudflare preset
-    |
-Worker module
-```
-
-部署产物必须适配 Worker runtime。
-
-禁止输出传统 Node server。
-
----
-
 # 6. Wrangler 配置要求
 
-需要配置：
+必须生成：
 
-- worker name。
-- compatibility date。
-- KV bindings。
-- secrets。
-- routes。
+```text
+wrangler.toml
+```
 
-示例结构：
+职责：
+
+- Worker entry
+- KV binding
+- Secret
+- 环境配置
+
+示例：
 
 ```toml
 name = "skill-router-mcp"
@@ -138,13 +150,12 @@ compatibility_date = "2026-08-11"
 
 [[kv_namespaces]]
 binding = "SKILL_REGISTRY"
+id = "xxxx"
 ```
 
 ---
 
 # 7. KV 设计
-
-使用 KV 作为运行时 Registry。
 
 Key：
 
@@ -154,7 +165,7 @@ skill:{id}:metadata
 skill:{id}:content
 ```
 
-Worker 请求：
+运行时：
 
 ```text
 ChatGPT
@@ -170,7 +181,7 @@ Response
 
 # 8. GitHub 同步流程
 
-运行时禁止扫描 GitHub。
+禁止运行时扫描 GitHub。
 
 正确：
 
@@ -184,15 +195,9 @@ Registry Builder
 Cloudflare KV
 ```
 
-优势：
-
-- 降低延迟。
-- 避免 GitHub API 限制。
-- 提高稳定性。
-
 ---
 
-# 9. Cloudflare AI Gateway 使用策略
+# 9. AI Gateway 使用策略
 
 第一阶段：
 
@@ -200,93 +205,71 @@ Cloudflare KV
 
 原因：
 
-当前 Worker 主要职责：
-
-- skill index 查询。
-- skill content 返回。
-
-不存在大量模型调用。
-
----
+当前服务是 Skill Retrieval，不是 LLM Gateway。
 
 第二阶段：
 
-如果增加：
+增加：
 
-- embedding 检索。
-- skill 自动摘要。
-- rerank。
-- 智能路由。
+- embedding
+- rerank
+- skill summary
 
-架构：
+再接入：
 
 ```text
 Worker
  |
-AI Gateway
+Cloudflare AI Gateway
  |
-LLM Provider
+LLM
 ```
-
-AI Gateway 用于：
-
-- 请求管理。
-- 日志。
-- 缓存。
-- 限流。
 
 ---
 
 # 10. 自动部署流程
-
-推荐：
 
 ```text
 Git Push
  |
 GitHub Actions
  |
+Install
+ |
 Build Nitro
  |
 Deploy Worker
  |
-Run MCP Smoke Test
+MCP Smoke Test
 ```
 
 ---
 
-# 11. 部署验收
+# 11. 验收
 
 必须验证：
 
-```text
-HTTPS 可访问
-
-/mcp 返回 MCP response
-
-/health 正常
-
-tools/list 正常
-
-load_skill 正常
-
-KV 数据存在
-```
+- HTTPS 正常。
+- /health 正常。
+- MCP initialize 正常。
+- tools/list 正常。
+- load_skill 正常。
+- KV 数据正确。
 
 ---
 
 # 12. 回滚策略
 
-要求保留：
+必须保存：
 
-- Worker deployment history。
-- KV registry version。
-- Git commit SHA。
+- Git commit SHA
+- Worker deployment version
+- Registry version
 
 回滚：
 
 ```text
-Worker version rollback
+Worker rollback
 +
 KV registry rollback
 ```
@@ -295,11 +278,12 @@ KV registry rollback
 
 # 13. AI Agent 实施要求
 
-实现 Agent 必须：
+实施顺序：
 
-1. 优先完成 Worker 基础部署。
-2. 再接入 MCP。
-3. 再接入 Registry。
-4. 最后接入 ChatGPT Web。
+1. Nitro Worker 基础工程。
+2. Wrangler 部署配置。
+3. MCP 协议。
+4. Skill Registry。
+5. ChatGPT Web 验证。
 
-不要一次性开发所有模块。
+不要跳过边界验证。
