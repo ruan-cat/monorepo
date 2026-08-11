@@ -4,15 +4,14 @@
 
 本文档定义生产级 Remote MCP Server 架构。
 
-目标：
+目标：构建可被 ChatGPT Web Developer Mode 直接连接的 Cloudflare Remote MCP Server。
 
-构建一个可被 ChatGPT Web Developer Mode 直接连接的 Cloudflare Remote MCP Server。
+核心原则：
 
-核心：
-
-- Skill Router 提供技能上下文。
 - MCP SDK 提供协议能力。
-- 其他 MCP Server 提供执行能力。
+- Nitro v3 提供应用 Runtime。
+- H3 作为 Nitro 管理的 HTTP Runtime Layer。
+- Cloudflare Worker 提供 Serverless 平台。
 
 ---
 
@@ -31,7 +30,10 @@ Streamable HTTP
 Cloudflare Worker
           |
           v
-Nitro v3 + H3
+Nitro v3 Runtime
+          |
+          v
+H3 Runtime Layer
           |
           v
 MCP TypeScript SDK
@@ -53,22 +55,36 @@ Registry Repository
    +---------+
              |
              v
-   Cloudflare KV / GitHub ai-plugins
+Cloudflare KV / GitHub ai-plugins
 ```
 
 ---
 
-# 2. MCP 层职责
+# 2. 依赖边界
 
-MCP SDK 负责：
+## Nitro v3
+
+负责：
+
+- Runtime abstraction
+- build
+- routes
+- Cloudflare adapter
+
+## H3 Runtime Layer
+
+由 Nitro 管理。
+
+不作为独立 Web Framework 管理。
+
+## MCP SDK
+
+负责：
 
 - initialize
-- capability negotiation
 - tools/list
 - tools/call
 - resources
-
-业务层不重复实现 MCP 协议。
 
 ---
 
@@ -88,120 +104,21 @@ MCP SDK 负责：
 - Shell
 - Docker
 - CI
-- 文件执行
 
 ---
 
-# 4. 分层架构
-
-## MCP Layer
-
-```text
-server/api/mcp.post.ts
-```
-
-负责 transport adapter。
-
----
-
-## Application Layer
-
-```text
-services/
-```
-
-负责：
-
-- skill routing
-- search
-- loading
-
----
-
-## Repository Layer
-
-```text
-repositories/
-```
-
-负责：
-
-- KV
-- GitHub source
-- Cache
-
----
-
-# 5. 数据流
-
-```text
-ChatGPT
- |
-search_skills
- |
-McpServer Tool
- |
-Skill Service
- |
-KV Registry
- |
-Return Context
-```
-
----
-
-# 6. GitHub 同步
-
-运行时不扫描 GitHub。
-
-```text
-GitHub ai-plugins
-        |
-GitHub Actions
-        |
-Registry Builder
-        |
-Cloudflare KV
-        |
-MCP Server
-```
-
----
-
-# 7. Runtime 边界
-
-部署：
-
-```text
-Cloudflare Workers
-```
-
-框架：
-
-```text
-Nitro v3
-```
-
-平台配置：
-
-```text
-Wrangler
-```
-
-禁止混合职责。
-
----
-
-# 8. 最终形态
+# 4. 最终形态
 
 ```text
 ChatGPT Web
  |
 Remote MCP
  |
+Streamable HTTP
+ |
 Cloudflare Worker
  |
-Nitro v3
+Nitro v3 Runtime
  |
 MCP SDK
  |
