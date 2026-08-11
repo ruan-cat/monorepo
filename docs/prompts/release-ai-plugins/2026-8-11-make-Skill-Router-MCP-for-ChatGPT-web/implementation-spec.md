@@ -11,14 +11,12 @@
 ```text
 Cloudflare Worker
 +
-Nitro v3
+Nitro v3 Runtime
 +
 MCP TypeScript SDK
 +
 Skill Router
 ```
-
-使 ChatGPT Web Developer Mode 可以连接并动态获取 ai-plugins skills。
 
 ---
 
@@ -29,54 +27,57 @@ Skill Router
 |层|技术|
 |-|-|
 |Runtime|Cloudflare Workers|
-|Web Framework|Nitro v3 + H3|
+|Application Runtime|Nitro v3|
+|HTTP Runtime Layer|Nitro 管理的 H3 Runtime Layer|
 |MCP Protocol|@modelcontextprotocol/sdk|
 |Transport|Streamable HTTP|
 |Cache|Cloudflare KV / Cache API|
 
-禁止替换 MCP 协议层实现。
+重要：
+
+不要单独安装并管理 H3 主版本。
+
+H3 由 Nitro v3 依赖树管理。
 
 ---
 
-# 2. 项目结构
+# 2. 依赖管理原则
+
+package.json 直接管理：
 
 ```text
-skill-router-mcp/
-
-├── server/
-│
-├── mcp/
-│   ├── server.ts
-│   └── tools/
-│       ├── search-skills.ts
-│       ├── load-skill.ts
-│       └── metadata.ts
-│
-├── services/
-│   └── skill-service.ts
-│
-├── repositories/
-│   ├── kv-registry.ts
-│   └── github-source.ts
-│
-└── api/
-    └── mcp.post.ts
+nitro
+@modelcontextprotocol/sdk
 ```
+
+不要：
+
+```text
+手动升级 h3
+覆盖 Nitro runtime dependency
+```
+
+必须提交 lockfile。
 
 ---
 
 # 3. MCP 实现层
 
-不要手写：
+禁止手写：
 
 - JSON-RPC
 - initialize
 - tools/list
 - tools/call
+- transport
 
-必须使用 MCP SDK：
+必须使用：
 
 ```text
+MCP TypeScript SDK
+
++
+
 McpServer
 
 +
@@ -89,15 +90,15 @@ Streamable HTTP Transport
 # 4. 请求链路
 
 ```text
-ChatGPT
+ChatGPT Web
  |
-MCP Client
+Remote MCP Client
  |
 Streamable HTTP
  |
 Nitro Handler
  |
-MCP SDK
+MCP SDK Transport
  |
 McpServer
  |
@@ -108,72 +109,34 @@ Services
 
 ---
 
-# 5. Handler 职责
-
-`mcp.post.ts`：
-
-负责：
-
-- 接收请求。
-- 提供 runtime binding。
-- 调用 MCP adapter。
-
-禁止：
-
-- GitHub API。
-- KV 查询。
-- Skill parsing。
-
----
-
-# 6. Skill Tools
-
-必须实现：
-
-## list_skills
-
-返回技能摘要。
-
-## search_skills
-
-根据 query 匹配技能。
-
-## load_skill
-
-返回完整技能上下文。
-
----
-
-# 7. Cloudflare Runtime
-
-环境来源：
+# 5. 项目结构
 
 ```text
-Worker bindings
-        |
-Nitro runtime
-        |
-Dependency Injection
-        |
-Repository Adapter
-```
+skill-router-mcp/
 
-禁止：
-
-```text
-process.env
+├── mcp/
+│   ├── server.ts
+│   └── tools/
+│
+├── services/
+│
+├── repositories/
+│
+├── server/api/
+│   └── mcp.post.ts
+│
+├── nitro.config.ts
+└── wrangler.toml
 ```
 
 ---
 
-# 8. 实施顺序
+# 6. AI Agent 实施顺序
 
-AI Agent 必须：
-
-1. 初始化 Nitro Worker 项目。
+1. 初始化 Nitro v3 项目。
 2. 配置 Wrangler。
-3. 接入 MCP SDK。
-4. 创建 McpServer。
+3. 安装 MCP SDK。
+4. 创建 McpServer factory。
 5. 注册 tools。
 6. 实现 Skill Service。
 7. 接入 KV Registry。
@@ -181,12 +144,10 @@ AI Agent 必须：
 
 ---
 
-# 9. Definition of Done
-
-必须：
+# Definition of Done
 
 - ChatGPT Web 可连接。
-- initialize 成功。
+- MCP initialize 成功。
 - tools/list 成功。
 - tools/call 成功。
 - Skill 可搜索。
