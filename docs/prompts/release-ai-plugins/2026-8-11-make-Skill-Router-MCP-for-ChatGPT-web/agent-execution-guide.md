@@ -2,70 +2,55 @@
 
 ## 文档定位
 
-本文用于指导其他 AI Agent 实施 Skill Router MCP Server。
+指导 AI Agent 实施 Skill Router MCP Server。
 
-真实工作负载：Skill 数量中等，但更新、维护和新增频率高。
-
-因此执行目标是：
-
-```text
-freshness
-+
-exact-commit consistency
-+
-low-maintenance architecture
-```
-
-而不是提前增加大型存储/搜索系统。
+真实工作负载：Skill 数量中等、更新频率高；生产 MCP Runtime 需要版本化部署并真实兼容 ChatGPT Web。
 
 ---
 
 # 执行原则
 
-1. GitHub `ai-plugins` 是唯一 Source of Truth。
-2. 未 pin tool call 只解析一次 `GITHUB_REF` -> exact SHA。
-3. 单个 tool call 的 registry/Skill/关联文件使用同一 SHA。
-4. list/search 返回 `sourceCommitSha`。
-5. load_skill 可选使用 `sourceCommitSha` pin；未提供则读取最新 HEAD。
-6. Registry v1 只包含 `id/plugin/name/description/version/entry`。
-7. references/templates/examples 按需同 SHA 读取，不进入 Registry v1。
-8. 第一版不增加 KV/R2/D1/DO/vector DB/server session。
-9. MCP 协议由 TypeScript SDK 实现，不手写 JSON-RPC lifecycle。
+1. ChatGPT compatibility 优先于 MCP upstream 抢跑。
+2. 生产 SDK 以 OpenAI 当前 `Build an MCP server` 文档为准。
+3. GitHub `ai-plugins` 是唯一 Skill Source of Truth。
+4. 每个 Skill tool call 使用 exact Git snapshot。
+5. Skill-only update 不部署 Worker。
+6. Runtime update 使用 Worker versioned release。
+7. Tool contract update 还需要 ChatGPT refresh/rescan/review。
+8. MVP 不引入 KV/R2/D1/DO/vector DB。
 
 ---
 
-# Phase 1：理解约束
-
-阅读：
+# Phase 1：阅读
 
 ```text
-README.md
-architecture.md
-implementation-spec.md
-high-frequency-skill-churn-strategy.md
-skill-registry-schema.md
+README
+architecture
+implementation-spec
+chatgpt-web-mcp-compatibility-profile
+mcp-release-versioning-and-production-maintenance
 ```
 
-如果要真正改造 `release-ai-plugins`，继续阅读 2026-8-12 专项提示词包。
+然后读取 Nitro/Cloudflare/MCP/Registry/Testing 专项文档。
+
+真正改 `release-ai-plugins` 时进入 2026-8-12 专项包。
 
 ---
 
-# Phase 2：初始化工程
+# Phase 2：工程初始化
 
-创建 Nitro v3 Cloudflare Worker 工程。
-
-要求：
-
-- H3 由 Nitro 依赖树管理。
-- 当前 Nitro v3 Cloudflare preset。
-- Wrangler 只配置必要 vars/Secret。
-- 不创建 storage binding。
+- Nitro v3。
+- H3 由 Nitro 管理。
+- Wrangler 最小 vars/Secret + `CF_VERSION_METADATA`。
+- package.json 独立 MCP SemVer。
+- build Git SHA 注入方案。
+- package-local tests。
 
 ---
 
-# Phase 3：实现 MCP 层
+# Phase 3：MCP
 
-使用：
+按 OpenAI 当前官方兼容路径使用：
 
 ```text
 @modelcontextprotocol/sdk
@@ -73,107 +58,116 @@ McpServer
 Streamable HTTP
 ```
 
-核心 tools：
+统一工具：
 
 ```text
+get_server_info
 list_skills
 search_skills
 load_skill
 ```
 
-Nitro endpoint 只做 transport/runtime adapter。
+`toolDefinitions` 驱动 SDK registration / tools/list / get_server_info / tests。
+
+禁止手写 JSON-RPC lifecycle。
 
 ---
 
-# Phase 4：实现 GitHub Source Layer
+# Phase 4：GitHub Source
 
 ```text
-GitHub Repository Adapter
-  +-- resolve ref -> SHA
-  +-- accept pinned SHA in configured repo
-  +-- load registry @ SHA
-  +-- load selected Skill @ SHA
-  +-- load related files on demand @ SHA
+latest: GITHUB_REF -> exact SHA
+pinned: sourceCommitSha -> exact SHA
 ```
 
-只有 adapter 接触 `GITHUB_TOKEN`。
+Registry / SKILL.md / related files 同 SHA。
+
+只有 Repository Adapter 接触 GitHub Token。
 
 ---
 
-# Phase 5：实现 Registry / Search
-
-运行时读取：
-
-```text
-ai-plugins/skill-registry.json @ SourceSnapshot.commitSha
-```
+# Phase 5：Version / Server Info
 
 实现：
 
-- schema validator。
-- in-memory list/search。
-- entry path resolution。
-- exact-SHA loader。
-
-不要：
-
-- Worker 运行时全仓库扫描。
-- vector search。
-- deep-file registry mirror。
-
----
-
-# Phase 6：实现 高频更新语义
-
-必须覆盖：
-
 ```text
-search @ A
-branch -> B
-load(skillId, sourceCommitSha=A) -> A
-load(skillId) -> B
+McpServer.version = package.json.version
+CF_VERSION_METADATA -> Worker ID/tag/timestamp
+buildGitSha -> build-time injection
+get_server_info -> server/deployment/tool metadata
 ```
 
-不使用 server-side snapshot session。
+不要把 Worker ID、Skill version、sourceCommitSha 混成 MCP SemVer。
 
 ---
 
-# Phase 7：测试
+# Phase 6：测试
 
-执行 `testing-plan.md`：
+```text
+Node unit
+Workers Vitest/workerd
+MCP SDK client/Inspector-compatible contract
+Nitro production build
+createTestHarness
+Preview/Staging
+Production smoke
+ChatGPT Web acceptance
+```
 
-- Registry deterministic/low-churn。
-- exact-SHA 单调用一致性。
-- 高频连续 push freshness。
-- search->load snapshot pin。
-- deep files 按需读取。
-- MCP Inspector / ChatGPT Web。
+SDK/protocol测试标准以 OpenAI 当前官方文档为准。
 
 ---
 
-# Phase 8：部署
+# Phase 7：生产发版
 
-完成：
+Runtime：
 
-- Worker。
-- custom domain。
-- GitHub vars/Secret。
-- HTTPS MCP endpoint。
+```text
+SemVer bump
+  ↓
+all tests
+  ↓
+versions upload
+  ↓
+Preview/Staging smoke
+  ↓
+exact version 100% promote
+  ↓
+Production smoke
+```
 
-不要求 storage/sync pipeline。
+Skill-only：不走这条链。
+
+---
+
+# Phase 8：ChatGPT Tool Contract Gate
+
+如果 tool schema/metadata 不变：Runtime release 完成。
+
+如果 tool name/title/description/schema/annotation 变化：
+
+```text
+Inspector
+  ↓
+Developer Mode refresh/rescan
+  ↓
+rerun use cases/evals
+  ↓
+Workspace review/publish when applicable
+```
+
+不能因为 Cloudflare 已部署就声称 ChatGPT 已更新新工具定义。
 
 ---
 
 # 禁止行为
 
-- 暴露 Token。
-- Node HTTP server / filesystem persistence。
-- KV/R2 主链路。
-- vector DB/embedding pipeline。
-- mutable branch 多次独立读取同一 tool call。
-- deep-file registry mirror。
-- server-side snapshot session store。
-- 手写 MCP lifecycle。
+- 抢跑 OpenAI 尚未明确支持的 MCP SDK/protocol major。
+- 恢复 KV/R2 主链路。
+- 深层文件放回 Registry v1。
+- server session 解决 Git snapshot。
+- production 只看 `wrangler exit 0` 不做版本 smoke。
+- Cloudflare Git Integration 与 GitHub Actions 同时自动部署同一个 Worker。
 
 ---
 
@@ -181,11 +175,11 @@ load(skillId) -> B
 
 ```text
 ChatGPT Web
-→ Remote MCP
-→ MCP SDK
-→ Skill Router
-→ latest/pinned SourceSnapshot
-→ GitHub ai-plugins
+ -> OpenAI-compatible MCP endpoint
+ -> versioned Cloudflare Worker
+ -> toolDefinitions/get_server_info
+ -> exact Git SourceSnapshot
+ -> ai-plugins
 ```
 
-并且高频 Skill 更新不要求 Cloudflare storage 同步或 Worker redeploy。
+并且三类 freshness 边界清楚：Skill data / Worker runtime / ChatGPT tool metadata。
