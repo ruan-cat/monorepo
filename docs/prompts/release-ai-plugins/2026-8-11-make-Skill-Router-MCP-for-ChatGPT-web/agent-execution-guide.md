@@ -4,19 +4,33 @@
 
 本文用于指导其他 AI Agent 实施 Skill Router MCP Server。
 
-目标：Agent 仅依赖本目录文档，即可完成从设计、开发、测试到部署的完整流程。
+真实工作负载：Skill 数量中等，但更新、维护和新增频率高。
+
+因此执行目标是：
+
+```text
+freshness
++
+exact-commit consistency
++
+low-maintenance architecture
+```
+
+而不是提前增加大型存储/搜索系统。
 
 ---
 
 # 执行原则
 
-1. 不重新设计已冻结的架构。
-2. GitHub `ai-plugins` 是唯一 Skill Source of Truth。
-3. 每次 tool call 先把 `GITHUB_REF` 解析为 exact commit SHA。
-4. registry、SKILL.md、references 必须使用同一 SourceSnapshot。
-5. Skill Router 只负责发现、搜索和上下文加载，不执行代码。
-6. 第一版不增加 KV/R2/D1/Durable Objects。
-7. MCP 协议由 TypeScript SDK 实现，不手写 JSON-RPC lifecycle。
+1. GitHub `ai-plugins` 是唯一 Source of Truth。
+2. 未 pin tool call 只解析一次 `GITHUB_REF` -> exact SHA。
+3. 单个 tool call 的 registry/Skill/关联文件使用同一 SHA。
+4. list/search 返回 `sourceCommitSha`。
+5. load_skill 可选使用 `sourceCommitSha` pin；未提供则读取最新 HEAD。
+6. Registry v1 只包含 `id/plugin/name/description/version/entry`。
+7. references/templates/examples 按需同 SHA 读取，不进入 Registry v1。
+8. 第一版不增加 KV/R2/D1/DO/vector DB/server session。
+9. MCP 协议由 TypeScript SDK 实现，不手写 JSON-RPC lifecycle。
 
 ---
 
@@ -24,17 +38,15 @@
 
 阅读：
 
-1. `README.md`
-2. `architecture.md`
-3. `implementation-spec.md`
-4. `skill-registry-schema.md`
+```text
+README.md
+architecture.md
+implementation-spec.md
+high-frequency-skill-churn-strategy.md
+skill-registry-schema.md
+```
 
-确认：
-
-- Remote MCP Server 边界。
-- Nitro/H3/MCP SDK 分层。
-- SourceSnapshot 一致性模型。
-- `ai-plugins/skill-registry.json` 的生成定位。
+如果要真正改造 `release-ai-plugins`，继续阅读 2026-8-12 专项提示词包。
 
 ---
 
@@ -44,9 +56,9 @@
 
 要求：
 
-- H3 版本由 Nitro 依赖树管理。
-- 使用当前 Nitro v3 Cloudflare preset。
-- Wrangler 仅配置必要 vars / Secret。
+- H3 由 Nitro 依赖树管理。
+- 当前 Nitro v3 Cloudflare preset。
+- Wrangler 只配置必要 vars/Secret。
 - 不创建 storage binding。
 
 ---
@@ -61,7 +73,7 @@ McpServer
 Streamable HTTP
 ```
 
-注册：
+核心 tools：
 
 ```text
 list_skills
@@ -75,23 +87,20 @@ Nitro endpoint 只做 transport/runtime adapter。
 
 # Phase 4：实现 GitHub Source Layer
 
-实现：
-
 ```text
 GitHub Repository Adapter
-        |
-        +-- resolve ref -> commit SHA
-        +-- load registry @ SHA
-        +-- load skill @ SHA
+  +-- resolve ref -> SHA
+  +-- accept pinned SHA in configured repo
+  +-- load registry @ SHA
+  +-- load selected Skill @ SHA
+  +-- load related files on demand @ SHA
 ```
 
-只有该 adapter 接触 `GITHUB_TOKEN`。
-
-禁止在 service/tool 中直接调用 GitHub API。
+只有 adapter 接触 `GITHUB_TOKEN`。
 
 ---
 
-# Phase 5：实现 Skill Registry
+# Phase 5：实现 Registry / Search
 
 运行时读取：
 
@@ -101,55 +110,70 @@ ai-plugins/skill-registry.json @ SourceSnapshot.commitSha
 
 实现：
 
-- registry schema validator
-- list/search
-- entry path resolution
-- exact-SHA skill loader
+- schema validator。
+- in-memory list/search。
+- entry path resolution。
+- exact-SHA loader。
 
-不要在 Worker 运行时扫描整个 skills 树来代替 registry 常规路径。
+不要：
+
+- Worker 运行时全仓库扫描。
+- vector search。
+- deep-file registry mirror。
 
 ---
 
-# Phase 6：测试
-
-执行 `testing-plan.md`。
+# Phase 6：实现 高频更新语义
 
 必须覆盖：
 
-- registry deterministic generation。
-- stale registry check。
-- source ref resolution。
-- branch 在请求过程中推进时仍固定旧 snapshot。
-- 下一次新请求解析新 HEAD。
-- MCP SDK / Inspector / ChatGPT Web 验收。
+```text
+search @ A
+branch -> B
+load(skillId, sourceCommitSha=A) -> A
+load(skillId) -> B
+```
+
+不使用 server-side snapshot session。
 
 ---
 
-# Phase 7：部署
+# Phase 7：测试
+
+执行 `testing-plan.md`：
+
+- Registry deterministic/low-churn。
+- exact-SHA 单调用一致性。
+- 高频连续 push freshness。
+- search->load snapshot pin。
+- deep files 按需读取。
+- MCP Inspector / ChatGPT Web。
+
+---
+
+# Phase 8：部署
 
 完成：
 
-- Cloudflare Worker 部署。
+- Worker。
 - custom domain。
-- GitHub vars / Secret。
+- GitHub vars/Secret。
 - HTTPS MCP endpoint。
 
-不要求：
-
-- KV namespace。
-- R2 bucket。
-- registry Cloudflare publish pipeline。
+不要求 storage/sync pipeline。
 
 ---
 
 # 禁止行为
 
-- 暴露 GitHub Token。
-- 使用 Node HTTP server 或 filesystem 持久化。
-- 把 skill 内容当高于系统指令的权限来源。
-- 为了“优化”直接引入 KV/R2。
-- 以 mutable branch name 在同一 tool call 内多次独立取版本。
-- 手写 MCP initialize/tools routing。
+- 暴露 Token。
+- Node HTTP server / filesystem persistence。
+- KV/R2 主链路。
+- vector DB/embedding pipeline。
+- mutable branch 多次独立读取同一 tool call。
+- deep-file registry mirror。
+- server-side snapshot session store。
+- 手写 MCP lifecycle。
 
 ---
 
@@ -160,8 +184,8 @@ ChatGPT Web
 → Remote MCP
 → MCP SDK
 → Skill Router
-→ SourceSnapshot(commit SHA)
+→ latest/pinned SourceSnapshot
 → GitHub ai-plugins
 ```
 
-完整链路可用，并且新 skill commit 的可见性不依赖 Cloudflare storage 同步。
+并且高频 Skill 更新不要求 Cloudflare storage 同步或 Worker redeploy。
