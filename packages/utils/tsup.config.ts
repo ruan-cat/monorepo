@@ -1,7 +1,7 @@
 import { defineConfig, type Options } from "tsup";
 
-// 发布产物不能依赖 pnpm 工作区内的运行时软链接；Node.js 内建模块保持外部。
-const bundleRuntimeDependencies = [/^(?!node:).+/];
+// Node.js 24 无法从 pnpm 工作区软链接按 ESM 条件解析这两个包；仅内联已证实的兼容边界。
+const nodeEsmCompatibilityDependencies = ["consola", "tinyglobby"];
 
 export default defineConfig((options: Options) => [
 	// 常规 esm 情况的包
@@ -10,7 +10,7 @@ export default defineConfig((options: Options) => [
 		sourcemap: true,
 		outDir: "dist",
 		format: ["esm"],
-		noExternal: bundleRuntimeDependencies,
+		noExternal: nodeEsmCompatibilityDependencies,
 		// 该配置可以实现生成类型文件 也可以实现js文件的生成
 		dts: true,
 		tsconfig: "./tsconfig.types.json",
@@ -22,7 +22,6 @@ export default defineConfig((options: Options) => [
 		sourcemap: true,
 		outDir: "dist/node-cjs",
 		format: ["cjs"],
-		noExternal: bundleRuntimeDependencies,
 		dts: true,
 		shims: true,
 		tsconfig: "./tsconfig.types.json",
@@ -34,7 +33,7 @@ export default defineConfig((options: Options) => [
 		sourcemap: true,
 		outDir: "dist/node-esm",
 		format: ["esm"],
-		noExternal: bundleRuntimeDependencies,
+		noExternal: nodeEsmCompatibilityDependencies,
 		dts: true,
 		shims: true,
 		tsconfig: "./tsconfig.types.json",
@@ -50,7 +49,6 @@ export default defineConfig((options: Options) => [
 		sourcemap: true,
 		outDir: "dist/cli",
 		format: ["esm"],
-		noExternal: bundleRuntimeDependencies,
 		shims: true,
 		banner: {
 			js: "#!/usr/bin/env node",
