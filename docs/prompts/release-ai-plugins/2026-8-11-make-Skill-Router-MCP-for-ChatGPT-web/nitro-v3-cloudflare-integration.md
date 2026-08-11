@@ -1,4 +1,4 @@
-# Nitro v3 与 Cloudflare Worker 环境变量集成边界规范
+# Nitro v3 与 Cloudflare Worker 运行时集成边界规范
 
 ## 文档目的
 
@@ -6,15 +6,13 @@
 
 核心原则：
 
-> Nitro 负责应用层抽象；Wrangler 负责 Cloudflare 平台资源；Cloudflare bindings 在请求生命周期内提供给 Nitro 应用。
-
-不要把 Cloudflare Secret 模型等同于普通 Node 环境变量。
+> Nitro 负责应用 Runtime；Wrangler 负责 Cloudflare 平台配置；第一版只注入 GitHub source vars 和只读 credential，不需要 Cloudflare storage binding。
 
 ---
 
 # 1. 配置职责边界
 
-## nitro.config.ts
+## `nitro.config.ts`
 
 负责：
 
@@ -25,11 +23,11 @@
 
 不负责：
 
-- 创建 KV
 - 上传 Secret
-- 管理 Worker routes
+- 管理 Worker routes / custom domain
+- 创建 Cloudflare resource
 
-示例：
+示意：
 
 ```ts
 export default defineNitroConfig({
@@ -37,28 +35,26 @@ export default defineNitroConfig({
 })
 ```
 
----
+具体 preset 名称和配置必须以实现时当前 Nitro v3 官方文档/类型为准。
 
-## wrangler.toml / wrangler.jsonc
+## `wrangler.toml` / `wrangler.jsonc`
 
 负责：
 
 - Worker 名称
-- compatibility_date
-- KV bindings
+- `compatibility_date`
 - vars
-- secrets
-- routes
+- Secret 生命周期
+- routes / domain
+- deployment
+
+MVP 不需要 `kv_namespaces`、R2、D1 或 Durable Objects。
 
 ---
 
 # 2. 环境变量分类
 
-不要过度 Secret 化。
-
-## 普通配置 vars
-
-以下变量不是敏感信息：
+## Public vars
 
 ```text
 GITHUB_OWNER
@@ -66,7 +62,7 @@ GITHUB_REPO
 GITHUB_REF
 ```
 
-可以使用：
+示意：
 
 ```toml
 [vars]
@@ -75,11 +71,7 @@ GITHUB_REPO = "monorepo"
 GITHUB_REF = "dev"
 ```
 
----
-
 ## Secret
-
-只有访问凭证必须严格管理：
 
 ```text
 GITHUB_TOKEN
@@ -91,16 +83,11 @@ GITHUB_TOKEN
 wrangler secret put GITHUB_TOKEN
 ```
 
-禁止：
-
-- 写入 wrangler.toml 明文
-- 提交 Git
-- 输出日志
-- 返回 MCP response
+禁止写入 Wrangler 明文、Git、日志、registry 或 MCP response。
 
 ---
 
-# 3. Wrangler CLI 生命周期
+# 3. Wrangler 生命周期
 
 本地：
 
@@ -108,64 +95,50 @@ wrangler secret put GITHUB_TOKEN
 wrangler dev
 ```
 
-敏感本地变量使用：
-
-```text
-.dev.vars
-```
-
-并加入 `.gitignore`。
+本地 Secret 使用 `.dev.vars` 并 gitignore。
 
 生产：
 
 ```bash
+wrangler secret put GITHUB_TOKEN
 wrangler deploy
 ```
 
-Secret 使用：
-
-```bash
-wrangler secret put GITHUB_TOKEN
-```
+本地/生产均不需要预创建 KV namespace 或 R2 bucket 才能运行第一版。
 
 ---
 
 # 4. Nitro v3 Cloudflare Binding 访问原则
 
-实现 Agent 必须以当前 Nitro v3 Cloudflare adapter 文档为准，不允许按照 Nitro v2 经验猜测。
+实现 Agent 必须以当前 Nitro v3 Cloudflare adapter 官方文档与类型为准，不允许按照 Nitro v2 经验猜测。
 
-对于 Cloudflare Module preset，推荐从 Nitro v3 request runtime 获取 binding：
+当前设计只需要从 request runtime 获得：
 
-```ts
-export default defineHandler(async (event) => {
-  const { env } = event.req.runtime.cloudflare
-
-  const registry = env.SKILL_REGISTRY
-
-  return registry
-})
+```text
+GITHUB_OWNER
+GITHUB_REPO
+GITHUB_REF
+GITHUB_TOKEN
 ```
 
-不要把以下写法作为 Nitro v3 通用规范：
+禁止使用：
 
 ```ts
 process.env.GITHUB_TOKEN
 ```
 
-也不要默认使用旧 adapter 路径：
+也不要把旧 adapter 写法固定成规范：
 
 ```ts
 // 不作为本项目固定规范
 // event.context.cloudflare.env
 ```
 
-如果某个 adapter 提供兼容路径，必须以该 adapter 类型定义和官方文档为准。
+实现时应通过一个小型 Runtime Binding Extractor 隔离 Nitro/Cloudflare adapter 的具体访问语法，这样未来 adapter API 变化不会污染业务层。
 
 ---
 
 # 5. Runtime Binding 契约
-
-推荐统一类型：
 
 ```ts
 interface RuntimeBindings {
@@ -173,8 +146,15 @@ interface RuntimeBindings {
   GITHUB_REPO: string
   GITHUB_REF: string
   GITHUB_TOKEN: string
-  SKILL_REGISTRY: KVNamespace
 }
+```
+
+不包含：
+
+```text
+SKILL_REGISTRY: KVNamespace
+R2Bucket
+D1Database
 ```
 
 业务层不要散落读取 binding。
@@ -182,42 +162,40 @@ interface RuntimeBindings {
 推荐：
 
 ```text
-MCP Handler
+MCP HTTP Adapter
+    |
+Runtime Binding Extractor
+    |
+GitHub Repository Adapter
+    |
+SourceSnapshot(commit SHA)
     |
 Skill Service
-    |
-Repository Adapter
-    |
-Runtime Bindings
 ```
 
 ---
 
-# 6. MCP 环境读取原则
+# 6. SourceSnapshot
 
-错误：
-
-```text
-mcp.post.ts
- |
-直接读取 Token
- |
-调用 GitHub
-```
-
-正确：
+可变 `GITHUB_REF` 只在 snapshot 建立阶段使用：
 
 ```text
-mcp.post.ts
- |
-MCP Router
- |
-Skill Service
- |
-GitHub Repository Adapter
- |
-Runtime Binding
+GITHUB_REF=dev
+     |
+resolve
+     v
+commitSha=abc123
 ```
+
+之后同一 tool call 内：
+
+```text
+registry @ abc123
+SKILL.md @ abc123
+references @ abc123
+```
+
+不允许 service 在处理中再次使用 `dev` 读取另一份文件。
 
 ---
 
@@ -226,23 +204,27 @@ Runtime Binding
 禁止：
 
 ```ts
-console.log(env.GITHUB_TOKEN)
+console.log(bindings.GITHUB_TOKEN)
 ```
 
 禁止：
 
-- 将 Secret 写入 KV
-- 将 Secret 写入 skill markdown
+- 将 Secret 写入 `skill-registry.json`
+- 将 Secret 放入 cache key/value
 - 将 Secret 返回给 MCP Client
 - 将 Secret 提交 Git
+
+只有 GitHub Repository Adapter 接触 credential。
 
 ---
 
 # 8. AI Agent 验收清单
 
-- [ ] Nitro v3 binding 访问方式符合当前 adapter
-- [ ] Wrangler 管理 Cloudflare resources
-- [ ] GITHUB_TOKEN 使用 Secret
-- [ ] GITHUB_OWNER/GITHUB_REPO/GITHUB_REF 使用 vars
-- [ ] MCP 不暴露环境变量
-- [ ] GitHub Token 仅在 repository adapter 使用
+- [ ] Nitro v3 binding 访问方式符合实现时当前 adapter。
+- [ ] Wrangler 只管理必要平台配置。
+- [ ] `GITHUB_TOKEN` 使用 Secret。
+- [ ] owner/repo/ref 使用 vars。
+- [ ] 第一版无 storage binding。
+- [ ] GitHub Token 仅 repository adapter 使用。
+- [ ] SourceSnapshot 固定 exact commit SHA。
+- [ ] MCP 输出不暴露环境变量或 Secret。
