@@ -68,10 +68,30 @@ implementation-spec.md
 
 ## 第 2 阶段：Skill Registry 与发布集成
 
+先阅读本 MCP 包中的桥接规格：
+
 ```text
 skill-registry-schema.md
 release-ai-plugins-registry-integration.md
 ```
+
+如果任务包含“真正修改 `release-ai-plugins`、生成 `ai-plugins/skill-registry.json`、增加 generator 或 CI stale gate”，必须继续切换到专项提示词包：
+
+```text
+docs/prompts/release-ai-plugins/
+└── 2026-8-12-release-ai-plugins-add-skill-registry-json-for-MCP/
+    ├── README.md
+    ├── implementation-plan.md
+    ├── release-ai-plugins-modification-spec.md
+    ├── registry-generator-spec.md
+    ├── skill-registry-contract.md
+    ├── cloud-mcp-integration-contract.md
+    ├── ci-stale-registry-gate.md
+    ├── testing-and-acceptance.md
+    └── agent-handoff-checklist.md
+```
+
+该目录是 `release-ai-plugins` 子系统改造的权威实施提示词；本 MCP 包只维护跨系统 contract，不重复维护脚本级实现细节。
 
 必须理解：
 
@@ -163,6 +183,8 @@ deployment-runbook.md
 12. 最后根据实际指标决定是否需要缓存
 ```
 
+如果 `ai-plugins/skill-registry.json` 尚未实际实现，则在完成第 7 步前应按照 2026-8-12 专项提示词包完成 release-side generator/registry 实现，而不是让 Worker 在运行时临时扫描整个 Skill tree 代替正式 registry contract。
+
 禁止把“接入 KV Cache”放在 MVP 固定步骤中。
 
 ---
@@ -190,6 +212,7 @@ GitHub ai-plugins
 - registry 与 Skill exact-SHA 一致。
 - source commit 可诊断。
 - GitHub credential 只存在 repository adapter 边界。
+- `release-ai-plugins` 子系统实现时遵循 2026-8-12 专项提示词包，不自行另造 registry 发布方案。
 
 ---
 
