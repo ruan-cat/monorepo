@@ -118,7 +118,18 @@ resolve HEAD -> commit SHA
 ## Skill 系统
 
 - `skill-registry-schema.md`：`ai-plugins/skill-registry.json` 的确定性 schema 与生成规范
-- `release-ai-plugins-registry-integration.md`：registry generator、`release-ai-plugins` 写入白名单、DryRun/Apply、CI stale-check 集成契约
+- `release-ai-plugins-registry-integration.md`：本 MCP 规格包与 release 专项改造包之间的桥接契约
+
+### `release-ai-plugins` 专项改造提示词包
+
+真正实现 `release-ai-plugins` 的 registry generator、写入白名单、DryRun/Apply、CI stale gate 和测试时，必须继续阅读：
+
+```text
+docs/prompts/release-ai-plugins/
+└── 2026-8-12-release-ai-plugins-add-skill-registry-json-for-MCP/
+```
+
+该目录是 `release-ai-plugins` 支持 `Skill-Router-MCP` 的专项权威实施提示词，不要在本目录重复维护两套实现细节。
 
 ## MCP 协议
 
@@ -230,6 +241,7 @@ Skill Router 负责：
 
 - [ ] `ai-plugins/skill-registry.json` 可确定性生成和校验。
 - [ ] `release-ai-plugins` 已有明确 registry generator 集成契约。
+- [ ] 2026-8-12 `release-ai-plugins` 专项改造提示词包完整。
 - [ ] 可以发现、搜索、加载 skills。
 - [ ] 同一 tool call 的 registry / skill 来自同一 commit SHA。
 - [ ] 新 push 后下一次新 snapshot 能看到新 HEAD。
