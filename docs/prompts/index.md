@@ -119,3 +119,7 @@ Could not locate the bindings file. Tried:
 Vitest 4 本身也已经把旧 workspace 配置迁向 projects；因此更没有必要借这个 MCP 项目顺手迁全仓测试基础设施。
 现在时间过了很久了，我想让你看看一个非常具有破坏性的变更，我们整个项目的基础设施可以完成统一的升级么？
 我们的 vite 可以到 vite8 么？vitest 可以到 vitest4 么？
+
+## 010 <!-- TODO: --> 执行 2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web 任务
+
+`docs\prompts\release-ai-plugins\2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web` 目录全都是已经设计好的东西，全都是已经设计好任务提示词。你直接拿来用就行，我相信大多数的实施细节和边缘问题都已经写清楚了，你按照实施清单来做即可。
