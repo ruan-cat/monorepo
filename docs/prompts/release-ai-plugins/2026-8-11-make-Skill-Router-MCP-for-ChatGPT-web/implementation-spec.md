@@ -11,13 +11,13 @@ Cloudflare Workers
 +
 Nitro v3
 +
-MCP TypeScript SDK v2
+OpenAI-current MCP compatibility profile
 +
-MCP 2026-07-28
+@modelcontextprotocol/sdk / McpServer
 +
 GitHub exact-commit Skill Source
 +
-可查询/可回滚的 Worker release
+versioned Worker production release
 ```
 
 真实工作负载：Skill 数量中等、更新频率高。
@@ -30,65 +30,66 @@ GitHub exact-commit Skill Source
 | --- | --- |
 | Serverless Runtime | Cloudflare Workers |
 | Application Runtime | Nitro v3 |
-| HTTP Runtime Layer | Nitro-managed H3 |
-| MCP Server SDK | `@modelcontextprotocol/server` v2 |
-| MCP Protocol | `2026-07-28` modern era |
+| HTTP Runtime | Nitro-managed H3 |
+| MCP SDK | OpenAI 当前推荐的 `@modelcontextprotocol/sdk` |
+| MCP Server | `McpServer` |
 | Transport | Streamable HTTP |
-| Skill Source of Truth | GitHub `ai-plugins` |
-| Skill Version Boundary | Git commit SHA |
-| Discovery Index | `ai-plugins/skill-registry.json` |
+| Skill Source | GitHub `ai-plugins` |
+| Skill Snapshot | Git exact commit SHA |
+| Registry | `ai-plugins/skill-registry.json` |
 | Worker Release | Cloudflare Versions & Deployments |
-| Persistent Storage | MVP 不需要 KV/R2/D1/DO |
-| Search | Registry 内存关键词/token matching |
+| Persistent Cloudflare Storage | MVP 不需要 |
+
+不要把 MCP upstream 比 OpenAI ChatGPT 当前支持更激进的 protocol/SDK major 写死为 production baseline。
 
 ---
 
-# 2. 依赖与版本原则
+# 2. 直接依赖原则
 
 MCP package 直接管理：
 
 ```text
 nitro
-@modelcontextprotocol/server
-@modelcontextprotocol/client   # 测试/contract 使用
+@modelcontextprotocol/sdk
+zod
 wrangler
 ```
 
+测试使用同一 MCP SDK package/version。
+
 H3 由 Nitro 依赖树管理。
 
-MCP package `package.json.version` 是 MCP application SemVer 的唯一来源。
-
-所有具体依赖版本由 package.json + `pnpm-lock.yaml` 固化。
+具体 versions 由 package.json + `pnpm-lock.yaml` 固化。
 
 ---
 
-# 3. MCP Modern Protocol
+# 3. MCP 实现原则
 
-禁止新实现继续以 v1 legacy 模型为架构：
+OpenAI 当前官方构建路径：
 
 ```text
-initialize
-initialized
-Mcp-Session-Id
+McpServer
++
+initialization / server info
++
+tools/list / tools/call
++
+Streamable HTTP
 ```
 
-MCP `2026-07-28` 是 per-request stateless core。
+禁止：
 
-SDK v2 负责：
+- 手写 JSON-RPC lifecycle。
+- 自定义 REST imitation。
+- 在 Nitro handler 重写 MCP negotiation。
 
-- modern wire protocol。
-- server identity `_meta`。
-- discovery/capability protocol surface。
-- `tools/list` / `tools/call`。
-- schema/error handling。
-
-Nitro endpoint 只做最薄 runtime adapter。
+如果未来迁移 MCP SDK major，必须先通过 `chatgpt-web-mcp-compatibility-profile.md` 的迁移门槛。
 
 ---
 
-# 4. 统一 Tool Definitions
+# 4. 单一 Tool Definitions
 
-第一版核心 tools：
+第一版核心：
 
 ```text
 get_server_info
@@ -97,85 +98,76 @@ search_skills
 load_skill
 ```
 
-实现必须有单一 `toolDefinitions` source，同步驱动：
+统一 `toolDefinitions` 驱动：
 
-- SDK tool registration。
+- SDK `registerTool`。
 - 标准 `tools/list`。
 - `get_server_info.tools`。
 - tests。
-
-禁止硬编码多份 tool catalog。
 
 ---
 
 # 5. `get_server_info`
 
-该 tool 提供面向 ChatGPT/人的自描述信息：
+返回面向 ChatGPT/人的生产自描述：
 
 ```text
-MCP server name/version
-MCP protocol revision
-Worker Version ID/tag/timestamp
-Worker build Git SHA
-Skill source repository/ref
-Registry schemaVersion
-完整当前 tool catalog
+server.name
+server.version
+server.buildGitSha
+
+deployment.workerVersionId
+deployment.workerVersionTag
+deployment.workerVersionTimestamp
+
+skillSource.repository
+skillSource.ref
+registrySchemaVersion
+
+tools[]
 ```
 
-它默认不访问 GitHub HEAD。
+MCP application version 来自 package.json。
 
-MCP Server SemVer 来自 package.json；Worker metadata 来自 `CF_VERSION_METADATA`；build Git SHA 来自 build-time injection。
+Worker metadata 来自 `CF_VERSION_METADATA`。
+
+build Git SHA 来自构建期注入。
+
+默认不查询 GitHub HEAD。
 
 ---
 
-# 6. Source Snapshot
+# 6. SourceSnapshot
 
-未 pin tool call：
+未 pin：
 
 ```text
 GITHUB_REF
   ↓
-resolve exact SHA once
+resolve exact commit SHA once
   ↓
-SourceSnapshot
-  ↓
-all Skill reads use commitSha
+all Skill reads use that SHA
 ```
 
-概念类型：
+Pinned：
 
-```ts
-interface SourceSnapshot {
-  repository: string
-  ref?: string
-  commitSha: string
-}
+```text
+sourceCommitSha input
+  ↓
+validate within configured repo
+  ↓
+use exact SHA
 ```
 
 list/search/load 返回 `sourceCommitSha`。
 
 ---
 
-# 7. Optional Cross-tool Snapshot Pin
-
-```text
-search @ A
-push B
-load(pin=A) -> A
-load(no pin) -> latest B
-```
-
-`sourceCommitSha` pin 只能指定 configured owner/repo 内的 exact commit，不允许输入任意 repository。
-
-不需要 KV/DO/session token store。
-
----
-
-# 8. 项目概念结构
+# 7. 项目概念结构
 
 ```text
 skill-router-mcp/
-├── package.json                  # MCP application SemVer
+├── package.json
 ├── mcp/
 │   ├── create-server.ts
 │   ├── tool-definitions.ts
@@ -185,9 +177,9 @@ skill-router-mcp/
 │       ├── search-skills.ts
 │       └── load-skill.ts
 ├── services/
+│   ├── server-info.ts
 │   ├── skill-router.ts
-│   ├── source-snapshot.ts
-│   └── server-info.ts
+│   └── source-snapshot.ts
 ├── repositories/
 │   └── github-skill-source.ts
 ├── runtime/
@@ -202,29 +194,29 @@ skill-router-mcp/
 └── wrangler.toml
 ```
 
-实际路径可按 monorepo/Nitro 约定调整，职责边界不可改变。
+实际路径可按仓库 convention 调整，职责不可混淆。
 
 ---
 
-# 9. GitHub Repository Adapter
+# 8. GitHub Repository Adapter
 
-唯一接触 `GITHUB_TOKEN` 的边界。
+唯一接触 `GITHUB_TOKEN`。
 
 负责：
 
-- resolve configured ref -> exact SHA。
+- ref -> SHA。
 - registry @ SHA。
 - selected Skill @ SHA。
 - related file @ SHA。
-- GitHub error -> domain error。
+- upstream errors -> domain errors。
 
-禁止 tool/service 自己拼 GitHub authorization header。
+Tool/Service 不自己拼 Authorization。
 
 ---
 
-# 10. Skill Registry
+# 9. Registry
 
-Registry v1：
+v1：
 
 ```text
 id
@@ -235,45 +227,35 @@ version
 entry
 ```
 
-不枚举 references/templates/examples。
+不枚举 deep files。
 
-运行时：
-
-```text
-registry @ SourceSnapshot
-  ↓
-list/search
-  ↓
-selected entry
-  ↓
-SKILL.md @ same SHA
-```
+list/search 读 registry；load 根据 entry 读同 SHA SKILL.md。
 
 ---
 
-# 11. 深层文件
+# 10. 深层文件
 
-Cloud MCP：
+先加载选中 `SKILL.md`。
 
-1. 先读取选中 `SKILL.md`。
-2. 只有实际需要才读取 related file。
-3. 限制路径在允许 Skill 范围。
-4. 所有读取同 SHA。
+后续 related files：
 
-不要默认递归加载 Skill 目录。
+- 按需。
+- 同 sourceCommitSha。
+- path 不逃逸 Skill 范围。
+- 不默认递归全部内容。
 
 ---
 
-# 12. Runtime / Deployment Metadata
+# 11. Runtime / Deployment Metadata
 
-Wrangler 增加：
+Wrangler：
 
 ```toml
 [version_metadata]
 binding = "CF_VERSION_METADATA"
 ```
 
-运行时 DeploymentInfo：
+DeploymentInfo：
 
 ```text
 workerVersionId
@@ -282,71 +264,74 @@ workerVersionTimestamp
 buildGitSha
 ```
 
-其中 `buildGitSha` 在 CI/build 阶段注入 bundle。
-
-这些信息供：
-
-- `get_server_info`。
-- `/health`。
-- logs。
-- production smoke。
+用于 `get_server_info` / health / logs / production smoke。
 
 ---
 
-# 13. Skill 发布与 Worker 发版分离
+# 12. 三个发布域
 
-## Skill-only
+## Skill Data
 
 ```text
 ai-plugins change
  -> release-ai-plugins
  -> Git push
- -> new MCP Skill snapshot
+ -> next Skill call sees new source snapshot
 ```
 
-不部署 Worker。
+不部署 Worker，不刷新 ChatGPT tool metadata。
 
-## MCP runtime/config
+## MCP Runtime Internal
 
 ```text
-MCP code/config change
- -> bump MCP SemVer
+code/config change
+ -> SemVer bump
  -> tests/build
  -> Worker version upload
- -> preview/staging smoke
- -> 100% promote
- -> production smoke
+ -> Preview/Staging
+ -> production promotion
+ -> smoke
 ```
 
-详细见：
+## MCP Tool Contract
+
+当 tool name/schema/description/annotation 变化：
 
 ```text
-mcp-release-versioning-and-production-maintenance.md
+Runtime release
++
+ChatGPT Developer Mode refresh/rescan
++
+evaluation rerun
++
+Workspace review/publish when applicable
 ```
+
+Cloudflare 自动部署不能替代 ChatGPT 对工具定义的审核 snapshot。
 
 ---
 
-# 14. Worker Release 默认策略
+# 13. Worker Release 默认策略
 
-生产 protocol-visible 改动默认采用：
+生产推荐：
 
 ```text
-immutable version upload
+versions upload
   ↓
-preview/staging validation
+Preview URL / staging smoke
   ↓
 exact version 100% promote
+  ↓
+Production smoke
 ```
 
-不建议 tool schema 改动直接做双版本 gradual split，因为两个版本可能暴露不同 tool catalog。
-
-Gradual rollout 仅用于明确向后兼容的内部改动，并在另行验证 version-affinity/compatibility 后采用。
+Tool contract 变化默认不用不兼容双版本长期 split traffic。
 
 ---
 
-# 15. 自动部署 Path Boundary
+# 14. 自动部署 Path Boundary
 
-Worker pipeline 只应在 MCP runtime/config/build input 变化时触发。
+Worker build/deploy 只监听 MCP runtime/config/build inputs。
 
 Skill-only：
 
@@ -354,93 +339,75 @@ Skill-only：
 ai-plugins/**
 ```
 
-不应导致 Worker redeploy。
+不触发 Worker redeploy。
 
-如果使用 Cloudflare Git integration，配置 Build Watch Paths；如果使用 GitHub Actions，则配置 workflow path filter。
-
-不要同时让 Cloudflare Git integration 与 GitHub Actions 对同一 production Worker 自动 deploy。
+推荐 GitHub Actions + package-local Wrangler 作为唯一 production deployment authority；若改用 Cloudflare Git integration，则停用另一条自动 production deploy。
 
 ---
 
-# 16. Testing
-
-必须分层：
+# 15. Testing
 
 ```text
-Node Vitest unit
+Node unit
 Workers Vitest/workerd
+MCP SDK client/Inspector-compatible contract
 Nitro production build
-Wrangler createTestHarness integration
-Cloudflare preview/staging smoke
-production read-only smoke
+Wrangler createTestHarness
+Cloudflare Preview/Staging smoke
+Production read-only smoke
 ChatGPT Web acceptance
 ```
 
-重点新增版本 contract tests：
+重点 contract：
 
-- serverInfo.version = package version。
-- `get_server_info.server.version` = package version。
-- `get_server_info.tools` 与 toolDefinitions 同源。
-- Worker version metadata 可读。
-- buildGitSha 可读。
-- production promote 后线上返回预期版本。
-
----
-
-# 17. Search / Storage
-
-中等 Skill 数量继续使用：
-
-```text
-one registry fetch
-+
-in-memory matching
-+
-selected Skill fetch
-```
-
-MVP 不需要：
-
-- KV/R2/D1/DO。
-- vector DB。
-- embedding pipeline。
-- incremental Registry DB。
-
-未来 cache 仅使用 commit-addressed immutable keys。
+- server version == package.json version。
+- tools/list == toolDefinitions。
+- get_server_info.tools 同源。
+- Worker version metadata/build SHA 正确。
+- latest/pin 正确。
+- Tool contract release 要求 ChatGPT refresh gate。
 
 ---
 
-# 18. 实施顺序
+# 16. OpenAI Skills Import Extension
+
+第一版不把 OpenAI submission-time Skills import 作为 live Skill Router 主通道。
+
+原因：它是静态导入 snapshot，Skill 更新需要重新 Scan Tools/submit，不符合我们的高频 live Git source 模型。
+
+---
+
+# 17. 实施顺序
 
 ```text
 1. package + SemVer + lockfile
-2. Nitro v3 Cloudflare Worker
-3. MCP SDK v2 modern protocol
-4. server identity + toolDefinitions
+2. Nitro Worker + Wrangler
+3. OpenAI-current @modelcontextprotocol/sdk + McpServer
+4. unified toolDefinitions
 5. get_server_info
-6. runtime binding + version metadata + build SHA
+6. version metadata/build SHA
 7. GitHub Repository Adapter
 8. latest/pinned SourceSnapshot
 9. registry list/search
 10. exact-SHA load_skill
 11. Node/workerd/production harness tests
-12. version upload + preview/staging + promote pipeline
-13. production smoke + ChatGPT Web acceptance
+12. version upload + Preview/Staging + production promote
+13. Production smoke
+14. ChatGPT Developer Mode
+15. Tool contract 变化时 refresh/rescan/review
 ```
 
 ---
 
-# 19. Definition of Done
+# 18. Definition of Done
 
-- [ ] MCP `2026-07-28` modern era 工作。
-- [ ] 不以 legacy initialize/session 为完成条件。
-- [ ] MCP server identity version 来自 package.json。
-- [ ] `get_server_info` 可查询 MCP/Worker/build/tool metadata。
-- [ ] 标准 `tools/list` 返回完整 tool catalog。
-- [ ] list/search 返回 sourceCommitSha。
-- [ ] load 支持 latest/pin。
-- [ ] Worker version metadata 可读。
-- [ ] Skill-only change 不重新部署 Worker。
-- [ ] MCP runtime change 有 versioned preview/promote/rollback 流程。
-- [ ] Worker 无 mandatory Cloudflare storage 也完整运行。
-- [ ] GitHub Token 不泄露。
+- [ ] SDK 与当前 OpenAI ChatGPT MCP 官方路径一致。
+- [ ] initialization / server identity 正常。
+- [ ] `get_server_info` 可查服务/Worker/build/tool 信息。
+- [ ] `tools/list` 完整。
+- [ ] latest/pin 正常。
+- [ ] CF_VERSION_METADATA 可读。
+- [ ] Skill-only update 不部署 Worker/刷新 tools。
+- [ ] Runtime release 有 versioned deploy/smoke/rollback。
+- [ ] Tool contract release 有 ChatGPT refresh/review gate。
+- [ ] 无 mandatory KV/R2/D1/DO。
