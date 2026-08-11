@@ -25,15 +25,58 @@
 
 ---
 
+# AI Agent 实施入口
+
+如果由新的 AI Agent 接手实现，必须先阅读：
+
+1. `README.md`
+2. `architecture.md`
+3. `implementation-spec.md`
+4. `agent-execution-guide.md`
+
+禁止跳过实施规格直接编码。
+
+---
+
+# 文档索引
+
+## 架构设计
+
+- `architecture.md`：整体系统架构
+- `implementation-spec.md`：工程实施规格
+
+## MCP 协议
+
+- `mcp-protocol-design.md`：MCP JSON-RPC、tools、resources 设计
+
+## Runtime 实现
+
+- `nitro-v3-development-guide.md`：Nitro v3 + H3 开发规范
+- `cloudflare-worker-deployment.md`：Cloudflare Worker 部署规范
+
+## Skill 系统
+
+- `skill-registry-schema.md`：Skill Registry 数据模型
+
+## 质量保障
+
+- `testing-plan.md`：测试策略
+- `security-model.md`：安全模型
+
+## Agent 执行与部署
+
+- `agent-execution-guide.md`：AI Agent 实施流程
+- `deployment-runbook.md`：上线部署手册
+
+---
+
 # 核心架构
 
 ```text
 ChatGPT Web Developer Mode
           |
-          |
           v
 Remote MCP Client
-          |
           |
           v
 Skill Router MCP Server
@@ -55,17 +98,17 @@ Skill Router MCP Server 只负责技能能力管理。
 
 负责：
 
-1. 技能发现（Discovery）
-2. 技能搜索（Search）
-3. 技能加载（Loading）
-4. 技能版本管理（Versioning）
-5. 技能元数据管理（Metadata）
+1. 技能发现
+2. 技能搜索
+3. 技能加载
+4. 技能版本管理
+5. 技能元数据管理
 
 不负责：
 
-- 执行 Shell 命令
-- 修改 GitHub 仓库
-- 创建 Pull Request
+- 执行 Shell
+- 修改 GitHub
+- 创建 PR
 - 运行 Docker
 - 执行 CI
 
@@ -73,137 +116,7 @@ Skill Router MCP Server 只负责技能能力管理。
 
 ---
 
-# AI Agent 实施阅读顺序
-
-实现 Agent 必须按照以下顺序阅读：
-
-## 第一阶段：理解系统
-
-1. architecture.md
-2. implementation-spec.md
-
-目标：理解整体系统边界。
-
----
-
-## 第二阶段：实现协议层
-
-3. mcp-protocol-design.md
-
-实现：
-
-- initialize
-- tools/list
-- tools/call
-- JSON-RPC response
-
----
-
-## 第三阶段：实现 Skill 数据层
-
-4. skill-registry-schema.md
-
-实现：
-
-- metadata
-- registry
-- version
-- KV schema
-
----
-
-## 第四阶段：实现 Web Runtime
-
-5. nitro-v3-development-guide.md
-6. cloudflare-worker-deployment.md
-
-实现：
-
-- Nitro handler
-- H3 API
-- Worker adapter
-- KV binding
-
----
-
-## 第五阶段：验证生产质量
-
-7. testing-plan.md
-8. security-model.md
-
-完成：
-
-- 协议测试
-- 部署测试
-- 安全测试
-
----
-
-# 推荐实施阶段
-
-## Phase 1：基础工程
-
-完成：
-
-- Nitro v3 初始化
-- Cloudflare Worker preset
-- MCP endpoint
-
-验收：
-
-```text
-GET /health
-```
-正常返回。
-
----
-
-## Phase 2：MCP 协议
-
-完成：
-
-- initialize
-- tools/list
-- tools/call
-
-验收：
-
-MCP Client 可以连接。
-
----
-
-## Phase 3：Skill Registry
-
-完成：
-
-- registry.json
-- metadata parser
-- skill loader
-
-验收：
-
-可以加载 `ai-plugins/dev-skills`。
-
----
-
-## Phase 4：Cloudflare 部署
-
-完成：
-
-- KV
-- Secret
-- Custom Domain
-- CI/CD
-
-验收：
-
-公网 HTTPS MCP Endpoint 可访问。
-
----
-
 # Definition of Done
-
-项目完成必须满足：
 
 ## MCP
 
@@ -224,32 +137,9 @@ MCP Client 可以连接。
 - [ ] Cloudflare Worker 部署成功
 - [ ] 无 Node 专属 API
 - [ ] 无本地状态依赖
-- [ ] 支持高并发读取
 
 ## Security
 
 - [ ] GitHub token 不泄露
 - [ ] Skill 内容经过验证
 - [ ] MCP 工具权限最小化
-
----
-
-# 最终目标
-
-完成后架构：
-
-```text
-ChatGPT Web
-     |
-Developer Mode MCP
-     |
-Cloudflare Worker
-     |
-Nitro v3 MCP Server
-     |
-Skill Router
-     |
-GitHub ai-plugins
-```
-
-该系统成为个人 AI Agent Skill Platform 的基础设施。
