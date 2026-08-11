@@ -2,7 +2,7 @@
 
 ## 1. 测试目标
 
-验证生产级：
+验证：
 
 ```text
 Cloudflare Worker
@@ -16,7 +16,7 @@ Streamable HTTP
 GitHub exact-commit Skill Source
 ```
 
-是否可以被 ChatGPT Web Developer Mode 正常使用，并在 skills 高频更新时保证 freshness 与单请求版本一致性。
+能在“Skill 数量中等、更新频率高”的真实模式下保持 freshness、一致性和轻量维护。
 
 ---
 
@@ -28,10 +28,11 @@ MCP SDK Integration Test
 Protocol Test
 Registry Determinism Test
 Source Snapshot Consistency Test
+Snapshot Pin Test
 Runtime Test
 Deployment Test
 Security Test
-Performance Test
+Performance Sanity
 ```
 
 ---
@@ -40,10 +41,10 @@ Performance Test
 
 验证：
 
-- `McpServer` 创建成功。
-- tools 注册成功。
-- Streamable HTTP transport 正常。
-- tool schema 和只读 annotations 正确。
+- `McpServer` 创建。
+- tools 注册。
+- Streamable HTTP transport。
+- tool schema/只读 annotations。
 
 核心 tools：
 
@@ -55,94 +56,167 @@ load_skill
 
 ---
 
-# 4. MCP 协议测试
+# 4. MCP Tool Contract
 
-## initialize
+## list_skills
 
-验证 protocol version、capabilities、server metadata。
+验证：
 
-## tools/list
+- 返回 minimal registry summaries。
+- 返回 `sourceCommitSha`。
+- 不依赖 tags/references 等不存在于 v1 registry 的字段。
 
-必须可发现核心 tools。
+## search_skills
 
-## tools/call
+验证：
 
-`search_skills`：验证合法/非法输入、匹配结果和错误。
+- query schema。
+- `id/name/description/plugin` 匹配。
+- 返回候选 + `sourceCommitSha`。
+- 不逐个读取所有 Skill 正文。
 
-`load_skill`：验证返回 skill context、version、`sourceCommitSha`，并确认不泄露 Secret。
+## load_skill
+
+验证两种模式：
+
+```text
+load_skill(skillId)
+```
+
+读取最新 HEAD。
+
+```text
+load_skill(skillId, sourceCommitSha=A)
+```
+
+读取 exact A。
+
+结果包含 metadata、SKILL.md、`sourceCommitSha`，且不泄露 Secret。
 
 ---
 
-# 5. Registry Determinism 测试
+# 5. Registry Determinism
 
-对相同 working tree 连续生成两次：
+相同 working tree 连续生成：
 
 ```text
 bytes(output1) == bytes(output2)
 ```
 
-必须验证：
+验证：
 
 - skills 排序稳定。
-- references 排序稳定。
-- 无 timestamp / random / absolute path。
-- 无 registry 自身 commit SHA。
-- 新增/删除/重命名 skill 会改变 registry。
-- description/version 变化会改变对应 entry。
-- stale registry 的 check mode 非零退出。
+- property order 稳定。
+- 无 timestamp/random/absolute path/current commit SHA。
+- v1 不枚举 references/templates/examples。
+- add/delete/rename/discovery metadata/version 变化正确。
+- stale Check 非零。
 
 ---
 
-# 6. Source Snapshot 一致性测试
+# 6. Registry Low-Churn Test
 
-这是第一版最重要的数据一致性测试。
+场景：只增删/move reference/template/example 文件。
 
-场景：
+Registry schema 不应因为“深层文件列表镜像”出现字段变化。
+
+正常 release 若该 Skill 行为发生真实变化，应通过 `metadata.version` 变化体现新版本。
+
+该测试防止未来重新把 `references[]` 引入 v1。
+
+---
+
+# 7. Source Snapshot 单调用一致性
 
 ```text
-1. resolve dev -> commit A
-2. 调用过程中 dev 推进到 commit B
-3. 继续读取 registry / SKILL.md
+resolve dev -> commit A
+调用过程中 dev -> commit B
+继续读取 registry / SKILL.md
 ```
 
-预期：
+预期：本次 call 全部 A；下一次新 unpinned call 可 B。
 
-```text
-本次 tool call 全部仍读取 commit A
-下一次新的 tool call 可解析到 commit B
-```
-
-禁止出现：
+禁止：
 
 ```text
 registry @ A
 SKILL.md @ B
 ```
 
-测试 repository adapter 是否在获得 `SourceSnapshot.commitSha` 后只使用 exact SHA。
+---
+
+# 8. Search -> Load Snapshot Pin
+
+```text
+search_skills @ A
+returns sourceCommitSha=A
+branch moves -> B
+load_skill(skillId, sourceCommitSha=A)
+```
+
+预期：仍加载 A。
+
+另测：
+
+```text
+load_skill(skillId)
+```
+
+应读取最新 B。
+
+还要验证：
+
+- pin 只作用于配置好的 owner/repo。
+- 调用方不能覆盖任意 repository。
+- 不需要 server-side session。
 
 ---
 
-# 7. Freshness 回归测试
+# 9. 高频连续发布 Freshness
 
 模拟：
 
 ```text
-commit A: skill version 1.0.0
-        |
-push commit B: skill version 1.0.1
+A: version 1.0.0
+B: 1.0.1
+C: 1.0.2
 ```
 
-验证：
+连续推进 branch，验证每个新 unpinned tool call 都可解析当时最新 HEAD；old pinned SHA 仍可复现对应 Git snapshot。
 
-- commit A 请求可被复现。
-- branch `dev` 的新 snapshot 能解析到 commit B。
-- 新请求返回 B 的 registry/skill。
-- 不依赖 KV purge、R2 upload 或 Worker redeploy。
+不依赖 Worker redeploy、KV purge、R2 upload。
 
 ---
 
-# 8. Nitro v3 / Worker 测试
+# 10. GitHub Repository Adapter
+
+覆盖：
+
+- resolve ref -> SHA。
+- registry @ SHA。
+- selected SKILL.md @ SHA。
+- related file @ SHA。
+- exact pinned SHA。
+- 404/rate limit/auth failure。
+- Token 不进日志/返回值。
+
+断言在 snapshot 建立后，读取参数使用 commit SHA 而不是 `GITHUB_REF`。
+
+---
+
+# 11. 深层文件按需读取
+
+测试：
+
+- `load_skill` 先读取 `SKILL.md`。
+- 只有明确需要时才读取关联文件。
+- 不默认递归加载整个 Skill 目录。
+- 关联 path 限制在允许 Skill 范围。
+- 关联读取全部使用相同 SHA。
+
+---
+
+# 12. Nitro v3 / Worker
 
 本地：
 
@@ -152,101 +226,103 @@ wrangler dev
 
 验证：
 
-- vars 正常。
-- Secret 正常。
-- Nitro Cloudflare runtime 正常。
+- vars/Secret。
+- Nitro Cloudflare runtime。
 - 无 KV/R2 binding 也能启动和完成 MCP 调用。
 
 禁止依赖：
 
-- `process.env`
-- Node HTTP server
-- filesystem
-- 本地持久状态
+- `process.env` 作为 Cloudflare binding 方案。
+- Node HTTP server。
+- filesystem persistence。
+- local/server session state。
 
 ---
 
-# 9. GitHub Repository Adapter 测试
+# 13. ChatGPT Web 验收
 
-mock / integration 覆盖：
-
-- resolve ref -> commit SHA。
-- registry @ SHA。
-- SKILL.md @ SHA。
-- reference @ SHA。
-- 404 / rate limit / auth failure 的领域错误转换。
-- token 不进入日志或返回值。
-
-测试应能断言读取 skill 时传入的是 `SourceSnapshot.commitSha`，而不是 `GITHUB_REF`。
-
----
-
-# 10. ChatGPT Web 验收
-
-真实流程：
+顺序：
 
 ```text
-ChatGPT Web
+MCP Inspector
   ↓
-添加 Remote MCP
-  ↓
+ChatGPT Web Developer Mode
+```
+
+真实测试：
+
+```text
 initialize
   ↓
 tools/list
   ↓
 search_skills
   ↓
-load_skill
+load_skill with returned sourceCommitSha
 ```
 
-技术验收优先使用 MCP Inspector，随后才做 ChatGPT Web Developer Mode 实测。
+同时再测试不 pin 的 latest load。
 
 ---
 
-# 11. 性能测试
+# 14. Performance Sanity
 
-第一版需要测量而不是预设存储方案：
+第一版测量而不预设存储方案：
 
-- GitHub 请求次数 / tool call。
-- P50 / P95 tool latency。
-- branch ref resolve latency。
-- registry download size。
-- `load_skill` 内容大小。
-- GitHub rate-limit header / failure behavior。
+- Skill count。
+- registry byte size。
+- GitHub requests/tool call。
+- ref resolve latency。
+- registry fetch latency。
+- selected Skill fetch latency。
+- P50/P95 tool latency。
+- GitHub rate-limit/failure behavior。
 
-只有指标明确说明重复 GitHub 读取是瓶颈，才进入 commit-addressed cache 设计。
+目标：对中等 Skill 数量，单 registry 内存搜索应保持简单可接受。
+
+只有真实数据证明成为瓶颈，才进入下一阶段优化。
 
 ---
 
-# 12. 可选缓存未来测试
+# 15. 可选缓存未来测试
 
-如果未来增加缓存，必须额外验证：
-
-```text
-cache key includes commit SHA
-```
-
-例如：
+如果以后加 cache：
 
 ```text
 registry:{sha}
 skill:{sha}:{id}
 ```
 
-新 commit 不允许错误命中旧 commit key。
+验证新 commit 不错误命中旧 key。
 
 这不是 MVP 验收项。
 
 ---
 
-# 13. AI Agent 验收清单
+# 16. 轻量增长回归
 
-- [ ] MCP SDK 集成完成。
-- [ ] Streamable HTTP 正常。
-- [ ] Registry 确定性生成通过。
-- [ ] Registry stale check 通过。
-- [ ] exact-commit SourceSnapshot 一致性通过。
-- [ ] 高频更新 freshness 回归通过。
-- [ ] Worker 无 KV/R2 也可完整运行。
+必须定期防止架构膨胀：
+
+- [ ] Registry 仍是单小文件 discovery index。
+- [ ] 搜索仍可在内存完成。
+- [ ] 无增量 Registry DB。
+- [ ] 无 mandatory KV/R2/D1/DO。
+- [ ] 无 vector DB/embedding pipeline。
+- [ ] 无 snapshot session store。
+- [ ] 深层文件未重新进入 Registry v1。
+
+---
+
+# 17. AI Agent 验收清单
+
+- [ ] MCP SDK / Streamable HTTP 正常。
+- [ ] minimal Registry deterministic。
+- [ ] stale Check。
+- [ ] exact-commit 单调用一致性。
+- [ ] 高频连续更新 freshness。
+- [ ] search->load snapshot pin。
+- [ ] deep files 按需同 SHA。
+- [ ] Worker 无 storage binding 也完整运行。
 - [ ] ChatGPT Web 可连接。
 - [ ] Secret 未泄露。
+- [ ] 性能优化仍由真实指标触发。
