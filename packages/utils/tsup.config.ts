@@ -32,6 +32,7 @@ export default defineConfig((options: Options) => [
 		sourcemap: true,
 		outDir: "dist/node-esm",
 		format: ["esm"],
+		noExternal: ["consola"],
 		clean: true,
 		dts: true,
 		shims: true,
