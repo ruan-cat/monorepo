@@ -2,46 +2,43 @@
 
 ## 文档目的
 
-本文用于验证 Skill Router MCP Server 是否真正符合 ChatGPT Web Developer Mode Remote MCP 使用要求。
+本文验证 Skill Router MCP Server 是否真正符合 ChatGPT Web Developer Mode Remote MCP 使用要求。
 
-本项目不是普通 HTTP API 验收，而是完整 MCP Client/Server 链路验收。
-
-目标链路：
-
-```text
-ChatGPT Web Developer Mode
-        |
-        v
-Remote MCP Client
-        |
-        v
-Streamable HTTP MCP Endpoint
-        |
-        v
-Nitro v3 + MCP TypeScript SDK
-        |
-        v
-McpServer
-        |
-        v
-Skill Router Tools
-```
-
-MCP Server 应使用 MCP TypeScript SDK 提供的协议能力，而不是手写 JSON-RPC。
+重点不仅是协议连通，还要验证高频 Skill 更新时的 latest/pinned snapshot 语义。
 
 ---
 
-# 1. 前置条件
+# 1. 目标链路
 
-必须确认：
+```text
+ChatGPT Web
+  ↓
+Remote MCP Client
+  ↓
+Streamable HTTP
+  ↓
+Nitro v3 + MCP SDK
+  ↓
+McpServer
+  ↓
+Skill Router
+  ↓
+GitHub exact-commit SourceSnapshot
+```
 
-- Cloudflare Worker 已部署。
-- HTTPS 域名正常。
-- Streamable HTTP endpoint 可访问。
-- MCP Server 已创建 `McpServer`。
-- tools 已注册。
+---
 
-推荐地址：
+# 2. 前置条件
+
+确认：
+
+- Worker 已部署。
+- HTTPS endpoint 正常。
+- MCP SDK / Streamable HTTP 正常。
+- `McpServer` 已注册核心 tools。
+- `ai-plugins/skill-registry.json` 在目标 Git commit 中可读。
+
+推荐 endpoint：
 
 ```text
 https://mcp.ai.ruan-cat.com/mcp
@@ -49,26 +46,20 @@ https://mcp.ai.ruan-cat.com/mcp
 
 ---
 
-# 2. MCP 生命周期验证
+# 3. MCP 生命周期
 
-## initialize
-
-验证：
+验证 initialize：
 
 - protocol version。
 - server info。
 - capabilities。
 - tools capability。
 
-失败常见原因：
-
-- transport 配置错误。
-- MCP SDK 初始化失败。
-- response schema 不符合协议。
+技术验收先使用 MCP Inspector，再做 ChatGPT Web 实测。
 
 ---
 
-# 3. tools/list 验证
+# 4. tools/list
 
 必须暴露：
 
@@ -78,28 +69,22 @@ search_skills
 load_skill
 ```
 
-每个 tool 必须包含：
-
-- name
-- description
-- inputSchema
-
-Tool annotation 必须准确：
-
-```json
-{
-  "readOnlyHint": true,
-  "destructiveHint": false
-}
-```
-
-Skill Router 不修改外部系统。
+Tool annotations 必须表达只读/非破坏性语义；具体字段/API 以当前 MCP SDK 为准。
 
 ---
 
-# 4. tools/call 验证
+# 5. `list_skills`
 
-## search_skills
+验证：
+
+- 返回 registry 中的 minimal summaries。
+- summary 字段与 Registry v1 一致。
+- 返回 `sourceCommitSha`。
+- 不要求 tags/references/templates/examples 等 v1 未定义字段。
+
+---
+
+# 6. `search_skills`
 
 输入：
 
@@ -111,13 +96,23 @@ Skill Router 不修改外部系统。
 
 验证：
 
-- 返回匹配技能。
-- 返回 metadata。
-- 不泄露内部 Secret。
+- 返回匹配 Skill。
+- 返回 id/name/description/version/plugin 等 discovery 信息。
+- 返回 `sourceCommitSha`。
+- 不为了搜索读取所有 Skill 正文。
+- 不泄露 Secret。
+
+记录本次返回的：
+
+```text
+sourceCommitSha=A
+```
+
+用于 pinned load 验证。
 
 ---
 
-## load_skill
+# 7. `load_skill` Latest 模式
 
 输入：
 
@@ -129,40 +124,92 @@ Skill Router 不修改外部系统。
 
 验证：
 
-- SKILL.md 返回完整。
-- references 信息正确。
-- version 正确。
+- 服务解析当前 `GITHUB_REF` 最新 HEAD。
+- Registry 与 SKILL.md 来自同一 SHA。
+- 返回 registry metadata + SKILL.md + sourceCommitSha。
+- 不默认要求加载整个 references/templates/examples 目录。
 
 ---
 
-# 5. ChatGPT Web 验收流程
+# 8. `load_skill` Pinned 模式
+
+使用 search 返回的 SHA：
+
+```json
+{
+  "skillId": "nitro-api-development",
+  "sourceCommitSha": "A"
+}
+```
+
+验证：
+
+- 即使 branch HEAD 已推进到 B，仍读取 A。
+- Registry 与 SKILL.md 都来自 A。
+- 返回 sourceCommitSha=A。
+- 调用方不能通过 tool input 覆盖 `GITHUB_OWNER/GITHUB_REPO`。
+
+这是高频更新期间 search -> load 可复现性的核心验收。
+
+---
+
+# 9. 高频更新场景实测
 
 执行：
 
-1. 打开 ChatGPT Developer Mode。
-2. 添加 Remote MCP Server。
-3. 输入测试请求。
-
-例如：
-
 ```text
-列出当前可用技能。
+1. search_skills -> A
+2. push Skill update -> branch HEAD B
+3. load_skill(..., sourceCommitSha=A) -> 应仍是 A
+4. load_skill(...) without pin -> 应看到 B
 ```
 
-预期：
+该流程不应要求：
 
-ChatGPT 调用 MCP tools/list 或对应 skill discovery tool。
+- Worker redeploy。
+- KV purge。
+- R2 upload。
+- server session reset。
 
 ---
 
-# 6. 生产验收标准
+# 10. 深层文件按需读取验收
 
-必须满足：
+如果 Skill 的 `SKILL.md` 明确引用 reference/template/example：
 
-- ChatGPT 可以连接 MCP endpoint。
-- initialize 成功。
-- tools/list 正常。
-- tools/call 正常。
-- Streamable HTTP 正常。
-- Skill 上下文完整返回。
-- 无 Secret 泄露。
+- 只在实际需要时读取。
+- path 必须限制在允许 Skill 范围。
+- 读取继续使用相同 sourceCommitSha。
+- 不默认递归读取整个 Skill 目录。
+
+---
+
+# 11. ChatGPT Web 验收
+
+建议测试请求：
+
+```text
+列出当前可用技能，并告诉我这次读取对应的源码 commit。
+```
+
+再测试：
+
+```text
+搜索 Nitro API 相关技能，然后加载你刚才搜索到的同一个版本。
+```
+
+预期 ChatGPT 能使用 discovery 返回的 snapshot 信息完成 pinned load。
+
+---
+
+# 12. 生产验收标准
+
+- [ ] ChatGPT 可连接 endpoint。
+- [ ] initialize/tools/list/tools/call 正常。
+- [ ] list/search 返回 sourceCommitSha。
+- [ ] latest load 正常。
+- [ ] pinned load 正常。
+- [ ] branch 高频更新不破坏单调用/跨调用预期版本语义。
+- [ ] 深层文件按需同 SHA 读取。
+- [ ] 无 Secret 泄露。
+- [ ] 无 KV/R2/session state 必需依赖。
