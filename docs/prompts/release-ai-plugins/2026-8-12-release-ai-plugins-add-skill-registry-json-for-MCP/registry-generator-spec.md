@@ -24,6 +24,8 @@ scan
 
 不负责 release orchestration。
 
+本生成器按“Skill 数量中等、更新频率高”设计：保持无状态、全量重建、低 churn schema，不引入增量索引复杂度。
+
 ---
 
 # 2. Runtime 约束
@@ -49,13 +51,11 @@ generate-skill-registry.ps1 -Check
 generate-skill-registry.ps1 -Apply
 ```
 
-行为：
-
 ## `-Check`
 
-- 生成 expected registry 到内存或临时字符串。
+- 生成 expected registry 到内存/临时字符串。
 - 读取当前 `ai-plugins/skill-registry.json`。
-- byte/normalized text 比较。
+- 比较 canonical text。
 - 一致 -> exit 0。
 - stale/missing/invalid -> exit non-zero。
 - 不写文件。
@@ -69,7 +69,7 @@ generate-skill-registry.ps1 -Apply
 
 `-Check` 与 `-Apply` 互斥。
 
-若未指定模式，推荐默认 `-Check`，符合仓库现有“默认不写”的安全哲学。
+若未指定模式，推荐默认 `-Check`，符合现有“默认不写”的安全哲学。
 
 ---
 
@@ -84,15 +84,9 @@ ai-plugins/dev-skills/skills/*/SKILL.md
 
 只认直接子目录作为一个 Skill。
 
-禁止递归把：
+禁止递归把 `references/`、`templates/`、`examples/` 中的 Markdown 当成独立 Skill。
 
-```text
-references/
-templates/
-examples/
-```
-
-中的 Markdown 错认成独立 Skill。
+同时，第一版 registry 不枚举这些附属目录的文件列表，因此 generator 无需递归扫描它们。
 
 ---
 
@@ -112,8 +106,6 @@ id = skill directory name
 
 如果两个 plugin roots 出现相同 id，generator 必须失败，不允许通过 `plugin/id` 自动消歧。
 
-原因：云 MCP tool 的 `skillId` 应保持全局唯一、稳定、简洁。
-
 ---
 
 # 6. Frontmatter 解析
@@ -128,38 +120,26 @@ metadata.version
 
 第一版不要为了完整 YAML 支持引入第三方 parser。
 
-可以沿用当前 release 脚本的受约束 frontmatter 解析策略，但 generator 的 parser 必须有专门测试。
+可以沿用当前 release 脚本的受约束 frontmatter 解析策略，但 generator parser 必须有专门测试。
 
-关键要求：
+要求：
 
-- 必须识别 `---` 开闭边界。
+- 识别 `---` 开闭边界。
 - `name` 必填。
 - `description` 必填。
 - `metadata.version` 必填。
 - version 必须为 `MAJOR.MINOR.PATCH`。
 - 不因为正文中出现 `version:` 误解析。
 
-若仓库未来允许复杂 YAML 结构，届时再评估 parser 升级，不要在本次改造中提前引入重量级依赖。
-
 ---
 
 # 7. Description 规范化
 
-Frontmatter 中 `description` 可能使用：
+Frontmatter description 可以是单行或 folded YAML。
 
-```yaml
-description: >-
-  line 1
-  line 2
-```
+Registry 输出标准 JSON string：
 
-或者单行。
-
-Registry 应输出一个标准 JSON string。
-
-规范化要求：
-
-- folded YAML description 语义上折叠为空格。
+- folded 内容语义折叠为空格。
 - 去除首尾无意义空白。
 - 不复制 YAML 标记。
 - 不保留平台相关换行差异。
@@ -180,8 +160,6 @@ dev-skills
 
 禁止从 marketplace/plugin.json 反向推断。
 
-Root 本身就是最稳定的来源。
-
 ---
 
 # 9. Entry Path
@@ -198,25 +176,29 @@ ai-plugins/<plugin>/skills/<id>/SKILL.md
 
 ---
 
-# 10. References 枚举
+# 10. 第一版不扫描/枚举附属文件
 
-第一版推荐枚举：
+Registry v1 不包含：
 
 ```text
-<skill>/references/**/*
+references
+templates
+examples
 ```
 
-仅记录普通文件的 repo-relative path。
+因此 generator 不需要：
 
-规则：
+- 递归枚举 references。
+- 递归枚举 templates/examples。
+- 为附属文件生成 path list/hash。
 
-- 递归。
-- path 使用 `/`。
-- 排序稳定。
-- 不读取内容进入 registry。
-- references 目录不存在时输出空数组。
+原因：
 
-是否同时暴露 templates/examples 应由 `skill-registry-contract.md` 决定；不要自行扩展。
+- 这些字段不是 discovery/search 必需。
+- 高频维护时它们变化频繁，会产生无意义 registry churn。
+- Cloud MCP 在 Skill 被选中后按 exact commit SHA 从 `SKILL.md` 的真实引用按需加载即可。
+
+不要因为旧设计曾包含 `references[]` 而重新加回。
 
 ---
 
@@ -235,7 +217,7 @@ current commit SHA
 random UUID
 ```
 
-原因：这些字段会破坏 deterministic output，或者制造 registry 自引用/环境耦合。
+这些字段破坏 deterministic output 或制造环境/commit 耦合。
 
 ---
 
@@ -243,11 +225,11 @@ random UUID
 
 固定：
 
-1. `skills` 按 `id` ordinal/ASCII 升序。
-2. `references` 按完整 repo-relative path 升序。
+1. roots 使用 schema 契约固定顺序。
+2. `skills` 按 `id` ordinal/ASCII 升序。
 3. JSON object 属性使用固定手写顺序。
 
-不要依赖 PowerShell hashtable 默认遍历顺序作为序列化契约。
+不要依赖普通 hashtable 默认遍历顺序作为序列化契约。
 
 建议使用 `[ordered]` hashtable 或显式对象构造。
 
@@ -258,21 +240,19 @@ random UUID
 必须明确：
 
 - UTF-8。
-- 无 BOM（如仓库约定允许 BOM，应以现有 JSON 风格为准；优先无 BOM）。
+- 无 BOM（若仓库统一规范另有要求，应同步修改契约）。
 - 2 空格 indentation。
 - LF line ending。
 - 文件末尾一个 newline。
-- 不输出多余 trailing whitespace。
+- 无 trailing whitespace。
 
-PowerShell 5.1 的编码默认行为容易产生 UTF-16/BOM，因此不要直接依赖未经控制的 `Out-File` 默认编码。
-
-实现 Agent 必须显式控制写入编码。
+PowerShell 5.1 默认编码容易产生 UTF-16/BOM，不得依赖未经控制的 `Out-File` 默认行为。
 
 ---
 
 # 14. Deterministic Test
 
-必须有测试证明：
+必须证明：
 
 ```text
 run generator
@@ -281,24 +261,20 @@ run generator again
 hash output = X
 ```
 
-并至少在逻辑上覆盖 CRLF/LF 输入差异不改变 registry semantic output。
+并覆盖 CRLF/LF 输入差异不改变 registry semantic/canonical output。
 
 ---
 
 # 15. Check 比较策略
 
-推荐比较最终规范化的完整文本 bytes/string，而不是只 parse JSON 后比较对象。
+比较最终 canonical text，而不是只 parse JSON 后比较对象。
 
-原因：
-
-CI 还需要约束：
+这样 CI 同时约束：
 
 - 排序。
 - indentation。
+- encoding/line ending contract。
 - final newline。
-- canonical output。
-
-因此：
 
 ```text
 expected canonical text == committed text
@@ -310,19 +286,13 @@ expected canonical text == committed text
 
 # 16. Missing Registry
 
-`-Check` 时若：
-
-```text
-ai-plugins/skill-registry.json
-```
-
-不存在，应失败并提示：
+`-Check` 时目标文件不存在应失败并提示：
 
 ```text
 Run generate-skill-registry.ps1 -Apply
 ```
 
-`-Apply` 则允许首次创建。
+`-Apply` 允许首次创建。
 
 ---
 
@@ -330,10 +300,12 @@ Run generate-skill-registry.ps1 -Apply
 
 生成前/后必须保证：
 
-- 每个 entry path 存在。
-- 每个 reference path 存在且位于对应 Skill 目录内。
+- 每个 `entry` path 存在。
+- entry 位于对应 Skill 目录内。
 - 不允许 `..` path escape。
-- 不跟随生成结果引用仓库外文件。
+- 不引用仓库外文件。
+
+第一版无需为附属文件目录建立第二套 path validation/index。
 
 ---
 
@@ -349,7 +321,7 @@ Run generate-skill-registry.ps1 -Apply
 - missing description。
 - missing metadata.version。
 - invalid semver。
-- entry/reference path 逃逸。
+- entry path 逃逸。
 
 不要“尽量生成部分 registry”。发布索引必须是完整闭包。
 
@@ -357,54 +329,61 @@ Run generate-skill-registry.ps1 -Apply
 
 # 19. 删除与重命名
 
-Generator 永远从当前 tree 全量重建：
+Generator 永远从当前 tree 全量重建，old registry 不作为输入。
 
-```text
-old registry
-不作为输入
-```
-
-所以：
+因此：
 
 - 删除 Skill -> entry 自动消失。
 - 重命名 -> old id 消失/new id 出现。
-- 删除 reference -> path 自动消失。
 
-禁止对旧 JSON 做增量 patch。
+不做 Git rename detection，不维护增量 state。
 
 ---
 
-# 20. 日志输出
+# 20. 高频批量发布调用规则
 
-建议输出：
+Generator 可以独立运行，但被 `release-ai-plugins.ps1` 调用时必须避免 per-Skill 重复执行。
+
+正确：
 
 ```text
-[INFO] scanning common-tools skills: N
-[INFO] scanning dev-skills skills: M
+all Skill version/content updates
+        |
+        v
+one generator -Apply
+        |
+        v
+one final generator -Check
+```
+
+错误：
+
+```text
+for each changed Skill -> generator -Apply
+```
+
+中等 Skill 数量下，一次 O(N) full scan 比增量状态机更简单可靠。
+
+---
+
+# 21. 日志输出
+
+建议：
+
+```text
+[INFO] common-tools skills: N
+[INFO] dev-skills skills: M
 [INFO] total skills: X
 [OK] registry is current
 ```
 
-Apply：
-
-```text
-[OK] wrote ai-plugins/skill-registry.json
-```
-
-Stale：
-
-```text
-[ERROR] ai-plugins/skill-registry.json is stale
-Run: ...generate-skill-registry.ps1 -Apply
-```
-
-不要把完整 SKILL.md 正文打印到日志。
+Apply 可额外报告 added/removed/changed discovery entry 数量，但不要把完整 Skill 正文/完整 registry 输出到日志。
 
 ---
 
-# 21. 与主 release 脚本的调用契约
+# 22. 与主 release 脚本的调用契约
 
-Generator 应可以被：
+Generator 必须可被：
 
 ```text
 release-ai-plugins.ps1
@@ -412,11 +391,11 @@ CI
 developer/manual debugging
 ```
 
-三个入口复用。
+独立复用。
 
-不要写只在主脚本进程中才能工作的隐式 global state。
+不要依赖主脚本进程中的隐式 global state。
 
-主 release Apply 调用：
+主 release Apply 推荐：
 
 ```powershell
 & $GeneratorPath -Apply
@@ -426,11 +405,27 @@ if ($LASTEXITCODE -ne 0) { Fail ... }
 if ($LASTEXITCODE -ne 0) { Fail ... }
 ```
 
-实际错误处理方式应与现有脚本风格统一。
+实际错误处理方式与现有脚本风格统一。
 
 ---
 
-# 22. Definition of Done
+# 23. 何时才优化 Full Scan
+
+不要预先设置 Skill 数量阈值。
+
+只有真实性能数据证明 generator/CI 扫描成为明显瓶颈时才优化。
+
+优先优化：
+
+- 避免重复读取同一 SKILL.md。
+- 优化 frontmatter parser。
+- 严格限制扫描两个 Skill roots。
+
+不要直接升级为数据库/增量索引服务。
+
+---
+
+# 24. Definition of Done
 
 - [ ] PowerShell 5.1 / 7 兼容设计。
 - [ ] Check 默认只读。
@@ -438,10 +433,12 @@ if ($LASTEXITCODE -ne 0) { Fail ... }
 - [ ] 两个 roots 全量扫描。
 - [ ] duplicate id 阻断。
 - [ ] frontmatter 三字段正确解析。
-- [ ] POSIX repo-relative paths。
+- [ ] POSIX repo-relative entry path。
+- [ ] 不枚举 references/templates/examples。
 - [ ] deterministic 排序和序列化。
 - [ ] UTF-8/LF/final newline 明确。
 - [ ] 无动态字段。
-- [ ] 删除/重命名通过全量重建自然处理。
+- [ ] 删除/重命名通过 full scan 自然处理。
+- [ ] 多 Skill release 只运行一次 Apply + 一次最终 Check。
 - [ ] CI 可独立调用。
-- [ ] 主 release 可安全 orchestration。
+- [ ] 不存在增量 registry state/database。
