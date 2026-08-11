@@ -2,16 +2,18 @@
 
 ## 1. 测试目标
 
-证明这次改造同时满足：
+证明本改造同时满足：
 
 ```text
 release-ai-plugins 原有行为不回退
 +
 registry deterministic generation
 +
+高频多 Skill 维护仍低摩擦
++
 registry 与 Skill tree 一致
 +
-Cloud MCP exact-commit 可消费
+Cloud MCP exact-commit / optional pin 可消费
 ```
 
 测试不能只验证“JSON 能生成”。
@@ -22,15 +24,11 @@ Cloud MCP exact-commit 可消费
 
 ```text
 Generator Unit / Fixture Tests
-        ↓
 Registry Contract Tests
-        ↓
 Release Integration Tests
-        ↓
+High-frequency Batch Tests
 CI Stale Gate Tests
-        ↓
 Cloud MCP Consumer Contract Tests
-        ↓
 Regression Tests
 ```
 
@@ -43,13 +41,11 @@ Regression Tests
 - 扫描 common-tools。
 - 扫描 dev-skills。
 - 两个 roots 合并。
-- id 稳定。
+- id 稳定/全局唯一。
 - plugin 派生正确。
-- name 解析正确。
-- folded/multiline description 正确。
-- metadata.version 正确。
+- name/description/version 正确。
 - entry path 正确。
-- reference paths 正确。
+- 不枚举 references/templates/examples。
 
 ---
 
@@ -63,270 +59,193 @@ run #2 -> output B
 A == B byte-for-byte
 ```
 
-至少验证：
+验证：
 
 - skills 排序稳定。
-- references 排序稳定。
 - property order 稳定。
-- LF 稳定。
-- final newline 稳定。
-- 不出现 timestamp。
-- 不出现绝对路径。
+- LF/final newline 稳定。
+- 不出现 timestamp/绝对路径/current commit SHA。
 
-可额外计算 SHA-256 方便诊断，但 hash 不写入 registry。
+可计算 SHA-256 诊断，但 hash 不写入 registry。
 
 ---
 
 # 5. Encoding Tests
 
-PowerShell 5.1 是重要风险面。
-
-必须验证生成文件：
+PowerShell 5.1 必须验证：
 
 - UTF-8。
 - 不意外写 UTF-16 LE。
-- JSON parser 可正常读取中文 description。
-- 中文/英文混合内容不乱码。
+- 中文 description 正常。
+- 中文/英文混合不乱码。
 
-如果项目规范要求 UTF-8 BOM 与本规格不同，应显式统一并更新契约；不能依赖 `Out-File` 默认行为。
+不能依赖 `Out-File` 默认编码。
 
 ---
 
 # 6. Frontmatter Tests
 
-Fixture 至少包含：
+覆盖：
 
-## 单行 description
-
-```yaml
-description: simple description
-```
-
-## folded description
-
-```yaml
-description: >-
-  first line
-  second line
-```
-
-## quoted version
-
-```yaml
-metadata:
-  version: "1.2.3"
-```
-
-## unquoted version（如果当前仓库允许）
-
-```yaml
-metadata:
-  version: 1.2.3
-```
+- 单行 description。
+- folded description。
+- quoted version。
+- 若仓库允许，unquoted version。
 
 错误 fixture：
 
-- missing frontmatter。
-- missing name。
-- missing description。
-- missing metadata.version。
+- missing frontmatter/name/description/metadata.version。
 - invalid version。
 
-都必须 non-zero。
+全部 non-zero。
 
 ---
 
 # 7. Duplicate ID Test
-
-构造：
 
 ```text
 common-tools/skills/foo/SKILL.md
 dev-skills/skills/foo/SKILL.md
 ```
 
-预期：
-
-```text
-FAIL
-Duplicate skill id foo
-```
-
-不能静默选择其中一个。
+预期 FAIL，不静默选择。
 
 ---
 
-# 8. 新增 Skill Test
+# 8. 新增 / 删除 / 重命名 Test
 
-初始：
+## 新增
 
-```text
-registry without foo
-```
-
-新增：
-
-```text
-skills/foo/SKILL.md
-```
-
-预期：
-
-- `-Check` 先失败 stale。
-- `-Apply` 后 registry 新增 foo。
-- 再 `-Check` PASS。
+- `-Check` stale fail。
+- `-Apply` 新增 entry。
+- 再 Check PASS。
 - 再 Apply 无 diff。
 
----
+## 删除
 
-# 9. 删除 Skill Test
-
-删除真实目录后：
-
-- `-Check` FAIL stale。
-- `-Apply` 后旧 entry 消失。
+- Check FAIL。
+- Apply 后 old entry 消失。
 - 不残留 orphan entry。
 
-这是验证“全量重建而非增量 patch”的关键测试。
-
----
-
-# 10. 重命名 Skill Test
+## 重命名
 
 ```text
 foo -> bar
 ```
 
-预期 registry：
-
-```text
-foo disappears
-bar appears
-```
-
-不要求 generator 做 Git rename detection。
+预期 old 消失/new 出现，不要求 Git rename detection。
 
 ---
 
-# 11. Reference 变化测试
+# 9. 深层文件高频变化 Test
 
-新增 reference：
+Registry v1 不枚举 references/templates/examples。
+
+场景：
 
 ```text
-references/a.md
+新增 references/a.md
+删除 templates/x.md
+移动 examples/foo.md
 ```
 
-registry 应新增 path。
+如果 `id/name/description/version/entry` 没变化，generator 的 schema 不应因为“文件列表镜像”产生额外字段 diff。
 
-删除 reference：
+正常 release 若认为该 Skill 行为已变化，应按既有规则 bump `metadata.version`；registry 只反映新的 version。
 
-registry 应删除 path。
-
-移动 reference：
-
-old path 消失/new path 出现。
-
-Path 必须使用 `/`。
+该测试专门防止未来 Agent 把 `references[]` 偷偷加回 v1。
 
 ---
 
-# 12. Entry / Path Escape Test
+# 10. Entry / Path Escape Test
 
-任何派生 path 都不能包含：
+`entry` 不能包含 `../`，也不能指向对应 Skill 目录外部。
 
-```text
-../
-```
-
-或指向 skill root 外部。
-
-如果实现允许 symbolic link，需要明确是否解析/拒绝；第一版建议不为 symlink 设计额外能力，按仓库真实普通文件处理。
+第一版不为 symlink 设计额外能力。
 
 ---
 
-# 13. Check Mode Test
+# 11. Check Mode Test
 
-在 stale registry 下执行：
+Stale 下：
 
 ```powershell
-...generate-skill-registry.ps1 -Check
+generate-skill-registry.ps1 -Check
 ```
 
 必须：
 
 - non-zero。
-- working tree 不发生任何修改。
+- working tree 零修改。
 - 输出修复命令。
 
-在 current registry 下：
-
-- exit 0。
-- 不写文件。
+Current 下 exit 0 且零写入。
 
 ---
 
-# 14. Apply Mode Test
+# 12. Apply Mode Test
 
-执行 Apply：
-
-- 只允许目标 registry 被 generator 写入。
-- 写入后自动/后续 Check PASS。
+- 只写目标 registry。
+- 写后 Check PASS。
 - 第二次 Apply 无 diff。
 
 ---
 
-# 15. Release DryRun Regression
+# 13. Release DryRun Regression
 
-执行现有 `release-ai-plugins.ps1` DryRun：
+DryRun 必须：
 
-必须保证：
-
-- 不写 SKILL.md。
-- 不写 manifest。
-- 不写 CHANGELOG。
-- 不写 registry。
-- 输出 registry 将被 regenerate 的计划信息。
-
-DryRun 结束后：
-
-```text
-git diff
-```
-
-与执行前一致。
+- 不写 SKILL.md/manifest/CHANGELOG/registry。
+- 报告 Apply 将 regenerate registry。
+- 执行前后 git diff 一致。
 
 ---
 
-# 16. Release Apply Integration
+# 14. Release Apply Integration
 
-准备一个真实 changed Skill fixture/测试工作树：
-
-```text
-Skill old version 1.2.3
-```
-
-Apply 后：
+Changed Skill：
 
 ```text
-SKILL.md version 1.2.4
-registry entry version 1.2.4
+version 1.2.3 -> 1.2.4
 ```
 
-不能出现 registry 仍为 1.2.3。
-
-这验证 generator 调用顺序正确。
+Apply 后 registry 必须是 1.2.4，不允许旧版本残留。
 
 ---
 
-# 17. Existing Release Regression
+# 15. 高频多 Skill Batch Test
 
-必须确认原有功能继续通过：
+一次 release 同时修改多个 Skill，例如：
 
-- changed Skill 自动/显式发现。
-- 未修改 Skill 不被误 bump。
-- six plugin json 版本关系。
-- Claude/Cursor marketplace 版本。
-- Codex marketplace 字段规则。
+```text
+A body
+B description
+C new Skill
+D reference/template
+```
+
+通过 mock/log/counter 验证主 release orchestration：
+
+```text
+generator -Apply invocation count == 1
+generator -Check final invocation count == 1
+```
+
+禁止每个 Skill 都触发 full-scan generator。
+
+同时确认所有 changed Skill 的 version 先完成，再生成 registry。
+
+---
+
+# 16. Existing Release Regression
+
+确认：
+
+- changed Skill discovery。
+- 未修改 Skill 不误 bump。
+- six plugin json。
+- Claude/Cursor marketplace。
+- Codex marketplace。
 - two CHANGELOG。
 - NewSkill README gate。
 - `git diff --check`。
@@ -336,98 +255,99 @@ Registry 改造不能降低这些约束。
 
 ---
 
-# 18. CI Stale Test
+# 17. CI Stale Test
 
-模拟：
+模拟：修改 discovery 字段/version 但不 regenerate registry。
 
-```text
-modify SKILL.md
-DO NOT regenerate registry
-```
+CI-equivalent Check 必须失败；Apply 后再 Check PASS。
 
-CI-equivalent `-Check` 必须失败。
-
-然后 Apply generator，再 Check：
-
-```text
-PASS
-```
+CI 不能写仓库。
 
 ---
 
-# 19. Manual Registry Edit Test
+# 18. Manual Registry Edit Test
 
-手动改变 registry description/version，但不改 source Skill：
+手工改 registry description/version，但 source Skill 不变：Check 必须失败。
 
-`-Check` 必须失败，并恢复 canonical output 后通过。
-
-证明 registry 不是人工真源。
+证明 registry 不是人工 Source of Truth。
 
 ---
 
-# 20. Cloud MCP Consumer Contract Test
+# 19. Cloud MCP Exact-Commit Consumer Test
 
-无需真实部署 Worker，也可写 contract test：
-
-给定 fixture commit/tree：
+给定 snapshot A：
 
 ```text
-registry entry.entry = path P
+registry @ A
+entry P
+SKILL.md P @ A
 ```
 
-消费者应能：
-
-```text
-read registry
-find skill id
-read path P
-```
-
-并验证 entry 对应文件存在。
-
-如果集成测试可以调用 GitHub fixture commit，则进一步验证：
-
-```text
-registry @ commit A
-skill @ commit A
-```
-
-而不是 mutable branch。
+消费者必须始终使用 A，不回退 mutable branch。
 
 ---
 
-# 21. 高频更新 Snapshot Test
-
-概念/集成测试：
+# 20. 高频更新 Snapshot Test
 
 ```text
-branch HEAD -> commit A
+branch HEAD -> A
 call A resolves A
-branch moves -> commit B
+branch moves -> B
 call B resolves B
 ```
 
 验证：
 
-- call A 内所有读取仍使用 A。
-- call B 能看到 B。
-- 不需要 purge KV/R2。
+- call A 内仍全读 A。
+- 新 unpinned call B 能看到 B。
+- 不需要 KV/R2 purge/upload。
 
-该测试属于云 MCP 实现，但 registry release contract 必须支持它。
+---
+
+# 21. Search -> Load Snapshot Pin Test
+
+场景：
+
+```text
+search_skills @ A
+returns skill + sourceCommitSha=A
+branch moves -> B
+load_skill(skillId, sourceCommitSha=A)
+```
+
+预期：load 仍读取 A。
+
+另测：
+
+```text
+load_skill(skillId)
+```
+
+未提供 pin 时读取最新 B。
+
+还必须确认 pinned 输入不能覆盖配置的 owner/repo。
+
+该测试证明高频 push 期间不需要 server session 也可维持跨 tool-call 复现性。
 
 ---
 
 # 22. Performance Sanity
 
-Generator 是发布/CI 工具，不需要极端优化。
+Generator 是发布/CI 工具，不做极端优化，但应避免：
 
-但应避免：
+- 对每个 Skill 启新进程。
+- 重复读取同一 SKILL.md。
+- 扫描整个 monorepo。
+- 多 Skill release 中重复 full scan。
 
-- 对每个 Skill 启动新的外部进程。
-- 重复读取同一 SKILL.md 多次。
-- 无必要扫描整个 monorepo。
+Cloud MCP 记录/测量：
 
-目标扫描范围严格限制两个 skill roots。
+- registry byte size。
+- skill count。
+- GitHub requests per tool call。
+- tool P50/P95。
+
+只有真实指标显示瓶颈才进入下一优化阶段。
 
 ---
 
@@ -436,27 +356,34 @@ Generator 是发布/CI 工具，不需要极端优化。
 ## Generator
 
 - [ ] Check/Apply 正确。
-- [ ] deterministic。
-- [ ] encoding 正确。
+- [ ] deterministic / encoding 正确。
 - [ ] duplicate/missing metadata 阻断。
-- [ ] add/delete/rename/reference 测试通过。
+- [ ] add/delete/rename 正确。
+- [ ] 不枚举深层附属文件。
 
 ## Release
 
 - [ ] DryRun 零写入。
-- [ ] Apply 顺序正确。
+- [ ] 多 Skill Apply 只集中生成一次 registry。
 - [ ] Registry 白名单正确。
 - [ ] Skill version 与 registry version 一致。
 - [ ] 原 release 全部回归通过。
 
 ## CI
 
-- [ ] stale registry fail。
-- [ ] canonical registry pass。
-- [ ] CI 不写仓库。
+- [ ] stale fail / canonical pass。
+- [ ] 只读/path-scoped。
 
 ## MCP Contract
 
 - [ ] exact-commit registry 可消费。
-- [ ] registry 不含自引用 commit SHA。
+- [ ] list/search 返回 sourceCommitSha。
+- [ ] load_skill optional sourceCommitSha pin 正常。
+- [ ] 深层文件按需同 SHA 读取。
 - [ ] Skill 更新不需要 Worker redeploy/storage sync。
+
+## Growth Policy
+
+- [ ] 没有增量 registry DB。
+- [ ] 没有 KV/R2/vector search 提前复杂化。
+- [ ] 未来优化由真实指标触发。
