@@ -5,206 +5,166 @@
 验证：
 
 ```text
-Cloudflare Worker
+Cloudflare Workers
 +
 Nitro v3
 +
-MCP TypeScript SDK
+MCP TypeScript SDK v2
++
+MCP 2026-07-28
 +
 Streamable HTTP
 +
 GitHub exact-commit Skill Source
++
+Cloudflare versioned deployment
 ```
 
-能在“Skill 数量中等、更新频率高”的真实模式下保持 freshness、一致性、运行时兼容和轻量维护。
-
-本测试方案不再把“Vitest”理解成单一 Node 测试进程，而按真实 runtime 分层。
+能够在 Skill 高频更新和 MCP Runtime 长期发版中保持：freshness、snapshot consistency、版本可查询、部署可验证、回滚可诊断。
 
 ---
 
 # 2. 权威测试分层
 
 ```text
-A. Pure Node Unit Tests (Vitest 4.x)
+A. Pure Node Unit (Vitest 4.x)
         ↓
-B. Cloudflare workerd Runtime Tests
-   (Vitest 4.x + @cloudflare/vitest-pool-workers)
+B. Workers Vitest / workerd Runtime
         ↓
-C. Production-build Integration
-   (Vitest + Wrangler createTestHarness)
+C. MCP v2 Client/Server Contract
         ↓
-D. Cloudflare Preview / Staging Smoke
+D. Nitro Production Build + createTestHarness
         ↓
-E. Production Read-only Smoke
+E. Cloudflare Preview / Staging Smoke
         ↓
-F. ChatGPT Web Developer Mode Acceptance
+F. Production Read-only Smoke
+        ↓
+G. ChatGPT Web Acceptance
 ```
 
-详细执行规格：
-
-```text
-vitest-development-testing-strategy.md
-cloudflare-worker-production-testing-strategy.md
-```
+根 Vitest 3.x 不因 MCP 被强制升级。
 
 ---
 
-# 3. Vitest 版本隔离
-
-仓库根当前 Vitest 是 3.x，而 Cloudflare Workers Vitest integration 当前要求 Vitest 4.1+。
-
-因此：
-
-```text
-monorepo root
-  -> 保持当前 Vitest 3.x
-
-Skill Router MCP package
-  -> package-local Vitest 4.1+
-  -> @cloudflare/vitest-pool-workers
-```
-
-不要为了云 MCP 测试强制升级全仓 Vitest。
-
-MCP tests 使用 package-local script + `pnpm --filter`，不依赖现有根 `vitest.workspace.ts` 收集。
-
----
-
-# 4. A：Pure Node Unit Tests
-
-负责最快反馈。
+# 3. A：Pure Node Unit
 
 覆盖：
 
-## Registry Validator
+## Registry
 
 - schemaVersion。
 - required fields。
 - duplicate id。
-- invalid/missing entry。
+- low-churn v1 schema。
 - unsupported schema。
-- v1 不包含 deep-file index 依赖。
 
 ## Search
 
-- id/name/description/plugin match。
-- normalization。
-- stable ranking。
+- id/name/description/plugin matching。
+- deterministic ranking。
 - no match。
-- 不读取所有 SKILL.md 正文。
+- 不读取所有 Skill 正文。
 
 ## SourceSnapshot
 
-- unpinned ref -> SHA。
-- pinned SHA 不重新解析 mutable ref。
-- downstream 只接收 exact SHA。
+- latest ref -> exact SHA。
+- pin SHA 不重新 resolve branch。
+- downstream 只使用 exact SHA。
 
-## Tool Input
+## Tool Definitions
 
-- search query edge cases。
-- invalid skill id。
-- latest/pinned load。
-- caller 无法覆盖任意 repository owner/name。
-
-## Domain Errors
-
-至少：
+统一：
 
 ```text
-REGISTRY_NOT_FOUND
-REGISTRY_SCHEMA_UNSUPPORTED
-SKILL_NOT_FOUND
-REGISTRY_ENTRY_INVALID
-GITHUB_AUTH_FAILED
-GITHUB_RATE_LIMITED
-GITHUB_UPSTREAM_FAILED
+get_server_info
+list_skills
+search_skills
+load_skill
 ```
+
+测试 `toolDefinitions` 是标准 tool registration、`tools/list` expected catalog 和 `get_server_info.tools` 的共同来源。
+
+## Server Version
+
+- package.json version 是 MCP app SemVer 唯一来源。
+- server identity version = package version。
+- `get_server_info.server.version` = package version。
+- protocol revision = `2026-07-28`。
 
 ---
 
-# 5. GitHub Repository Adapter Unit Tests
+# 4. GitHub Repository Adapter Unit
 
-所有普通单元测试使用 fake/mock transport，不打真实 GitHub。
+普通单元测试不打真实 GitHub。
 
 覆盖：
 
 ```text
-resolveRef(dev) -> A
-read registry @ A
-read selected SKILL.md @ A
-read related file @ A
+resolve dev -> A
+registry @ A
+Skill @ A
+related file @ A
 pinned A
 ```
 
 断言：
 
-- snapshot 后不再使用 mutable `GITHUB_REF` 读取正文。
-- pinned load 不调用 branch resolve。
-- 401/403/404/rate-limit/malformed upstream 正确映射。
-- Token 不进入领域对象、错误文本和日志。
+- snapshot 后不再使用 mutable ref 读正文。
+- pinned load 不 resolve branch。
+- 401/403/404/rate-limit/upstream error 正确映射。
+- Token 不进 error/log/result。
 
 ---
 
-# 6. B：Cloudflare Workers Vitest Runtime Tests
+# 5. B：Workers Vitest / workerd
 
-使用：
-
-```text
-@cloudflare/vitest-pool-workers
-cloudflareTest()
-workerd
-```
-
-目标是让测试代码和 Worker 被测逻辑运行在 Cloudflare Worker runtime 语义下，而不是只在 Node 中模拟。
+使用 package-local Vitest 4.1+ + `@cloudflare/vitest-pool-workers`。
 
 覆盖：
 
-- Worker vars/bindings 注入。
-- Nitro runtime adapter。
-- Web APIs。
-- MCP endpoint 基础请求。
-- initialize。
-- tools/list。
-- tool annotations。
-- malformed request/error safety。
+- Nitro Worker runtime adapter。
+- Web Request/Response。
+- public vars / Secret boundary。
+- `CF_VERSION_METADATA` binding contract。
+- MCP 2026-era request behavior。
+- 无 `Mcp-Session-Id` 前置依赖。
+- malformed protocol request safety。
 - 无 KV/R2 binding 仍可运行。
 
-注意：Workers Vitest integration 不和自定义 Vitest environment/runner 混用，因此必须与 Node unit config 分离。
+不要再把 legacy `initialize` 作为 modern runtime 测试步骤。
 
 ---
 
-# 7. MCP SDK Client/Server Contract
+# 6. C：MCP v2 Client/Server Contract
 
-至少一组测试必须真正从 MCP Client 视角访问 Streamable HTTP endpoint：
-
-```text
-MCP Client
-  ↓
-Streamable HTTP
-  ↓
-Nitro/Worker endpoint
-  ↓
-MCP SDK server
-```
+至少一组测试必须使用 v2 MCP Client 从协议外部访问 Streamable HTTP endpoint，而不是直接调 handler 函数。
 
 覆盖：
 
 ```text
-initialize
-list tools
+modern protocol negotiation/serving
+server identity
+可选 server/discover
+tools/list
+get_server_info
 list_skills
 search_skills
 load_skill latest
 load_skill pinned
 ```
 
-不要只调用 tool handler 函数并声称 MCP protocol 已验收。
+关键断言：
+
+- modern serverInfo 可读。
+- server version 与 package version 一致。
+- `tools/list` 返回完整 tool catalog。
+- `get_server_info.tools` 与标准 catalog 同源。
 
 ---
 
-# 8. Registry Determinism
+# 7. Registry Determinism / Low Churn
 
-相同 working tree 连续生成：
+相同 working tree：
 
 ```text
 bytes(output1) == bytes(output2)
@@ -212,322 +172,312 @@ bytes(output1) == bytes(output2)
 
 验证：
 
-- skills 排序稳定。
-- property order 稳定。
-- UTF-8 / LF / final newline。
+- stable sort/property order。
+- UTF-8/LF/final newline。
 - 无 timestamp/random/absolute path/current commit SHA。
 - v1 不枚举 references/templates/examples。
 - add/delete/rename/discovery metadata/version 变化正确。
-- stale Check 非零。
 
-Registry generator 本身是 PowerShell 工具，其跨 PowerShell 版本行为在 release 专项测试包中验证；云 MCP Vitest 只需要验证 consumer contract 和 fixture schema。
-
----
-
-# 9. Registry Low-Churn Test
-
-只增删/move reference/template/example 文件时，Registry 不应因为“深层文件列表镜像”发生结构变化。
-
-正常 release 若 Skill 行为发生真实变化，通过 `metadata.version` 表达新版本。
+PowerShell generator 跨 PS5.1/pwsh7 的 byte-identical 测试在 release 专项包中执行。
 
 ---
 
-# 10. Source Snapshot 单调用一致性
-
-fixture：
+# 8. Snapshot Consistency
 
 ```text
 resolve dev -> A
-调用过程中 fake branch -> B
-继续读取 registry / SKILL.md
+fake branch moves -> B
+继续当前 tool call
 ```
 
-预期：本 call 全部 A；下一次新的 unpinned call 可以 B。
-
-禁止：
+必须：
 
 ```text
 registry @ A
-SKILL.md @ B
+Skill @ A
 ```
+
+下一次新的 unpinned call 可以 B。
 
 ---
 
-# 11. Search -> Load Snapshot Pin
+# 9. Search -> Load Pin
 
 ```text
-search_skills @ A
+search @ A
 returns sourceCommitSha=A
 branch -> B
-load_skill(skillId, sourceCommitSha=A)
+load(pin=A) -> A
+load(no pin) -> B
 ```
 
-预期：加载 A。
-
-同时：
-
-```text
-load_skill(skillId)
-```
-
-读取新的 B。
-
-无需 server-side session/store。
+无需 server-side MCP session/state store。
 
 ---
 
-# 12. 高频连续发布 Freshness Fixture
+# 10. 高频连续更新 Fixture
 
-模拟：
+用 deterministic fake commits：
 
 ```text
-A: version 1.0.0
-B: version 1.0.1
-C: version 1.0.2
+A: 1.0.0
+B: 1.0.1
+C: 1.0.2
 ```
 
-验证新 unpinned call 逐次读取当时 latest，旧 pinned SHA 仍可复现。
+测试 latest/pinned semantics。
 
-该测试必须使用 deterministic fake fixtures，不依赖测试运行时真的有人 push GitHub。
+自动化不依赖真实 `dev` 在测试期间被人 push。
 
 ---
 
-# 13. 深层文件按需读取
-
-测试：
+# 11. 深层文件按需读取
 
 - load 先读取 SKILL.md。
-- 不默认递归下载整个 Skill 目录。
-- 只有业务明确请求/解析后才读 related file。
-- related path 不能逃逸允许 Skill 目录。
-- 所有读取同一 SHA。
+- 不默认递归整个 Skill 目录。
+- related path 不逃逸允许范围。
+- 所有读取同 SHA。
 
 ---
 
-# 14. C：Production-build Integration
+# 12. D：Production-build Integration
 
-使用 Nitro Cloudflare production build + Wrangler：
+使用：
 
 ```text
-createTestHarness()
+Nitro Cloudflare production build
++
+Wrangler createTestHarness()
++
+MCP v2 client
 ```
 
-从外部 HTTP/MCP client 访问生产构建产物。
+GitHub upstream 通过 MSW/等价 mock 控制。
 
-GitHub upstream 在本地 integration 中通过 MSW 或等价 mock 完全控制。
-
-必须覆盖：
+覆盖：
 
 ```text
 GET /health
-initialize
+modern MCP identity
 tools/list
-list_skills
-search_skills
-load pinned
-load latest
+get_server_info
+list/search/load latest+pin
 negative/error paths
 ```
 
-这一级验证的是最终 build/config/route/transport 的整体组合，不是单个 Service。
+额外检查：
+
+- build Git SHA 存在。
+- `CF_VERSION_METADATA` fixture/real harness binding 映射正确。
+- `/health` 与 `get_server_info` 的 deployment metadata 一致。
 
 ---
 
-# 15. D：Cloudflare Preview / Staging
+# 13. MCP Application Release Version Tests
 
-在 production-build integration 通过后，使用版本化 Preview URL 或独立 staging Worker 做真实 Cloudflare 网络 smoke。
+任何 MCP Runtime release 必须增加自动 contract：
 
-覆盖少量只读高价值路径：
+```text
+serverInfo.version
+== package.json.version
+== get_server_info.server.version
+```
+
+Tool catalog：
+
+```text
+tools/list
+== toolDefinitions
+== get_server_info.tools
+```
+
+允许表达结构不同，但 tool name/schema/description 的权威来源必须一致。
+
+---
+
+# 14. E：Cloudflare Preview / Staging
+
+上传 immutable Worker version 后，使用 version preview/staging 测试真实 Cloudflare runtime/network。
+
+最小 smoke：
 
 ```text
 health
-initialize
+modern server identity
 tools/list
-search known skill
-load pinned known skill
-load latest known skill
-unknown skill
+get_server_info
+search known Skill
+load pinned
+load latest
+unknown Skill
 ```
 
-这里允许真实访问 GitHub，只用于验证 Cloudflare -> GitHub 网络、只读 Token、vars/Secret 和 exact-SHA read。
+同时验证：
+
+- Worker Version ID/tag/timestamp 是本次 upload 的版本。
+- MCP app SemVer 是待发布版本。
+- buildGitSha 是待发布 commit。
 
 ---
 
-# 16. 高频 dev 分支下的线上断言
+# 15. 高频 `dev` 下的线上断言
 
-由于 `dev` 可能高频移动，preview/prod 测试不要断言：
+禁止 flaky 断言：
 
 ```text
-returned SHA == 几秒前在测试机查询到的 HEAD
+returned Skill SHA == 几秒前测试机查询到的 branch HEAD
 ```
 
-正确断言：
+正确：
 
 ```text
 search returns A
 load(pin=A) returns A
 ```
 
-如果必须测试固定版本，staging 使用固定测试 ref/commit。
+MCP Server production version 则应与本次待 promote Worker version 精确匹配，因为 Worker version 是不可变部署单元。
 
 ---
 
-# 17. E：Production Post-deploy Smoke
+# 16. F：Production Post-deploy Smoke
 
-正式 endpoint 部署后只做最小只读 smoke：
+正式 promote 后只做少量只读 smoke：
 
 ```text
 GET /health
-initialize
+read server identity
 tools/list
+get_server_info
 search known Skill
-load pinned using returned sourceCommitSha
+load pinned
 ```
 
-禁止生产 smoke：
+必须确认：
 
-- GitHub write。
-- 修改 Cloudflare 数据。
-- 高并发压力。
-- 长时间 soak。
+```text
+expected MCP SemVer
+expected Worker Version ID/tag
+expected buildGitSha
+```
 
-失败应进入 rollback/diagnosis，而不是忽略。
+已经在线。
+
+失败进入 rollback/diagnosis。
+
+---
+
+# 17. Rollback Test / Runbook Check
+
+至少在 staging 或演练环境验证：
+
+```text
+bad version N
+  ↓
+wrangler rollback stable N-1
+  ↓
+get_server_info / health
+  ↓
+恢复 N-1 deployment metadata
+```
+
+Skill 内容问题不使用 Worker rollback；通过 Git revert/fix 产生新 Skill source commit。
 
 ---
 
 # 18. Production Security Smoke
 
-验证：
-
-- response 无 GitHub Token。
-- error 无 Authorization header。
-- invalid input 无内部 stack。
-- source 只暴露 repo/ref/commit 等预期诊断数据。
-- tools annotations 正确。
+- no Token/auth header。
+- invalid input 不暴露 stack。
+- source metadata 只包含安全 repo/ref/commit 信息。
+- `get_server_info` 不输出 Secret。
+- tool annotations 只读/非破坏性。
 
 ---
 
-# 19. F：ChatGPT Web 验收
+# 19. G：ChatGPT Web Acceptance
 
 顺序：
 
 ```text
-MCP technical client/Inspector
+modern MCP technical client/Inspector
   ↓
 ChatGPT Web Developer Mode
 ```
 
-真实场景：
+真实请求至少覆盖：
 
 ```text
-search skill
-  ↓
-得到 sourceCommitSha
-  ↓
-load pinned
+“告诉我你的 MCP 服务版本、Cloudflare 部署版本和全部工具”
 ```
 
-再验证一次 unpinned latest load。
+以及：
 
-ChatGPT Web 验收不替代 Vitest/workerd/harness；它是最后一层产品验收。
-
----
-
-# 20. Performance Sanity
-
-第一版测量：
-
-- Skill count。
-- registry bytes。
-- GitHub requests/tool call。
-- ref resolve latency。
-- registry fetch latency。
-- selected Skill fetch latency。
-- MCP P50/P95。
-- GitHub rate-limit/failure behavior。
-
-只在 staging 做小规模并发 sanity，不提前引入重型 load-test 平台。
-
-高频 Skill **维护**不等于高 QPS。
+```text
+search Skill -> sourceCommitSha -> pinned load
+```
 
 ---
 
-# 21. Coverage
-
-不设拍脑袋的全局 90% 门槛。
-
-关键行为必须逐分支测试：
-
-- snapshot consistency。
-- latest/pinned semantics。
-- registry validation。
-- GitHub errors/security。
-- MCP lifecycle。
-
-Workers Vitest integration 如启用 coverage，要使用当前官方支持的 instrumented/Istanbul 路径，不依赖 native V8 coverage。
-
----
-
-# 22. PR CI Gate
+# 20. PR CI Gate
 
 推荐：
 
 ```text
 typecheck
-Vitest Node unit
-Workers Vitest runtime
+Node unit
+Workers Vitest/workerd
+MCP v2 client contract
 Nitro Cloudflare build
 createTestHarness integration
 registry stale check
 release-side relevant checks
 ```
 
-普通 PR CI 不需要 Cloudflare production Secret。
+普通 PR CI 不需要 production Cloudflare Secret。
 
 ---
 
-# 23. Deploy Gate
+# 21. MCP Runtime Deploy Gate
 
 ```text
-PR/build tests pass
+all local gates
   ↓
-version upload / staging
+Worker version upload
   ↓
-preview smoke
+Preview/Staging smoke
   ↓
-production deploy
+exact version 100% promote
   ↓
-production smoke
+Production smoke
 ```
 
-是否每个 PR 都创建 preview 可由后续 CI 成本决定，不作为第一版强制项。
+Tool schema/protocol-visible 变化默认不做双版本 gradual split。
 
 ---
 
-# 24. 轻量增长回归
+# 22. Performance Sanity
 
-必须定期防止测试和架构一起膨胀：
+测量：
 
-- [ ] 单元测试仍快速。
-- [ ] Worker runtime test 与 Node unit 分离。
-- [ ] production integration 本地可跑。
-- [ ] preview/prod smoke 保持少量只读。
-- [ ] 不要求 KV/R2/D1/DO 测试夹具。
-- [ ] 不引入向量数据库测试环境。
-- [ ] 不因为高频 Skill 更新引入持续远程环境测试。
+- registry bytes/Skill count。
+- GitHub requests/tool call。
+- ref resolve/fetch latency。
+- MCP P50/P95。
+- rate-limit/failure。
+
+不要把“高频维护”误当“高 QPS”而提前建设重型负载平台。
 
 ---
 
-# 25. Definition of Done
+# 23. Definition of Done
 
-- [ ] package-local Vitest 4.1+ 与根 Vitest 3.x 隔离。
-- [ ] Node unit 完整。
-- [ ] Cloudflare workerd Vitest runtime tests 完整。
-- [ ] MCP SDK client/server contract tests 完整。
-- [ ] production build + `createTestHarness()` integration 完整。
-- [ ] Preview/Staging smoke 设计完整。
-- [ ] Production read-only smoke 设计完整。
-- [ ] exact-commit / pinned snapshot 测试完整。
-- [ ] 高频更新不制造 flaky HEAD assertions。
-- [ ] Secret/error/security paths 有明确测试。
+- [ ] Node/workerd/MCP-client/production-build 分层完整。
+- [ ] modern MCP `2026-07-28` contract 有自动测试。
+- [ ] legacy initialize/session 不再作为新协议成功条件。
+- [ ] Server application SemVer contract 有测试。
+- [ ] Worker Version metadata / build SHA 有测试。
+- [ ] 标准 `tools/list` 与 `get_server_info.tools` 同源。
+- [ ] exact-commit latest/pin 测试完整。
+- [ ] Preview/Staging/Production smoke 有版本断言。
+- [ ] rollback 路径可验证。
 - [ ] ChatGPT Web 最终验收存在且不替代自动化测试。
