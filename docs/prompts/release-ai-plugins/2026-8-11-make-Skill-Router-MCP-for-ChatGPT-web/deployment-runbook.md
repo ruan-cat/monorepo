@@ -2,18 +2,20 @@
 
 ## 目标
 
-本文描述生产环境部署流程。
+本文描述第一版生产环境部署流程。
 
-目标部署环境：
+目标环境：
 
 - Cloudflare Workers
 - Nitro v3
+- MCP TypeScript SDK
 - 自定义 HTTPS 域名
 - ChatGPT Web Developer Mode Remote MCP
+- GitHub 作为唯一 Skill Source of Truth
 
 核心原则：
 
-> Cloudflare Worker bindings 是运行时配置来源；公开配置使用 vars，敏感凭证使用 Secrets。
+> Cloudflare Worker 负责 Remote MCP 计算与网络入口；skills 的最新版本由 GitHub ref -> exact commit snapshot 决定。第一版不依赖 KV/R2。
 
 ---
 
@@ -29,26 +31,26 @@ https://mcp.ai.ruan-cat.com/mcp
 Cloudflare Worker
         |
         v
-Nitro v3 MCP Server
+Nitro v3 + MCP SDK
         |
- ----------------------
- |                    |
- v                    v
-Skill Router       KV Registry
- |                    |
- v                    v
-GitHub Source     Cloudflare Binding
+        v
+Skill Router
+        |
+        v
+GitHub Repository Adapter
+        |
+        v
+GITHUB_REF -> exact commit SHA
+        |
+        v
+ai-plugins registry / skill files @ SHA
 ```
 
 ---
 
 # 2. 配置分类
 
-不要把所有配置都作为 Secret。
-
-## 公开配置 vars
-
-这些信息不是秘密：
+## 公开 vars
 
 ```text
 GITHUB_OWNER
@@ -56,7 +58,7 @@ GITHUB_REPO
 GITHUB_REF
 ```
 
-推荐写入：
+示意：
 
 ```toml
 [vars]
@@ -65,35 +67,45 @@ GITHUB_REPO = "monorepo"
 GITHUB_REF = "dev"
 ```
 
----
-
-## 敏感配置 Secrets
-
-只有：
+## 敏感 Secret
 
 ```text
 GITHUB_TOKEN
 ```
 
-必须使用：
+上传：
 
 ```bash
 wrangler secret put GITHUB_TOKEN
 ```
 
-禁止：
-
-```toml
-GITHUB_TOKEN="xxx"
-```
-
-禁止提交到 Git。
+禁止将 token 写入 `wrangler.toml`、日志、MCP 结果或生成的 registry。
 
 ---
 
-# 3. Wrangler CLI 管理流程
+# 3. 第一版不创建的 Cloudflare 资源
 
-## 本地开发
+不要为了初始化项目创建：
+
+```text
+KV namespace
+R2 bucket
+D1 database
+Durable Object namespace
+```
+
+因此本地和生产环境都不需要同步这些 resource id。
+
+这显著降低：
+
+- Wrangler 环境差异
+- 本地调试前置步骤
+- 权限面
+- rollback 复杂度
+
+---
+
+# 4. 本地开发
 
 运行：
 
@@ -101,7 +113,7 @@ GITHUB_TOKEN="xxx"
 wrangler dev
 ```
 
-本地敏感变量：
+敏感值：
 
 ```text
 .dev.vars
@@ -113,167 +125,169 @@ wrangler dev
 GITHUB_TOKEN=xxx
 ```
 
-必须加入：
+`.dev.vars` 必须 gitignore。
+
+本地 smoke test：
 
 ```text
-.gitignore
+GET /health
+POST /mcp
 ```
 
 ---
 
-## 生产 Secret 上传
+# 5. Runtime Binding
 
-```bash
-wrangler secret put GITHUB_TOKEN
-```
-
-查看 Worker 配置时，不应输出 Secret 内容。
-
----
-
-# 4. Nitro v3 Runtime Binding
-
-实现时不要使用：
+禁止：
 
 ```ts
 process.env.GITHUB_TOKEN
 ```
 
-也不要根据旧版本经验固定假设环境读取方式。
+使用当前 Nitro v3 Cloudflare adapter 暴露的 request runtime bindings。
 
-Nitro v3 Cloudflare Module 下，应使用当前 adapter 提供的 Cloudflare runtime binding。
-
-典型访问流程：
+数据流：
 
 ```text
-Cloudflare Worker env binding
+Worker vars / secret
         |
-        v
 Nitro request runtime
         |
-        v
-Service Dependency Injection
+GitHub Repository Adapter
         |
-        v
-Repository Adapter
+SourceSnapshot(commit SHA)
+        |
+Skill Services
 ```
-
-业务代码不直接依赖 Worker 全局环境。
 
 ---
 
-# 5. 服务读取原则
+# 6. Skill 读取原则
 
 错误：
 
 ```text
-mcp.post.ts
-    |
-读取 GITHUB_TOKEN
-    |
-调用 GitHub API
+registry read @ dev
+skill read @ dev
 ```
+
+因为两次读取之间 branch 可能推进。
 
 正确：
 
 ```text
-mcp.post.ts
-    |
-MCP Router
-    |
-Skill Service
-    |
-GitHub Repository Adapter
-    |
-Runtime Binding
+resolve dev -> abc123
+        |
+        +-- registry @ abc123
+        +-- SKILL.md @ abc123
+        +-- references @ abc123
 ```
 
-只有 GitHub adapter 需要 Token。
+MCP 结果应暴露可诊断的 `sourceCommitSha`。
 
 ---
 
-# 6. 构建流程
+# 7. 构建与 Worker 部署
 
 ```text
-GitHub Repository
-        |
-        v
-CI Build
-        |
-        v
-Nitro Build
-        |
-        v
+Repository
+    |
+CI install/test
+    |
+Nitro build
+    |
 wrangler deploy
-        |
-        v
+    |
 Cloudflare Worker
 ```
 
----
-
-# 7. MCP 地址
-
-生产地址：
-
-```text
-https://mcp.ai.ruan-cat.com/mcp
-```
-
-健康检查：
-
-```text
-GET /health
-```
+Worker 发布与 skill 内容发布解耦：只修改 `ai-plugins` skills 时，不需要重新部署 Worker。
 
 ---
 
-# 8. 发布检查
+# 8. Skill Registry 发布
+
+推荐仓库维护：
+
+```text
+ai-plugins/skill-registry.json
+```
+
+它与 skills 一起进入 Git commit，由 `release-ai-plugins` 的 generator 生成/校验。
+
+Cloud MCP 不需要额外“把 registry 发布到 Cloudflare”。
+
+---
+
+# 9. 上线检查
 
 上线前确认：
 
-- Worker 状态正常
-- HTTPS 正常
-- KV 可读取
-- vars 配置正确
-- Secret 注入成功
-- MCP initialize 成功
-- tools/list 成功
-- load_skill 成功
+- Worker 状态正常。
+- HTTPS 正常。
+- vars 配置正确。
+- Secret 注入成功。
+- MCP initialize 成功。
+- tools/list 成功。
+- `search_skills` 成功。
+- `load_skill` 成功。
+- 返回的 source commit 可追踪。
+- 无 KV/R2 binding 仍完整可用。
 
 ---
 
-# 9. Secret 泄露检查
+# 10. Freshness 验收
+
+1. 记录当前 `dev` HEAD = A。
+2. 使用 MCP load 一个 skill，确认 `sourceCommitSha=A`。
+3. push 新 skill commit B。
+4. 发起新的 tool call。
+5. 确认新 snapshot 解析到 B，并加载 B 的内容。
+
+不执行 KV purge，不上传 R2，不重新部署 Worker。
+
+---
+
+# 11. Secret 泄露检查
 
 确认：
 
-- 日志没有 token
-- MCP response 没有 token
-- KV 内容没有 token
-- Git 仓库没有 secret 文件
+- 日志没有 token。
+- MCP response 没有 token。
+- `skill-registry.json` 没有 token。
+- Git 仓库没有 secret 文件。
 
 ---
 
-# 10. 回滚策略
+# 12. 回滚策略
 
-发生问题：
+## Worker 代码问题
 
-1. 回滚 Worker deployment。
-2. 保留 KV registry 历史版本。
-3. 检查 registry 构建记录。
-4. 必要时轮换 GitHub Token。
+回滚 Cloudflare Worker deployment。
+
+## Skill 内容问题
+
+回滚或修复 GitHub target ref；新的 tool call 会解析新的 HEAD。
+
+调试时记录：
+
+```text
+Worker deployment version
+GITHUB_REF
+sourceCommitSha
+MCP tool name
+```
+
+不需要维护 KV registry 历史版本或 R2 object 回滚。
 
 ---
 
-# 11. ChatGPT Web 接入
-
-最终操作：
+# 13. ChatGPT Web 接入
 
 1. 打开 ChatGPT Developer Mode。
 2. 添加 Remote MCP Server。
 3. 填入 MCP URL。
-4. 验证 tools 列表。
-5. 调用 search_skills。
-6. 调用 load_skill。
-
-完成后，ChatGPT Web 即可动态获取 ai-plugins skills。
+4. 验证 tools。
+5. 调用 `search_skills`。
+6. 调用 `load_skill`。
+7. 检查返回的 skill version/source commit。
