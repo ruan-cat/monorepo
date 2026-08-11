@@ -2,144 +2,139 @@
 
 ## 文档目的
 
-定义 Skill Router MCP Server 与 Cloudflare AI Gateway 的边界，避免 AI Agent 在实现阶段错误引入不必要的 AI 调用链。
+定义 Skill Router MCP 与 Cloudflare AI Gateway 的边界，防止为了“Cloudflare 原生”提前引入模型调用、KV/R2/vector 依赖。
 
 ---
 
-# 1. 第一阶段原则
+# 1. MVP 不使用 AI Gateway
 
-当前 Skill Router MCP Server 不需要依赖 AI Gateway。
-
-原因：
-
-当前核心任务：
+核心任务：
 
 ```text
-Skill Discovery
-Skill Search
-Skill Loading
+MCP server/version/tool discovery
+Skill list/search/load
+GitHub exact-commit reads
 ```
 
-本质是结构化内容读取服务。
-
-不是：
-
-```text
-LLM Proxy
-Prompt Processing
-Model Inference
-```
+本质是确定性数据/上下文服务，不需要 LLM inference。
 
 ---
 
-# 2. 第一阶段架构
-
-推荐：
+# 2. MVP 架构
 
 ```text
 ChatGPT Web
-    |
-    v
+  ↓
 Cloudflare Worker
-    |
-    v
-Skill Router MCP
-    |
-    +-- KV
-    +-- Cache API
-    +-- GitHub Registry
+  ↓
+Nitro v3 + MCP SDK
+  ↓
+Skill Router
+  ↓
+GitHub Repository Adapter
+  ↓
+exact SourceSnapshot
+  ├─ skill-registry.json
+  └─ selected Skill files
+```
+
+没有 mandatory：
+
+```text
+AI Gateway
+KV
+R2
+D1
+Vector DB
 ```
 
 ---
 
-# 3. 不应该做的设计
+# 3. 不应加入的链路
 
-禁止：
+不要：
 
 ```text
 ChatGPT
- |
+  ↓
 Worker
- |
+  ↓
 AI Gateway
- |
+  ↓
 LLM
- |
-Skill Registry
+  ↓
+决定如何读取 Skill
 ```
 
 原因：
 
-- 增加延迟。
-- 增加成本。
-- 引入不必要模型依赖。
+- 增加 latency/cost/failure domain。
+- search 当前可以在小 registry 内确定性完成。
+- 会让 MCP 自己依赖第二个模型来帮助主模型选择 Skill。
 
 ---
 
-# 4. 第二阶段适用场景
+# 4. 未来何时考虑 AI Gateway
 
-未来如果增加以下能力，可以引入 AI Gateway：
+只有真实 use case/指标表明需要模型 inference，例如：
 
-## Skill 智能匹配
+- 语义搜索质量明显不足。
+- 需要 embedding/rerank。
+- 需要离线生成 Skill summary/tag。
+- 需要受控模型路由/观测。
 
-例如：
-
-用户描述自然语言需求。
-
-系统自动判断最佳 skill。
+这属于独立架构升级。
 
 ---
 
-## Embedding 搜索
-
-架构：
+# 5. 演进顺序
 
 ```text
-Skill Metadata
-    |
-Embedding
-    |
-Vector Search
+Level 0
+exact Git + minimal registry + in-memory search
+
+Level 1
+search/tokenization/request dedupe/conditional fetch 优化
+
+Level 2
+必要时 immutable commit-addressed cache
+
+Level 3
+只有语义质量问题真实存在时评估 AI Gateway + embedding/rerank
 ```
 
----
-
-## Skill Summary
-
-自动生成技能摘要。
+不要跳级。
 
 ---
 
-# 5. 未来架构
+# 6. 与 MCP Release 的关系
+
+AI Gateway 不参与 MCP application SemVer、Worker version metadata 或 Skill source version。
+
+未来若加入 AI Gateway，会成为 MCP Runtime dependency，因此相关代码/config 变化需要：
 
 ```text
-ChatGPT Web
-    |
-Cloudflare Worker
-    |
-Skill Router
-    |
-AI Gateway
-    |
-Embedding / Rerank Model
-    |
-Skill Registry
+MCP SemVer
+Worker versioned release
+Preview/Staging
+Production smoke
 ```
+
+如果它改变 tool schema/metadata，还要执行 ChatGPT tool refresh/review gate。
 
 ---
 
-# 6. AI Agent 实施要求
+# 7. AI Agent 实施要求
 
-实现第一版本时：
+第一版优先：
 
-不要接入 AI Gateway。
+```text
+1. OpenAI-compatible MCP
+2. get_server_info / tools/list
+3. Git exact SourceSnapshot
+4. Registry + live Skill tools
+5. versioned Cloudflare release
+6. tests/ChatGPT acceptance
+```
 
-优先完成：
-
-1. MCP 协议。
-2. Skill Registry。
-3. KV 缓存。
-4. Cloudflare 部署。
-5. ChatGPT Web 验证。
-
-AI Gateway 属于后续智能检索增强能力。
+AI Gateway 不在 MVP checklist。
