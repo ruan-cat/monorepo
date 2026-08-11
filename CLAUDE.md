@@ -745,7 +745,7 @@ pnpm codess:build               # 使用 codess 构建
 
 Monorepo 使用 **Turbo** 进行基于依赖关系的任务编排：
 
-- `build` 任务：输出到 `**/dist/**` 和 `**/.output/**`，依赖 `^build`（上游包）
+- `build` 任务：输出到任务自身的 `dist/**` 和 `.output/**`，依赖 `^build`（上游包）。禁止使用 `**/dist/**` 这类可匹配依赖目录的宽输出 glob。
 - `build:docs` 任务：输出到 `**/.vitepress/dist/**` 和 `**/.vuepress/dist/**`，依赖 `^build`
 - 发布任务依赖于成功的构建
 
@@ -985,3 +985,4 @@ metadata:
 - 2026-06-30 — consola Node.js 24 ESM 解析失败：`2026-06-30-consola-node24-esm-resolve.md`
 - 2026-08-10 — `init-prettier-git-hooks` 将 AI 操作流程误做成迁移器产品：`2026-08-10-init-prettier-git-hooks-overengineering.md`
 - 2026-08-11 — Node.js 24 下 VitePress 宽 barrel 的 `consola` 间接解析与 utils 并行 tsup 清理声明竞态：`2026-08-11-vitepress-node24-pnpm-entrypoint.md`
+- 2026-08-12 — Turbo 宽缓存输出掩盖真实包依赖闭包缺口：`2026-08-12-turbo-cache-output-and-package-closure.md`
