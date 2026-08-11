@@ -1,5 +1,12 @@
 # @ruan-cat/utils 更新日志
 
+## 4.26.0
+
+### Minor Changes
+
+- 1. 一次性清理共享 `dist` 以消除并行 tsup 构建删除声明的竞态。 ([`6cd35da`](https://github.com/ruan-cat/monorepo/commit/6cd35da2ccec13b71d38682f73a42a617f180b3c))
+  2. 收紧 Node.js 24 ESM 兼容依赖边界，保障 pnpm workspace 下发行入口稳定加载。
+
 ## 4.25.3
 
 ### Patch Changes
