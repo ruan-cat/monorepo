@@ -55,6 +55,6 @@ runs:
         fi
         pnpm add -g $GLOBAL_TOOLS
 
-    - name: 强制重建整个项目的依赖链接
+    - name: 安装整个项目的依赖
       shell: bash
-      run: pnpm install --force --frozen-lockfile
+      run: pnpm i
