@@ -57,7 +57,7 @@ runs:
 
     - name: 安装整个项目的依赖
       shell: bash
-      run: pnpm i
+      run: pnpm i --force
 
     # 诊断：确认 consola package.json 与补丁状态
     - name: 诊断consola解析状态
