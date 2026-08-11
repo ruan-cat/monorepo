@@ -33,6 +33,7 @@
 2. `architecture.md`
 3. `implementation-spec.md`
 4. `agent-execution-guide.md`
+5. `nitro-v3-cloudflare-integration.md`
 
 禁止跳过实施规格直接编码。
 
@@ -42,7 +43,7 @@
 
 ## 架构设计
 
-- `architecture.md`：整体系统架构
+- `architecture.md`：整体系统架构、模块边界、数据流
 - `implementation-spec.md`：工程实施规格
 
 ## MCP 协议
@@ -52,6 +53,7 @@
 ## Runtime 实现
 
 - `nitro-v3-development-guide.md`：Nitro v3 + H3 开发规范
+- `nitro-v3-cloudflare-integration.md`：Nitro 与 Cloudflare Worker 边界规范
 - `cloudflare-worker-deployment.md`：Cloudflare Worker 部署规范
 
 ## Skill 系统
@@ -66,6 +68,7 @@
 ## Agent 执行与部署
 
 - `agent-execution-guide.md`：AI Agent 实施流程
+- `agent-handoff-checklist.md`：Agent 交接检查清单
 - `deployment-runbook.md`：上线部署手册
 
 ---
@@ -79,7 +82,10 @@ ChatGPT Web Developer Mode
 Remote MCP Client
           |
           v
-Skill Router MCP Server
+Cloudflare Worker
+          |
+          v
+Nitro v3 MCP Server
           |
    ---------------------
    |                   |
