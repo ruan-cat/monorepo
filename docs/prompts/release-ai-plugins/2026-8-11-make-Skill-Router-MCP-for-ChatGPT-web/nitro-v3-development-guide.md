@@ -6,37 +6,29 @@
 
 目标：构建运行于 Cloudflare Workers 的 Remote MCP Server。
 
-核心技术链路：
+核心链路：
 
 ```text
-ChatGPT Web Developer Mode
-        |
-        | MCP Streamable HTTP
-        v
+ChatGPT Web
+   |
+Streamable HTTP
+   |
 Nitro v3 Runtime
-        |
-        v
+   |
 MCP TypeScript SDK
-        |
-        v
-Skill Router Services
+   |
+Skill Router
+   |
+GitHub Repository Adapter
 ```
 
 ---
 
 # 1. Nitro v3 与 H3 依赖边界
 
-本项目使用：
+本项目直接选择 Nitro v3 作为应用 Runtime。
 
-```text
-Nitro v3
-```
-
-作为应用 Runtime。
-
-Nitro 内部使用 H3 Runtime Layer 提供 HTTP event abstraction。
-
-依赖关系：
+Nitro 内部使用 H3 Runtime Layer 提供 HTTP event abstraction：
 
 ```text
 Application Code
@@ -51,80 +43,75 @@ H3 Runtime Layer
 Cloudflare Worker Adapter
 ```
 
-重要原则：
+H3 不作为本项目独立 Web Framework 管理。
 
-> H3 是 Nitro Runtime 的底层 HTTP 能力，不作为本项目独立 Web Framework 管理。
-
-禁止 AI Agent 自行：
+禁止为了“显式版本”自行执行：
 
 ```bash
 pnpm add h3
 ```
 
-然后手动 pin H3 主版本。
-
-H3 版本应该由 Nitro v3 的依赖树和 lockfile 管理。
+然后手动 pin 与 Nitro 依赖树不同的 H3 主版本。
 
 ---
 
 # 2. 依赖策略
 
-直接依赖：
+直接应用依赖：
 
 ```text
 nitro
 @modelcontextprotocol/sdk
 ```
 
-间接 Runtime 依赖：
+Nitro 间接 Runtime 依赖包括 H3 等，由 package-manager lockfile 固化。
 
-```text
-h3
-unenv
-Nitro runtime dependencies
-```
-
-不要将 Nitro 内部依赖提升为业务层依赖。
+Wrangler 负责 Cloudflare 开发/部署工具链。
 
 ---
 
 # 3. MCP 与 Nitro 分工
 
-Nitro 负责：
+Nitro：
 
 - Worker runtime abstraction
 - HTTP lifecycle
-- route handling
-- deployment adapter
+- routing
+- Cloudflare adapter
 
-MCP SDK 负责：
+MCP SDK：
 
-- initialize
+- MCP initialization/capabilities
 - tools/list
 - tools/call
 - JSON-RPC lifecycle
+- Streamable HTTP protocol support
 
-H3 Runtime Layer 负责：
+H3 Runtime Layer：
 
-- event handling abstraction
+- Nitro 底层 HTTP/event abstraction
 
 ---
 
 # 4. Handler 编写规范
 
-使用 Nitro/H3 风格：
+使用当前 Nitro v3 推荐 handler 形式，handler 只做 adapter：
 
 ```ts
 export default defineEventHandler(async (event) => {
-  // adapter only
+  // extract request runtime
+  // delegate to MCP adapter
 })
 ```
 
+具体 helper 名称必须以实现时 Nitro v3 官方 API 为准。
+
 禁止：
 
-- 在 handler 中写业务逻辑
-- 自己实现 HTTP Server
-- 使用 node:http
+- handler 写 Skill 搜索业务逻辑
+- handler 直接拼 GitHub Authorization
+- 自己创建 Node HTTP Server
+- 手写 MCP JSON-RPC router
 
 ---
 
@@ -132,26 +119,80 @@ export default defineEventHandler(async (event) => {
 
 禁止：
 
-- fs
-- child_process
-- listen()
-- process 环境依赖
-- 长驻内存状态
+- filesystem 持久化
+- `child_process`
+- `listen()`
+- Node HTTP server
+- 依赖本地状态保存当前 skill 版本
 
-允许：
+允许并优先使用：
 
-- fetch API
-- KV
-- Cache API
+- `fetch`
 - Web Crypto
+- URL / Request / Response / Headers
+
+Cloudflare KV、R2、D1、Durable Objects 是平台能力，不是本项目第一版依赖。
+
+Cloudflare Cache API 也只能作为未来可选性能优化，不得参与 Source of Truth 判定。
 
 ---
 
-# 6. AI Agent 实施检查
+# 6. GitHub SourceSnapshot
 
-- [ ] 使用 Nitro v3
-- [ ] 不手动管理 H3 版本
-- [ ] 使用 MCP TypeScript SDK
-- [ ] 使用 Cloudflare Worker preset
-- [ ] 通过 lockfile 固化依赖
-- [ ] 在 Worker runtime 验证
+Nitro request 进入业务层后，应通过 repository/provider 建立：
+
+```text
+GITHUB_REF
+   |
+resolve exact commit
+   |
+SourceSnapshot
+```
+
+之后 registry、Skill、references 全部按该 exact SHA 读取。
+
+Nitro/H3 handler 本身不维护 branch freshness 状态。
+
+---
+
+# 7. Runtime Binding
+
+第一版只需要：
+
+```text
+GITHUB_OWNER
+GITHUB_REPO
+GITHUB_REF
+GITHUB_TOKEN
+```
+
+不得把 `SKILL_REGISTRY` KV binding 写成必需类型。
+
+具体 Cloudflare binding 访问方式必须查实现时 Nitro v3 adapter 文档，不能复用 Nitro v2 旧经验。
+
+---
+
+# 8. 错误处理
+
+区分：
+
+- MCP protocol/tool error
+- GitHub auth/rate-limit/not-found error
+- registry invalid/stale error
+- skill not found
+- source snapshot resolve failure
+
+Secret 与内部 stack 不进入 MCP user-facing result。
+
+---
+
+# 9. AI Agent 实施检查
+
+- [ ] 使用 Nitro v3。
+- [ ] 不手动管理独立 H3 主版本。
+- [ ] 使用 MCP TypeScript SDK。
+- [ ] Nitro endpoint 只做 adapter。
+- [ ] GitHub 读取固定 exact commit SHA。
+- [ ] 无 KV/R2 也可完整运行。
+- [ ] lockfile 固化实际 Nitro/H3 依赖树。
+- [ ] 在真实 Worker runtime 验证。
