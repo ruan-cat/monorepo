@@ -2,67 +2,51 @@
 
 ## 文档目的
 
-本文用于防止 AI Agent 在实现 Skill Router MCP Server 时错误处理 Cloudflare Worker bindings、Secrets 与 Nitro v3 runtime。
+本文防止 AI Agent 混淆 Nitro v3 Runtime、Wrangler 平台配置、Secrets、Worker Version Metadata 与 MCP 领域逻辑。
 
-核心原则：
+核心：
 
-> Nitro 负责应用 Runtime；Wrangler 负责 Cloudflare 平台配置；第一版只注入 GitHub source vars 和只读 credential，不需要 Cloudflare storage binding。
+> Nitro 负责应用 Runtime；Wrangler 负责 Cloudflare 平台资源和版本部署；业务层只接收收敛后的 Runtime Context。
+
+MVP 无 KV/R2/D1/DO。
 
 ---
 
-# 1. 配置职责边界
+# 1. 配置职责
 
 ## `nitro.config.ts`
 
 负责：
 
-- Nitro 构建配置
-- Cloudflare preset
-- 应用运行时适配
-- route rules
+- Nitro v3 build。
+- Cloudflare preset。
+- app routes/runtime abstraction。
 
 不负责：
 
-- 上传 Secret
-- 管理 Worker routes / custom domain
-- 创建 Cloudflare resource
+- Secret upload。
+- Worker routes/domain ownership。
+- Cloudflare version deployment。
+- storage resource lifecycle。
 
-示意：
-
-```ts
-export default defineNitroConfig({
-  preset: "cloudflare_module",
-})
-```
-
-具体 preset 名称和配置必须以实现时当前 Nitro v3 官方文档/类型为准。
+具体 preset/API 以实施时当前 Nitro v3 官方文档/类型为准。
 
 ## `wrangler.toml` / `wrangler.jsonc`
 
 负责：
 
-- Worker 名称
-- `compatibility_date`
-- vars
-- Secret 生命周期
-- routes / domain
-- deployment
-
-MVP 不需要 `kv_namespaces`、R2、D1 或 Durable Objects。
+- Worker name。
+- `compatibility_date`。
+- vars / Secrets。
+- domain/routes。
+- Version Metadata binding。
+- versions/deployments/rollback。
 
 ---
 
-# 2. 环境变量分类
+# 2. Public Vars / Secret
 
-## Public vars
-
-```text
-GITHUB_OWNER
-GITHUB_REPO
-GITHUB_REF
-```
-
-示意：
+Public：
 
 ```toml
 [vars]
@@ -71,74 +55,59 @@ GITHUB_REPO = "monorepo"
 GITHUB_REF = "dev"
 ```
 
-## Secret
+Secret：
 
 ```text
 GITHUB_TOKEN
 ```
 
-使用：
+生产上传：
 
 ```bash
 wrangler secret put GITHUB_TOKEN
 ```
 
-禁止写入 Wrangler 明文、Git、日志、registry 或 MCP response。
+禁止 Token 进入 Git、logs、registry、MCP result、build metadata。
 
 ---
 
-# 3. Wrangler 生命周期
+# 3. Worker Version Metadata Binding
 
-本地：
+Wrangler：
 
-```bash
-wrangler dev
+```toml
+[version_metadata]
+binding = "CF_VERSION_METADATA"
 ```
 
-本地 Secret 使用 `.dev.vars` 并 gitignore。
-
-生产：
-
-```bash
-wrangler secret put GITHUB_TOKEN
-wrangler deploy
-```
-
-本地/生产均不需要预创建 KV namespace 或 R2 bucket 才能运行第一版。
-
----
-
-# 4. Nitro v3 Cloudflare Binding 访问原则
-
-实现 Agent 必须以当前 Nitro v3 Cloudflare adapter 官方文档与类型为准，不允许按照 Nitro v2 经验猜测。
-
-当前设计只需要从 request runtime 获得：
+Cloudflare runtime 提供：
 
 ```text
-GITHUB_OWNER
-GITHUB_REPO
-GITHUB_REF
-GITHUB_TOKEN
+id
+  = Worker Version ID
+
+tag
+  = version tag
+
+timestamp
+  = version creation timestamp
 ```
 
-禁止使用：
+用途：
 
-```ts
-process.env.GITHUB_TOKEN
-```
+- `get_server_info`。
+- `/health`。
+- structured logs。
+- candidate/production smoke。
+- rollback diagnosis。
 
-也不要把旧 adapter 写法固定成规范：
-
-```ts
-// 不作为本项目固定规范
-// event.context.cloudflare.env
-```
-
-实现时应通过一个小型 Runtime Binding Extractor 隔离 Nitro/Cloudflare adapter 的具体访问语法，这样未来 adapter API 变化不会污染业务层。
+Version Metadata binding 不是 Secret，也不是 storage binding。
 
 ---
 
-# 5. Runtime Binding 契约
+# 4. Runtime Binding Contract
+
+概念：
 
 ```ts
 interface RuntimeBindings {
@@ -146,85 +115,245 @@ interface RuntimeBindings {
   GITHUB_REPO: string
   GITHUB_REF: string
   GITHUB_TOKEN: string
+  CF_VERSION_METADATA: WorkerVersionMetadata
 }
 ```
 
-不包含：
+再转换为业务可消费对象：
 
 ```text
-SKILL_REGISTRY: KVNamespace
-R2Bucket
-D1Database
+ApplicationRuntimeContext
+  ├─ public source config
+  ├─ repository adapter
+  └─ deployment info
 ```
 
-业务层不要散落读取 binding。
+不要把整份 Cloudflare env 传遍 Service 层。
 
-推荐：
+---
 
-```text
-MCP HTTP Adapter
-    |
-Runtime Binding Extractor
-    |
-GitHub Repository Adapter
-    |
-SourceSnapshot(commit SHA)
-    |
-Skill Service
+# 5. Nitro v3 Binding Access
+
+实现 Agent 必须按当前 Nitro v3 Cloudflare adapter 的 **request runtime** API 读取 bindings。
+
+禁止：
+
+```ts
+process.env.GITHUB_TOKEN
 ```
+
+也不要把旧 adapter 写法固定成新规范：
+
+```ts
+// 不作为项目固定 contract
+// event.context.cloudflare.env
+```
+
+必须用一个小型 Runtime Binding Extractor 隔离具体 Nitro/Cloudflare API。
+
+这样 Nitro adapter 未来变化只改一个边界。
 
 ---
 
 # 6. SourceSnapshot
 
-可变 `GITHUB_REF` 只在 snapshot 建立阶段使用：
+Latest：
 
 ```text
-GITHUB_REF=dev
-     |
-resolve
-     v
-commitSha=abc123
+request
+  ↓
+GITHUB_REF
+  ↓
+resolve once -> commitSha=A
+  ↓
+SourceSnapshot(A)
 ```
 
-之后同一 tool call 内：
+Pinned：
 
 ```text
-registry @ abc123
-SKILL.md @ abc123
-references @ abc123
+sourceCommitSha=A
+  ↓
+validate exact commit in configured owner/repo
+  ↓
+SourceSnapshot(A)
 ```
 
-不允许 service 在处理中再次使用 `dev` 读取另一份文件。
+之后同一次 Skill tool call：
+
+```text
+registry @ A
+SKILL.md @ A
+related files @ A
+```
+
+不得再次使用 mutable `dev` 读取正文。
 
 ---
 
-# 7. Secret 泄露防护
+# 7. DeploymentInfo
 
-禁止：
+Worker deployment metadata 与 Skill SourceSnapshot 分开：
 
 ```ts
-console.log(bindings.GITHUB_TOKEN)
+interface DeploymentInfo {
+  workerVersionId: string
+  workerVersionTag?: string
+  workerVersionTimestamp: string
+  buildGitSha: string
+}
 ```
+
+其中：
+
+- Worker ID/tag/timestamp：`CF_VERSION_METADATA`。
+- buildGitSha：CI/build-time injection。
 
 禁止：
 
-- 将 Secret 写入 `skill-registry.json`
-- 将 Secret 放入 cache key/value
-- 将 Secret 返回给 MCP Client
-- 将 Secret 提交 Git
-
-只有 GitHub Repository Adapter 接触 credential。
+```text
+Worker Version ID == MCP SemVer
+Worker Version ID == sourceCommitSha
+```
 
 ---
 
-# 8. AI Agent 验收清单
+# 8. Build Git SHA
 
-- [ ] Nitro v3 binding 访问方式符合实现时当前 adapter。
-- [ ] Wrangler 只管理必要平台配置。
-- [ ] `GITHUB_TOKEN` 使用 Secret。
-- [ ] owner/repo/ref 使用 vars。
-- [ ] 第一版无 storage binding。
-- [ ] GitHub Token 仅 repository adapter 使用。
-- [ ] SourceSnapshot 固定 exact commit SHA。
-- [ ] MCP 输出不暴露环境变量或 Secret。
+推荐构建阶段生成：
+
+```text
+build-info.generated.ts
+```
+
+来源优先：
+
+```text
+GitHub Actions GITHUB_SHA
+```
+
+或 build-time `git rev-parse HEAD`。
+
+运行时不执行 Git 命令、不读取 repo filesystem。
+
+---
+
+# 9. MCP Compatibility Boundary
+
+Nitro 只负责把 Web Request/Response 交给 OpenAI 当前 ChatGPT 官方兼容的 MCP SDK path：
+
+```text
+@modelcontextprotocol/sdk
+McpServer
+Streamable HTTP
+```
+
+不要在 Nitro adapter 里实现自定义 MCP negotiation/lifecycle。
+
+Future MCP major 只有在 OpenAI 当前官方文档 + Inspector + ChatGPT Web 真实验证通过后迁移。
+
+---
+
+# 10. 本地开发
+
+```bash
+wrangler dev
+```
+
+本地 Secret 放 `.dev.vars` 并 gitignore。
+
+MVP 不需要预创建 KV/R2/D1/DO。
+
+本地 version metadata 若与 production 行为不同，测试使用 Cloudflare 官方测试能力或明确 fixture；不要把假值误称为 production Worker Version ID。
+
+---
+
+# 11. Production Deployment
+
+不再把：
+
+```bash
+wrangler deploy
+```
+
+作为唯一推荐 production 流程，因为默认会创建版本并立即部署到 100% 流量。Cloudflare Versions & Deployments 支持将 upload 与 deployment 分离。 citeturn178682search1
+
+推荐：
+
+```text
+all gates
+  ↓
+wrangler versions upload
+  ↓
+versioned Preview URL / staging smoke
+  ↓
+exact candidate production deployment
+  ↓
+production smoke
+```
+
+Cloudflare 的 `wrangler versions upload` 会产生可测试的 versioned Preview URL。 citeturn178682search10
+
+---
+
+# 12. Tool Contract 与 ChatGPT Snapshot
+
+Worker code 已部署，不代表 ChatGPT Workspace 已启用新的 tool definitions。
+
+当 tool schema/metadata 改变时：
+
+```text
+Worker candidate
+  ↓
+MCP Inspector / Developer Mode
+  ↓
+ChatGPT refresh/rescan
+  ↓
+workspace review/publish when applicable
+```
+
+OpenAI 当前 Workspace MCP 使用冻结的已批准 tool/input snapshot；后续 server update 不会自动启用新动作。 citeturn178682search3
+
+Skill-only Git data 更新不改变 tool schema，因此不需要这一流程。
+
+---
+
+# 13. Secret 泄露防护
+
+只有 GitHub Repository Adapter 接触 `GITHUB_TOKEN`。
+
+禁止：
+
+- `console.log(token)`。
+- raw env dump。
+- Secret 写入 cache/version metadata。
+- Secret 返回 MCP client。
+
+`get_server_info` 只返回安全 deployment metadata。
+
+---
+
+# 14. 回滚边界
+
+Cloudflare 支持通过 `wrangler rollback [VERSION_ID]` 回滚到先前 Worker version，并立即创建新的 active deployment。 citeturn178682search0turn178682search6
+
+Runtime bug：Worker rollback。
+
+Skill content bug：Git revert/fix。
+
+Tool-contract bug：Worker rollback 后还需确认 ChatGPT 已批准的 tool snapshot 与回滚版本兼容。
+
+---
+
+# 15. 验收清单
+
+- [ ] Nitro v3 request runtime binding access 已按当前官方 API 验证。
+- [ ] Wrangler public vars / Secret / version metadata 职责清楚。
+- [ ] `CF_VERSION_METADATA` 可读。
+- [ ] buildGitSha 由构建期注入。
+- [ ] RuntimeBindings / DeploymentInfo / SourceSnapshot 分离。
+- [ ] Token 只在 repository adapter 使用。
+- [ ] 无 `process.env` 作为 Worker Secret 读取方案。
+- [ ] production 使用 version upload -> preview -> promote -> smoke。
+- [ ] Tool contract change 有 ChatGPT refresh/review gate。
+- [ ] 无 mandatory KV/R2/D1/DO。
