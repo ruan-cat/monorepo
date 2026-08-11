@@ -2,11 +2,11 @@
 
 ## 文档定位
 
-本文档集合不是普通架构说明，而是一套提供给独立 AI Agent 执行的生产级 Remote MCP Server 实施规格。
+本文档集合是一套提供给独立 AI Agent 执行的生产级 Remote MCP Server 实施规格。
 
 目标：
 
-> 让一个没有历史上下文的 AI Agent，仅依靠本目录中的文档，即可完成 Cloudflare Worker + Nitro v3 + MCP TypeScript SDK + Skill Router MCP Server 的设计、开发、测试和部署。
+> 让一个没有历史上下文的 AI Agent，仅依靠本目录文档，即可完成 Cloudflare Worker + Nitro v3 + MCP TypeScript SDK + GitHub commit-snapshot Skill Router MCP Server 的设计、开发、测试和部署。
 
 ---
 
@@ -16,20 +16,19 @@
 
 核心目标：
 
-- 将 `https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins` 中维护的 skills 暴露为 MCP Skill Provider。
+- 将 `ruan-cat/monorepo` 的 `ai-plugins` skills 暴露为 MCP Skill Provider。
 - 使用 Cloudflare Worker 提供全球 HTTPS Serverless MCP 服务。
-- 使用 Nitro v3 + H3 作为 Web Runtime。
-- 使用 MCP TypeScript SDK 实现 MCP 协议层。
+- 使用 Nitro v3 作为应用 Runtime；H3 由 Nitro 依赖树管理。
+- 使用 MCP TypeScript SDK 实现协议层。
 - 使用 Streamable HTTP 作为 Remote MCP Transport。
-- 使用 GitHub 作为 Skill Source of Truth。
-- 使用 Cloudflare KV / Cache API 支撑高性能读取。
-- 让 ChatGPT Web 可以动态发现、搜索、加载 skills 上下文。
+- 使用 GitHub 作为唯一 Skill Source of Truth。
+- 每次 tool call 将 `GITHUB_REF` 解析成 exact commit SHA，再从同一 SHA 读取 registry/skill。
+- 第一版不要求 Cloudflare KV、R2、D1、Durable Objects。
+- 推荐维护确定性生成的 `ai-plugins/skill-registry.json` 作为机器发现索引。
 
 ---
 
 # AI Agent 首要阅读入口
-
-任何新的 AI Agent 在开始实现前，必须首先阅读：
 
 ```text
 ai-agent-implementation-plan.md
@@ -40,7 +39,11 @@ architecture.md
         ↓
 implementation-spec.md
         ↓
+skill-registry-schema.md
+        ↓
 nitro-v3-cloudflare-integration.md
+        ↓
+runtime-binding-contract.md
         ↓
 mcp-server-framework-selection.md
         ↓
@@ -50,12 +53,6 @@ testing-plan.md
 ```
 
 禁止跳过阅读阶段直接编码。
-
-完整执行规则见：
-
-- `ai-agent-implementation-plan.md`
-- `agent-execution-guide.md`
-- `agent-handoff-checklist.md`
 
 ---
 
@@ -69,13 +66,7 @@ testing-plan.md
 @modelcontextprotocol/sdk
 ```
 
-禁止：
-
-- 手写 JSON-RPC 协议层
-- 自定义 MCP transport
-- 将 MCP 实现为普通 REST API
-
----
+禁止手写 JSON-RPC lifecycle、自定义 MCP transport 或把普通 REST API 伪装成 MCP。
 
 ## Remote Transport
 
@@ -85,17 +76,32 @@ testing-plan.md
 Streamable HTTP
 ```
 
-目标：
+## Skill Source
+
+固定：
 
 ```text
-ChatGPT Web
-        ↓
-Remote MCP Client
-        ↓
-Streamable HTTP
-        ↓
-McpServer
+GitHub ai-plugins
++
+request-scoped exact commit SHA
 ```
+
+不要把 Cloudflare KV/R2 当成 Skill 真源。
+
+## Freshness
+
+```text
+GITHUB_REF=dev
+      |
+      v
+resolve HEAD -> commit SHA
+      |
+      +-- registry @ SHA
+      +-- SKILL.md @ SHA
+      +-- references @ SHA
+```
+
+一次 tool call 内不跨 commit 混读；下一次新的 tool call 可以解析新的 branch HEAD。
 
 ---
 
@@ -103,8 +109,13 @@ McpServer
 
 ## 架构设计
 
-- `architecture.md`：整体系统架构、模块边界、数据流
+- `architecture.md`：整体架构、SourceSnapshot、一致性和缓存边界
 - `implementation-spec.md`：工程实施规格
+- `runtime-dependency-version-policy.md`：Nitro/H3/MCP SDK 依赖层与版本策略
+
+## Skill 系统
+
+- `skill-registry-schema.md`：`ai-plugins/skill-registry.json` 的确定性生成规范与 `release-ai-plugins` 集成契约
 
 ## MCP 协议
 
@@ -112,28 +123,22 @@ McpServer
 - `mcp-protocol-design.md`：MCP SDK、transport、tools 设计
 - `mcp-client-validation-guide.md`：客户端连接验收
 
-## Runtime 实现
+## Runtime / Cloudflare
 
-- `nitro-v3-development-guide.md`：Nitro v3 + H3 开发规范
+- `nitro-v3-development-guide.md`：Nitro v3 Runtime 开发规范
 - `nitro-v3-cloudflare-integration.md`：Nitro 与 Cloudflare Worker 边界规范
-- `runtime-binding-contract.md`：Cloudflare runtime binding 契约
-- `cloudflare-worker-deployment.md`：Cloudflare Worker 部署规范
+- `runtime-binding-contract.md`：vars / secret 与 request runtime 契约
+- `cloudflare-worker-deployment.md`：无存储 binding 的第一版部署规范
+- `cloudflare-ai-gateway-strategy.md`：未来模型调用扩展策略
 
-## Skill 系统
+## 质量与交接
 
-- `skill-registry-schema.md`：Skill Registry 数据模型
-
-## 质量保障
-
-- `testing-plan.md`：测试策略
+- `testing-plan.md`：协议、registry、freshness、一致性测试
 - `security-model.md`：安全模型
-
-## Agent 执行与部署
-
-- `ai-agent-implementation-plan.md`：AI Agent 阅读和实施计划
-- `agent-execution-guide.md`：AI Agent 实施流程
-- `agent-handoff-checklist.md`：Agent 交接检查清单
-- `deployment-runbook.md`：上线部署手册
+- `ai-agent-implementation-plan.md`：AI Agent 阅读与实施计划
+- `agent-execution-guide.md`：Agent 执行流程
+- `agent-handoff-checklist.md`：交接检查
+- `deployment-runbook.md`：生产部署和回滚
 
 ---
 
@@ -152,13 +157,10 @@ Streamable HTTP
 Cloudflare Worker
           |
           v
-Nitro v3 + H3
+Nitro v3 Runtime
           |
           v
-MCP TypeScript SDK
-          |
-          v
-McpServer
+MCP TypeScript SDK / McpServer
           |
           v
 Skill Router Tools
@@ -167,35 +169,49 @@ Skill Router Tools
 Skill Services
           |
           v
-Registry Repository
+GitHub Repository Adapter
           |
           v
-Cloudflare KV / GitHub ai-plugins
+SourceSnapshot(commit SHA)
+          |
+          +-- ai-plugins/skill-registry.json @ SHA
+          +-- Skill files @ SHA
 ```
+
+---
+
+# 为什么第一版不使用 KV / R2
+
+该项目的真实工作流是 skills 高频更新，因此第一优先级是最新 commit 可见和版本可复现，而不是复制到第二套存储。
+
+第一版采用 GitHub exact-commit reads 可以避免：
+
+- KV eventual-consistency freshness 问题成为主链路依赖。
+- R2/KV binding 增加本地与生产配置面。
+- GitHub -> Cloudflare storage 同步 pipeline 的额外失败点。
+- Skill 内容更新要求 Worker/storage 同步后才可见。
+
+只有真实性能数据证明需要时，再设计 commit-addressed cache。
 
 ---
 
 # 服务职责
 
-Skill Router MCP Server 只负责技能能力管理。
+Skill Router 负责：
 
-负责：
-
-1. 技能发现
-2. 技能搜索
-3. 技能加载
-4. 技能版本管理
-5. 技能元数据管理
+1. 技能发现。
+2. 技能搜索。
+3. 技能加载。
+4. 技能版本与 source commit 报告。
+5. Registry 读取和一致性校验。
 
 不负责：
 
-- 执行 Shell
-- 修改 GitHub
-- 创建 PR
-- 运行 Docker
-- 执行 CI
-
-这些能力由其他 MCP Server 提供。
+- 执行 Shell。
+- 修改 GitHub。
+- 创建 PR。
+- 运行 Docker / CI。
+- 同步 KV/R2。
 
 ---
 
@@ -203,28 +219,25 @@ Skill Router MCP Server 只负责技能能力管理。
 
 ## MCP
 
-- [ ] ChatGPT Web Developer Mode 可以添加 MCP
-- [ ] MCP initialize 成功
-- [ ] tools/list 成功
-- [ ] tools/call 成功
-- [ ] MCP SDK transport 正常工作
+- [ ] ChatGPT Web Developer Mode 可以添加 MCP。
+- [ ] MCP SDK / Streamable HTTP 正常。
+- [ ] initialize / tools/list / tools/call 成功。
 
 ## Skill
 
-- [ ] 可以发现 skills
-- [ ] 可以搜索 skills
-- [ ] 可以加载完整 skill 上下文
-- [ ] 支持版本管理
+- [ ] `ai-plugins/skill-registry.json` 可确定性生成和校验。
+- [ ] 可以发现、搜索、加载 skills。
+- [ ] 同一 tool call 的 registry / skill 来自同一 commit SHA。
+- [ ] 新 push 后下一次新 snapshot 能看到新 HEAD。
 
 ## Runtime
 
-- [ ] Cloudflare Worker 部署成功
-- [ ] Nitro v3 runtime 正常
-- [ ] 无 Node 专属 API
-- [ ] 无本地状态依赖
+- [ ] Cloudflare Worker 部署成功。
+- [ ] 无 KV/R2 binding 也可完整工作。
+- [ ] 无 Node Server 专属 API。
 
 ## Security
 
-- [ ] GitHub token 不泄露
-- [ ] Skill 内容经过验证
-- [ ] MCP 工具权限最小化
+- [ ] GitHub Token 不泄露。
+- [ ] GitHub 权限只读、最小化。
+- [ ] MCP 工具默认只读、非破坏性。
