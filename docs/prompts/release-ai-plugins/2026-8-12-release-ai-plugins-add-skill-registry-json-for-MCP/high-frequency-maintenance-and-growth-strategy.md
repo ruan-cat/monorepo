@@ -53,7 +53,7 @@ patch changed entry
 
 原因：
 
-- 当前 Skill 总量不会大到让 O(N) 扫描成为主要成本。
+- 当前 Skill 总量不会大到让 O（N） 扫描成为主要成本。
 - 高频更新时，增量状态反而增加 stale/orphan/rename/delete 风险。
 - 全量扫描天然处理新增、删除、重命名。
 - CI 与本地生成行为完全一致。

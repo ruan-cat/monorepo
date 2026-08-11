@@ -111,11 +111,11 @@ Version Metadata binding 不是 Secret，也不是 storage binding。
 
 ```ts
 interface RuntimeBindings {
-  GITHUB_OWNER: string
-  GITHUB_REPO: string
-  GITHUB_REF: string
-  GITHUB_TOKEN: string
-  CF_VERSION_METADATA: WorkerVersionMetadata
+	GITHUB_OWNER: string;
+	GITHUB_REPO: string;
+	GITHUB_REF: string;
+	GITHUB_TOKEN: string;
+	CF_VERSION_METADATA: WorkerVersionMetadata;
 }
 ```
 
@@ -139,7 +139,7 @@ ApplicationRuntimeContext
 禁止：
 
 ```ts
-process.env.GITHUB_TOKEN
+process.env.GITHUB_TOKEN;
 ```
 
 也不要把旧 adapter 写法固定成新规范：
@@ -197,10 +197,10 @@ Worker deployment metadata 与 Skill SourceSnapshot 分开：
 
 ```ts
 interface DeploymentInfo {
-  workerVersionId: string
-  workerVersionTag?: string
-  workerVersionTimestamp: string
-  buildGitSha: string
+	workerVersionId: string;
+	workerVersionTag?: string;
+	workerVersionTimestamp: string;
+	buildGitSha: string;
 }
 ```
 

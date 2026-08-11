@@ -169,7 +169,7 @@ ChatGPT refresh/rescan
 admin review/publish when applicable
 ```
 
-OpenAI 当前 Workspace MCP 模型会冻结已批准的 tool/input snapshot，后续 server 变化不会自动启用；这实际上也是一个权限边界。生产实现不得试图通过动态 schema tricks 绕过该审核层。 
+OpenAI 当前 Workspace MCP 模型会冻结已批准的 tool/input snapshot，后续 server 变化不会自动启用；这实际上也是一个权限边界。生产实现不得试图通过动态 schema tricks 绕过该审核层。
 
 ---
 

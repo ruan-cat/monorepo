@@ -79,24 +79,21 @@ ai-plugins/dev-skills/skills/*
 
 ```json
 {
-  "schemaVersion": "1",
-  "source": {
-    "repository": "ruan-cat/monorepo",
-    "roots": [
-      "ai-plugins/common-tools/skills",
-      "ai-plugins/dev-skills/skills"
-    ]
-  },
-  "skills": [
-    {
-      "id": "nitro-api-development",
-      "plugin": "dev-skills",
-      "name": "nitro-api-development",
-      "description": "使用 Nitro v3 开发和维护服务端 API。",
-      "version": "0.13.6",
-      "entry": "ai-plugins/dev-skills/skills/nitro-api-development/SKILL.md"
-    }
-  ]
+	"schemaVersion": "1",
+	"source": {
+		"repository": "ruan-cat/monorepo",
+		"roots": ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"]
+	},
+	"skills": [
+		{
+			"id": "nitro-api-development",
+			"plugin": "dev-skills",
+			"name": "nitro-api-development",
+			"description": "使用 Nitro v3 开发和维护服务端 API。",
+			"version": "0.13.6",
+			"entry": "ai-plugins/dev-skills/skills/nitro-api-development/SKILL.md"
+		}
+	]
 }
 ```
 

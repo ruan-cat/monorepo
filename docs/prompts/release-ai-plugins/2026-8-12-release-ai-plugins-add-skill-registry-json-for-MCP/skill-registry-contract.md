@@ -31,21 +31,18 @@ ai-plugins/skill-registry.json
 
 ```json
 {
-  "schemaVersion": "1",
-  "roots": [
-    "ai-plugins/common-tools/skills",
-    "ai-plugins/dev-skills/skills"
-  ],
-  "skills": [
-    {
-      "id": "nitro-api-development",
-      "plugin": "dev-skills",
-      "name": "nitro-api-development",
-      "description": "...",
-      "version": "0.13.6",
-      "entry": "ai-plugins/dev-skills/skills/nitro-api-development/SKILL.md"
-    }
-  ]
+	"schemaVersion": "1",
+	"roots": ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"],
+	"skills": [
+		{
+			"id": "nitro-api-development",
+			"plugin": "dev-skills",
+			"name": "nitro-api-development",
+			"description": "...",
+			"version": "0.13.6",
+			"entry": "ai-plugins/dev-skills/skills/nitro-api-development/SKILL.md"
+		}
+	]
 }
 ```
 
@@ -80,10 +77,7 @@ string
 固定：
 
 ```json
-[
-  "ai-plugins/common-tools/skills",
-  "ai-plugins/dev-skills/skills"
-]
+["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"]
 ```
 
 固定顺序，不根据扫描结果变化。
@@ -345,29 +339,26 @@ skills[].version = 每个 Skill 功能版本
 
 ```json
 {
-  "schemaVersion": "1",
-  "roots": [
-    "ai-plugins/common-tools/skills",
-    "ai-plugins/dev-skills/skills"
-  ],
-  "skills": [
-    {
-      "id": "release-ai-plugins",
-      "plugin": "common-tools",
-      "name": "release-ai-plugins",
-      "description": "固定化 ai-plugins 的版本发布流程。",
-      "version": "0.18.0",
-      "entry": "ai-plugins/common-tools/skills/release-ai-plugins/SKILL.md"
-    },
-    {
-      "id": "nitro-api-development",
-      "plugin": "dev-skills",
-      "name": "nitro-api-development",
-      "description": "使用 Nitro v3 开发 Server API。",
-      "version": "0.13.6",
-      "entry": "ai-plugins/dev-skills/skills/nitro-api-development/SKILL.md"
-    }
-  ]
+	"schemaVersion": "1",
+	"roots": ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"],
+	"skills": [
+		{
+			"id": "release-ai-plugins",
+			"plugin": "common-tools",
+			"name": "release-ai-plugins",
+			"description": "固定化 ai-plugins 的版本发布流程。",
+			"version": "0.18.0",
+			"entry": "ai-plugins/common-tools/skills/release-ai-plugins/SKILL.md"
+		},
+		{
+			"id": "nitro-api-development",
+			"plugin": "dev-skills",
+			"name": "nitro-api-development",
+			"description": "使用 Nitro v3 开发 Server API。",
+			"version": "0.13.6",
+			"entry": "ai-plugins/dev-skills/skills/nitro-api-development/SKILL.md"
+		}
+	]
 }
 ```
 

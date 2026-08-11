@@ -261,7 +261,7 @@ rerun evaluation
 Workspace review/publish when applicable
 ```
 
-Cloudflare Git/Actions pipeline不会自动完成 ChatGPT 这一层。
+Cloudflare Git/Actions pipeline 不会自动完成 ChatGPT 这一层。
 
 ---
 

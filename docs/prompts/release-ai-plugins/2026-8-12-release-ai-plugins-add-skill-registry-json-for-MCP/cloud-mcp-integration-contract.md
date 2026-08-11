@@ -68,10 +68,10 @@ read selected Skill @ same SHA
 
 ```ts
 interface SourceSnapshot {
-  owner: string
-  repo: string
-  ref?: string
-  commitSha: string
+	owner: string;
+	repo: string;
+	ref?: string;
+	commitSha: string;
 }
 ```
 
@@ -107,7 +107,7 @@ Pinned 模式不允许客户端覆盖 owner/repo，避免把服务变成任意 G
 
 ---
 
-# 4. `list_skills`
+# 4`list_skills`
 
 流程：
 
@@ -125,7 +125,7 @@ return summaries + sourceCommitSha
 
 ---
 
-# 5. `search_skills`
+# 5`search_skills`
 
 第一版搜索字段：
 
@@ -154,7 +154,7 @@ return candidates + sourceCommitSha
 
 ---
 
-# 6. `get_skill_metadata`
+# 6`get_skill_metadata`
 
 如果实现该 tool，可直接返回 registry entry + `sourceCommitSha`。
 
@@ -162,14 +162,14 @@ return candidates + sourceCommitSha
 
 ---
 
-# 7. `load_skill`
+# 7`load_skill`
 
 推荐输入：
 
 ```json
 {
-  "skillId": "nitro-api-development",
-  "sourceCommitSha": "abc123"
+	"skillId": "nitro-api-development",
+	"sourceCommitSha": "abc123"
 }
 ```
 
@@ -362,11 +362,11 @@ Skill update != Worker code update
 
 ```json
 {
-  "source": {
-    "repository": "ruan-cat/monorepo",
-    "ref": "dev",
-    "commitSha": "abc123"
-  }
+	"source": {
+		"repository": "ruan-cat/monorepo",
+		"ref": "dev",
+		"commitSha": "abc123"
+	}
 }
 ```
 

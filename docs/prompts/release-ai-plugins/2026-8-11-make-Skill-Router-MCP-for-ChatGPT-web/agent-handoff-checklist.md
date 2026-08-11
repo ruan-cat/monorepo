@@ -85,7 +85,7 @@ load_skill
 
 ## ChatGPT tool metadata
 
-- [ ] Tool contract不变：Runtime release 即可。
+- [ ] Tool contrac t不变：Runtime release 即可。
 - [ ] Tool name/schema/description/annotation 变化：Developer Mode refresh/rescan。
 - [ ] eval/use cases 重跑。
 - [ ] Workspace review/publish when applicable。

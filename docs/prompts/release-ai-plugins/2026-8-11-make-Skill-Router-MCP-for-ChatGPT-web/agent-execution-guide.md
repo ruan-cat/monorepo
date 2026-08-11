@@ -114,7 +114,7 @@ Production smoke
 ChatGPT Web acceptance
 ```
 
-SDK/protocol测试标准以 OpenAI 当前官方文档为准。
+SDK/protocol 测试标准以 OpenAI 当前官方文档为准。
 
 ---
 

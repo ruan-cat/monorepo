@@ -139,7 +139,7 @@ load_skill @ commit B
 
 ```json
 {
-  "sourceCommitSha": "abc123"
+	"sourceCommitSha": "abc123"
 }
 ```
 
@@ -149,8 +149,8 @@ load_skill @ commit B
 
 ```json
 {
-  "skillId": "nitro-api-development",
-  "sourceCommitSha": "abc123"
+	"skillId": "nitro-api-development",
+	"sourceCommitSha": "abc123"
 }
 ```
 

@@ -35,7 +35,7 @@ OpenAI ChatGPT 当前公开支持/推荐的 MCP 实现方式
 并使用：
 
 ```ts
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 ```
 
 构建带稳定：
@@ -138,7 +138,7 @@ version = MCP package package.json.version
 
 MCP application SemVer 是唯一 server version 来源。
 
-初始化结果中的 server info 应能让标准 MCP client/Inspector识别该版本。
+初始化结果中的 server info 应能让标准 MCP client/Inspector 识别该版本。
 
 另外增加：
 

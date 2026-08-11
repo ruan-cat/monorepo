@@ -26,19 +26,19 @@ versioned Worker production release
 
 # 1. 核心技术栈
 
-| 层 | 技术 |
-| --- | --- |
-| Serverless Runtime | Cloudflare Workers |
-| Application Runtime | Nitro v3 |
-| HTTP Runtime | Nitro-managed H3 |
-| MCP SDK | OpenAI 当前推荐的 `@modelcontextprotocol/sdk` |
-| MCP Server | `McpServer` |
-| Transport | Streamable HTTP |
-| Skill Source | GitHub `ai-plugins` |
-| Skill Snapshot | Git exact commit SHA |
-| Registry | `ai-plugins/skill-registry.json` |
-| Worker Release | Cloudflare Versions & Deployments |
-| Persistent Cloudflare Storage | MVP 不需要 |
+| 层                            | 技术                                          |
+| ----------------------------- | --------------------------------------------- |
+| Serverless Runtime            | Cloudflare Workers                            |
+| Application Runtime           | Nitro v3                                      |
+| HTTP Runtime                  | Nitro-managed H3                              |
+| MCP SDK                       | OpenAI 当前推荐的 `@modelcontextprotocol/sdk` |
+| MCP Server                    | `McpServer`                                   |
+| Transport                     | Streamable HTTP                               |
+| Skill Source                  | GitHub `ai-plugins`                           |
+| Skill Snapshot                | Git exact commit SHA                          |
+| Registry                      | `ai-plugins/skill-registry.json`              |
+| Worker Release                | Cloudflare Versions & Deployments             |
+| Persistent Cloudflare Storage | MVP 不需要                                    |
 
 不要把 MCP upstream 比 OpenAI ChatGPT 当前支持更激进的 protocol/SDK major 写死为 production baseline。
 
@@ -107,7 +107,7 @@ load_skill
 
 ---
 
-# 5. `get_server_info`
+# 5`get_server_info`
 
 返回面向 ChatGPT/人的生产自描述：
 

@@ -134,16 +134,16 @@ chatgpt-web-mcp-compatibility-profile.md
 
 至少区分：
 
-| 概念 | 示例 | 含义 |
-| --- | --- | --- |
-| MCP Application Version | `1.4.0` | Skill Router Server 自身 SemVer |
-| Negotiated MCP Protocol Version | initialization 结果 | SDK/客户端实际协商版本 |
-| Worker Version ID | Cloudflare ID | 不可变 Worker version |
-| Worker Version Tag | `skill-router-mcp-v1.4.0` | 人类可识别 deployment tag |
-| Worker Build Git SHA | `abc123...` | 生成 Worker bundle 的 code commit |
-| Skill Source Commit | `def456...` | 本次 Skill 读取 snapshot |
-| Skill Version | `0.13.7` | 单 Skill `metadata.version` |
-| Registry Schema Version | `1` | `skill-registry.json` schema |
+| 概念                            | 示例                      | 含义                              |
+| ------------------------------- | ------------------------- | --------------------------------- |
+| MCP Application Version         | `1.4.0`                   | Skill Router Server 自身 SemVer   |
+| Negotiated MCP Protocol Version | initialization 结果       | SDK/客户端实际协商版本            |
+| Worker Version ID               | Cloudflare ID             | 不可变 Worker version             |
+| Worker Version Tag              | `skill-router-mcp-v1.4.0` | 人类可识别 deployment tag         |
+| Worker Build Git SHA            | `abc123...`               | 生成 Worker bundle 的 code commit |
+| Skill Source Commit             | `def456...`               | 本次 Skill 读取 snapshot          |
+| Skill Version                   | `0.13.7`                  | 单 Skill `metadata.version`       |
+| Registry Schema Version         | `1`                       | `skill-registry.json` schema      |
 
 Worker Build Git SHA 与 Skill Source Commit 通常可以不同：
 
@@ -197,9 +197,9 @@ Skill version 更新不 bump MCP Server version。
 
 ```ts
 new McpServer({
-  name: "skill-router-mcp",
-  version: packageVersion,
-})
+	name: "skill-router-mcp",
+	version: packageVersion,
+});
 ```
 
 稳定 name/version 是标准 MCP 客户端可以在 initialization/server info 中识别的服务身份。
@@ -256,27 +256,27 @@ Cloudflare 当前部署的是哪一版？
 
 ```json
 {
-  "server": {
-    "name": "skill-router-mcp",
-    "version": "1.4.0",
-    "buildGitSha": "abc123"
-  },
-  "deployment": {
-    "workerVersionId": "...",
-    "workerVersionTag": "skill-router-mcp-v1.4.0",
-    "workerVersionTimestamp": "..."
-  },
-  "skillSource": {
-    "repository": "ruan-cat/monorepo",
-    "ref": "dev"
-  },
-  "registrySchemaVersion": "1",
-  "tools": [
-    { "name": "get_server_info", "description": "..." },
-    { "name": "list_skills", "description": "..." },
-    { "name": "search_skills", "description": "..." },
-    { "name": "load_skill", "description": "..." }
-  ]
+	"server": {
+		"name": "skill-router-mcp",
+		"version": "1.4.0",
+		"buildGitSha": "abc123"
+	},
+	"deployment": {
+		"workerVersionId": "...",
+		"workerVersionTag": "skill-router-mcp-v1.4.0",
+		"workerVersionTimestamp": "..."
+	},
+	"skillSource": {
+		"repository": "ruan-cat/monorepo",
+		"ref": "dev"
+	},
+	"registrySchemaVersion": "1",
+	"tools": [
+		{ "name": "get_server_info", "description": "..." },
+		{ "name": "list_skills", "description": "..." },
+		{ "name": "search_skills", "description": "..." },
+		{ "name": "load_skill", "description": "..." }
+	]
 }
 ```
 
@@ -411,7 +411,7 @@ GitHub Actions + package-local Wrangler
 
 因为我们有测试、version upload、preview smoke、promotion 和 production smoke 多层 gate。
 
-如果改用 Cloudflare Git Integration，就不要同时让 GitHub Actions自动部署同一 production Worker。
+如果改用 Cloudflare Git Integration，就不要同时让 GitHub Actions 自动部署同一 production Worker。
 
 ---
 

@@ -36,7 +36,7 @@ zod
 并：
 
 ```ts
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 ```
 
 因此当前 production baseline 固定为 OpenAI 官方这条 SDK 路径。

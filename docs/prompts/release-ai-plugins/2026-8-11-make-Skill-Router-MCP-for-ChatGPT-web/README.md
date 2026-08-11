@@ -104,9 +104,9 @@ testing-plan.md
 
 ```ts
 new McpServer({
-  name: "skill-router-mcp",
-  version: packageVersion,
-})
+	name: "skill-router-mcp",
+	version: packageVersion,
+});
 ```
 
 MCP package `package.json.version` 是 application SemVer 唯一来源。

@@ -121,11 +121,11 @@ timestamp
 
 ```ts
 export interface RuntimeBindings {
-  GITHUB_OWNER: string
-  GITHUB_REPO: string
-  GITHUB_REF: string
-  GITHUB_TOKEN: string
-  CF_VERSION_METADATA: WorkerVersionMetadata
+	GITHUB_OWNER: string;
+	GITHUB_REPO: string;
+	GITHUB_REF: string;
+	GITHUB_TOKEN: string;
+	CF_VERSION_METADATA: WorkerVersionMetadata;
 }
 ```
 
@@ -133,16 +133,16 @@ export interface RuntimeBindings {
 
 ```ts
 export interface SourceSnapshot {
-  repository: string
-  ref: string
-  commitSha: string
+	repository: string;
+	ref: string;
+	commitSha: string;
 }
 
 export interface DeploymentInfo {
-  workerVersionId: string
-  workerVersionTag?: string
-  workerVersionTimestamp: string
-  buildGitSha: string
+	workerVersionId: string;
+	workerVersionTag?: string;
+	workerVersionTimestamp: string;
+	buildGitSha: string;
 }
 ```
 
@@ -185,12 +185,12 @@ git rev-parse HEAD
 禁止：
 
 ```ts
-process.env.GITHUB_TOKEN
+process.env.GITHUB_TOKEN;
 ```
 
 也不要硬编码旧 Nitro context API。
 
-实现 Agent必须依据当前 Nitro v3 Cloudflare adapter，从 request runtime 获取 bindings，并在 adapter 边界收敛平台类型。
+实现 Agent 必须依据当前 Nitro v3 Cloudflare adapter，从 request runtime 获取 bindings，并在 adapter 边界收敛平台类型。
 
 ```text
 Nitro Handler
@@ -241,7 +241,7 @@ Service 不接收 Secret：
 错误：
 
 ```ts
-skillService.load(env.GITHUB_TOKEN)
+skillService.load(env.GITHUB_TOKEN);
 ```
 
 正确：

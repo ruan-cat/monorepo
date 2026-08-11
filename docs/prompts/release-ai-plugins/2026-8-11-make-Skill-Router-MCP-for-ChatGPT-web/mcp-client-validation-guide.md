@@ -84,7 +84,7 @@ Server application version 不等于：
 
 ---
 
-# 5. `tools/list`
+# 5`tools/list`
 
 必须返回当前部署完整工具目录：
 
@@ -106,7 +106,7 @@ load_skill
 
 ---
 
-# 6. `get_server_info`
+# 6`get_server_info`
 
 输入：
 
@@ -138,7 +138,7 @@ tools[]
 
 ---
 
-# 7. `list_skills`
+# 7`list_skills`
 
 - 返回 Registry v1 minimal summaries。
 - 返回 `sourceCommitSha`。
@@ -146,10 +146,10 @@ tools[]
 
 ---
 
-# 8. `search_skills`
+# 8`search_skills`
 
 ```json
-{"query":"Nitro API development"}
+{ "query": "Nitro API development" }
 ```
 
 验证：
@@ -164,7 +164,7 @@ tools[]
 # 9. `load_skill` Latest
 
 ```json
-{"skillId":"nitro-api-development"}
+{ "skillId": "nitro-api-development" }
 ```
 
 验证：
@@ -179,8 +179,8 @@ tools[]
 
 ```json
 {
-  "skillId":"nitro-api-development",
-  "sourceCommitSha":"A"
+	"skillId": "nitro-api-development",
+	"sourceCommitSha": "A"
 }
 ```
 

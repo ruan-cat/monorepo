@@ -82,7 +82,7 @@ Nitro production build
 createTestHarness integration
 ```
 
-SDK/protocol标准以当前 OpenAI ChatGPT official compatibility profile 为准。
+SDK/protocol 标准以当前 OpenAI ChatGPT official compatibility profile 为准。
 
 ---
 

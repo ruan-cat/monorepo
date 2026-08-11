@@ -73,12 +73,12 @@ SDK major 升级必须先过 `chatgpt-web-mcp-compatibility-profile.md`。
 
 ```json
 {
-  "scripts": {
-    "test:unit": "vitest run -c vitest.unit.config.ts",
-    "test:worker": "vitest run -c vitest.worker.config.ts",
-    "test:integration": "vitest run -c vitest.integration.config.ts",
-    "test:all": "pnpm test:unit && pnpm test:worker && pnpm test:integration"
-  }
+	"scripts": {
+		"test:unit": "vitest run -c vitest.unit.config.ts",
+		"test:worker": "vitest run -c vitest.worker.config.ts",
+		"test:integration": "vitest run -c vitest.integration.config.ts",
+		"test:all": "pnpm test:unit && pnpm test:worker && pnpm test:integration"
+	}
 }
 ```
 

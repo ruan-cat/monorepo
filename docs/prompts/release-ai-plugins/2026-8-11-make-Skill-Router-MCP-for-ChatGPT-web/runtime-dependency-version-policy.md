@@ -244,7 +244,7 @@ Future migration only when：
 
 # 12. Root Test Stack Non-goals
 
-MCP implementation不要求：
+MCP implementation 不要求：
 
 ```text
 root Vitest 3 -> 4

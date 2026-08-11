@@ -166,7 +166,7 @@ load_skill pinned
 invalid inputs/errors
 ```
 
-SDK/client版本必须与 production compatibility profile 对齐。
+SDK/client 版本必须与 production compatibility profile 对齐。
 
 ---
 

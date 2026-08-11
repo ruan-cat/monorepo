@@ -39,9 +39,9 @@ zod
 
 ```ts
 new McpServer({
-  name: "skill-router-mcp",
-  version: packageVersion,
-})
+	name: "skill-router-mcp",
+	version: packageVersion,
+});
 ```
 
 SDK 负责：
@@ -189,7 +189,7 @@ toolDefinitions
 
 ---
 
-# 9. `get_server_info`
+# 9`get_server_info`
 
 用途：让 ChatGPT 能直接回答：
 
@@ -229,7 +229,7 @@ tools[]
 
 ---
 
-# 10. `list_skills`
+# 10`list_skills`
 
 ```text
 resolve configured ref -> exact SHA
@@ -249,12 +249,12 @@ summary：
 
 ---
 
-# 11. `search_skills`
+# 11`search_skills`
 
 输入：
 
 ```json
-{"query":"Nitro API development"}
+{ "query": "Nitro API development" }
 ```
 
 第一版只搜索 Registry v1：
@@ -269,14 +269,14 @@ id / name / description / plugin
 
 ---
 
-# 12. `load_skill`
+# 12`load_skill`
 
 输入：
 
 ```json
 {
-  "skillId": "nitro-api-development",
-  "sourceCommitSha": "optional-exact-sha"
+	"skillId": "nitro-api-development",
+	"sourceCommitSha": "optional-exact-sha"
 }
 ```
 
