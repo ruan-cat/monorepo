@@ -2,150 +2,72 @@
 
 ## 1. 部署目标
 
-将 Skill Router MCP Server 部署为面向 ChatGPT Web Developer Mode 的公网 Remote MCP 服务。
+将 Skill Router MCP Server 部署为 ChatGPT Web 可用的公网 Remote MCP。
 
-目标链路：
+目标：
 
 ```text
-ChatGPT Web
-      |
-      v
-HTTPS Streamable HTTP MCP
-      |
-      v
-Cloudflare Worker
-      |
-      v
-Nitro v3 Runtime
-      |
-      v
-MCP Server
-      |
-      v
-GitHub ai-plugins @ exact commit SHA
+Cloudflare Workers
++
+Nitro v3
++
+MCP TypeScript SDK v2
++
+MCP 2026-07-28
++
+versioned production deployment
 ```
 
-第一版要求：
-
-- 全球 HTTPS 可访问。
-- Serverless 执行。
-- 无 Node 长驻环境依赖。
-- 支持自动部署。
-- 不要求 Cloudflare KV、R2、D1 或 Durable Objects。
+MVP 不要求 KV/R2/D1/Durable Objects。
 
 ---
 
-# 2. 配置职责边界
+# 2. 配置职责
 
-## Nitro 配置
+## Nitro
 
-负责：
+- Cloudflare preset。
+- build。
+- route/runtime adapter。
 
-- Nitro Cloudflare preset
-- 构建行为
-- route rules
-- request runtime integration
+## Wrangler
 
-## Wrangler 配置
+- Worker name / compatibility_date。
+- vars / Secrets。
+- custom domain/routes。
+- `version_metadata` binding。
+- Worker version upload/deployment/rollback。
 
-负责：
-
-- Worker 名称
-- `compatibility_date`
-- public vars
-- Secret 管理
-- routes / custom domain
-- deployment
-
-第一版不要求任何 Cloudflare storage binding。
-
-禁止把 Cloudflare 平台配置复制进 `nitro.config.ts`。
+不要把 Cloudflare platform config 复制进 Nitro config。
 
 ---
 
-# 3. 推荐域名
+# 3. Endpoint
 
-建议：
-
-```text
-mcp.ai.ruan-cat.com
-```
-
-MCP Endpoint：
+推荐：
 
 ```text
 https://mcp.ai.ruan-cat.com/mcp
+GET https://mcp.ai.ruan-cat.com/health
 ```
 
-健康检查：
-
-```text
-GET /health
-```
-
-不要为了调试而额外暴露未受控的 GitHub proxy endpoint。
+不要暴露未受控 GitHub proxy/debug route。
 
 ---
 
-# 4. Worker 运行链路
-
-```text
-Request
- |
-Cloudflare Edge
- |
-Nitro Worker
- |
-MCP SDK Adapter
- |
-Skill Service
- |
-GitHub Repository Adapter
- |
-resolve ref -> commit SHA
- |
-read registry/skill @ SHA
-```
-
-Cloudflare 只承担计算和公网入口；Skill 真源仍在 GitHub。
-
----
-
-# 5. Runtime 约束
-
-禁止：
-
-```text
-fs
-child_process
-listen()
-node:http server
-本地持久状态
-```
-
-允许：
-
-- `fetch`
-- Web Crypto
-- URL / Request / Response / Headers
-- Cloudflare Cache API（未来可选优化，不是必需项）
-
-不要把“Cloudflare Worker 可使用 KV/R2”误写成“本项目必须使用 KV/R2”。
-
----
-
-# 6. Wrangler 配置要求
-
-第一版配置示意：
+# 4. Wrangler MVP 配置示意
 
 ```toml
 name = "skill-router-mcp"
-compatibility_date = "2026-08-11"
+compatibility_date = "<implementation-date>"
 
 [vars]
 GITHUB_OWNER = "ruan-cat"
 GITHUB_REPO = "monorepo"
 GITHUB_REF = "dev"
+
+[version_metadata]
+binding = "CF_VERSION_METADATA"
 ```
 
 Secret：
@@ -154,124 +76,275 @@ Secret：
 wrangler secret put GITHUB_TOKEN
 ```
 
-禁止在第一版无需求情况下增加：
-
-```toml
-[[kv_namespaces]]
-[[r2_buckets]]
-[[d1_databases]]
-```
-
-每增加一种 binding 都会扩大部署、环境复制、权限和调试面，必须由明确指标或功能需求驱动。
+不要无需求增加 storage bindings。
 
 ---
 
-# 7. GitHub Freshness 模型
+# 5. Worker Runtime Version 信息
 
-高频更新 skills 时，运行时按请求解析：
+`CF_VERSION_METADATA` 用于运行时读取：
+
+```text
+Worker Version ID
+Worker Version Tag
+Worker Version Timestamp
+```
+
+MCP bundle 另注入：
+
+```text
+buildGitSha
+```
+
+MCP package 另提供：
+
+```text
+mcpServerVersion = package.json.version
+```
+
+三者不得混用。
+
+---
+
+# 6. Worker Runtime 链路
+
+```text
+Request
+  ↓
+Cloudflare Edge
+  ↓
+Nitro Worker
+  ↓
+MCP SDK v2 / modern protocol
+  ↓
+Tool Definitions
+  ↓
+Skill Service
+  ↓
+GitHub Repository Adapter
+  ↓
+exact commit SourceSnapshot
+```
+
+---
+
+# 7. Runtime 约束
+
+禁止：
+
+```text
+fs persistence
+child_process
+listen()
+Node HTTP server
+MCP session store
+```
+
+允许 Worker/Web APIs。
+
+MCP 2026-era 的 per-request stateless model 不需要 transport session persistence。
+
+---
+
+# 8. Skill Freshness
 
 ```text
 GITHUB_REF=dev
-      |
-      v
-HEAD commit SHA
-      |
-      v
-SourceSnapshot
+  ↓
+resolve HEAD -> exact SHA once per unpinned call
+  ↓
+registry @ SHA
+  ↓
+selected SKILL.md @ SHA
 ```
 
-随后读取：
+Pinned `sourceCommitSha` 使用 exact historical snapshot。
 
-```text
-ai-plugins/skill-registry.json @ SHA
-SKILL.md @ SHA
-references @ SHA
-```
-
-这样 freshness 由 Git ref 的最新 HEAD 决定，而不是由 KV 复制延迟决定。
-
-同一次 tool call 内固定 SHA，避免跨提交混读。
+Skill-only update 不要求 Worker redeploy。
 
 ---
 
-# 8. 可选缓存
+# 9. 两条 CI/CD 触发链
 
-第一版先无持久缓存上线并测量。
-
-如果重复 GitHub 读取成为明显瓶颈，优先设计 commit-addressed cache：
+## Skill-only
 
 ```text
-registry:{commitSha}
-skill:{commitSha}:{skillId}
+ai-plugins/**
+  ↓
+release-ai-plugins / registry check
+  ↓
+Git push
+  ↓
+NO Worker deploy
 ```
 
-新 commit 使用新 key，不依赖主动失效旧缓存。
+## MCP Runtime
 
-是否采用 Cloudflare Cache API、KV 或其他方式必须在独立性能评估后决定；R2 不属于默认升级路线。
+```text
+MCP package / config / runtime dependency change
+  ↓
+MCP SemVer bump
+  ↓
+tests/build
+  ↓
+Worker version upload
+  ↓
+Preview/Staging
+  ↓
+production promotion
+```
+
+使用 Cloudflare Build Watch Paths 或 GitHub Actions path filters 防止 Skill 高频更新触发无意义 Worker rebuild。
 
 ---
 
-# 9. 自动部署流程
+# 10. Production Deployment Authority
+
+本项目推荐：
 
 ```text
-Git Push
- |
-CI
- |
-Install
- |
-Build Nitro
- |
+GitHub Actions + package-local Wrangler
+```
+
+作为唯一 production deployment authority，因为需要多层 tests、version tag、preview smoke 与 exact promotion。
+
+Cloudflare Git Integration 也是有效方案，但如果使用它，就不要再让 GitHub Actions 自动部署同一个 production Worker。
+
+---
+
+# 11. 推荐 Versioned Deploy
+
+对 production 不推荐直接把裸：
+
+```bash
 wrangler deploy
- |
-MCP Smoke Test
 ```
 
-Skill 内容更新本身不要求重新部署 Worker；只要 Worker 指向的 `GITHUB_REF` 已推进，新请求即可解析新 commit snapshot。
+作为唯一流程，因为它创建版本并立即切 100% traffic。
+
+推荐：
+
+```text
+wrangler versions upload
+  ↓
+versioned Preview URL
+  ↓
+smoke
+  ↓
+wrangler versions deploy exact-version@100%
+```
+
+Version tag：
+
+```text
+skill-router-mcp-vX.Y.Z
+```
+
+Version message：
+
+```text
+build Git SHA + release summary
+```
 
 ---
 
-# 10. 验收
+# 12. Tool Contract 发布策略
 
-必须验证：
+新增/删除/修改 tool schema 属于 protocol-visible change。
 
-- HTTPS 正常。
-- `/health` 正常。
-- MCP initialize 正常。
-- tools/list 正常。
-- `search_skills` 正常。
-- `load_skill` 正常。
-- 结果包含或可诊断 `sourceCommitSha`。
-- skills push 后新请求能够读取新 HEAD。
-- 同一请求不跨 commit 混读。
-- 无 KV/R2 binding 也可完整运行。
+默认：Preview/Staging 通过后原子 promote 100%。
+
+不要默认让旧新不兼容 Worker 版本长期 split traffic。
+
+Gradual deployment 仅用于完全 backward-compatible internal change，并在单独设计 compatibility/version affinity 后使用。
 
 ---
 
-# 11. 回滚策略
+# 13. Production 验收
 
-Worker 代码问题：回滚 Worker deployment。
+发布 candidate：
 
-Skill 内容问题：GitHub 回滚/修复目标 branch，并通过新的 HEAD SHA 生效。
+```text
+health
+modern serverInfo
+tools/list
+get_server_info
+search known Skill
+load pinned
+```
 
-记录：
+production promote 后重复最小 smoke，并精确确认：
 
-- Worker deployment version
-- `GITHUB_REF`
-- 每次 MCP 响应使用的 source commit SHA
+```text
+expected MCP SemVer
+expected Worker Version ID/tag
+expected buildGitSha
+```
 
-不需要维护 KV registry rollback 或 R2 object rollback。
+不再使用 legacy `initialize` 作为 MCP `2026-07-28` production 成功条件。
 
 ---
 
-# 12. AI Agent 实施要求
+# 14. 自描述版本/工具能力
 
-实施顺序：
+标准：
 
-1. Nitro Worker 基础工程。
-2. 最小 Wrangler vars / secret。
-3. MCP SDK + Streamable HTTP。
-4. GitHub SourceSnapshot Repository。
-5. Skill Registry + exact-SHA loader。
-6. ChatGPT Web 验证。
-7. 最后才根据测量结果评估缓存。
+```text
+tools/list
+```
+
+返回完整当前工具目录。
+
+额外只读：
+
+```text
+get_server_info
+```
+
+返回：
+
+- MCP server application version。
+- protocol revision。
+- build Git SHA。
+- Worker version metadata。
+- registry schema version。
+- current tool catalog。
+
+这样可以从 ChatGPT 对话直接验证线上真正部署的是哪一版。
+
+---
+
+# 15. 回滚
+
+MCP Runtime 代码问题：
+
+```bash
+wrangler rollback <stable-version-id>
+```
+
+然后重新验证 health/serverInfo/tools/get_server_info。
+
+Skill 内容问题：Git revert/fix 目标 branch，不回滚 Worker。
+
+---
+
+# 16. AI Agent 实施顺序
+
+```text
+1. Nitro Worker
+2. MCP SDK v2 modern protocol
+3. toolDefinitions + get_server_info
+4. vars/Secret/version_metadata binding/build SHA
+5. GitHub SourceSnapshot
+6. automated tests
+7. Worker version upload
+8. Preview/Staging smoke
+9. exact 100% production promotion
+10. production smoke / ChatGPT Web acceptance
+```
+
+详细长期发版规范：
+
+```text
+mcp-release-versioning-and-production-maintenance.md
+```
