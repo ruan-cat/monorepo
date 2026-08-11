@@ -2,119 +2,125 @@
 
 ## 文档目的
 
-本文约束 Nitro、H3、MCP TypeScript SDK、Wrangler、Vitest 和 Cloudflare Workers 测试工具的版本边界。
+本文约束 Nitro、H3、MCP SDK、Wrangler、Vitest 和 Workers testing 的版本边界。
 
-目标：
+核心：
 
 ```text
-MCP 2026-07-28 modern protocol
+ChatGPT compatibility first
 +
-Cloudflare Worker production compatibility
+package-local lockfile
 +
-package-local test isolation
+不抢跑 MCP upstream major
 +
-不顺手升级整个 monorepo
+不升级整个 monorepo 测试栈
 ```
 
 ---
 
-# 1. 生产依赖关系
+# 1. Runtime 依赖层
 
 ```text
-Application Code
-        |
-        v
+Application
+  ↓
 Nitro v3
-        |
-        v
+  ↓
 H3 Runtime Layer (Nitro-managed)
-        |
-        v
+  ↓
 Cloudflare Worker Adapter
-        |
-        v
-Workers Runtime
 ```
 
 协议层：
 
 ```text
 Application
-  |
-@modelcontextprotocol/server v2
-  |
-MCP 2026-07-28 / Streamable HTTP
+  ↓
+@modelcontextprotocol/sdk
+  ↓
+McpServer / Streamable HTTP
 ```
 
 ---
 
-# 2. Nitro v3 / H3
+# 2. Nitro / H3
 
-Nitro 负责 build、routes、runtime abstraction 和 Cloudflare adapter。
+Nitro v3 负责 build/routes/runtime abstraction/Cloudflare adapter。
 
-使用 Nitro v3.x；minor/patch 由实施时官方兼容情况与 `pnpm-lock.yaml` 固化。
+H3 默认由 Nitro 依赖树管理；不要人工添加一个可能冲突的 H3 主版本。
 
-H3 默认由 Nitro 依赖树管理，不作为平行顶层框架人工 pin。只有真实业务需要直接 import Nitro 没有公开提供的 H3 API 时，才经过兼容验证增加直接依赖。
+具体 Nitro minor/patch 与内部 H3 版本由 package.json + `pnpm-lock.yaml` 固化。
 
 ---
 
-# 3. MCP TypeScript SDK v2
+# 3. MCP SDK Production Baseline
 
-早期规格使用：
+当前 OpenAI ChatGPT 官方 `Build an MCP server` 文档明确安装：
 
 ```text
 @modelcontextprotocol/sdk
+zod
 ```
 
-这是 v1 单体包线，主要对应 2025-era initialize/session lifecycle。
-
-本项目正式实现的协议基线已经冻结为：
+并使用：
 
 ```text
-MCP 2026-07-28
+@modelcontextprotocol/sdk/server/mcp.js
 ```
 
-因此服务端直接依赖使用 v2 稳定拆包：
+因此当前 production direct dependencies 按该 compatibility profile 实施。
+
+不要因为 MCP upstream 发布 SDK major/package split 就立即替换为另一套 package，除非：
 
 ```text
-@modelcontextprotocol/server
+OpenAI current docs support
++
+Inspector passes
++
+ChatGPT Web Developer Mode passes
 ```
 
-测试客户端使用：
+详细：
 
 ```text
-@modelcontextprotocol/client
+chatgpt-web-mcp-compatibility-profile.md
 ```
-
-如确实需要 raw schemas，再按官方 v2 package boundary 使用 core package。
-
-必须注意：
-
-- modern era 不再把 `initialize/initialized` 当作目标生命周期。
-- 实现需显式采用 SDK v2 对 `2026-07-28` 的 serving/version negotiation 能力，不要无意继续服务 legacy era。
-- 具体 minor/patch 由 lockfile 固化，不以 floating `latest` 作为生产契约。
 
 ---
 
-# 4. MCP Application SemVer
+# 4. MCP SDK Version Lock
 
-MCP package 的：
+实施时：
+
+1. 核对 OpenAI 当前构建文档。
+2. 核对 MCP SDK 官方 release/compatibility。
+3. 选择当前 ChatGPT-compatible minor/patch。
+4. `pnpm-lock.yaml` 固化 exact installed version。
+5. Node/workerd/production harness/Inspector/ChatGPT 验收。
+
+禁止 CI 使用 floating `latest` 决定生产 protocol 行为。
+
+---
+
+# 5. MCP Application SemVer
+
+MCP package：
 
 ```text
 package.json.version
 ```
 
-是唯一：
+是 server application version 唯一来源。
+
+它驱动：
 
 ```text
-mcpServerVersion
+new McpServer({ name, version })
+get_server_info.server.version
+Worker version tag suffix
+release checks
 ```
 
-来源，并用于 SDK Server identity version。
-
-不要复制第二份手写版本常量。
-
-PATCH/MINOR/MAJOR 规则、Worker tag 与生产发布流程见：
+详细 SemVer / production release 见：
 
 ```text
 mcp-release-versioning-and-production-maintenance.md
@@ -122,45 +128,43 @@ mcp-release-versioning-and-production-maintenance.md
 
 ---
 
-# 5. Wrangler
+# 6. Wrangler
 
 Wrangler 是 package-local 开发/部署依赖，负责：
 
 - local Worker runtime。
-- vars / Secrets / routes。
-- Worker version upload / deployment / rollback。
+- vars/Secrets/routes/version metadata。
+- version upload/deployment/rollback。
 - production-build integration harness。
 
-MVP 不要求 KV/R2/D1/DO binding。
-
-CI 不依赖某台机器全局安装的 Wrangler。
+MVP 不要求 KV/R2/D1/DO。
 
 ---
 
-# 6. Cloudflare Version Metadata Binding
+# 7. Worker Version Metadata
 
-Wrangler config 应启用：
+Wrangler：
 
 ```toml
 [version_metadata]
 binding = "CF_VERSION_METADATA"
 ```
 
-运行时可读取：
+运行时可读：
 
 ```text
-Worker Version ID
-Worker Version Tag
-Worker Version Timestamp
+id
+tag
+timestamp
 ```
 
-它们与 MCP app SemVer、Skill source commit 分开表达。
+它与 MCP application SemVer 和 Skill source commit 分开。
 
 ---
 
-# 7. Monorepo 当前 Vitest 边界
+# 8. Monorepo Vitest Boundary
 
-monorepo root 当前仍使用：
+root 当前：
 
 ```text
 vitest ^3.2.4
@@ -168,154 +172,97 @@ vitest ^3.2.4
 vitest.workspace.ts
 ```
 
-不要为了 MCP package 强制升级全仓。
+Cloudflare Workers Vitest integration 当前要求 Vitest 4.1+。
 
-Cloudflare Workers Vitest integration 当前要求 Vitest 4.1+，因此 Skill Router MCP 使用 package-local 测试版本隔离。
+因此 MCP package 使用 package-local Vitest 4.x compatible stack，而不是升级整个 monorepo。
 
 ---
 
-# 8. MCP Package-local Testing
+# 9. MCP Package Test Dependencies
 
-MCP package 声明：
+建议 package-local：
 
 ```text
-vitest >= 4.1（锁定实施时 Cloudflare 官方支持范围）
+vitest >= 4.1（按 Cloudflare 当前支持范围锁定）
 @cloudflare/vitest-pool-workers
 wrangler
+@modelcontextprotocol/sdk
 ```
 
-规则：
-
-1. MCP package-local Vitest 4.x。
-2. root Vitest 3.x 保持现状。
-3. 不把 Worker project 强塞进旧 root `vitest.workspace.ts` 同进程。
-4. tests 用 package scripts / `pnpm --filter`。
-5. lockfile 固化 Vitest/Workers pool/Wrangler/MCP SDK 兼容组合。
+Node contract tests 和 Worker runtime tests 使用与 production 相同 MCP SDK package/version，避免测试与生产协议 era 漂移。
 
 ---
 
-# 9. 测试 Runtime 分层
+# 10. 测试 Runtime 分层
 
-## Pure Node
+## Node
 
-负责：
+- registry/search。
+- SourceSnapshot。
+- toolDefinitions。
+- get_server_info pure logic。
+- GitHub fake/mock。
+- server version contract。
 
-- registry validator/search。
-- SourceSnapshot latest/pin。
-- tool definitions。
-- `get_server_info` pure logic。
-- GitHub adapter fake/mock。
-- server identity/version contract。
+## Workers Vitest/workerd
 
-## Workers Vitest / workerd
+- bindings。
+- Nitro adapter。
+- MCP initialization/Streamable HTTP behavior。
+- Worker version metadata。
 
-负责：
-
-- Worker APIs。
-- runtime bindings。
-- MCP 2026-era endpoint behavior。
-- `CF_VERSION_METADATA` binding contract。
-
-## Production-build Integration
+## Production build harness
 
 ```text
-Nitro production Worker artifact
+Nitro production build
 +
 Wrangler createTestHarness()
 +
-MCP v2 client
+MCP client/Inspector-compatible protocol calls
 ```
-
-负责真实 build 的 HTTP/MCP contract。
 
 ---
 
-# 10. Lockfile 规则
+# 11. MCP Major/Protocol Migration Policy
 
-必须提交：
+Future migration only when：
 
 ```text
-pnpm-lock.yaml
+1. OpenAI current ChatGPT docs explicitly support/recommend new path
+2. stable MCP SDK release
+3. Nitro/Worker adapter compatible
+4. automated tests pass
+5. Inspector pass
+6. ChatGPT Web real acceptance pass
+7. tool contract backward compatibility assessed
+8. rollback plan exists
 ```
 
-禁止：
-
-- CI 临时安装 floating `latest`。
-- 用全局 Wrangler/Vitest 决定测试结果。
-- Worker production server 已升级 modern v2，但 contract tests 仍只使用 v1 legacy client。
-- Node tests 通过后就宣称 Cloudflare compatibility。
+不要根据 MCP upstream changelog alone 自动升级 production。
 
 ---
 
-# 11. 升级策略
+# 12. Root Test Stack Non-goals
 
-MCP package 可独立升级：
-
-```text
-Nitro patch/minor
-@modelcontextprotocol/server/client v2
-Wrangler
-Vitest 4.x
-Workers Vitest integration
-```
-
-每次依赖升级至少通过：
-
-```text
-Node unit
-Workers Vitest/workerd
-Nitro production build
-createTestHarness integration
-```
-
-如果升级 protocol-visible behavior，还必须跑 Cloudflare Preview/Staging 和 ChatGPT Web acceptance。
-
-不随 MCP 自动升级：
+MCP implementation不要求：
 
 ```text
 root Vitest 3 -> 4
-root workspace -> projects migration
+root vitest.workspace.ts migration
+全仓 testing refactor
 ```
 
----
-
-# 12. 最终技术栈
-
-生产：
-
-```text
-Cloudflare Workers
-  ↓
-Nitro v3
-  ↓
-Nitro-managed H3
-  ↓
-@modelcontextprotocol/server v2
-  ↓
-MCP 2026-07-28
-  ↓
-Skill Router
-```
-
-测试：
-
-```text
-package-local Vitest 4.x
-   ├─ Node unit + v2 client contract
-   ├─ Workers Vitest/workerd
-   └─ Wrangler production-build harness
-```
+这属于独立项目级升级。
 
 ---
 
 # 13. Definition of Done
 
-- [ ] Nitro/H3 依赖边界正确。
-- [ ] 服务端使用 MCP TypeScript SDK v2 package line。
-- [ ] modern protocol 目标为 `2026-07-28`。
+- [ ] Nitro/H3 边界正确。
+- [ ] MCP SDK 与 OpenAI 当前 ChatGPT 官方指引一致。
+- [ ] MCP SDK/Window/Workers test package 全部 lockfile 固化。
 - [ ] MCP app SemVer 来自 package.json。
-- [ ] `CF_VERSION_METADATA` 进入 runtime contract。
-- [ ] Wrangler/SDK/test packages 由 lockfile 固化。
-- [ ] Worker tests 使用 Vitest 4.1+ 兼容版本。
-- [ ] 不强制升级 root Vitest 3.x。
-- [ ] 依赖升级通过开发、workerd 与 production-build 测试。
+- [ ] CF_VERSION_METADATA 配置。
+- [ ] package-local Vitest 4.1+ Workers testing。
+- [ ] root Vitest 3.x 不被强制升级。
+- [ ] future MCP major 有明确 ChatGPT compatibility gate。
