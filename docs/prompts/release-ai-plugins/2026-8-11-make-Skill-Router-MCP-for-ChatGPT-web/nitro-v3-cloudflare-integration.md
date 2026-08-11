@@ -276,7 +276,7 @@ MVP 不需要预创建 KV/R2/D1/DO。
 wrangler deploy
 ```
 
-作为唯一推荐 production 流程，因为默认会创建版本并立即部署到 100% 流量。Cloudflare Versions & Deployments 支持将 upload 与 deployment 分离。 citeturn178682search1
+作为唯一推荐 production 流程，因为 Cloudflare 默认会创建新 Worker version 并立即部署到 100% 流量。官方 Versions & Deployments 支持把 version upload 和 deployment 分离。
 
 推荐：
 
@@ -292,7 +292,7 @@ exact candidate production deployment
 production smoke
 ```
 
-Cloudflare 的 `wrangler versions upload` 会产生可测试的 versioned Preview URL。 citeturn178682search10
+Cloudflare 官方 Preview URLs 能用于测试 `wrangler versions upload` 产生的不可变 Worker version。
 
 ---
 
@@ -312,7 +312,7 @@ ChatGPT refresh/rescan
 workspace review/publish when applicable
 ```
 
-OpenAI 当前 Workspace MCP 使用冻结的已批准 tool/input snapshot；后续 server update 不会自动启用新动作。 citeturn178682search3
+OpenAI 当前 Workspace MCP 使用冻结的已批准 tool/input snapshot；后续 server update 不会自动启用新动作。
 
 Skill-only Git data 更新不改变 tool schema，因此不需要这一流程。
 
@@ -335,7 +335,7 @@ Skill-only Git data 更新不改变 tool schema，因此不需要这一流程。
 
 # 14. 回滚边界
 
-Cloudflare 支持通过 `wrangler rollback [VERSION_ID]` 回滚到先前 Worker version，并立即创建新的 active deployment。 citeturn178682search0turn178682search6
+Cloudflare 支持通过 `wrangler rollback [VERSION_ID]` 回滚到先前 Worker version，并让指定版本成为新的 active deployment。
 
 Runtime bug：Worker rollback。
 
