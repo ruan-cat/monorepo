@@ -1,5 +1,12 @@
 # @ruan-cat/vercel-deploy-tool 更新日志
 
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`6cd35da`](https://github.com/ruan-cat/monorepo/commit/6cd35da2ccec13b71d38682f73a42a617f180b3c)]:
+  - @ruan-cat/utils@4.26.0
+
 ## 2.0.2
 
 ### Patch Changes
