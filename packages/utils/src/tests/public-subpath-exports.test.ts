@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -53,6 +53,15 @@ function runEntrypoint(source: string, rejectConsola = false) {
 }
 
 describe("@ruan-cat/utils 构建后的窄子路径出口", () => {
+	test("node-cjs 的声明文件保留 conditions 导出", () => {
+		const declaration = readFileSync(
+			resolve(packageRoot, "dist/node-cjs/index.d.cts"),
+			"utf8",
+		);
+
+		expect(declaration).toContain("isConditionsEvery");
+	});
+
 	test("conditions 在禁止解析 consola 时仍可运行", () => {
 		const result = runEntrypoint(
 			`

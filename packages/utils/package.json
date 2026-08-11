@@ -20,7 +20,7 @@
 		"directory": "packages/utils"
 	},
 	"scripts": {
-		"build": "tsup",
+		"build": "pnpm clean:type && tsup",
 		"prebuild": "node ../../scripts/run-automd.cjs",
 		"move-vercel-output-to-root": "tsx ./src/node-esm/scripts/move-vercel-output-to-root/index.ts",
 		"docs:dev": "turbo docs:dev",
