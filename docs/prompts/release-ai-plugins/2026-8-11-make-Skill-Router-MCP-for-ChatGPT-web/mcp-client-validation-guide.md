@@ -2,14 +2,15 @@
 
 ## 文档目的
 
-本文验证 Skill Router MCP Server 是否符合 ChatGPT Web Remote MCP 使用要求，并验证：
+本文验证 Skill Router MCP Server 是否真正符合 **ChatGPT Web 当前官方 MCP compatibility profile**，并验证：
 
-- MCP `2026-07-28` modern protocol。
-- Server identity / MCP application version。
-- 标准完整工具目录。
-- `get_server_info` 自描述能力。
-- 高频 Skill 更新下 latest/pinned snapshot。
-- Cloudflare production deployment version。
+- Streamable HTTP。
+- initialization / server identity。
+- 标准工具目录。
+- `get_server_info` 版本查询。
+- latest/pinned Skill snapshot。
+- Cloudflare production Worker version。
+- Tool contract 变化后的 ChatGPT refresh/rescan。
 
 ---
 
@@ -20,11 +21,11 @@ ChatGPT Web
   ↓
 Remote MCP Client
   ↓
-Streamable HTTP / MCP 2026-07-28
+Streamable HTTP
   ↓
 Cloudflare Worker / Nitro v3
   ↓
-MCP SDK v2 / McpServer
+@modelcontextprotocol/sdk / McpServer
   ↓
 Skill Router
   ↓
@@ -36,61 +37,56 @@ GitHub exact-commit SourceSnapshot
 # 2. 前置条件
 
 - Worker 已部署。
-- HTTPS endpoint 正常。
-- MCP SDK v2 modern protocol 正常。
-- tool definitions 已注册。
+- HTTPS `/mcp` endpoint 正常。
+- `@modelcontextprotocol/sdk` 版本已按当前 OpenAI 官方指引/真实验收锁定。
+- `McpServer` stable name/version 已配置。
+- toolDefinitions 已注册。
 - `CF_VERSION_METADATA` 可读。
-- Worker build Git SHA 已注入。
-- `ai-plugins/skill-registry.json` 在目标 Git commit 中可读。
+- build Git SHA 已注入。
+- registry 可从 GitHub exact commit 读取。
 
 ---
 
-# 3. Modern MCP 协议验收
+# 3. MCP Inspector
 
-不要再把旧的：
+按 OpenAI 当前官方建议先运行 MCP Inspector，选择 Streamable HTTP。
+
+验证：
 
 ```text
-initialize / initialized
+initialization succeeds
+server instructions
+advertised tool list
+representative tool calls
+invalid inputs
+schemas/results/errors/annotations
 ```
 
-作为 MCP `2026-07-28` 的成功判据。
-
-应验证：
-
-- Client/Server 实际使用 `2026-07-28` modern era。
-- 每个请求能够独立完成，不依赖 `Mcp-Session-Id`。
-- server identity 可从 modern response metadata 读取。
-- 如客户端使用 `server/discover`，其 capability/identity 结果与实际 server 一致。
-- Streamable HTTP 请求/响应符合 SDK v2 当前协议实现。
-
-技术验收先使用支持 modern era 的 MCP client/Inspector 版本，再做 ChatGPT Web 实测。
+如果 MCP upstream 已出现更新的 major/protocol revision，但 OpenAI 当前文档/ChatGPT 仍使用旧 compatibility profile，不要把上游最新能力替代这组产品验收。
 
 ---
 
-# 4. Server Identity 验收
+# 4. Server Identity / MCP Application Version
 
-Server identity 必须体现：
+初始化/server info 必须可识别：
 
 ```text
 name = skill-router-mcp
-version = MCP package SemVer
+version = package.json.version
 ```
 
-Client 读取到的 server version 必须与：
+Server application version 不等于：
 
-```text
-package.json version
-```
-
-一致。
-
-不要把 Worker Version ID 或 Skill version 填入 server identity version。
+- Cloudflare Worker Version ID。
+- build Git SHA。
+- Skill sourceCommitSha。
+- Skill metadata.version。
 
 ---
 
 # 5. `tools/list`
 
-标准 `tools/list` 必须返回当前部署 MCP 的完整工具目录：
+必须返回当前部署完整工具目录：
 
 ```text
 get_server_info
@@ -99,14 +95,14 @@ search_skills
 load_skill
 ```
 
-如果以后增加/删除工具，测试不要继续硬编码旧数量；应与统一 `toolDefinitions` contract 比较。
+并验证：
 
-同时验证：
+- name/title/description。
+- input/output schema。
+- annotations。
+- 与统一 `toolDefinitions` 一致。
 
-- deterministic tool order（若实现 contract 固定排序）。
-- tool description。
-- input schema。
-- 只读/非破坏性 annotations。
+以后工具变化时，测试从 toolDefinitions 派生 expected catalog，不把旧数量硬编码到多处。
 
 ---
 
@@ -118,12 +114,11 @@ load_skill
 {}
 ```
 
-必须验证：
+验证：
 
 ```text
 server.name
 server.version
-server.protocolRevision
 server.buildGitSha
 
 deployment.workerVersionId
@@ -137,61 +132,46 @@ registrySchemaVersion
 tools[]
 ```
 
-重要断言：
+`tools[]` 与标准工具目录同源。
 
-```text
-get_server_info.tools
-==
-与 tools/list 同源的 toolDefinitions
-```
-
-该 tool 不应为了显示版本额外访问 GitHub HEAD。
+该 tool 默认不访问 GitHub HEAD，因此它的响应不会因为 Skill branch 高频推进而变成额外 upstream 请求。
 
 ---
 
 # 7. `list_skills`
 
-验证：
-
 - 返回 Registry v1 minimal summaries。
 - 返回 `sourceCommitSha`。
-- 不返回 v1 不存在的深层文件索引。
+- 不返回 deep-file mirror。
 
 ---
 
 # 8. `search_skills`
 
-输入：
-
 ```json
-{
-  "query": "Nitro API development"
-}
+{"query":"Nitro API development"}
 ```
 
 验证：
 
-- 返回匹配 Skill。
-- 返回 id/name/description/version/plugin。
+- registry metadata 匹配。
 - 返回 `sourceCommitSha=A`。
-- 不为了搜索读取所有 Skill 正文。
-- 不泄露 Secret。
+- 不逐个加载所有 Skill 正文。
+- 无 Secret。
 
 ---
 
 # 9. `load_skill` Latest
 
 ```json
-{
-  "skillId": "nitro-api-development"
-}
+{"skillId":"nitro-api-development"}
 ```
 
 验证：
 
-- 当前 `GITHUB_REF` 只 resolve 一次。
-- Registry 与 SKILL.md 同 SHA。
-- 返回 metadata + content + sourceCommitSha。
+- configured ref 只 resolve 一次。
+- registry + SKILL.md 同 SHA。
+- 返回 sourceCommitSha。
 
 ---
 
@@ -199,80 +179,131 @@ get_server_info.tools
 
 ```json
 {
-  "skillId": "nitro-api-development",
-  "sourceCommitSha": "A"
+  "skillId":"nitro-api-development",
+  "sourceCommitSha":"A"
 }
 ```
 
-即使 branch 已推进到 B：
+即使 branch 已到 B：
 
-- Registry @ A。
-- SKILL.md @ A。
-- 返回 A。
-- input 不能覆盖 configured owner/repo。
+```text
+registry @ A
+SKILL.md @ A
+```
+
+调用方不能覆盖 configured owner/repo。
 
 ---
 
-# 11. 高频更新场景
+# 11. 高频 Skill 更新实测
 
 ```text
-1. search_skills -> A
+1. search -> A
 2. push Skill update -> B
-3. load_skill(pin=A) -> A
-4. load_skill(no pin) -> latest B
+3. load(pin=A) -> A
+4. load(no pin) -> latest B
 ```
 
-不要求 Worker redeploy / KV purge / R2 upload / session reset。
+不需要 Worker redeploy / KV purge / R2 sync / ChatGPT tool rescan，因为稳定 tool contract 没变。
 
-远程测试不要断言“返回 SHA 必须等于测试开始几秒前读取的 HEAD”，避免高频 push 制造 flaky test。
-
----
-
-# 12. Worker Release 版本验收
-
-每次 MCP Runtime production release 后：
-
-1. 调用 `get_server_info`。
-2. 检查 MCP app SemVer。
-3. 检查 build Git SHA。
-4. 检查 Cloudflare Worker Version ID/tag/timestamp。
-5. 与本次 promote 的 exact Worker version 对齐。
-6. 再调用 `tools/list` 验证工具目录。
-
-这比仅确认 `wrangler deploy` exit 0 更可靠。
+线上测试不要求 returned SHA 等于几秒前单独查询的 HEAD，避免高频 push 制造 flaky test。
 
 ---
 
-# 13. ChatGPT Web 验收脚本
+# 12. Worker Production Release 验收
 
-建议真实请求：
+每次 MCP Runtime release 后：
+
+1. `/health`。
+2. MCP initialization/server identity。
+3. `tools/list`。
+4. `get_server_info`。
+5. search known Skill。
+6. pinned load。
+
+必须确认：
 
 ```text
-请告诉我你当前这个 Skill Router MCP 的服务版本、协议版本、Cloudflare 部署版本，以及你现在提供的全部 MCP 工具。
+expected MCP app SemVer
+expected Worker Version ID/tag
+expected buildGitSha
 ```
 
-预期模型可以通过 `get_server_info` / 标准工具目录回答。
-
-再测试：
-
-```text
-搜索 Nitro API 相关技能，并加载你刚刚搜索到的同一个源码版本。
-```
-
-预期使用 `sourceCommitSha` pin。
+已经在线。
 
 ---
 
-# 14. 生产验收标准
+# 13. Tool Contract 更新后的 ChatGPT 侧验收
 
-- [ ] MCP modern `2026-07-28` 请求链工作。
-- [ ] 无 legacy initialize/session 前置依赖。
-- [ ] Server identity version = MCP application SemVer。
-- [ ] `tools/list` 返回完整当前工具目录。
-- [ ] `get_server_info` 返回 MCP/Worker/build/tool metadata。
-- [ ] `get_server_info.tools` 与标准 tool registry 同源。
-- [ ] list/search 返回 `sourceCommitSha`。
-- [ ] latest/pinned load 正常。
-- [ ] 高频更新不破坏 snapshot consistency。
-- [ ] Production release 后能明确确认线上实际版本。
+如果只改内部实现，tool schema/metadata 不变：
+
+```text
+Worker release + production smoke
+```
+
+即可完成 Runtime 上线。
+
+如果新增/修改：
+
+```text
+tool name/title/description
+input/output schema
+annotations
+```
+
+必须额外：
+
+```text
+refresh/rescan Developer Mode connection tools
+  ↓
+review new metadata
+  ↓
+rerun evaluation/use cases
+  ↓
+Workspace review/publish when applicable
+```
+
+不要假设 Cloudflare Worker 自动更新会自动刷新 ChatGPT 已批准的 tool snapshot。
+
+---
+
+# 14. ChatGPT Web 真实验收请求
+
+版本查询：
+
+```text
+请告诉我当前 Skill Router MCP 的服务版本、Cloudflare Worker 部署版本、构建 commit，以及全部可用工具。
+```
+
+预期：调用 `get_server_info`。
+
+Skill snapshot：
+
+```text
+搜索 Nitro API 相关 Skill，然后加载你刚刚搜索到的同一个源码版本。
+```
+
+预期：使用 discovery 返回的 sourceCommitSha。
+
+---
+
+# 15. OpenAI Skills Import Extension 边界
+
+不要把 live Skill Router 验收改成 submission-time Skills import 验收。
+
+OpenAI 当前 Skills import 属于受限静态 snapshot；Skill 改变后需要重新 Scan Tools/submit，不符合我们高频 live Git source 的核心目标。
+
+---
+
+# 16. 生产验收标准
+
+- [ ] OpenAI-supported SDK/initialization 正常。
+- [ ] Streamable HTTP 正常。
+- [ ] server identity version = MCP package SemVer。
+- [ ] `tools/list` 完整。
+- [ ] `get_server_info` 返回安全 MCP/Worker/build/tool metadata。
+- [ ] latest/pinned Skill load 正常。
+- [ ] 高频 Skill update 不要求 Worker/ChatGPT metadata release。
+- [ ] Tool contract 变化有 ChatGPT refresh/rescan gate。
+- [ ] Worker Runtime release 后可以明确确认线上 exact version。
 - [ ] 无 Secret 泄露。
