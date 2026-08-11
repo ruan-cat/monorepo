@@ -2,236 +2,282 @@
 
 ## 文档目的
 
-本文用于指导 AI Agent 实现生产级 ChatGPT Web Remote MCP Server。
+本文冻结 ChatGPT Web Remote MCP Server 的协议框架选择。
 
-目标不是构建普通 HTTP API，而是构建符合 MCP 协议、可被 ChatGPT Web Developer Mode 连接的云端 MCP Server。
+目标协议基线：
 
-核心技术选择：
+```text
+MCP 2026-07-28
+```
 
-- MCP 协议层：`@modelcontextprotocol/sdk`
-- Web Runtime：Nitro v3 + H3
-- 部署环境：Cloudflare Workers
-- Transport：Streamable HTTP
+最终分层：
 
-MCP TypeScript SDK 官方推荐远程 MCP Server 使用 Streamable HTTP transport，新项目不应继续采用旧 SSE transport。 
+```text
+ChatGPT Web
+  ↓
+Streamable HTTP
+  ↓
+Cloudflare Worker
+  ↓
+Nitro v3 Runtime
+  ↓
+MCP TypeScript SDK v2 server package
+  ↓
+McpServer / tool definitions
+  ↓
+Skill Router domain services
+```
 
 ---
 
-# 1. 禁止手写 MCP 协议
+# 1. 选型更新：MCP TypeScript SDK v2
+
+早期规格曾固定：
+
+```text
+@modelcontextprotocol/sdk
+```
+
+该包属于 v1 单体 SDK，并以 2025-era initialize/session lifecycle 为主要模型。
+
+本项目在真正实现时应使用支持最终 MCP `2026-07-28` 的 v2 稳定包线：
+
+```text
+@modelcontextprotocol/server
+```
+
+测试客户端使用对应 v2 client package。
+
+不要为了保留早期文档而新建一个现代 Remote MCP Server 却继续锁在 legacy protocol era。
+
+具体 minor/patch 必须实施时核对官方 release 并由 lockfile 固化。
+
+---
+
+# 2. 为什么不手写协议
 
 禁止：
 
 ```text
 Nitro Handler
-    |
-手写 JSON-RPC
-    |
-返回 MCP JSON
+  ↓
+手写 JSON-RPC lifecycle / headers / negotiation
+  ↓
+MCP response
 ```
 
 原因：
 
-- 容易遗漏协议生命周期。
-- 容易实现错误的 capability negotiation。
-- 难以跟随 MCP 协议升级。
+- 2026-era 协议已经改变 handshake/session 模型。
+- HTTP method/name/version metadata 有正式 wire contract。
+- server identity / tools / errors 应由 SDK schema 保证。
+- 手写实现会把协议升级成本转嫁给本项目。
 
-正确方式：
+Nitro 只提供最薄 HTTP/runtime adapter。
+
+---
+
+# 3. Modern MCP 生命周期
+
+MCP `2026-07-28` 不再把：
 
 ```text
-Nitro
- |
-MCP SDK Adapter
- |
-McpServer
- |
-Tools / Resources / Prompts
+initialize
+initialized
+Mcp-Session-Id
 ```
 
----
+作为现代协议的前置握手/session。
 
-# 2. MCP Server 分层
+协议采用 per-request stateless core。
 
-推荐：
+如果客户端需要预先查看 server capability，可使用现代 discovery RPC；Tool catalog 仍通过标准：
 
 ```text
-ChatGPT Web
-
-↓
-
-Streamable HTTP
-
-↓
-
-Nitro v3 Endpoint
-
-↓
-
-MCP TypeScript SDK
-
-↓
-
-McpServer
-
-↓
-
-Skill Tools
-
-↓
-
-Skill Services
-
-↓
-
-Repositories
+tools/list
 ```
 
----
+取得。
 
-# 3. MCP SDK 职责
-
-由 SDK 负责：
-
-- initialize
-- capabilities
-- tools/list
-- tools/call
-- resources
-- prompts
-- JSON-RPC lifecycle
-
-业务代码只负责注册能力。
+Server identity 通过每个 modern response 的 serverInfo `_meta` 暴露。
 
 ---
 
-# 4. Skill Router Tools
+# 4. Nitro / MCP SDK 职责
 
-## search_skills
+## Nitro v3
 
-用途：
+负责：
 
-根据用户任务描述寻找技能。
+- Cloudflare Worker build/runtime abstraction。
+- HTTP route/handler。
+- runtime bindings 提取。
+- Request/Response 与 MCP handler 的薄适配。
 
-输入：
+## MCP SDK v2
 
-```ts
-{
- query: string
-}
-```
+负责：
 
----
+- 2026-era wire protocol。
+- protocol version handling。
+- discovery/capabilities。
+- server identity metadata。
+- `tools/list` / `tools/call`。
+- tool schemas/results/errors。
 
-## load_skill
+## Skill Router
 
-用途：
+负责：
 
-加载完整 skill 上下文。
-
-输入：
-
-```ts
-{
- skillId: string
-}
-```
+- tool definitions。
+- Skill discovery/search/load 业务逻辑。
+- Git exact-commit SourceSnapshot。
 
 ---
 
-## get_skill_metadata
+# 5. Transport
 
-用途：
-
-返回：
-
-- version
-- tags
-- compatibility
-- security metadata
-
----
-
-# 5. Transport 选择
-
-生产环境：
+生产：
 
 ```text
 Streamable HTTP
 ```
-
-原因：
-
-- 适合公网 Remote MCP。
-- 适合 Cloudflare Worker。
-- 符合现代 MCP Server 方向。
 
 不使用：
 
-- stdio（本地 MCP）
-- SSE（旧兼容方案）
+- stdio 作为公网 ChatGPT Web transport。
+- 自定义 MCP-over-REST。
+- 旧式 server session 作为 consistency 机制。
+
+MCP 2026-era stateless 请求模型与 Cloudflare Worker 横向扩展边界天然一致。
 
 ---
 
-# 6. Cloudflare Worker 适配原则
+# 6. Core Tools
 
-第一版本采用：
+第一版核心工具固定为：
 
 ```text
-Stateless Streamable HTTP
+get_server_info
+list_skills
+search_skills
+load_skill
 ```
 
-原因：
+其中：
 
-Cloudflare Worker 是 serverless edge runtime。
+## `get_server_info`
 
-避免：
+返回 MCP application/protocol/Worker/build 版本以及动态 tool catalog。
 
-- 长生命周期 session
-- 本地状态
-- Node server
+## `list_skills`
 
----
+读取当前 exact Git snapshot 的 registry summary。
 
-# 7. Nitro 集成职责
+## `search_skills`
 
-Nitro 负责：
+在 minimal registry 内做确定性搜索。
 
-- HTTP 生命周期
-- Cloudflare runtime 接入
-- handler
+## `load_skill`
 
-MCP SDK 负责：
+支持 latest 或 optional `sourceCommitSha` pin。
 
-- MCP 协议
-- tool registration
-- transport
-
-二者不能混合。
+如果以后需要 `get_skill_metadata`，必须由真实使用需求驱动，不要和 `list/search/load` 重复堆工具。
 
 ---
 
-# 8. AI Agent 实施要求
+# 7. Tool Registry 单一真源
 
-实现顺序：
+实现必须拥有统一：
 
-1. 初始化 Nitro Worker 工程。
-2. 接入 MCP TypeScript SDK。
-3. 创建 Streamable HTTP adapter。
-4. 创建 McpServer。
-5. 注册 Skill Router tools。
-6. 接入 Skill Service。
-7. 接入 Runtime Binding。
-8. 编写 MCP client validation tests。
+```text
+toolDefinitions
+```
+
+它同时驱动：
+
+- MCP tool registration。
+- 标准 `tools/list`。
+- `get_server_info.tools`。
+- contract tests。
+
+不要硬编码多套 tool names。
 
 ---
 
-# 9. 验收标准
+# 8. Server Identity 与版本
 
-必须验证：
+MCP package `package.json` version 是唯一 MCP application SemVer 来源。
 
-- ChatGPT Web 可以连接 MCP endpoint。
-- initialize 成功。
-- tools/list 返回 Skill Router tools。
-- tools/call 可以执行 search_skills。
-- load_skill 可以返回 skill context。
+SDK Server identity：
 
-该文档作为 MCP 实现阶段的强制技术约束。
+```text
+name = skill-router-mcp
+version = package.json version
+```
+
+它与：
+
+- protocol revision `2026-07-28`。
+- Cloudflare Worker Version ID/tag。
+- build Git SHA。
+- Skill source commit SHA。
+
+必须分别表达。
+
+详细见：
+
+```text
+mcp-release-versioning-and-production-maintenance.md
+```
+
+---
+
+# 9. Cloudflare Worker 适配约束
+
+第一版：
+
+```text
+stateless modern MCP over Streamable HTTP
+```
+
+禁止因为框架选择引入：
+
+- Durable Object session store。
+- KV session table。
+- local memory session affinity。
+- Node HTTP listening server。
+
+Git source snapshot consistency 使用显式 commit SHA，而不是 transport session。
+
+---
+
+# 10. AI Agent 实施顺序
+
+```text
+1. 核对 MCP 2026-07-28 + TypeScript SDK v2 当前官方 API
+2. 安装 package-local v2 server/client 依赖并锁版本
+3. 创建 server identity / tool definitions
+4. 创建 Nitro <-> MCP SDK HTTP adapter
+5. 实现 get_server_info
+6. 实现 list/search/load + SourceSnapshot
+7. Node Vitest contract tests
+8. Workers Vitest/workerd tests
+9. production build harness
+10. Cloudflare Preview / production smoke
+11. ChatGPT Web Developer Mode 验收
+```
+
+---
+
+# 11. 验收标准
+
+- [ ] 不使用 v1 legacy `initialize` 作为现代协议完成证据。
+- [ ] MCP SDK v2 支持 `2026-07-28`。
+- [ ] serverInfo 可读并包含 MCP application version。
+- [ ] `tools/list` 返回完整 tool catalog。
+- [ ] `get_server_info` 与 `tools/list` 同源。
+- [ ] Streamable HTTP / Cloudflare Worker 正常。
+- [ ] 无 server-side MCP session requirement。
+- [ ] latest/pinned Skill snapshot 正常。
+- [ ] ChatGPT Web 可以连接和调用。
