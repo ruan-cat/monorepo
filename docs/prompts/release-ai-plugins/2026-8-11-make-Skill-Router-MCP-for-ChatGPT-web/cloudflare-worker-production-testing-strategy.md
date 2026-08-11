@@ -2,362 +2,301 @@
 
 ## 1. 文档目的
 
-本文定义 `Skill-Router-MCP` 从本地生产构建到 Cloudflare 真实网络的测试层次。
+本文定义从本地 production build 到 Cloudflare production 的测试与版本发布边界。
 
-目标不是把“生产测试”理解成直接拿正式域名做大量测试，而是分成：
+目标链：
 
 ```text
-Production Build Test
-        ↓
-Local workerd Integration Harness
-        ↓
-Cloudflare Preview / Staging
-        ↓
-Production Read-only Smoke
+Production Build
+  ↓
+createTestHarness integration
+  ↓
+immutable Worker version upload
+  ↓
+Version Preview / Staging smoke
+  ↓
+exact version promote
+  ↓
+Production read-only smoke
 ```
 
-每一级解决不同风险。
+每一级都必须能回答：
+
+```text
+“我测的是哪一个 MCP app version / Worker version / build Git commit？”
+```
 
 ---
 
-# 2. Cloudflare 当前推荐测试分工
+# 2. 测试与发布版本维度
 
-Cloudflare 当前建议：
+远端测试记录至少包含：
 
-- Workers Vitest integration：快速 Worker runtime 单元/组件测试。
-- `createTestHarness()`：针对 Worker **production build** 做整体集成测试。
+```text
+mcpServerVersion
+mcpProtocolRevision = 2026-07-28
+workerVersionId
+workerVersionTag
+buildGitSha
+sourceCommitSha（若发生 Skill 读取）
+```
 
-因此本项目不应继续把旧的 `unstable_dev()` 当成主要集成测试 API。
-
-也不应把 `wrangler dev --remote` 作为日常自动化测试主路径；远程开发更适合少数 Cloudflare 网络特性无法本地模拟时使用。
+MCP application / Worker deployment / Skill snapshot 必须区分。
 
 ---
 
-# 3. 层级 1：Production Build Gate
+# 3. Production Build Gate
 
-任何进入 production-build integration 的代码必须先完成 Nitro Cloudflare 构建。
+Nitro Cloudflare production build 必须先完成。
 
-概念流程：
-
-```text
-source
-  ↓
-Nitro build (Cloudflare preset)
-  ↓
-production Worker artifact
-  ↓
-Wrangler-compatible config/entry
-```
-
-测试必须针对**实际生产构建结果**，而不是只针对 TypeScript 源文件。
-
-验收：
+检查：
 
 - build 成功。
-- production entry 存在。
-- Wrangler 能解析最终配置。
-- 无 Node HTTP server 启动假设。
-- 无本地持久文件依赖。
-- source map / logs 可用于失败诊断（如项目启用）。
+- production entry / Wrangler config 可解析。
+- MCP package SemVer 已注入 server identity。
+- build Git SHA 已注入 bundle。
+- `CF_VERSION_METADATA` binding 已声明。
+- 无 Node listening server/fs persistence 假设。
 
-具体 Nitro 输出路径由实际实现和当前 Nitro v3 preset 决定，规格中不要猜死 `.output/...` 文件名。
-
----
-
-# 4. 层级 2：`createTestHarness()` Production-build Integration
-
-推荐：
-
-```text
-vitest.integration.config.ts
-```
-
-测试 runner 运行于 Node，但被测 Worker 通过 Wrangler `createTestHarness()` 以本地 Worker server 运行。
-
-这一级的价值：
-
-> 用生产 Wrangler/Nitro 构建配置整体启动 Worker，再从外部 HTTP 客户端访问它。
-
-而不是直接调用内部 Service。
-
-## 4.1 Lifecycle
-
-概念：
-
-```text
-beforeAll
-  -> createTestHarness({ workers: [{ configPath }] })
-  -> start
-
-afterAll
-  -> stop/dispose
-```
-
-实际 API 签名以实施时当前 Wrangler 官方类型为准。
+具体 Nitro 输出路径以实施时 preset 为准。
 
 ---
 
-# 5. Mock GitHub Upstream
+# 4. `createTestHarness()` Integration
 
-Production-build integration 不应该每次 CI 都打真实 GitHub API。
+Node test runner 使用 Wrangler production-build harness 启动真实生产 Worker artifact，并从 HTTP/MCP v2 client 外部访问。
 
-Cloudflare test harness 可以与 Node 侧请求 mocking 工具配合，因此推荐使用 MSW 或等价可控 mock，为 GitHub 提供：
-
-```text
-resolve ref endpoint
-registry content endpoint
-SKILL.md content endpoint
-error responses
-rate-limit responses
-```
-
-fixture：
+GitHub upstream 使用 MSW/等价 mock：
 
 ```text
-commit A
-commit B
+resolve ref
+registry @ SHA
+Skill @ SHA
+rate limit/auth/error
 ```
 
-从 HTTP 层验证：
-
-```text
-search -> A
-load pin A -> A
-load latest -> B
-```
-
-MSW/网络 mock 必须对未声明的 outbound request 默认报错，防止测试意外访问真实网络。
+未声明 outbound request 默认失败，防止 CI 意外访问真实 GitHub。
 
 ---
 
-# 6. Production-build MCP E2E 用例
+# 5. Production-build MCP Modern Contract
 
-必须使用真实 HTTP endpoint + MCP SDK client 或协议兼容客户端验证。
+不再测试 legacy：
 
-至少：
+```text
+initialize / initialized
+```
 
-## 6.1 Health
+作为 MCP `2026-07-28` 的成功条件。
+
+必须覆盖：
+
+## Health
 
 ```text
 GET /health
 ```
 
-断言：
+返回安全版本诊断：MCP SemVer、Worker metadata（可由 harness fixture）、build SHA。
 
-- 2xx。
-- 不返回 Secret。
-- 可返回 build/runtime version 的非敏感诊断字段（如实现有）。
+## Server identity
 
-## 6.2 MCP initialize
+v2 client 能读取 modern serverInfo；version 与 MCP package version 一致。
 
-验证：
+## `tools/list`
 
-- endpoint 是 Streamable HTTP MCP。
-- initialize 成功。
-- server metadata/capabilities 正确。
-
-## 6.3 tools/list
-
-必须存在：
+完整工具目录来自统一 toolDefinitions：
 
 ```text
+get_server_info
 list_skills
 search_skills
 load_skill
 ```
 
-并验证 annotations：
+## `get_server_info`
+
+检查：
 
 ```text
-readOnlyHint=true
-destructiveHint=false
+server version/protocol/build SHA
+Worker version ID/tag/timestamp
+registry schema version
+tools[]
 ```
 
-## 6.4 list_skills
+且 `tools[]` 与标准 tool catalog 同源。
 
-验证：
-
-- 只需要一份 registry。
-- 返回 `sourceCommitSha=A`。
-- 不展开读取全部 SKILL.md。
-
-## 6.5 search_skills
-
-验证：
-
-- 返回已知 fixture skill。
-- 返回 A。
-- mock 请求日志证明没有逐 Skill 获取正文。
-
-## 6.6 load_skill pinned
+## Skill flows
 
 ```text
-load_skill(skillId, sourceCommitSha=A)
+list_skills
+search_skills -> A
+load_skill(pin=A) -> A
+load_skill(latest) -> B
 ```
 
-验证读取 A。
+## Negative
 
-## 6.7 load_skill latest
-
-mock branch HEAD 切换为 B：
-
-```text
-load_skill(skillId)
-```
-
-验证读取 B。
-
-## 6.8 Negative cases
-
-- unknown skill。
-- registry missing。
-- unsupported schema。
-- entry path invalid/missing。
-- upstream 401/403。
-- rate limit。
-- malformed MCP body。
-
-Worker 不应崩溃或输出 stack/secret 给客户端。
+unknown tool/Skill、registry missing/invalid、upstream auth/rate limit、malformed modern request。
 
 ---
 
-# 7. Cloudflare Preview / Staging 测试
+# 6. Immutable Worker Version Upload
 
-本地 workerd 通过后，仍需要少量真实 Cloudflare 网络测试。
+Production deploy pipeline 不建议直接用裸 `wrangler deploy` 把未经远端 smoke 的版本立即切到 100%。
 
-推荐使用：
-
-```text
-Worker version preview URL
-或
-独立 staging Worker/environment
-```
-
-而不是在每个 PR 上直接覆盖 production route。
-
-Cloudflare 支持 versioned Preview URLs，可用于在正式发布前验证 Worker 新版本。
-
-## 7.1 Staging 配置
-
-建议单独使用：
+推荐：
 
 ```text
-GITHUB_OWNER
-GITHUB_REPO
-GITHUB_REF
-GITHUB_TOKEN
+wrangler versions upload
 ```
 
-其中 Token：
+并设置：
 
-- 使用专门 staging secret。
-- 权限仍为 contents read/minimum read-only。
-- 不复用高权限个人 Token。
+```text
+tag = skill-router-mcp-vX.Y.Z
+message = build Git SHA + release summary
+```
 
-不需要 staging KV/R2，因为生产 MVP 本身也没有这些依赖。
+上传完成得到不可变 Worker Version ID 和 Preview URL，再执行远端 smoke。
 
 ---
 
-# 8. Preview / Staging Smoke Matrix
+# 7. Cloudflare Preview / Staging
 
-只做高价值、只读、有限次数测试：
-
-```text
-GET /health
-MCP initialize
-tools/list
-search known Skill
-load pinned known Skill
-load latest known Skill
-unknown Skill negative case
-```
-
-这一级使用真实：
+使用 versioned preview URL 或 staging 环境验证：
 
 ```text
 Cloudflare network
 workerd production runtime
-HTTPS/TLS
-real outbound GitHub connectivity
-real Worker vars/secrets
+HTTPS
+real vars/Secrets
+real read-only GitHub connectivity
 ```
 
-不要在 preview/staging 进行大规模压力测试。
-
----
-
-# 9. 高频更新场景下避免 flaky 线上测试
-
-生产 `GITHUB_REF=dev` 可能在测试运行期间被持续 push。
-
-因此线上测试禁止采用脆弱断言：
-
-```text
-search returned SHA == 我几秒前查询到的 dev HEAD
-```
-
-因为 HEAD 可能已经移动。
-
-正确断言：
-
-```text
-search returns SHA=A
-load_skill(pin=A) returns sourceCommitSha=A
-```
-
-验证的是 snapshot consistency。
-
-对于 latest 模式只验证：
-
-- 返回合法 source commit。
-- registry/skill 同一 snapshot。
-- 请求完成。
-
-如果需要严格验证“当前 HEAD”，应在专门 staging 测试中把 `GITHUB_REF` 固定到测试 ref/known commit，而不是依赖高频变化的 production `dev`。
-
----
-
-# 10. Production Post-deploy Smoke
-
-正式部署完成后执行最小只读 smoke：
+最小 smoke：
 
 ```text
 GET /health
-initialize
+modern server identity
 tools/list
-search_skills(known query)
-load_skill(known skill, returned sourceCommitSha)
+get_server_info
+search known Skill
+load pinned
+load latest
+unknown Skill
 ```
 
-原则：
+额外断言：
 
-- 不写 GitHub。
-- 不改变 Cloudflare 状态。
-- 不执行高并发。
-- 不依赖测试专用数据写入。
-- 失败时立即把 deployment 标记为不可接受并进入 rollback/diagnosis。
-
-Production smoke 可以作为部署流水线的 post-deploy gate，但不要让它变成复杂 E2E 套件。
+- MCP SemVer = 待发布 version。
+- Worker Version ID/tag = 本次 upload。
+- buildGitSha = 本次构建 commit。
 
 ---
 
-# 11. Production Security Smoke
+# 8. Staging Credential
 
-至少确认：
+使用专门 read-only GitHub credential。
 
-- MCP response 不含 `GITHUB_TOKEN`。
-- error response 不含 Authorization header。
-- unknown tool / invalid input 不返回内部 stack。
-- source 信息只包含 repository/ref/commit 等非敏感诊断信息。
-- tools 为只读 annotations。
-
-日志也应抽查不存在 Secret。
+MVP 不需要 staging KV/R2/D1/DO，因为 production 也不依赖这些资源。
 
 ---
 
-# 12. 线上 GitHub 集成测试
+# 9. 高频 `dev` 更新下避免 Flaky
 
-与 mock integration 不同，preview/staging 至少要有一条真实 GitHub read path：
+线上 Skill source ref 可能持续推进。
+
+禁止：
+
+```text
+returned sourceCommitSha == 几秒前测试机读到的 HEAD
+```
+
+正确：
+
+```text
+search returns A
+load(pin=A) returns A
+```
+
+Worker deployment version 则不同：Preview URL 对应的是不可变 Worker version，必须精确断言 Worker Version ID/tag/MCP SemVer/buildGitSha。
+
+---
+
+# 10. Production Promotion
+
+Preview/Staging 全绿后，promote **刚才测试过的 exact Worker version**。
+
+默认：
+
+```text
+100% atomic promotion
+```
+
+原因：Tool catalog/schema 属于 protocol-visible contract。若旧新 Worker 同时暴露不同 tools/schema，会造成客户端请求间 version skew。
+
+Cloudflare gradual deployment 仅用于明确完全向后兼容的内部变化，并经过额外 compatibility/version-affinity 设计后采用。
+
+第一版不要为了“高级发布”强制流量切分。
+
+---
+
+# 11. Production Post-deploy Smoke
+
+promote 后立即运行：
+
+```text
+GET /health
+read modern server identity
+tools/list
+get_server_info
+search known Skill
+load pinned using returned sourceCommitSha
+```
+
+必须验证线上：
+
+```text
+expected MCP SemVer
+expected Worker Version ID/tag
+expected buildGitSha
+```
+
+已经变成 production active version。
+
+禁止：高并发、写 GitHub、修改 Cloudflare state、长时间 soak。
+
+---
+
+# 12. Production Tool Catalog Smoke
+
+生产发版尤其是新增/修改 tool 时，必须比较：
+
+```text
+expected toolDefinitions
+  == tools/list
+  == get_server_info.tools
+```
+
+这样 ChatGPT 用户询问“你现在有什么工具”时，返回的是生产实际工具集，不是文档中的旧列表。
+
+---
+
+# 13. Production Security Smoke
+
+- response 无 Token/auth header。
+- invalid request 无内部 stack。
+- `get_server_info` 只返回公开/安全部署 metadata。
+- tool annotations 是只读/非破坏性。
+- related file 读取不能越界。
+
+---
+
+# 14. Real GitHub Integration
+
+Preview/Staging 至少真实完成：
 
 ```text
 resolve ref
@@ -365,146 +304,102 @@ read registry
 read known Skill
 ```
 
-目的不是测试 GitHub，而是验证：
+验证 Cloudflare outbound fetch + GitHub permission + exact SHA read。
 
-```text
-Cloudflare outbound fetch
-+
-GitHub authentication
-+
-repository permissions
-+
-exact SHA reads
-```
-
-生产 smoke 不重复大量调用 GitHub，避免人为消耗 rate limit。
+生产 smoke 不重复大量调用上游。
 
 ---
 
-# 13. 性能 Sanity，不做过度 Load Test
+# 15. Rollback 演练
 
-MVP 在 preview/staging 可运行一个很小的并发 sanity：
+至少 staging 演练一次：
 
 ```text
-例如少量并行 list/search/load 请求
+version N active
+  ↓
+rollback N-1
+  ↓
+health / get_server_info / tools/list
+  ↓
+确认 MCP SemVer / Worker Version metadata 回到稳定版本
 ```
 
-观察：
+Production 故障使用 `wrangler rollback` 或 Dashboard rollback。
 
-- 5xx。
-- P50/P95 粗略值。
-- GitHub rate-limit behavior。
-- Worker exceptions。
-
-不要在 CI 固定加入大规模 k6/长时间 soak test，除非真实流量需要。
-
-高强度 Skill **更新频率**不等于高 QPS，因此不能因为维护频繁就误上重型性能测试平台。
+Skill 内容错误通过 Git revert/fix，不使用 Worker rollback。
 
 ---
 
-# 14. Wrangler Remote Development 的定位
+# 16. Release Failure Evidence
 
-`wrangler dev --remote` 属于辅助诊断工具，不是主要测试层。
-
-仅当：
-
-- 某 Cloudflare 网络行为本地 workerd 无法复现；或
-- 特定 remote binding/平台特性必须真实网络验证
-
-时人工使用。
-
-本项目 MVP 没有 KV/R2/D1/DO 等远程 binding，因此日常测试没有理由依赖 remote dev。
-
----
-
-# 15. Preview URL 与 Production Route 的职责
-
-推荐顺序：
+失败记录：
 
 ```text
-production build
-  ↓
-local harness
-  ↓
-versioned preview / staging
-  ↓
-production deploy
-  ↓
-production smoke
-```
-
-不要省略 local harness，把所有发现问题都推迟到真实 Cloudflare 网络。
-
-也不要省略 preview/staging，把所有 runtime/network 风险留给 production。
-
----
-
-# 16. CI/CD Gate 建议
-
-## PR / 普通开发 CI
-
-```text
-typecheck
-unit tests
-Worker Vitest tests
-production build
-createTestHarness integration
-registry stale check
-```
-
-不需要 Cloudflare production credentials。
-
-## Deploy pipeline
-
-```text
-build/test gates
-  ↓
-version upload / staging
-  ↓
-preview smoke
-  ↓
-production deploy
-  ↓
-production smoke
-```
-
-具体是否每个 PR 自动创建 preview，应根据后续 CI 成本决定，不作为 MVP 强制项。
-
----
-
-# 17. 失败诊断证据
-
-Integration / preview / production smoke 失败时至少记录：
-
-```text
-Worker deployment/version identifier
-endpoint type (local harness/preview/prod)
+MCP SemVer
+Worker Version ID/tag
+buildGitSha
+endpoint type (harness/preview/prod)
 MCP method/tool
-sourceCommitSha（如果已建立 snapshot）
-HTTP status
-MCP error code
+sourceCommitSha (if established)
+HTTP/MCP error
 GitHub upstream status category
 ```
 
-禁止记录：
-
-```text
-GitHub Token
-Authorization header
-完整敏感请求内容
-```
+禁止记录 Secret。
 
 ---
 
-# 18. Definition of Done
+# 17. 性能 Sanity
 
-- [ ] production Worker build 有独立 gate。
-- [ ] `createTestHarness()` 对生产构建做 HTTP/MCP 集成测试。
-- [ ] outbound GitHub 在本地 integration 可控 mock。
-- [ ] preview/staging 验证真实 Cloudflare network/runtime。
-- [ ] production deploy 后执行最小只读 smoke。
-- [ ] 高频 dev 更新不会使测试错误依赖瞬时 HEAD。
-- [ ] pinned snapshot 是线上一致性主要断言。
-- [ ] 不使用 `unstable_dev()` 作为新方案主路径。
-- [ ] `wrangler dev --remote` 只用于特殊诊断。
-- [ ] 不为了高频 Skill 更新引入重型 load-test 基础设施。
+Preview/Staging 只做少量并发 sanity，观察 5xx、P50/P95、GitHub rate-limit behavior、Worker exceptions。
+
+高频 Skill 维护 ≠ 高 QPS，不提前引入重型 load-test 平台。
+
+---
+
+# 18. CI/CD Gate
+
+PR：
+
+```text
+typecheck
+Node unit
+Workers Vitest
+MCP v2 client contract
+production build
+createTestHarness integration
+registry/release checks
+```
+
+MCP Runtime deploy：
+
+```text
+MCP SemVer bump
+  ↓
+all gates
+  ↓
+versions upload
+  ↓
+Preview/Staging smoke
+  ↓
+100% promote exact version
+  ↓
+Production smoke
+```
+
+普通 PR 不需要 production Cloudflare credentials。
+
+---
+
+# 19. Definition of Done
+
+- [ ] production build 有独立 gate。
+- [ ] production-build harness 使用 MCP v2 modern client。
+- [ ] 不再把 initialize 作为 2026-era smoke。
+- [ ] Worker immutable version upload 后再做远端验证。
+- [ ] Preview/Staging 验证真实 Cloudflare + GitHub read path。
+- [ ] promote 的是同一个被 smoke 的 exact Worker version。
+- [ ] Production smoke 精确验证 MCP/Worker/build 版本。
+- [ ] `tools/list` / `get_server_info.tools` 同源。
+- [ ] 高频 Skill source 更新不制造 flaky HEAD equality test。
+- [ ] rollback 路径有明确证据。
