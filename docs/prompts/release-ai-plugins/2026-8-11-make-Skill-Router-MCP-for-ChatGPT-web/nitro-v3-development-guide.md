@@ -2,197 +2,244 @@
 
 ## 文档定位
 
-本文档用于指导 AI Agent 实现 Skill Router MCP Server 时正确使用 Nitro v3 Runtime。
-
-目标：构建运行于 Cloudflare Workers 的 Remote MCP Server。
+本文指导 Skill Router MCP 在 Cloudflare Workers 上正确使用 Nitro v3。
 
 核心链路：
 
 ```text
 ChatGPT Web
-   |
-Streamable HTTP
-   |
+  ↓
+Streamable HTTP / MCP 2026-07-28
+  ↓
+Cloudflare Worker
+  ↓
 Nitro v3 Runtime
-   |
-MCP TypeScript SDK
-   |
+  ↓
+MCP TypeScript SDK v2
+  ↓
 Skill Router
-   |
-GitHub Repository Adapter
 ```
 
 ---
 
-# 1. Nitro v3 与 H3 依赖边界
+# 1. Nitro v3 / H3 依赖边界
 
-本项目直接选择 Nitro v3 作为应用 Runtime。
+Nitro v3 是应用 Runtime。
 
-Nitro 内部使用 H3 Runtime Layer 提供 HTTP event abstraction：
+H3 是 Nitro 管理的 HTTP runtime layer：
 
 ```text
-Application Code
-        |
-        v
+Application
+  ↓
 Nitro v3
-        |
-        v
-H3 Runtime Layer
-        |
-        v
-Cloudflare Worker Adapter
+  ↓
+H3 runtime
+  ↓
+Cloudflare adapter
 ```
 
-H3 不作为本项目独立 Web Framework 管理。
-
-禁止为了“显式版本”自行执行：
-
-```bash
-pnpm add h3
-```
-
-然后手动 pin 与 Nitro 依赖树不同的 H3 主版本。
+默认禁止单独安装/pin 一个可能与 Nitro 不兼容的 H3 主版本。
 
 ---
 
-# 2. 依赖策略
+# 2. 直接依赖
 
-直接应用依赖：
+生产方向：
 
 ```text
 nitro
-@modelcontextprotocol/sdk
+@modelcontextprotocol/server v2
 ```
 
-Nitro 间接 Runtime 依赖包括 H3 等，由 package-manager lockfile 固化。
+测试使用对应 `@modelcontextprotocol/client` v2。
 
-Wrangler 负责 Cloudflare 开发/部署工具链。
+不要继续把 v1 `@modelcontextprotocol/sdk` 单体包作为新项目协议层基线。
+
+H3 等 Nitro runtime dependencies 由 lockfile 固化。
 
 ---
 
-# 3. MCP 与 Nitro 分工
+# 3. Nitro / MCP SDK 分工
 
 Nitro：
 
-- Worker runtime abstraction
-- HTTP lifecycle
-- routing
-- Cloudflare adapter
+- Worker runtime abstraction。
+- HTTP route/handler。
+- Cloudflare adapter。
+- runtime binding extraction boundary。
 
-MCP SDK：
+MCP SDK v2：
 
-- MCP initialization/capabilities
-- tools/list
-- tools/call
-- JSON-RPC lifecycle
-- Streamable HTTP protocol support
+- MCP `2026-07-28` modern wire protocol。
+- server identity metadata。
+- discovery/tool protocol surface。
+- `tools/list` / `tools/call`。
 
-H3 Runtime Layer：
+H3：Nitro 底层 HTTP/event abstraction。
 
-- Nitro 底层 HTTP/event abstraction
+Nitro handler 不实现 MCP lifecycle。
 
 ---
 
-# 4. Handler 编写规范
+# 4. Modern MCP 不使用旧初始化会话模型
 
-使用当前 Nitro v3 推荐 handler 形式，handler 只做 adapter：
+目标 MCP era 不再依赖：
+
+```text
+initialize
+initialized
+Mcp-Session-Id
+```
+
+因此不要在 Nitro middleware/handler 中建立：
+
+- MCP session table。
+- sticky session state。
+- initialize state machine。
+
+per-request stateless model 更适合 Cloudflare Workers。
+
+---
+
+# 5. Handler 规范
+
+使用实现时 Nitro v3 当前公开 handler API；handler 只做 adapter：
 
 ```ts
 export default defineEventHandler(async (event) => {
-  // extract request runtime
-  // delegate to MCP adapter
+  // extract current request runtime
+  // delegate Request to MCP v2 adapter/handler
 })
 ```
 
-具体 helper 名称必须以实现时 Nitro v3 官方 API 为准。
+具体 helper 名称以实施时 Nitro v3 官方 API/类型为准。
 
 禁止：
 
-- handler 写 Skill 搜索业务逻辑
-- handler 直接拼 GitHub Authorization
-- 自己创建 Node HTTP Server
-- 手写 MCP JSON-RPC router
+- handler 写 Skill search/load 业务。
+- handler 拼 GitHub Authorization。
+- 自建 Node HTTP server。
+- 手写 MCP JSON-RPC/router/protocol headers。
 
 ---
 
-# 5. Cloudflare Worker 约束
+# 6. Cloudflare Runtime 约束
 
 禁止：
-
-- filesystem 持久化
-- `child_process`
-- `listen()`
-- Node HTTP server
-- 依赖本地状态保存当前 skill 版本
-
-允许并优先使用：
-
-- `fetch`
-- Web Crypto
-- URL / Request / Response / Headers
-
-Cloudflare KV、R2、D1、Durable Objects 是平台能力，不是本项目第一版依赖。
-
-Cloudflare Cache API 也只能作为未来可选性能优化，不得参与 Source of Truth 判定。
-
----
-
-# 6. GitHub SourceSnapshot
-
-Nitro request 进入业务层后，应通过 repository/provider 建立：
 
 ```text
-GITHUB_REF
-   |
-resolve exact commit
-   |
-SourceSnapshot
+fs persistence
+child_process
+listen()
+Node HTTP server
+module-scope “latest Skill” state
+MCP session persistence
 ```
 
-之后 registry、Skill、references 全部按该 exact SHA 读取。
+优先：Web APIs / Cloudflare runtime APIs。
 
-Nitro/H3 handler 本身不维护 branch freshness 状态。
+MVP 不依赖 KV/R2/D1/DO。
 
 ---
 
-# 7. Runtime Binding
+# 7. Runtime Bindings
 
-第一版只需要：
+必需：
 
 ```text
 GITHUB_OWNER
 GITHUB_REPO
 GITHUB_REF
 GITHUB_TOKEN
+CF_VERSION_METADATA
 ```
 
-不得把 `SKILL_REGISTRY` KV binding 写成必需类型。
+其中 `CF_VERSION_METADATA` 来自 Wrangler：
 
-具体 Cloudflare binding 访问方式必须查实现时 Nitro v3 adapter 文档，不能复用 Nitro v2 旧经验。
+```toml
+[version_metadata]
+binding = "CF_VERSION_METADATA"
+```
+
+用途：线上 Worker Version ID/tag/timestamp 查询。
+
+具体 binding access 必须按当前 Nitro v3 Cloudflare adapter request runtime 获取，不复用 Nitro v2 旧 context 经验。
 
 ---
 
-# 8. 错误处理
+# 8. Build Git SHA
+
+Worker build commit 由 build-time injection 提供，而不是 runtime 执行 Git 命令。
+
+建议产生：
+
+```text
+build-info.generated.ts
+```
+
+并被 `get_server_info` / `/health` 使用。
+
+---
+
+# 9. GitHub SourceSnapshot
+
+业务调用：
+
+```text
+latest:
+GITHUB_REF -> exact SHA
+
+pinned:
+sourceCommitSha -> exact SHA
+```
+
+之后 registry/Skill/related files 全部使用该 exact SHA。
+
+Nitro/H3 handler 不维护 source freshness/session state。
+
+---
+
+# 10. Error Boundary
 
 区分：
 
-- MCP protocol/tool error
-- GitHub auth/rate-limit/not-found error
-- registry invalid/stale error
-- skill not found
-- source snapshot resolve failure
+- MCP protocol/tool error。
+- GitHub auth/rate-limit/not-found。
+- registry invalid。
+- source snapshot failure。
+- deployment metadata configuration error。
 
-Secret 与内部 stack 不进入 MCP user-facing result。
+Secret/internal stack 不进入 MCP user-facing result。
 
 ---
 
-# 9. AI Agent 实施检查
+# 11. 发版边界
 
-- [ ] 使用 Nitro v3。
-- [ ] 不手动管理独立 H3 主版本。
-- [ ] 使用 MCP TypeScript SDK。
+Skill-only update 不触发 Nitro/Worker build。
+
+MCP Runtime update 才执行：
+
+```text
+SemVer bump
+ -> Nitro production build
+ -> Worker version upload
+ -> Preview/Staging
+ -> production promotion
+```
+
+详细见 `mcp-release-versioning-and-production-maintenance.md`。
+
+---
+
+# 12. AI Agent 检查
+
+- [ ] Nitro v3。
+- [ ] H3 由 Nitro 管理。
+- [ ] MCP SDK v2 + `2026-07-28`。
+- [ ] 无 legacy initialize/session architecture。
 - [ ] Nitro endpoint 只做 adapter。
-- [ ] GitHub 读取固定 exact commit SHA。
-- [ ] 无 KV/R2 也可完整运行。
-- [ ] lockfile 固化实际 Nitro/H3 依赖树。
-- [ ] 在真实 Worker runtime 验证。
+- [ ] GitHub Skill 读取 exact SHA。
+- [ ] Worker version metadata binding 可读。
+- [ ] build SHA 由构建期注入。
+- [ ] 无 mandatory KV/R2/D1/DO。
+- [ ] 在 workerd + production build + Cloudflare preview 验证。
