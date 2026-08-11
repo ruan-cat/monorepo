@@ -1,7 +1,7 @@
 import { defineConfig, type Options } from "tsup";
 
-// Node.js 24 无法从 pnpm 工作区软链接按 ESM 条件解析这两个包；仅内联已证实的兼容边界。
-const nodeEsmCompatibilityDependencies = ["consola", "tinyglobby"];
+// Node.js 24 无法从 pnpm 工作区软链接按 ESM 条件解析这些包；仅内联已证实的兼容边界。
+const nodeEsmCompatibilityDependencies = ["consola", "tinyglobby", "pnpm-workspace-yaml"];
 
 export default defineConfig((options: Options) => [
 	// 常规 esm 情况的包
@@ -11,6 +11,7 @@ export default defineConfig((options: Options) => [
 		outDir: "dist",
 		format: ["esm"],
 		noExternal: nodeEsmCompatibilityDependencies,
+		external: ["yaml"],
 		// 该配置可以实现生成类型文件 也可以实现js文件的生成
 		dts: true,
 		tsconfig: "./tsconfig.types.json",
@@ -34,6 +35,7 @@ export default defineConfig((options: Options) => [
 		outDir: "dist/node-esm",
 		format: ["esm"],
 		noExternal: nodeEsmCompatibilityDependencies,
+		external: ["yaml"],
 		dts: true,
 		shims: true,
 		tsconfig: "./tsconfig.types.json",
