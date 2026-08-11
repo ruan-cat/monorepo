@@ -14,8 +14,3 @@ onlyBuiltDependencies:
   - simple-git-hooks
   - vitepress-carbon
   - vue-demi
-patchedDependencies:
-  # 通用补丁：作用于所有 consola 版本。只要 consola 小版本 package.json 结构保持兼容，
-  # 升级时无需手动重新生成 patch 或修改本字段。若未来大版本结构差异导致补丁无法应用，
-  # 再转回版本化补丁（consola@x.y.z: patches/consola@x.y.z.patch）。
-  consola: patches/consola.patch

@@ -2,9 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import consola from "consola";
 
-// 有疑惑 这个写法都不对么？ 这个写法对于 vitepress 文档构建来说 是会引发报错的
-// import { isConditionsSome } from "@ruan-cat/utils/src/conditions.ts";
-import { isConditionsSome } from "@ruan-cat/utils";
+import { isConditionsSome } from "@ruan-cat/utils/conditions";
 
 /** 大写字母的文件 */
 const capitalReadmeMd = "README.md" as const;
@@ -32,7 +30,10 @@ function hasLowerCaseReadmeMd() {
 
 /** 检查当前运行的根目录 是否存在任意一个大小写命名的 README.md 文件 */
 function hasReadmeMd() {
-	const res = isConditionsSome([() => hasCapitalReadmeMd(), () => hasCapitalReadmeMd()]);
+	const res = isConditionsSome([
+		() => hasCapitalReadmeMd(),
+		() => hasCapitalReadmeMd(),
+	]);
 	return res;
 }
 

@@ -33,7 +33,8 @@
 		"generate:type-2": "tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
 		"generate:type-3": "vue-tsc -p tsconfig.types.json",
 		"get-type": "pnpm clean:type && pnpm generate:type-3",
-		"build:-try-1": "pnpm clean:type && vue-tsc -p tsconfig.build.json"
+		"build:-try-1": "pnpm clean:type && vue-tsc -p tsconfig.build.json",
+		"test:entrypoints": "vitest run src/tests/public-subpath-exports.test.ts"
 	},
 	"exports": {
 		".": {
@@ -50,7 +51,14 @@
 			"types": "./dist/node-esm/index.d.ts",
 			"import": "./dist/node-esm/index.js"
 		},
-		"./monorepo": "./src/monorepo/index.ts",
+		"./conditions": {
+			"types": "./dist/conditions.d.ts",
+			"import": "./dist/conditions.js"
+		},
+		"./monorepo": {
+			"types": "./dist/monorepo/index.d.ts",
+			"import": "./dist/monorepo/index.js"
+		},
 		"./unplugin-vue-router": "./src/unplugin-vue-router/index.ts",
 		"./vite-plugin-autogeneration-import-file": "./src/vite-plugin-autogeneration-import-file/index.ts",
 		"./vueuse": "./src/vueuse/index.ts",
