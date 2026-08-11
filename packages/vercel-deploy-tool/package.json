@@ -86,6 +86,8 @@
 		"@types/picomatch": "^4.0.3",
 		"automd": "^0.4.3",
 		"execa": "^9.6.1",
+		"tsup": "^8.5.1",
+		"typescript": "^5.9.3",
 		"vitepress": "^1.6.4"
 	},
 	"peerDependencies": {
