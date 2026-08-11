@@ -2,30 +2,28 @@
 
 ## 1. 安全目标
 
-Skill Router MCP Server 是 ChatGPT Web 的外部能力扩展层。
+Skill Router MCP Server 是 ChatGPT Web 的外部只读能力扩展层。
 
-核心安全目标：
+核心目标：
 
-- Skill 内容可信。
-- MCP 服务只提供必要能力。
-- 不泄露内部资源。
-- 防止恶意 Skill 注入。
-- 保证 Serverless 环境安全。
+- Skill 来源可追踪、可复现。
+- MCP 服务只提供必要的读取能力。
+- GitHub credential 不泄露。
+- Skill 内容不获得高于系统策略的权限。
+- Worker 运行时保持最小攻击面。
 
 ---
 
 # 2. 权限边界
 
-架构：
-
 ```text
 ChatGPT
    |
-   |
 Skill Router MCP
    |
+read-only GitHub Repository Adapter
    |
-Skill Registry
+GitHub ai-plugins @ exact commit SHA
 ```
 
 Skill Router 默认：
@@ -41,32 +39,19 @@ Skill Router 默认：
 - Git 写操作。
 - 仓库修改。
 - Secret 管理。
-- 服务器执行能力。
+- Shell/Docker/CI 执行。
 
 ---
 
 # 3. GitHub 权限模型
 
-## 推荐权限
+只需要最小只读权限，用于：
 
-只需要：
+- 解析 ref / commit。
+- 读取 registry。
+- 读取 Skill 文件。
 
-```text
-contents:read
-metadata:read
-```
-
-用途：
-
-- 读取 skill。
-- 获取版本。
-- 获取 metadata。
-
----
-
-## 禁止权限
-
-禁止：
+禁止授予：
 
 ```text
 contents:write
@@ -75,67 +60,66 @@ administration
 secrets
 ```
 
-Skill Router 不应成为 GitHub 操作代理。
+如果仓库/认证形态允许更细粒度权限，实施时使用当前 GitHub 官方权限模型中的最小集合。
 
 ---
 
-# 4. Skill 来源可信模型
-
-Skill 加载流程：
+# 4. SourceSnapshot 可信模型
 
 ```text
-GitHub
- |
- |
-Validator
- |
- |
-Registry
- |
- |
-MCP Response
+GITHUB_REF
+   |
+resolve exact commit SHA
+   |
+SourceSnapshot
+   |
+   +-- registry @ SHA
+   +-- SKILL.md @ SHA
+   +-- references @ SHA
 ```
 
-验证：
+必须记录或返回可诊断的 `sourceCommitSha`，这样任何加载结果都能映射回 Git 历史。
 
-- 来源仓库。
-- commit SHA。
-- metadata 格式。
-- version。
-- 文件完整性。
+禁止同一个 tool call 在多个 mutable branch read 之间拼接数据。
 
 ---
 
-# 5. Prompt Injection 防护
+# 5. Skill Registry 安全边界
 
-Skill 是知识数据，不是系统指令。
+`ai-plugins/skill-registry.json` 是生成索引，不是新的 trust root。
 
-必须区分：
+必须：
 
-```text
-System Instruction
+- 从固定允许的 skill roots 生成。
+- 校验 repo-relative path，防止 path traversal。
+- 校验 id 唯一。
+- 校验 entry 确实位于允许 roots。
+- 不包含 Secret。
+- 不包含本机绝对路径。
+- 不包含任意远程 URL 作为未经审核的加载目标。
 
->
+运行时始终从配置的 `GITHUB_OWNER/GITHUB_REPO` 和 exact SHA 读取，不根据 registry 把请求重定向到任意仓库。
 
-Skill Context
+---
 
->
+# 6. Prompt Injection 防护
 
-User Input
-```
+Skill 是受控上下文数据，不是系统权限来源。
 
 Skill 内容不能：
 
 - 修改系统规则。
-- 提升权限。
+- 提升工具权限。
 - 要求泄露 Secret。
-- 指示调用危险工具。
+- 将只读 Skill Router 变为执行代理。
+
+MCP server-level instructions 也不得要求客户端改变人格或绕过上层规则。
 
 ---
 
-# 6. MCP Tool 安全
+# 7. MCP Tool 安全
 
-当前只暴露：
+第一版核心 tools：
 
 ```text
 list_skills
@@ -143,108 +127,73 @@ search_skills
 load_skill
 ```
 
-未来增加工具时必须审核：
+工具 annotations 应表达只读、非破坏性语义。
 
-- 输入。
-- 输出。
-- 权限。
-- 数据范围。
+未来新增任何写操作必须作为新的安全设计，不得偷偷扩展现有 Skill Router。
 
 ---
 
-# 7. Cloudflare Secret 管理
+# 8. Cloudflare Secret 管理
 
-禁止：
-
-```text
-代码硬编码 Token
-
-Git 提交 Token
-
-客户端保存 Token
-```
-
-使用：
-
-```text
-Cloudflare Secrets
-```
-
-例如：
+第一版唯一必需敏感配置：
 
 ```text
 GITHUB_TOKEN
-REGISTRY_SECRET
 ```
 
----
+使用 Cloudflare Secret 管理。
 
-# 8. 数据安全
-
-MCP 返回内容应限制：
-
-允许：
-
-- skill metadata。
-- skill instructions。
-- public documentation。
-
-禁止：
-
-- 私有配置。
-- 环境变量。
-- Secret。
-- 内部日志。
-
----
-
-# 9. 审计日志
-
-建议记录：
+不要引入没有实际用途的：
 
 ```text
-skill 查询
-
-skill 加载
-
-skill version
-
-request timestamp
-
-request source
+REGISTRY_SECRET
+KV credential
+R2 credential
 ```
+
+第一版没有 registry Cloudflare publish pipeline，因此也不需要对应写入密钥。
+
+---
+
+# 9. 日志与错误
+
+可以记录：
+
+- tool name。
+- skill id。
+- source commit SHA。
+- GitHub status/rate-limit 的非敏感诊断字段。
+- latency。
 
 禁止记录：
 
-- 用户敏感内容。
-- Secret。
-- Token。
+- Authorization header。
+- GitHub Token。
+- 用户不必要的敏感输入。
+- 完整内部 stack 到 MCP 客户端。
 
 ---
 
-# 10. 未来扩展安全
+# 10. 可选缓存未来安全
 
-如果增加：
+如果未来增加 cache：
 
-- embedding。
-- AI Gateway。
-- 自动 Skill 推荐。
+- cache key 必须包含 commit SHA。
+- Secret 不得进入 key/value。
+- cache 内容仍必须绑定配置仓库和 exact commit。
+- 新 storage binding 需要独立权限、数据生命周期和泄露评估。
 
-需要增加：
-
-- 输入过滤。
-- 内容审核。
-- 模型调用审计。
-- 访问限流。
+这不是 MVP 范围。
 
 ---
 
-# 11. AI Agent 实施验收清单
+# 11. 验收清单
 
-- [ ] GitHub 权限最小化。
-- [ ] Skill 内容只读。
+- [ ] GitHub 权限只读且最小化。
+- [ ] `GITHUB_TOKEN` 只在 repository adapter 使用。
+- [ ] SourceSnapshot 固定 exact commit。
+- [ ] Registry path 校验完成。
 - [ ] MCP 无执行能力。
-- [ ] Secret 使用 Cloudflare 管理。
-- [ ] Prompt Injection 防护完成。
-- [ ] 审计日志完成。
-- [ ] 数据泄露测试通过。
+- [ ] Prompt Injection 边界完成。
+- [ ] 无不必要的 Registry/KV/R2 Secret。
+- [ ] 日志和 MCP 输出无 credential 泄露。
