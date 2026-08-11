@@ -2,9 +2,23 @@
 
 ## 文档定位
 
-本目录是一套生产级 Remote MCP Server 实施规格，用于指导独立 AI Agent 完成 Cloudflare Worker + Nitro v3 + MCP TypeScript SDK + GitHub exact-commit Skill Router MCP Server。
+本目录是一套生产级 Remote MCP Server 实施规格，用于指导独立 AI Agent 完成：
 
-真实工作负载：**Skill 数量中等，但会高频修改、维护和新增。**因此设计重点是 freshness、可复现性、低维护成本、可测试性和轻量增长，而不是提前堆叠存储/索引系统。
+```text
+Cloudflare Workers
++
+Nitro v3
++
+MCP TypeScript SDK v2
++
+MCP 2026-07-28
++
+GitHub exact-commit Skill Router
++
+可查询/可回滚的生产发版
+```
+
+真实工作负载：**Skill 数量中等，但会高频修改、维护和新增。**设计重点是 freshness、可复现、低维护成本、可测试、版本可查询和轻量增长。
 
 ---
 
@@ -13,18 +27,20 @@
 - 将 `ruan-cat/monorepo` 的 `ai-plugins` skills 暴露为 MCP Skill Provider。
 - Cloudflare Worker 提供公网 HTTPS Remote MCP。
 - Nitro v3 作为应用 Runtime；H3 由 Nitro 依赖树管理。
-- MCP TypeScript SDK 实现协议层。
+- 使用 MCP TypeScript SDK v2 server package，实现 MCP `2026-07-28` modern protocol。
 - Streamable HTTP 作为 transport。
 - GitHub 是唯一 Skill Source of Truth。
-- `GITHUB_REF` 默认解析为 exact commit SHA，再从同一 SHA 读取 registry/skill。
-- discovery result 返回 `sourceCommitSha`，允许 `load_skill` 可选 pin 同一 snapshot。
-- 第一版不要求 KV、R2、D1、Durable Objects、vector database。
-- `ai-plugins/skill-registry.json` 是低 churn discovery index。
-- 开发期使用分层 Vitest；生产构建使用 Cloudflare Worker production-build harness 与 preview/prod smoke 验证。
+- `GITHUB_REF` 默认解析 exact commit SHA。
+- discovery 返回 `sourceCommitSha`，`load_skill` 可选 pin 同一 snapshot。
+- 第一版不要求 KV/R2/D1/DO/vector DB。
+- `skill-registry.json` 是低 churn discovery index。
+- MCP Server 自身拥有独立 SemVer、Cloudflare Worker version metadata 和 build Git SHA。
+- ChatGPT 可以通过 `get_server_info` 查询当前 MCP/Worker/工具信息。
+- Skill-only 更新不触发 Worker redeploy；MCP Runtime 更新走 versioned Worker release pipeline。
 
 ---
 
-# 2. AI Agent 强制阅读顺序
+# 2. 强制阅读顺序
 
 ```text
 ai-agent-implementation-plan.md
@@ -51,6 +67,8 @@ mcp-server-framework-selection.md
         ↓
 mcp-protocol-design.md
         ↓
+mcp-release-versioning-and-production-maintenance.md
+        ↓
 vitest-development-testing-strategy.md
         ↓
 cloudflare-worker-production-testing-strategy.md
@@ -58,38 +76,99 @@ cloudflare-worker-production-testing-strategy.md
 testing-plan.md
 ```
 
-如果任务包含真正修改 `release-ai-plugins` / generator / `skill-registry.json` / CI stale gate，必须继续阅读：
+真正修改 `release-ai-plugins` / registry generator / stale gate 时继续阅读：
 
 ```text
-docs/prompts/release-ai-plugins/
-└── 2026-8-12-release-ai-plugins-add-skill-registry-json-for-MCP/
+../2026-8-12-release-ai-plugins-add-skill-registry-json-for-MCP/
 ```
 
 ---
 
-# 3. 核心技术决策
+# 3. MCP 技术决策
 
-## MCP
+## Modern Protocol
 
-```text
-@modelcontextprotocol/sdk
-+
-Streamable HTTP
-```
-
-禁止手写 JSON-RPC lifecycle。
-
-## Runtime
+目标：
 
 ```text
-Cloudflare Worker
-+
-Nitro v3 Runtime
-+
-Nitro-managed H3 layer
+MCP 2026-07-28
 ```
 
-## Skill Source
+服务端 SDK：
+
+```text
+@modelcontextprotocol/server v2
+```
+
+测试客户端：
+
+```text
+@modelcontextprotocol/client v2
+```
+
+不再把旧 v1 `initialize/initialized` handshake/session 当作新项目的协议完成条件。
+
+Modern era 是 per-request stateless core，server identity 通过标准 response metadata 暴露。
+
+---
+
+# 4. 第一版核心 Tools
+
+```text
+get_server_info
+list_skills
+search_skills
+load_skill
+```
+
+所有工具从统一 `toolDefinitions` 注册。
+
+标准：
+
+```text
+tools/list
+```
+
+是当前部署完整工具目录的协议真源。
+
+`get_server_info` 是面向 ChatGPT/人的只读诊断 facade，返回：
+
+```text
+MCP app version
+MCP protocol revision
+Worker Version ID/tag/timestamp
+build Git SHA
+registry schema version
+完整 tool catalog
+```
+
+---
+
+# 5. 版本模型
+
+必须分开：
+
+```text
+MCP application SemVer       X.Y.Z
+MCP protocol revision        2026-07-28
+Cloudflare Worker Version    id/tag/timestamp
+Worker build Git SHA         code build commit
+Skill sourceCommitSha        per Skill snapshot
+Skill metadata.version       per Skill SemVer
+Registry schemaVersion       1
+```
+
+Worker build commit 和当前 Skill source commit 可以不同，这是有意设计。
+
+详细见：
+
+```text
+mcp-release-versioning-and-production-maintenance.md
+```
+
+---
+
+# 6. Skill Source / Registry
 
 ```text
 GitHub ai-plugins
@@ -97,9 +176,7 @@ GitHub ai-plugins
 exact commit SourceSnapshot
 ```
 
-## Registry
-
-v1 只保存：
+Registry v1：
 
 ```text
 id
@@ -110,67 +187,147 @@ version
 entry
 ```
 
-不枚举 references/templates/examples，避免高频深层文件变化制造 registry churn。
+不枚举 references/templates/examples。
 
-## Freshness + Reproducibility
-
-默认最新：
+默认 latest：
 
 ```text
-GITHUB_REF=dev
-  ↓
-resolve current HEAD -> SHA
+GITHUB_REF -> current HEAD -> SHA
 ```
 
-跨 tool call 可复现：
+可复现：
 
 ```text
-search_skills @ A
-  -> sourceCommitSha=A
-load_skill(skillId, sourceCommitSha=A)
+search @ A -> sourceCommitSha=A
+load(pin=A) -> A
 ```
 
-不需要 server session。
+无 server-side snapshot session。
 
 ---
 
-# 4. 测试技术决策
+# 7. Skill 发布与 MCP Runtime 发版分离
 
-仓库根当前仍使用 Vitest 3.x；Cloudflare 当前 Workers Vitest integration 要求 Vitest 4.1+。
-
-因此：
+## Skill-only
 
 ```text
-monorepo root
-  -> 保持现有 Vitest 3.x
-
-Skill Router MCP package
-  -> package-local Vitest 4.1+
+ai-plugins change
+ -> release-ai-plugins
+ -> registry generation/check
+ -> Git push
+ -> next unpinned Skill call reads new HEAD
 ```
 
-测试分层：
+不部署 Worker。
+
+## MCP Runtime / config
 
 ```text
-Node Unit Vitest
+code/config change
+ -> bump MCP SemVer
+ -> local/workerd/production-build tests
+ -> immutable Worker version upload
+ -> Preview/Staging smoke
+ -> exact 100% promotion
+ -> Production smoke
+```
+
+生产是否真的升级，通过 `get_server_info` + active Worker version + smoke 验证，不靠“push 成功”推断。
+
+---
+
+# 8. Cloudflare Deployment Metadata
+
+Wrangler 启用：
+
+```toml
+[version_metadata]
+binding = "CF_VERSION_METADATA"
+```
+
+运行时读取：
+
+```text
+Worker Version ID
+tag
+timestamp
+```
+
+build Git SHA 由 CI/build 阶段注入 bundle。
+
+---
+
+# 9. Production Deploy 策略
+
+默认不把裸 `wrangler deploy` 当成唯一生产流程。
+
+推荐：
+
+```text
+versions upload
   ↓
-Workers Vitest / workerd
+versioned Preview/Staging
+  ↓
+smoke
+  ↓
+exact version 100% promotion
+  ↓
+production smoke
+```
+
+Tool schema/protocol-visible 变化默认原子发布；不要让不兼容旧新版本同时长期 split traffic。
+
+---
+
+# 10. 自动部署触发边界
+
+Worker pipeline 只监听 MCP runtime/config/build inputs。
+
+Skill-only：
+
+```text
+ai-plugins/**
+```
+
+不应触发 Worker rebuild/deploy。
+
+使用 Cloudflare Build Watch Paths 或 GitHub Actions path filters。
+
+生产部署只保留一个 authority；本项目推荐 GitHub Actions + Wrangler。如果改用 Cloudflare Git Integration，就不要同时让 GitHub Actions 自动部署同一 production Worker。
+
+---
+
+# 11. 测试架构
+
+根 monorepo 保持 Vitest 3.x。
+
+MCP package 使用 package-local Vitest 4.1+ compatible stack。
+
+测试层：
+
+```text
+Node Unit
+  ↓
+Workers Vitest/workerd
+  ↓
+MCP v2 Client Contract
   ↓
 Nitro production build
   ↓
-Wrangler createTestHarness integration
+Wrangler createTestHarness
   ↓
-Cloudflare Preview/Staging smoke
+Cloudflare Preview/Staging
   ↓
 Production read-only smoke
   ↓
 ChatGPT Web acceptance
 ```
 
-不要为了一个 MCP package 强制迁移全仓 Vitest。
+版本 contract 也必须自动测试：serverInfo / `get_server_info` / `tools/list` / Worker metadata / build SHA。
 
 ---
 
-# 5. 文档索引
+# 12. 文档索引
 
 ## 架构 / 实施
 
@@ -179,181 +336,101 @@ ChatGPT Web acceptance
 - `high-frequency-skill-churn-strategy.md`
 - `runtime-dependency-version-policy.md`
 
-## Skill Registry / Release Bridge
+## MCP
+
+- `mcp-server-framework-selection.md`
+- `mcp-protocol-design.md`
+- `mcp-release-versioning-and-production-maintenance.md`
+- `mcp-client-validation-guide.md`
+
+## Skill Registry / Release
 
 - `skill-registry-schema.md`
 - `release-ai-plugins-registry-integration.md`
 - `../2026-8-12-release-ai-plugins-add-skill-registry-json-for-MCP/`
 
-## MCP
-
-- `mcp-server-framework-selection.md`
-- `mcp-protocol-design.md`
-- `mcp-client-validation-guide.md`
-
-## Nitro / Cloudflare
+## Cloudflare
 
 - `nitro-v3-development-guide.md`
 - `nitro-v3-cloudflare-integration.md`
 - `runtime-binding-contract.md`
 - `cloudflare-worker-deployment.md`
+- `deployment-runbook.md`
 - `cloudflare-ai-gateway-strategy.md`
 
-## 测试 / 质量
+## 测试 / 安全
 
-- `vitest-development-testing-strategy.md`：package-local Vitest 4.x、Node unit、workerd runtime、MCP SDK contract。
-- `cloudflare-worker-production-testing-strategy.md`：production build、`createTestHarness()`、preview/staging、production smoke。
-- `testing-plan.md`：统一测试矩阵和 CI/deploy gates。
+- `vitest-development-testing-strategy.md`
+- `cloudflare-worker-production-testing-strategy.md`
+- `testing-plan.md`
 - `security-model.md`
 
-## 部署 / 交接
+## Agent
 
-- `deployment-runbook.md`
+- `ai-agent-implementation-plan.md`
 - `agent-execution-guide.md`
 - `agent-handoff-checklist.md`
 
 ---
 
-# 6. 最终架构
+# 13. 最终架构
 
 ```text
 ChatGPT Web
   ↓
-Remote MCP / Streamable HTTP
+Remote MCP / Streamable HTTP / 2026-07-28
   ↓
-Cloudflare Worker
+Cloudflare active Worker Version
   ↓
-Nitro v3 Runtime
+Nitro v3
   ↓
-MCP SDK / McpServer
+MCP SDK v2 / McpServer
   ↓
-Skill Router
+Tool Definitions
+  ├─ get_server_info
+  ├─ list_skills
+  ├─ search_skills
+  └─ load_skill
   ↓
 GitHub Repository Adapter
   ↓
 SourceSnapshot(commit SHA)
-  ├─ skill-registry.json @ SHA
-  ├─ selected SKILL.md @ SHA
-  └─ related files on demand @ SHA
 ```
 
 ---
 
-# 7. 高频更新下的轻量维护模型
+# 14. Definition of Done
 
-发布侧：
+## Protocol
 
-```text
-many Skill changes
- -> one release orchestration
- -> one registry generation
- -> one Git commit
-```
-
-运行时：
-
-```text
-one tool call
- -> one snapshot
- -> one registry read
- -> selected Skill only
-```
-
-测试侧：
-
-```text
-fast unit locally
- -> Worker runtime locally
- -> production build locally
- -> only small remote smoke
-```
-
-这意味着：
-
-- 高频 Skill 更新不要求 Worker redeploy。
-- 不需要 Cloudflare storage sync。
-- 不需要 per-Skill cache purge。
-- 不需要增量 registry DB。
-- 不需要 vector search。
-- 不需要每次开发修改都触发远程 Cloudflare 测试。
-
-只有真实性能/可靠性数据证明简单方案成为瓶颈时才升级。
-
----
-
-# 8. 为什么第一版不使用 KV / R2
-
-对高频更新，第二套存储会增加同步/调试/失效管理成本。
-
-MVP 直接利用 Git 的不可变 commit snapshot：
-
-```text
-new push -> new HEAD -> new unpinned call sees new commit
-```
-
-未来如果确实需要 cache，只允许 commit-addressed immutable key。
-
----
-
-# 9. 服务职责
-
-负责：
-
-- Skill discovery/search/load。
-- Skill metadata/version。
-- source commit 报告/可选 pin。
-- Registry 读取/校验。
-- 已选 Skill 关联文件按需同 SHA 读取。
-
-不负责：
-
-- Shell/GitHub 写操作/PR/Docker/CI。
-- KV/R2 同步。
-- vector index。
-- server-side conversation snapshot state。
-
----
-
-# 10. Definition of Done
-
-## MCP
-
-- [ ] ChatGPT Web 可添加 MCP。
-- [ ] MCP SDK / Streamable HTTP 正常。
-- [ ] list/search 返回 `sourceCommitSha`。
-- [ ] load_skill 可选 snapshot pin。
+- [ ] MCP `2026-07-28` modern era。
+- [ ] 不依赖 legacy initialize/session。
+- [ ] server identity version 来自 package.json。
+- [ ] standard `tools/list` 完整。
+- [ ] `get_server_info` 可自描述 MCP/Worker/tool 版本。
 
 ## Skill
 
-- [ ] Registry minimal/low-churn/deterministic。
-- [ ] `release-ai-plugins` 专项改造契约完整。
-- [ ] 多 Skill 高频发布只集中生成一次 registry。
-- [ ] 新 unpinned call 可看到最新 HEAD。
-- [ ] pinned load 可复现 discovery snapshot。
+- [ ] Registry minimal/deterministic/low-churn。
+- [ ] list/search 返回 sourceCommitSha。
+- [ ] load latest/pin 正常。
+- [ ] Skill-only push 不要求 Worker deploy。
 
-## Dev Tests
+## Release
 
-- [ ] MCP package 使用独立 Vitest 4.1+ 兼容测试栈。
-- [ ] Node unit tests 完整。
-- [ ] Workers Vitest / workerd runtime tests 完整。
-- [ ] MCP SDK client/server contract tests 完整。
-- [ ] 不强制升级 monorepo root Vitest 3.x。
+- [ ] MCP runtime release 有 SemVer bump。
+- [ ] Worker immutable version upload + Preview/Staging。
+- [ ] exact version production promotion。
+- [ ] production smoke 精确确认 MCP/Worker/build version。
+- [ ] rollback 可执行。
 
-## Production Tests
+## Tests
 
-- [ ] Nitro Cloudflare production build 有 gate。
-- [ ] Wrangler `createTestHarness()` 集成测试完整。
-- [ ] Cloudflare Preview/Staging 只读 smoke 完整。
-- [ ] Production post-deploy smoke 完整。
-- [ ] 高频 `dev` 更新下使用 snapshot consistency，避免 flaky HEAD 断言。
-
-## Runtime
-
-- [ ] Worker 无 KV/R2 binding 也完整工作。
-- [ ] 深层文件按需读取，不默认递归加载。
-- [ ] 无 Node Server 专属实现。
+- [ ] Node/workerd/MCP v2 client/production harness 分层。
+- [ ] Preview/Staging/Production smoke。
+- [ ] tool catalog/version consistency 有自动测试。
 
 ## Growth
 
-- [ ] 没有增量 Registry DB/vector DB/session store 过度设计。
-- [ ] 未来优化由 Skill count、registry size、GitHub request 数和 P95 latency 等真实指标触发。
+- [ ] 无 mandatory KV/R2/D1/DO/vector DB/session store。
+- [ ] 后续优化只由真实指标触发。
