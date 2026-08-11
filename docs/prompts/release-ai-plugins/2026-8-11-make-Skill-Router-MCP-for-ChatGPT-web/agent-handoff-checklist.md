@@ -2,29 +2,31 @@
 
 ## 文档目的
 
-该文件用于在不同 AI Agent 之间传递实施状态，避免后续 Agent 回退到旧架构。
+用于在不同 AI Agent 之间传递最终设计约束，避免回退到旧 KV/深层索引/无 pin 架构。
 
 ---
 
-# 项目目标确认
+# 项目目标
 
 ```text
-ChatGPT Web Developer Mode
-        |
+ChatGPT Web
+  ↓
 Remote MCP / Streamable HTTP
-        |
+  ↓
 Cloudflare Worker
-        |
+  ↓
 Nitro v3 Runtime
-        |
+  ↓
 MCP TypeScript SDK
-        |
+  ↓
 Skill Router
-        |
-SourceSnapshot(commit SHA)
-        |
+  ↓
+latest/pinned SourceSnapshot(commit SHA)
+  ↓
 GitHub ai-plugins
 ```
+
+真实工作负载：Skill 数量中等、更新频率高。
 
 ---
 
@@ -32,63 +34,48 @@ GitHub ai-plugins
 
 ## Runtime
 
-必须：
-
-- Cloudflare Worker Serverless。
-- Nitro v3。
-- H3 由 Nitro 依赖树管理。
-- 无 Node HTTP server / filesystem 持久化。
+- [ ] Cloudflare Worker Serverless。
+- [ ] Nitro v3。
+- [ ] H3 由 Nitro 依赖树管理。
+- [ ] 无 Node HTTP server/filesystem persistence。
 
 ## MCP
 
-必须：
+- [ ] `@modelcontextprotocol/sdk`。
+- [ ] Streamable HTTP。
+- [ ] `McpServer`。
+- [ ] tools 只读。
+- [ ] 不手写 MCP lifecycle。
 
-- `@modelcontextprotocol/sdk`。
-- Streamable HTTP。
-- `McpServer`。
-- tools 默认只读。
+## Skill Source / Snapshot
 
-禁止手写 MCP JSON-RPC lifecycle。
+- [ ] GitHub `ai-plugins` 是 Source of Truth。
+- [ ] Unpinned tool call resolve `GITHUB_REF` once -> SHA。
+- [ ] 单调用所有读取同 SHA。
+- [ ] list/search 返回 `sourceCommitSha`。
+- [ ] load_skill 可选接受 `sourceCommitSha` pin。
+- [ ] pin 不能覆盖 configured owner/repo。
+- [ ] 不需要 server-side snapshot session。
 
-## Skill Source
+## Registry
 
-必须：
+- [ ] `ai-plugins/skill-registry.json` 是 deterministic discovery manifest。
+- [ ] v1 只有 `id/plugin/name/description/version/entry`。
+- [ ] 不含 timestamp/current commit SHA。
+- [ ] 不枚举 references/templates/examples。
+- [ ] 中等 Skill 数量继续 full-scan generator。
+- [ ] 多 Skill release 只生成一次 registry。
 
-- GitHub `ai-plugins` 是 Source of Truth。
-- 每个 tool call resolve `GITHUB_REF` -> exact commit SHA。
-- registry / skill / references 使用同一 SHA。
-- 返回结果可诊断 `sourceCommitSha`。
-
-## Storage
+## Storage / Search
 
 MVP 不需要：
 
-- Cloudflare KV。
-- R2。
-- D1。
-- Durable Objects。
-
-任何新增 storage 设计必须由真实性能或功能需求驱动，并单独更新架构文档。
-
----
-
-# Skill Registry
-
-推荐：
-
-```text
-ai-plugins/skill-registry.json
-```
-
-它是确定性生成索引，不是数据库。
-
-必须：
-
-- 覆盖 `common-tools` 与 `dev-skills` roots。
-- 不包含 timestamp 等非确定性字段。
-- 不写自身 commit SHA。
-- 由 `release-ai-plugins` generator 生成/校验。
-- CI 可检查 stale registry。
+- [ ] KV。
+- [ ] R2。
+- [ ] D1。
+- [ ] Durable Objects。
+- [ ] vector database/embedding pipeline。
+- [ ] incremental Registry DB。
 
 ---
 
@@ -96,49 +83,59 @@ ai-plugins/skill-registry.json
 
 ## 工程
 
-- [ ] Nitro v3 Worker 项目初始化。
+- [ ] Nitro v3 Worker 初始化。
 - [ ] 最小 Wrangler vars/Secret。
-- [ ] MCP endpoint 完成。
+- [ ] MCP endpoint。
 
-## MCP
+## MCP Tools
 
-- [ ] MCP SDK server/transport 接入。
-- [ ] initialize / tools/list / tools/call 正常。
-- [ ] `list_skills` / `search_skills` / `load_skill` 正常。
+- [ ] list_skills。
+- [ ] search_skills。
+- [ ] load_skill latest。
+- [ ] load_skill pinned。
 
 ## Source
 
 - [ ] GitHub Repository Adapter。
-- [ ] ref -> commit SHA。
+- [ ] ref -> SHA。
+- [ ] pinned SHA。
 - [ ] exact-SHA registry load。
-- [ ] exact-SHA skill load。
+- [ ] exact-SHA Skill load。
+- [ ] related-file on-demand load。
 
-## Registry
+## Release / Registry
 
+- [ ] 2026-8-12 专项提示词包已遵循。
 - [ ] deterministic generator。
-- [ ] stale check。
-- [ ] release-ai-plugins integration contract 已遵循。
+- [ ] stale Check。
+- [ ] multi-Skill one-Apply/one-Check。
+- [ ] low-churn schema。
 
-## 部署
+## 部署 / 验收
 
-- [ ] Worker 发布。
-- [ ] Custom Domain。
-- [ ] HTTPS MCP Endpoint。
-- [ ] 无 KV/R2 也可完整运行。
+- [ ] Worker 无 storage binding 也运行。
+- [ ] 新 push 后 unpinned call 看到新 HEAD。
+- [ ] pinned load 复现 discovery snapshot。
+- [ ] MCP Inspector。
+- [ ] ChatGPT Web Developer Mode。
 
-## 验收
+---
 
-- [ ] push 新 skill commit 后，新 tool call 能看到新 HEAD。
-- [ ] 单个 tool call 不跨 commit 混读。
-- [ ] MCP Inspector 通过。
-- [ ] ChatGPT Web Developer Mode 通过。
+# Growth Guardrails
+
+- [ ] 不因为更新频率高就假设数据规模巨大。
+- [ ] Search 仍使用单 registry 内存匹配。
+- [ ] Deep files 不进入 Registry v1。
+- [ ] Future cache only commit-addressed。
+- [ ] 性能升级由 registry size、GitHub requests/tool、P95 等真实指标触发。
 
 ---
 
 # Agent 行为规范
 
-1. 优先遵循本目录最新文档。
-2. 不自行恢复 KV/R2 主链路。
-3. 遇到依赖/API 不确定性先查当前官方文档。
-4. 不把实现细节猜测写成冻结事实。
-5. 所有实现保持 Cloudflare Worker 兼容。
+1. 优先遵循最新文档。
+2. 不恢复 KV/R2 主链路。
+3. 不恢复 references[] registry 设计。
+4. 不引入 server session 解决 snapshot 问题。
+5. 遇到 SDK/Nitro API 不确定性查当前官方文档。
+6. 不把假设写成冻结事实。
