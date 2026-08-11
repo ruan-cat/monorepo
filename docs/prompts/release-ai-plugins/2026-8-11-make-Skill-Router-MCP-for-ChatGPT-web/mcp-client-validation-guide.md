@@ -2,9 +2,14 @@
 
 ## 文档目的
 
-本文验证 Skill Router MCP Server 是否真正符合 ChatGPT Web Developer Mode Remote MCP 使用要求。
+本文验证 Skill Router MCP Server 是否符合 ChatGPT Web Remote MCP 使用要求，并验证：
 
-重点不仅是协议连通，还要验证高频 Skill 更新时的 latest/pinned snapshot 语义。
+- MCP `2026-07-28` modern protocol。
+- Server identity / MCP application version。
+- 标准完整工具目录。
+- `get_server_info` 自描述能力。
+- 高频 Skill 更新下 latest/pinned snapshot。
+- Cloudflare production deployment version。
 
 ---
 
@@ -15,11 +20,11 @@ ChatGPT Web
   ↓
 Remote MCP Client
   ↓
-Streamable HTTP
+Streamable HTTP / MCP 2026-07-28
   ↓
-Nitro v3 + MCP SDK
+Cloudflare Worker / Nitro v3
   ↓
-McpServer
+MCP SDK v2 / McpServer
   ↓
 Skill Router
   ↓
@@ -30,61 +35,131 @@ GitHub exact-commit SourceSnapshot
 
 # 2. 前置条件
 
-确认：
-
 - Worker 已部署。
 - HTTPS endpoint 正常。
-- MCP SDK / Streamable HTTP 正常。
-- `McpServer` 已注册核心 tools。
+- MCP SDK v2 modern protocol 正常。
+- tool definitions 已注册。
+- `CF_VERSION_METADATA` 可读。
+- Worker build Git SHA 已注入。
 - `ai-plugins/skill-registry.json` 在目标 Git commit 中可读。
 
-推荐 endpoint：
+---
+
+# 3. Modern MCP 协议验收
+
+不要再把旧的：
 
 ```text
-https://mcp.ai.ruan-cat.com/mcp
+initialize / initialized
 ```
 
+作为 MCP `2026-07-28` 的成功判据。
+
+应验证：
+
+- Client/Server 实际使用 `2026-07-28` modern era。
+- 每个请求能够独立完成，不依赖 `Mcp-Session-Id`。
+- server identity 可从 modern response metadata 读取。
+- 如客户端使用 `server/discover`，其 capability/identity 结果与实际 server 一致。
+- Streamable HTTP 请求/响应符合 SDK v2 当前协议实现。
+
+技术验收先使用支持 modern era 的 MCP client/Inspector 版本，再做 ChatGPT Web 实测。
+
 ---
 
-# 3. MCP 生命周期
+# 4. Server Identity 验收
 
-验证 initialize：
-
-- protocol version。
-- server info。
-- capabilities。
-- tools capability。
-
-技术验收先使用 MCP Inspector，再做 ChatGPT Web 实测。
-
----
-
-# 4. tools/list
-
-必须暴露：
+Server identity 必须体现：
 
 ```text
+name = skill-router-mcp
+version = MCP package SemVer
+```
+
+Client 读取到的 server version 必须与：
+
+```text
+package.json version
+```
+
+一致。
+
+不要把 Worker Version ID 或 Skill version 填入 server identity version。
+
+---
+
+# 5. `tools/list`
+
+标准 `tools/list` 必须返回当前部署 MCP 的完整工具目录：
+
+```text
+get_server_info
 list_skills
 search_skills
 load_skill
 ```
 
-Tool annotations 必须表达只读/非破坏性语义；具体字段/API 以当前 MCP SDK 为准。
+如果以后增加/删除工具，测试不要继续硬编码旧数量；应与统一 `toolDefinitions` contract 比较。
+
+同时验证：
+
+- deterministic tool order（若实现 contract 固定排序）。
+- tool description。
+- input schema。
+- 只读/非破坏性 annotations。
 
 ---
 
-# 5. `list_skills`
+# 6. `get_server_info`
+
+输入：
+
+```json
+{}
+```
+
+必须验证：
+
+```text
+server.name
+server.version
+server.protocolRevision
+server.buildGitSha
+
+deployment.workerVersionId
+deployment.workerVersionTag
+deployment.workerVersionTimestamp
+
+skillSource.repository
+skillSource.ref
+registrySchemaVersion
+
+tools[]
+```
+
+重要断言：
+
+```text
+get_server_info.tools
+==
+与 tools/list 同源的 toolDefinitions
+```
+
+该 tool 不应为了显示版本额外访问 GitHub HEAD。
+
+---
+
+# 7. `list_skills`
 
 验证：
 
-- 返回 registry 中的 minimal summaries。
-- summary 字段与 Registry v1 一致。
+- 返回 Registry v1 minimal summaries。
 - 返回 `sourceCommitSha`。
-- 不要求 tags/references/templates/examples 等 v1 未定义字段。
+- 不返回 v1 不存在的深层文件索引。
 
 ---
 
-# 6. `search_skills`
+# 8. `search_skills`
 
 输入：
 
@@ -97,24 +172,14 @@ Tool annotations 必须表达只读/非破坏性语义；具体字段/API 以当
 验证：
 
 - 返回匹配 Skill。
-- 返回 id/name/description/version/plugin 等 discovery 信息。
-- 返回 `sourceCommitSha`。
+- 返回 id/name/description/version/plugin。
+- 返回 `sourceCommitSha=A`。
 - 不为了搜索读取所有 Skill 正文。
 - 不泄露 Secret。
 
-记录本次返回的：
-
-```text
-sourceCommitSha=A
-```
-
-用于 pinned load 验证。
-
 ---
 
-# 7. `load_skill` Latest 模式
-
-输入：
+# 9. `load_skill` Latest
 
 ```json
 {
@@ -124,16 +189,13 @@ sourceCommitSha=A
 
 验证：
 
-- 服务解析当前 `GITHUB_REF` 最新 HEAD。
-- Registry 与 SKILL.md 来自同一 SHA。
-- 返回 registry metadata + SKILL.md + sourceCommitSha。
-- 不默认要求加载整个 references/templates/examples 目录。
+- 当前 `GITHUB_REF` 只 resolve 一次。
+- Registry 与 SKILL.md 同 SHA。
+- 返回 metadata + content + sourceCommitSha。
 
 ---
 
-# 8. `load_skill` Pinned 模式
-
-使用 search 返回的 SHA：
+# 10. `load_skill` Pinned
 
 ```json
 {
@@ -142,74 +204,75 @@ sourceCommitSha=A
 }
 ```
 
-验证：
+即使 branch 已推进到 B：
 
-- 即使 branch HEAD 已推进到 B，仍读取 A。
-- Registry 与 SKILL.md 都来自 A。
-- 返回 sourceCommitSha=A。
-- 调用方不能通过 tool input 覆盖 `GITHUB_OWNER/GITHUB_REPO`。
-
-这是高频更新期间 search -> load 可复现性的核心验收。
+- Registry @ A。
+- SKILL.md @ A。
+- 返回 A。
+- input 不能覆盖 configured owner/repo。
 
 ---
 
-# 9. 高频更新场景实测
-
-执行：
+# 11. 高频更新场景
 
 ```text
 1. search_skills -> A
-2. push Skill update -> branch HEAD B
-3. load_skill(..., sourceCommitSha=A) -> 应仍是 A
-4. load_skill(...) without pin -> 应看到 B
+2. push Skill update -> B
+3. load_skill(pin=A) -> A
+4. load_skill(no pin) -> latest B
 ```
 
-该流程不应要求：
+不要求 Worker redeploy / KV purge / R2 upload / session reset。
 
-- Worker redeploy。
-- KV purge。
-- R2 upload。
-- server session reset。
+远程测试不要断言“返回 SHA 必须等于测试开始几秒前读取的 HEAD”，避免高频 push 制造 flaky test。
 
 ---
 
-# 10. 深层文件按需读取验收
+# 12. Worker Release 版本验收
 
-如果 Skill 的 `SKILL.md` 明确引用 reference/template/example：
+每次 MCP Runtime production release 后：
 
-- 只在实际需要时读取。
-- path 必须限制在允许 Skill 范围。
-- 读取继续使用相同 sourceCommitSha。
-- 不默认递归读取整个 Skill 目录。
+1. 调用 `get_server_info`。
+2. 检查 MCP app SemVer。
+3. 检查 build Git SHA。
+4. 检查 Cloudflare Worker Version ID/tag/timestamp。
+5. 与本次 promote 的 exact Worker version 对齐。
+6. 再调用 `tools/list` 验证工具目录。
+
+这比仅确认 `wrangler deploy` exit 0 更可靠。
 
 ---
 
-# 11. ChatGPT Web 验收
+# 13. ChatGPT Web 验收脚本
 
-建议测试请求：
+建议真实请求：
 
 ```text
-列出当前可用技能，并告诉我这次读取对应的源码 commit。
+请告诉我你当前这个 Skill Router MCP 的服务版本、协议版本、Cloudflare 部署版本，以及你现在提供的全部 MCP 工具。
 ```
+
+预期模型可以通过 `get_server_info` / 标准工具目录回答。
 
 再测试：
 
 ```text
-搜索 Nitro API 相关技能，然后加载你刚才搜索到的同一个版本。
+搜索 Nitro API 相关技能，并加载你刚刚搜索到的同一个源码版本。
 ```
 
-预期 ChatGPT 能使用 discovery 返回的 snapshot 信息完成 pinned load。
+预期使用 `sourceCommitSha` pin。
 
 ---
 
-# 12. 生产验收标准
+# 14. 生产验收标准
 
-- [ ] ChatGPT 可连接 endpoint。
-- [ ] initialize/tools/list/tools/call 正常。
-- [ ] list/search 返回 sourceCommitSha。
-- [ ] latest load 正常。
-- [ ] pinned load 正常。
-- [ ] branch 高频更新不破坏单调用/跨调用预期版本语义。
-- [ ] 深层文件按需同 SHA 读取。
+- [ ] MCP modern `2026-07-28` 请求链工作。
+- [ ] 无 legacy initialize/session 前置依赖。
+- [ ] Server identity version = MCP application SemVer。
+- [ ] `tools/list` 返回完整当前工具目录。
+- [ ] `get_server_info` 返回 MCP/Worker/build/tool metadata。
+- [ ] `get_server_info.tools` 与标准 tool registry 同源。
+- [ ] list/search 返回 `sourceCommitSha`。
+- [ ] latest/pinned load 正常。
+- [ ] 高频更新不破坏 snapshot consistency。
+- [ ] Production release 后能明确确认线上实际版本。
 - [ ] 无 Secret 泄露。
-- [ ] 无 KV/R2/session state 必需依赖。
