@@ -2,18 +2,20 @@
 
 ## 文档定位
 
-本文档定义生产级 Remote MCP Server 的最终主架构。
+本文定义生产级 Remote MCP Server 最终主架构。
 
-目标：构建可被 ChatGPT Web Developer Mode 直接连接的 Cloudflare Remote MCP Server，并在用户高频更新 skills 的情况下优先保证 **freshness、版本一致性、部署简单性和可调试性**。
+真实工作负载：Skill 数量中等，但更新频率高。架构优先保证 **freshness、exact-commit 一致性、低维护成本和简单调试**，不提前为假设中的巨大规模建设数据库/多级缓存。
 
 核心原则：
 
 - GitHub `ai-plugins` 是唯一 Skill Source of Truth。
-- 每次 MCP 业务调用先把可变 `GITHUB_REF` 解析成不可变 Git commit SHA。
-- 同一次调用中的 registry、`SKILL.md`、references 等读取必须固定在同一个 commit SHA。
-- Cloudflare KV 和 R2 **不属于第一版必需架构**。
-- 如未来需要缓存，只缓存以 commit SHA 为版本边界的不可变结果。
-- MCP SDK 提供协议能力；Nitro v3 提供应用 Runtime；H3 是 Nitro 管理的 HTTP Runtime Layer。
+- 未 pin tool call 将 `GITHUB_REF` 解析为 exact Git commit SHA。
+- 单个 tool call 的 registry/Skill/关联文件读取固定在同一 SHA。
+- discovery 返回 `sourceCommitSha`；后续 `load_skill` 可选 pin 该 SHA。
+- `skill-registry.json` 是 minimal/low-churn discovery manifest。
+- references/templates/examples 不进入 Registry v1 文件索引。
+- KV/R2/D1/DO/vector DB 不属于第一版必需架构。
+- MCP SDK 管协议；Nitro v3 管 Runtime；H3 由 Nitro 管理。
 
 ---
 
@@ -22,242 +24,313 @@
 ```text
 ChatGPT Web Developer Mode
           |
-          v
-Remote MCP Client
+Remote MCP / Streamable HTTP
           |
-          v
-Streamable HTTP
-          |
-          v
 Cloudflare Worker
           |
-          v
 Nitro v3 Runtime
           |
-          v
-H3 Runtime Layer
-          |
-          v
 MCP TypeScript SDK / McpServer
           |
-          v
 Skill Router Tools
           |
-          v
 Skill Services
           |
-          v
 GitHub Skill Repository Adapter
           |
-          +---- resolve GITHUB_REF -> commit SHA
+          +---- latest: GITHUB_REF -> exact commit SHA
           |
-          +---- read ai-plugins/skill-registry.json @ commit SHA
+          +---- pinned: sourceCommitSha -> exact snapshot
           |
-          +---- read SKILL.md / references @ same commit SHA
+          +---- skill-registry.json @ SHA
+          |
+          +---- selected SKILL.md @ SHA
+          |
+          +---- related files on demand @ same SHA
           v
 ruan-cat/monorepo ai-plugins
 ```
 
-第一版没有下列强制依赖：
+第一版没有 mandatory：
 
 ```text
 Cloudflare KV
 Cloudflare R2
-Durable Objects
 D1
+Durable Objects
+vector database
+snapshot session store
 ```
-
-它们只能在真实指标证明有必要后作为后续优化评估。
 
 ---
 
-# 2. Source Snapshot 一致性模型
+# 2. SourceSnapshot 一致性模型
 
-`GITHUB_REF=dev` 是可变引用，不能直接作为一次复杂 MCP 调用中所有文件读取的最终版本依据。
-
-每次需要访问 Skill 数据时建立 request-scoped `SourceSnapshot`：
+## Latest Snapshot
 
 ```text
-GITHUB_REF = dev
-      |
-      v
-resolve ref
-      |
-      v
-commit SHA = abc123...
-      |
-      +--------------------+
-      |                    |
-      v                    v
-registry @ abc123     skill files @ abc123
+GITHUB_REF=dev
+  ↓
+resolve once
+  ↓
+commit SHA=A
+  ↓
+all reads in this call use A
 ```
 
-规则：
+## Pinned Snapshot
 
-1. 一次 tool call 只解析一次目标 ref。
-2. 得到 commit SHA 后，本次调用所有 GitHub Contents/Raw 读取均使用该 SHA。
-3. MCP 返回的 metadata 应带上 `sourceCommitSha`，用于调试、审计和复现。
-4. 不允许 registry 从 commit A 读取而 `SKILL.md` 从 branch 最新 commit B 读取。
+Discovery result 返回：
 
-这比依赖最终一致缓存来判断“最新”更符合高频更新 skills 的工作流。
+```text
+sourceCommitSha=A
+```
+
+后续：
+
+```text
+load_skill(skillId, sourceCommitSha=A)
+```
+
+直接在配置好的同一 repository 使用 A。
+
+这样：
+
+```text
+search @ A
+branch moves -> B
+pinned load -> A
+latest unpinned load -> B
+```
+
+不需要 server-side session/state。
 
 ---
 
-# 3. Skill Registry 的定位
+# 3. Skill Registry 定位
 
-推荐在仓库维护：
+仓库维护：
 
 ```text
 ai-plugins/skill-registry.json
 ```
 
-它是 **机器可发现索引**，不是独立数据库，也不是新的事实来源。
+它是机器发现索引，不是事实来源。
 
-Source of Truth 仍然是同一 Git commit 中的：
+Registry v1 仅保存：
 
 ```text
-ai-plugins/**/skills/**
+id
+plugin
+name
+description
+version
+entry
 ```
 
-Registry 用于降低 `list_skills` / `search_skills` 的目录遍历成本，并提供稳定的：
+不保存：
 
-- skill id
-- plugin/collection
-- name
-- description
-- metadata.version
-- entry path
-- 可选 references/files 索引
+```text
+references
+templates
+examples
+content copy
+sourceCommitSha
+cache metadata
+```
 
-重要：提交到 Git 的 registry **不要把其所在的当前 commit SHA 写入自身内容**。文件内容会参与 commit hash，写入自身 commit 会形成自引用问题。
-
-正确做法是：运行时解析 commit SHA，并把它与从该 SHA 读取的 registry 组合成 `SourceSnapshot`。
+原因：高频维护时深层文件变化很频繁，而 discovery/search 不需要它们；让 registry 保持小而稳定可以减少 diff/CI/生成成本。
 
 ---
 
-# 4. 缓存策略
+# 4. 高频维护数据流
 
-## 第一版
-
-不要求 Cloudflare KV、R2 或其他持久缓存。
-
-优先实现：
+发布侧：
 
 ```text
-GitHub Source of Truth
-+
-commit-SHA snapshot reads
+many Skill changes
+  ↓
+release-ai-plugins 完成全部版本/发布状态
+  ↓
+one deterministic registry generation
+  ↓
+one Git commit
 ```
 
-先验证：
+运行时：
 
-- ChatGPT Web MCP 链路
-- GitHub API 实际请求量
-- P50/P95 latency
-- rate limit 使用情况
+```text
+one tool call
+  ↓
+one SourceSnapshot
+  ↓
+one registry read
+  ↓
+selected Skill only
+```
 
-## 后续可选优化
+因此“更新频率高”不会转化为 Cloudflare 同步复杂度。
 
-如指标显示重复读取成为瓶颈，可以优先尝试不可变缓存：
+---
+
+# 5. 深层文件策略
+
+Cloud MCP 先读取 `SKILL.md @ SHA`。
+
+若 Skill 明确引用 reference/template/example：
+
+- 仅在实际需要时读取。
+- path 限制在已选 Skill 的允许范围。
+- 全部继续使用同一 SHA。
+- 不默认递归加载整个 Skill 目录。
+
+这既控制 GitHub 请求，也控制 ChatGPT context 大小。
+
+---
+
+# 6. 搜索模型
+
+中等 Skill 数量下：
+
+```text
+one registry
+  ↓
+in-memory matching on id/name/description/plugin
+```
+
+第一版不需要：
+
+- embedding。
+- vector DB。
+- 搜索数据库。
+- AI 自动 keywords/tags。
+
+只有真实查询样本证明简单搜索不足时再扩展权威 metadata。
+
+---
+
+# 7. 缓存策略
+
+## MVP
+
+无持久缓存依赖。
+
+## 未来
+
+只有指标证明重复 GitHub 读取成为瓶颈时，才评估 immutable commit-addressed cache：
 
 ```text
 registry:{commitSha}
 skill:{commitSha}:{skillId}
 ```
 
-缓存 key 必须包含 commit SHA。新 push 产生新 SHA，自然形成新缓存空间，不通过“覆盖同一个 mutable key”来传播最新内容。
+新 commit 自然使用新 key，不设计 mutable cache purge 系统。
 
-Cloudflare Cache API、KV、R2 的选择必须另行基于数据量、一致性要求和运维成本评估，不能成为第一版默认依赖。
+Release side 永远不感知 cache。
 
 ---
 
-# 5. 依赖边界
+# 8. 依赖边界
 
 ## Nitro v3
 
-负责：
+- Runtime abstraction/build/routes/Cloudflare adapter。
 
-- Runtime abstraction
-- build
-- routes
-- Cloudflare adapter
+## H3
 
-## H3 Runtime Layer
-
-由 Nitro 管理，不作为独立 Web Framework 管理。
+- Nitro-managed HTTP runtime layer，不独立 pin。
 
 ## MCP TypeScript SDK
 
-负责：
-
-- initialize
-- capability negotiation
-- tools/list
-- tools/call
-- Streamable HTTP MCP protocol lifecycle
+- initialize/capability/tools/Streamable HTTP protocol lifecycle。
 
 ## GitHub Repository Adapter
 
-负责：
+- 只读 credential。
+- ref -> SHA。
+- pinned exact SHA。
+- registry/Skill/related-file reads。
+- GitHub errors -> domain errors。
 
-- 使用只读 GitHub credential
-- 解析 ref 到 commit SHA
-- 读取 registry
-- 按精确 SHA 加载 skill 文件
-- 暴露 source/version metadata
-
-业务 Service 不直接处理 GitHub Token。
+只有这一层接触 GitHub Token。
 
 ---
 
-# 6. Skill Router 职责
+# 9. 轻量观测
+
+第一版只要求能够测量：
+
+```text
+skill count
+registry bytes
+GitHub requests/tool call
+ref resolve latency
+registry fetch latency
+selected Skill fetch latency
+tool P50/P95
+rate-limit/auth/errors
+```
+
+不要求额外 metrics database。
+
+这些数据决定未来是否需要 cache/search 升级。
+
+---
+
+# 10. 演进顺序
+
+```text
+Level 0
+Git exact commit + small registry + in-memory search
+
+Level 1
+request dedupe / conditional request / parser/search optimization
+
+Level 2
+immutable commit-addressed cache（仅真实指标需要）
+
+Level 3
+更复杂搜索/存储（仅真实规模/质量问题出现）
+```
+
+禁止跳级。
+
+---
+
+# 11. Skill Router 职责
 
 负责：
 
-- Skill Discovery
-- Skill Search
-- Skill Loading
-- Metadata
-- Version / source commit reporting
+- discovery/search/load。
+- metadata/version/source commit reporting。
+- latest/pinned SourceSnapshot。
+- 已选 Skill 关联文件按需读取。
 
 不负责：
 
-- GitHub 修改
-- Shell
-- Docker
-- CI
-- Cloudflare 存储同步任务
+- GitHub 写操作。
+- Shell/Docker/CI。
+- Cloudflare storage sync。
+- vector index。
+- conversation snapshot database。
 
 ---
 
-# 7. 最终形态
+# 12. 最终优先级
 
 ```text
-ChatGPT Web
- |
-Remote MCP
- |
-Streamable HTTP
- |
-Cloudflare Worker
- |
-Nitro v3 Runtime
- |
-MCP SDK
- |
-Skill Router
- |
-SourceSnapshot(commit SHA)
- |
-GitHub ai-plugins
+freshness / correctness
+>
+protocol compatibility
+>
+simple deployment/debugging
+>
+measured optimization
 ```
 
-架构优先级固定为：
+详细维护策略见：
 
 ```text
-freshness / consistency
->
-simple deployment and debugging
->
-measured caching optimization
+high-frequency-skill-churn-strategy.md
+../2026-8-12-release-ai-plugins-add-skill-registry-json-for-MCP/high-frequency-maintenance-and-growth-strategy.md
 ```
