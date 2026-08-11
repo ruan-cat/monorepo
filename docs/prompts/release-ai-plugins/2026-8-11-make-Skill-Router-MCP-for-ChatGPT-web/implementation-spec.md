@@ -2,175 +2,131 @@
 
 ## 文档定位
 
-本文档不是概念设计，而是提供给独立 AI Agent 或开发团队执行的生产实现规格。
+本文档用于指导独立 AI Agent 实现生产级 Remote MCP Server。
 
-目标：实现一个部署在 Cloudflare Workers 的 Remote MCP Server，使 ChatGPT Web Developer Mode 可以连接，并动态获取 `ai-plugins` 内维护的 skills 上下文。
+目标：
 
-实现时必须严格遵守：
+构建：
 
-- Nitro v3 负责应用层和 HTTP 服务抽象。
-- Wrangler 负责 Cloudflare 平台资源和部署。
-- MCP Handler 负责协议转换。
-- Skill Service 负责技能业务逻辑。
-- Cloudflare KV 负责边缘缓存数据。
+```text
+Cloudflare Worker
++
+Nitro v3
++
+MCP TypeScript SDK
++
+Skill Router
+```
 
-禁止混淆这些边界。
-
----
-
-# 1. 技术边界
-
-## 1.1 Nitro v3 职责
-
-`nitro.config.ts` 负责：
-
-- Nitro preset
-- runtime config
-- route rules
-- 构建配置
-- server runtime 行为
-
-不负责：
-
-- Worker KV 创建
-- Secret 管理
-- Cloudflare route
-- DNS
-
-
-## 1.2 Wrangler 职责
-
-`wrangler.toml` 负责：
-
-- Worker 名称
-- compatibility_date
-- KV binding
-- Secret 注入
-- 自定义域名
-- 部署入口
-
-不要将 wrangler 配置复制进 nitro.config.ts。
+使 ChatGPT Web Developer Mode 可以连接并动态获取 ai-plugins skills。
 
 ---
 
-# 2. 推荐目录结构
+# 1. 核心技术栈
+
+固定：
+
+|层|技术|
+|-|-|
+|Runtime|Cloudflare Workers|
+|Web Framework|Nitro v3 + H3|
+|MCP Protocol|@modelcontextprotocol/sdk|
+|Transport|Streamable HTTP|
+|Cache|Cloudflare KV / Cache API|
+
+禁止替换 MCP 协议层实现。
+
+---
+
+# 2. 项目结构
 
 ```text
 skill-router-mcp/
 
-├── nitro.config.ts
-├── wrangler.toml
-├── package.json
-│
 ├── server/
-│   ├── api/
-│   │   ├── mcp.post.ts
-│   │   └── health.get.ts
-│   │
-│   ├── services/
-│   │   ├── skill-router.ts
-│   │   ├── skill-registry.ts
-│   │   ├── skill-loader.ts
-│   │   └── github-source.ts
-│   │
-│   ├── repositories/
-│   │   └── skill-kv.ts
-│   │
-│   ├── schemas/
-│   │   └── mcp.ts
-│   │
-│   ├── types/
-│   │   └── skill.ts
-│   │
-│   └── utils/
-│       └── cache.ts
+│
+├── mcp/
+│   ├── server.ts
+│   └── tools/
+│       ├── search-skills.ts
+│       ├── load-skill.ts
+│       └── metadata.ts
+│
+├── services/
+│   └── skill-service.ts
+│
+├── repositories/
+│   ├── kv-registry.ts
+│   └── github-source.ts
+│
+└── api/
+    └── mcp.post.ts
 ```
 
 ---
 
-# 3. Handler 实施规则
+# 3. MCP 实现层
 
-文件：
+不要手写：
+
+- JSON-RPC
+- initialize
+- tools/list
+- tools/call
+
+必须使用 MCP SDK：
 
 ```text
-server/api/mcp.post.ts
+McpServer
+
++
+
+Streamable HTTP Transport
 ```
 
-只负责：
+---
 
-1. 接收 JSON-RPC
-2. 校验输入
-3. 调用 service
-4. 返回 MCP response
+# 4. 请求链路
+
+```text
+ChatGPT
+ |
+MCP Client
+ |
+Streamable HTTP
+ |
+Nitro Handler
+ |
+MCP SDK
+ |
+McpServer
+ |
+Tools
+ |
+Services
+```
+
+---
+
+# 5. Handler 职责
+
+`mcp.post.ts`：
+
+负责：
+
+- 接收请求。
+- 提供 runtime binding。
+- 调用 MCP adapter。
 
 禁止：
 
-- 调 GitHub
-- 访问 KV
-- 解析 SKILL.md
-- 编写搜索逻辑
+- GitHub API。
+- KV 查询。
+- Skill parsing。
 
 ---
 
-# 4. Service 分层
-
-调用链：
-
-```text
-MCP Handler
-    |
-    v
-Skill Router Service
-    |
-    +-- Registry Service
-    |
-    +-- Loader Service
-    |
-    +-- Repository
-```
-
-业务逻辑必须位于 service 层。
-
----
-
-# 5. Nitro Handler 编写规范
-
-必须使用 Nitro/H3 风格：
-
-```ts
-export default defineEventHandler(async (event) => {
-  try {
-    // business call
-  } catch (error) {
-    // normalized error
-  }
-})
-```
-
-禁止创建传统 Node HTTP server。
-
----
-
-# 6. Cloudflare Runtime 约束
-
-禁止：
-
-- fs
-- child_process
-- process 常驻状态
-- listen()
-- 本地文件缓存
-
-允许：
-
-- fetch
-- KV
-- Cache API
-- Web Crypto
-
----
-
-# 7. MCP Tools
+# 6. Skill Tools
 
 必须实现：
 
@@ -180,65 +136,59 @@ export default defineEventHandler(async (event) => {
 
 ## search_skills
 
-输入 query，返回匹配技能。
+根据 query 匹配技能。
 
 ## load_skill
 
-返回：
-
-- metadata
-- SKILL.md
-- references 信息
+返回完整技能上下文。
 
 ---
 
-# 8. Skill Registry 数据流
+# 7. Cloudflare Runtime
+
+环境来源：
 
 ```text
-GitHub ai-plugins
+Worker bindings
         |
-        v
-Registry Builder
+Nitro runtime
         |
-        v
-Cloudflare KV
+Dependency Injection
         |
-        v
-Nitro Service
-        |
-        v
-ChatGPT MCP
+Repository Adapter
 ```
 
-Worker 请求阶段不扫描 GitHub。
+禁止：
+
+```text
+process.env
+```
 
 ---
 
-# 9. 文件生成顺序
+# 8. 实施顺序
 
-AI Agent 必须按顺序：
+AI Agent 必须：
 
-1. package.json
-2. nitro.config.ts
-3. wrangler.toml
-4. server/types
-5. server/schemas
-6. server/services
-7. server/api
-8. tests
+1. 初始化 Nitro Worker 项目。
+2. 配置 Wrangler。
+3. 接入 MCP SDK。
+4. 创建 McpServer。
+5. 注册 tools。
+6. 实现 Skill Service。
+7. 接入 KV Registry。
+8. 编写测试。
 
 ---
 
-# 10. Definition of Done
+# 9. Definition of Done
 
-必须满足：
+必须：
 
-- ChatGPT Web Developer Mode 可连接
-- MCP initialize 成功
-- tools/list 成功
-- tools/call 成功
-- Skill 可发现
-- Skill 可加载
-- Worker 可部署
-- 无 Node 专属 API
-- KV 正常工作
+- ChatGPT Web 可连接。
+- initialize 成功。
+- tools/list 成功。
+- tools/call 成功。
+- Skill 可搜索。
+- Skill 可加载。
+- Worker 可部署。
