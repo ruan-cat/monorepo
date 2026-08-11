@@ -4,7 +4,7 @@
 
 本目录是一套生产级 Remote MCP Server 实施规格，用于指导独立 AI Agent 完成 Cloudflare Worker + Nitro v3 + MCP TypeScript SDK + GitHub exact-commit Skill Router MCP Server。
 
-真实工作负载：**Skill 数量中等，但会高频修改、维护和新增。**因此设计重点是 freshness、可复现性、低维护成本和轻量增长，而不是提前堆叠存储/索引系统。
+真实工作负载：**Skill 数量中等，但会高频修改、维护和新增。**因此设计重点是 freshness、可复现性、低维护成本、可测试性和轻量增长，而不是提前堆叠存储/索引系统。
 
 ---
 
@@ -20,6 +20,7 @@
 - discovery result 返回 `sourceCommitSha`，允许 `load_skill` 可选 pin 同一 snapshot。
 - 第一版不要求 KV、R2、D1、Durable Objects、vector database。
 - `ai-plugins/skill-registry.json` 是低 churn discovery index。
+- 开发期使用分层 Vitest；生产构建使用 Cloudflare Worker production-build harness 与 preview/prod smoke 验证。
 
 ---
 
@@ -40,6 +41,8 @@ skill-registry-schema.md
         ↓
 release-ai-plugins-registry-integration.md
         ↓
+runtime-dependency-version-policy.md
+        ↓
 nitro-v3-cloudflare-integration.md
         ↓
 runtime-binding-contract.md
@@ -47,6 +50,10 @@ runtime-binding-contract.md
 mcp-server-framework-selection.md
         ↓
 mcp-protocol-design.md
+        ↓
+vitest-development-testing-strategy.md
+        ↓
+cloudflare-worker-production-testing-strategy.md
         ↓
 testing-plan.md
 ```
@@ -127,7 +134,43 @@ load_skill(skillId, sourceCommitSha=A)
 
 ---
 
-# 4. 文档索引
+# 4. 测试技术决策
+
+仓库根当前仍使用 Vitest 3.x；Cloudflare 当前 Workers Vitest integration 要求 Vitest 4.1+。
+
+因此：
+
+```text
+monorepo root
+  -> 保持现有 Vitest 3.x
+
+Skill Router MCP package
+  -> package-local Vitest 4.1+
+```
+
+测试分层：
+
+```text
+Node Unit Vitest
+  ↓
+Workers Vitest / workerd
+  ↓
+Nitro production build
+  ↓
+Wrangler createTestHarness integration
+  ↓
+Cloudflare Preview/Staging smoke
+  ↓
+Production read-only smoke
+  ↓
+ChatGPT Web acceptance
+```
+
+不要为了一个 MCP package 强制迁移全仓 Vitest。
+
+---
+
+# 5. 文档索引
 
 ## 架构 / 实施
 
@@ -156,17 +199,22 @@ load_skill(skillId, sourceCommitSha=A)
 - `cloudflare-worker-deployment.md`
 - `cloudflare-ai-gateway-strategy.md`
 
-## 质量 / 交接
+## 测试 / 质量
 
-- `testing-plan.md`
+- `vitest-development-testing-strategy.md`：package-local Vitest 4.x、Node unit、workerd runtime、MCP SDK contract。
+- `cloudflare-worker-production-testing-strategy.md`：production build、`createTestHarness()`、preview/staging、production smoke。
+- `testing-plan.md`：统一测试矩阵和 CI/deploy gates。
 - `security-model.md`
+
+## 部署 / 交接
+
 - `deployment-runbook.md`
 - `agent-execution-guide.md`
 - `agent-handoff-checklist.md`
 
 ---
 
-# 5. 最终架构
+# 6. 最终架构
 
 ```text
 ChatGPT Web
@@ -191,7 +239,7 @@ SourceSnapshot(commit SHA)
 
 ---
 
-# 6. 高频更新下的轻量维护模型
+# 7. 高频更新下的轻量维护模型
 
 发布侧：
 
@@ -211,6 +259,15 @@ one tool call
  -> selected Skill only
 ```
 
+测试侧：
+
+```text
+fast unit locally
+ -> Worker runtime locally
+ -> production build locally
+ -> only small remote smoke
+```
+
 这意味着：
 
 - 高频 Skill 更新不要求 Worker redeploy。
@@ -218,12 +275,13 @@ one tool call
 - 不需要 per-Skill cache purge。
 - 不需要增量 registry DB。
 - 不需要 vector search。
+- 不需要每次开发修改都触发远程 Cloudflare 测试。
 
-只有真实性能数据证明简单方案成为瓶颈时才升级。
+只有真实性能/可靠性数据证明简单方案成为瓶颈时才升级。
 
 ---
 
-# 7. 为什么第一版不使用 KV / R2
+# 8. 为什么第一版不使用 KV / R2
 
 对高频更新，第二套存储会增加同步/调试/失效管理成本。
 
@@ -237,7 +295,7 @@ new push -> new HEAD -> new unpinned call sees new commit
 
 ---
 
-# 8. 服务职责
+# 9. 服务职责
 
 负责：
 
@@ -256,7 +314,7 @@ new push -> new HEAD -> new unpinned call sees new commit
 
 ---
 
-# 9. Definition of Done
+# 10. Definition of Done
 
 ## MCP
 
@@ -272,6 +330,22 @@ new push -> new HEAD -> new unpinned call sees new commit
 - [ ] 多 Skill 高频发布只集中生成一次 registry。
 - [ ] 新 unpinned call 可看到最新 HEAD。
 - [ ] pinned load 可复现 discovery snapshot。
+
+## Dev Tests
+
+- [ ] MCP package 使用独立 Vitest 4.1+ 兼容测试栈。
+- [ ] Node unit tests 完整。
+- [ ] Workers Vitest / workerd runtime tests 完整。
+- [ ] MCP SDK client/server contract tests 完整。
+- [ ] 不强制升级 monorepo root Vitest 3.x。
+
+## Production Tests
+
+- [ ] Nitro Cloudflare production build 有 gate。
+- [ ] Wrangler `createTestHarness()` 集成测试完整。
+- [ ] Cloudflare Preview/Staging 只读 smoke 完整。
+- [ ] Production post-deploy smoke 完整。
+- [ ] 高频 `dev` 更新下使用 snapshot consistency，避免 flaky HEAD 断言。
 
 ## Runtime
 
