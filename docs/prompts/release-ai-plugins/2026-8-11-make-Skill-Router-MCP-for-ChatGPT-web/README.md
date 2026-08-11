@@ -2,11 +2,11 @@
 
 ## 文档定位
 
-本文档集合不是普通架构说明，而是一套提供给独立 AI Agent 执行的生产级 MCP Server 实施规格。
+本文档集合不是普通架构说明，而是一套提供给独立 AI Agent 执行的生产级 Remote MCP Server 实施规格。
 
 目标：
 
-> 让一个没有历史上下文的 AI Agent，仅依靠本目录中的文档，即可完成 Cloudflare Worker + Nitro v3 + MCP Skill Router Server 的设计、开发、测试和部署。
+> 让一个没有历史上下文的 AI Agent，仅依靠本目录中的文档，即可完成 Cloudflare Worker + Nitro v3 + MCP TypeScript SDK + Skill Router MCP Server 的设计、开发、测试和部署。
 
 ---
 
@@ -18,7 +18,9 @@
 
 - 将 `https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins` 中维护的 skills 暴露为 MCP Skill Provider。
 - 使用 Cloudflare Worker 提供全球 HTTPS Serverless MCP 服务。
-- 使用 Nitro v3 + H3 编写接口层。
+- 使用 Nitro v3 + H3 作为 Web Runtime。
+- 使用 MCP TypeScript SDK 实现 MCP 协议层。
+- 使用 Streamable HTTP 作为 Remote MCP Transport。
 - 使用 GitHub 作为 Skill Source of Truth。
 - 使用 Cloudflare KV / Cache API 支撑高性能读取。
 - 让 ChatGPT Web 可以动态发现、搜索、加载 skills 上下文。
@@ -40,6 +42,8 @@ implementation-spec.md
         ↓
 nitro-v3-cloudflare-integration.md
         ↓
+mcp-server-framework-selection.md
+        ↓
 mcp-protocol-design.md
         ↓
 testing-plan.md
@@ -55,6 +59,46 @@ testing-plan.md
 
 ---
 
+# 核心技术决策
+
+## MCP Framework
+
+固定使用：
+
+```text
+@modelcontextprotocol/sdk
+```
+
+禁止：
+
+- 手写 JSON-RPC 协议层
+- 自定义 MCP transport
+- 将 MCP 实现为普通 REST API
+
+---
+
+## Remote Transport
+
+固定使用：
+
+```text
+Streamable HTTP
+```
+
+目标：
+
+```text
+ChatGPT Web
+        ↓
+Remote MCP Client
+        ↓
+Streamable HTTP
+        ↓
+McpServer
+```
+
+---
+
 # 文档索引
 
 ## 架构设计
@@ -64,13 +108,15 @@ testing-plan.md
 
 ## MCP 协议
 
-- `mcp-protocol-design.md`：MCP JSON-RPC、tools、resources 设计
+- `mcp-server-framework-selection.md`：MCP 框架选型
+- `mcp-protocol-design.md`：MCP SDK、transport、tools 设计
 - `mcp-client-validation-guide.md`：客户端连接验收
 
 ## Runtime 实现
 
 - `nitro-v3-development-guide.md`：Nitro v3 + H3 开发规范
 - `nitro-v3-cloudflare-integration.md`：Nitro 与 Cloudflare Worker 边界规范
+- `runtime-binding-contract.md`：Cloudflare runtime binding 契约
 - `cloudflare-worker-deployment.md`：Cloudflare Worker 部署规范
 
 ## Skill 系统
@@ -91,7 +137,7 @@ testing-plan.md
 
 ---
 
-# 核心架构
+# 最终架构
 
 ```text
 ChatGPT Web Developer Mode
@@ -100,18 +146,31 @@ ChatGPT Web Developer Mode
 Remote MCP Client
           |
           v
+Streamable HTTP
+          |
+          v
 Cloudflare Worker
           |
           v
-Nitro v3 MCP Server
+Nitro v3 + H3
           |
-   ---------------------
-   |                   |
-   v                   v
-Skill Registry      Cache Layer
-   |                   |
-   v                   v
-GitHub ai-plugins   Cloudflare KV
+          v
+MCP TypeScript SDK
+          |
+          v
+McpServer
+          |
+          v
+Skill Router Tools
+          |
+          v
+Skill Services
+          |
+          v
+Registry Repository
+          |
+          v
+Cloudflare KV / GitHub ai-plugins
 ```
 
 ---
@@ -145,9 +204,10 @@ Skill Router MCP Server 只负责技能能力管理。
 ## MCP
 
 - [ ] ChatGPT Web Developer Mode 可以添加 MCP
-- [ ] initialize 成功
+- [ ] MCP initialize 成功
 - [ ] tools/list 成功
 - [ ] tools/call 成功
+- [ ] MCP SDK transport 正常工作
 
 ## Skill
 
@@ -159,6 +219,7 @@ Skill Router MCP Server 只负责技能能力管理。
 ## Runtime
 
 - [ ] Cloudflare Worker 部署成功
+- [ ] Nitro v3 runtime 正常
 - [ ] 无 Node 专属 API
 - [ ] 无本地状态依赖
 
