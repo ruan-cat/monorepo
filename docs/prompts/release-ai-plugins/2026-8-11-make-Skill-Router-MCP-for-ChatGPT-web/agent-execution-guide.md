@@ -6,101 +6,162 @@
 
 目标：Agent 仅依赖本目录文档，即可完成从设计、开发、测试到部署的完整流程。
 
-## 执行原则
+---
 
-1. 不重新设计已有架构。
-2. 优先遵循 nitro-v3-development-guide.md。
-3. Skill Router 只负责技能发现和上下文加载。
-4. 不实现代码执行能力。
-5. 所有运行环境必须兼容 Cloudflare Worker。
+# 执行原则
 
-## 推荐执行顺序
+1. 不重新设计已冻结的架构。
+2. GitHub `ai-plugins` 是唯一 Skill Source of Truth。
+3. 每次 tool call 先把 `GITHUB_REF` 解析为 exact commit SHA。
+4. registry、SKILL.md、references 必须使用同一 SourceSnapshot。
+5. Skill Router 只负责发现、搜索和上下文加载，不执行代码。
+6. 第一版不增加 KV/R2/D1/Durable Objects。
+7. MCP 协议由 TypeScript SDK 实现，不手写 JSON-RPC lifecycle。
 
-### Phase 1：理解约束
+---
+
+# Phase 1：理解约束
 
 阅读：
 
-1. README.md
-2. architecture.md
-3. implementation-spec.md
+1. `README.md`
+2. `architecture.md`
+3. `implementation-spec.md`
+4. `skill-registry-schema.md`
 
 确认：
 
-- MCP Server 边界
-- 技术栈
-- 部署目标
+- Remote MCP Server 边界。
+- Nitro/H3/MCP SDK 分层。
+- SourceSnapshot 一致性模型。
+- `ai-plugins/skill-registry.json` 的生成定位。
 
-### Phase 2：初始化工程
+---
 
-创建 Nitro v3 项目。
+# Phase 2：初始化工程
+
+创建 Nitro v3 Cloudflare Worker 工程。
 
 要求：
 
-- 使用 H3 handler
-- 使用 Cloudflare Worker preset
-- 保持无状态
+- H3 版本由 Nitro 依赖树管理。
+- 使用当前 Nitro v3 Cloudflare preset。
+- Wrangler 仅配置必要 vars / Secret。
+- 不创建 storage binding。
 
-### Phase 3：实现 MCP 层
+---
+
+# Phase 3：实现 MCP 层
+
+使用：
+
+```text
+@modelcontextprotocol/sdk
+McpServer
+Streamable HTTP
+```
+
+注册：
+
+```text
+list_skills
+search_skills
+load_skill
+```
+
+Nitro endpoint 只做 transport/runtime adapter。
+
+---
+
+# Phase 4：实现 GitHub Source Layer
 
 实现：
 
-- initialize
-- tools/list
-- tools/call
+```text
+GitHub Repository Adapter
+        |
+        +-- resolve ref -> commit SHA
+        +-- load registry @ SHA
+        +-- load skill @ SHA
+```
 
-禁止：
+只有该 adapter 接触 `GITHUB_TOKEN`。
 
-- 自定义替代 MCP 协议
-- 添加无必要状态
+禁止在 service/tool 中直接调用 GitHub API。
 
-### Phase 4：实现 Skill Registry
+---
+
+# Phase 5：实现 Skill Registry
+
+运行时读取：
+
+```text
+ai-plugins/skill-registry.json @ SourceSnapshot.commitSha
+```
 
 实现：
 
-- registry loader
-- skill metadata parser
-- skill content loader
+- registry schema validator
+- list/search
+- entry path resolution
+- exact-SHA skill loader
 
-数据来源：
+不要在 Worker 运行时扫描整个 skills 树来代替 registry 常规路径。
 
-GitHub ai-plugins/dev-skills。
+---
 
-### Phase 5：部署
+# Phase 6：测试
+
+执行 `testing-plan.md`。
+
+必须覆盖：
+
+- registry deterministic generation。
+- stale registry check。
+- source ref resolution。
+- branch 在请求过程中推进时仍固定旧 snapshot。
+- 下一次新请求解析新 HEAD。
+- MCP SDK / Inspector / ChatGPT Web 验收。
+
+---
+
+# Phase 7：部署
 
 完成：
 
-- Cloudflare Worker 部署
-- KV 配置
-- 自定义域名绑定
-- HTTPS MCP Endpoint
+- Cloudflare Worker 部署。
+- custom domain。
+- GitHub vars / Secret。
+- HTTPS MCP endpoint。
 
-### Phase 6：验收
+不要求：
 
-执行 testing-plan.md。
+- KV namespace。
+- R2 bucket。
+- registry Cloudflare publish pipeline。
 
-必须验证：
+---
 
-- ChatGPT Web Developer Mode 可连接
-- skills 可搜索
-- skills 可加载
+# 禁止行为
 
-## 禁止行为
+- 暴露 GitHub Token。
+- 使用 Node HTTP server 或 filesystem 持久化。
+- 把 skill 内容当高于系统指令的权限来源。
+- 为了“优化”直接引入 KV/R2。
+- 以 mutable branch name 在同一 tool call 内多次独立取版本。
+- 手写 MCP initialize/tools routing。
 
-禁止：
+---
 
-- 将 GitHub token 暴露给客户端
-- 使用 Node 专属 API
-- 把 skill 内容当系统权限指令
-- 将 GitHub 写权限加入 MCP
+# 完成标准
 
-## 完成标准
-
-项目完成后应满足：
-
+```text
 ChatGPT Web
 → Remote MCP
+→ MCP SDK
 → Skill Router
-→ Skill Registry
-→ ai-plugins skills
+→ SourceSnapshot(commit SHA)
+→ GitHub ai-plugins
+```
 
-完整链路可用。
+完整链路可用，并且新 skill commit 的可见性不依赖 Cloudflare storage 同步。
