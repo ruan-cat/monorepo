@@ -1,5 +1,12 @@
 # @ruan-cat/vitepress-preset-config 更新日志
 
+## 3.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`d0de2f5`](https://github.com/ruan-cat/monorepo/commit/d0de2f59d0c9e4f9c27e90656abc8abba8ce0e88)]:
+  - @ruan-cat/utils@4.25.3
+
 ## 3.2.2
 
 ### Patch Changes
