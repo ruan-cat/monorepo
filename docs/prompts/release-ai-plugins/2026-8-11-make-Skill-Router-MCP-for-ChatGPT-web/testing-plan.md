@@ -9,71 +9,53 @@ Cloudflare Workers
 +
 Nitro v3
 +
-MCP TypeScript SDK v2
+OpenAI-current @modelcontextprotocol/sdk
 +
-MCP 2026-07-28
-+
-Streamable HTTP
+McpServer / Streamable HTTP
 +
 GitHub exact-commit Skill Source
 +
-Cloudflare versioned deployment
+Cloudflare versioned production deployment
 ```
 
-能够在 Skill 高频更新和 MCP Runtime 长期发版中保持：freshness、snapshot consistency、版本可查询、部署可验证、回滚可诊断。
+同时证明高频 Skill 更新、MCP Runtime 发版和 ChatGPT Tool Metadata 更新三个 freshness domain 都正确。
 
 ---
 
-# 2. 权威测试分层
+# 2. 测试分层
 
 ```text
-A. Pure Node Unit (Vitest 4.x)
-        ↓
-B. Workers Vitest / workerd Runtime
-        ↓
-C. MCP v2 Client/Server Contract
-        ↓
-D. Nitro Production Build + createTestHarness
-        ↓
-E. Cloudflare Preview / Staging Smoke
-        ↓
-F. Production Read-only Smoke
-        ↓
-G. ChatGPT Web Acceptance
+A. Pure Node Unit
+B. GitHub Adapter Fake/Mock
+C. Workers Vitest / workerd
+D. MCP SDK Client / Inspector-compatible Contract
+E. Nitro Production Build + createTestHarness
+F. Cloudflare Preview / Staging
+G. Production Read-only Smoke
+H. ChatGPT Web Developer Mode Acceptance
 ```
-
-根 Vitest 3.x 不因 MCP 被强制升级。
 
 ---
 
 # 3. A：Pure Node Unit
 
+使用 MCP package-local Vitest 4.x。
+
 覆盖：
 
-## Registry
+- Registry v1 validator。
+- in-memory search。
+- SourceSnapshot latest/pin。
+- toolDefinitions。
+- `get_server_info` pure assembly。
+- SemVer/version metadata mapping。
+- domain errors。
 
-- schemaVersion。
-- required fields。
-- duplicate id。
-- low-churn v1 schema。
-- unsupported schema。
+---
 
-## Search
+# 4. Tool Definitions Contract
 
-- id/name/description/plugin matching。
-- deterministic ranking。
-- no match。
-- 不读取所有 Skill 正文。
-
-## SourceSnapshot
-
-- latest ref -> exact SHA。
-- pin SHA 不重新 resolve branch。
-- downstream 只使用 exact SHA。
-
-## Tool Definitions
-
-统一：
+当前：
 
 ```text
 get_server_info
@@ -82,22 +64,36 @@ search_skills
 load_skill
 ```
 
-测试 `toolDefinitions` 是标准 tool registration、`tools/list` expected catalog 和 `get_server_info.tools` 的共同来源。
+统一 `toolDefinitions` 是：
 
-## Server Version
+- SDK tool registration。
+- expected tools/list catalog。
+- `get_server_info.tools`。
+- docs/acceptance expectation。
 
-- package.json version 是 MCP app SemVer 唯一来源。
-- server identity version = package version。
-- `get_server_info.server.version` = package version。
-- protocol revision = `2026-07-28`。
+的单一 source。
+
+自动测试防止 tool catalog 漂移。
 
 ---
 
-# 4. GitHub Repository Adapter Unit
+# 5. Server Version Contract
 
-普通单元测试不打真实 GitHub。
+必须：
 
-覆盖：
+```text
+McpServer server version
+== package.json.version
+== get_server_info.server.version
+```
+
+Worker Version ID、build Git SHA、Skill sourceCommitSha 不参与该等式。
+
+---
+
+# 6. B：GitHub Repository Adapter
+
+不打真实 GitHub：
 
 ```text
 resolve dev -> A
@@ -107,203 +103,176 @@ related file @ A
 pinned A
 ```
 
-断言：
+覆盖：
 
-- snapshot 后不再使用 mutable ref 读正文。
-- pinned load 不 resolve branch。
-- 401/403/404/rate-limit/upstream error 正确映射。
-- Token 不进 error/log/result。
+- pinned 不 resolve branch。
+- snapshot 后 downstream 不使用 mutable ref。
+- 401/403/404/rate-limit/upstream errors。
+- Token 不进 result/log/error。
 
 ---
 
-# 5. B：Workers Vitest / workerd
+# 7. Registry Determinism / Low Churn
 
-使用 package-local Vitest 4.1+ + `@cloudflare/vitest-pool-workers`。
+release-side PowerShell 负责跨 PS5.1/pwsh7 bytes determinism。
 
-覆盖：
+consumer-side Vitest 验证：
 
-- Nitro Worker runtime adapter。
-- Web Request/Response。
-- public vars / Secret boundary。
-- `CF_VERSION_METADATA` binding contract。
-- MCP 2026-era request behavior。
-- 无 `Mcp-Session-Id` 前置依赖。
-- malformed protocol request safety。
-- 无 KV/R2 binding 仍可运行。
-
-不要再把 legacy `initialize` 作为 modern runtime 测试步骤。
+- schemaVersion。
+- required fields。
+- stable entry semantics。
+- deep files 不出现在 Registry v1。
+- unsupported schema 拒绝。
 
 ---
 
-# 6. C：MCP v2 Client/Server Contract
+# 8. C：Workers Vitest / workerd
 
-至少一组测试必须使用 v2 MCP Client 从协议外部访问 Streamable HTTP endpoint，而不是直接调 handler 函数。
-
-覆盖：
+使用 package-local：
 
 ```text
-modern protocol negotiation/serving
-server identity
-可选 server/discover
+Vitest 4.1+ compatible
+@cloudflare/vitest-pool-workers
+```
+
+覆盖：
+
+- Nitro Worker adapter。
+- Web Request/Response。
+- vars/Secret boundary。
+- `CF_VERSION_METADATA` binding。
+- Streamable HTTP。
+- initialization/protocol handling 能在 Worker runtime 工作。
+- malformed MCP request safety。
+- 无 KV/R2/D1/DO 也可运行。
+
+不要用 Node tests 代替 workerd compatibility。
+
+---
+
+# 9. D：MCP SDK Client Contract
+
+至少一组测试从 MCP client/transport 外部访问 `/mcp`：
+
+```text
+initialization
+server info/instructions
 tools/list
 get_server_info
 list_skills
 search_skills
 load_skill latest
 load_skill pinned
+invalid inputs/errors
 ```
 
-关键断言：
-
-- modern serverInfo 可读。
-- server version 与 package version 一致。
-- `tools/list` 返回完整 tool catalog。
-- `get_server_info.tools` 与标准 catalog 同源。
+SDK/client版本必须与 production compatibility profile 对齐。
 
 ---
 
-# 7. Registry Determinism / Low Churn
-
-相同 working tree：
-
-```text
-bytes(output1) == bytes(output2)
-```
-
-验证：
-
-- stable sort/property order。
-- UTF-8/LF/final newline。
-- 无 timestamp/random/absolute path/current commit SHA。
-- v1 不枚举 references/templates/examples。
-- add/delete/rename/discovery metadata/version 变化正确。
-
-PowerShell generator 跨 PS5.1/pwsh7 的 byte-identical 测试在 release 专项包中执行。
-
----
-
-# 8. Snapshot Consistency
+# 10. Snapshot Consistency
 
 ```text
 resolve dev -> A
-fake branch moves -> B
-继续当前 tool call
+branch fake moves -> B
+continue current call
 ```
 
-必须：
+预期：
 
 ```text
 registry @ A
-Skill @ A
+SKILL.md @ A
 ```
 
-下一次新的 unpinned call 可以 B。
+下一次 unpinned call 可以 B。
 
 ---
 
-# 9. Search -> Load Pin
+# 11. Search -> Load Pin
 
 ```text
-search @ A
-returns sourceCommitSha=A
-branch -> B
+search -> A
 load(pin=A) -> A
-load(no pin) -> B
+load(no pin) -> latest B
 ```
 
-无需 server-side MCP session/state store。
+无需 server-side snapshot store。
 
 ---
 
-# 10. 高频连续更新 Fixture
+# 12. 高频连续更新 Fixture
 
-用 deterministic fake commits：
+使用 deterministic A/B/C fixtures，不依赖真实 `dev` 在自动测试期间发生 push。
 
-```text
-A: 1.0.0
-B: 1.0.1
-C: 1.0.2
-```
-
-测试 latest/pinned semantics。
-
-自动化不依赖真实 `dev` 在测试期间被人 push。
+真实线上测试只断言 snapshot consistency，不断言“返回 SHA 等于几秒前单独读到的 HEAD”。
 
 ---
 
-# 11. 深层文件按需读取
+# 13. 深层文件
 
-- load 先读取 SKILL.md。
-- 不默认递归整个 Skill 目录。
-- related path 不逃逸允许范围。
-- 所有读取同 SHA。
+- load 先读 SKILL.md。
+- related file 按需。
+- 同 SHA。
+- path 不逃逸 Skill 根。
+- 不默认递归整个 Skill tree。
 
 ---
 
-# 12. D：Production-build Integration
-
-使用：
+# 14. E：Production-build Integration
 
 ```text
 Nitro Cloudflare production build
 +
 Wrangler createTestHarness()
 +
-MCP v2 client
+MCP client
 ```
 
-GitHub upstream 通过 MSW/等价 mock 控制。
+GitHub upstream 通过 MSW/等价 mock。
 
 覆盖：
 
 ```text
 GET /health
-modern MCP identity
+initialization/server version
 tools/list
 get_server_info
 list/search/load latest+pin
 negative/error paths
 ```
 
-额外检查：
+额外断言：
 
-- build Git SHA 存在。
-- `CF_VERSION_METADATA` fixture/real harness binding 映射正确。
-- `/health` 与 `get_server_info` 的 deployment metadata 一致。
-
----
-
-# 13. MCP Application Release Version Tests
-
-任何 MCP Runtime release 必须增加自动 contract：
-
-```text
-serverInfo.version
-== package.json.version
-== get_server_info.server.version
-```
-
-Tool catalog：
-
-```text
-tools/list
-== toolDefinitions
-== get_server_info.tools
-```
-
-允许表达结构不同，但 tool name/schema/description 的权威来源必须一致。
+- buildGitSha。
+- Worker version metadata fixture/binding。
+- server version/tool catalog consistency。
 
 ---
 
-# 14. E：Cloudflare Preview / Staging
+# 15. Cloudflare Worker Version Tests
 
-上传 immutable Worker version 后，使用 version preview/staging 测试真实 Cloudflare runtime/network。
+`get_server_info` / health 必须能安全表达：
 
-最小 smoke：
+```text
+workerVersionId
+workerVersionTag
+workerVersionTimestamp
+buildGitSha
+mcpServerVersion
+```
+
+测试不得把 Worker version ID 当 MCP app version。
+
+---
+
+# 16. F：Preview / Staging
+
+版本上传后，使用 immutable Worker Preview URL 测：
 
 ```text
 health
-modern server identity
+initialization/serverInfo
 tools/list
 get_server_info
 search known Skill
@@ -312,103 +281,68 @@ load latest
 unknown Skill
 ```
 
-同时验证：
+精确确认：
 
-- Worker Version ID/tag/timestamp 是本次 upload 的版本。
-- MCP app SemVer 是待发布版本。
-- buildGitSha 是待发布 commit。
+```text
+candidate MCP SemVer
+candidate Worker Version ID/tag
+candidate buildGitSha
+```
 
 ---
 
-# 15. 高频 `dev` 下的线上断言
+# 17. G：Production Smoke
 
-禁止 flaky 断言：
-
-```text
-returned Skill SHA == 几秒前测试机查询到的 branch HEAD
-```
-
-正确：
-
-```text
-search returns A
-load(pin=A) returns A
-```
-
-MCP Server production version 则应与本次待 promote Worker version 精确匹配，因为 Worker version 是不可变部署单元。
-
----
-
-# 16. F：Production Post-deploy Smoke
-
-正式 promote 后只做少量只读 smoke：
+exact Worker version promote 后立即只读验证：
 
 ```text
 GET /health
-read server identity
+initialization/server info
 tools/list
 get_server_info
 search known Skill
 load pinned
 ```
 
-必须确认：
-
-```text
-expected MCP SemVer
-expected Worker Version ID/tag
-expected buildGitSha
-```
-
-已经在线。
-
-失败进入 rollback/diagnosis。
+生产 smoke 不做高并发/写入/长 soak。
 
 ---
 
-# 17. Rollback Test / Runbook Check
+# 18. ChatGPT Tool Metadata Release Test
 
-至少在 staging 或演练环境验证：
+Runtime-only internal patch：
 
 ```text
-bad version N
-  ↓
-wrangler rollback stable N-1
-  ↓
-get_server_info / health
-  ↓
-恢复 N-1 deployment metadata
+Worker deploy + production smoke
 ```
 
-Skill 内容问题不使用 Worker rollback；通过 Git revert/fix 产生新 Skill source commit。
+Tool contract change：
+
+```text
+Worker candidate
+  ↓
+Inspector
+  ↓
+Developer Mode refresh/rescan
+  ↓
+rerun evaluation/use cases
+  ↓
+Workspace review/publish when applicable
+```
+
+这是必须存在的人工/产品 gate，不能被 Cloudflare CI 伪装为已经完成。
 
 ---
 
-# 18. Production Security Smoke
+# 19. H：ChatGPT Web Acceptance
 
-- no Token/auth header。
-- invalid input 不暴露 stack。
-- source metadata 只包含安全 repo/ref/commit 信息。
-- `get_server_info` 不输出 Secret。
-- tool annotations 只读/非破坏性。
-
----
-
-# 19. G：ChatGPT Web Acceptance
-
-顺序：
+至少测试：
 
 ```text
-modern MCP technical client/Inspector
-  ↓
-ChatGPT Web Developer Mode
+“告诉我当前 MCP 服务版本、Worker 部署版本、build commit 和全部工具。”
 ```
 
-真实请求至少覆盖：
-
-```text
-“告诉我你的 MCP 服务版本、Cloudflare 部署版本和全部工具”
-```
+预期调用 `get_server_info`。
 
 以及：
 
@@ -416,68 +350,100 @@ ChatGPT Web Developer Mode
 search Skill -> sourceCommitSha -> pinned load
 ```
 
+如果 tool metadata/schema 刚变化，要先刷新 Developer Mode connection 后再验收。
+
 ---
 
-# 20. PR CI Gate
+# 20. OpenAI Compatibility Regression
 
-推荐：
+每次 MCP SDK major/minor 重要升级都必须重新核对 OpenAI 当前 `Build an MCP server` 文档。
+
+禁止测试套件“自己升级到上游新协议”而 ChatGPT production client 仍未确认支持。
+
+MCP upstream major 迁移需要：
+
+```text
+OpenAI docs support
+Inspector pass
+ChatGPT Developer Mode pass
+```
+
+---
+
+# 21. OpenAI Skills Import Extension Non-goal
+
+live Skill Router 测试不使用 submission-time Skills import 作为主路径。
+
+该扩展属于静态扫描/导入 snapshot，Skill 修改后需要重新 Scan Tools/submit，不符合高频 live Git source。
+
+---
+
+# 22. Rollback Test
+
+staging/演练至少验证一次 Worker rollback，然后：
+
+```text
+health
+initialization
+tools/list
+get_server_info
+```
+
+恢复稳定版本 metadata。
+
+Skill content bug 单独通过 Git revert/fix 验证，不使用 Worker rollback。
+
+---
+
+# 23. CI Gate
+
+PR/development：
 
 ```text
 typecheck
 Node unit
 Workers Vitest/workerd
-MCP v2 client contract
-Nitro Cloudflare build
+MCP SDK contract
+Nitro production build
 createTestHarness integration
 registry stale check
-release-side relevant checks
+release-side checks
 ```
 
-普通 PR CI 不需要 production Cloudflare Secret。
+普通 PR 不使用 production Cloudflare credentials。
 
 ---
 
-# 21. MCP Runtime Deploy Gate
+# 24. Runtime Deploy Gate
 
 ```text
-all local gates
+MCP SemVer bump
   ↓
-Worker version upload
+all automated gates
+  ↓
+versions upload
   ↓
 Preview/Staging smoke
   ↓
-exact version 100% promote
+exact version production promote
   ↓
 Production smoke
 ```
 
-Tool schema/protocol-visible 变化默认不做双版本 gradual split。
+Tool contract change 再增加 ChatGPT refresh/review gate。
 
 ---
 
-# 22. Performance Sanity
+# 25. Definition of Done
 
-测量：
-
-- registry bytes/Skill count。
-- GitHub requests/tool call。
-- ref resolve/fetch latency。
-- MCP P50/P95。
-- rate-limit/failure。
-
-不要把“高频维护”误当“高 QPS”而提前建设重型负载平台。
-
----
-
-# 23. Definition of Done
-
-- [ ] Node/workerd/MCP-client/production-build 分层完整。
-- [ ] modern MCP `2026-07-28` contract 有自动测试。
-- [ ] legacy initialize/session 不再作为新协议成功条件。
-- [ ] Server application SemVer contract 有测试。
-- [ ] Worker Version metadata / build SHA 有测试。
-- [ ] 标准 `tools/list` 与 `get_server_info.tools` 同源。
-- [ ] exact-commit latest/pin 测试完整。
-- [ ] Preview/Staging/Production smoke 有版本断言。
-- [ ] rollback 路径可验证。
-- [ ] ChatGPT Web 最终验收存在且不替代自动化测试。
+- [ ] Node/workerd/MCP client/production harness 分层。
+- [ ] SDK 与 OpenAI current compatibility profile 一致。
+- [ ] initialization/server identity 有测试。
+- [ ] MCP app SemVer consistency 有测试。
+- [ ] Worker version metadata/build SHA 有测试。
+- [ ] tools/list / get_server_info.tools 同源。
+- [ ] exact-commit latest/pin 有测试。
+- [ ] Preview/Production smoke 精确验证 candidate/active version。
+- [ ] Tool contract 更新有 ChatGPT refresh/rescan/evaluation gate。
+- [ ] Skill-only 更新不触发 Worker/tool metadata 发布。
+- [ ] rollback path 有验证。
