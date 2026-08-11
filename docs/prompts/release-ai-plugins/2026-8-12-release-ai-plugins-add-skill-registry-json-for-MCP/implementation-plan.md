@@ -2,7 +2,7 @@
 
 ## 1. 文档目的
 
-本文用于约束后续实际编码 Agent 的执行顺序。
+本文约束后续实际编码 Agent 的执行顺序。
 
 目标不是重新设计 `release-ai-plugins`，而是在保留现有发布安全模型的基础上增加：
 
@@ -14,65 +14,81 @@ release orchestration integration
 CI stale-registry gate
 ```
 
-最终服务于 `Skill-Router-MCP` 的 Git exact-commit snapshot 读取模式。
+并针对真实使用模式优化：**Skill 数量中等，但会高频批量修改、维护和新增。**
 
 ---
 
 # 2. 实施前必须确认的现状
 
-开始编码前必须读取真实文件，而不是根据本提示词猜测当前实现：
+开始编码前读取真实文件：
 
 ```text
 ai-plugins/common-tools/skills/release-ai-plugins/SKILL.md
 ai-plugins/common-tools/skills/release-ai-plugins/README.md
 ai-plugins/common-tools/skills/release-ai-plugins/references/release-contract.md
 ai-plugins/common-tools/skills/release-ai-plugins/scripts/release-ai-plugins.ps1
-```
-
-并搜索：
-
-```text
 .github/workflows/**
 ```
 
-确认仓库当前 CI 组织方式。
-
-若实际代码与本文档有冲突：
-
-1. 先判断是仓库后来演进还是本文遗漏。
-2. 优先保留现有安全约束。
-3. 不要机械覆盖新逻辑。
-4. 必要时先更新实施规格再编码。
+若真实代码后来演进：优先保留现有安全约束，不机械覆盖。
 
 ---
 
-# 3. Phase 1：冻结 Registry Contract
+# 3. Phase 0：理解高频维护策略
 
-先实现/确认：
+先读：
+
+```text
+high-frequency-maintenance-and-growth-strategy.md
+```
+
+必须理解并接受：
+
+- 中等 Skill 数量继续 full scan，不做增量 Registry DB。
+- 多 Skill release 只生成一次 registry。
+- Registry v1 不枚举 references/templates/examples。
+- 高频内容变化由 Skill version + Git commit 表达。
+- CI 只做轻量 stale gate。
+- schemaVersion 不随 Skill 高频更新变化。
+- 优化由真实指标触发，而不是预设复杂架构。
+
+---
+
+# 4. Phase 1：冻结 Registry Contract
+
+实现前确认：
 
 ```text
 skill-registry-contract.md
 ```
 
-必须先确定：
+第一版字段固定为：
+
+```text
+id
+plugin
+name
+description
+version
+entry
+```
+
+并确定：
 
 - roots。
-- id 来源。
-- name/description/version 来源。
-- plugin 字段。
+- id 来源/唯一性。
+- plugin 派生。
+- frontmatter 字段来源。
 - entry path。
-- references 枚举规则。
-- 排序规则。
-- JSON 格式。
+- 排序和 JSON canonical 格式。
 - schemaVersion。
-- duplicate id 行为。
-- 缺失 metadata 行为。
+- duplicate/missing metadata 行为。
 
-在 schema 未冻结前不要写 generator。
+不要在 schema 未冻结前写 generator。
 
 ---
 
-# 4. Phase 2：实现独立 Generator
+# 5. Phase 2：实现独立 Generator
 
 新增：
 
@@ -80,93 +96,79 @@ skill-registry-contract.md
 ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1
 ```
 
-职责仅限：
+职责：
 
 ```text
 scan -> parse -> validate -> normalize -> serialize -> compare/write
 ```
 
-不负责：
-
-- bump version。
-- 修改 marketplace。
-- 修改 CHANGELOG。
-- Git commit。
-- Cloudflare publish。
-
 第一阶段要求：
 
-- Windows PowerShell 5.1 兼容。
-- 不依赖第三方 module。
-- 能独立定位仓库根。
+- Windows PowerShell 5.1 / PowerShell 7。
+- 无第三方 module。
+- 自动定位 repo root。
+- full scan 两个 Skill roots。
 - deterministic output。
-- Check 模式无写入。
-- Apply 模式只写 `ai-plugins/skill-registry.json`。
+- Check 无写入。
+- Apply 只写 registry。
+- 不扫描/枚举 references/templates/examples。
 
 ---
 
-# 5. Phase 3：生成首份 Registry
+# 6. Phase 3：生成首份 Registry
 
-执行 generator，创建：
+由 generator 创建：
 
 ```text
 ai-plugins/skill-registry.json
 ```
 
-然后必须验证：
+验证：
 
 - JSON 可解析。
-- 所有两个 roots 下的 Skill 都被发现。
+- 两个 roots 下 Skill 全部被发现。
 - skill 数量一致。
 - id 唯一。
-- version 与 `SKILL.md` frontmatter 一致。
-- entry path 存在。
-- references path 存在。
-- 重复执行没有 diff。
+- version 与 frontmatter 一致。
+- entry 存在。
+- 重复执行无 diff。
 
-不要人工手写首份 registry。
+禁止人工手写首份 registry。
 
 ---
 
-# 6. Phase 4：改造 `release-ai-plugins.ps1`
+# 7. Phase 4：改造 `release-ai-plugins.ps1`
 
-主脚本继续负责 orchestration。
-
-推荐调用点：
+推荐数据依赖顺序：
 
 ```text
-changed skill discovery
+changed Skill discovery
   ↓
-metadata.version bump
+完成所有 changed Skill metadata.version bump
   ↓
 plugin / marketplace / changelog / README work
   ↓
-registry generator
+run generator -Apply ONCE
   ↓
-registry validation
+run generator -Check ONCE
+  ↓
+existing release validation
   ↓
 git diff --check
-  ↓
-final validation
 ```
-
-关键原则：
-
-> Registry 必须在所有 Skill metadata.version 更新完成后生成。
 
 主脚本需要：
 
-- 将 `ai-plugins/skill-registry.json` 纳入明确写入白名单。
-- DryRun 时不得修改 registry。
-- Apply 时调用 generator Apply。
-- 最终验收再次调用 generator Check。
-- generator failure 必须阻断 release。
+- registry 加入明确写入白名单。
+- DryRun 不修改 registry，只报告 Apply 将 regenerate。
+- Apply 在所有 Skill 修改完成后集中调用 generator。
+- generator failure 阻断 release。
 
-不要复制 generator 的完整实现到主脚本中。
+禁止在每个 changed Skill 循环中重新生成 registry。
 
 ---
 
-# 7. Phase 5：更新 Skill 自身文档契约
+# 8. Phase 5：更新 Skill 自身文档契约
 
 更新：
 
@@ -176,93 +178,79 @@ README.md
 references/release-contract.md
 ```
 
-必须明确：
+明确：
 
-- registry 已成为发布一致性产物。
-- generator 是独立工具。
-- 主 release 入口仍是 `release-ai-plugins.ps1`。
-- registry 生成顺序。
-- registry stale 是阻断错误。
-- registry 不包含 current commit SHA。
+- registry 是发布一致性产物。
+- generator 独立可调用。
+- release 主入口仍是 `release-ai-plugins.ps1`。
+- registry stale 为阻断错误。
+- v1 是低 churn discovery manifest。
+- 不包含 current commit SHA。
+- 不枚举深层附属文件。
 - 不执行 Cloudflare storage publish。
 
-Skill 的 `metadata.version` 应按现有 release 规则合理升级，因为本次属于真实行为扩展。
+本次真实行为扩展必须按现有 SemVer 规则升级 `release-ai-plugins` 自身 version。
 
 ---
 
-# 8. Phase 6：处理删除与重命名
+# 9. Phase 6：新增 / 删除 / 重命名
 
-这是最容易遗漏的测试面。
-
-Generator 必须基于**当前 working tree 全量扫描**，不能只处理 `$SkillList`。
+Generator 必须基于**当前 working tree 全量扫描**。
 
 因此：
 
 ```text
-删除目录 -> registry 自动删除该 id
-重命名目录 -> old id 消失 + new id 出现
+新增目录 -> 新 entry
+删除目录 -> old entry 消失
+重命名 -> old id 消失 + new id 出现
 ```
 
-主 release script 若目前无法优雅表达删除/重命名，不允许 generator 因此保留不存在的 Skill。
+不要让 generator 依赖 `$SkillList` 或旧 registry。
 
-应单独决定：
-
-- 是否新增 `-RemovedSkill` / `-RenamedSkill` 等显式参数；或
-- 保持主脚本参数不变，但让最终 registry check 始终扫描真实树。
-
-优先最小化 CLI 表面积，不要为 registry 过度增加参数。
+主 release CLI 如果对 delete/rename 表达不够优雅，优先保留简单参数面；先让 full scan + CI 正确工作，不提前设计复杂事件参数。
 
 ---
 
-# 9. Phase 7：CI Stale Gate
+# 10. Phase 7：CI Stale Gate
 
-新增或扩展 CI：
+新增/扩展 CI：
 
 ```text
 run generate-skill-registry.ps1 -Check
 ```
 
-至少在以下变化时触发：
-
-```text
-ai-plugins/common-tools/skills/**
-ai-plugins/dev-skills/skills/**
-ai-plugins/skill-registry.json
-.../generate-skill-registry.ps1
-```
-
 CI 必须：
 
 - 只读。
+- path-scoped。
 - 无仓库写权限需求。
-- stale -> 非零退出。
-- 输出可操作的错误信息和修复命令。
+- stale -> non-zero。
+- 输出修复命令。
 
-禁止 CI 自动 commit 生成结果。
+禁止 CI 自动 commit registry。
 
 ---
 
-# 10. Phase 8：回归 release 流程
+# 11. Phase 8：回归 release 流程
 
-必须重新验证现有能力没有回退：
+必须确认：
 
-- DryRun 仍然无写入。
+- DryRun 仍零写入。
 - Apply 才写文件。
-- six plugin manifests 正常。
-- three marketplace 校验正常。
+- 六个 plugin manifest 正常。
+- 三个平台 marketplace 正常。
 - CHANGELOG 正常。
 - README new-skill gate 正常。
-- skill metadata.version 只升级真实修改 Skill。
+- 未修改 Skill 不误 bump。
+- 多 Skill batch release 正常。
+- registry 只集中生成一次。
 - `git diff --check` 正常。
-- Codex smoke-test 契约不受影响。
-
-Registry 是新增职责，不应该破坏现有发布功能。
 
 ---
 
-# 11. Phase 9：验证 Cloud MCP Contract
+# 12. Phase 9：验证 Cloud MCP Contract
 
-不要求在本次 release skill 改造中部署 Worker，但要通过静态/集成测试证明输出满足 MCP 使用方式：
+证明生成结果满足：
 
 ```text
 commit abc123
@@ -271,62 +259,69 @@ commit abc123
   +-- ai-plugins/.../SKILL.md
 ```
 
-MCP 只需要 exact SHA 即可：
+MCP 可：
 
 ```text
 read registry @ abc123
-read skill @ abc123
+read selected skill @ abc123
 ```
 
-Registry 不依赖 branch mutable state，也不依赖 Cloudflare storage。
+Discovery result 的 `sourceCommitSha` 还可以作为后续 `load_skill` 的可选 snapshot pin，从而在高频 push 期间保持 search->load 复现性。
+
+Registry 不依赖 mutable branch state，也不依赖 Cloudflare storage。
 
 ---
 
-# 12. 提交前检查顺序
+# 13. 提交前检查顺序
 
 ```text
 1. generator Check
 2. release-ai-plugins DryRun
-3. release-ai-plugins Apply（在测试分支/预期工作树）
+3. Apply（预期测试工作树）
 4. generator Check
-5. registry deterministic regeneration
-6. JSON parse / path validation
+5. deterministic regeneration
+6. JSON / entry validation
 7. existing release validation
 8. git diff --check
 9. CI-equivalent registry check
-10. inspect git diff for whitelist violations
+10. inspect whitelist + registry diff noise
 ```
+
+特别检查：高频 reference/template 变化不应因为文件枚举导致 registry 大面积 diff。
 
 ---
 
-# 13. 禁止实现方式
+# 14. 禁止实现方式
 
 禁止：
 
-- 每次生成写 `generatedAt`。
+- `generatedAt`。
 - Registry 写当前 commit SHA。
-- 使用 GitHub Action 自动回写 registry。
-- Generator 调 GitHub API 获取 Skill 数据。
+- GitHub Action 自动回写。
+- Generator 调 GitHub API。
 - Generator 从 marketplace 反推 skills。
-- 只增量修改 JSON 而不全量重建。
-- 让 Cloud MCP 成为 generator 的依赖。
-- 在 release 脚本中增加 KV/R2 上传。
-- 为了 JSON/YAML 解析随意加入新的大型运行时依赖。
+- old JSON incremental patch。
+- references/templates/examples 文件列表进入 v1 registry。
+- changed Skill 循环内反复 full scan。
+- Cloudflare KV/R2 上传。
+- 为 JSON/YAML 随意引入大型 runtime。
+- 为中等 Skill 数量建立 registry database/event log。
 
 ---
 
-# 14. Definition of Done
+# 15. Definition of Done
 
-完成实现后必须同时满足：
-
-- [ ] 独立 generator 存在。
+- [ ] 独立 generator。
 - [ ] 首份 registry 由 generator 生成。
 - [ ] 输出 byte-deterministic。
+- [ ] minimal low-churn schema。
 - [ ] Check/Apply 边界清晰。
-- [ ] 主 release script 正确 orchestration。
+- [ ] 主 release 正确 orchestration。
+- [ ] 多 Skill release 只集中生成一次 registry。
 - [ ] Registry 加入白名单和最终验收。
-- [ ] Skill 文档契约已更新。
+- [ ] Skill 文档契约更新。
 - [ ] CI stale gate 生效。
-- [ ] 新增/修改/删除/重命名测试通过。
-- [ ] 原 release 行为全部回归通过。
-- [ ] Cloud MCP 可以把 registry 作为 exact-commit discovery index 使用。
+- [ ] add/modify/delete/rename 测试通过。
+- [ ] reference/template 高频维护不制造无必要 registry 索引 churn。
+- [ ] 原 release 行为回归通过。
+- [ ] Cloud MCP exact-commit consumer contract 通过。
