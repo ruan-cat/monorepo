@@ -7,6 +7,7 @@
 	"main": "./src/config.mts",
 	"scripts": {
 		"docs:dev": "vitepress dev src/docs --port 8080",
+		"prebuild:docs": "ls -ld node_modules/vitepress && readlink node_modules/vitepress && ls -la node_modules/vitepress/bin/vitepress.js",
 		"build:docs": "vitepress build src/docs",
 		"build": "tsup",
 		"prebuild": "node ../../scripts/run-automd.cjs"
