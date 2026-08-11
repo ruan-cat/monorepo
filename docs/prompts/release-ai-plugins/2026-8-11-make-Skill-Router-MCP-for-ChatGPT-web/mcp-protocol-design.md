@@ -2,86 +2,85 @@
 
 ## 1. 文档定位
 
-本文提供给 AI Agent 实施 Remote MCP Server 的协议工程规格。
+本文定义面向 **ChatGPT Web 当前官方支持能力**的 Remote MCP 协议实现。
 
-本项目目标协议基线：
+生产基线必须遵循：
 
 ```text
-MCP 2026-07-28
+OpenAI current MCP compatibility profile
++
+@modelcontextprotocol/sdk
++
+McpServer
++
+Streamable HTTP
 ```
 
-真实工作负载：Skill 数量中等但更新频率高，因此同时支持：
+不要仅因为 MCP upstream 发布更高 revision/major SDK 就抢跑生产迁移。
+
+详细兼容策略：
 
 ```text
-默认 latest HEAD
-+
-可选 sourceCommitSha snapshot pin
+chatgpt-web-mcp-compatibility-profile.md
 ```
 
 ---
 
-# 2. MCP TypeScript SDK 技术选型
+# 2. MCP SDK
 
-新实现不得再把 v1 单体包：
+当前 OpenAI 官方构建文档明确推荐 TypeScript：
 
 ```text
 @modelcontextprotocol/sdk
+zod
 ```
 
-的 2025-era `initialize` lifecycle 当作目标架构。
+创建：
 
-MCP `2026-07-28` 使用 TypeScript SDK v2 稳定包线，服务端主要依赖：
-
-```text
-@modelcontextprotocol/server
+```ts
+new McpServer({
+  name: "skill-router-mcp",
+  version: packageVersion,
+})
 ```
-
-测试客户端使用对应 v2 client package。
-
-具体 minor/patch 由实施时 lockfile 固化。
 
 SDK 负责：
 
-- MCP 2026-era request/response wire codec。
-- `server/discover`（若启用/调用）。
-- `tools/list`。
-- `tools/call`。
-- server identity `_meta`。
-- protocol validation。
+- initialization / protocol negotiation。
+- server info/instructions。
+- `tools/list` / `tools/call`。
+- schemas / results / errors / annotations。
+- Streamable HTTP transport 能力。
 
-Nitro 只负责 Web Runtime / Worker adapter 边界。
+Nitro endpoint 不手写 JSON-RPC lifecycle。
 
 ---
 
-# 3. 2026-07-28 Modern Protocol
+# 3. Protocol Version Policy
 
-现代协议不再使用：
+不要在业务代码硬编码一个 OpenAI 尚未明确支持的未来 MCP revision。
 
-```text
-initialize
-initialized
-Mcp-Session-Id
-```
-
-作为连接前置握手/会话机制。
-
-每个请求自包含其 protocol/client/capability metadata；普通 tool 请求无需先建立 server-side session。
-
-如果客户端想先发现 server capability，可以使用：
+实际 protocol version 由：
 
 ```text
-server/discover
+ChatGPT/MCP Client
+  ↓
+initialization / negotiation
+  ↓
+@modelcontextprotocol/sdk
 ```
 
-但 Skill Router 的 tool 使用不依赖持久会话。
+处理。
 
-Server identity 应通过每个 2026-era response 的标准：
+升级 protocol/SDK major 的门槛：
 
 ```text
-_meta["io.modelcontextprotocol/serverInfo"]
+OpenAI 当前官方文档支持
++
+MCP Inspector 通过
++
+ChatGPT Web Developer Mode 真实验收通过
 ```
-
-暴露。
 
 ---
 
@@ -93,117 +92,110 @@ _meta["io.modelcontextprotocol/serverInfo"]
 Streamable HTTP
 ```
 
-不使用：
+推荐 endpoint：
 
-- stdio 作为 ChatGPT Web 远程 transport。
-- 自定义 JSON-RPC endpoint。
-- server-side MCP session 作为一致性方案。
+```text
+POST /mcp
+```
 
-Nitro/H3 adapter 必须保留 MCP SDK 对现代 HTTP header / protocol metadata 的处理，不自行吞掉或重写协议语义。
+不使用 stdio 作为 ChatGPT Web 远程 transport，也不自定义 MCP-over-REST 协议。
 
 ---
 
 # 5. 请求链路
 
 ```text
-ChatGPT Web MCP Client
-        |
-HTTPS Streamable HTTP
-        |
+ChatGPT Web
+  ↓
+Streamable HTTP
+  ↓
 Cloudflare Worker
-        |
-Nitro v3 endpoint adapter
-        |
-MCP TypeScript SDK v2
-        |
-McpServer
-        |
+  ↓
+Nitro v3 adapter
+  ↓
+@modelcontextprotocol/sdk / McpServer
+  ↓
 Tool Definitions
-        |
+  ↓
 Skill Services
-        |
+  ↓
 GitHub exact-commit SourceSnapshot
 ```
 
 ---
 
-# 6. Nitro 集成边界
+# 6. Nitro 边界
 
-MCP endpoint 只做：
+MCP endpoint 只负责：
 
-- Web Request/Response 适配。
-- Cloudflare runtime binding 提取。
-- MCP SDK handler/transport 调用。
+- Request/Response adapter。
+- runtime bindings 提取。
+- 调 MCP SDK transport/server。
 
 禁止：
 
-- 手写 MCP method router。
-- 自己实现 protocol negotiation。
-- 在 endpoint 内解析 Skill。
-- endpoint 直接调用 GitHub。
-- 为 MCP 建立 server session store。
+- 手写 JSON-RPC method router。
+- handler 内写 Skill search/load 业务。
+- handler 直接拼 GitHub Authorization。
 
 ---
 
-# 7. Server Identity
+# 7. Server Identity / Version
 
-Server identity 的逻辑来源只有一份：
-
-```text
-MCP package package.json version
-```
-
-概念：
-
-```json
-{
-  "name": "skill-router-mcp",
-  "version": "1.4.0"
-}
-```
-
-SDK 必须把它作为 2026-era server identity 暴露。
-
-该 version 是 MCP Server 应用 SemVer，不是：
-
-- MCP protocol revision。
-- Cloudflare Worker version ID。
-- Skill version。
-- Skill source commit。
-
-详细见：
+唯一来源：
 
 ```text
-mcp-release-versioning-and-production-maintenance.md
+MCP package package.json.version
 ```
+
+Server identity：
+
+```text
+name = skill-router-mcp
+version = package.json.version
+```
+
+初始化/server info 供标准 MCP client 识别该版本。
+
+该 version 不等于 Worker Version ID、Skill version 或 Skill source commit。
 
 ---
 
 # 8. 单一 Tool Definitions Registry
 
-当前所有 tools 必须从一个统一定义集合注册，例如：
+第一版：
+
+```text
+get_server_info
+list_skills
+search_skills
+load_skill
+```
+
+所有工具从统一：
 
 ```text
 toolDefinitions
-  ├─ get_server_info
-  ├─ list_skills
-  ├─ search_skills
-  └─ load_skill
 ```
 
-标准 `tools/list`、`get_server_info.tools`、测试 expected tool catalog 都必须从同一 source 派生。
+注册。
 
-禁止维护三份手写 tool name 列表。
+它同时驱动：
+
+- `server.registerTool(...)`。
+- 标准 `tools/list` 结果。
+- `get_server_info.tools`。
+- tests。
 
 ---
 
 # 9. `get_server_info`
 
-用途：让 ChatGPT / MCP Client 可以直接回答：
+用途：让 ChatGPT 能直接回答：
 
 ```text
-这个 MCP 是什么版本？
-当前生产 Worker 是哪一版？
+当前 MCP 是什么版本？
+当前 Worker 部署是哪一版？
 有哪些工具？
 ```
 
@@ -213,12 +205,11 @@ toolDefinitions
 {}
 ```
 
-返回至少包括：
+建议结构：
 
 ```text
 server.name
 server.version
-server.protocolRevision
 server.buildGitSha
 
 deployment.workerVersionId
@@ -232,42 +223,18 @@ registrySchemaVersion
 tools[]
 ```
 
-`tools[]` 必须动态来自 tool definitions。
+可以返回当前 SDK/protocol diagnostics，但不要硬编码尚未被 ChatGPT compatibility profile 证实的未来 protocol revision。
 
-该工具默认不访问 GitHub HEAD；精确 Skill snapshot 由 discovery/load tools 返回。
-
----
-
-# 10. Source Snapshot 协议语义
-
-默认未 pin tool call：
-
-```text
-GITHUB_REF
-  ↓
-resolve current HEAD -> exact SHA
-  ↓
-all Skill reads in this call use SHA
-```
-
-发现类结果必须暴露：
-
-```text
-sourceCommitSha
-```
-
-后续 `load_skill` 可以可选复用 discovery 的 exact SHA。
+`tools[]` 必须与标准 tool registry 同源。
 
 ---
 
-# 11. `list_skills`
-
-行为：
+# 10. `list_skills`
 
 ```text
-resolve latest snapshot
+resolve configured ref -> exact SHA
   ↓
-read skill-registry.json @ SHA
+registry @ SHA
   ↓
 return summaries + sourceCommitSha
 ```
@@ -280,131 +247,125 @@ summary：
 - version。
 - description。
 
-不要返回 Registry v1 不存在的深层索引字段。
+---
+
+# 11. `search_skills`
+
+输入：
+
+```json
+{"query":"Nitro API development"}
+```
+
+第一版只搜索 Registry v1：
+
+```text
+id / name / description / plugin
+```
+
+返回候选 + `sourceCommitSha`。
+
+不逐个读取所有 Skill 正文，不使用 vector DB。
 
 ---
 
-# 12. `search_skills`
+# 12. `load_skill`
 
 输入：
 
 ```json
 {
-  "query": "Nitro API development"
-}
-```
-
-第一版只在 registry：
-
-```text
-id
-name
-description
-plugin
-```
-
-上做确定性搜索。
-
-返回候选 + `sourceCommitSha`。
-
-不读取所有 Skill 正文，不使用 vector DB/embedding。
-
----
-
-# 13. `load_skill`
-
-推荐输入：
-
-```json
-{
   "skillId": "nitro-api-development",
-  "sourceCommitSha": "abc123"
+  "sourceCommitSha": "optional-exact-sha"
 }
 ```
 
-`sourceCommitSha` 可选。
+## 无 pin
 
-## 未提供
+解析当前 `GITHUB_REF` 最新 HEAD 一次。
 
-解析当前最新 `GITHUB_REF`。
+## 有 pin
 
-## 已提供
+使用 configured owner/repo 内的 exact SHA，不重新解析 mutable branch。
 
-在配置好的同一个 `GITHUB_OWNER/GITHUB_REPO` 内读取该 exact SHA。
-
-调用方不能通过 tool input 覆盖 owner/repo。
-
-流程：
+读取：
 
 ```text
-SourceSnapshot
-  ↓
 registry @ SHA
   ↓
-find skillId -> entry
+entry
   ↓
 SKILL.md @ same SHA
 ```
 
-返回：
-
-- registry metadata。
-- SKILL.md content。
-- sourceCommitSha。
-
-不默认递归加载 references/templates/examples。
+返回 metadata/content/sourceCommitSha。
 
 ---
 
-# 14. 深层关联文件策略
+# 13. 高频更新 Snapshot
 
-Registry v1 不枚举深层文件。
+```text
+search @ A
+push B
+load(pin=A) -> A
+load(no pin) -> B
+```
 
-`load_skill` 首先加载 `SKILL.md`；若需要相关文件，必须：
+Snapshot pin 复用 Git commit SHA；无需 KV/DO/session token store。
 
-- 限制在已选 Skill 的允许目录范围。
-- 使用相同 sourceCommitSha。
-- 按需读取。
-- 不遍历整个仓库。
+---
 
-若未来新增窄范围 related-file tool，也必须继承 snapshot pin 语义。
+# 14. 深层文件
+
+Registry v1 不枚举 references/templates/examples。
+
+加载选中 Skill 后，根据实际需要读取 related files：
+
+- 同一 sourceCommitSha。
+- 限制在允许 Skill 目录。
+- 不默认递归整个仓库。
 
 ---
 
 # 15. Tool Annotation
 
-当前 tools 均为只读，应使用 SDK 当前 schema 支持的只读/非破坏性 annotations。
-
-语义要求：
+按 OpenAI 当前官方 MCP 文档准确使用：
 
 ```text
-readOnly = true
-destructive = false
+readOnlyHint
+destructiveHint
+openWorldHint
 ```
 
-具体字段名以 v2 当前类型/API 为准。
+Skill Router 当前核心工具均只读；`openWorldHint` 按读取外部 GitHub 数据的实际语义设置，不机械复制。
 
 ---
 
-# 16. 高频更新下跨 Tool 一致性
+# 16. ChatGPT Tool Metadata Snapshot
+
+Worker endpoint 已升级不代表 ChatGPT 已批准/刷新新 tool schema。
+
+如果仅内部实现变化且 tool contract 不变：
 
 ```text
-search_skills @ A
-push B
-load_skill(skillId, sourceCommitSha=A)
+Worker version deploy + production smoke
 ```
 
-必须仍加载 A。
-
-不传 pin：
+如果 tool name/schema/description/annotation 变化：
 
 ```text
-load_skill(skillId)
+Worker candidate
+  ↓
+MCP Inspector + Developer Mode test
+  ↓
+ChatGPT refresh/rescan connection tools
+  ↓
+rerun evaluation
+  ↓
+workspace review/publish when applicable
 ```
 
-则读取当时最新 HEAD。
-
-该设计不需要 MCP session、KV、Durable Objects 或 snapshot token store。
+Skill-only Git data 更新不需要 ChatGPT tool rescan。
 
 ---
 
@@ -423,33 +384,19 @@ GITHUB_RATE_LIMITED
 GITHUB_AUTH_FAILED
 ```
 
-如果 snapshot 已建立，错误可安全返回 `sourceCommitSha`；绝不能返回 Token/auth header。
+绝不返回 Token/auth header/internal stack。
 
 ---
 
-# 18. Serverless 约束
+# 18. 验收标准
 
-Cloudflare Worker：
-
-- per-request stateless。
-- 无 filesystem persistence。
-- 无 MCP session state。
-- 无 mandatory KV/R2/D1/DO。
-
-这与 MCP 2026-07-28 的 stateless core 方向一致。
-
----
-
-# 19. 验收标准
-
-- [ ] 使用支持 `2026-07-28` 的 MCP TypeScript SDK v2 包线。
-- [ ] 不再把 `initialize/initialized` 作为现代协议验收条件。
-- [ ] server identity version 来自 MCP package SemVer。
-- [ ] 2026-era response 可读 serverInfo。
-- [ ] 标准 `tools/list` 返回完整当前 tool catalog。
-- [ ] `get_server_info` 返回应用/协议/Worker/构建版本与动态 tool catalog。
-- [ ] list/search 返回 `sourceCommitSha`。
-- [ ] `load_skill` 支持 latest + optional pin。
-- [ ] 单 tool call 所有 Skill 读取同 SHA。
-- [ ] 无 server-side MCP session/KV/R2 依赖。
-- [ ] ChatGPT Web Developer Mode 可连接和调用。
+- [ ] SDK 与 OpenAI 当前 ChatGPT MCP 官方指引一致。
+- [ ] initialization / server identity 正常。
+- [ ] Streamable HTTP 正常。
+- [ ] `tools/list` 返回完整当前 tool catalog。
+- [ ] `get_server_info` 返回安全版本/部署/tool metadata。
+- [ ] list/search 返回 sourceCommitSha。
+- [ ] load latest/pin 正常。
+- [ ] Skill 单调用所有读取同 SHA。
+- [ ] Tool contract 更新有 ChatGPT refresh/rescan gate。
+- [ ] Skill-only 更新不要求 Worker deploy/ChatGPT rescan。
