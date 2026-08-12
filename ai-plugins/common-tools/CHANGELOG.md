@@ -7,6 +7,13 @@
 
 ## [Unreleased]
 
+## [10.2.0] - 2026-08-13
+
+### Changed
+
+- `common-tools` 技能树本身无内容变更，插件主版本随发布链路同步至 `10.2.0`。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.2.0`。
+
 ## [10.1.0] - 2026-08-13
 
 ### Changed

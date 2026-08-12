@@ -12,6 +12,14 @@
 
 - **nitro-api-development**: 补充 Nitro v3 `serverDir: "server"` 配置陷阱，避免 `server/` 下路由未进入构建产物而导致端点 404。
 
+## [10.2.0] - 2026-08-13
+
+### Changed
+
+- **use-vercel-deploy-in-monorepo**：`metadata.version` `2.1.0` -> `2.2.0`。
+- 补充 Vercel 根产物搬运的符号链接实体化规则与证据门禁
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.2.0`。
+
 ## [10.1.0] - 2026-08-13
 
 ### Changed

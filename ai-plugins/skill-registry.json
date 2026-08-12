@@ -210,7 +210,7 @@
       "plugin": "dev-skills",
       "name": "use-vercel-deploy-in-monorepo",
       "description": "用于将 pnpm monorepo 或独立仓库部署到一个或多个 Vercel Project，处理 Vercel Git Integration、 本地 link、Project Settings 漂移、Shared Environment Variables、Node 22.x/24.x、 Turbo 任务链、Nitro 产物和 Vercel 部署日志诊断。 Use when deploying pnpm monorepos or standalone repositories to one or more Vercel Projects, including Vercel Git Integration, local linking, Project Settings drift, Shared Environment Variables, Node 22.x/24.x, Turbo task chains, Nitro artifacts, or Vercel deployment-log diagnosis.",
-      "version": "2.1.0",
+      "version": "2.2.0",
       "entry": "ai-plugins/dev-skills/skills/use-vercel-deploy-in-monorepo/SKILL.md"
     }
   ]
