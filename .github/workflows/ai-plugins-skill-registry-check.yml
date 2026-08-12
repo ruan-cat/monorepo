@@ -1,0 +1,33 @@
+name: AI Plugins Skill Registry Check
+
+on:
+  pull_request:
+    paths:
+      - "ai-plugins/common-tools/skills/**"
+      - "ai-plugins/dev-skills/skills/**"
+      - "ai-plugins/skill-registry.json"
+      - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1"
+      - ".github/workflows/ai-plugins-skill-registry-check.yml"
+  push:
+    branches:
+      - dev
+    paths:
+      - "ai-plugins/common-tools/skills/**"
+      - "ai-plugins/dev-skills/skills/**"
+      - "ai-plugins/skill-registry.json"
+      - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1"
+      - ".github/workflows/ai-plugins-skill-registry-check.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  registry:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v6
+
+      - name: 校验 Skill Registry 未过期
+        shell: pwsh
+        run: ./ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1 -Check
