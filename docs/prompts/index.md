@@ -114,12 +114,19 @@ Could not locate the bindings file. Tried:
 
 需额外构建一个 ABI 127 的副本并存入 lib/binding/node-v127-win32-x64/，我需要你做这一步。
 
-## 009 <!-- TODO: codex正在做 --> 整个项目 vitest 基础设置全面升级问题
+## 009 <!-- 委托给其他长任务来完成 codex正在做 --> 整个项目 vitest 基础设置全面升级问题
 
 Vitest 4 本身也已经把旧 workspace 配置迁向 projects；因此更没有必要借这个 MCP 项目顺手迁全仓测试基础设施。
 现在时间过了很久了，我想让你看看一个非常具有破坏性的变更，我们整个项目的基础设施可以完成统一的升级么？
 我们的 vite 可以到 vite8 么？vitest 可以到 vitest4 么？
 
-## 010 <!-- TODO: --> 执行 2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web 任务
+## 010 <!-- TODO: --> 阅读 2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web 上下文并制作任务工件
 
-`docs\prompts\release-ai-plugins\2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web` 目录全都是已经设计好的东西，全都是已经设计好任务提示词。你直接拿来用就行，我相信大多数的实施细节和边缘问题都已经写清楚了，你按照实施清单来做即可。
+`docs\prompts\release-ai-plugins\2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web` 目录全都是已经设计好的东西，全都是已经设计好任务提示词。你直接拿来用就行，我相信大多数的实施细节和边缘问题都已经写清楚了。
+但是我要求你，按照严格的 do-long-task 技能 ，新建一个独立的长任务。我相信这个云 MCP 制作任务，是一个很困难的任务。是需要你长期完成的任务，因此我要求你在保留这些必要的 `docs\prompts\release-ai-plugins\2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web` 上下文的同时，制作一个基于 do-long-task 的长任务执行工件。便于我随时根据实际 token 供应情况，做出任务中断与任务恢复。
+
+## 011 <!-- TODO: --> 2026-8-13 执行长任务 vite8-vitest4-foundation-upgrade
+
+阅读 - openspec\changes\vite8-vitest4-foundation-upgrade 目录内的全部必要的任务工件，用 do-long-task 技能完成这个艰巨的长任务。
+
+## 012 <!-- TODO: -->
