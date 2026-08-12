@@ -1,7 +1,8 @@
 ﻿#requires -Version 5.1
 <#
 .SYNOPSIS
-    ai-plugins 多插件发布脚本：统一升级插件版本、技能 metadata.version 并同步 CHANGELOG。
+    ai-plugins 多插件发布脚本：统一升级插件版本、技能 metadata.version、CHANGELOG
+    并生成 skill-registry.json。
 
 .DESCRIPTION
     默认 DryRun 只输出计划，不写任何文件；只有显式 -Apply 才写文件。
@@ -11,6 +12,7 @@
       - 1 份 Codex marketplace.json（.agents/plugins，无版本字段，仅校验）
       - 2 份 CHANGELOG.md（common-tools / dev-skills）
       - 2 份插件 README.md（新增技能时的阻断校验，只读）
+      - ai-plugins/skill-registry.json（仅由独立 generator 生成）
       - -Skill / -NewSkill 显式指定的 SKILL.md
     仓库根目录自动定位（向上查找 pnpm-workspace.yaml 或 .git）。
     不引入任何第三方依赖，仅使用 PowerShell 内置能力。
@@ -132,11 +134,46 @@ $SkillTrees = @(
     "ai-plugins/common-tools/skills",
     "ai-plugins/dev-skills/skills"
 )
+$SkillRegistry = "ai-plugins/skill-registry.json"
+$SkillRegistryWorkflow = ".github/workflows/ai-plugins-skill-registry-check.yml"
+$SkillRegistryGenerator = Join-Path $Root "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1"
+if (-not (Test-Path -LiteralPath $SkillRegistryGenerator -PathType Leaf)) {
+    Fail ("Skill registry generator 缺失: " + $SkillRegistryGenerator)
+}
+$SkillRegistryWorkflowPath = Join-Path $Root $SkillRegistryWorkflow
+if (-not (Test-Path -LiteralPath $SkillRegistryWorkflowPath -PathType Leaf)) {
+    Fail ("Skill registry CI workflow 缺失: " + $SkillRegistryWorkflow)
+}
 
 function Get-RepoPath {
     param([string]$Rel)
     return (Join-Path $Root $Rel)
 }
+
+function Assert-SkillRegistryWorkflow {
+    $content = [System.IO.File]::ReadAllText($SkillRegistryWorkflowPath)
+    $required = @(
+        "ai-plugins/common-tools/skills/**",
+        "ai-plugins/dev-skills/skills/**",
+        "ai-plugins/skill-registry.json",
+        "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1",
+        "generate-skill-registry.ps1 -Check",
+        "contents: read"
+    )
+    foreach ($needle in $required) {
+        if (-not $content.Contains($needle)) {
+            Fail ("Skill registry CI workflow 契约缺失: " + $SkillRegistryWorkflow + " 未包含 " + $needle)
+        }
+    }
+    foreach ($forbidden in @("-Apply", "git commit", "git push")) {
+        if ($content.Contains($forbidden)) {
+            Fail ("Skill registry CI workflow 不得包含写回动作 " + $forbidden + ": " + $SkillRegistryWorkflow)
+        }
+    }
+    Ok ("Skill registry CI workflow 契约校验通过: " + $SkillRegistryWorkflow)
+}
+
+Assert-SkillRegistryWorkflow
 foreach ($f in ($PluginJson + $MarketplaceJson + $PluginReadmes + $ReleaseDocs)) {
     if (-not (Test-Path -LiteralPath (Get-RepoPath $f))) { Fail ("白名单文件缺失: " + $f) }
 }
@@ -384,7 +421,7 @@ function New-ChangelogSection {
         }
     }
     if (-not $hasSkill) {
-        $lines.Add('`' + $PluginLabel + '` 技能树本身无内容变更，插件主版本随发布链路同步至 `' + $NewVersion + '`。')
+        $lines.Add('- `' + $PluginLabel + '` 技能树本身无内容变更，插件主版本随发布链路同步至 `' + $NewVersion + '`。')
     }
     # Summary 只在「本插件有技能变化」或「全仓库无任何技能变化」时写入，避免与「无内容变更」表述矛盾
     $anySkillChange = @($SkillChanges).Count -gt 0
@@ -591,8 +628,14 @@ if ($DoWrite) {
     foreach ($sc in $SkillChanges) { Write-Atomic ($sc.Path.Substring($Root.Length + 1)) $sc.NewText }
     foreach ($plan in $ChangelogPlans) { Write-Atomic $plan.Rel $plan.Content }
     Ok "已写入全部文件（Apply 模式）"
+    # 所有 Skill 版本、manifest 与 CHANGELOG 完成后集中生成一次 registry，避免批量发布重复全量扫描。
+    & $SkillRegistryGenerator -Apply
+    if ($LASTEXITCODE -ne 0) { Fail "skill-registry generator -Apply 失败，发布已阻断" }
+    & $SkillRegistryGenerator -Check
+    if ($LASTEXITCODE -ne 0) { Fail "skill-registry generator -Check 失败，发布已阻断" }
+    Ok ("Skill registry 生成并校验通过: " + $SkillRegistry)
 } else {
-    Warn "DryRun 模式：未写入任何文件。确认计划无误后加 -Apply 执行"
+    Warn "DryRun 模式：未写入任何文件。Apply 时将在所有 Skill 更新完成后集中 regenerate registry"
 }
 
 # ============ 写后校验 ============

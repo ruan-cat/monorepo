@@ -1,0 +1,214 @@
+{
+	"schemaVersion": "1",
+	"roots": ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"],
+	"skills": [
+		{
+			"id": "add-favicon",
+			"plugin": "common-tools",
+			"name": "add-favicon",
+			"description": "为文档站、前端站点或 monorepo 内多个站点补全或重做 favicon.svg。用户提到 favicon、浏览器标签页图标、Iconify、Lucide 风格、VitePress/VuePress 文档站、 public/favicon.svg、head link icon、图标太丑/一团浆糊/不要背景块时必须使用； 尤其适合批量为多个 VitePress 站点设计本地 SVG favicon，并显式配置 head。",
+			"version": "1.0.0",
+			"entry": "ai-plugins/common-tools/skills/add-favicon/SKILL.md"
+		},
+		{
+			"id": "cleanup-agent-team-node-processes",
+			"plugin": "common-tools",
+			"name": "cleanup-agent-team-node-processes",
+			"description": "Use when Windows or PowerShell agent-team sessions leave suspected stale node, npx, Windows command processor, agent-browser browser or CLI processes, stale MCP or dev-server children provably owned by the current run, lingering listeners, unclear process ownership after multi-agent automation, or unexplained WorkBuddy prewarm pools, MCP subtrees, native agent-browser workers, or shell-snapshot bash processes. 当 Windows 或 PowerShell 的 agent team 会话结束后，出现疑似残留 node / npx / Windows 命令处理程序 / agent browser 浏览器或 CLI 进程、可证明归属当前 run 的残留 MCP 或开发服务器子进程、残留监听器、多代理自动化后的进程归属不清，或无法解释的 WorkBuddy prewarm 池、MCP 子树、原生 agent-browser worker、shell snapshot bash 进程时使用。",
+			"version": "1.4.2",
+			"entry": "ai-plugins/common-tools/skills/cleanup-agent-team-node-processes/SKILL.md"
+		},
+		{
+			"id": "clone-ruancat-repo",
+			"plugin": "common-tools",
+			"name": "clone-ruancat-repo",
+			"description": "按固定清单快速克隆 GitHub 用户 ruan-cat 的常用仓库（及 tocque/h5mota-web）到约定目录名， 支持浅克隆与多分支抓取等参数组合。在用户提及「克隆 ruan-cat 仓库」「拉常用仓库」 「clone-ruan-cat」「初始化本地多仓」「同步阮喵喵 GitHub 仓库」或需要一键复现本机仓库存量时使用。 命令清单以 references/clone-commands.md 为唯一真实来源。",
+			"version": "0.2.1",
+			"entry": "ai-plugins/common-tools/skills/clone-ruancat-repo/SKILL.md"
+		},
+		{
+			"id": "do-long-task",
+			"plugin": "common-tools",
+			"name": "do-long-task",
+			"description": "当复杂开发、修复、重构、迁移、验证或 OpenSpec change 需要跨 checkpoint 持续推进、上下文恢复， 或需要把进度与失败记录严格存放在具体 OpenSpec change 或 archive 目录内时使用；当用户要求生成 Claude Code `/goal`、Codex `/goal` 或 do-long-task 长任务提示词时也使用。不要用于一次性短改、 问答、简单格式化、changeset、发版日志或纯计划讨论。 Use when a complex development, fix, refactor, migration, verification, or OpenSpec change must be advanced across resumable checkpoints, recovered after context loss, or executed with durable progress and failure notes that stay inside the concrete OpenSpec change or archive directory. Also use when the user asks to generate a Claude Code `/goal`, Codex `/goal`, or do-long-task prompt. Do not use for short one-off edits, Q\u0026A, simple formatting, changesets, release notes, or pure planning.",
+			"version": "1.3.3",
+			"entry": "ai-plugins/common-tools/skills/do-long-task/SKILL.md"
+		},
+		{
+			"id": "get-git-branch",
+			"plugin": "common-tools",
+			"name": "get-git-branch",
+			"description": "诊断并修复 Git 仓库无法看到所有远程分支的问题，将受限的 fetch refspec 恢复为通配符模式， 使 git fetch 能拉取全部远程分支。当用户提及「看不到远程分支」「分支不全」 「只有 master/main」「fetch 所有分支」「shallow clone 补全分支」 「--single-branch 修复」「远程分支丢失」「获取全部分支」等关键词时使用此技能。 即使用户没有明确提到 refspec 或 shallow clone，只要意图是让仓库能看到并拉取所有远程分支， 就应触发此技能。",
+			"version": "0.1.0",
+			"entry": "ai-plugins/common-tools/skills/get-git-branch/SKILL.md"
+		},
+		{
+			"id": "git-commit",
+			"plugin": "common-tools",
+			"name": "git-commit",
+			"description": "创建高质量的 git 提交：审查/暂存预期的变更，拆分为逻辑提交，并编写清晰的提交信息 （遵循 Conventional Commits 规范，支持 Emoji）。当用户要求提交代码、编写提交信息、 暂存变更或将工作拆分为多个提交时使用此技能。当用户提及【破坏性变更】关键词时， 必须按照本技能的 BREAKING CHANGE 规范使用感叹号格式编写提交信息。 优先针对 git 暂存区（staged）中的文件进行提交，只有当暂存区为空时才考虑整个工作树。 当用户提及【分门别类】关键词时，必须按照本技能的多提交拆分规范， 从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。",
+			"version": "0.6.0",
+			"entry": "ai-plugins/common-tools/skills/git-commit/SKILL.md"
+		},
+		{
+			"id": "init-ai-md",
+			"plugin": "common-tools",
+			"name": "init-ai-md",
+			"description": "初始化和增量更新 AI 记忆文件（CLAUDE.md、AGENTS.md、GEMINI.md）。 通过交互式选择和差异对比，智能补全记忆项内容。触发条件： 当用户提及初始化记忆文件、更新 CLAUDE.md、同步 AI 记忆、 init-ai-md 等关键词时主动调用。",
+			"version": "0.21.6",
+			"entry": "ai-plugins/common-tools/skills/init-ai-md/SKILL.md"
+		},
+		{
+			"id": "init-claude-code-statusline",
+			"plugin": "common-tools",
+			"name": "init-claude-code-statusline",
+			"description": "初始化、更新或覆盖 Claude Code 状态栏配置文件（.claude/settings.json 和 .claude/statusline.sh）。用于在任何项目中快速搭建 Claude Code 状态栏显示功能， 展示目录、Git 分支、模型、版本和上下文窗口使用情况。",
+			"version": "0.15.0",
+			"entry": "ai-plugins/common-tools/skills/init-claude-code-statusline/SKILL.md"
+		},
+		{
+			"id": "init-playwright",
+			"plugin": "dev-skills",
+			"name": "init-playwright",
+			"description": "在 pnpm monorepo 初始化 Playwright 三件套（@playwright/test + @playwright/cli + playwright-mcp），含 e2e/视觉测试骨架、MCP 配置、AI skills 生成、AI 记忆更新。 内置无头浏览器 CPU 过载事故复盘与故障排查指南：可排查 headless 模式下的 高 CPU 占用（100%）、浏览器卡死、Chromium 进程残留无法退出、 大屏 3D WebGL 渲染性能问题；提供紧急止损步骤和长期回归检查清单。 当用户提及 playwright 初始化、大屏视觉测试、e2e 测试搭建、 playwright monorepo 配置、pw_core/pw_visual MCP 等时触发。 也适用于无头浏览器性能故障排查、headless CPU 100% 诊断、 Chromium 进程残留清理、浏览器进程无法退出处理、 大屏 3D 渲染性能调优等排查场景。",
+			"version": "1.1.0",
+			"entry": "ai-plugins/dev-skills/skills/init-playwright/SKILL.md"
+		},
+		{
+			"id": "init-prettier-git-hooks",
+			"plugin": "common-tools",
+			"name": "init-prettier-git-hooks",
+			"description": "初始化或纠偏 Node.js 项目的 Prettier、lint-staged、simple-git-hooks 与 LF 行尾配置。适用于 prettier-plugin-lint-md 版本漂移、插件加载失败、git hooks、EOL、CRLF/LF 和幽灵修改问题。",
+			"version": "3.0.0",
+			"entry": "ai-plugins/common-tools/skills/init-prettier-git-hooks/SKILL.md"
+		},
+		{
+			"id": "init-pure-admin-iconify",
+			"plugin": "dev-skills",
+			"name": "init-pure-admin-iconify",
+			"description": "初始化 vite+vue3 项目的 pure-admin 风格 iconify 图标渲染体系 （离线 + 在线 + useRenderIcon 统一渲染）。当用户提及\"初始化 iconify\" \"pure-admin 图标方案\"\"ReIcon/useRenderIcon\"\"离线图标接入\" \"后台项目图标基础设施\"时使用此技能。",
+			"version": "0.5.0",
+			"entry": "ai-plugins/dev-skills/skills/init-pure-admin-iconify/SKILL.md"
+		},
+		{
+			"id": "init-release-base-relizy-and-bumpp",
+			"plugin": "dev-skills",
+			"name": "init-release-base-relizy-and-bumpp",
+			"description": "Use when 需要为 pnpm monorepo 从零接入 relizy + bumpp 组合发版方案，或处理 init relizy、init bumpp、接入发版、monorepo 发版初始化、relizy + bumpp、 relizy.config、bump.config、changelog.config、独立版本、GitHub Release 自动化。",
+			"version": "3.0.2",
+			"entry": "ai-plugins/dev-skills/skills/init-release-base-relizy-and-bumpp/SKILL.md"
+		},
+		{
+			"id": "init-shadcn-docs-nuxt",
+			"plugin": "dev-skills",
+			"name": "init-shadcn-docs-nuxt",
+			"description": "Use when initializing or rebuilding any component-library/project documentation site based on `shadcn-docs-nuxt`, or troubleshooting its Nuxt Content/H3, prerender, SSR externalization, module-compatibility, MDC syntax, or Windows build issues. 适用于初始化或重构任意组件库/项目的 `shadcn-docs-nuxt` 文档站，快速建立可运行、可构建、可维护的 Nuxt 文档底座，或排查配置复杂化、 模块兼容、Nuxt Content/H3 版本漂移、prerender、SSR externalization、MDC 语法错误、 Windows 构建假卡死等故障。触发词包括“搭建组件库文档”“接入 shadcn-docs-nuxt”“重做 Nuxt 文档站”、 “迁移文档模板”以及 Content cache/search API 500、`ERR_INVALID_URL`、`sendError` 导出缺失、 `entities/decode`、`@vueuse/core`、`registerMessageResolver`、`prerender:routes` 等错误信号。",
+			"version": "1.0.1",
+			"entry": "ai-plugins/dev-skills/skills/init-shadcn-docs-nuxt/SKILL.md"
+		},
+		{
+			"id": "init-simple-memorix",
+			"plugin": "common-tools",
+			"name": "init-simple-memorix",
+			"description": "Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、full 模式、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、setup 或升级后重新精简等场景。",
+			"version": "2.4.0",
+			"entry": "ai-plugins/common-tools/skills/init-simple-memorix/SKILL.md"
+		},
+		{
+			"id": "init-vscode",
+			"plugin": "common-tools",
+			"name": "init-vscode",
+			"description": "初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json）， 并在合并现有配置时把 `files.eol` 明确收敛为 `\"\\n\"`，配合 `.gitattributes`、 `.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题， 同时补齐大型 monorepo 的 VSCode 启动慢、文件监听、搜索索引与 TypeScript Server 性能优化默认值。 只要用户提到初始化 vscode、编辑器配置、工作区设置、行尾统一、EOL、CRLF/LF、 幽灵修改、团队规范、VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化， 都应该使用本技能。",
+			"version": "0.4.0",
+			"entry": "ai-plugins/common-tools/skills/init-vscode/SKILL.md"
+		},
+		{
+			"id": "install-mcp",
+			"plugin": "common-tools",
+			"name": "install-mcp",
+			"description": "Use when 用户需要盘点、规划或批量安装 MCP 配置，确认各 agent 的配置目标、JSON 或 TOML 形态、合并策略、dry-run、备份或第三方 server entry 时。",
+			"version": "1.0.0",
+			"entry": "ai-plugins/common-tools/skills/install-mcp/SKILL.md"
+		},
+		{
+			"id": "install-skills",
+			"plugin": "common-tools",
+			"name": "install-skills",
+			"description": "Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略时。",
+			"version": "1.0.4",
+			"entry": "ai-plugins/common-tools/skills/install-skills/SKILL.md"
+		},
+		{
+			"id": "nitro-api-development",
+			"plugin": "dev-skills",
+			"name": "nitro-api-development",
+			"description": "使用 Nitro v3 框架和 H3 编写服务端 API 的技能。适用于初始化纯后端 Nitro 项目、 为 Vite 项目赋予全栈能力、编写符合规范的 CRUD 接口、以及使用 Drizzle ORM 进行数据库交互。当需要开发新的 Nitro 接口、初始化 Nitro 配置、 或咨询 Nitro 开发规范时使用此技能。",
+			"version": "0.13.6",
+			"entry": "ai-plugins/dev-skills/skills/nitro-api-development/SKILL.md"
+		},
+		{
+			"id": "openspec",
+			"plugin": "dev-skills",
+			"name": "openspec",
+			"description": "OpenSpec 规范驱动开发助手 - 基于 OPSX 工作流的 AI 辅助编程框架。 在编写代码前与 AI 就需求达成一致，使用 Schema 驱动的工件依赖系统管理变更。 \n 触发条件（满足任意一项即触发）： 1. 用户提及 \"openspec\"、\"opsx\"、规范驱动开发、spec-driven 2. 用户想要开始新功能开发、重构或探索复杂需求 3. 用户抱怨 AI 理解偏差或频繁返工 4. 用户使用斜杠命令如 /opsx:new、/opsx:ff、/opsx:apply 等 5. 项目初始化或准备重大变更时 6. 需要生成 proposal、design、tasks 等规范文档时 \n 推荐使用：改进现有项目（棕地开发）、需要高质量实现的关键功能、团队协作开发。 不推荐：快速原型验证（0→1 探索）、一次性小脚本、需求极度不明确的创新探索。",
+			"version": "1.3.0",
+			"entry": "ai-plugins/dev-skills/skills/openspec/SKILL.md"
+		},
+		{
+			"id": "pr-ruancat-repo",
+			"plugin": "common-tools",
+			"name": "pr-ruancat-repo",
+			"description": "用于对 ruan-cat 相关仓库执行批量 Pull Request、跨仓库同步改动、为多个已克隆本地仓库规划 PR 策略、选择本地 git/Bash 与 GitHub API/MCP 混合执行方式的场景。触发关键词包括“批量 PR” “多仓库同步改动”“对 ruan-cat 的仓库发 PR”“pr-ruancat-repo”。",
+			"version": "1.0.0",
+			"entry": "ai-plugins/common-tools/skills/pr-ruancat-repo/SKILL.md"
+		},
+		{
+			"id": "rebase2main",
+			"plugin": "common-tools",
+			"name": "rebase2main",
+			"description": "将当前开发分支（通常是 dev）的提交通过 git rebase 同步到 main 分支，推送到远端， 然后切回原分支。当用户提及「同步到 main」「rebase 到 main」「更新 main」 「推送到主分支」「把 dev 合到 main」等关键词时使用此技能。 即使用户没有明确说 rebase，只要意图是把开发分支内容同步到 main，就应触发此技能。",
+			"version": "0.1.0",
+			"entry": "ai-plugins/common-tools/skills/rebase2main/SKILL.md"
+		},
+		{
+			"id": "release-ai-plugins",
+			"plugin": "common-tools",
+			"name": "release-ai-plugins",
+			"description": "Use when releasing or upgrading the common-tools or dev-skills plugins, synchronizing Claude/Cursor/Codex manifests and marketplaces, updating CHANGELOG files, validating README and installation-document consistency, or generating/checking the skill-registry.json discovery manifest for Skill Router MCP. 当用户要求插件发布、版本升级、更新日志、manifest、marketplace、README 一致性、 skill-registry.json、MCP skill registry 或 registry stale 校验时使用。",
+			"version": "1.0.0",
+			"entry": "ai-plugins/common-tools/skills/release-ai-plugins/SKILL.md"
+		},
+		{
+			"id": "sync-local-global-agents-skills",
+			"plugin": "common-tools",
+			"name": "sync-local-global-agents-skills",
+			"description": "Use when 已完成全局 skills 安装后，需要把 `~/.agents/skills` 后置同步到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy 等本地平台，或显式修复本地 skills 链接。 这是后置同步、显式同步和链接修复工具，不是 `skills add` 的替代安装器。 支持 dry-run、自动备份、错误链接替换，并可按需刷新 memorix 内部 skills。 触发关键词：sync-local-global-agents-skills、同步 skills、全局 skills 同步。",
+			"version": "0.1.2",
+			"entry": "ai-plugins/common-tools/skills/sync-local-global-agents-skills/SKILL.md"
+		},
+		{
+			"id": "use-other-model",
+			"plugin": "common-tools",
+			"name": "use-other-model",
+			"description": "Use when the agent needs to delegate work to OpenCode, Claude Code, MiniMax, Gemini, or another model/provider for token savings, batch work, long-running tasks, independent verification, OpenCode provider/model checks, or OpenCode headless internal-model checks, model-tier routing, execution agents, or independent security audits; use when the user mentions another model, provider, saving tokens, batch operations, multi-file work, or a task expected to run longer than 5 minutes; use when choosing MCP tools, an independent Claude Code session, OpenCode direct provider access, or OpenCode internal model launch. 当代理需要驱动 OpenCode、Claude Code、MiniMax、Gemini 或其他模型/Provider， 进行 token 节省、批量操作、长任务、独立验证、OpenCode provider/model 检查或裸启动内部模型检查时使用； 当用户提到“使用其他模型”“provider”“节省 token” “批量操作”“多文件处理”“执行时间超过 5 分钟”“模型分层”或“安全审计”，或需要在 MCP 工具、独立 Claude Code 会话、OpenCode 直连 provider、OpenCode 裸启动内部模型之间选择时使用。",
+			"version": "0.8.0",
+			"entry": "ai-plugins/common-tools/skills/use-other-model/SKILL.md"
+		},
+		{
+			"id": "use-pnpm",
+			"plugin": "common-tools",
+			"name": "use-pnpm",
+			"description": "Use when 需要处理 pnpm 包管理、workspace 命令、npm/npx/yarn 到 pnpm 的替换、Windows 或 PowerShell pnpm 故障、Corepack 管理的 pnpm、NVM Desktop 切换 Node 后的路径错位、全局包更新、ERR_PNPM_UNEXPECTED_VIRTUAL_STORE、virtual-store-dir 混淆、PNPM_HOME/global-dir/store-dir 诊断，或 pnpm install/update/rebuild 排障；English: handling pnpm package management, workspace commands, npm/npx/yarn replacement, Windows or PowerShell pnpm failures, Corepack-managed pnpm, NVM Desktop Node switches, global package updates, ERR_PNPM_UNEXPECTED_VIRTUAL_STORE, virtual-store-dir confusion, PNPM_HOME/global-dir/store-dir diagnosis, or pnpm install/update/rebuild troubleshooting.",
+			"version": "0.1.0",
+			"entry": "ai-plugins/common-tools/skills/use-pnpm/SKILL.md"
+		},
+		{
+			"id": "use-vercel-deploy-in-monorepo",
+			"plugin": "dev-skills",
+			"name": "use-vercel-deploy-in-monorepo",
+			"description": "用于将 pnpm monorepo 或独立仓库部署到一个或多个 Vercel Project，处理 Vercel Git Integration、 本地 link、Project Settings 漂移、Shared Environment Variables、Node 22.x/24.x、 Turbo 任务链、Nitro 产物和 Vercel 部署日志诊断。 Use when deploying pnpm monorepos or standalone repositories to one or more Vercel Projects, including Vercel Git Integration, local linking, Project Settings drift, Shared Environment Variables, Node 22.x/24.x, Turbo task chains, Nitro artifacts, or Vercel deployment-log diagnosis.",
+			"version": "2.1.0",
+			"entry": "ai-plugins/dev-skills/skills/use-vercel-deploy-in-monorepo/SKILL.md"
+		}
+	]
+}
