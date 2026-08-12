@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [10.1.0] - 2026-08-13
+
+### Changed
+
+- **release-ai-plugins**：`metadata.version` `0.17.4` -> `1.0.0`。
+- 增加确定性 Skill Registry 与 MCP stale 校验
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.1.0`。
+
 ## [10.0.0] - 2026-08-13
 
 ### Changed
