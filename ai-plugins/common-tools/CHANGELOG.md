@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [10.3.0] - 2026-08-13
+
+### Changed
+
+- **do-long-task**：`metadata.version` `1.3.3` -> `1.4.0`。
+- 为 agent-progress.md 与 agent-findings.md 增加快照、去重、状态和软上限 harness，避免长任务状态文件膨胀为流水账噪音
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.3.0`。
+
 ## [10.2.0] - 2026-08-13
 
 ### Changed

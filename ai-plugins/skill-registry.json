@@ -34,7 +34,7 @@
       "plugin": "common-tools",
       "name": "do-long-task",
       "description": "当复杂开发、修复、重构、迁移、验证或 OpenSpec change 需要跨 checkpoint 持续推进、上下文恢复， 或需要把进度与失败记录严格存放在具体 OpenSpec change 或 archive 目录内时使用；当用户要求生成 Claude Code `/goal`、Codex `/goal` 或 do-long-task 长任务提示词时也使用。不要用于一次性短改、 问答、简单格式化、changeset、发版日志或纯计划讨论。 Use when a complex development, fix, refactor, migration, verification, or OpenSpec change must be advanced across resumable checkpoints, recovered after context loss, or executed with durable progress and failure notes that stay inside the concrete OpenSpec change or archive directory. Also use when the user asks to generate a Claude Code `/goal`, Codex `/goal`, or do-long-task prompt. Do not use for short one-off edits, Q\u0026A, simple formatting, changesets, release notes, or pure planning.",
-      "version": "1.3.3",
+      "version": "1.4.0",
       "entry": "ai-plugins/common-tools/skills/do-long-task/SKILL.md"
     },
     {
