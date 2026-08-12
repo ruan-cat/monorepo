@@ -1,11 +1,15 @@
 ---
 name: use-vercel-deploy-in-monorepo
 description: >-
-  用于 pnpm monorepo 或独立仓库部署到多个 Vercel Project，处理 Vercel Git Integration、
-  本地 link 绑定、Project Settings 漂移、Shared Environment Variables、Node 22.x/24.x、
-  Turbo 任务链、Nitro 产物或 Vercel 部署日志诊断。
+  用于将 pnpm monorepo 或独立仓库部署到一个或多个 Vercel Project，处理 Vercel Git Integration、
+  本地 link、Project Settings 漂移、Shared Environment Variables、Node 22.x/24.x、
+  Turbo 任务链、Nitro 产物和 Vercel 部署日志诊断。
+  Use when deploying pnpm monorepos or standalone repositories to one or more Vercel Projects,
+  including Vercel Git Integration, local linking, Project Settings drift,
+  Shared Environment Variables, Node 22.x/24.x, Turbo task chains, Nitro artifacts,
+  or Vercel deployment-log diagnosis.
 metadata:
-  version: "2.0.0"
+  version: "2.2.0"
 ---
 
 # Monorepo 与独立仓库的 Vercel 部署
@@ -74,6 +78,31 @@ Git 主链的证据顺序为：推送 commit → Vercel 克隆/checkout 仓库 �
 
 Nitro 的服务端源码不在默认位置时，先读取 `nitro.config.*`，核对 `serverDir` 与目录存在性；构建后检查 functions 产物，首次 Git E2E 覆盖该目录提供的 API。不要用 build 成功代替运行时验证。
 
+### 符号链接产物搬运（仅模式 A）
+
+`move-vercel-output-to-root` 负责把子包的 `.vercel/output` 搬到 Vercel 在仓库根读取的 `.vercel/output`。它的 `--dereference` 是复制策略开关，不是 Nitro、pnpm/Corepack 或运行时配置开关，默认必须保持关闭。
+
+| 参数                  | 默认值                | 语义与边界                                                        |
+| --------------------- | --------------------- | ----------------------------------------------------------------- |
+| `--root-dir <path>`   | 自动发现 workspace 根 | 仅在自动发现不适用时显式指定 monorepo 根                          |
+| `--source-dir <path>` | 子包 `.vercel/output` | 必须是本次构建真实写入的源目录                                    |
+| `--target-dir <path>` | 根 `.vercel/output`   | 必须与 Project 的 Output Directory 口径一致                       |
+| `--skip-clean`        | `false`               | 仅在已验证需要合并多个独立产物时使用；不能用来规避陈旧函数        |
+| `--dry-run`           | `false`               | 只显示解析路径和策略，不复制或清理；不能替代真实产物检查          |
+| `--dereference`       | `false`               | 将符号链接指向的实体文件/目录复制到目标；只对受信任产物按证据启用 |
+
+编程式 API 使用 `dereference?: boolean`；解析结果和构建日志必须记录最终布尔值。
+
+启用前按顺序确认：
+
+1. Vercel 使用模式 A，且根 `.vercel/output` 是最终读取目录；模式 B 或独立仓库不应增加根搬运。
+2. 运行真实 `build:vercel`，分别检查子包和根目录 `.vercel/output/functions`。
+3. 用 `lstat` 或等价检查确认待搬运的 `.func` 项确实是符号链接，并保留未解引用时的可复现函数拓扑、路由或消费失败证据。
+4. 确认链接及其目标都来自本次受信任构建产物；不得把受控目录外的内容带入部署。
+5. 启用后确认根输出中的目标 `.func` 已实体化，并从 Vercel Git 构建日志读取解析结果，再完成目标 API 冒烟。
+
+只有以上条件同时成立时，才在原子搬运任务中加入 `--dereference`。普通文件复制行为应保持不变；`--dry-run` 必须显示 `dereference`，且不得复制或清理。不要因为 `ERR_PNPM_META_FETCH_FAIL`、Corepack/Node 漂移、Nitro `compatibilityDate` 未确认或 API 运行时 5xx 而启用它：这些分别属于安装、Nitro 配置或运行时层，应按对应层排查。
+
 ## README 与 AI 记忆收口
 
 部署事实必须写回目标项目 README，并等价更新已存在的 `AGENTS.md`、`CLAUDE.md`、`GEMINI.md`。三份 AI 记忆均缺失时转交 `init-ai-md`，不创建项目专属部署 skill。字段和安全边界见[项目部署文档](references/project-deployment-documentation.md)。
@@ -87,5 +116,7 @@ Nitro 的服务端源码不在默认位置时，先读取 `nitro.config.*`，核
 - [ ] Settings 已完成最小 PATCH、GET 回读与 `vercel project inspect` 交叉验证，或明确记录无需变更。
 - [ ] 项目变量与 Shared Environment Variables 均已覆盖三环境；Shared link 无同名项目变量遮蔽并已回读。
 - [ ] `.vercelignore`、Turbo DAG、Nitro `serverDir` 和 `.vercel/output` 已检查。
+- [ ] 已确认 Root Directory、Output Directory 与模式 A 的根 `.vercel/output` 口径一致；子包和根输出的 `.func` 链接状态已记录，并说明 `dereference` 为 `true` 或 `false` 的依据。
+- [ ] 若启用 `--dereference`，已确认源产物受信任、根输出已实体化且没有越出受控目录；Git 构建日志中的解析值与预期一致。
 - [ ] 在获得授权后，已推送可识别 commit，并以 SHA、Git checkout 日志、READY 与 URL 冒烟完成正式 Git E2E。
 - [ ] README 与已有 AI 记忆已收口；未记录 token、secret 或本机私有路径。
