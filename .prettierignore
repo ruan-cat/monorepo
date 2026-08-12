@@ -9,5 +9,8 @@ ai-plugins/**/templates/extensions.json
 # 全部以tsconfig开头的 尾缀为json的配置文件 都被忽略
 tsconfig*.json
 
+# Skill Registry 由 release-ai-plugins 生成器以固定两空格/LF 输出，禁止提交钩子重排。
+ai-plugins/skill-registry.json
+
 # 无效 不生效的
 **/snippets/*.md
