@@ -1,5 +1,3 @@
-<!-- TODO: 等待使用 -->
-
 # 2026-08-13 use-other-model 技能升级改造与 OpenCode Harness 边界评估
 
 > 报告工具：Codex 主代理、PowerShell、OpenCode 委托运行器
