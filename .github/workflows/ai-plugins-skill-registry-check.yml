@@ -7,6 +7,7 @@ on:
       - "ai-plugins/dev-skills/skills/**"
       - "ai-plugins/skill-registry.json"
       - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1"
+      - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.mjs"
       - ".github/workflows/ai-plugins-skill-registry-check.yml"
   push:
     branches:
@@ -16,6 +17,7 @@ on:
       - "ai-plugins/dev-skills/skills/**"
       - "ai-plugins/skill-registry.json"
       - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1"
+      - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.mjs"
       - ".github/workflows/ai-plugins-skill-registry-check.yml"
 
 permissions:
@@ -23,11 +25,26 @@ permissions:
 
 jobs:
   registry:
-    runs-on: ubuntu-latest
+    name: registry (${{ matrix.os }})
+    # JSON canonical output 只由 Node generator 产生；matrix 只验证同一实现跨 OS 不漂移。
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: 检出仓库
         uses: actions/checkout@v6
 
+      # 固定到仓库 engines.node 的最低版本；generator 仅使用 Node 内置模块，无需安装依赖。
+      - name: 安装 Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.14.0"
+
+      # 通过兼容入口同时覆盖旧 CLI 接缝；实际文本解析和 JSON 生成全部发生在 .mjs 中。
       - name: 校验 Skill Registry 未过期
         shell: pwsh
         run: ./ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1 -Check
