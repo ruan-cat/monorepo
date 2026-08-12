@@ -4,33 +4,44 @@ description: >-
   Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略时。
 user-invocable: true
 metadata:
-  version: "1.0.3"
+  version: "1.0.4"
 ---
 
 # install-skills
+
+## 第一步：完整 CLI 命令即时执行
+
+这是最常见、优先级最高的场景，先于本文件后续任何规划、核验或同步章节判断。
+
+仅当用户消息已经给出待执行、确认、复述或解释的完整 `skills add` / `npx skills add` 命令，且命令已包含安装源、`--skill` 或具体 skill 名、`-g`、`-y`、明确的 `-a` / `--agent` 目标时，才进入本规则。此时只做以下最小检查；检查通过后，按用户意图立即执行原命令，或原样确认、复述该命令。
+
+最小检查只包括：
+
+- 用户意图是执行命令，还是只要求确认、复述或解释命令。
+- 安装源是否指向用户已确认可信的 skills 目录；不能根据当前工作区目录或未验证来源自行改写。来源不明确时不走本规则，回到常规安装规划与核验流程。
+- 引号、占位符或明显截断是否破损。
+- 目标 agent 列表是否来自用户命令本身。
+
+在原命令尚未执行或尚未按用户语义确认前，禁止读取 `DEFAULT_PLATFORMS`、定位或调用 `sync-local-global-agents-skills`、盘点目标、进入 release、fallback、agent team 或长计划。原命令成功后，查看安装摘要验收即可；只有用户额外要求同步到本地 agent 平台、站点清理、清单盘点、目录级同步或新平台核验时，才进入下方对应流程。
+
+后续的“已验证可执行目标”“目录级链接”和 `DEFAULT_PLATFORMS` 全部属于目录级链接同步，即 `sync-local-global-agents-skills` 的职责；它们与 `skills add ... -a <agent>` 的 CLI 安装无关，命中本规则时无需阅读或执行。
+
+## 任务类型速查
+
+| 用户请求                       | 出口                                   | 需要读的章节                     |
+| :----------------------------- | :------------------------------------- | :------------------------------- |
+| 给出完整 `skills add` 命令     | **按用户意图直接执行，看摘要验收**     | 仅“第一步”                       |
+| 盘点、规划，或安装命令信息不全 | 最小检查后给出规划或确认               | “职责边界”“调度与验收”           |
+| 卸载或删除 skills              | `skills remove` + 双重验收             | “全局技能卸载流程”               |
+| 同步已安装 skills 到本地平台   | 调度 `sync-local-global-agents-skills` | “已验证可执行目标”至“调度与验收” |
 
 ## 职责边界
 
 本技能是 skills 的清单与调度入口，不提供安装脚本，也不维护第二份 skills 副本。规范源目录为 `~/.agents/skills`。
 
-- 本技能仍负责通用 skills 安装规划、安装命令确认、多 agent 同步目标判断，以及全局安装完成后的同步调度闭环。
-- 对已验证的目录级链接目标，将具体安装动作交给 `sync-local-global-agents-skills`。
-- 对未验证的 agent 或项目级目录，只记录候选与前置核验项；不得凭印象编造独立 skills 目录。
-- 已验证目标只能调度 `sync-local-global-agents-skills` 执行目录级链接、备份和替换。
-- 待验证候选或项目级候选只做核验和决策记录，不执行链接、复制或替换。
-
-## 已给完整 CLI 安装命令时的短路规则
-
-仅当用户消息已经给出待执行、确认、复述或解释的完整 `skills add` / `npx skills add` 命令，且命令已包含安装源、`--skill` 或具体 skill 名、`-g`、`-y`、明确的 `-a` / `--agent` 目标时，才进入本短路规则。此时先做最小检查；检查通过后，按用户意图执行原命令，或按用户语义原样复述该命令。
-
-最小检查只包括：
-
-- 用户意图是执行命令，还是只要求确认、复述或解释命令。
-- 安装源 URL 是否指向用户已确认的可信 skills 目录；不能根据当前工作区目录或未验证来源自行改写。来源不明确时不走本短路规则，回到常规安装规划与核验流程。
-- 引号、占位符或明显截断是否破损。
-- 目标 agent 列表是否来自用户命令本身。
-
-在原命令尚未执行或尚未按用户语义确认前，禁止把这类任务提前改写为读取 `DEFAULT_PLATFORMS`、调用 `sync-local-global-agents-skills`、进入 release、fallback、agent team 或长计划。原命令成功后，如果用户还要求同步到本地 agent 平台，或任务本身是清单盘点、目录级同步、新平台核验，仍按下方清单流程调度 `sync-local-global-agents-skills`。
+- 负责通用 skills 的安装规划、命令确认、多 agent 同步目标判断，以及全局安装后的同步调度闭环。
+- 已验证的目录级链接目标，具体安装动作交给 `sync-local-global-agents-skills`。
+- 未验证的 agent 或项目级目录只记录候选与前置核验项；不得凭印象编造独立 skills 目录、链接、复制或替换目录。
 
 ## 全局技能卸载流程
 
@@ -73,20 +84,11 @@ $matches = @($items | Where-Object {
 
 若保留某个同义或关联 skill，或残留目录不归 CLI 管理，必须逐项说明其来源、是否注册、保留或后续处理理由。
 
-## 清单来源与同步维护纪律
-
-已验证可执行目标的权威来源不是本文档表格，而是已安装的 `sync-local-global-agents-skills` 技能内部的 `src/platforms.ts`。使用本技能前，先通过当前 agent 的 skills 注册表、`skills list` 输出，或当前全局 skills 根目录中的技能名称，定位 `sync-local-global-agents-skills` 的安装目录；定位成功后读取该技能目录下的 `src/platforms.ts`，以其中的 `DEFAULT_PLATFORMS` 为准确认当前可执行目标。不要把仓库源码相对路径、当前项目目录，或 `install-skills` 自身目录的相对路径当作稳定运行时路径。
-
-本文件中的“已验证可执行目标”表只是面向 agent 的可读摘要，不是第二份独立真理源。维护清单时必须遵守双向同步：
-
-- 如果新增、删除或重命名已验证可执行目标，先更新 `sync-local-global-agents-skills/src/platforms.ts` 的 `DEFAULT_PLATFORMS`，再同步更新本文档摘要。
-- 如果只想记录待验证 agent，不要改 `DEFAULT_PLATFORMS`；只能写在“生态入口与待验证候选”中，并保留核验条件。
-- 如果本文档摘要与已定位同步技能中的 `DEFAULT_PLATFORMS` 不一致，以 `DEFAULT_PLATFORMS` 为准，并立即修正文档漂移。
-- 如果无法定位已安装的 `sync-local-global-agents-skills`，或其 `src/platforms.ts` 不存在，停止宣称“已验证可执行目标”，先报告缺失依赖；本文档表格只能作为发布时快照辅助排查，不能作为运行时权威清单。
-
 ## 已验证可执行目标
 
 以下目标是本技能发布时从 `DEFAULT_PLATFORMS` 摘录的可读快照，已由 `sync-local-global-agents-skills` 证实支持从 `~/.agents/skills` 建立目录级链接。实际执行前仍应重新定位已安装的同步技能并读取其 `DEFAULT_PLATFORMS`：
+
+> 本表仅描述从 `~/.agents/skills` 建立目录级链接的平台可执行目标，属于 `sync-local-global-agents-skills` 的职责范围。**不适用于 `skills add ... -a <agent>` 的 CLI 安装语义**：CLI 安装目标由 skills CLI 原生支持，与是否在本表内无关，无需核验本表。
 
 | 平台      | 目标目录                                                    | 调度策略                               |
 | :-------- | :---------------------------------------------------------- | :------------------------------------- |
@@ -130,3 +132,14 @@ Claude Code、Codex、Cursor、Antigravity、Trae、Qoder 等通常通过全局 
 1. 先区分本次是安装、卸载、盘点还是目录级同步。卸载任务先完成“全局技能卸载流程”；安装和同步任务再确认规范源目录为 `~/.agents/skills`，并确定目标属于已验证目标、待验证候选或项目级候选。
 2. 已验证目标调用 `sync-local-global-agents-skills` 执行；其余目标先完成目录语义与兼容性核验。
 3. 执行前列出将创建、跳过、备份或替换的目录；执行后确认目标是正确链接，且源目录未被复制为多份副本。卸载场景同时满足 CLI 注册表与目录残留的双重验收。
+
+## 仅维护者查阅：清单来源与同步维护纪律
+
+已验证可执行目标的权威来源不是本文档表格，而是已安装的 `sync-local-global-agents-skills` 技能内部的 `src/platforms.ts`。维护本技能时，通过当前 agent 的 skills 注册表、`skills list` 输出或当前全局 skills 根目录中的技能名称定位该技能目录；定位成功后读取其 `src/platforms.ts`，以 `DEFAULT_PLATFORMS` 为准确认当前可执行目标。不要把仓库源码相对路径、当前项目目录或 `install-skills` 自身目录的相对路径当作稳定运行时路径。
+
+本文件中的“已验证可执行目标”表只是面向 agent 的可读摘要，不是第二份独立真理源。维护清单时必须遵守双向同步：
+
+- 新增、删除或重命名已验证可执行目标时，先更新 `sync-local-global-agents-skills/src/platforms.ts` 的 `DEFAULT_PLATFORMS`，再同步更新本文档摘要。
+- 只记录待验证 agent 时，不要改 `DEFAULT_PLATFORMS`；只能写在“生态入口与待验证候选”中，并保留核验条件。
+- 本文档摘要与已定位同步技能中的 `DEFAULT_PLATFORMS` 不一致时，以 `DEFAULT_PLATFORMS` 为准，并立即修正文档漂移。
+- 无法定位已安装的 `sync-local-global-agents-skills`，或其 `src/platforms.ts` 不存在时，停止宣称“已验证可执行目标”，先报告缺失依赖；本文档表格只能作为发布时快照辅助排查，不能作为运行时权威清单。
