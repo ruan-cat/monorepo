@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [9.0.2] - 2026-08-12
+
+### Changed
+
+- **install-skills**：`metadata.version` `1.0.3` -> `1.0.4`。
+- 将完整 skills add 命令提升为即时执行决策门，避免目录同步规则干扰 CLI 安装。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `9.0.2`。
+
 ## [9.0.1] - 2026-08-10
 
 ### Changed
