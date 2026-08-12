@@ -7,6 +7,18 @@
 
 ## [Unreleased]
 
+## [10.0.0] - 2026-08-13
+
+### Changed
+
+- **init-prettier-git-hooks**：`metadata.version` `2.0.0` -> `3.0.0`。
+- 废弃 lint-md 顶层对象插件和仅 Markdown override 方案，唯一生效的 Prettier 配置改为顶层字符串声明。
+- `prettier-plugin-lint-md` 必须精确锁定 `1.0.1`，并核验依赖声明、lockfile 与运行时解析版本。
+- 新增 `references/`，记录版本漂移、三条加载链路、pnpm 严格隔离、CRLF、worker 与 Hook 事故，以及验证剧本。
+- `prettier.config.mjs` 模板将完整 JSDoc 设为受保护知识块，避免对象、override 与版本误区再次回归。
+- 默认活动命令撤回未经 A/B 证明的显式 `--plugin`；它仅保留为解析故障的诊断和隔离手段。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.0.0`。
+
 ## [9.0.2] - 2026-08-12
 
 ### Changed

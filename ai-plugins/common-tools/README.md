@@ -4,7 +4,7 @@
 
 ## 版本
 
-**当前版本**: `9.0.1`
+**当前版本**: `10.0.0`
 
 ## Codex 插件市场
 
@@ -12,12 +12,13 @@ Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现�
 
 安装、更新与卸载命令见 [`../../.agents/plugins/README.md`](../../.agents/plugins/README.md)。
 
-⚠️ **init-prettier-git-hooks 2.0.0 收缩边界**:
+⚠️ **init-prettier-git-hooks 3.0.0 破坏性纠偏**:
 
-- 技能改为由 AI 读取目标项目后逐文件审计、精准合并；v2 不引入也不分发独立迁移 CLI 或运行时代码。
-- 分发内容仅为 `SKILL.md` 与五份纯配置模板；lint-staged 模板由 `.js` 迁移为 `.mjs`。
+- 技能继续由 AI 审计目标项目后逐文件定点合并；不引入迁移 CLI 或运行时代码，并新增 `references/` 保存错误历史与验证剧本。
+- `prettier-plugin-lint-md` 必须精确锁定 `1.0.1`，同时核验依赖声明、lockfile 与运行时解析版本；禁止 `^1.0.1` 漂移。
+- Prettier 顶层必须使用 `plugins: ["prettier-plugin-lint-md"]`。v2 的对象插件和仅 Markdown override 方案已废弃。
+- experimental CLI 与 lint-staged 默认只保留 `--no-parallel`；显式 `--plugin` 仅用于解析故障的诊断 A/B，不是更健壮的生产命令。
 - AI 必须保护已有改动；依赖安装、Hook 安装和 Git 行尾归一化等副作用须先获得用户明确授权。
-- lint-md 固定为 `1.0.1` 并以对象插件注册；CJS、动态配置、多配置或 Hook 管理器冲突转人工处理。
 
 ⚠️ **v8.3.2 init-ai-md 模板与报告规范**:
 
