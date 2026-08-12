@@ -129,8 +129,8 @@ importers:
         specifier: ^3.8.1
         version: 3.9.6
       prettier-plugin-lint-md:
-        specifier: ^1.0.1
-        version: 1.0.3(prettier@3.9.6)
+        specifier: 1.0.1
+        version: 1.0.1(prettier@3.9.6)
       rimraf:
         specifier: ^6.1.3
         version: 6.1.3
@@ -10493,10 +10493,9 @@ packages:
       { integrity: sha512-SxToR7P8Y2lWmv/kTzVLC1t/GDI2WGjMwNhLLE9qtH8Q13C+aEmuRlzDst4Up4s0Wc8sF2M+J57iB3cMLqftfg== }
     engines: { node: ">=6.0.0" }
 
-  prettier-plugin-lint-md@1.0.3:
+  prettier-plugin-lint-md@1.0.1:
     resolution:
-      { integrity: sha512-I/HOdNzbkYbY25ZpxFtCk/L0QtaPVdeaeZ8OBtgVy7KpqvZ/8mxUGs/TjKb84ichJnIbFEF1dYVWBMMZaJhm6w== }
-    engines: { node: ">=22" }
+      { integrity: sha512-M1IyGBKXgbhM8GZM96A7oUHCGtAN4fXO3//+QGtJIXY8y1pc2Jzm+fOiyIKz3wDd0xMUimeUiLDvcCxv0ja3cQ== }
     peerDependencies:
       prettier: ">= 3"
 
@@ -21851,7 +21850,7 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-lint-md@1.0.3(prettier@3.9.6):
+  prettier-plugin-lint-md@1.0.1(prettier@3.9.6):
     dependencies:
       "@lint-md/core": 2.3.2
       prettier: 3.9.6

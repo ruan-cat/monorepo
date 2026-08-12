@@ -1,5 +1,4 @@
 import * as prettierPluginOxc from "@prettier/plugin-oxc";
-import prettierPluginLintMd from "prettier-plugin-lint-md";
 
 // @ts-check
 /** @type {import("prettier").Config} */
