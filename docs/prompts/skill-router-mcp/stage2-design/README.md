@@ -61,6 +61,38 @@ git-commit/SKILL.md
 
 > **让已经选中的 Skill 能完整地按需获取自己的附属文件。**
 
+### 2.1 源码核对后的补充结论
+
+当前 `dev` 源码里已经存在内部方法：
+
+```text
+SkillRouter.readRelatedFile(skillId, relativePath, snapshot)
+```
+
+它已经能在选中 Skill root 内、使用同一个 `sourceCommitSha` 读取 related file。
+
+因此当前真实状态应表述为：
+
+- **底层 related-file 读取能力已存在；**
+- **MCP / ChatGPT 对外 Tool Surface 没有暴露该能力；**
+- 尚缺资源枚举、MIME/size、text/blob、大小限制、稳定错误码和完整 path canonicalization。
+
+完整核对见 [`current-state-audit.md`](./current-state-audit.md)。
+
+### 2.2 更新与部署边界
+
+当前生产 deployment authority 是 **Cloudflare Workers Builds Git Integration**；仓库内 GitHub Actions 只做 typecheck/test/build。
+
+Skill-only 更新则不触发 Worker 部署：Worker 在未 pin 调用时解析 `GITHUB_REF=dev` 到 exact SHA，并直接从 GitHub 读取该 snapshot。
+
+因此需要区分：
+
+```text
+Skill 内容变化 → Git push → 下一次调用读取新 snapshot
+Worker 代码变化 → Cloudflare Workers Build / deploy
+Tool contract 变化 → Worker deploy + ChatGPT Refresh / Scan Tools
+```
+
 ## 3. 二期设计结论
 
 推荐采用两层接口，但共用一套底层读取服务。
@@ -109,6 +141,7 @@ skill://<plugin>/<skillId>/assets/template.json
 
 ## 4. 文件索引
 
+- [`current-state-audit.md`](./current-state-audit.md) — 一期边界、当前源码与部署事实核对
 - [`proposal.md`](./proposal.md) — 二期变更提案
 - [`design.md`](./design.md) — 技术架构与工具设计
 - [`specs/skill-resource-access.md`](./specs/skill-resource-access.md) — 可落地接口规范
