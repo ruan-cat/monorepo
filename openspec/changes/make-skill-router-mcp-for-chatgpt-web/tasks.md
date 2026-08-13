@@ -40,59 +40,59 @@
 
 > 目的：以最小 package、SDK identity 和外部客户端 contract 证明当前兼容路径可在目标工程中成立，避免在 SourceSnapshot/tool 业务实现前押注错误 adapter。完成标准：最小 `get_server_info` 通过 Node contract 与所选 MCP SDK 的 initialization/tools discovery；不接触真实 GitHub 或 Cloudflare production。
 
-- [ ] 1.1 [新增] `packages/skill-router-mcp/package.json` - 定义独立名称、SemVer、Nitro、实施日 OpenAI-compatible MCP SDK、zod、wrangler 与 package-local test scripts；保持根 Vitest 3.x 不变，并由 lockfile 固化精确依赖。
-- [ ] 1.2 [新增] `packages/skill-router-mcp/tsconfig.json` - 建立符合仓库 TypeScript 基线的严格编译、路径和产物配置；禁止把 Worker runtime 当 Node-only 程序配置。
-- [ ] 1.3 [新增] `packages/skill-router-mcp/mcp/tool-definitions.ts` - 声明四个只读核心 tool 的唯一 typed metadata/source，至少能为 SDK 注册、`tools/list` 期望目录与 `get_server_info` 摘要投影服务。
-- [ ] 1.4 [新增] `packages/skill-router-mcp/mcp/create-server.ts` - 用 package.json 的唯一 SemVer 创建 `McpServer` 并从 `toolDefinitions` 注册最小可调用 handler；不手写 JSON-RPC lifecycle。
-- [ ] 1.5 [新增] `packages/skill-router-mcp/tests/mcp-server.test.ts` - 使用与生产锁定相同 SDK 的 client/contract test 验证 initialization identity、tools/list 与 canonical definition 一致，并覆盖两个客户端并发/多次 POST 不共享 transport 或 `McpServer` 状态；先确认失败，再让实现通过。
-- [ ] 1.6 [验证] `packages/skill-router-mcp/package.json` - 运行本 package 的 typecheck、定向 MCP contract test 与 lockfile 版本检查；记录上游 v2 与 OpenAI 当前 v1 baseline 的差异，失败证据写入 `agent-findings.md`，通过后才勾选试点内任务。
-- [ ] 1.7 [验证] `packages/skill-router-mcp/server/api/mcp.post.ts` 与 MCP transport 配置 - 在 Inspector/最小客户端中确认 stateless、JSON response、session ID 选项以及 POST-only 是否满足当前 ChatGPT/Inspector；若需要 GET/DELETE/SSE，再追加对应 route 与测试任务，不凭文件命名预设协议动词。
+- [x] 1.1 [新增] `packages/skill-router-mcp/package.json` - 定义独立名称、SemVer、Nitro、实施日 OpenAI-compatible MCP SDK、zod、wrangler 与 package-local test scripts；保持根 Vitest 3.x 不变，并由 lockfile 固化精确依赖。
+- [x] 1.2 [新增] `packages/skill-router-mcp/tsconfig.json` - 建立符合仓库 TypeScript 基线的严格编译、路径和产物配置；禁止把 Worker runtime 当 Node-only 程序配置。
+- [x] 1.3 [新增] `packages/skill-router-mcp/mcp/tool-definitions.ts` - 声明四个只读核心 tool 的唯一 typed metadata/source，至少能为 SDK 注册、`tools/list` 期望目录与 `get_server_info` 摘要投影服务。
+- [x] 1.4 [新增] `packages/skill-router-mcp/mcp/create-server.ts` - 用 package.json 的唯一 SemVer 创建 `McpServer` 并从 `toolDefinitions` 注册最小可调用 handler；不手写 JSON-RPC lifecycle。
+- [x] 1.5 [新增] `packages/skill-router-mcp/tests/mcp-server.test.ts` - 使用与生产锁定相同 SDK 的 client/contract test 验证 initialization identity、tools/list 与 canonical definition 一致，并覆盖两个客户端并发/多次 POST 不共享 transport 或 `McpServer` 状态；先确认失败，再让实现通过。
+- [x] 1.6 [验证] `packages/skill-router-mcp/package.json` - 运行本 package 的 typecheck、定向 MCP contract test 与 lockfile 版本检查；记录上游 v2 与 OpenAI 当前 v1 baseline 的差异，失败证据写入 `agent-findings.md`，通过后才勾选试点内任务。
+- [x] 1.7 [验证] `packages/skill-router-mcp/server/api/mcp.post.ts` 与 MCP transport 配置 - 在 Inspector/最小客户端中确认 stateless、JSON response、session ID 选项以及 POST-only 是否满足当前 ChatGPT/Inspector；若需要 GET/DELETE/SSE，再追加对应 route 与测试任务，不凭文件命名预设协议动词。
 
 ## 2. CP-02：Runtime 元数据、GitHub SourceSnapshot 与 Skill tools
 
 > 前置：CP-01 全部通过。完成标准：每一条读取路径均能用 fake transport 证明 exact-SHA 一致、pin 不重新解析 branch、错误无敏感信息；未接入真实 Cloudflare/ChatGPT 账号。
 
-- [ ] 2.1 [新增] `packages/skill-router-mcp/runtime/build-info.generated.ts` - 提供构建期注入的 build Git SHA 导出与测试可替换输入；运行时不得读取 Git 或工作区 filesystem 推断版本。
-- [ ] 2.2 [新增] `packages/skill-router-mcp/runtime/deployment-info.ts` - 将 `CF_VERSION_METADATA` 转换为安全的 Worker ID/tag/timestamp 与 build SHA；不把它与 MCP SemVer 或 source commit 混用。
-- [ ] 2.3 [新增] `packages/skill-router-mcp/runtime/bindings.ts` - 以实施时 Nitro v3 Cloudflare request runtime API 提取 public source vars、secret 和 version metadata，并只向 repository adapter 暴露 token。
-- [ ] 2.4 [新增] `packages/skill-router-mcp/repositories/github-skill-source.ts` - 实现 configured owner/repo 的 ref resolve、exact SHA 内容读取、GitHub HTTP 错误映射及 token-only auth boundary；禁止 caller 覆盖 source repository。
-- [ ] 2.5 [新增] `packages/skill-router-mcp/services/source-snapshot.ts` - 实现 unpinned resolve-once 和 pinned validate-only 的 request-local SourceSnapshot，向下游只暴露 exact SHA。
-- [ ] 2.6 [新增] `packages/skill-router-mcp/services/skill-registry.ts` - 校验 registry v1、全局唯一 id 和安全 POSIX entry；在 registry 缺失、不支持或 entry 无效时返回领域错误而不 fallback 全仓扫描。
-- [ ] 2.7 [新增] `packages/skill-router-mcp/services/skill-search.ts` - 对 registry 的 id/name/description/plugin 实现标准化关键词匹配和稳定排序；不读取每个 `SKILL.md`，不引入 vector/database。
-- [ ] 2.8 [新增] `packages/skill-router-mcp/services/skill-router.ts` - 编排 list/search/load，保证 registry、selected `SKILL.md` 与按需关联文件使用同一个 snapshot，并拒绝选中 Skill 根目录外路径。
-- [ ] 2.9 [新增] `packages/skill-router-mcp/mcp/tools/get-server-info.ts` - 返回安全 server/deployment/source/registry/tool metadata，且不解析 GitHub HEAD、不读取 token。
-- [ ] 2.10 [新增] `packages/skill-router-mcp/mcp/tools/list-skills.ts` - 基于单次 SourceSnapshot 返回 registry summaries 与 `sourceCommitSha`。
-- [ ] 2.11 [新增] `packages/skill-router-mcp/mcp/tools/search-skills.ts` - 返回确定性 search candidates 与 `sourceCommitSha`，并保留 empty-query/no-match 的安全输入错误。
-- [ ] 2.12 [新增] `packages/skill-router-mcp/mcp/tools/load-skill.ts` - 支持 latest 与可选 sourceCommitSha pin，并只从 configured repository 的同一 SHA 返回 Skill content/metadata。
-- [ ] 2.13 [修改] `packages/skill-router-mcp/mcp/tool-definitions.ts` - 将四个真实 handler、schema 与准确只读 annotation 接入 canonical registry；禁止另建手写 tools array。
-- [ ] 2.14 [新增] `packages/skill-router-mcp/tests/source-snapshot.test.ts` - 覆盖 resolve A 后 branch 变 B 仍读 A、pinned A 不 resolve mutable ref、next unpinned call 可读 B，以及 owner/repo 不可覆盖。
-- [ ] 2.15 [新增] `packages/skill-router-mcp/tests/skill-registry.test.ts` - 覆盖 schema、duplicate id、非法 entry、missing registry、unsupported schema 和 v1 不依赖 deep-file list。
-- [ ] 2.16 [新增] `packages/skill-router-mcp/tests/skill-router.test.ts` - 用 fake GitHub transport 覆盖 list/search/load、pinned search-to-load、非法路径、unknown skill、401/403/404/rate limit，断言 token/authorization 不出现在错误中。
-- [ ] 2.17 [新增] `packages/skill-router-mcp/tests/server-info.test.ts` - 验证 package SemVer、build info、Worker metadata 与 canonical tool summary 一致，并断言诊断调用不访问 GitHub source。
+- [x] 2.1 [新增] `packages/skill-router-mcp/runtime/build-info.generated.ts` - 提供构建期注入的 build Git SHA 导出与测试可替换输入；运行时不得读取 Git 或工作区 filesystem 推断版本。
+- [x] 2.2 [新增] `packages/skill-router-mcp/runtime/deployment-info.ts` - 将 `CF_VERSION_METADATA` 转换为安全的 Worker ID/tag/timestamp 与 build SHA；不把它与 MCP SemVer 或 source commit 混用。
+- [x] 2.3 [新增] `packages/skill-router-mcp/runtime/bindings.ts` - 以实施时 Nitro v3 Cloudflare request runtime API 提取 public source vars、secret 和 version metadata，并只向 repository adapter 暴露 token。
+- [x] 2.4 [新增] `packages/skill-router-mcp/repositories/github-skill-source.ts` - 实现 configured owner/repo 的 ref resolve、exact SHA 内容读取、GitHub HTTP 错误映射及 token-only auth boundary；禁止 caller 覆盖 source repository。
+- [x] 2.5 [新增] `packages/skill-router-mcp/services/source-snapshot.ts` - 实现 unpinned resolve-once 和 pinned validate-only 的 request-local SourceSnapshot，向下游只暴露 exact SHA。
+- [x] 2.6 [新增] `packages/skill-router-mcp/services/skill-registry.ts` - 校验 registry v1、全局唯一 id 和安全 POSIX entry；在 registry 缺失、不支持或 entry 无效时返回领域错误而不 fallback 全仓扫描。
+- [x] 2.7 [新增] `packages/skill-router-mcp/services/skill-search.ts` - 对 registry 的 id/name/description/plugin 实现标准化关键词匹配和稳定排序；不读取每个 `SKILL.md`，不引入 vector/database。
+- [x] 2.8 [新增] `packages/skill-router-mcp/services/skill-router.ts` - 编排 list/search/load，保证 registry、selected `SKILL.md` 与按需关联文件使用同一个 snapshot，并拒绝选中 Skill 根目录外路径。
+- [x] 2.9 [新增] `packages/skill-router-mcp/mcp/tools/get-server-info.ts` - 返回安全 server/deployment/source/registry/tool metadata，且不解析 GitHub HEAD、不读取 token。
+- [x] 2.10 [新增] `packages/skill-router-mcp/mcp/tools/list-skills.ts` - 基于单次 SourceSnapshot 返回 registry summaries 与 `sourceCommitSha`。
+- [x] 2.11 [新增] `packages/skill-router-mcp/mcp/tools/search-skills.ts` - 返回确定性 search candidates 与 `sourceCommitSha`，并保留 empty-query/no-match 的安全输入错误。
+- [x] 2.12 [新增] `packages/skill-router-mcp/mcp/tools/load-skill.ts` - 支持 latest 与可选 sourceCommitSha pin，并只从 configured repository 的同一 SHA 返回 Skill content/metadata。
+- [x] 2.13 [修改] `packages/skill-router-mcp/mcp/tool-definitions.ts` - 将四个真实 handler、schema 与准确只读 annotation 接入 canonical registry；禁止另建手写 tools array。
+- [x] 2.14 [新增] `packages/skill-router-mcp/tests/source-snapshot.test.ts` - 覆盖 resolve A 后 branch 变 B 仍读 A、pinned A 不 resolve mutable ref、next unpinned call 可读 B，以及 owner/repo 不可覆盖。
+- [x] 2.15 [新增] `packages/skill-router-mcp/tests/skill-registry.test.ts` - 覆盖 schema、duplicate id、非法 entry、missing registry、unsupported schema 和 v1 不依赖 deep-file list。
+- [x] 2.16 [新增] `packages/skill-router-mcp/tests/skill-router.test.ts` - 用 fake GitHub transport 覆盖 list/search/load、pinned search-to-load、非法路径、unknown skill、401/403/404/rate limit，断言 token/authorization 不出现在错误中。
+- [x] 2.17 [新增] `packages/skill-router-mcp/tests/server-info.test.ts` - 验证 package SemVer、build info、Worker metadata 与 canonical tool summary 一致，并断言诊断调用不访问 GitHub source。
 
 ## 3. CP-03：Nitro/Worker adapter 与生产构建闭环
 
 > 前置：CP-02 单元测试通过。完成标准：从外部 HTTP/MCP client 验证最终 Nitro Cloudflare build 产物；测试仍使用 mock GitHub，不把本地 fixture 误报为 production 版本。
 
-- [ ] 3.1 [新增] `packages/skill-router-mcp/nitro.config.ts` - 配置 Nitro v3 Cloudflare preset、routes/build 输出与 build-time SHA 注入，不在此文件管理 Cloudflare secret、domain 或 storage lifecycle。
-- [ ] 3.2 [新增] `packages/skill-router-mcp/server/api/mcp.post.ts` - 实现 thin request/runtime-context 到当前 MCP SDK Streamable HTTP transport 的适配，允许 SDK 自身维持协议合规所需 transport/session 生命周期，但禁止自定义 Skill snapshot server session、search 逻辑或 Authorization header。
-- [ ] 3.3 [新增] `packages/skill-router-mcp/server/api/health.get.ts` - 返回只读、安全的应用/部署诊断信息，复用 `DeploymentInfo` 和 build info，不返回 raw env。
-- [ ] 3.4 [新增] `packages/skill-router-mcp/wrangler.toml` - 声明 Worker name、compatibility date、public GitHub source vars 与 `CF_VERSION_METADATA` binding，并为匿名端点设置可验证的请求/响应边界；不提交 `GITHUB_TOKEN`、KV/R2/D1/DO binding 或假定 domain credentials。
-- [ ] 3.5 [新增] `packages/skill-router-mcp/vitest.unit.config.ts` - 将 pure Node unit tests 与 Worker runtime 分开执行，固定 package-local test 环境。
-- [ ] 3.6 [新增] `packages/skill-router-mcp/vitest.worker.config.ts` - 配置与 package-local Vitest 兼容的 `@cloudflare/vitest-pool-workers`/workerd 项目，不叠加 Node runner 伪造 Worker 语义。
-- [ ] 3.7 [新增] `packages/skill-router-mcp/vitest.integration.config.ts` - 配置 Nitro Cloudflare production build 与 Wrangler `createTestHarness()` 的外部 HTTP/MCP contract 测试。
-- [ ] 3.8 [新增] `packages/skill-router-mcp/tests/worker-runtime.test.ts` - 验证 bindings 提取、`CF_VERSION_METADATA`、MCP endpoint initialization、malformed request 与只读安全边界在 workerd 中成立，并覆盖多请求/并发下 transport 与 server 实例不跨客户端泄露状态。
-- [ ] 3.9 [新增] `packages/skill-router-mcp/tests/production-harness.test.ts` - 从外部 client 覆盖 health、initialize、tools/list、get_server_info、list/search/load latest+pin 与典型错误路径，并使用 mock GitHub transport。
-- [ ] 3.10 [修改] `packages/skill-router-mcp/package.json` - 接入 `test:unit`、`test:worker`、`test:integration`、`test:all`、typecheck、build 和本地 wrangler scripts；每个脚本可在 Windows PowerShell 无交互执行。
+- [x] 3.1 [新增] `packages/skill-router-mcp/nitro.config.ts` - 配置 Nitro v3 Cloudflare preset、routes/build 输出与 build-time SHA 注入，不在此文件管理 Cloudflare secret、domain 或 storage lifecycle。
+- [x] 3.2 [新增] `packages/skill-router-mcp/server/api/mcp.post.ts` - 实现 thin request/runtime-context 到当前 MCP SDK Streamable HTTP transport 的适配，允许 SDK 自身维持协议合规所需 transport/session 生命周期，但禁止自定义 Skill snapshot server session、search 逻辑或 Authorization header。
+- [x] 3.3 [新增] `packages/skill-router-mcp/server/api/health.get.ts` - 返回只读、安全的应用/部署诊断信息，复用 `DeploymentInfo` 和 build info，不返回 raw env。
+- [x] 3.4 [新增] `packages/skill-router-mcp/wrangler.toml` - 声明 Worker name、compatibility date、public GitHub source vars 与 `CF_VERSION_METADATA` binding，并为匿名端点设置可验证的请求/响应边界；不提交 `GITHUB_TOKEN`、KV/R2/D1/DO binding 或假定 domain credentials。
+- [x] 3.5 [新增] `packages/skill-router-mcp/vitest.unit.config.ts` - 将 pure Node unit tests 与 Worker runtime 分开执行，固定 package-local test 环境。
+- [x] 3.6 [新增] `packages/skill-router-mcp/vitest.worker.config.ts` - 配置与 package-local Vitest 兼容的 `@cloudflare/vitest-pool-workers`/workerd 项目，不叠加 Node runner 伪造 Worker 语义。
+- [x] 3.7 [新增] `packages/skill-router-mcp/vitest.integration.config.ts` - 配置 Nitro Cloudflare production build 与 Wrangler `createTestHarness()` 的外部 HTTP/MCP contract 测试。
+- [x] 3.8 [新增] `packages/skill-router-mcp/tests/worker-runtime.test.ts` - 验证 bindings 提取、`CF_VERSION_METADATA`、MCP endpoint initialization、malformed request 与只读安全边界在 workerd 中成立，并覆盖多请求/并发下 transport 与 server 实例不跨客户端泄露状态。
+- [x] 3.9 [新增] `packages/skill-router-mcp/tests/production-harness.test.ts` - 从外部 client 覆盖 health、initialize、tools/list、get_server_info、list/search/load latest+pin 与典型错误路径，并使用 mock GitHub transport。
+- [x] 3.10 [修改] `packages/skill-router-mcp/package.json` - 接入 `test:unit`、`test:worker`、`test:integration`、`test:all`、typecheck、build 和本地 wrangler scripts；每个脚本可在 Windows PowerShell 无交互执行。
 
 ## 4. CP-04：CI、运行手册与候选版本发布
 
 > 前置：CP-03 自动化验证全绿。完成标准：代码和文档明确单一生产部署 authority、Skill-only 排除和 candidate -> exact promote -> smoke 流程；候选部署只在账户/权限真实可用时执行。
 
-- [ ] 4.1 [新增] `packages/skill-router-mcp/README.md` - 说明本地运行、必需 vars/secret、测试命令、MCP/Worker/Skill 三种版本含义、Skill-only 不部署 Worker、Tool Contract 变更的 ChatGPT gate 与安全边界。
-- [ ] 4.2 [新增] `packages/skill-router-mcp/.dev.vars.example` - 提供无 secret 的本地 binding 模板与 `GITHUB_TOKEN` 获取方式说明；实际 `.dev.vars` 必须被 gitignore 且不纳入 commit。
-- [ ] 4.3 [新增] `.github/workflows/skill-router-mcp.yml` - 如保留 GitHub workflow，仅为 package runtime/config/build inputs 建立无部署权限的 typecheck、unit、workerd 与 production harness 检查；明确排除仅 `ai-plugins/**` 与普通 docs 变更，不执行 Wrangler deploy/promotion，不保存 Cloudflare production credentials，避免与 Cloudflare Git Integration 形成双部署。
-- [ ] 4.4 [新增] `packages/skill-router-mcp/scripts/smoke-mcp.ts` - 实现对给定 HTTPS endpoint 的只读 smoke：health、initialize、tools/list、get_server_info、known-skill search、pinned load，并精确断言 MCP SemVer/Worker metadata/build SHA。
+- [x] 4.1 [新增] `packages/skill-router-mcp/README.md` - 说明本地运行、必需 vars/secret、测试命令、MCP/Worker/Skill 三种版本含义、Skill-only 不部署 Worker、Tool Contract 变更的 ChatGPT gate 与安全边界。
+- [x] 4.2 [新增] `packages/skill-router-mcp/.dev.vars.example` - 提供无 secret 的本地 binding 模板与 `GITHUB_TOKEN` 获取方式说明；实际 `.dev.vars` 必须被 gitignore 且不纳入 commit。
+- [x] 4.3 [新增] `.github/workflows/skill-router-mcp.yml` - 如保留 GitHub workflow，仅为 package runtime/config/build inputs 建立无部署权限的 typecheck、unit、workerd 与 production harness 检查；明确排除仅 `ai-plugins/**` 与普通 docs 变更，不执行 Wrangler deploy/promotion，不保存 Cloudflare production credentials，避免与 Cloudflare Git Integration 形成双部署。
+- [x] 4.4 [新增] `packages/skill-router-mcp/scripts/smoke-mcp.ts` - 实现对给定 HTTPS endpoint 的只读 smoke：health、initialize、tools/list、get_server_info、known-skill search、pinned load，并精确断言 MCP SemVer/Worker metadata/build SHA。
 - [ ] 4.5 [新增] `openspec/changes/make-skill-router-mcp-for-chatgpt-web/evidence/2026-08-13-cp04-candidate-release.md` - 在 Cloudflare Workers Builds Git Integration 产生真实 candidate build/preview 后记录 immutable Worker ID/tag、Preview URL、执行的 smoke、预期和实际版本；无 Cloudflare 权限时记录阻断原因，不伪造结果。
 - [ ] 4.6 [验证] `packages/skill-router-mcp/wrangler.toml` 与 Cloudflare Builds 配置 - 以 Cloudflare Git Integration 作为唯一 production deploy authority，root directory 使用仓库根目录；核对 Wrangler build/deploy/preview 配置、`GITHUB_TOKEN` secret 配置、Build Watch Paths（包含 `packages/skill-router-mcp/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml` 与必要共享配置，排除 `ai-plugins/**` 与普通 docs），并将实际 dashboard/命令证据写入 CP-04 evidence。
 - [ ] 4.7 [验证] `packages/skill-router-mcp/scripts/smoke-mcp.ts` - 对 candidate Preview URL 运行 smoke，只有 health、MCP 初始化、tools/list、server info、known Skill search 和 pinned load 均通过才能进入 production promote。

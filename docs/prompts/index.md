@@ -129,6 +129,46 @@ Vitest 4 本身也已经把旧 workspace 配置迁向 projects；因此更没有
 
 阅读 - openspec\changes\vite8-vitest4-foundation-upgrade 目录内的全部必要的任务工件，用 do-long-task 技能完成这个艰巨的长任务。
 
-## 012 <!-- TODO: --> 2026-8-13 执行长任务 make-skill-router-mcp-for-chatgpt-web
+## 012 <!-- TODO: codex pro5 正在做 --> 2026-8-13 执行长任务 make-skill-router-mcp-for-chatgpt-web
 
-阅读 openspec\changes\vite8-vitest4-foundation-upgrade 目录内的全部必要的任务工件，用 do-long-task 技能完成这个艰巨的长任务。
+阅读 openspec\changes\make-skill-router-mcp-for-chatgpt-web 目录内的全部必要的任务工件，用 do-long-task 技能完成这个艰巨的长任务。
+
+---
+
+我看了你的硬性卡点：
+
+1. Cloudflare dashboard/API 授权。
+   - 我们本地的 wrangler 是可以用的。wrangler 给了你足够多的权限和工具，能完成必要的 cloudflare worker 部署，以及基于 git 提交完成修改部署的 git 链接。
+
+其他要求和问题：
+
+1. `.github\workflows\skill-router-mcp.yml` 的设计很稳妥，但是我要求你做成一个 `.github\workflows\ci.yaml` 的附属子任务。我再跟你说的是类似于 github workflow 工作流模块化划分的东西，我希望你做出这样的模块化改造。毕竟 skill-router-mcp.yml 设计的本质和 ci.yaml 的职测一样，都是完成云端的基础测试。我要求你做出合适的模块化整合。
+2. `packages\skill-router-mcp\nitro.config.ts` 的 compatibilityDate 我不满意。你应该严格按照 `nitro-api-development` 这款全局技能的要求，做出 compatibilityDate 的配置日期改动。我不希望出现 compatibilityDate 层面额故障。
+   - 你可以反驳我，除非在我们这样的云 MCP 业务内情况不对劲，否则我是要求你改成符合要求的 compatibilityDate 取值的。
+
+---
+
+我要求你给我在本项目，注册局部级别的 cloudflare MCP 配置，而不是全局 MCP 配置，我的 codex 本身就有很多全局的 MCP 了，我不想增加全局 MCP 了，对于本任务，我只能接受本项目的 codex 目录内提供项目级别的 MCP 配置。
+
+Cloudflare API token 获得 Workers Builds Git Integration 访问权限。
+Cloudflare 官方明确要求 Workers Builds API 使用 `User-scoped API token`；`Account-scoped token` 会被拒绝。创建/管理 Builds trigger 至少需要 Workers CI Write 权限。
+`Cloudflare Workers Builds Git Integration`
+
+---
+
+<!-- TODO: -->
+
+我有几个疑问，云 MCP 用的是 cloudflare worker 的额度么？如果我给这个 cloudflare worker 绑定了自己的域名，请问会不会高强度占用域名的 cloudflare CDN 代理流量呢？这个额度大概多少，能支撑的多大规模，多少人的高强度使用呢？我需要对这个云 MCP 的性能承担能力有个底。请你在 `docs\prompts\release-ai-plugins\2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web` 目录内，新建专门的报告文件夹，编写一个报告，说明清楚这个云 MCP 能提供的额度情况。
+
+---
+
+<!-- TODO: -->
+
+现在的 https://dash.cloudflare.com/3412269ab0def154c8806e38acd1b493/workers/services/view/skill-router-mcp/production ，即我 cloudflare 账户的 cloudflare worker ，`skill-router-mcp` 这款 cloudflare worker，还没有实现对 `https://github.com/ruan-cat/monorepo` 指定目录的 git 触发配置和链接。按照你的计划和要求，这是必须做的到，请你继续完成这个基于 github 的监听修改。务必要监听 dev 分支的修改。
+
+---
+
+<!-- TODO: -->
+
+我在 ChatGPT web 内，无法连接这个云 MCP，我哪里写错了？
+![2026-08-13-15-12-20](https://gh-img-store.ruan-cat.com/img/2026-08-13-15-12-20.png)
