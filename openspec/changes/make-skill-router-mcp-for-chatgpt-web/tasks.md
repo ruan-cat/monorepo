@@ -104,8 +104,8 @@
 
 - [x] 5.1 [新增] `openspec/changes/make-skill-router-mcp-for-chatgpt-web/evidence/2026-08-13-cp05-production-smoke.md` - 在 exact candidate promote 后记录 production endpoint、MCP SemVer、Worker ID/tag、build SHA、health 和只读 smoke 输出摘要及已知 rollback target。
 - [x] 5.2 [验证] `packages/skill-router-mcp/scripts/smoke-mcp.ts` - 对 active production endpoint 运行只读 smoke，确认线上 metadata 与 candidate evidence 的 exact Worker version 相同；失败时不勾选 production task，先按记录的 stable version 回滚。
-- [ ] 5.3 [新增] `openspec/changes/make-skill-router-mcp-for-chatgpt-web/evidence/2026-08-13-cp05-chatgpt-developer-mode.md` - 在 ChatGPT Web Developer Mode 中保存实际连接、`get_server_info` 和 search->pinned-load 用例证据；无权限时仅记录阻断与所需授权。
-- [ ] 5.4 [新增] `openspec/changes/make-skill-router-mcp-for-chatgpt-web/evidence/2026-08-13-cp05-tool-contract-review.md` - 当 tool name/schema/description/annotation 有变化时，记录 Inspector、Developer Mode refresh/rescan、重新评估及适用 Workspace review/publish；没有变化时记录差异审计和不需要该 gate 的证据。
+- [x] 5.3 [新增] `openspec/changes/make-skill-router-mcp-for-chatgpt-web/evidence/2026-08-13-cp05-chatgpt-developer-mode.md` - 在 ChatGPT Web Developer Mode 中保存实际连接、`get_server_info` 和 search->pinned-load 用例证据；无权限时仅记录阻断与所需授权。
+- [x] 5.4 [新增] `openspec/changes/make-skill-router-mcp-for-chatgpt-web/evidence/2026-08-13-cp05-tool-contract-review.md` - 当 tool name/schema/description/annotation 有变化时，记录 Inspector、Developer Mode refresh/rescan、重新评估及适用 Workspace review/publish；没有变化时记录差异审计和不需要该 gate 的证据。
 - [ ] 5.5 [新增] `openspec/changes/make-skill-router-mcp-for-chatgpt-web/evidence/2026-08-13-cp05-rollback-exercise.md` - 在预发或获准窗口记录一次 stable Worker rollback 和 health/initialize/tools/server-info 复验；Skill 内容故障必须另以 Git revert/fix 验证，不能误用 Worker rollback。
 - [ ] 5.6 [验证] `openspec/changes/make-skill-router-mcp-for-chatgpt-web/tasks.md` - 全部计划任务完成后运行 strict validation、全量 package tests/typecheck/build、registry check、workflow contract 检查与 scope-only git diff review；仅在外部证据齐备或显式标记的非自动项均获得处理后勾选最终 checkpoint。
 
