@@ -48,3 +48,10 @@ Cloudflare 官方文档说明，Workers Builds 使用的 API token 需要能够�
 - 已通过生产触发器对远程 `dev` 分支发起第一次构建，构建 UUID 为 `1186fadf-507f-4d9a-8327-91d428e28a4a`。Cloudflare 已接收并执行，但最终失败：构建环境中的远程 `dev` 提交不包含 `packages/skill-router-mcp` 目录，执行 `pnpm --dir packages/skill-router-mcp run build` 时报告目录不存在。
 - 本地 `HEAD` 与远程 `dev` 当时指向同一提交，但本地 skill-router-mcp 改动尚未提交并推送，因此失败属于 GitHub 远程源码尚未包含本次实现，不是 token 或 Cloudflare API 授权失败。
 - 结论：Cloudflare Workers Builds Git Integration 的仓库连接、生产/预览触发器和 API 访问权限已真实建立；4.7/4.8 仍需在提交并推送包含该包的 Git 提交后重新触发，取得成功构建、部署和预览证据后才能勾选。
+
+## 2026-08-13 推送触发与部署复核
+
+- 本次实现已分组提交并推送到远程 `dev`。Cloudflare 自动生成 production push 构建 `5d06b99f-ecf9-4b10-9826-6bd9c930b298`，对应提交 `99bd0c9d954f34d227b4c137c158d2cf0f605fc0`，状态为 `success`。
+- 生产构建实际采用仓库根目录 `/`、`pnpm --dir packages/skill-router-mcp run build` 和 `pnpm --dir packages/skill-router-mcp exec wrangler deploy --config wrangler.toml`。Worker 部署记录显示新的 100% 版本 `ad1102d4-647d-4bed-9be2-6bae1a407b2b`。
+- 同一提交推送到候选分支后，Cloudflare 自动生成 preview push 构建 `dadd3803-b8d0-4a14-a80c-c932551b4167`，状态为 `success`，并返回 Preview URL `https://codex-skill-router-mcp-candidate-skill-router-mcp.1219043956.workers.dev`。
+- 候选与生产端点均已运行只读 smoke；候选 smoke 覆盖 health、MCP 初始化、tools/list、get_server_info、known-skill 搜索和 pinned load。GitHub Actions 工作流仅运行校验，不包含 Wrangler deploy/promotion，也未写入 Cloudflare 凭据。

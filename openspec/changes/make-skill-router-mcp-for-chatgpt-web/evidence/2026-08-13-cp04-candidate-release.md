@@ -26,3 +26,11 @@
 - Worker 地址：`https://skill-router-mcp.1219043956.workers.dev`。
 - 只读 smoke 已通过：health、MCP 初始化、`tools/list` 四项工具发现、known-skill 搜索、带精确 SHA 的 pinned load。
 - 该版本仍是 Wrangler 直接 Upload，不是 Cloudflare Workers Builds Git Integration candidate；因此 CP-04 的 Git Integration、Preview promotion 和单一生产部署 authority 任务仍保持未完成。
+
+## 2026-08-13 Workers Builds 候选版本成功验证
+
+- 候选分支 `codex/skill-router-mcp-candidate` 已推送到 `ruan-cat/monorepo`；其提交为 `99bd0c9d954f34d227b4c137c158d2cf0f605fc0`。
+- Cloudflare Workers Builds 自动创建 push 构建 `dadd3803-b8d0-4a14-a80c-c932551b4167`，状态为 `success`；构建来源是 `push_event`，并使用预览触发器的 `wrangler versions upload` 命令。
+- Preview URL：`https://codex-skill-router-mcp-candidate-skill-router-mcp.1219043956.workers.dev`。
+- 对该 Preview URL 执行只读 smoke 已通过：`/health`、MCP 初始化、`tools/list` 四项工具发现、`get_server_info`、known-skill 搜索及精确 SHA 的 pinned `load_skill`。
+- Preview 构建与生产构建均使用固定 Worker 脚本标签；候选分支不承载生产部署权威，生产仅由 `dev` 触发器执行 `wrangler deploy`。
