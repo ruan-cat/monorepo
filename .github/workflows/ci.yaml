@@ -10,9 +10,19 @@ on:
   push:
     branches:
       - dev
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - "packages/skill-router-mcp/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/ci.yaml"
+      - ".github/workflows/skill-router-mcp.yml"
 
 jobs:
   tester:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: 检出分支
@@ -46,3 +56,13 @@ jobs:
 
       - name: 验证utils发布入口
         run: pnpm --filter @ruan-cat/utils test:entrypoints
+
+  skill-router-mcp:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    uses: ./.github/workflows/skill-router-mcp.yml
+    permissions:
+      contents: read
+    with:
+      node-version: "22"
+      pnpm-version: "10.33.0"
+      package-dir: "packages/skill-router-mcp"

@@ -1,0 +1,36 @@
+name: skill-router-mcp checks
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        type: string
+        required: false
+        default: "22"
+      pnpm-version:
+        type: string
+        required: false
+        default: "10.33.0"
+      package-dir:
+        type: string
+        required: false
+        default: "packages/skill-router-mcp"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ inputs.pnpm-version }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm --dir ${{ inputs.package-dir }} run typecheck
+      - run: pnpm --dir ${{ inputs.package-dir }} run test:all
+      - run: pnpm --dir ${{ inputs.package-dir }} run build
