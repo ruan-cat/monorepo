@@ -15,3 +15,4 @@
 - 扫描到的工具名称与 canonical `toolDefinitions` 一致：`get_server_info`、`list_skills`、`search_skills`、`load_skill`。
 - 真实对话先调用 `get_server_info`，再调用 `search_skills`、`list_skills` 和 pinned `load_skill`；工具调用列表显示请求与响应，未出现名称、输入架构或只读注释不一致。
 - 本次是首次开发模式扫描，不存在旧工具快照需要比较；因此 5.4 的 refresh/rescan 与重新评估门禁已获得产品侧证据。
+- 追加的命中式验证中，ChatGPT 实际执行 `search_skills(release-ai-plugins)` → `load_skill(release-ai-plugins, sourceCommitSha=cc26cb6a41152bf05ce2a7f6fa4411ef843996f6)`，两次调用均显示成功。

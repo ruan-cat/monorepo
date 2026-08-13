@@ -15,5 +15,6 @@
 - 首次真实调用：`get_server_info` 成功返回服务信息；`search_skills("cloudflare")` 返回空数组，未将空结果误判为 Skill 不存在。
 - 随后真实调用 `list_skills` 返回完整注册表，并选取首项 `add-favicon`；使用同一精确提交 `6207e8185f40f44181c2951dcae7f45dae3d9dc3` 调用 `load_skill`，内容成功返回。
 - ChatGPT 对话中展示了 `list_skills` 与 `load_skill` 的工具调用记录、Skill ID、精确提交 SHA，以及“内容是否成功返回：是”。
+- 为严格覆盖 search → pinned-load，随后以 `release-ai-plugins` 为 query 执行真实 `search_skills`；结果命中 `release-ai-plugins`，返回精确提交 `cc26cb6a41152bf05ce2a7f6fa4411ef843996f6`，再用该 SHA 调用 `load_skill`，内容成功返回。
 
 这证明 ChatGPT Developer Mode 的首次连接、工具发现、服务信息读取、注册表读取和 pinned load 均已在真实产品会话中完成。
