@@ -1,0 +1,8 @@
+# Public source configuration
+GITHUB_OWNER=ruan-cat
+GITHUB_REPO=monorepo
+GITHUB_REF=dev
+
+# Create a GitHub fine-grained token for the configured repository with Contents: read-only.
+# Never commit the real token or this file renamed to .dev.vars.
+GITHUB_TOKEN=
