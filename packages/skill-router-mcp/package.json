@@ -1,0 +1,31 @@
+{
+	"name": "skill-router-mcp",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "Read-only Remote MCP Skill Router for ChatGPT Web.",
+	"scripts": {
+		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"test": "vitest run --config vitest.unit.config.ts",
+		"test:unit": "vitest run --config vitest.unit.config.ts",
+		"test:worker": "pnpm run build && vitest run --config vitest.worker.config.ts",
+		"test:integration": "pnpm run build && vitest run --config vitest.integration.config.ts",
+		"test:all": "pnpm run test:unit && pnpm run test:worker && pnpm run test:integration",
+		"build": "node scripts/generate-build-info.mjs && nitro build",
+		"smoke": "node --experimental-strip-types scripts/smoke-mcp.ts",
+		"dev": "nitro dev",
+		"wrangler": "wrangler"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "1.30.0",
+		"nitro": "3.0.260610-beta",
+		"zod": "4.4.3"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "0.21.2",
+		"@types/node": "22.19.15",
+		"typescript": "5.9.3",
+		"vitest": "4.1.0",
+		"wrangler": "4.122.0"
+	}
+}
