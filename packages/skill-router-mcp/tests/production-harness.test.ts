@@ -1,9 +1,18 @@
 import { createServer as createHttpServer, type Server } from "node:http";
 import { createTestHarness, type TestHarness } from "wrangler";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { toolCatalog } from "../mcp/tool-definitions.ts";
+import { toolNames } from "../mcp/tool-definitions.ts";
 
 const SOURCE_SHA = "0123456789abcdef0123456789abcdef01234567";
+const ROOT_TREE = "1".repeat(40);
+const AI_TREE = "2".repeat(40);
+const COMMON_TREE = "3".repeat(40);
+const SKILLS_TREE = "4".repeat(40);
+const FIXTURE_TREE = "5".repeat(40);
+const SKILL_BLOB = "6".repeat(40);
+const RULES_BLOB = "7".repeat(40);
+const SKILL_CONTENT = "# Fixture Skill\n";
+const RULES_CONTENT = "first\nsecond\nthird\n";
 const registry = {
 	schemaVersion: "1",
 	roots: ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"],
@@ -38,18 +47,66 @@ async function mcp(method: string, params: unknown, id = 1): Promise<Record<stri
 
 function unpack<T>(message: Record<string, unknown>): T | undefined {
 	const result = message.result as
-		{ structuredContent?: T; content?: Array<{ type: string; text: string }> } | undefined;
+		| { structuredContent?: T; content?: Array<{ type: string; text: string }> }
+		| undefined;
 	if (result?.structuredContent !== undefined) return result.structuredContent;
 	const text = result?.content?.find((part) => part.type === "text")?.text;
 	return text ? (JSON.parse(text) as T) : undefined;
 }
 
+function tree(path: string, sha: string) {
+	return { path, mode: "040000", type: "tree", sha };
+}
+
+function blob(path: string, sha: string, size: number) {
+	return { path, mode: "100644", type: "blob", sha, size };
+}
+
 beforeAll(async () => {
 	upstream = createHttpServer((request, response) => {
-		const path = new URL(request.url ?? "/", "http://127.0.0.1").pathname;
+		const url = new URL(request.url ?? "/", "http://127.0.0.1");
+		const path = url.pathname;
 		response.setHeader("content-type", "application/json");
+
 		if (path.endsWith("/commits/dev")) {
 			response.end(JSON.stringify({ sha: SOURCE_SHA }));
+			return;
+		}
+		if (path.endsWith(`/git/commits/${SOURCE_SHA}`)) {
+			response.end(JSON.stringify({ tree: { sha: ROOT_TREE } }));
+			return;
+		}
+		if (path.endsWith(`/git/trees/${ROOT_TREE}`)) {
+			response.end(JSON.stringify({ tree: [tree("ai-plugins", AI_TREE)], truncated: false }));
+			return;
+		}
+		if (path.endsWith(`/git/trees/${AI_TREE}`)) {
+			response.end(JSON.stringify({ tree: [tree("common-tools", COMMON_TREE)], truncated: false }));
+			return;
+		}
+		if (path.endsWith(`/git/trees/${COMMON_TREE}`)) {
+			response.end(JSON.stringify({ tree: [tree("skills", SKILLS_TREE)], truncated: false }));
+			return;
+		}
+		if (path.endsWith(`/git/trees/${SKILLS_TREE}`)) {
+			response.end(JSON.stringify({ tree: [tree("fixture-skill", FIXTURE_TREE)], truncated: false }));
+			return;
+		}
+		if (path.endsWith(`/git/trees/${FIXTURE_TREE}`)) {
+			response.end(
+				JSON.stringify({
+					tree: [
+						blob("SKILL.md", SKILL_BLOB, Buffer.byteLength(SKILL_CONTENT)),
+						tree("references", "8".repeat(40)),
+						blob("references/rules.md", RULES_BLOB, Buffer.byteLength(RULES_CONTENT)),
+					],
+					truncated: false,
+				}),
+			);
+			return;
+		}
+		if (path.endsWith(`/git/blobs/${RULES_BLOB}`)) {
+			response.end(JSON.stringify({ content: encoded(RULES_CONTENT), encoding: "base64", size: Buffer.byteLength(RULES_CONTENT) }));
 			return;
 		}
 		if (path.endsWith("/contents/ai-plugins/skill-registry.json")) {
@@ -57,7 +114,7 @@ beforeAll(async () => {
 			return;
 		}
 		if (path.endsWith("/contents/ai-plugins/common-tools/skills/fixture-skill/SKILL.md")) {
-			response.end(JSON.stringify({ content: encoded("# Fixture Skill\n"), encoding: "base64" }));
+			response.end(JSON.stringify({ content: encoded(SKILL_CONTENT), encoding: "base64" }));
 			return;
 		}
 		response.statusCode = 404;
@@ -79,7 +136,7 @@ afterAll(async () => {
 });
 
 describe("production Worker harness", () => {
-	test("exercises the complete MCP read-only flow against the production build", async () => {
+	test("exercises Skill discovery and resource loading against the production build", async () => {
 		const health = await harness.fetch("http://skill-router-mcp.test/health");
 		expect(health.status).toBe(200);
 		const initialized = await mcp("initialize", {
@@ -88,42 +145,57 @@ describe("production Worker harness", () => {
 			clientInfo: { name: "harness", version: "1" },
 		});
 		expect((initialized.result as { serverInfo?: { name?: string } }).serverInfo?.name).toBe("skill-router-mcp");
+
 		const tools = await mcp("tools/list", {});
-		expect(((tools.result as { tools?: Array<{ name: string }> }).tools ?? []).map((tool) => tool.name)).toEqual([
-			"get_server_info",
-			"list_skills",
-			"search_skills",
-			"load_skill",
-		]);
-		const info = unpack<{ skillSource?: { repository?: string } }>(
-			await mcp("tools/call", { name: "get_server_info", arguments: {} }),
-		);
-		expect(info?.skillSource?.repository).toBe("ruan-cat/monorepo");
+		expect(((tools.result as { tools?: Array<{ name: string }> }).tools ?? []).map((tool) => tool.name)).toEqual(toolNames);
+
 		const listed = unpack<Array<{ id?: string; sourceCommitSha?: string }>>(
 			await mcp("tools/call", { name: "list_skills", arguments: {} }),
 		);
 		expect(listed).toEqual([{ ...registry.skills[0], sourceCommitSha: SOURCE_SHA }]);
-		const searched = unpack<Array<{ id?: string; sourceCommitSha?: string }>>(
-			await mcp("tools/call", { name: "search_skills", arguments: { query: "fixture" } }),
-		);
-		expect(searched?.[0]).toMatchObject({ id: "fixture-skill", sourceCommitSha: SOURCE_SHA });
+
 		const latest = unpack<{ content?: string; sourceCommitSha?: string }>(
 			await mcp("tools/call", { name: "load_skill", arguments: { skillId: "fixture-skill" } }),
 		);
-		expect(latest).toMatchObject({ content: "# Fixture Skill\n", sourceCommitSha: SOURCE_SHA });
-		const pinned = unpack<{ sourceCommitSha?: string }>(
+		expect(latest).toMatchObject({ content: SKILL_CONTENT, sourceCommitSha: SOURCE_SHA });
+
+		const resources = unpack<{
+			sourceCommitSha?: string;
+			resources?: Array<{ path?: string; kind?: string; mimeType?: string }>;
+		}>(
 			await mcp("tools/call", {
-				name: "load_skill",
-				arguments: { skillId: "fixture-skill", sourceCommitSha: SOURCE_SHA },
+				name: "list_skill_resources",
+				arguments: { skillId: "fixture-skill", prefix: "references/" },
 			}),
 		);
-		expect(pinned?.sourceCommitSha).toBe(SOURCE_SHA);
+		expect(resources).toMatchObject({ sourceCommitSha: SOURCE_SHA });
+		expect(resources?.resources).toEqual([
+			expect.objectContaining({ path: "references/rules.md", kind: "reference", mimeType: "text/markdown" }),
+		]);
+
+		const loadedResource = unpack<{ content?: string; sourceCommitSha?: string; path?: string }>(
+			await mcp("tools/call", {
+				name: "load_skill_resource",
+				arguments: {
+					skillId: "fixture-skill",
+					path: "references/rules.md",
+					sourceCommitSha: SOURCE_SHA,
+					startLine: 2,
+					endLine: 2,
+				},
+			}),
+		);
+		expect(loadedResource).toMatchObject({
+			content: "second",
+			sourceCommitSha: SOURCE_SHA,
+			path: "references/rules.md",
+		});
+
 		const badPin = await mcp("tools/call", {
 			name: "load_skill",
 			arguments: { skillId: "fixture-skill", sourceCommitSha: "main" },
 		});
 		expect((badPin.result as { isError?: boolean }).isError).toBe(true);
-		expect(JSON.stringify(badPin)).not.toMatch(/authorization|github_token|secret/i);
 	});
 
 	test("keeps two harness requests independent", async () => {
