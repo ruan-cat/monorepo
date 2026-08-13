@@ -49,6 +49,22 @@ Skill Router MCP 一期已经能够完成 Skill 的发现、搜索与 `SKILL.md`
 7. 将同一底层 Resource Resolver 映射为可选 `skill://` MCP Resources，以兼容 Skills-over-MCP 的演进方向；
 8. ChatGPT Web 仍以 model-callable tools 作为二期首要验收入口，不依赖 Host 必须暴露 Resources。
 
+### 已冻结的实现参数
+
+设计核对后进一步冻结：
+
+- Registry v1 保持不变；
+- `list_skill_resources` default limit 50 / max 200，cursor 自带 pinned SHA；
+- enumeration 只读取 Skill subtree，Git Trees recursive truncated 时 non-recursive fallback；
+- `load_skill_resource` text 256 KiB default / 1 MiB hard；
+- binary 默认 metadata-only，显式 base64 hard 64 KiB；
+- symlink / submodule 只枚举 metadata，不读取、不跟随；
+- `load_skill` Stage 2 MVP 保持现有输出结构；
+- canonical Resource URI 使用 `skill://<plugin>/<sourceCommitSha>/<skill-name>/<path>`；
+- resource-specific errors 在一期错误码上增量扩展，不重命名旧错误。
+
+权威实现契约见 `implementation-contract.md`。
+
 ### 为什么这样设计
 
 核心目标是保留 Agent Skills 的 progressive disclosure：

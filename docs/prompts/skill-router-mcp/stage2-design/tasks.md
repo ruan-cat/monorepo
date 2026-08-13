@@ -1,47 +1,76 @@
 # Skill Router MCP Stage 2 Tasks
 
-## Pilot Batch
+## Design Freeze
 
-- [x] [核对] `docs/prompts/release-ai-plugins/2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web/**` - 已确认一期公开 Tool Surface 为 4 个工具；related file @ SHA 已在规格中预留，二期负责将其公开化、完整化
-- [x] [核对] `packages/skill-router-mcp/**` - 已确认 `readRelatedFile` / `SourceSnapshot` / `GitHubSkillSource.readFile` 可复用；当前缺公开 resource tools、枚举、metadata/blob/limit 与完整错误模型
-- [ ] [设计] `docs/prompts/skill-router-mcp/stage2-design/specs/skill-resource-access.md` - 以 `git-commit/references/commit-types.ts` 为试点冻结 Tool Schema、错误码和 snapshot 规则
-- [ ] [测试设计] `packages/skill-router-mcp/**` - 增加最小 PoC 测试：`git-commit` 能读取 `references/commit-types.ts` 且 path traversal 被拒绝
-- [ ] [验证] `packages/skill-router-mcp/**` - 用 ChatGPT Web 实际扫描新版 tools，完成一次 `search → load skill → load resource` 调用
+- [x] 核对一期设计与当前 `dev` Tool Surface
+- [x] 核对 `readRelatedFile` / `SourceSnapshot` / GitHub source 现有实现
+- [x] 冻结 `list_skill_resources` Tool schema
+- [x] 冻结 `load_skill_resource` Tool schema
+- [x] 冻结 Registry v1 + Skill-subtree enumeration 方案
+- [x] 冻结 SHA-bound pagination cursor
+- [x] 冻结 text / binary size policy
+- [x] 冻结 Git object type policy
+- [x] 冻结 resource-specific error model
+- [x] 冻结 immutable `skill://` URI
+- [x] 冻结 Stage 2 MVP `load_skill` 向后兼容策略
+- [ ] PR review 接受 `implementation-contract.md`
 
 ## Main Implementation
 
-- [ ] [修改] `packages/skill-router-mcp/**` - 抽取统一 `SkillResolver`，通过 `skillId` 解析 plugin、entry、skill root 和 source commit
-- [ ] [修改] `packages/skill-router-mcp/**` - 新增 `ResourceResolver`，实现 canonical relative path、根目录隔离、路径穿越拒绝
-- [ ] [修改] `packages/skill-router-mcp/**` - 实现 `list_skill_resources`
-- [ ] [修改] `packages/skill-router-mcp/**` - 实现 `load_skill_resource`
-- [ ] [修改] `packages/skill-router-mcp/**` - 增强 `load_skill` 响应，增加 `resourceSummary` 与可选 `referencedResources`
-- [ ] [修改] `packages/skill-router-mcp/**` - 所有 Skill/Resource 调用统一回显 resolved `sourceCommitSha`
-- [ ] [修改] `packages/skill-router-mcp/**` - 将缓存键升级为 `repo + commit + skill + path`
-- [ ] [修改] `packages/skill-router-mcp/**` - 增加 MIME、size、text/blob 判定和资源大小限制
-- [ ] [测试] `packages/skill-router-mcp/**` - 覆盖 references/scripts/assets/other 四类文件
-- [ ] [测试] `packages/skill-router-mcp/**` - 覆盖 `../`、绝对路径、Windows path、URL 编码 traversal
-- [ ] [测试] `packages/skill-router-mcp/**` - 覆盖 dev 从 A 前进到 B 后固定 A snapshot 的一致性
+- [ ] 抽取统一 `SkillResolver`，从 `skillId` 解析 plugin、entry、Skill root 与 source snapshot
+- [ ] 新增 `ResourceResolver`，集中实现 inventory、metadata、snapshot、path policy、range 与 size policy
+- [ ] 扩展 `GitHubSkillSource` 支持 exact commit tree / subtree / blob 读取
+- [ ] 实现 selected-Skill subtree enumeration 和 upstream truncation fallback
+- [ ] 实现 deterministic inventory cache，key 至少包含 repository + commit + skill
+- [ ] 实现 `list_skill_resources`
+- [ ] 实现 `load_skill_resource`
+- [ ] 在 canonical `toolDefinitions` 注册两个新 Tool
+- [ ] 保持 `load_skill` Stage 2 MVP output shape 不变
+- [ ] 扩展 `runtime/errors.ts` 增加冻结的 resource errors
+- [ ] 增加 deterministic MIME / resource kind / resourceType 判定
+- [ ] 增加 text 256 KiB default / 1 MiB hard policy
+- [ ] 增加 binary metadata default / 64 KiB explicit base64 policy
+- [ ] 增加 immutable `skill://<plugin>/<sha>/<skill-name>/<path>` URI 生成
+
+## Tests
+
+- [ ] `git-commit` 真实 reference 读取 PoC
+- [ ] `pr-ruancat-repo` 三个 references 独立读取
+- [ ] scripts resource test
+- [ ] text asset / binary asset test
+- [ ] resource isolation and invalid-input category tests
+- [ ] symlink / submodule object-type tests
+- [ ] source A -> B snapshot race test
+- [ ] pagination cursor remains on A after source ref moves to B
+- [ ] deterministic pagination no-duplicate/no-gap test
+- [ ] text size / line range tests
+- [ ] binary metadata / base64 cap tests
+- [ ] immutable URI snapshot tests
+- [ ] `tools/list` / `get_server_info.tools` canonical catalog tests
 
 ## MCP Resources Compatibility
 
-- [ ] [设计] `packages/skill-router-mcp/**` - 复用 ResourceResolver 暴露 `skill://<plugin>/<skillId>/{+path}` resource template
-- [ ] [实现] `packages/skill-router-mcp/**` - 支持标准 `resources/read` 文本资源
-- [ ] [实现] `packages/skill-router-mcp/**` - 支持标准 `resources/read` blob 资源
-- [ ] [评估] `packages/skill-router-mcp/**` - 决定二期是否同时交付 `skill://index.json`，还是放到二期后续小版本
+- [ ] 复用 `ResourceResolver` 注册 immutable `skill://` resource template
+- [ ] 支持 standard `resources/read` text resource
+- [ ] 支持 standard `resources/read` blob resource
+- [ ] 共用 URI / MIME / size / source snapshot / isolation logic
+- [ ] 评估 `skill://index.json` 是否放到 Stage 2 后续小版本
 
 ## Registry / Deployment
 
-- [x] [核对] 当前 deployment authority - `packages/skill-router-mcp/README.md` 已确认生产部署由 Cloudflare Workers Builds Git Integration 负责；`.github/workflows/skill-router-mcp.yml` 只做检查/测试/构建
-- [ ] [核对] Cloudflare Workers Builds Dashboard - 核对 production branch、root directory、build/deploy command、include/exclude path 与 secrets；这些值不能仅从当前仓库完整推导
-- [ ] [核对] `packages/skill-router-mcp/**` - 确认当前 registry 是否只保存 SKILL entry；决定文件 inventory 是构建时生成还是运行时 GitHub tree 查询
-- [ ] [修改] `packages/skill-router-mcp/**` - 如 registry shape 变化，升级 `registrySchemaVersion`
-- [ ] [修改] `packages/skill-router-mcp/**` - 保持旧版 `load_skill` 调用兼容
-- [ ] [部署] Cloudflare Worker - 部署测试版本
-- [ ] [配置] ChatGPT MCP App - Refresh / Scan Tools，使新增 tools 进入 ChatGPT 的 action snapshot
-- [ ] [验收] ChatGPT Web - 完成 `git-commit`、`pr-ruancat-repo` 两条真实链路
+- [x] 设计默认保持 Registry v1，不为 deep-file inventory 强制 schema bump
+- [ ] 实现阶段 benchmark Skill-subtree Git tree enumeration 的请求数与延迟
+- [ ] 只有 benchmark 明确失败时再提出 Registry v2 inventory 变更
+- [ ] 核对 Cloudflare Workers Builds Dashboard 的 production branch、root、build/deploy command、path filters 与 secrets
+- [ ] 部署包含两个新 Tool 的 Worker 测试版本
+- [ ] MCP Inspector / Developer Mode 验证
+- [ ] ChatGPT Refresh / Scan Tools
+- [ ] ChatGPT Web 完成 `git-commit` 与 `pr-ruancat-repo` 两条真实链路
 
 ## Documentation
 
-- [ ] [修改] `docs/prompts/skill-router-mcp/stage2-design/**` - 回填源码核对结果、最终 Tool Schema 与实现文件路径
-- [ ] [修改] `packages/skill-router-mcp/README.md` - 增加完整 Skill 资源调用示例
-- [ ] [修改] 对应 MCP 使用文档 - 说明 Tools 与 `skill://` Resources 两种读取入口
+- [x] 新增 `implementation-contract.md` 作为冻结实现契约
+- [x] 同步 `README.md` / `design.md` / Spec / acceptance / proposal / tasks / PR draft
+- [ ] 实现完成后回填真实源码路径和最终测试结果
+- [ ] 更新 `packages/skill-router-mcp/README.md` 增加资源调用示例
+- [ ] 更新 MCP 使用文档说明 Tools 与 `skill://` Resources 两种读取入口

@@ -49,3 +49,37 @@
 - ChatGPT 创建自定义 MCP App 时会扫描 tools/actions；
 - MCP App tool/action 变更不会自动进入已批准 snapshot，需要 Refresh / 更新；
 - 因此二期新增 Tool 后必须把 ChatGPT tool refresh 作为部署步骤。
+
+
+## GitHub REST — Git Trees / Contents
+
+- Git Trees API  
+  https://docs.github.com/en/rest/git/trees?apiVersion=2022-11-28
+
+关键点：
+
+- recursive tree response 可能 `truncated=true`；
+- recursive 模式有 100,000 entries / 7 MB 上限；
+- truncated 时应改为 non-recursive subtree traversal；
+- fine-grained token 只需要 Contents read。
+
+- Repository Contents API  
+  https://docs.github.com/en/rest/repos/contents?apiVersion=2022-11-28
+
+关键点：
+
+- 单 directory listing 有 1,000 entries 上限；
+- file <=1 MB 时完整支持 contents response；
+- symlink 可能被透明解析，因此二期 resource 安全判断优先使用 Git tree mode/type。
+
+## OpenAI ChatGPT MCP App Refresh
+
+- Developer mode and MCP apps in ChatGPT  
+  https://help.openai.com/en/articles/12584461-developer-mode-and-full-mcp-connectors-in-chatgpt-beta
+
+关键点：
+
+- Create / test 时需要 Scan Tools；
+- MCP server 后续 action/tool 更新不会自动启用；
+- 需要 Refresh 获取新增 action 或定义更新；
+- approved app 使用 frozen tool/input snapshot。

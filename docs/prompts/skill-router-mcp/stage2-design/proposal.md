@@ -93,38 +93,18 @@ list_skill_resources
 load_skill_resource
 ```
 
-### 2.2 增强 load_skill 响应
+### 2.2 保持 load_skill MVP 兼容
 
-`load_skill` 继续以 `SKILL.md` 为主体，不改造成 bundle API。
+Stage 2 MVP 不强制增加 `resourceSummary` / `referencedResources`。
 
-建议额外返回轻量资源提示：
-
-```json
-{
-  "resourceSummary": {
-    "count": 8,
-    "references": 8,
-    "scripts": 0,
-    "assets": 0,
-    "other": 0
-  },
-  "referencedResources": [
-    {
-      "path": "references/commit-types.ts",
-      "kind": "reference"
-    }
-  ]
-}
-```
-
-`referencedResources` 只用于降低模型下一次调用成本，不强制把资源内容同时加载。
+这些字段原本用于降低下一次工具调用成本，但会带来额外 tree enumeration 或 Markdown 引用提取逻辑。二期先用两个独立资源 Tool 完成正确性与 progressive disclosure，resource hints 作为后续兼容优化评估。
 
 ### 2.3 可选 MCP Resources 映射
 
 为同一资源提供：
 
 ```text
-skill://common-tools/git-commit/references/commit-types.ts
+skill://common-tools/<sourceCommitSha>/git-commit/references/commit-types.ts
 ```
 
 使未来 Host 可以使用标准 `resources/read` 读取。
@@ -168,7 +148,7 @@ skill://common-tools/git-commit/references/commit-types.ts
 
 如果当前 registry 仅索引 Skill 元数据和 `entry`，二期需要增加 Skill 文件清单或能够在运行时安全枚举 Skill 根目录。
 
-推荐默认保留 Registry v1，通过 pinned SHA 下的 Skill-root scoped runtime enumeration 获取资源清单；只有 benchmark 证明不可接受时再升级 `registrySchemaVersion`。
+推荐将 `registrySchemaVersion` 从 `1` 升级到下一版本，并明确旧版本兼容策略。
 
 ### 4.3 缓存
 
