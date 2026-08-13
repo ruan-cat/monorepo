@@ -49,7 +49,7 @@ version
 entry
 ```
 
-一期明确不把 references/templates/examples 等 deep files 放进 registry，以避免高频 Skill 内容变化制造第二套 high-churn index。
+一期明确不把 references/templates/examples 等 deep files 放进 registry，以避免高频 Skill 内容变化制造第二套高 churn index。
 
 ### 2.3 Snapshot
 
@@ -198,7 +198,7 @@ Git commit / push
 
 ### 7.2 Worker Runtime 更新
 
-当前 `packages/skill-router-mcp/README.md` 明确把生产 deployment authority 定义为：
+当前 `packages/skill-router-mcp/README.md` 明确把生�� deployment authority 定义为：
 
 ```text
 Cloudflare Workers Builds Git Integration
@@ -257,3 +257,19 @@ Cloudflare 部署不能自动刷新 ChatGPT 已批准的 tool snapshot。
 不全部存在于 Git 仓库。
 
 因此不能仅根据当前仓库断言 Cloudflare Builds 的精确 path watch 配置。实现二期前应把该 Dashboard / Builds 配置作为一次独立部署核对项。
+
+## 9. 二期实现契约冻结结果
+
+在当前状态核对基础上，Stage 2 不再保留以下开放问题：
+
+- Registry v1 vs v2：**保留 v1**；
+- enumeration：**Skill-root scoped Git Trees**，truncated fallback；
+- pagination：**cursor 绑定 sourceCommitSha**；
+- `load_skill` hints：**MVP 不增加**；
+- text size：**256 KiB default / 1 MiB hard**；
+- binary：**metadata 默认 / base64 64 KiB hard cap**；
+- symlink/submodule：**可枚举，不读取/不跟随**；
+- public resource errors：在一期错误码基础上增加 resource-specific codes，不重命名旧 code；
+- canonical `skill://`：**把 sourceCommitSha 编入 URI**。
+
+权威值见 `implementation-contract.md`。

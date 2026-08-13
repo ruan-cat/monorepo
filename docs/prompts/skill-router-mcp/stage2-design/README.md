@@ -61,6 +61,7 @@ git-commit/SKILL.md
 
 > **让已经选中的 Skill 能完整地按需获取自己的附属文件。**
 
+
 ### 2.1 源码核对后的补充结论
 
 当前 `dev` 源码里已经存在内部方法：
@@ -127,10 +128,10 @@ list_skill_resources(skillId, sourceCommitSha, prefix?)
 同一套底层资源可额外映射成：
 
 ```text
-skill://<plugin>/<skillId>/SKILL.md
-skill://<plugin>/<skillId>/references/commit-types.ts
-skill://<plugin>/<skillId>/scripts/foo.ts
-skill://<plugin>/<skillId>/assets/template.json
+skill://<plugin>/<sourceCommitSha>/<skill-name>/SKILL.md
+skill://<plugin>/<sourceCommitSha>/<skill-name>/references/commit-types.ts
+skill://<plugin>/<sourceCommitSha>/<skill-name>/scripts/foo.ts
+skill://<plugin>/<sourceCommitSha>/<skill-name>/assets/template.json
 ```
 
 这层用于兼容 MCP Skills-over-MCP 方向以及未来能直接消费 MCP Resources 的 Host。
@@ -139,10 +140,25 @@ skill://<plugin>/<skillId>/assets/template.json
 
 原因：当前 ChatGPT 自定义 MCP App 的产品入口仍以扫描并调用工具 / actions 为最确定的模型调用面；Tools 能保证 ChatGPT Web 在现阶段直接完成资源的按需读取。Resources 应作为标准兼容能力，而不是 ChatGPT Web 的唯一依赖。
 
+## 3.3 已冻结的实现参数
+
+经过当前源码与 GitHub/MCP 官方行为核对，Stage 2 implementation contract 已冻结：
+
+- `list_skill_resources`: default `limit=50`, max `200`；cursor 绑定 source SHA；
+- enumeration: 只读选中 Skill Git subtree，recursive tree truncated 时 non-recursive fallback；
+- `load_skill_resource`: text default 256 KiB / hard 1 MiB；binary 默认 metadata-only，显式 base64 hard 64 KiB；
+- public path error 统一 `INVALID_RESOURCE_PATH`，symlink/submodule 不跟随；
+- `load_skill` Stage 2 MVP 不增加 resource hints；
+- Registry v1 保持不变；
+- canonical Resource URI 包含 immutable source SHA：`skill://<plugin>/<sha>/<skill-name>/<path>`。
+
+具体值以 [`implementation-contract.md`](./implementation-contract.md) 为准。
+
 ## 4. 文件索引
 
 - [`current-state-audit.md`](./current-state-audit.md) — 一期边界、当前源码与部署事实核对
 - [`proposal.md`](./proposal.md) — 二期变更提案
+- [`implementation-contract.md`](./implementation-contract.md) — **二期实现冻结契约（schema / limits / cursor / URI / errors）**
 - [`design.md`](./design.md) — 技术架构与工具设计
 - [`specs/skill-resource-access.md`](./specs/skill-resource-access.md) — 可落地接口规范
 - [`acceptance.md`](./acceptance.md) — 真实 Skill 验收场景

@@ -1,321 +1,180 @@
 # Spec: Skill Resource Access
 
-## 1. ADDED — Skill Resource Enumeration
+> Frozen values and safety policy: [`../implementation-contract.md`](../implementation-contract.md)
 
-### Requirement
+## 1. ADDED — `list_skill_resources`
 
 系统 MUST 允许调用方列出一个已注册 Skill 根目录内的资源。
 
-### Interface
+### Input
 
-```text
-list_skill_resources
+```ts
+{
+  skillId: string;
+  sourceCommitSha?: string;
+  prefix?: string;
+  cursor?: string;
+  limit?: number;
+}
 ```
 
-### Required Inputs
+冻结值：default limit 50，max limit 200。
 
-- `skillId`
+### Output
 
-### Optional Inputs
-
-- `sourceCommitSha`
-- `prefix`
-- `cursor`
-- `limit`
-
-### Behavior
-
-1. 系统 MUST 先解析 `skillId` 对应的 Skill root；
-2. 系统 MUST 将所有结果限制在 Skill root 内；
-3. 系统 MUST 返回相对 Skill root 的 `/` 分隔路径；
-4. 系统 MUST 返回 resolved `sourceCommitSha`；
-5. 系统 SHOULD 返回 `mimeType`、`size`、`kind`；
-6. 系统 SHOULD 支持 prefix 过滤；
-7. 结果顺序 MUST deterministic；
-8. 大量结果 MUST 支持分页或明确的上限。
-
-### Scenario: 列出 git-commit references
-
-**Given**
-
-```text
-skillId = git-commit
-prefix = references/
+```ts
+{
+  skillId: string;
+  plugin: string;
+  name: string;
+  sourceCommitSha: string;
+  prefix?: string;
+  resources: Array<{
+    path: string;
+    uri: string;
+    kind: "skill" | "reference" | "script" | "asset" | "other";
+    resourceType: "file" | "symlink" | "submodule";
+    mimeType: string;
+    size?: number;
+    textReadable: boolean;
+  }>;
+  total: number;
+  nextCursor?: string;
+}
 ```
 
-**When**
+### Requirements
 
-调用 `list_skill_resources`
+1. MUST 从 Registry v1 entry 推导 Skill root。
+2. MUST 只枚举选中 Skill 的 Git subtree。
+3. MUST deterministic sort。
+4. MUST 支持 prefix filter。
+5. MUST 支持 pagination。
+6. cursor MUST 固定首次请求解析出的 source snapshot。
+7. upstream enumeration 不完整时 MUST 使用完整性 fallback。
+8. every response MUST return resolved `sourceCommitSha`。
 
-**Then**
+### Scenario — snapshot pagination
 
-返回中包含：
-
-```text
-references/commit-types.ts
-```
-
-且所有记录均位于 `git-commit` Skill root 内。
+Given page 1 resolves source A and source ref later advances to B, When page 2 uses page 1 cursor, Then page 2 still belongs to A。
 
 ---
 
-## 1.1 Existing Implementation Compatibility
+## 2. ADDED — `load_skill_resource`
 
-当前实现已有内部 `SkillRouter.readRelatedFile(skillId, relativePath, snapshot)`。
+系统 MUST 允许调用方读取选中 Skill 内的一个资源。
 
-二期实现 SHOULD 复用或抽取该路径约束与 pinned snapshot 语义，而不是维护第二套相互独立的 related-file reader。
+### Input
 
-公开 `load_skill_resource` 的错误码与 metadata 契约可以升级，但旧 `load_skill` 行为 MUST 保持兼容。
-
----
-
-## 2. ADDED — Skill Resource Reading
-
-### Requirement
-
-系统 MUST 允许调用方通过 Skill 相对路径读取单个资源。
-
-### Interface
-
-```text
-load_skill_resource
+```ts
+{
+  skillId: string;
+  path: string;
+  sourceCommitSha?: string;
+  startLine?: number;
+  endLine?: number;
+  maxBytes?: number;
+  binaryMode?: "metadata" | "base64";
+}
 ```
 
-### Required Inputs
+### Requirements
 
-- `skillId`
-- `path`
-
-### Optional Inputs
-
-- `sourceCommitSha`
-- `startLine`
-- `endLine`
-- `maxBytes`
-
-### Behavior
-
-1. `path` MUST 是 Skill root 相对路径；
-2. `path` MUST 经过 canonical normalization；
-3. 最终资源 MUST 位于 Skill root 内；
-4. 系统 MUST 拒绝 path traversal；
-5. 系统 MUST 返回 resolved commit SHA；
-6. 文本文件 MUST 能返回文本；
-7. 二进制文件 MUST 返回正确 MIME 和 blob 元数据；
-8. 超大资源 MUST fail closed 或明确截断，不能静默截断；
-9. 读取失败 MUST 返回稳定错误码。
-
-### Scenario: 读取 commit-types.ts
-
-**Given**
-
-```text
-skillId = git-commit
-path = references/commit-types.ts
-sourceCommitSha = A
-```
-
-**When**
-
-调用 `load_skill_resource`
-
-**Then**
-
-- 返回文件内容；
-- `sourceCommitSha` 等于 A；
-- `kind` 等于 `reference`；
-- 不读取 `dev` 最新 commit B。
+1. Text default inline budget MUST be 256 KiB。
+2. Text source hard cap MUST be 1 MiB。
+3. Binary default MUST be metadata-only。
+4. Binary base64 raw hard cap MUST be 64 KiB。
+5. Size over effective limit MUST return `RESOURCE_TOO_LARGE`。
+6. Range MUST use 1-based inclusive lines and invalid range MUST return `RESOURCE_RANGE_INVALID`。
+7. MUST NOT silently truncate returned content。
+8. MUST locate the resource in the same pinned Skill inventory before reading the exact regular Git object。
+9. Unsupported Git object type MUST return `RESOURCE_TYPE_UNSUPPORTED`。
+10. every response MUST return resolved `sourceCommitSha`。
 
 ---
 
 ## 3. ADDED — Snapshot Consistency
 
-### Requirement
-
-同一个 Agent Skill 执行链 MUST 能固定在同一个 Git source commit。
-
-### Behavior
-
-1. `search_skills` / `list_skills` MUST 回显 source commit；
-2. `load_skill` MUST 接受该 commit；
-3. `list_skill_resources` MUST 接受该 commit；
-4. `load_skill_resource` MUST 接受该 commit；
-5. 所有响应 MUST 回显实际 resolved commit；
-6. commit 不存在时 MUST 返回 `SOURCE_COMMIT_NOT_FOUND`。
-
-### Scenario: dev 在执行期间发生更新
-
-**Given**
+The Stage 2 resource Tools MUST preserve the一期 exact-SHA model:
 
 ```text
-search_skills → A
-dev → B
+discovery @ A
+  -> load_skill @ A
+  -> load_skill_resource @ A
 ```
 
-**When**
+A mutable source ref moving after discovery MUST NOT change pinned reads.
 
-继续使用：
-
-```text
-load_skill(..., A)
-load_skill_resource(..., A)
-```
-
-**Then**
-
-两次均必须读取 A。
+Malformed source pin continues using一期 `SOURCE_COMMIT_INVALID`。
 
 ---
 
-## 4. ADDED — Resource Path Isolation
+## 4. ADDED — Resource Isolation
 
-### Requirement
+All resource requests MUST be constrained to the selected Skill root and to entries present in the same pinned Skill inventory.
 
-一个 Skill 的资源读取 MUST 无法越过 Skill root。
+Canonical path validation and unsupported object-type policy are defined by `implementation-contract.md` and MUST be shared by both Tools and MCP Resources compatibility code.
 
-### Invalid Inputs
+---
+
+## 5. ADDED — Resource Kind and MIME
+
+Kind classification:
 
 ```text
-../foo
-../../secret
-/absolute/path
-C:\secret
-..\another-skill\SKILL.md
+SKILL.md       -> skill
+references/**  -> reference
+scripts/**     -> script
+assets/**      -> asset
+other          -> other
 ```
 
-### Scenario: 跨 Skill 读取
+MIME MUST use a deterministic extension map. Unknown types MUST fall back to `application/octet-stream`.
 
-**Given**
+Actual text decoding failure MUST return `RESOURCE_ENCODING_UNSUPPORTED`.
 
-```text
-skillId = git-commit
-path = ../pr-ruancat-repo/SKILL.md
-```
+---
 
-**Then**
+## 6. ADDED — Error Model
 
-返回：
+一期 errors remain compatible. Stage 2 adds:
 
 ```text
+RESOURCE_NOT_FOUND
 INVALID_RESOURCE_PATH
+RESOURCE_TYPE_UNSUPPORTED
+RESOURCE_TOO_LARGE
+RESOURCE_RANGE_INVALID
+RESOURCE_CURSOR_INVALID
+RESOURCE_ENCODING_UNSUPPORTED
 ```
 
-或更具体的：
-
-```text
-RESOURCE_OUTSIDE_SKILL_ROOT
-```
-
-不得返回目标文件内容。
+The detailed mapping is frozen in `implementation-contract.md`.
 
 ---
 
-## 5. ADDED — Progressive Disclosure
+## 7. ADDED — Immutable MCP Resource URI
 
-### Requirement
-
-系统 MUST 保持 Skill 资源按需读取，不得强制在 `load_skill` 时加载全部目录。
-
-### Behavior
-
-`load_skill`：
-
-- MUST 返回 `SKILL.md`；
-- MAY 返回资源统计；
-- MAY 返回直接引用路径；
-- MUST NOT 默认返回所有 references/scripts/assets 内容。
-
-### Scenario: 大型 Skill
-
-**Given**
-
-Skill 包含：
+Canonical resource URI:
 
 ```text
-SKILL.md 20 KB
-references/ 300 KB
-scripts/ 150 KB
-assets/ 2 MB
+skill://<plugin>/<sourceCommitSha>/<skill-name>/<relative-path>
 ```
 
-**When**
-
-调用 `load_skill`
-
-**Then**
-
-响应主要包含 `SKILL.md` 与轻量资源提示，不包含 2.45 MB 全量附属资源。
+The URI MUST identify one immutable source snapshot. Stage 2 does not define a mutable latest alias.
 
 ---
 
-## 6. ADDED — Resource Kinds
+## 8. MODIFIED — `load_skill`
 
-系统 SHOULD 将资源分类为：
+Stage 2 MVP MUST preserve the current public output structure and keep `content` equal to the selected `SKILL.md` content.
 
-```text
-skill
-reference
-script
-asset
-other
-```
-
-规则：
-
-```text
-SKILL.md      -> skill
-references/** -> reference
-scripts/**    -> script
-assets/**     -> asset
-*             -> other
-```
-
-该标签只用于 Agent 决策，MIME 类型仍应独立返回。
+Resource hints are deferred and are not an MVP requirement.
 
 ---
 
-## 7. ADDED — MCP Resource URI
+## 9. MCP Resources Compatibility
 
-系统 SHOULD 为 Skill 资源生成 canonical URI：
+The same ResourceResolver SHOULD support MCP `resources/read` and share source snapshot, URI, MIME, size and isolation logic with the model-callable Tools.
 
-```text
-skill://<plugin>/<skillId>/<path>
-```
-
-示例：
-
-```text
-skill://common-tools/git-commit/SKILL.md
-skill://common-tools/git-commit/references/commit-types.ts
-```
-
-底层资源读取 SHOULD 可复用相同 resolver 服务 MCP `resources/read`。
-
----
-
-## 8. MODIFIED — load_skill
-
-`load_skill` 保持向后兼容。
-
-新增可选字段：
-
-```text
-resourceSummary
-referencedResources
-```
-
-不能改变 `content` 表示 `SKILL.md` 主体的语义。
-
----
-
-## 9. Non-Requirements
-
-以下能力明确不属于本 Spec：
-
-- 执行 `scripts/*`；
-- 解压归档；
-- 通用 GitHub 文件浏览；
-- Skill 内容写入；
-- 跨 Skill 文件读取；
-- 自动把所有 assets 注入模型；
-- 自动递归加载所有引用。
+`skill://index.json` is not a Stage 2 MVP gate.

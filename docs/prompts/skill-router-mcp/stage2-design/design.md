@@ -1,172 +1,33 @@
 # Skill Router MCP Stage 2 技术设计
 
-## 1. 设计原则
+## 1. 目标
 
-### 1.1 保留 Progressive Disclosure
-
-二期不能把：
+Stage 2 补全 Agent Skill 目录的渐进式资源访问能力，不扩大 Router 的职责边界。
 
 ```text
-SKILL.md
-references/**
-scripts/**
-assets/**
+metadata
+  -> SKILL.md
+  -> references / scripts / assets / other resources on demand
 ```
 
-全部拼成一次 `load_skill` 返回。
+Router 只负责发现、列出和读取 Skill 自身资源；不执行脚本，不提供通用仓库浏览，不写入 Skill。
 
-正确模型是：
+## 2. 当前实现基线
 
-```text
-发现
-  ↓
-激活
-  ↓
-按需读取
-```
+当前 `dev` 已存在：
 
-这既符合 Agent Skills 的目录模型，也能控制上下文和 token 成本。
+- `SkillRouter.snapshot`
+- `SkillRouter.loadSkill`
+- `SkillRouter.readRelatedFile`
+- `GitHubSkillSource.resolveRef`
+- `GitHubSkillSource.readFile`
+- `SourceSnapshot`
 
-### 1.2 Skill Router 只读取，不执行
+因此 Stage 2 不重新实现第二套 Skill 读取路径，而是把现有 related-file 能力抽取并扩展为稳定的 `ResourceResolver`，再暴露两个 model-callable Tools。
 
-`scripts/` 属于 Skill 的资源，不代表 Router 应执行它。
+## 3. Tool Surface
 
-Router 只负责：
-
-```text
-列出 script
-读取 script
-返回 script 元数据 / 内容
-```
-
-是否执行由调用 Agent 自己的执行环境、权限和其他工具决定。
-
-### 1.3 Tool-first，Resource-compatible
-
-二期同时考虑：
-
-- ChatGPT Web 当前可靠的模型工具调用；
-- MCP 生态面向 Skills-over-MCP 的 Resources 设计。
-
-但两者必须共享底层服务，避免双实现。
-
-## 2. 总体架构
-
-```text
-                         ┌─────────────────────┐
-                         │   Skill Registry    │
-                         │ metadata + entries  │
-                         └──────────┬──────────┘
-                                    │
-                  ┌─────────────────┴─────────────────┐
-                  │                                   │
-         ┌────────▼─────────┐               ┌─────────▼─────────┐
-         │ Skill Resolver    │               │ Resource Resolver  │
-         │ id → skill root   │               │ safe relative path │
-         └────────┬─────────┘               └─────────┬─────────┘
-                  │                                   │
-                  └─────────────────┬─────────────────┘
-                                    │
-                         ┌──────────▼──────────┐
-                         │ GitHub Source Layer │
-                         │ pinned commit SHA   │
-                         └──────────┬──────────┘
-                                    │
-              ┌─────────────────────┴─────────────────────┐
-              │                                           │
-     ┌────────▼─────────┐                       ┌──────────▼─────────┐
-     │ MCP Tools         │                       │ MCP Resources       │
-     │ model-controlled  │                       │ host-compatible     │
-     └──────────────────┘                       └─────────────────────┘
-```
-
-## 2.1 当前实现基线
-
-当前 `dev` 并不是完全没有 resource 读取基础。
-
-已存在：
-
-```text
-SkillRouter.snapshot(...)
-SkillRouter.loadSkill(...)
-SkillRouter.readRelatedFile(...)
-GitHubSkillSource.resolveRef(...)
-GitHubSkillSource.readFile(...)
-SourceSnapshot
-```
-
-其中 `readRelatedFile` 已经：
-
-- 从 registry `entry` 推导 Skill root；
-- 将读取限制在该 Skill 目录；
-- 使用传入 snapshot 的 exact `sourceCommitSha`；
-- 复用现有 GitHub source layer。
-
-但它当前只是内部 service 方法，没有进入 canonical `toolDefinitions`，也没有完整的 resource metadata / blob / enumeration 契约。
-
-因此推荐实现演进为：
-
-```text
-现有 readRelatedFile
-  ↓
-抽取 / 扩展 ResourceResolver
-  ↓
-load_skill_resource Tool
-  ↓
-list_skill_resources Tool
-  ↓
-可选 skill:// MCP Resources adapter
-```
-
-而不是重新实现第二套 Skill 读取路径。
-
-### 2.2 Registry / Resource Enumeration
-
-默认保留 Registry v1 的 low-churn 原则，不把整个 Skill 文件清单写进 registry。
-
-推荐：
-
-```text
-registry.entry
-  ↓
-SkillResolver -> skill root
-  ↓
-GitHubSkillSource.listDirectory/listSkillTree @ pinned SHA
-  ↓
-ResourceResolver
-  ↓
-deterministic list + prefix + pagination
-```
-
-枚举必须只发生在选中的 Skill root，而不是把 Router 扩成任意 repo tree browser。
-
-对同一 `(repository, sourceCommitSha, skillId)` 的枚举结果可以缓存；是否需要 Registry v2 由 benchmark 决定。
-
-### 2.3 当前部署与 freshness
-
-当前生产部署 authority 是 Cloudflare Workers Builds Git Integration；仓库 GitHub Actions 只运行 typecheck/test/build。
-
-同时：
-
-```text
-Skill-only change
-  -> Git push
-  -> next unpinned call resolves GITHUB_REF again
-  -> no Worker redeploy
-
-Runtime/code/config change
-  -> Cloudflare Workers Build / deploy
-
-Tool contract change
-  -> Runtime deploy
-  -> ChatGPT Refresh / Scan Tools
-```
-
-二期新增 Tool 属于第三类，不能只验证 Cloudflare 部署成功。
-
-## 3. 推荐 Tool Surface
-
-一期继续保留：
+一期保持：
 
 ```text
 get_server_info
@@ -182,456 +43,217 @@ list_skill_resources
 load_skill_resource
 ```
 
-不推荐一期二期直接增加：
+两个新 Tool 都是 read-only、non-destructive、open-world。
+
+Stage 2 MVP 保持 `load_skill` 现有公开返回结构，不强制加入 resource hints，避免每次激活 Skill 都触发额外 tree enumeration。
+
+## 4. ResourceResolver
+
+推荐结构：
 
 ```text
-load_skill_bundle
+Registry v1 entry
+  -> SkillResolver
+  -> selected Skill root
+  -> ResourceResolver
+  -> GitHub source at exact sourceCommitSha
+  -> Tools / optional MCP Resources
 ```
 
-因为 bundle 会弱化渐进式披露，并容易把大量无关资源塞进上下文。
+ResourceResolver 负责：
 
-## 4. Tool 1：list_skill_resources
+- Skill root 解析
+- deterministic inventory
+- resource kind / object type / MIME / size
+- snapshot consistency
+- safe relative path validation
+- range / size / binary policy
+- immutable resource URI
+- stable resource errors
 
-### 4.1 用途
+## 5. Resource Enumeration
 
-当 Agent：
+Registry v1 保持不变，不因为 deep-file inventory 强制升级 schema。
 
-- 不知道某 Skill 有哪些附属文件；
-- 只知道 `references/` 目录但不知道文件名；
-- 需要发现 scripts/assets；
-- 要确认某个引用文件是否存在；
+枚举只读取选中 Skill 的 Git subtree：
 
-调用此工具。
+```text
+sourceCommitSha
+  -> commit root tree
+  -> walk to selected Skill tree
+  -> recursive Skill subtree read
+  -> safe fallback when upstream reports truncation
+```
 
-### 4.2 输入
+禁止先递归读取整个 monorepo 再按 Skill path 过滤。
+
+结果按 Skill-root relative path 做 deterministic ascending sort，再执行 prefix filter 和 pagination。
+
+分页 cursor 必须绑定 `skillId`、`sourceCommitSha`、prefix 和 offset，因此分支在两页之间前进时，后续页面仍属于首次解析出的 snapshot。
+
+## 6. `list_skill_resources`
+
+冻结输入：
 
 ```ts
-type ListSkillResourcesInput = {
+{
   skillId: string;
   sourceCommitSha?: string;
   prefix?: string;
   cursor?: string;
   limit?: number;
-};
-```
-
-### 4.3 输出
-
-```ts
-type SkillResourceRecord = {
-  path: string;
-  uri: string;
-  kind: "skill" | "reference" | "script" | "asset" | "other";
-  mimeType?: string;
-  size?: number;
-  textReadable: boolean;
-};
-
-type ListSkillResourcesOutput = {
-  skillId: string;
-  plugin: string;
-  sourceCommitSha: string;
-  resources: SkillResourceRecord[];
-  nextCursor?: string;
-};
-```
-
-### 4.4 示例
-
-```json
-{
-  "skillId": "git-commit",
-  "sourceCommitSha": "4b6ec879...",
-  "prefix": "references/"
 }
 ```
 
-返回：
+冻结范围：
 
-```json
-{
-  "skillId": "git-commit",
-  "plugin": "common-tools",
-  "sourceCommitSha": "4b6ec879...",
-  "resources": [
-    {
-      "path": "references/commit-types.ts",
-      "uri": "skill://common-tools/git-commit/references/commit-types.ts",
-      "kind": "reference",
-      "mimeType": "text/plain",
-      "size": 12345,
-      "textReadable": true
-    }
-  ]
-}
+- default limit: 50
+- max limit: 200
+- cursor: opaque, stateless, snapshot-bound
+
+Resource record 至少包含：
+
+```text
+path
+uri
+kind
+resourceType
+mimeType
+size
+textReadable
 ```
 
-## 5. Tool 2：load_skill_resource
+其中：
 
-### 5.1 用途
+```text
+kind = skill | reference | script | asset | other
+resourceType = file | symlink | submodule
+```
 
-读取一个已经确定路径的 Skill 附属资源。
+目录节点不作为 resource record 返回。
 
-### 5.2 输入
+## 7. `load_skill_resource`
+
+冻结输入：
 
 ```ts
-type LoadSkillResourceInput = {
+{
   skillId: string;
   path: string;
   sourceCommitSha?: string;
-
-  // 可选：文本文件范围读取
   startLine?: number;
   endLine?: number;
-
-  // 可选：防止模型误拉超大文件
   maxBytes?: number;
-};
-```
-
-### 5.3 输出：文本资源
-
-```ts
-type TextSkillResourceOutput = {
-  skillId: string;
-  plugin: string;
-  sourceCommitSha: string;
-  path: string;
-  uri: string;
-  kind: "reference" | "script" | "asset" | "other";
-  mimeType: string;
-  size: number;
-  contentType: "text";
-  content: string;
-  range?: {
-    startLine: number;
-    endLine: number;
-    totalLines?: number;
-  };
-};
-```
-
-### 5.4 输出：二进制资源
-
-工具层不应默认把大型二进制资源塞进模型上下文。
-
-建议返回：
-
-```ts
-type BlobSkillResourceOutput = {
-  skillId: string;
-  plugin: string;
-  sourceCommitSha: string;
-  path: string;
-  uri: string;
-  kind: "asset" | "other";
-  mimeType: string;
-  size: number;
-  contentType: "blob";
-  encoding?: "base64";
-  content?: string;
-  truncated?: boolean;
-};
-```
-
-策略：
-
-1. 小型 blob 可以受 `maxBytes` 限制后返回 base64；
-2. 大型 blob 返回元数据 + `uri`；
-3. MCP Resources 层可用标准 blob 资源表达；
-4. Router 不做图片识别、不解压、不执行。
-
-## 6. load_skill 的二期增强
-
-`load_skill` 仍只负责 `SKILL.md` 内容。
-
-新增轻量提示：
-
-```ts
-type LoadSkillOutputV2 = {
-  id: string;
-  plugin: string;
-  name: string;
-  description: string;
-  version: string;
-  entry: string;
-  content: string;
-  sourceCommitSha: string;
-
-  resourceSummary?: {
-    count: number;
-    references: number;
-    scripts: number;
-    assets: number;
-    other: number;
-  };
-
-  referencedResources?: Array<{
-    path: string;
-    kind: "reference" | "script" | "asset" | "other";
-  }>;
-};
-```
-
-### 为什么需要 referencedResources
-
-对于这种文本：
-
-```markdown
-读取 `references/commit-types.ts`
-```
-
-模型本身已经知道准确路径。
-
-如果 Router 同时能从 SKILL.md 中提取直接相对引用并返回轻量索引，Agent 可以：
-
-```text
-load_skill
-  ↓
-直接 load_skill_resource
-```
-
-而无需多做一次 `list_skill_resources`。
-
-这只是优化，不是正确性的依赖。
-
-## 7. Canonical Skill URI
-
-建议：
-
-```text
-skill://<plugin>/<skillId>/<relative-path>
-```
-
-示例：
-
-```text
-skill://common-tools/git-commit/SKILL.md
-skill://common-tools/git-commit/references/commit-types.ts
-skill://common-tools/pr-ruancat-repo/references/workflow-and-template.md
-```
-
-原因：
-
-- `plugin` 提供命名空间；
-- `skillId` 与当前 Registry 主键对齐；
-- `<relative-path>` 与 Skill 根目录相对路径完全一致；
-- 未来可以直接映射到 MCP `resources/read`。
-
-## 8. sourceCommitSha 一致性
-
-这是二期的关键正确性要求。
-
-### 8.1 问题
-
-假设：
-
-```text
-T0: search_skills → commit A
-T1: dev 分支推进到 commit B
-T2: load_skill 没有 pin → 读取 B
-T3: load_skill_resource 又读取 C
-```
-
-Agent 最终会执行一个“拼接出来的 Skill”，不是仓库里真实存在过的任何版本。
-
-### 8.2 规则
-
-所有响应必须回显：
-
-```text
-sourceCommitSha
-```
-
-调用方推荐遵循：
-
-```text
-search/list 返回 A
-  ↓
-load_skill(..., A)
-  ↓
-list/load resource(..., A)
-```
-
-如果调用方省略 SHA：
-
-- Router 可以 resolve 当前 `dev`；
-- 但必须在响应里返回实际 resolved SHA；
-- 后续调用应继续使用该 SHA。
-
-### 8.3 缓存键
-
-```text
-repo + commitSha + skillId + path
-```
-
-## 9. 路径安全
-
-`path` 是模型可控输入，必须视为不可信。
-
-### 9.1 必须拒绝
-
-```text
-../
-../../
-/absolute/path
-C:\...
-\\server\share
-%2e%2e/
-双重 URL 编码路径穿越
-NUL
-```
-
-### 9.2 根目录约束
-
-解析后的资源必须满足：
-
-```text
-resolvedPath ∈ resolvedSkillRoot
-```
-
-并且不能通过：
-
-- symlink；
-- URL 编码；
-- 路径分隔符混用；
-
-逃出 Skill 根目录。
-
-### 9.3 跨 Skill 读取禁止
-
-下面的调用必须失败：
-
-```text
-skillId = git-commit
-path = ../pr-ruancat-repo/SKILL.md
-```
-
-## 10. Resource 类型判断
-
-推荐基于路径 + MIME 双重判断：
-
-```text
-SKILL.md      → skill
-references/** → reference
-scripts/**    → script
-assets/**     → asset
-其他          → other
-```
-
-`kind` 只是语义标签，不能取代 MIME。
-
-## 11. 错误模型
-
-建议稳定错误码：
-
-```text
-SKILL_NOT_FOUND
-RESOURCE_NOT_FOUND
-INVALID_RESOURCE_PATH
-RESOURCE_OUTSIDE_SKILL_ROOT
-RESOURCE_TOO_LARGE
-UNSUPPORTED_RESOURCE_ENCODING
-SOURCE_COMMIT_NOT_FOUND
-SOURCE_COMMIT_MISMATCH
-UPSTREAM_FETCH_FAILED
-```
-
-错误响应应包含：
-
-```json
-{
-  "code": "RESOURCE_NOT_FOUND",
-  "message": "Resource does not exist in this skill snapshot.",
-  "skillId": "git-commit",
-  "path": "references/foo.md",
-  "sourceCommitSha": "..."
+  binaryMode?: "metadata" | "base64";
 }
 ```
 
-## 12. MCP Resources 兼容层
-
-同一 Resource Resolver 可以注册：
+冻结大小策略：
 
 ```text
-skill://<plugin>/<skillId>/{+path}
+text inline default     256 KiB
+text/source hard cap      1 MiB
+binary default          metadata only
+binary base64 hard cap   64 KiB raw
 ```
 
-并支持标准：
+超限必须显式失败，不允许静默截断。
+
+直接读取资源时，先在同一 pinned Skill inventory 中定位 exact Git object，再读取 regular blob。调用方不需要先显式执行 list。
+
+## 8. Object Type Safety
+
+Git object type 参与读取安全判断：
+
+- regular blob: 可读取
+- symlink: 可列出 metadata，但不跟随、不读取
+- submodule: 可列出 metadata，但不进入子仓库读取
+
+这避免底层 path API 的透明解析扩大 Router 的读取范围。
+
+## 9. Path Safety
+
+公开资源 Tool 只接受 raw Skill-root relative POSIX path。
+
+实现必须拒绝所有会改变根目录语义、平台语义或编码语义的输入类别，包括：
+
+- parent-directory traversal
+- absolute path
+- Windows drive 或 network path
+- mixed separator
+- empty、dot 或 parent directory segment
+- NUL
+- percent-encoded traversal 或 separator forms
+
+最终 resource 还必须实际存在于同一 pinned Skill inventory；不能只依赖字符串前缀判断。
+
+公开 path validation 统一使用 `INVALID_RESOURCE_PATH`。
+
+## 10. MIME / Text / Binary
+
+MIME 使用 deterministic extension map；未知类型 fallback `application/octet-stream`。
+
+`textReadable` 是 inventory hint。真正读取文本时仍必须验证 UTF-8；不支持的编码返回稳定 resource error。
+
+二进制默认 metadata-only；仅在调用方明确请求且资源不超过固定 cap 时返回 base64。
+
+## 11. Error Model
+
+一期错误码保持兼容。
+
+二期新增：
 
 ```text
-resources/read
+RESOURCE_NOT_FOUND
+INVALID_RESOURCE_PATH
+RESOURCE_TYPE_UNSUPPORTED
+RESOURCE_TOO_LARGE
+RESOURCE_RANGE_INVALID
+RESOURCE_CURSOR_INVALID
+RESOURCE_ENCODING_UNSUPPORTED
 ```
 
-可选提供：
+不再增加语义重复的 root-escape error code，也不为了资源访问重命名一期 source errors。
+
+## 12. Immutable Skill URI
+
+Stage 2 canonical URI：
 
 ```text
-skill://index.json
+skill://<plugin>/<sourceCommitSha>/<skill-name>/<relative-path>
 ```
 
-但这层属于兼容 / 演进面。
+URI 包含 source SHA，因此同一个 URI 对应不可变 Git snapshot。
 
-### ChatGPT Web 设计要求
+`<skill-name>` 使用 Skill name，使 Skills-over-MCP 兼容层的最终 Skill segment 与 Agent Skill 名称保持一致。
 
-不能假设 ChatGPT 一定会把 MCP Resources 以模型可直接调用的方式暴露。
+Stage 2 不提供 mutable latest URI alias。
 
-因此二期 ChatGPT 验收以：
+## 13. MCP Resources Compatibility
 
-```text
-list_skill_resources
-load_skill_resource
-```
+Tools 是 ChatGPT Web 的 Stage 2 验收门。
 
-为准。
+同一个 ResourceResolver SHOULD 再映射为标准 MCP Resources：
 
-MCP Resources 验收作为额外协议互操作测试。
+- text resource -> MCP text
+- binary resource -> MCP blob
+- 共用 URI、MIME、size、snapshot 和 path isolation
 
-## 12.1 二期上线边界
+不维护第二套 GitHub reader。
 
-新增 `list_skill_resources` / `load_skill_resource` 会改变 `tools/list`。
+`skill://index.json` 不阻塞 Stage 2 MVP。
 
-因此二期上线至少包含两个独立完成条件：
+## 14. Deployment Boundary
 
-1. Cloudflare Workers Builds Git Integration 已部署包含新 Tool 的 runtime；
-2. ChatGPT MCP App 已 Refresh / Scan Tools，并真实看到、调用新 Tool。
+新增两个 Tool 会改变 `tools/list`，上线必须同时完成：
 
-Skill 内容本身仍走 Git source freshness，不因 references/scripts/assets 内容变化重新部署 Worker。
+1. Cloudflare Workers Builds 部署新 runtime
+2. MCP Inspector / Developer Mode 验证
+3. ChatGPT Refresh / Scan Tools
+4. `git-commit` 与 `pr-ruancat-repo` 真实端到端调用
 
-Cloudflare Dashboard 中 Builds 的 production branch / path filters / build command 属于外部部署配置；仓库当前不能完整证明这些值，实施前必须单独核对。
+Skill 内容本身的变化仍只依赖 Git source freshness，不需要因为 references、scripts 或 assets 更新重新部署 Worker。
 
-## 13. 不采用的方案
+## 15. 权威实现契约
 
-### 13.1 `load_skill(includeResources=true)`
-
-拒绝作为默认方案。
-
-问题：
-
-- 破坏 progressive disclosure；
-- token 不可控；
-- assets/scripts 很可能与当前任务无关；
-- 大 Skill 会造成严重上下文污染。
-
-### 13.2 任意 GitHub path reader
-
-拒绝。
-
-Skill Router MCP 应当验证：
-
-```text
-请求 path 必须属于已注册 Skill 的根目录
-```
-
-而不是提供：
-
-```text
-read_repo_file("any/path")
-```
-
-否则职责会膨胀成通用 GitHub MCP。
-
-### 13.3 服务端执行 scripts
-
-拒绝。
-
-Router 只分发 Skill，不为 Skill 获得额外执行权限。
+具体 schema、limits、cursor、errors 和 URI 值以 [`implementation-contract.md`](./implementation-contract.md) 为准；可落地 MUST/SHOULD 场景以 [`specs/skill-resource-access.md`](./specs/skill-resource-access.md) 为准。
