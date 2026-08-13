@@ -1,3 +1,12 @@
+export type ResourceErrorCode =
+	| "RESOURCE_NOT_FOUND"
+	| "INVALID_RESOURCE_PATH"
+	| "RESOURCE_TYPE_UNSUPPORTED"
+	| "RESOURCE_TOO_LARGE"
+	| "RESOURCE_RANGE_INVALID"
+	| "RESOURCE_CURSOR_INVALID"
+	| "RESOURCE_ENCODING_UNSUPPORTED";
+
 export type SkillRouterErrorCode =
 	| "REGISTRY_NOT_FOUND"
 	| "REGISTRY_SCHEMA_UNSUPPORTED"
@@ -10,7 +19,8 @@ export type SkillRouterErrorCode =
 	| "GITHUB_NOT_FOUND"
 	| "GITHUB_UPSTREAM_FAILED"
 	| "INVALID_QUERY"
-	| "INVALID_PATH";
+	| "INVALID_PATH"
+	| ResourceErrorCode;
 
 export class SkillRouterError extends Error {
 	readonly code: SkillRouterErrorCode;
