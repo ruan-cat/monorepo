@@ -129,7 +129,7 @@ Vitest 4 本身也已经把旧 workspace 配置迁向 projects；因此更没有
 
 阅读 - openspec\changes\vite8-vitest4-foundation-upgrade 目录内的全部必要的任务工件，用 do-long-task 技能完成这个艰巨的长任务。
 
-## 012 <!-- TODO: codex pro5 正在做 --> 2026-8-13 执行长任务 make-skill-router-mcp-for-chatgpt-web
+## 012 <!-- 已完成第一阶段的开发和生产环境部署； codex pro5 正在做 --> 2026-8-13 执行长任务 make-skill-router-mcp-for-chatgpt-web
 
 阅读 openspec\changes\make-skill-router-mcp-for-chatgpt-web 目录内的全部必要的任务工件，用 do-long-task 技能完成这个艰巨的长任务。
 
@@ -156,19 +156,38 @@ Cloudflare 官方明确要求 Workers Builds API 使用 `User-scoped API token`�
 
 ---
 
-<!-- TODO: -->
+<!-- 放弃询问 -->
 
 我有几个疑问，云 MCP 用的是 cloudflare worker 的额度么？如果我给这个 cloudflare worker 绑定了自己的域名，请问会不会高强度占用域名的 cloudflare CDN 代理流量呢？这个额度大概多少，能支撑的多大规模，多少人的高强度使用呢？我需要对这个云 MCP 的性能承担能力有个底。请你在 `docs\prompts\release-ai-plugins\2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web` 目录内，新建专门的报告文件夹，编写一个报告，说明清楚这个云 MCP 能提供的额度情况。
 
 ---
 
-<!-- TODO: -->
+<!-- 放弃询问 -->
 
 现在的 https://dash.cloudflare.com/3412269ab0def154c8806e38acd1b493/workers/services/view/skill-router-mcp/production ，即我 cloudflare 账户的 cloudflare worker ，`skill-router-mcp` 这款 cloudflare worker，还没有实现对 `https://github.com/ruan-cat/monorepo` 指定目录的 git 触发配置和链接。按照你的计划和要求，这是必须做的到，请你继续完成这个基于 github 的监听修改。务必要监听 dev 分支的修改。
 
 ---
 
-<!-- TODO: -->
+<!-- 已处理，放弃询问 -->
 
 我在 ChatGPT web 内，无法连接这个云 MCP，我哪里写错了？
 ![2026-08-13-15-12-20](https://gh-img-store.ruan-cat.com/img/2026-08-13-15-12-20.png)
+
+## 013 <!-- TODO: ChatGPT web正在做 --> 需要合适的云 github workflow 层面的 prettier 格式化流程
+
+我觉得我需要一个通用层面的，基于项目具体的 format 格式化函数的，github workflow 格式化专用工作流。以便补全纯 origin 云 git 分支开发的 prettier 格式化行为的补全。
+正如 `ai-plugins\common-tools\skills\init-prettier-git-hooks\SKILL.md` 技能做的一样，这个技能能帮助我们在本地开发的时候，在 lint-stage 和 vscode plugins 层面上都做好 prettier 格式化行为。所以只要是经过本地 git 分支开发的文件，都会完成这些 prettier 格式化批处理。这是完善的工程化做法。
+
+我们最近有 2 个完全由 ChatGPT web 云开发完成的工作任务，分别是 117 号 pr，和已经正式完成可记录 merge 合并的 119 号 pr。这两款 pr 都事实上的实现了 git 合并，都整合到 dev 了。但是这一大批文件修改和新增，都脱离的本地文件系统，所以他们都不经过 lint-stage 和 vscode plugins 层面的 prettier 处理管线。我们的纯粹云 origin git 分支处理产生的大量文件修改，均没有经过任何人的 prettier 处理。我们事实上是应该要增加一款 github workflow 来代为完成这一大堆文件的格式化的。
+
+1. 你现在是云任务，是 ChatGPT web。动用你的 github 和 `skill-router-mcp` 这两款连接器的全部可用工具来完成基于主 pr 和多轮 pr 测试性 pr 的自测自检方式的云任务。
+2. 你的指导 skills 参考资料包括： `init-prettier-git-hooks` ，用 `skill-router-mcp` 这款云 MCP 来查询 `init-prettier-git-hooks` 技能寻求清晰的 prettier 参考。
+3. 你的工作目标是 `https://github.com/ruan-cat/monorepo/tree/dev` ，注意清楚 pr 目标分支是 dev 分支。
+4. 我现在需要你在 `docs\plan\2026-8-15-cloud-ci-prettier` 目录设计一个完整的 spec 和 plan 落地规划文档。
+5. 然后你直接新建一个合适的 github workflow 文件，完成我需要交给你的任务： 即补全 pr 流程时缺乏的基于修改的 prettier 流程。
+6. 这款新的 github workflow 应该是要基于 pr 作为触发器来执行的。只有 pr 才能调度触发这款 github workflow。
+7. 最后告诉我需要我完成审核审批的主 pr 编号，和中途产生的 origin 云分支名称，告诉我哪些 origin branch 属于主工作分支，哪些是需要我介入删除的临时云分支。
+
+## 014 <!-- TODO: --> 设计合适的云任务提示词
+
+## 014 <!-- TODO: -->
