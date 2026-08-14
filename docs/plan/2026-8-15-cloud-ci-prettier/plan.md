@@ -136,7 +136,7 @@ docs/plan/2026-8-15-cloud-ci-prettier/test-fixtures/dirty.ts
 输入：
 
 ```ts
-export const cloudPrettierDirtyV2={cloud:"prettier-v2",nested:{value:2}}
+export const cloudPrettierDirtyV2 = { cloud: "prettier-v2", nested: { value: 2 } };
 ```
 
 首次 run：
@@ -182,17 +182,17 @@ PR #126 已关闭，未合并。
 
 ## 4. Workflow 最终验证矩阵
 
-| 场景 | 最终状态 |
-| --- | --- |
+| 场景                                  | 最终状态                                                 |
+| ------------------------------------- | -------------------------------------------------------- |
 | PR → `dev`，同仓库 head，存在格式差异 | 已实测：精准格式化、精准 stage、hooks、commit、push 成功 |
-| PR → `dev`，同仓库 head，无格式差异 | 已实测：build / commit / push 全部 skipped |
-| PR 包含多个候选但只有一个真正变化 | 已实测：bot commit 只包含实际变化文件 |
-| workspace commitlint 尚未构建 | v1 已实测失败；v2 仅在需要 commit 时按依赖链构建 |
-| `.prettierignore` 排除 JSON | 已实测：尊重 ignore，不强制格式化 |
-| PR 外历史脏文件 | v2 不再扫描，因此不再需要 restore |
-| PR → `dev`，fork head | 设计：job 条件直接跳过 |
-| 普通 push | 设计：workflow 不声明 `push` trigger |
-| 连续 synchronize | 设计：PR number concurrency 取消旧运行 |
+| PR → `dev`，同仓库 head，无格式差异   | 已实测：build / commit / push 全部 skipped               |
+| PR 包含多个候选但只有一个真正变化     | 已实测：bot commit 只包含实际变化文件                    |
+| workspace commitlint 尚未构建         | v1 已实测失败；v2 仅在需要 commit 时按依赖链构建         |
+| `.prettierignore` 排除 JSON           | 已实测：尊重 ignore，不强制格式化                        |
+| PR 外历史脏文件                       | v2 不再扫描，因此不再需要 restore                        |
+| PR → `dev`，fork head                 | 设计：job 条件直接跳过                                   |
+| 普通 push                             | 设计：workflow 不声明 `push` trigger                     |
+| 连续 synchronize                      | 设计：PR number concurrency 取消旧运行                   |
 
 ## 5. 故障处理
 
