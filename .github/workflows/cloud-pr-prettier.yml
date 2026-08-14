@@ -1,0 +1,110 @@
+name: Cloud PR Prettier
+
+on:
+  pull_request:
+    branches:
+      - dev
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cloud-pr-prettier-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  format-pr:
+    name: 格式化 PR 改动
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出 PR head 分支
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: 初始化 monorepo 环境
+        uses: ./.github/actions/setup-monorepo
+        with:
+          with-vercel: "false"
+
+      - name: 记录 PR 原始改动文件
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        shell: bash
+        run: |
+          git diff --name-only --diff-filter=ACMR "$BASE_SHA...HEAD" > "$RUNNER_TEMP/cloud-pr-prettier-files.txt"
+          echo "PR 可保留格式化结果的文件："
+          cat "$RUNNER_TEMP/cloud-pr-prettier-files.txt"
+
+      - name: 执行项目统一格式化命令
+        run: pnpm format
+
+      - name: 丢弃 PR 范围外的格式化副作用
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { execFileSync } from "node:child_process";
+          import { readFileSync } from "node:fs";
+          import { join } from "node:path";
+
+          const allowlistPath = join(process.env.RUNNER_TEMP, "cloud-pr-prettier-files.txt");
+          const allowed = new Set(
+            readFileSync(allowlistPath, "utf8")
+              .split("\n")
+              .map((line) => line.trim())
+              .filter(Boolean),
+          );
+
+          const changed = execFileSync("git", ["diff", "--name-only", "-z"], { encoding: "utf8" })
+            .split("\0")
+            .filter(Boolean);
+
+          for (const file of changed) {
+            if (allowed.has(file)) continue;
+            console.log(`restore PR 范围外文件: ${file}`);
+            execFileSync("git", ["restore", "--source=HEAD", "--worktree", "--", file], {
+              stdio: "inherit",
+            });
+          }
+          NODE
+
+      - name: 检查格式化结果
+        id: diff
+        shell: bash
+        run: |
+          git diff --check
+          git status --short
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 提交格式化结果
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          git diff --cached --check
+          git commit -m "🌈 style: 自动格式化 PR #${PR_NUMBER} 改动"
+          git status --short
+
+      - name: 推送格式化提交到 PR head
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        shell: bash
+        run: git push origin "HEAD:${HEAD_REF}"
