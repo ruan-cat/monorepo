@@ -78,6 +78,15 @@ export class SkillRouter {
 
 		if (input.cursor) {
 			const cursor = decodeResourceCursor(input.cursor);
+			try {
+				if (!cursor.skillId || cursor.skillId.length > 128) throw new Error("cursor");
+				this.source.validateCommitSha(cursor.sourceCommitSha);
+				if (cursor.prefix.length > 512 || normalizeResourcePrefix(cursor.prefix) !== cursor.prefix) {
+					throw new Error("cursor");
+				}
+			} catch {
+				throw new SkillRouterError("RESOURCE_CURSOR_INVALID", "Resource cursor is invalid.");
+			}
 			if (cursor.skillId !== input.skillId) {
 				throw new SkillRouterError("RESOURCE_CURSOR_INVALID", "Resource cursor belongs to another Skill.");
 			}

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { GitHubSkillSource, type GitTreeEntry } from "../repositories/github-skill-source.ts";
+import { encodeResourceCursor } from "../services/resource-resolver.ts";
 import { REGISTRY_PATH, SkillRouter } from "../services/skill-router.ts";
 
 const SHA_A = "a".repeat(40);
@@ -126,6 +127,33 @@ describe("SkillRouter resource pagination snapshot semantics", () => {
 	test("rejects malformed opaque cursors before touching the source", async () => {
 		const fixture = routerFixture();
 		await expect(fixture.router.listSkillResources({ skillId: "demo", cursor: "not-a-cursor" })).rejects.toMatchObject({
+			code: "RESOURCE_CURSOR_INVALID",
+		});
+		expect(fixture.resolveCount()).toBe(0);
+		expect(fixture.treeCalls).toEqual([]);
+	});
+
+	test("maps tampered cursor snapshot and prefix fields to RESOURCE_CURSOR_INVALID", async () => {
+		const fixture = routerFixture();
+		const mutableSnapshot = encodeResourceCursor({
+			v: 1,
+			skillId: "demo",
+			sourceCommitSha: "dev",
+			prefix: "references/",
+			offset: 0,
+		});
+		const invalidPrefix = encodeResourceCursor({
+			v: 1,
+			skillId: "demo",
+			sourceCommitSha: SHA_A,
+			prefix: "references//",
+			offset: 0,
+		});
+
+		await expect(fixture.router.listSkillResources({ skillId: "demo", cursor: mutableSnapshot })).rejects.toMatchObject({
+			code: "RESOURCE_CURSOR_INVALID",
+		});
+		await expect(fixture.router.listSkillResources({ skillId: "demo", cursor: invalidPrefix })).rejects.toMatchObject({
 			code: "RESOURCE_CURSOR_INVALID",
 		});
 		expect(fixture.resolveCount()).toBe(0);
