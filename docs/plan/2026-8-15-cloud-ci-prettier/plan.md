@@ -1,174 +1,227 @@
-# PR 云端 Prettier 格式化落地计划
+# PR 云端 Prettier 精准格式化落地计划
 
 ## 1. 交付范围
 
-本计划对应 `spec.md`，最终长期保留以下文件：
+本计划对应 `spec.md`。最终长期保留 3 个文件：
 
 - `.github/workflows/cloud-pr-prettier.yml`
 - `docs/plan/2026-8-15-cloud-ci-prettier/spec.md`
 - `docs/plan/2026-8-15-cloud-ci-prettier/plan.md`
+
+主工作分支保持：
+
+```text
+ci/cloud-pr-prettier-format
+```
+
+主 PR 保持 #123，目标分支保持 `dev`。
 
 不修改：
 
 - `package.json` 的 `format` script
 - `prettier.config.mjs`
 - `.config/.prettierignore`
-- `lint-staged.config.mjs`
+- `.gitignore`
+- `lint-staged.config.js`
 - `simple-git-hooks.mjs`
 - Prettier / lint-md / simple-git-hooks 依赖版本
 
-## 2. 实施阶段
+## 2. 方案演进
 
-### Phase A：基线审计
+### Phase A：v1 基线验证
 
-- [x] 通过 Skill Router MCP 读取 `init-prettier-git-hooks` 固定快照。
-- [x] 通过 Skill Router MCP 读取 `git-commit` 固定快照。
-- [x] 核实根 `package.json` 已存在 `pnpm format`。
-- [x] 核实 `prettier-plugin-lint-md` 精确为 `1.0.1`。
-- [x] 核实 `prettier.config.mjs` 顶层字符串插件与 `endOfLine: "lf"`。
-- [x] 核实 `.config/.prettierignore` 当前忽略全部 `**/*.json`。
-- [x] 核实 `simple-git-hooks.mjs` 已包含 lint-staged 与 commitlint。
-- [x] 核实根 commitlint 配置依赖 workspace `@ruan-cat/commitlint-config/dist/index.cjs`。
-- [x] 核实目标分支为 `dev`。
+- [x] 建立仅面向 PR → `dev` 的 workflow。
+- [x] 显式 checkout 真实 PR head branch。
+- [x] 验证同仓库 `GITHUB_TOKEN` 可以创建格式化提交并写回 head。
+- [x] 验证 fork head 通过 job 条件排除。
+- [x] 验证 `contents: write` 足够完成写回。
+- [x] 发现自动 commit 前必须准备 workspace commitlint runtime。
+- [x] 通过 `pnpm --filter "@ruan-cat/commitlint-config..." build` 修复 commit-msg runtime。
+- [x] 验证 JSON fixture 被 `.config/.prettierignore` 的 `**/*.json` 排除。
+- [x] 使用 TypeScript fixture 完成真实 dirty 写回。
+- [x] 使用 clean fixture 验证无差异时不产生空提交。
 
-Skill 固定快照：
+v1 的核心算法为“全仓 `pnpm format` → restore PR 范围外副作用”。该版本完成了能力验证，但不是最终性能方案。
+
+### Phase B：识别 v2 优化目标
+
+`dev` 后续提交 `da1a19a1704ee543730fc39df849568870ca84ee` 明确要求优化：
+
+- 不再对整个 monorepo 执行格式化；
+- 先提取 PR 实际修改文件；
+- 只把这些路径传给 Prettier；
+- 只有真实格式差异才提交。
+
+据此将 #123 在原分支上继续迭代，不新建主 PR。
+
+### Phase C：实现精准文件选择
+
+- [x] 使用 `git diff --name-only -z --diff-filter=ACMR <base>...HEAD` 获取 PR post-image 路径。
+- [x] 使用 NUL 分隔处理路径，避免空格等字符造成拆分错误。
+- [x] 文件扩展名范围镜像根 `format` script：`.js`、`.jsx`、`.ts`、`.tsx`、`.mts`、`.json`、`.css`、`.scss`、`.md`、`.yml`、`.yaml`、`.html`。
+- [x] 排除任一路径段为 `snippets` 的文件。
+- [x] 保留 `.config/.prettierignore` 与 `.gitignore` 作为最终 ignore 真源。
+
+### Phase D：只对候选路径运行 Prettier
+
+- [x] 移除全仓 `pnpm format`。
+- [x] 改为 `pnpm exec prettier`，仅追加具体 PR 候选路径。
+- [x] 保留 `--experimental-cli`、`--write`、`--no-parallel`。
+- [x] 保留两个 `--ignore-path`。
+- [x] 对候选路径使用 `./` 前缀。
+- [x] 按约 100 KB argv 长度分块执行，避免大型 PR 触发系统参数长度限制。
+
+### Phase E：精准暂存
+
+- [x] 将候选文件保存为 NUL 分隔临时列表。
+- [x] 使用 `git --literal-pathspecs add --all --pathspec-from-file=... --pathspec-file-nul` 只暂存候选文件。
+- [x] 移除提交前的无边界 `git add --all`。
+- [x] 不再需要“PR 外副作用 restore”步骤。
+- [x] 使用 staged diff 判断是否存在真实格式化变化。
+
+### Phase F：降低 clean 路径成本
+
+- [x] 将 `pnpm --filter "@ruan-cat/commitlint-config..." build` 移到 `changed == true` 条件之后。
+- [x] clean PR 不再构建 `@ruan-cat/utils` 与 `@ruan-cat/commitlint-config`。
+- [x] 有 staged diff 时仍继续执行完整 lint-staged + commit-msg hooks。
+- [x] 不使用 `--no-verify`。
+
+## 3. v2 云端验收
+
+### 3.1 主 PR #123：clean 回归
+
+workflow v2 实现 commit：
 
 ```text
-sourceCommitSha: beeada04389dca26d3d010b537d7e8af39766430
-init-prettier-git-hooks: 3.0.0
-git-commit: 0.6.0
+5b1a451d9bf877b54c14a9a6b17840b36ad1dbc2
 ```
 
-### Phase B：主工作分支
-
-主 origin 分支：
+run：
 
 ```text
-ci/cloud-pr-prettier-format
+31841125291
 ```
 
-工作内容：
+验收：
 
-- [x] 写入 spec。
-- [x] 写入 plan。
-- [x] 新增 Pull Request 专用 workflow。
-- [x] 打开目标为 `dev` 的主 PR #123。
-- [x] 用主 PR 真实运行验证项目安装、格式化、范围收敛、hooks、commit 与 push。
+- [x] checkout 成功。
+- [x] monorepo setup 成功。
+- [x] PR ACMR 文件数为 3。
+- [x] Prettier 精准候选文件数为 3。
+- [x] 候选仅为 workflow、plan、spec。
+- [x] 精准格式化步骤成功。
+- [x] 精准暂存后 staged diff 为空。
+- [x] commitlint workspace build skipped。
+- [x] commit skipped。
+- [x] push skipped。
 
-首次主 PR run `31836425223` 暴露：`pnpm i` 会安装 commit-msg hook，但不会生成 workspace `@ruan-cat/commitlint-config/dist/index.cjs`，因此自动 commit 失败。
+该结果证明 v2 clean 路径不会再为无差异 PR 执行额外 workspace build。
 
-修复方案不是 `--no-verify`，而是在 workflow 中增加：
+### 3.2 临时 Dirty PR #126：精准写回
 
-```bash
-pnpm --filter "@ruan-cat/commitlint-config..." build
-```
+旧测试 PR #124 因测试分支被 force-reset / recreated 后 GitHub 不允许 reopen，因此复用同一个测试分支并新建一次性 draft PR #126。它不是新的主 PR，测试完成后立即关闭且不合并。
 
-修复后的主 PR run `31836656768` 全链路成功，bot 自动提交 `a35d51f9da766bbde323e3dbae938dcf872f50cb`，且只格式化主 PR allowlist 内的 `plan.md`。
-
-### Phase C：测试 PR 1——需要格式化
-
-一次性 origin 分支：
+测试分支：
 
 ```text
 test/cloud-pr-prettier-format-dirty
 ```
 
-测试 PR：#124，目标 `dev`，不合并。
+fixture：
 
-第一版 fixture 使用 JSON；实际验证发现仓库 `.config/.prettierignore` 明确忽略 `**/*.json`，因此 JSON 不属于生产 `pnpm format` 的有效正向 fixture。保留该发现作为 ignore 契约验证，但不将其冒充格式化成功。
+```text
+docs/plan/2026-8-15-cloud-ci-prettier/test-fixtures/dirty.ts
+```
 
-第二版加入明显不符合 Prettier 的 `dirty.ts`，并以 workflow 自动提交后的规范结果作为最终分支状态。
+输入：
+
+```ts
+export const cloudPrettierDirtyV2={cloud:"prettier-v2",nested:{value:2}}
+```
+
+首次 run：
+
+```text
+31841210430
+```
 
 验收：
 
-- [x] `Cloud PR Prettier` 被 `pull_request` 事件调度。
-- [x] commitlint workspace 依赖构建成功。
-- [x] workflow 调用真实 `pnpm format`。
-- [x] `dirty.ts` 被格式化。
-- [x] 自动生成 `🌈 style:` 提交并写回 test branch。
-- [x] 自动提交只包含 `dirty.ts` 一个文件。
-- [x] run `31836844219` 成功。
-- [x] bot commit：`87a610e8578a9729f6a9d753a6f2e93137c7c5a9`。
+- [x] run 成功。
+- [x] PR ACMR 文件数为 4。
+- [x] Prettier 精准候选文件数为 4。
+- [x] Prettier 实际只改动 `dirty.ts`。
+- [x] 精准暂存只包含 `dirty.ts`。
+- [x] commitlint workspace build 成功。
+- [x] lint-staged 成功。
+- [x] commit-msg 成功。
+- [x] 自动 commit 成功。
+- [x] push 成功。
+
+bot commit：
+
+```text
+eac5ac718b4443fa124ed8e8fe265632f83ee83e
+```
+
+GitHub commit diff 确认只有 1 个文件：
+
+```text
+docs/plan/2026-8-15-cloud-ci-prettier/test-fixtures/dirty.ts
+```
 
 格式化结果：
 
 ```ts
-export const cloudPrettierDirty = { cloud: "prettier", nested: { value: 1 } };
+export const cloudPrettierDirtyV2 = { cloud: "prettier-v2", nested: { value: 2 } };
 ```
 
-### Phase D：测试 PR 2——无需格式化
+bot push 对应 run `31841276515` 没有 job，也没有产生第二个格式化提交。
 
-一次性 origin 分支：
+PR #126 已关闭，未合并。
 
-```text
-test/cloud-pr-prettier-format-clean
-```
+## 4. Workflow 最终验证矩阵
 
-测试 PR：#125，目标 `dev`，不合并。
+| 场景 | 最终状态 |
+| --- | --- |
+| PR → `dev`，同仓库 head，存在格式差异 | 已实测：精准格式化、精准 stage、hooks、commit、push 成功 |
+| PR → `dev`，同仓库 head，无格式差异 | 已实测：build / commit / push 全部 skipped |
+| PR 包含多个候选但只有一个真正变化 | 已实测：bot commit 只包含实际变化文件 |
+| workspace commitlint 尚未构建 | v1 已实测失败；v2 仅在需要 commit 时按依赖链构建 |
+| `.prettierignore` 排除 JSON | 已实测：尊重 ignore，不强制格式化 |
+| PR 外历史脏文件 | v2 不再扫描，因此不再需要 restore |
+| PR → `dev`，fork head | 设计：job 条件直接跳过 |
+| 普通 push | 设计：workflow 不声明 `push` trigger |
+| 连续 synchronize | 设计：PR number concurrency 取消旧运行 |
 
-测试输入：
+## 5. 故障处理
 
-```ts
-export const cloudPrettierClean = true;
-```
+### Prettier 失败
 
-该分支从已经经过主 workflow 自动格式化后的主工作分支创建，避免旧文档格式差异污染 clean 场景。
-
-验收：
-
-- [x] workflow 被调度。
-- [x] commitlint workspace 依赖构建成功。
-- [x] `pnpm format` 成功。
-- [x] 最终无格式化 diff。
-- [x] `提交格式化结果` step skipped。
-- [x] `推送格式化提交到 PR head` step skipped。
-- [x] head SHA 保持 `f60f7f18231b3ac7eece8364c6ff1763a777d4e8` 不变。
-- [x] run `31836864967` 成功。
-
-### Phase E：结果回收
-
-- [x] 获取主 PR 编号与真实 workflow 运行记录。
-- [x] 获取 dirty / clean 两个测试 PR 编号与运行记录。
-- [x] 根据首次主 run 的 commitlint 失败修复正式 workflow。
-- [x] 根据 JSON ignore 发现修正测试设计与文档。
-- [x] dirty 正向写回通过。
-- [x] clean 无差异路径通过。
-- [x] 测试 PR #124、#125 已关闭且均未合并。
-- [x] 最终 spec/plan 状态已由主 PR run `31837108251` 全链路回归成功。
-- [x] 最终只保留主 PR #123 等待人工审核。
-
-## 3. Workflow 验证矩阵
-
-| 场景                                  | 实测/预期                             |
-| ------------------------------------- | ------------------------------------- |
-| PR → `dev`，同仓库 head，存在格式差异 | 已实测：格式化、commit、push          |
-| PR → `dev`，同仓库 head，无格式差异   | 已实测：成功，commit/push skipped     |
-| `pnpm format` 扫描到 PR 外历史脏格式  | 已实测：全部 restore，不进入自动提交  |
-| workspace commitlint 尚未构建         | 已实测失败；workflow 现已先构建依赖链 |
-| `.prettierignore` 排除的 JSON         | 已实测：尊重 ignore，不强制格式化     |
-| PR → `dev`，fork head                 | 设计：job 条件直接跳过                |
-| push 到任意分支                       | 设计：workflow 不声明 `push` trigger  |
-| 连续 synchronize                      | 设计：concurrency 取消同 PR 的旧运行  |
-
-## 4. 故障处理
-
-### `pnpm format` 失败
-
-视为真实仓库格式化链路失败；workflow 失败，不提交、不推送。先修复主 PR 中的 CI 环境或项目格式化问题。
+精准候选中的某个文件导致 Prettier 返回非零状态时，workflow 失败，不构建提交运行时、不提交、不推送。优先根据 Prettier 日志修复候选文件或项目配置。
 
 ### commitlint runtime 缺失
 
-本任务已经实际遇到该问题。根 commitlint 配置要求 workspace build 产物，正式 workflow 使用：
+正式 workflow 在 staged diff 非空时执行：
 
 ```bash
 pnpm --filter "@ruan-cat/commitlint-config..." build
 ```
 
-准备 `@ruan-cat/commitlint-config` 及其 workspace 依赖后再进行自动 commit。
+该命令准备目标包及其 workspace 依赖。不要使用 `--no-verify` 绕过 hooks。
 
-### commitlint / lint-staged 失败
+### 候选范围异常
 
-不使用 `--no-verify` 绕过。自动提交必须符合当前仓库 hooks；失败意味着 workflow 尚未达到工程约束。
+依次检查：
+
+1. `git diff --diff-filter=ACMR <base>...HEAD` 是否包含该路径；
+2. 文件扩展名是否属于根 `format` script 的生产范围；
+3. 路径中是否存在 `snippets` 段；
+4. `.config/.prettierignore` 或 `.gitignore` 是否排除该文件。
+
+### 非候选文件被工作步骤修改
+
+它不会被精准 stage。自动提交只从候选 NUL 列表暂存文件，不再依赖全仓 restore。
 
 ### push 被拒绝
 
@@ -178,33 +231,28 @@ pnpm --filter "@ruan-cat/commitlint-config..." build
 2. branch protection 是否禁止 GitHub Actions 写入；
 3. repository Actions 设置是否把 `GITHUB_TOKEN` 限制为只读。
 
-若仓库策略明确禁止 Actions 写入，则应将方案调整为“格式检查失败并要求开发者格式化”，而不是扩大 token/secrets 权限绕过策略。
+不要通过额外业务 secrets 或扩大 token 权限绕过仓库策略。
 
-### 非 PR 文件被 `pnpm format` 修改
+## 6. 人工审核清单
 
-必须被“PR 范围外副作用 restore”步骤清除。主 PR 实测中 `pnpm format` 扫描到大量历史文件，但自动提交最终只包含 allowlist 内文件，证明该边界有效。
+主 PR #123 合并前由维护者确认：
 
-### fixture 被 ignore
-
-必须先核实 `.config/.prettierignore`。本次 JSON fixture 被 `**/*.json` 排除，因此改用 TypeScript 完成正向格式化验收。
-
-## 5. 人工审核清单
-
-主 PR 合并前由维护者确认：
-
-- [ ] workflow 的唯一事件源确实只有 `pull_request`。
+- [ ] workflow 的唯一事件源只有 `pull_request`。
 - [ ] base branch filter 是 `dev`。
 - [ ] checkout 的是真实 PR head，不是 synthetic merge ref。
 - [ ] `contents: write` 是唯一显式写权限。
-- [ ] fork PR 不会进入写回 job。
-- [ ] 不读取任何业务 secrets。
-- [ ] 调用的是现有 `pnpm format`，没有复制第二套 Prettier 参数或 ignore 规则。
-- [ ] commitlint workspace 运行时在自动提交前构建。
-- [ ] PR 范围外格式化结果会被 restore。
-- [ ] 自动提交继续经过 lint-staged + commitlint hooks。
-- [ ] dirty 与 clean 两个测试 PR 均保持“不合并”。
+- [ ] fork PR 不进入写回 job。
+- [ ] workflow 不读取业务 secrets。
+- [ ] 已移除全仓 `pnpm format`。
+- [ ] Prettier 只接收 PR 精准候选路径。
+- [ ] 候选扩展名和 `snippets` 边界与根 `format` script 一致。
+- [ ] `.config/.prettierignore` 与 `.gitignore` 继续生效。
+- [ ] staging 只使用候选 NUL 列表。
+- [ ] clean 路径跳过 commitlint workspace build。
+- [ ] dirty 路径继续经过 lint-staged + commitlint hooks。
+- [ ] 临时 PR #126 已关闭且未合并。
 
-## 6. 合并与清理
+## 7. 合并与清理
 
 最终只合并主 PR #123 到 `dev`。
 
@@ -214,13 +262,11 @@ pnpm --filter "@ruan-cat/commitlint-config..." build
 ci/cloud-pr-prettier-format
 ```
 
-在主 PR 合并后可按仓库日常策略删除。
-
-一次性测试分支：
+测试分支：
 
 ```text
 test/cloud-pr-prettier-format-dirty
 test/cloud-pr-prettier-format-clean
 ```
 
-这两个分支只承载云端测试 fixture，不应合并进 `dev`；测试 PR 关闭后由仓库维护者删除 origin branches。
+测试 PR 不应合并进 `dev`。测试 origin branches 可由维护者按仓库日常策略删除。
