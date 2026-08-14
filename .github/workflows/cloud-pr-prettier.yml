@@ -36,62 +36,131 @@ jobs:
         with:
           with-vercel: "false"
 
-      - name: 构建提交校验运行时
-        run: pnpm --filter "@ruan-cat/commitlint-config..." build
-
-      - name: 记录 PR 原始改动文件
+      - name: 提取并精准格式化 PR 文件
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         shell: bash
         run: |
-          git diff --name-only --diff-filter=ACMR "$BASE_SHA...HEAD" > "$RUNNER_TEMP/cloud-pr-prettier-files.txt"
-          echo "PR 可保留格式化结果的文件："
-          cat "$RUNNER_TEMP/cloud-pr-prettier-files.txt"
-
-      - name: 执行项目统一格式化命令
-        run: pnpm format
-
-      - name: 丢弃 PR 范围外的格式化副作用
-        shell: bash
-        run: |
           node --input-type=module <<'NODE'
-          import { execFileSync } from "node:child_process";
-          import { readFileSync } from "node:fs";
-          import { join } from "node:path";
+          import { execFileSync, spawnSync } from "node:child_process";
+          import { writeFileSync } from "node:fs";
+          import { extname, join } from "node:path";
 
-          const allowlistPath = join(process.env.RUNNER_TEMP, "cloud-pr-prettier-files.txt");
-          const allowed = new Set(
-            readFileSync(allowlistPath, "utf8")
-              .split("\n")
-              .map((line) => line.trim())
-              .filter(Boolean),
+          const supportedExtensions = new Set([
+            ".js",
+            ".jsx",
+            ".ts",
+            ".tsx",
+            ".mts",
+            ".json",
+            ".css",
+            ".scss",
+            ".md",
+            ".yml",
+            ".yaml",
+            ".html",
+          ]);
+
+          const output = execFileSync(
+            "git",
+            [
+              "diff",
+              "--name-only",
+              "-z",
+              "--diff-filter=ACMR",
+              `${process.env.BASE_SHA}...HEAD`,
+            ],
+            { encoding: "utf8" },
           );
 
-          const changed = execFileSync("git", ["diff", "--name-only", "-z"], { encoding: "utf8" })
-            .split("\0")
-            .filter(Boolean);
+          const prFiles = output.split("\0").filter(Boolean);
+          const prettierFiles = prFiles.filter((file) => {
+            const normalized = file.replaceAll("\\", "/");
+            const segments = normalized.split("/");
+            return supportedExtensions.has(extname(normalized)) && !segments.includes("snippets");
+          });
 
-          const restored = [];
-          for (const file of changed) {
-            if (allowed.has(file)) continue;
-            execFileSync("git", ["restore", "--source=HEAD", "--worktree", "--", file]);
-            restored.push(file);
+          const fileListPath = join(process.env.RUNNER_TEMP, "cloud-pr-prettier-files.zlist");
+          writeFileSync(
+            fileListPath,
+            prettierFiles.map((file) => `${file}\0`).join(""),
+            "utf8",
+          );
+
+          console.log(`PR ACMR 文件数：${prFiles.length}`);
+          console.log(`Prettier 精准候选文件数：${prettierFiles.length}`);
+          for (const file of prettierFiles) {
+            console.log(`- ${file}`);
           }
 
-          console.log(`已还原 ${restored.length} 个 PR 范围外文件的副作用。`);
+          if (prettierFiles.length === 0) {
+            process.exit(0);
+          }
+
+          const commonArgs = [
+            "exec",
+            "prettier",
+            "--experimental-cli",
+            "--write",
+            "--no-parallel",
+            "--ignore-path",
+            "./.config/.prettierignore",
+            "--ignore-path",
+            ".gitignore",
+          ];
+
+          const maxChunkChars = 100_000;
+          let chunk = [];
+          let chunkChars = 0;
+
+          const runChunk = () => {
+            if (chunk.length === 0) return;
+            const result = spawnSync("pnpm", [...commonArgs, ...chunk], {
+              stdio: "inherit",
+            });
+            if (result.error) throw result.error;
+            if (result.status !== 0) process.exit(result.status ?? 1);
+            chunk = [];
+            chunkChars = 0;
+          };
+
+          for (const file of prettierFiles) {
+            const argument = `./${file}`;
+            const argumentChars = Buffer.byteLength(argument) + 1;
+            if (chunk.length > 0 && chunkChars + argumentChars > maxChunkChars) {
+              runChunk();
+            }
+            chunk.push(argument);
+            chunkChars += argumentChars;
+          }
+          runChunk();
           NODE
 
-      - name: 检查格式化结果
+      - name: 暂存并检查格式化结果
         id: diff
         shell: bash
         run: |
-          git diff --check
+          FILE_LIST="$RUNNER_TEMP/cloud-pr-prettier-files.zlist"
+
+          if [[ -s "$FILE_LIST" ]]; then
+            git --literal-pathspecs add --all \
+              --pathspec-from-file="$FILE_LIST" \
+              --pathspec-file-nul
+          fi
+
+          git diff --cached --check
+          git diff --cached --name-only
           git status --short
-          if git diff --quiet; then
+
+          if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: 构建提交校验运行时
+        if: steps.diff.outputs.changed == 'true'
+        run: pnpm --filter "@ruan-cat/commitlint-config..." build
 
       - name: 提交格式化结果
         if: steps.diff.outputs.changed == 'true'
@@ -101,7 +170,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add --all
           git diff --cached --check
           git commit -m "🌈 style: 自动格式化 PR #${PR_NUMBER} 改动"
           git status --short
