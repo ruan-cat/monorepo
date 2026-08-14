@@ -173,7 +173,7 @@ Cloudflare 官方明确要求 Workers Builds API 使用 `User-scoped API token`�
 我在 ChatGPT web 内，无法连接这个云 MCP，我哪里写错了？
 ![2026-08-13-15-12-20](https://gh-img-store.ruan-cat.com/img/2026-08-13-15-12-20.png)
 
-## 013 <!-- TODO: ChatGPT web正在做 --> 需要合适的云 github workflow 层面的 prettier 格式化流程
+## 013 <!-- 已完成 ChatGPT web正在做 --> 需要合适的云 github workflow 层面的 prettier 格式化流程
 
 我觉得我需要一个通用层面的，基于项目具体的 format 格式化函数的，github workflow 格式化专用工作流。以便补全纯 origin 云 git 分支开发的 prettier 格式化行为的补全。
 正如 `ai-plugins\common-tools\skills\init-prettier-git-hooks\SKILL.md` 技能做的一样，这个技能能帮助我们在本地开发的时候，在 lint-stage 和 vscode plugins 层面上都做好 prettier 格式化行为。所以只要是经过本地 git 分支开发的文件，都会完成这些 prettier 格式化批处理。这是完善的工程化做法。
@@ -199,6 +199,19 @@ Cloudflare 官方明确要求 Workers Builds API 使用 `User-scoped API token`�
 
 我感觉这个效率有点低下了。那么如果我这一个目标项目，本来就内容非常多，文件极其庞大，那么前两个步骤就有可能大面积的消耗性能，如果我的这一次 pr 只提交了少量文件，但是大部分的性能和时间开销都被前两个步骤吞了。时间和性能得不偿失。你能不能给我一个更加好的，更加精准有效的 pr 文件提取以及精准格式化的方案？
 既然我们的 `"format": "prettier --experimental-cli --write --no-parallel '**/*.{js,jsx,ts,tsx,mts,json,css,scss,md,yml,yaml,html}' '!**/snippets/**' --ignore-path ./.config/.prettierignore --ignore-path .gitignore",` 能完成格式化，我在想的是，你能不能给我用更加精准有效的方式，比如用 prettier cli 传递参数的方式，实现对少量精准文件的获取并完成格式化。产生出有效的格式化之后，在酌情提交 git commit。
+
+---
+
+行了，我知道你现在突然丢失了 github 连接器的能力了，才导致你无法继续完成 pr。我稍后会开启一个新的对话，继续完成接力的。所以为了接力，我需要你编写一个云工作区内的文件，2026-8-15-ci-prettier-v2.md ，把你的合理设计，写到 `2026-8-15-ci-prettier-v2.md` 文件内，稍后我在新的对话内读取这个文件，并且继续完成任务。继续在 pr 123 这个线程内继续完成迭代。
+
+---
+
+找到我们上一轮生成的 2026-8-15-ci-prettier-v2.md，读取它，并继续 ruan-cat/monorepo 的 PR #123。继续使用 ci/cloud-pr-prettier-format，目标分支保持 dev，不要新建主 PR。
+
+---
+
+我对 .github/workflows/cloud-pr-prettier.yml 的 `提取并精准格式化 PR 文件` 的代码组织方式很不满意。我觉得你应该做一个 `.github/workflows` 目录内的合适的附属脚本，做一个专门的 mjs 脚本，实现在 github workflow node 环境内完成你需要的文件处理。做好模块化，我很不喜欢你把一大堆细致的处理逻辑都写到 `cloud-pr-prettier.yml` 工作流文件内。
+这是简单的任务，不是要你推翻掉一切，而是调整文件组织形式。
 
 ## 014 <!-- TODO: --> 设计合适的云任务提示词
 
