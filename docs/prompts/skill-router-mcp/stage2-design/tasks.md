@@ -72,6 +72,8 @@
 - [x] 设计默认保持 Registry v1，不为 deep-file inventory 强制 schema bump
 - [x] 完成 cold/warm GitHub request structural budget，并记录 `resource-enumeration-benchmark.md`
 - [x] 根据 bounded isolate cache + request budget，Stage 2 implementation 继续保持 Registry v1
+- [x] 新增 `verify:remote` 端到端 Preview/Staging 验收脚本
+- [x] 新增 `benchmark:remote` first-observed / warm p50 / p95 延迟采样脚本
 - [ ] Cloudflare Preview 实测 cold/warm p50/p95 与 GitHub rate consumption
 - [ ] 核对 Cloudflare Workers Builds Dashboard 的 production branch、root、build/deploy command、path filters 与 secrets
 - [ ] 部署包含 6-tool contract + ResourceTemplate 的 Worker 测试版本
@@ -86,4 +88,5 @@
 - [x] `packages/skill-router-mcp/README.md` 增加 6-tool surface、资源调用链和 Stage 2 size/snapshot 边界
 - [x] `packages/skill-router-mcp/README.md` 增加 MCP ResourceTemplate / `resources/read` compatibility 说明
 - [x] 新增 `resource-enumeration-benchmark.md` 固定请求预算、cache 语义与 Preview latency gate
+- [x] README 增加远端 `verify:remote` / `benchmark:remote` 执行方式
 - [ ] 实现完成后回填最终 Cloudflare / Inspector / ChatGPT Web 验收结果
