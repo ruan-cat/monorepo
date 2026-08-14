@@ -1,1 +1,1 @@
-export const cloudPrettierDirty={cloud:"prettier",nested:{value:1}}
+export const cloudPrettierDirty = { cloud: "prettier", nested: { value: 1 } };
