@@ -21,7 +21,8 @@
 - [x] 新增 `ResourceResolver`，集中实现 inventory、metadata、snapshot、path policy、range 与 size policy
 - [x] 扩展 `GitHubSkillSource` 支持 exact commit tree / subtree / blob 读取
 - [x] 实现 selected-Skill subtree enumeration 和 upstream truncation fallback
-- [x] 实现 deterministic inventory cache，key 至少包含 repository + commit + skill
+- [x] 实现 request-local deterministic inventory cache
+- [x] 将 exact commit + Skill root 的 Git tree inventory 提升为 Worker-isolate best-effort bounded LRU cache，跨 request-local source 实例复用
 - [x] 实现 `list_skill_resources`
 - [x] 实现 `load_skill_resource`
 - [x] 在 canonical `toolDefinitions` 注册两个新 Tool
@@ -51,6 +52,9 @@
 - [x] immutable URI snapshot tests
 - [x] `tools/list` / `get_server_info.tools` canonical catalog tests
 - [x] production Worker harness list/load resource contract test
+- [x] cold Skill-root Git object request budget test
+- [x] concurrent/cross-request isolate tree-cache reuse test
+- [x] tree cache source-commit isolation test
 
 ## MCP Resources Compatibility
 
@@ -66,8 +70,9 @@
 ## Registry / Deployment
 
 - [x] 设计默认保持 Registry v1，不为 deep-file inventory 强制 schema bump
-- [ ] 实现阶段 benchmark Skill-subtree Git tree enumeration 的请求数与延迟
-- [ ] 只有 benchmark 明确失败时再提出 Registry v2 inventory 变更
+- [x] 完成 cold/warm GitHub request structural budget，并记录 `resource-enumeration-benchmark.md`
+- [x] 根据 bounded isolate cache + request budget，Stage 2 implementation 继续保持 Registry v1
+- [ ] Cloudflare Preview 实测 cold/warm p50/p95 与 GitHub rate consumption
 - [ ] 核对 Cloudflare Workers Builds Dashboard 的 production branch、root、build/deploy command、path filters 与 secrets
 - [ ] 部署包含 6-tool contract + ResourceTemplate 的 Worker 测试版本
 - [ ] MCP Inspector / Developer Mode 验证
@@ -80,4 +85,5 @@
 - [x] 同步 `README.md` / `design.md` / Spec / acceptance / proposal / tasks / PR draft
 - [x] `packages/skill-router-mcp/README.md` 增加 6-tool surface、资源调用链和 Stage 2 size/snapshot 边界
 - [x] `packages/skill-router-mcp/README.md` 增加 MCP ResourceTemplate / `resources/read` compatibility 说明
-- [ ] 实现完成后回填最终 CI / deployment / ChatGPT Web 验收结果
+- [x] 新增 `resource-enumeration-benchmark.md` 固定请求预算、cache 语义与 Preview latency gate
+- [ ] 实现完成后回填最终 Cloudflare / Inspector / ChatGPT Web 验收结果
