@@ -183,10 +183,11 @@ Cloudflare 官方明确要求 Workers Builds API 使用 `User-scoped API token`�
 1. 你现在是云任务，是 ChatGPT web。动用你的 github 和 `skill-router-mcp` 这两款连接器的全部可用工具来完成基于主 pr 和多轮 pr 测试性 pr 的自测自检方式的云任务。
 2. 你的指导 skills 参考资料包括： `init-prettier-git-hooks` ，用 `skill-router-mcp` 这款云 MCP 来查询 `init-prettier-git-hooks` 技能寻求清晰的 prettier 参考。
 3. 你的工作目标是 `https://github.com/ruan-cat/monorepo/tree/dev` ，注意清楚 pr 目标分支是 dev 分支。
-4. 我现在需要你在 `docs\plan\2026-8-15-cloud-ci-prettier` 目录设计一个完整的 spec 和 plan 落地规划文档。
-5. 然后你直接新建一个合适的 github workflow 文件，完成我需要交给你的任务： 即补全 pr 流程时缺乏的基于修改的 prettier 流程。
-6. 这款新的 github workflow 应该是要基于 pr 作为触发器来执行的。只有 pr 才能调度触发这款 github workflow。
-7. 最后告诉我需要我完成审核审批的主 pr 编号，和中途产生的 origin 云分支名称，告诉我哪些 origin branch 属于主工作分支，哪些是需要我介入删除的临时云分支。
+4. 你的 pr 稿的 title 标题应该使用 git-commit 技能的要求来编写合适的标题。
+5. 我现在需要你在 `docs\plan\2026-8-15-cloud-ci-prettier` 目录设计一个完整的 spec 和 plan 落地规划文档。
+6. 然后你直接新建一个合适的 github workflow 文件，完成我需要交给你的任务： 即补全 pr 流程时缺乏的基于修改的 prettier 流程。
+7. 这款新的 github workflow 应该是要基于 pr 作为触发器来执行的。只有 pr 才能调度触发这款 github workflow。
+8. 最后告诉我需要我完成审核审批的主 pr 编号，和中途产生的 origin 云分支名称，告诉我哪些 origin branch 属于主工作分支，哪些是需要我介入删除的临时云分支。
 
 ## 014 <!-- TODO: --> 设计合适的云任务提示词
 
