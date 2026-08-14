@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { toolDefinitions, type ToolContext } from "./tool-definitions.ts";
+import { registerSkillResourceTemplate } from "./skill-resource-template.ts";
 import { MCP_PACKAGE_NAME, MCP_PACKAGE_VERSION } from "../runtime/package-info.ts";
 import { safeError, type SkillRouterErrorCode } from "../runtime/errors.ts";
 
@@ -37,5 +38,6 @@ export function createServer(options: CreateServerOptions = {}) {
 			},
 		);
 	}
+	if (options.router) registerSkillResourceTemplate(server, options.router);
 	return server;
 }
