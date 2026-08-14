@@ -1,0 +1,46 @@
+name: temporary Skill Router tree fallback test
+
+on:
+  push:
+    branches:
+      - skill-router-mcp-stage2-impl-batch2
+    paths:
+      - .github/workflows/skill-router-stage2-temp-tree-test.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Materialize test blob
+        shell: bash
+        run: |
+          node <<'NODE'
+          import fs from "node:fs/promises";
+          const response = await fetch("https://api.github.com/repos/ruan-cat/monorepo/git/blobs/cffd7512b7bcf3e331aa63b0bee35251fe1befad", {
+            headers: { Accept: "application/vnd.github+json", "User-Agent": "skill-router-stage2-test" },
+          });
+          if (!response.ok) throw new Error(`blob fetch failed: ${response.status}`);
+          const payload = await response.json();
+          await fs.writeFile(
+            "packages/skill-router-mcp/tests/github-tree-fallback.test.ts",
+            Buffer.from(String(payload.content).replace(/\s/g, ""), "base64"),
+          );
+          NODE
+      - name: Remove temporary workflow and commit test
+        shell: bash
+        run: |
+          git rm .github/workflows/skill-router-stage2-temp-tree-test.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/skill-router-mcp/tests/github-tree-fallback.test.ts
+          git commit -m "✅ test(skill-router-mcp): cover truncated Git tree fallback"
+          git push origin HEAD:skill-router-mcp-stage2-impl-batch2
