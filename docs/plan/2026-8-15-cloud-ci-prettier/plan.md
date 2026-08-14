@@ -99,14 +99,14 @@ test/cloud-pr-prettier-format-clean
 
 ## 3. Workflow 验证矩阵
 
-| 场景 | 预期 |
-| --- | --- |
-| PR → `dev`，同仓库 head，存在格式差异 | 格式化、提交、推送 |
-| PR → `dev`，同仓库 head，无格式差异 | 成功，不提交 |
-| PR → `dev`，fork head | 写回 job 跳过 |
-| push 到任意分支 | 不触发该 workflow |
-| PR 修改了当前范围之外的历史未格式化文件 | 不允许由本次 workflow 带入 |
-| 连续 synchronize | concurrency 取消旧运行，只保留最新运行 |
+| 场景                                    | 预期                                   |
+| --------------------------------------- | -------------------------------------- |
+| PR → `dev`，同仓库 head，存在格式差异   | 格式化、提交、推送                     |
+| PR → `dev`，同仓库 head，无格式差异     | 成功，不提交                           |
+| PR → `dev`，fork head                   | 写回 job 跳过                          |
+| push 到任意分支                         | 不触发该 workflow                      |
+| PR 修改了当前范围之外的历史未格式化文件 | 不允许由本次 workflow 带入             |
+| 连续 synchronize                        | concurrency 取消旧运行，只保留最新运行 |
 
 ## 4. 故障处理
 
