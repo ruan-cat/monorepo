@@ -80,7 +80,7 @@ test/cloud-pr-prettier-format-dirty
 第二版加入明显不符合 Prettier 的 `dirty.ts`：
 
 ```ts
-export const cloudPrettierDirty={cloud:"prettier",nested:{value:1}}
+export const cloudPrettierDirty = { cloud: "prettier", nested: { value: 1 } };
 ```
 
 验收：
@@ -143,16 +143,16 @@ export const cloudPrettierClean = true;
 
 ## 3. Workflow 验证矩阵
 
-| 场景                                    | 实测/预期                              |
-| --------------------------------------- | -------------------------------------- |
-| PR → `dev`，同仓库 head，存在格式差异   | 已实测：格式化、commit、push           |
-| PR → `dev`，同仓库 head，无格式差异     | 已实测：成功，commit/push skipped      |
-| `pnpm format` 扫描到 PR 外历史脏格式    | 已实测：全部 restore，不进入自动提交   |
-| workspace commitlint 尚未构建           | 已实测失败；workflow 现已先构建依赖链  |
-| `.prettierignore` 排除的 JSON            | 已实测：尊重 ignore，不强制格式化      |
-| PR → `dev`，fork head                   | 设计：job 条件直接跳过                 |
-| push 到任意分支                         | 设计：workflow 不声明 `push` trigger   |
-| 连续 synchronize                        | 设计：concurrency 取消同 PR 的旧运行   |
+| 场景                                  | 实测/预期                             |
+| ------------------------------------- | ------------------------------------- |
+| PR → `dev`，同仓库 head，存在格式差异 | 已实测：格式化、commit、push          |
+| PR → `dev`，同仓库 head，无格式差异   | 已实测：成功，commit/push skipped     |
+| `pnpm format` 扫描到 PR 外历史脏格式  | 已实测：全部 restore，不进入自动提交  |
+| workspace commitlint 尚未构建         | 已实测失败；workflow 现已先构建依赖链 |
+| `.prettierignore` 排除的 JSON         | 已实测：尊重 ignore，不强制格式化     |
+| PR → `dev`，fork head                 | 设计：job 条件直接跳过                |
+| push 到任意分支                       | 设计：workflow 不声明 `push` trigger  |
+| 连续 synchronize                      | 设计：concurrency 取消同 PR 的旧运行  |
 
 ## 4. 故障处理
 
