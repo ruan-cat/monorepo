@@ -5,6 +5,6 @@ export default defineConfig({
 	plugins: [cloudflareTest({ wrangler: { configPath: "./wrangler.toml" } })],
 	test: {
 		name: "skill-router-worker",
-		include: ["tests/worker-runtime.test.ts"],
+		include: ["tests/stage2-worker-runtime.test.ts"],
 	},
 });

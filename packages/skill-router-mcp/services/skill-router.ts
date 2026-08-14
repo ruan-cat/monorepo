@@ -1,5 +1,15 @@
 import type { GitHubSkillSource } from "../repositories/github-skill-source.ts";
 import { SkillRouterError } from "../runtime/errors.ts";
+import {
+	decodeResourceCursor,
+	normalizeResourcePrefix,
+	ResourceResolver,
+	RESOURCE_LIST_DEFAULT_LIMIT,
+	type ListSkillResourcesInput,
+	type ListSkillResourcesOutput,
+	type LoadedSkillResource,
+	type LoadSkillResourceInput,
+} from "./resource-resolver.ts";
 import { createSourceSnapshot, type SourceSnapshot } from "./source-snapshot.ts";
 import { SkillRegistry, type SkillRegistryEntry } from "./skill-registry.ts";
 import { searchSkills, type SkillSearchResult } from "./skill-search.ts";
@@ -25,10 +35,12 @@ export interface LoadedSkill extends SkillRegistryEntry {
 export class SkillRouter {
 	readonly source: GitHubSkillSource;
 	readonly ref: string;
+	readonly resourceResolver: ResourceResolver;
 
 	constructor(options: SkillRouterOptions) {
 		this.source = options.source;
 		this.ref = options.ref;
+		this.resourceResolver = new ResourceResolver(options.source);
 	}
 
 	async snapshot(sourceCommitSha?: string): Promise<SourceSnapshot> {
@@ -59,6 +71,49 @@ export class SkillRouter {
 		return { ...skill, content, sourceCommitSha: current.sourceCommitSha };
 	}
 
+	async listSkillResources(input: ListSkillResourcesInput): Promise<ListSkillResourcesOutput> {
+		let sourceCommitSha = input.sourceCommitSha;
+		let prefix = normalizeResourcePrefix(input.prefix);
+		let offset = 0;
+
+		if (input.cursor) {
+			const cursor = decodeResourceCursor(input.cursor);
+			if (cursor.skillId !== input.skillId) {
+				throw new SkillRouterError("RESOURCE_CURSOR_INVALID", "Resource cursor belongs to another Skill.");
+			}
+			if (sourceCommitSha && sourceCommitSha !== cursor.sourceCommitSha) {
+				throw new SkillRouterError("RESOURCE_CURSOR_INVALID", "Resource cursor belongs to another source snapshot.");
+			}
+			if (input.prefix !== undefined && prefix !== cursor.prefix) {
+				throw new SkillRouterError("RESOURCE_CURSOR_INVALID", "Resource cursor belongs to another prefix.");
+			}
+			sourceCommitSha = cursor.sourceCommitSha;
+			prefix = cursor.prefix;
+			offset = cursor.offset;
+		}
+
+		const current = await this.snapshot(sourceCommitSha);
+		const skill = (await this.readRegistry(current)).get(input.skillId);
+		return this.resourceResolver.listResources(skill, current, {
+			prefix,
+			offset,
+			limit: input.limit ?? RESOURCE_LIST_DEFAULT_LIMIT,
+		});
+	}
+
+	async loadSkillResource(input: LoadSkillResourceInput): Promise<LoadedSkillResource> {
+		const current = await this.snapshot(input.sourceCommitSha);
+		const skill = (await this.readRegistry(current)).get(input.skillId);
+		return this.resourceResolver.loadResource(skill, current, {
+			path: input.path,
+			startLine: input.startLine,
+			endLine: input.endLine,
+			maxBytes: input.maxBytes,
+			binaryMode: input.binaryMode,
+		});
+	}
+
+	/** Compatibility helper retained for existing internal callers. New public resource tools use ResourceResolver. */
 	async readRelatedFile(skillId: string, relativePath: string, snapshot: SourceSnapshot): Promise<string> {
 		const skill = (await this.readRegistry(snapshot)).get(skillId);
 		const directory = skill.entry.slice(0, skill.entry.lastIndexOf("/"));
