@@ -189,6 +189,17 @@ Cloudflare 官方明确要求 Workers Builds API 使用 `User-scoped API token`�
 7. 这款新的 github workflow 应该是要基于 pr 作为触发器来执行的。只有 pr 才能调度触发这款 github workflow。
 8. 最后告诉我需要我完成审核审批的主 pr 编号，和中途产生的 origin 云分支名称，告诉我哪些 origin branch 属于主工作分支，哪些是需要我介入删除的临时云分支。
 
+---
+
+我要求你继续优化迭代，我现在觉得我们无条件先完成一个根包 package.json 的 format，然后再开始清理副作用，然后再 git commit 提交格式化修改。流程如下：
+
+1. 无条件全量大范围 format
+2. 用 node 能力再完成去除副作用。
+3. 最后对被修改的内容做 git commit。
+
+我感觉这个效率有点低下了。那么如果我这一个目标项目，本来就内容非常多，文件极其庞大，那么前两个步骤就有可能大面积的消耗性能，如果我的这一次 pr 只提交了少量文件，但是大部分的性能和时间开销都被前两个步骤吞了。时间和性能得不偿失。你能不能给我一个更加好的，更加精准有效的 pr 文件提取以及精准格式化的方案？
+既然我们的 `"format": "prettier --experimental-cli --write --no-parallel '**/*.{js,jsx,ts,tsx,mts,json,css,scss,md,yml,yaml,html}' '!**/snippets/**' --ignore-path ./.config/.prettierignore --ignore-path .gitignore",` 能完成格式化，我在想的是，你能不能给我用更加精准有效的方式，比如用 prettier cli 传递参数的方式，实现对少量精准文件的获取并完成格式化。产生出有效的格式化之后，在酌情提交 git commit。
+
 ## 014 <!-- TODO: --> 设计合适的云任务提示词
 
 ## 014 <!-- TODO: -->
