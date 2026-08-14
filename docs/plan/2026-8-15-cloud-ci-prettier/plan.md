@@ -77,11 +77,7 @@ test/cloud-pr-prettier-format-dirty
 
 第一版 fixture 使用 JSON；实际验证发现仓库 `.config/.prettierignore` 明确忽略 `**/*.json`，因此 JSON 不属于生产 `pnpm format` 的有效正向 fixture。保留该发现作为 ignore 契约验证，但不将其冒充格式化成功。
 
-第二版加入明显不符合 Prettier 的 `dirty.ts`：
-
-```ts
-export const cloudPrettierDirty = { cloud: "prettier", nested: { value: 1 } };
-```
+第二版加入明显不符合 Prettier 的 `dirty.ts`，并以 workflow 自动提交后的规范结果作为最终分支状态。
 
 验收：
 
@@ -137,9 +133,9 @@ export const cloudPrettierClean = true;
 - [x] 根据 JSON ignore 发现修正测试设计与文档。
 - [x] dirty 正向写回通过。
 - [x] clean 无差异路径通过。
-- [ ] 将测试 PR #124、#125 关闭，不合并。
-- [ ] 对最终文档状态再执行一次主 PR 回归。
-- [ ] 最终只保留主 PR #123 等待人工审核。
+- [x] 测试 PR #124、#125 已关闭且均未合并。
+- [x] 最终 spec/plan 状态已由主 PR run `31837108251` 全链路回归成功。
+- [x] 最终只保留主 PR #123 等待人工审核。
 
 ## 3. Workflow 验证矩阵
 
