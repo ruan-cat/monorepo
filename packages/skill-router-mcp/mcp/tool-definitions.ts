@@ -3,9 +3,18 @@ import type { SkillRouter } from "../services/skill-router.ts";
 import { listSkills } from "./tools/list-skills.ts";
 import { searchSkills } from "./tools/search-skills.ts";
 import { loadSkill } from "./tools/load-skill.ts";
+import { listSkillResources } from "./tools/list-skill-resources.ts";
+import { loadSkillResource } from "./tools/load-skill-resource.ts";
 import type { ServerInfo } from "./tools/get-server-info.ts";
 
-export const toolNames = ["get_server_info", "list_skills", "search_skills", "load_skill"] as const;
+export const toolNames = [
+	"get_server_info",
+	"list_skills",
+	"search_skills",
+	"load_skill",
+	"list_skill_resources",
+	"load_skill_resource",
+] as const;
 export type ToolName = (typeof toolNames)[number];
 
 export interface ToolContext {
@@ -49,6 +58,8 @@ function resolveServerInfo(context: ToolContext): unknown {
 	return context.serverInfo ?? {};
 }
 
+const sourceCommitShaSchema = z.string().min(7).max(128).optional();
+
 export const toolDefinitions: readonly ToolDefinition[] = [
 	{
 		name: "get_server_info",
@@ -62,7 +73,7 @@ export const toolDefinitions: readonly ToolDefinition[] = [
 		name: "list_skills",
 		title: "List skills",
 		description: "List registry Skill summaries from one exact source commit.",
-		inputSchema: z.object({ sourceCommitSha: z.string().optional() }),
+		inputSchema: z.object({ sourceCommitSha: sourceCommitShaSchema }),
 		annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
 		handler: async (input, context) =>
 			toolResult(await listSkills(input as { sourceCommitSha?: string }, { router: requireRouter(context) })),
@@ -71,7 +82,7 @@ export const toolDefinitions: readonly ToolDefinition[] = [
 		name: "search_skills",
 		title: "Search skills",
 		description: "Search Skill registry metadata deterministically.",
-		inputSchema: z.object({ query: z.string().min(1), sourceCommitSha: z.string().optional() }),
+		inputSchema: z.object({ query: z.string().min(1), sourceCommitSha: sourceCommitShaSchema }),
 		annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
 		handler: async (input, context) =>
 			toolResult(
@@ -82,11 +93,67 @@ export const toolDefinitions: readonly ToolDefinition[] = [
 		name: "load_skill",
 		title: "Load skill",
 		description: "Load one Skill SKILL.md at latest or an exact source commit.",
-		inputSchema: z.object({ skillId: z.string().min(1), sourceCommitSha: z.string().optional() }),
+		inputSchema: z.object({ skillId: z.string().min(1).max(128), sourceCommitSha: sourceCommitShaSchema }),
 		annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
 		handler: async (input, context) =>
 			toolResult(
 				await loadSkill(input as { skillId: string; sourceCommitSha?: string }, { router: requireRouter(context) }),
+			),
+	},
+	{
+		name: "list_skill_resources",
+		title: "List Skill resources",
+		description: "List files belonging to one registered Skill at one exact source snapshot.",
+		inputSchema: z.object({
+			skillId: z.string().min(1).max(128),
+			sourceCommitSha: sourceCommitShaSchema,
+			prefix: z.string().max(512).optional(),
+			cursor: z.string().min(1).max(2048).optional(),
+			limit: z.number().int().min(1).max(200).optional(),
+		}),
+		annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
+		handler: async (input, context) =>
+			toolResult(
+				await listSkillResources(
+					input as {
+						skillId: string;
+						sourceCommitSha?: string;
+						prefix?: string;
+						cursor?: string;
+						limit?: number;
+					},
+					{ router: requireRouter(context) },
+				),
+			),
+	},
+	{
+		name: "load_skill_resource",
+		title: "Load Skill resource",
+		description: "Load one file belonging to a registered Skill at an exact source snapshot.",
+		inputSchema: z.object({
+			skillId: z.string().min(1).max(128),
+			path: z.string().min(1).max(1024),
+			sourceCommitSha: sourceCommitShaSchema,
+			startLine: z.number().int().positive().optional(),
+			endLine: z.number().int().positive().optional(),
+			maxBytes: z.number().int().min(1).max(1_048_576).optional(),
+			binaryMode: z.enum(["metadata", "base64"]).optional(),
+		}),
+		annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
+		handler: async (input, context) =>
+			toolResult(
+				await loadSkillResource(
+					input as {
+						skillId: string;
+						path: string;
+						sourceCommitSha?: string;
+						startLine?: number;
+						endLine?: number;
+						maxBytes?: number;
+						binaryMode?: "metadata" | "base64";
+					},
+					{ router: requireRouter(context) },
+				),
 			),
 	},
 ];

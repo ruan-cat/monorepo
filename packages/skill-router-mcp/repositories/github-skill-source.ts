@@ -21,8 +21,32 @@ interface GitHubContentResponse {
 	download_url?: string | null;
 }
 
-// GitHub returns hexadecimal commit ids; branch-like values such as `main`
-// and `feature/foo` are never valid pins.
+interface GitHubCommitObjectResponse {
+	tree?: { sha?: string };
+}
+
+interface GitHubTreeResponse {
+	tree?: unknown;
+	truncated?: boolean;
+}
+
+interface GitHubBlobResponse {
+	content?: string;
+	encoding?: string;
+	size?: number;
+}
+
+export type GitObjectType = "blob" | "tree" | "commit";
+
+export interface GitTreeEntry {
+	path: string;
+	mode: string;
+	type: GitObjectType;
+	sha: string;
+	size?: number;
+}
+
+// GitHub returns hexadecimal object ids; branch-like values are never valid pins.
 const SHA_PATTERN = /^[a-f0-9]{7,128}$/;
 
 /** A read-only adapter. The configured owner/repository cannot be replaced by callers. */
@@ -76,7 +100,10 @@ export class GitHubSkillSource {
 			throw new SkillRouterError("INVALID_PATH", "The requested repository path is invalid.");
 		}
 		const response = await this.request(
-			`/repos/${encodeURIComponent(this.owner)}/${encodeURIComponent(this.repository)}/contents/${path.split("/").map(encodeURIComponent).join("/")}?ref=${encodeURIComponent(commitSha)}`,
+			`/repos/${encodeURIComponent(this.owner)}/${encodeURIComponent(this.repository)}/contents/${path
+				.split("/")
+				.map(encodeURIComponent)
+				.join("/")}?ref=${encodeURIComponent(commitSha)}`,
 		);
 		const payload = (await this.json(response)) as GitHubContentResponse;
 		if (typeof payload.content !== "string") {
@@ -90,7 +117,7 @@ export class GitHubSkillSource {
 			return payload.content;
 		}
 		try {
-			return decodeBase64(payload.content);
+			return new TextDecoder().decode(decodeBase64Bytes(payload.content));
 		} catch {
 			console.warn("github_content_invalid", {
 				status: response.status,
@@ -100,11 +127,96 @@ export class GitHubSkillSource {
 		}
 	}
 
+	/** List non-directory Git objects under one repository subtree at an exact commit. */
+	async listTree(path: string, commitSha: string): Promise<GitTreeEntry[]> {
+		this.validateCommitSha(commitSha);
+		if (!isSafeRepositoryPath(path)) {
+			throw new SkillRouterError("INVALID_PATH", "The requested repository path is invalid.");
+		}
+		let treeSha = await this.getCommitTreeSha(commitSha);
+		for (const segment of path.split("/")) {
+			const level = await this.readGitTree(treeSha, false);
+			const next = level.entries.find((entry) => entry.path === segment && entry.type === "tree");
+			if (!next) {
+				throw new SkillRouterError("GITHUB_NOT_FOUND", "The configured GitHub source was not found.", 404);
+			}
+			treeSha = next.sha;
+		}
+		const recursive = await this.readGitTree(treeSha, true);
+		if (!recursive.truncated) {
+			return recursive.entries.filter((entry) => entry.type !== "tree");
+		}
+		return this.walkTree(treeSha);
+	}
+
+	/** Read raw blob bytes without any text decoding. */
+	async readBlob(blobSha: string): Promise<Uint8Array> {
+		if (!isGitObjectSha(blobSha)) {
+			throw new SkillRouterError("SOURCE_READ_FAILED", "Git blob identifier is invalid.");
+		}
+		const response = await this.request(
+			`/repos/${encodeURIComponent(this.owner)}/${encodeURIComponent(this.repository)}/git/blobs/${encodeURIComponent(blobSha)}`,
+		);
+		const payload = (await this.json(response)) as GitHubBlobResponse;
+		if (typeof payload.content !== "string" || (payload.encoding && payload.encoding !== "base64")) {
+			throw new SkillRouterError("SOURCE_READ_FAILED", "GitHub returned invalid blob content.");
+		}
+		try {
+			return decodeBase64Bytes(payload.content);
+		} catch {
+			throw new SkillRouterError("SOURCE_READ_FAILED", "GitHub returned invalid blob content.");
+		}
+	}
+
+	private async getCommitTreeSha(commitSha: string): Promise<string> {
+		const response = await this.request(
+			`/repos/${encodeURIComponent(this.owner)}/${encodeURIComponent(this.repository)}/git/commits/${encodeURIComponent(commitSha)}`,
+		);
+		const payload = (await this.json(response)) as GitHubCommitObjectResponse;
+		const treeSha = payload.tree?.sha;
+		if (!treeSha || !isGitObjectSha(treeSha)) {
+			throw new SkillRouterError("SOURCE_READ_FAILED", "GitHub commit did not contain a valid tree.");
+		}
+		return treeSha;
+	}
+
+	private async readGitTree(treeSha: string, recursive: boolean): Promise<{ entries: GitTreeEntry[]; truncated: boolean }> {
+		if (!isGitObjectSha(treeSha)) {
+			throw new SkillRouterError("SOURCE_READ_FAILED", "Git tree identifier is invalid.");
+		}
+		const suffix = recursive ? "?recursive=1" : "";
+		const response = await this.request(
+			`/repos/${encodeURIComponent(this.owner)}/${encodeURIComponent(this.repository)}/git/trees/${encodeURIComponent(treeSha)}${suffix}`,
+		);
+		const payload = (await this.json(response)) as GitHubTreeResponse;
+		if (!Array.isArray(payload.tree)) {
+			throw new SkillRouterError("SOURCE_READ_FAILED", "GitHub returned an invalid tree.");
+		}
+		return {
+			entries: payload.tree.map(parseTreeEntry),
+			truncated: payload.truncated === true,
+		};
+	}
+
+	private async walkTree(treeSha: string, prefix = ""): Promise<GitTreeEntry[]> {
+		const level = await this.readGitTree(treeSha, false);
+		const result: GitTreeEntry[] = [];
+		for (const entry of level.entries) {
+			const path = prefix ? `${prefix}/${entry.path}` : entry.path;
+			if (entry.type === "tree") {
+				result.push(...(await this.walkTree(entry.sha, path)));
+			} else {
+				result.push({ ...entry, path });
+			}
+		}
+		return result;
+	}
+
 	private async request(path: string): Promise<Response> {
 		const headers = new Headers({
 			Accept: "application/vnd.github+json",
 			"X-GitHub-Api-Version": "2022-11-28",
-			"User-Agent": "skill-router-mcp/0.1.0",
+			"User-Agent": "skill-router-mcp/0.2.0",
 		});
 		if (this.token) headers.set("Authorization", `Bearer ${this.token}`);
 		let response: Response;
@@ -155,11 +267,38 @@ export function isSafeRepositoryPath(path: string): boolean {
 	);
 }
 
-function decodeBase64(content: string): string {
-	if (typeof atob === "function") {
-		const binary = atob(content.replace(/\s/g, ""));
-		const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-		return new TextDecoder().decode(bytes);
+function isGitObjectSha(value: string): boolean {
+	return SHA_PATTERN.test(value);
+}
+
+function parseTreeEntry(value: unknown): GitTreeEntry {
+	if (!value || typeof value !== "object") {
+		throw new SkillRouterError("SOURCE_READ_FAILED", "GitHub returned an invalid tree entry.");
 	}
-	return Buffer.from(content, "base64").toString("utf8");
+	const record = value as Record<string, unknown>;
+	if (
+		typeof record.path !== "string" ||
+		typeof record.mode !== "string" ||
+		(record.type !== "blob" && record.type !== "tree" && record.type !== "commit") ||
+		typeof record.sha !== "string" ||
+		!isGitObjectSha(record.sha)
+	) {
+		throw new SkillRouterError("SOURCE_READ_FAILED", "GitHub returned an invalid tree entry.");
+	}
+	return {
+		path: record.path,
+		mode: record.mode,
+		type: record.type,
+		sha: record.sha,
+		size: typeof record.size === "number" ? record.size : undefined,
+	};
+}
+
+function decodeBase64Bytes(content: string): Uint8Array {
+	const compact = content.replace(/\s/g, "");
+	if (typeof atob === "function") {
+		const binary = atob(compact);
+		return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+	}
+	return Uint8Array.from(Buffer.from(compact, "base64"));
 }
