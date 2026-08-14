@@ -1,0 +1,87 @@
+name: Cloud PR Prettier
+
+on:
+  pull_request:
+    branches:
+      - dev
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cloud-pr-prettier-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  format-pr:
+    name: 格式化 PR 改动
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出 PR head 分支
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: 初始化 monorepo 环境
+        uses: ./.github/actions/setup-monorepo
+        with:
+          with-vercel: "false"
+
+      - name: 提取并精准格式化 PR 文件
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node .github/workflows/cloud-pr-prettier.mjs
+
+      - name: 暂存并检查格式化结果
+        id: diff
+        shell: bash
+        run: |
+          FILE_LIST="$RUNNER_TEMP/cloud-pr-prettier-files.zlist"
+
+          if [[ -s "$FILE_LIST" ]]; then
+            git --literal-pathspecs add --all \
+              --pathspec-from-file="$FILE_LIST" \
+              --pathspec-file-nul
+          fi
+
+          git diff --cached --check
+          git diff --cached --name-only
+          git status --short
+
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 构建提交校验运行时
+        if: steps.diff.outputs.changed == 'true'
+        run: pnpm --filter "@ruan-cat/commitlint-config..." build
+
+      - name: 提交格式化结果
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git diff --cached --check
+          git commit -m "🌈 style: 自动格式化 PR #${PR_NUMBER} 改动"
+          git status --short
+
+      - name: 推送格式化提交到 PR head
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        shell: bash
+        run: git push origin "HEAD:${HEAD_REF}"
