@@ -13,6 +13,8 @@
 		"test:all": "pnpm run test:unit && pnpm run test:worker && pnpm run test:integration",
 		"build": "node scripts/generate-build-info.mjs && nitro build",
 		"smoke": "node --experimental-strip-types scripts/smoke-mcp.ts",
+		"verify:remote": "node --experimental-strip-types scripts/verify-stage2-remote.ts",
+		"benchmark:remote": "node --experimental-strip-types scripts/benchmark-stage2-remote.ts",
 		"dev": "nitro dev",
 		"wrangler": "wrangler"
 	},

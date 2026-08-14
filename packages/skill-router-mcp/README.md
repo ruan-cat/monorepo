@@ -79,6 +79,38 @@ skill://common-tools/<exact-sha>/git-commit/references/commit-types.ts
 - 二进制默认只返回 metadata；显式 `binaryMode=base64` 时 raw inline hard cap 为 64 KiB。
 - Router 不执行 `scripts/`、不解压 asset、不做图片识别。
 
+## 远端 Preview / Staging 验收
+
+拿到 Cloudflare Preview 或 Staging 的 HTTPS 根地址后，可直接执行：
+
+```bash
+pnpm --dir packages/skill-router-mcp verify:remote -- https://<worker-host>
+```
+
+该脚本会做真实远端端到端检查：
+
+- `/health` 的 SemVer 与 build SHA；
+- `tools/list` 精确暴露 6 个 Stage 2 Tools；
+- `git-commit` 的 pinned `references/commit-types.ts` 枚举与读取；
+- `pr-ruancat-repo` 三个 references 的枚举与逐文件读取；
+- `resources/templates/list` 的 immutable Skill ResourceTemplate；
+- 标准 `resources/read` 对真实 `git-commit` reference 的读取。
+
+远端延迟基准：
+
+```bash
+pnpm --dir packages/skill-router-mcp benchmark:remote -- https://<worker-host> 30
+```
+
+输出包括：
+
+- 首次观测的 pinned `list_skill_resources` 延迟；
+- warm `list_skill_resources` p50 / p95；
+- warm `load_skill_resource` p50 / p95；
+- 所有采样都固定同一个 `sourceCommitSha`。
+
+`firstObservedListMs` 只是观测值，并不能证明 Cloudflare 使用了全新 isolate。真正的 cold-start 数据应配合 Preview/Staging 的 isolate/部署控制测量，不把普通重复请求误报为 cold benchmark。
+
 ## 版本与部署边界
 
 - MCP SemVer 来自 `package.json`；Worker 版本来自 `CF_VERSION_METADATA`；Skill 内容版本来自 GitHub exact commit SHA；build SHA 是构建期元数据，不能混用。
