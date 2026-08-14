@@ -2,9 +2,10 @@
 
 ## 1. 交付范围
 
-本计划对应 `spec.md`。最终长期保留 3 个文件：
+本计划对应 `spec.md`。最终长期保留 4 个文件：
 
 - `.github/workflows/cloud-pr-prettier.yml`
+- `.github/workflows/cloud-pr-prettier.mjs`
 - `docs/plan/2026-8-15-cloud-ci-prettier/spec.md`
 - `docs/plan/2026-8-15-cloud-ci-prettier/plan.md`
 
@@ -85,6 +86,15 @@ v1 的核心算法为“全仓 `pnpm format` → restore PR 范围外副作用�
 - [x] clean PR 不再构建 `@ruan-cat/utils` 与 `@ruan-cat/commitlint-config`。
 - [x] 有 staged diff 时仍继续执行完整 lint-staged + commit-msg hooks。
 - [x] 不使用 `--no-verify`。
+
+### Phase G：拆分 workflow 与文件处理实现
+
+- [x] 新增 `.github/workflows/cloud-pr-prettier.mjs` 作为 workflow 附属脚本。
+- [x] 将 PR 文件提取、候选筛选、NUL 文件列表输出与 Prettier 分块执行从 YAML heredoc 移入 `.mjs`。
+- [x] 脚本内部按职责拆分为独立函数，避免把细节处理逻辑堆积在 workflow YAML 中。
+- [x] `.github/workflows/cloud-pr-prettier.yml` 的对应 step 只保留 `BASE_SHA` 注入与 `node .github/workflows/cloud-pr-prettier.mjs` 调用。
+- [x] 精准暂存、条件构建、commit 与 push 仍由 workflow 负责，职责边界保持清晰。
+- [x] 不修改 v2 的文件范围、ignore、权限、触发器或自动写回语义。
 
 ## 3. v2 云端验收
 
@@ -180,6 +190,27 @@ bot push 对应 run `31841276515` 没有 job，也没有产生第二个格式化
 
 PR #126 已关闭，未合并。
 
+### 3.3 workflow 模块化回归
+
+将 Node 处理逻辑拆到 `.github/workflows/cloud-pr-prettier.mjs` 后，主 PR run：
+
+```text
+31842439634
+```
+
+验收：
+
+- [x] run 成功。
+- [x] workflow 直接执行 `node .github/workflows/cloud-pr-prettier.mjs`。
+- [x] 附属脚本成功读取 `BASE_SHA` 与 `RUNNER_TEMP`。
+- [x] PR ACMR 文件数为 4。
+- [x] Prettier 精准候选文件数为 3。
+- [x] 候选列表成功写入 runner 临时目录。
+- [x] 精准暂存后 staged diff 为空。
+- [x] commitlint workspace build、commit、push 均 skipped。
+
+本次仅调整代码组织形式，没有改变原有格式化行为。
+
 ## 4. Workflow 最终验证矩阵
 
 | 场景                                  | 最终状态                                                 |
@@ -187,6 +218,7 @@ PR #126 已关闭，未合并。
 | PR → `dev`，同仓库 head，存在格式差异 | 已实测：精准格式化、精准 stage、hooks、commit、push 成功 |
 | PR → `dev`，同仓库 head，无格式差异   | 已实测：build / commit / push 全部 skipped               |
 | PR 包含多个候选但只有一个真正变化     | 已实测：bot commit 只包含实际变化文件                    |
+| workflow Node 逻辑拆为 `.mjs`         | 已实测：模块化调用成功，行为保持不变                     |
 | workspace commitlint 尚未构建         | v1 已实测失败；v2 仅在需要 commit 时按依赖链构建         |
 | `.prettierignore` 排除 JSON           | 已实测：尊重 ignore，不强制格式化                        |
 | PR 外历史脏文件                       | v2 不再扫描，因此不再需要 restore                        |
@@ -244,6 +276,7 @@ pnpm --filter "@ruan-cat/commitlint-config..." build
 - [ ] fork PR 不进入写回 job。
 - [ ] workflow 不读取业务 secrets。
 - [ ] 已移除全仓 `pnpm format`。
+- [ ] YAML 只负责编排，PR 文件处理逻辑集中在 `.github/workflows/cloud-pr-prettier.mjs`。
 - [ ] Prettier 只接收 PR 精准候选路径。
 - [ ] 候选扩展名和 `snippets` 边界与根 `format` script 一致。
 - [ ] `.config/.prettierignore` 与 `.gitignore` 继续生效。
