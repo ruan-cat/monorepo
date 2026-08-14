@@ -73,9 +73,15 @@ describe("real Skill resource contracts", () => {
 		await assertReference(skill, "references/commit-types.ts");
 	});
 
-	test("loads pr-ruancat-repo workflow reference from the checked-out repository", async () => {
+	test("loads every pr-ruancat-repo reference independently", async () => {
 		const skill = (await registry()).get("pr-ruancat-repo");
-		await assertReference(skill, "references/workflow-and-template.md");
+		for (const referencePath of [
+			"references/batch-pr-script.ts",
+			"references/target-repos.md",
+			"references/workflow-and-template.md",
+		]) {
+			await assertReference(skill, referencePath);
+		}
 	});
 
 	test("enumerates the expected pr-ruancat-repo reference set", async () => {

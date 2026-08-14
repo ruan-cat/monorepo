@@ -18,35 +18,39 @@
 ## Main Implementation
 
 - [ ] 抽取统一 `SkillResolver`，从 `skillId` 解析 plugin、entry、Skill root 与 source snapshot
-- [ ] 新增 `ResourceResolver`，集中实现 inventory、metadata、snapshot、path policy、range 与 size policy
-- [ ] 扩展 `GitHubSkillSource` 支持 exact commit tree / subtree / blob 读取
-- [ ] 实现 selected-Skill subtree enumeration 和 upstream truncation fallback
-- [ ] 实现 deterministic inventory cache，key 至少包含 repository + commit + skill
-- [ ] 实现 `list_skill_resources`
-- [ ] 实现 `load_skill_resource`
-- [ ] 在 canonical `toolDefinitions` 注册两个新 Tool
-- [ ] 保持 `load_skill` Stage 2 MVP output shape 不变
-- [ ] 扩展 `runtime/errors.ts` 增加冻结的 resource errors
-- [ ] 增加 deterministic MIME / resource kind / resourceType 判定
-- [ ] 增加 text 256 KiB default / 1 MiB hard policy
-- [ ] 增加 binary metadata default / 64 KiB explicit base64 policy
-- [ ] 增加 immutable `skill://<plugin>/<sha>/<skill-name>/<path>` URI 生成
+- [x] 新增 `ResourceResolver`，集中实现 inventory、metadata、snapshot、path policy、range 与 size policy
+- [x] 扩展 `GitHubSkillSource` 支持 exact commit tree / subtree / blob 读取
+- [x] 实现 selected-Skill subtree enumeration 和 upstream truncation fallback
+- [x] 实现 deterministic inventory cache，key 至少包含 repository + commit + skill
+- [x] 实现 `list_skill_resources`
+- [x] 实现 `load_skill_resource`
+- [x] 在 canonical `toolDefinitions` 注册两个新 Tool
+- [x] 保持 `load_skill` Stage 2 MVP output shape 不变
+- [x] 扩展 `runtime/errors.ts` 增加冻结的 resource errors
+- [x] 增加 deterministic MIME / resource kind / resourceType 判定
+- [x] 增加 text 256 KiB default / 1 MiB hard policy
+- [x] 增加 binary metadata default / 64 KiB explicit base64 policy
+- [x] 增加 immutable `skill://<plugin>/<sha>/<skill-name>/<path>` URI 生成
+- [x] 对 opaque cursor 做 exact SHA / canonical prefix / Skill identity 篡改校验并统一错误语义
 
 ## Tests
 
-- [ ] `git-commit` 真实 reference 读取 PoC
-- [ ] `pr-ruancat-repo` 三个 references 独立读取
-- [ ] scripts resource test
-- [ ] text asset / binary asset test
-- [ ] resource isolation and invalid-input category tests
-- [ ] symlink / submodule object-type tests
-- [ ] source A -> B snapshot race test
-- [ ] pagination cursor remains on A after source ref moves to B
-- [ ] deterministic pagination no-duplicate/no-gap test
-- [ ] text size / line range tests
-- [ ] binary metadata / base64 cap tests
-- [ ] immutable URI snapshot tests
-- [ ] `tools/list` / `get_server_info.tools` canonical catalog tests
+- [x] `git-commit` 真实 reference 读取 PoC
+- [x] `pr-ruancat-repo` 三个 references 独立读取
+- [x] scripts resource test
+- [x] text asset / binary asset test
+- [x] resource isolation and invalid-input category tests
+- [x] symlink / submodule object-type tests
+- [x] source A -> B resource snapshot race test
+- [x] pagination cursor remains on A after source ref moves to B
+- [x] deterministic pagination no-duplicate/no-gap test
+- [x] cursor skill / source snapshot / prefix mismatch tests
+- [x] malformed / tampered opaque cursor tests
+- [x] text size / line range tests
+- [x] binary metadata / base64 cap tests
+- [x] immutable URI snapshot tests
+- [x] `tools/list` / `get_server_info.tools` canonical catalog tests
+- [x] production Worker harness list/load resource contract test
 
 ## MCP Resources Compatibility
 
@@ -71,6 +75,6 @@
 
 - [x] 新增 `implementation-contract.md` 作为冻结实现契约
 - [x] 同步 `README.md` / `design.md` / Spec / acceptance / proposal / tasks / PR draft
-- [ ] 实现完成后回填真实源码路径和最终测试结果
-- [ ] 更新 `packages/skill-router-mcp/README.md` 增加资源调用示例
+- [x] `packages/skill-router-mcp/README.md` 增加 6-tool surface、资源调用链和 Stage 2 size/snapshot 边界
+- [ ] 实现完成后回填最终 CI / deployment / ChatGPT Web 验收结果
 - [ ] 更新 MCP 使用文档说明 Tools 与 `skill://` Resources 两种读取入口
