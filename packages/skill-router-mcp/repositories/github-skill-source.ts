@@ -48,6 +48,9 @@ export interface GitTreeEntry {
 
 // GitHub returns hexadecimal object ids; branch-like values are never valid pins.
 const SHA_PATTERN = /^[a-f0-9]{7,128}$/;
+const TREE_CACHE_MAX_ENTRIES = 64;
+const DEFAULT_GITHUB_TRANSPORT: GitHubTransport = async ({ url, init }) => fetch(url, init);
+const treeCacheByTransport = new WeakMap<object, Map<string, Promise<GitTreeEntry[]>>>();
 
 /** A read-only adapter. The configured owner/repository cannot be replaced by callers. */
 export class GitHubSkillSource {
@@ -64,7 +67,7 @@ export class GitHubSkillSource {
 		this.owner = options.owner;
 		this.repository = options.repository;
 		this.token = options.token;
-		this.transport = options.transport ?? (async ({ url, init }) => fetch(url, init));
+		this.transport = options.transport ?? DEFAULT_GITHUB_TRANSPORT;
 		this.apiBaseUrl = (options.apiBaseUrl ?? "https://api.github.com").replace(/\/$/, "");
 	}
 
@@ -133,20 +136,23 @@ export class GitHubSkillSource {
 		if (!isSafeRepositoryPath(path)) {
 			throw new SkillRouterError("INVALID_PATH", "The requested repository path is invalid.");
 		}
-		let treeSha = await this.getCommitTreeSha(commitSha);
-		for (const segment of path.split("/")) {
-			const level = await this.readGitTree(treeSha, false);
-			const next = level.entries.find((entry) => entry.path === segment && entry.type === "tree");
-			if (!next) {
-				throw new SkillRouterError("GITHUB_NOT_FOUND", "The configured GitHub source was not found.", 404);
-			}
-			treeSha = next.sha;
+		const cache = treeCacheFor(this.transport);
+		const key = `${this.apiBaseUrl}:${this.owner}/${this.repository}:${commitSha}:${path}`;
+		let pending = cache.get(key);
+		if (pending) {
+			cache.delete(key);
+			cache.set(key, pending);
+			return pending;
 		}
-		const recursive = await this.readGitTree(treeSha, true);
-		if (!recursive.truncated) {
-			return recursive.entries.filter((entry) => entry.type !== "tree");
+		pending = this.listTreeUncached(path, commitSha);
+		cache.set(key, pending);
+		trimTreeCache(cache);
+		try {
+			return await pending;
+		} catch (error) {
+			cache.delete(key);
+			throw error;
 		}
-		return this.walkTree(treeSha);
 	}
 
 	/** Read raw blob bytes without any text decoding. */
@@ -166,6 +172,23 @@ export class GitHubSkillSource {
 		} catch {
 			throw new SkillRouterError("SOURCE_READ_FAILED", "GitHub returned invalid blob content.");
 		}
+	}
+
+	private async listTreeUncached(path: string, commitSha: string): Promise<GitTreeEntry[]> {
+		let treeSha = await this.getCommitTreeSha(commitSha);
+		for (const segment of path.split("/")) {
+			const level = await this.readGitTree(treeSha, false);
+			const next = level.entries.find((entry) => entry.path === segment && entry.type === "tree");
+			if (!next) {
+				throw new SkillRouterError("GITHUB_NOT_FOUND", "The configured GitHub source was not found.", 404);
+			}
+			treeSha = next.sha;
+		}
+		const recursive = await this.readGitTree(treeSha, true);
+		if (!recursive.truncated) {
+			return recursive.entries.filter((entry) => entry.type !== "tree");
+		}
+		return this.walkTree(treeSha);
 	}
 
 	private async getCommitTreeSha(commitSha: string): Promise<string> {
@@ -265,6 +288,24 @@ export function isSafeRepositoryPath(path: string): boolean {
 		!path.includes("\0") &&
 		path.split("/").every((part) => part.length > 0 && part !== "." && part !== "..")
 	);
+}
+
+function treeCacheFor(transport: GitHubTransport): Map<string, Promise<GitTreeEntry[]>> {
+	const scope = transport as unknown as object;
+	let cache = treeCacheByTransport.get(scope);
+	if (!cache) {
+		cache = new Map<string, Promise<GitTreeEntry[]>>();
+		treeCacheByTransport.set(scope, cache);
+	}
+	return cache;
+}
+
+function trimTreeCache(cache: Map<string, Promise<GitTreeEntry[]>>): void {
+	while (cache.size > TREE_CACHE_MAX_ENTRIES) {
+		const oldest = cache.keys().next().value as string | undefined;
+		if (!oldest) return;
+		cache.delete(oldest);
+	}
 }
 
 function isGitObjectSha(value: string): boolean {
