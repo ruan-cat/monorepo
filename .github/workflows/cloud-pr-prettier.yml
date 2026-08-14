@@ -36,6 +36,9 @@ jobs:
         with:
           with-vercel: "false"
 
+      - name: 构建提交校验运行时
+        run: pnpm --filter "@ruan-cat/commitlint-config..." build
+
       - name: 记录 PR 原始改动文件
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -68,13 +71,14 @@ jobs:
             .split("\0")
             .filter(Boolean);
 
+          const restored = [];
           for (const file of changed) {
             if (allowed.has(file)) continue;
-            console.log(`restore PR 范围外文件: ${file}`);
-            execFileSync("git", ["restore", "--source=HEAD", "--worktree", "--", file], {
-              stdio: "inherit",
-            });
+            execFileSync("git", ["restore", "--source=HEAD", "--worktree", "--", file]);
+            restored.push(file);
           }
+
+          console.log(`已还原 ${restored.length} 个 PR 范围外文件的副作用。`);
           NODE
 
       - name: 检查格式化结果
