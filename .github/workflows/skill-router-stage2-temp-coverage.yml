@@ -1,0 +1,57 @@
+name: temporary Skill Router compatibility coverage
+
+on:
+  push:
+    branches:
+      - skill-router-mcp-stage2-impl-batch2
+    paths:
+      - .github/workflows/skill-router-stage2-temp-coverage.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Materialize verified compatibility test blobs
+        shell: bash
+        run: |
+          node <<'NODE'
+          import fs from "node:fs/promises";
+          const files = new Map([
+            ["packages/skill-router-mcp/tests/mcp-client-contract.test.ts", "d270ae3295cb00395d15751cf3a1bc7f404b4ea6"],
+            ["packages/skill-router-mcp/tests/mcp-server.test.ts", "579da39b46319ea4f7efddcc2af9b12d69b6ab48"],
+            ["packages/skill-router-mcp/tests/server-info.test.ts", "7938fafd1ea8ca8a2eb04ce5e2bb03f37fb86397"],
+            ["packages/skill-router-mcp/vitest.unit.config.ts", "27e00b0b1685ce9eca3ccd49e910e858988697e4"],
+            ["packages/skill-router-mcp/vitest.worker.config.ts", "c7850ecf5a00342f1dc4c6ec6a72021082959424"],
+          ]);
+          for (const [target, sha] of files) {
+            const response = await fetch(`https://api.github.com/repos/ruan-cat/monorepo/git/blobs/${sha}`, {
+              headers: { Accept: "application/vnd.github+json", "User-Agent": "skill-router-stage2-coverage" },
+            });
+            if (!response.ok) throw new Error(`blob fetch failed: ${response.status}`);
+            const payload = await response.json();
+            await fs.writeFile(target, Buffer.from(String(payload.content).replace(/\s/g, ""), "base64"));
+          }
+          const workerPath = "packages/skill-router-mcp/tests/worker-runtime.test.ts";
+          const worker = (await fs.readFile(workerPath, "utf8")).replaceAll('"0.1.0"', '"0.2.0"');
+          await fs.writeFile(workerPath, worker);
+          await fs.rm("packages/skill-router-mcp/tests/server-info-stage2.test.ts", { force: true });
+          await fs.rm("packages/skill-router-mcp/tests/stage2-worker-runtime.test.ts", { force: true });
+          NODE
+      - name: Remove temporary workflow and commit restored coverage
+        shell: bash
+        run: |
+          git rm .github/workflows/skill-router-stage2-temp-coverage.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/skill-router-mcp
+          git commit -m "✅ test(skill-router-mcp): restore Stage 1 coverage under Stage 2"
+          git push origin HEAD:skill-router-mcp-stage2-impl-batch2
