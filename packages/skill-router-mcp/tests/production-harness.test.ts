@@ -1,6 +1,7 @@
 import { createServer as createHttpServer, type Server } from "node:http";
 import { createTestHarness, type TestHarness } from "wrangler";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { SKILL_RESOURCE_URI_TEMPLATE } from "../mcp/skill-resource-template.ts";
 import { toolNames } from "../mcp/tool-definitions.ts";
 
 const SOURCE_SHA = "0123456789abcdef0123456789abcdef01234567";
@@ -11,8 +12,12 @@ const SKILLS_TREE = "4".repeat(40);
 const FIXTURE_TREE = "5".repeat(40);
 const SKILL_BLOB = "6".repeat(40);
 const RULES_BLOB = "7".repeat(40);
+const REFERENCES_TREE = "8".repeat(40);
+const ICON_BLOB = "9".repeat(40);
+const ASSETS_TREE = "a".repeat(40);
 const SKILL_CONTENT = "# Fixture Skill\n";
 const RULES_CONTENT = "first\nsecond\nthird\n";
+const ICON_CONTENT = Uint8Array.from([0, 1, 2, 3]);
 const registry = {
 	schemaVersion: "1",
 	roots: ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"],
@@ -33,6 +38,10 @@ let upstream: Server;
 
 function encoded(value: string): string {
 	return Buffer.from(value, "utf8").toString("base64");
+}
+
+function encodedBytes(value: Uint8Array): string {
+	return Buffer.from(value).toString("base64");
 }
 
 async function mcp(method: string, params: unknown, id = 1): Promise<Record<string, unknown>> {
@@ -97,7 +106,9 @@ beforeAll(async () => {
 				JSON.stringify({
 					tree: [
 						blob("SKILL.md", SKILL_BLOB, Buffer.byteLength(SKILL_CONTENT)),
-						tree("references", "8".repeat(40)),
+						tree("assets", ASSETS_TREE),
+						blob("assets/icon.png", ICON_BLOB, ICON_CONTENT.byteLength),
+						tree("references", REFERENCES_TREE),
 						blob("references/rules.md", RULES_BLOB, Buffer.byteLength(RULES_CONTENT)),
 					],
 					truncated: false,
@@ -106,7 +117,15 @@ beforeAll(async () => {
 			return;
 		}
 		if (path.endsWith(`/git/blobs/${RULES_BLOB}`)) {
-			response.end(JSON.stringify({ content: encoded(RULES_CONTENT), encoding: "base64", size: Buffer.byteLength(RULES_CONTENT) }));
+			response.end(
+				JSON.stringify({ content: encoded(RULES_CONTENT), encoding: "base64", size: Buffer.byteLength(RULES_CONTENT) }),
+			);
+			return;
+		}
+		if (path.endsWith(`/git/blobs/${ICON_BLOB}`)) {
+			response.end(
+				JSON.stringify({ content: encodedBytes(ICON_CONTENT), encoding: "base64", size: ICON_CONTENT.byteLength }),
+			);
 			return;
 		}
 		if (path.endsWith("/contents/ai-plugins/skill-registry.json")) {
@@ -196,6 +215,32 @@ describe("production Worker harness", () => {
 			arguments: { skillId: "fixture-skill", sourceCommitSha: "main" },
 		});
 		expect((badPin.result as { isError?: boolean }).isError).toBe(true);
+	});
+
+	test("advertises an immutable Skill resource template without eager resource enumeration", async () => {
+		const templates = await mcp("resources/templates/list", {});
+		const resourceTemplates =
+			(templates.result as { resourceTemplates?: Array<{ name?: string; uriTemplate?: string }> }).resourceTemplates ?? [];
+		expect(resourceTemplates).toContainEqual(
+			expect.objectContaining({ name: "skill-resource", uriTemplate: SKILL_RESOURCE_URI_TEMPLATE }),
+		);
+
+		const listed = await mcp("resources/list", {});
+		expect((listed.result as { resources?: unknown[] }).resources ?? []).toEqual([]);
+	});
+
+	test("reads text and binary Skill resources through standard resources/read", async () => {
+		const textUri = `skill://common-tools/${SOURCE_SHA}/fixture-skill/references/rules.md`;
+		const textRead = await mcp("resources/read", { uri: textUri });
+		expect((textRead.result as { contents?: unknown[] }).contents).toEqual([
+			{ uri: textUri, mimeType: "text/markdown", text: RULES_CONTENT },
+		]);
+
+		const binaryUri = `skill://common-tools/${SOURCE_SHA}/fixture-skill/assets/icon.png`;
+		const binaryRead = await mcp("resources/read", { uri: binaryUri });
+		expect((binaryRead.result as { contents?: unknown[] }).contents).toEqual([
+			{ uri: binaryUri, mimeType: "image/png", blob: encodedBytes(ICON_CONTENT) },
+		]);
 	});
 
 	test("keeps two harness requests independent", async () => {

@@ -47,6 +47,28 @@ load_skill_resource(skillId, path, A)
 
 `list_skill_resources` 的分页 cursor 自带 pinned source commit；后续页面即使 `GITHUB_REF` 已前进，也继续读取第一次调用的同一 Git snapshot。
 
+## MCP Resources Compatibility
+
+Tools 仍是 ChatGPT Web 的主调用面；同时服务端注册一个标准 MCP ResourceTemplate：
+
+```text
+skill://{plugin}/{sourceCommitSha}/{skillId}/{+path}
+```
+
+兼容层复用同一个 `SkillRouter` / `ResourceResolver`，不会建立第二套 GitHub 读取路径。
+
+- `resources/templates/list` 用于发现上述 immutable URI template。
+- `resources/read` 可以读取具体的 text resource 或小型 binary blob。
+- `resources/list` 不会为了兼容层去枚举所有 Skill 的所有资源；动态实例保持按需读取。
+- binary `resources/read` 继续遵守 Router 的 64 KiB raw inline hard cap。
+- URI 必须绑定 exact `sourceCommitSha`，并与 Router 返回的 canonical URI 一致。
+
+示例：
+
+```text
+skill://common-tools/<exact-sha>/git-commit/references/commit-types.ts
+```
+
 ## Skill Resource 边界
 
 - Registry v1 仍只负责 Skill discovery，不枚举 deep files。

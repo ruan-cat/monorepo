@@ -17,7 +17,7 @@
 
 ## Main Implementation
 
-- [ ] 抽取统一 `SkillResolver`，从 `skillId` 解析 plugin、entry、Skill root 与 source snapshot
+- [x] 评估独立 `SkillResolver`：冻结契约未要求新增该层；保留 `SkillRouter` registry/snapshot orchestration + `ResourceResolver` resource policy，避免空抽象
 - [x] 新增 `ResourceResolver`，集中实现 inventory、metadata、snapshot、path policy、range 与 size policy
 - [x] 扩展 `GitHubSkillSource` 支持 exact commit tree / subtree / blob 读取
 - [x] 实现 selected-Skill subtree enumeration 和 upstream truncation fallback
@@ -30,7 +30,7 @@
 - [x] 增加 deterministic MIME / resource kind / resourceType 判定
 - [x] 增加 text 256 KiB default / 1 MiB hard policy
 - [x] 增加 binary metadata default / 64 KiB explicit base64 policy
-- [x] 增加 immutable `skill://<plugin>/<sha>/<skill-name>/<path>` URI 生成
+- [x] 增加 immutable `skill://<plugin>/<sha>/<skillId>/<path>` URI 生成
 - [x] 对 opaque cursor 做 exact SHA / canonical prefix / Skill identity 篡改校验并统一错误语义
 
 ## Tests
@@ -54,11 +54,14 @@
 
 ## MCP Resources Compatibility
 
-- [ ] 复用 `ResourceResolver` 注册 immutable `skill://` resource template
-- [ ] 支持 standard `resources/read` text resource
-- [ ] 支持 standard `resources/read` blob resource
-- [ ] 共用 URI / MIME / size / source snapshot / isolation logic
-- [ ] 评估 `skill://index.json` 是否放到 Stage 2 后续小版本
+- [x] 复用 `SkillRouter` / `ResourceResolver` 注册 immutable `skill://` ResourceTemplate
+- [x] `resources/templates/list` 暴露 immutable Skill resource URI pattern
+- [x] standard `resources/read` text resource
+- [x] standard `resources/read` blob resource，并复用 64 KiB binary hard cap
+- [x] 共用 URI / MIME / size / source snapshot / isolation logic
+- [x] 明确 `resources/list` 不做全 Skill eager enumeration；动态实例保持 template + read 按需模式
+- [x] Stage 2 MVP 不增加 `skill://index.json`；若未来 Host 需要独立 discoverable index 再以小版本评估
+- [x] production Worker harness 覆盖 template discovery + text/blob `resources/read`
 
 ## Registry / Deployment
 
@@ -66,7 +69,7 @@
 - [ ] 实现阶段 benchmark Skill-subtree Git tree enumeration 的请求数与延迟
 - [ ] 只有 benchmark 明确失败时再提出 Registry v2 inventory 变更
 - [ ] 核对 Cloudflare Workers Builds Dashboard 的 production branch、root、build/deploy command、path filters 与 secrets
-- [ ] 部署包含两个新 Tool 的 Worker 测试版本
+- [ ] 部署包含 6-tool contract + ResourceTemplate 的 Worker 测试版本
 - [ ] MCP Inspector / Developer Mode 验证
 - [ ] ChatGPT Refresh / Scan Tools
 - [ ] ChatGPT Web 完成 `git-commit` 与 `pr-ruancat-repo` 两条真实链路
@@ -76,5 +79,5 @@
 - [x] 新增 `implementation-contract.md` 作为冻结实现契约
 - [x] 同步 `README.md` / `design.md` / Spec / acceptance / proposal / tasks / PR draft
 - [x] `packages/skill-router-mcp/README.md` 增加 6-tool surface、资源调用链和 Stage 2 size/snapshot 边界
+- [x] `packages/skill-router-mcp/README.md` 增加 MCP ResourceTemplate / `resources/read` compatibility 说明
 - [ ] 实现完成后回填最终 CI / deployment / ChatGPT Web 验收结果
-- [ ] 更新 MCP 使用文档说明 Tools 与 `skill://` Resources 两种读取入口
