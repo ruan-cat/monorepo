@@ -263,6 +263,13 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 		{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "small-alice-web", order: 2 },
 		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "drill", order: 3 },
 		{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "drill", order: 4 },
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "smallalice-docs-ai-nitro-api",
+			order: 5,
+			deployPlatform: "vercel",
+			description: `等待完整和合适的填写`,
+		},
 	],
 	/** rmmv api文档 */
 	"rmmv-api-doc": [
