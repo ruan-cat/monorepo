@@ -268,7 +268,9 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "smallalice-docs-ai-nitro-api",
 			order: 5,
 			deployPlatform: "vercel",
-			description: `等待完整和合适的填写`,
+			description: `钻头文档（SmallAliceWeb）的 AI RAG Nitro 后端接口服务，部署在 Vercel。
+负责将 Markdown 文档知识源接入 PostgreSQL/pgvector 与 OpenAI，提供词法检索 + 向量检索的混合搜索、带文档来源引用的流式 RAG 问答，并承载知识库准备、同步接口与检索评测等服务端能力。
+对应 SmallAliceWeb 仓库的 packages/ai-rag-api 子包，是钻头文档 AI 能力对外提供 HTTP API 的服务端入口。`,
 		},
 	],
 	/** rmmv api文档 */
