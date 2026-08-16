@@ -4,16 +4,16 @@
 
 ## 总表
 
-| 层级 | 典型信号 | 第一动作 |
-| --- | --- | --- |
-| `PREFLIGHT_BLOCKED` | 工作目录/路径/身份/权限/验收/预算冲突 | 不启动真实任务；修任务合同 |
-| CLI 启动失败 | 参数报错、进程起不来 | 运行当前 CLI `--help`，核对最小命令 |
-| provider/auth 失败 | 配置未注入、401/403、model not found、宿主安全策略阻断 | 核对实际 shell、provider/model 和原始输出 |
-| tool/permission 失败 | permission denied、范围外路径、工具错误 | 修正 scope/permission/tool 条件 |
-| task execution 失败 | 任务理解错、编译/测试/运行失败 | 读原始 stdout/stderr/JSONL 与 execution log |
-| artifact/verifier 失败 | 缺失产物、额外文件、验收失败、规则被篡改 | `VERIFIER_FAIL`，主代理复核 |
-| browser verification 失败 | 页面/布局/交互不符合要求 | 记录具体问题，决定唯一一次修正重试或接管 |
-| cleanup 风险 | 密钥残留、证据误删、临时文件泄漏 | 单独清理并报告，不覆盖 artifact 状态 |
+| 层级                      | 典型信号                                               | 第一动作                                    |
+| ------------------------- | ------------------------------------------------------ | ------------------------------------------- |
+| `PREFLIGHT_BLOCKED`       | 工作目录/路径/身份/权限/验收/预算冲突                  | 不启动真实任务；修任务合同                  |
+| CLI 启动失败              | 参数报错、进程起不来                                   | 运行当前 CLI `--help`，核对最小命令         |
+| provider/auth 失败        | 配置未注入、401/403、model not found、宿主安全策略阻断 | 核对实际 shell、provider/model 和原始输出   |
+| tool/permission 失败      | permission denied、范围外路径、工具错误                | 修正 scope/permission/tool 条件             |
+| task execution 失败       | 任务理解错、编译/测试/运行失败                         | 读原始 stdout/stderr/JSONL 与 execution log |
+| artifact/verifier 失败    | 缺失产物、额外文件、验收失败、规则被篡改               | `VERIFIER_FAIL`，主代理复核                 |
+| browser verification 失败 | 页面/布局/交互不符合要求                               | 记录具体问题，决定唯一一次修正重试或接管    |
+| cleanup 风险              | 密钥残留、证据误删、临时文件泄漏                       | 单独清理并报告，不覆盖 artifact 状态        |
 
 ## 1. Preflight blocked
 

@@ -80,11 +80,11 @@ git_commit_plan:
 
 ## 2. A-D 能力合同
 
-| 路径 | 必须记录 | 能证明 | 不能证明 |
-| --- | --- | --- | --- |
-| A：MCP | connector/tool、实际参数、结果 | 指定 MCP 工具真实返回结果 | 外部 CLI/provider/model 可用 |
-| B：Claude Code | 实际 `claude` 命令、工作目录、permission/tools、显式模型（若有）、原始输出、退出码 | 会话真实启动并执行了记录中的动作 | 子会话自报成功等于任务通过 |
-| C：OpenCode provider | provider/model、variant、session、工作目录、认证链路存在性、实际命令、原始事件、退出原因 | 指定 provider/model 链路按记录身份运行 | 同名模型的其他 provider 也可用；退出码 0 等于任务成功 |
+| 路径                 | 必须记录                                                                                 | 能证明                                     | 不能证明                                                 |
+| -------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------- |
+| A：MCP               | connector/tool、实际参数、结果                                                           | 指定 MCP 工具真实返回结果                  | 外部 CLI/provider/model 可用                             |
+| B：Claude Code       | 实际 `claude` 命令、工作目录、permission/tools、显式模型（若有）、原始输出、退出码       | 会话真实启动并执行了记录中的动作           | 子会话自报成功等于任务通过                               |
+| C：OpenCode provider | provider/model、variant、session、工作目录、认证链路存在性、实际命令、原始事件、退出原因 | 指定 provider/model 链路按记录身份运行     | 同名模型的其他 provider 也可用；退出码 0 等于任务成功    |
 | D：OpenCode 默认模型 | 默认模型选择链、variant/session、工作目录、结构化事件暴露出的实际 provider/model（若有） | 默认链路真实启动；事件明确时可记录实际身份 | 省略 `--model` 时凭昵称猜 provider；模型可发现等于已选中 |
 
 ### 模型身份规则

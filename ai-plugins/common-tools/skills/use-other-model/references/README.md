@@ -108,14 +108,14 @@
 
 本轮根据 `skill-hardening-from-incidents` 的知识保留契约，对过长的 `SKILL.md` 做渐进披露拆分。
 
-| 来源 | 目标 | 原因 | 验证 |
-| --- | --- | --- | --- |
-| `SKILL.md` 的完整 v0.9.0 拆分前入口 | `archive/skill-v0.9.0-pre-split.md` | 保留拆分前全部规则、示例和措辞，防止知识丢失 | blob 原样复用 |
-| 任务合同、A-D 身份等级、preflight、harness prompt | `delegation-contract.md` | 只在准备真实委托时需要，不应常驻入口 | SKILL 保留摘要和链接 |
-| 状态机、六层证据链、确定性 verifier、完成声明 | `evidence-verification.md` | 属于验收细节，应按需加载 | SKILL 保留最小验收 |
-| 任务封包旧模板 | `archive/context-packet-template-v0.9.0-pre-split.md` | 先保留旧模板再升级 schema | 新模板覆盖旧语义并补齐新增字段 |
-| 失败分流旧版 | `archive/failure-routing-v0.9.0-pre-split.md` | 先保留旧版再统一重试语义 | 新版消除“reference 与 SKILL 冲突” |
-| References 旧导航 | `archive/README-v0.9.0-pre-split.md` | 保留旧阅读路线 | 新 README 按渐进披露重排 |
+| 来源                                              | 目标                                                  | 原因                                         | 验证                              |
+| ------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------- | --------------------------------- |
+| `SKILL.md` 的完整 v0.9.0 拆分前入口               | `archive/skill-v0.9.0-pre-split.md`                   | 保留拆分前全部规则、示例和措辞，防止知识丢失 | blob 原样复用                     |
+| 任务合同、A-D 身份等级、preflight、harness prompt | `delegation-contract.md`                              | 只在准备真实委托时需要，不应常驻入口         | SKILL 保留摘要和链接              |
+| 状态机、六层证据链、确定性 verifier、完成声明     | `evidence-verification.md`                            | 属于验收细节，应按需加载                     | SKILL 保留最小验收                |
+| 任务封包旧模板                                    | `archive/context-packet-template-v0.9.0-pre-split.md` | 先保留旧模板再升级 schema                    | 新模板覆盖旧语义并补齐新增字段    |
+| 失败分流旧版                                      | `archive/failure-routing-v0.9.0-pre-split.md`         | 先保留旧版再统一重试语义                     | 新版消除“reference 与 SKILL 冲突” |
+| References 旧导航                                 | `archive/README-v0.9.0-pre-split.md`                  | 保留旧阅读路线                               | 新 README 按渐进披露重排          |
 
 ## Archive
 
