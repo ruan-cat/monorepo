@@ -224,4 +224,8 @@ Cloudflare 官方明确要求 Workers Builds API 使用 `User-scoped API token`�
 
 - 目标调研项目： https://github.com/ruan-cat/SmallAliceWeb/tree/dev 项目的 packages\ai-rag-api\package.json 子包。
 
+---
+
+本质上是 packages\domains\package.json 这个 @ruan-cat/domains 有了新的更改，增加了新的版本。请你编写 changeset 更新日志，发版标签为 minor。为 `@ruan-cat/domains` 包编写 minor 版本的 changeset 发版日志。
+
 ## 015 <!-- TODO: -->
