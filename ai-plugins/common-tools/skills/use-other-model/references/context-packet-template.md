@@ -1,139 +1,192 @@
 # 任务封包模板
 
-方案 B 启动前，主代理必须先写任务封包。
-
-这份封包不是可选附录，而是子会话能否稳定工作的前提。
-
-## 使用要求
-
-1. 封包必须在启动子会话前写好
-2. 子会话的第一步必须是阅读封包
-3. 如果封包本身存在冲突，子会话应直接停止并报告冲突
-4. 不要把关键约束只写在聊天 prompt 里
+主代理在启动外部模型或独立执行器前填写本封包。它定义范围、身份、验收和状态所有权；如果封包本身冲突，先修封包，不启动真实任务。
 
 ## 标准模板
 
 ```markdown
 # Task Packet
 
-## Working directory
-
-- Repository root: `/absolute/path/to/repo`
-- Run all commands from this directory unless a step explicitly says otherwise.
-
-## Branch
-
-- Expected branch: `dev`
-- Do not switch branches.
-
-## Read first
-
-- `path/to/file-a`
-- `path/to/file-b`
-- `path/to/file-c`
-
-## Goal
-
-- [用 2-4 条写清楚最终目标]
-
-## Delegation role
+## Role
 
 - Role: `execution` / `diagnostic` / `audit`
 - Model tier: `weak` / `medium` / `strong`
-- Primary output: [明确写出要交付的 diff、证据或审计 findings]
 - Final decision owner: 主代理
 
-### Role boundaries
+## Working directory
 
-- `execution`: 只处理下列明确 diff，不做架构判断、根因诊断或安全签字。
-- `diagnostic`: 只提交原始证据、候选假设、复现步骤和排除链；主代理负责定案。
-- `audit`: 在工作树冻结后只读检查最终 diff、配置、日志和必要历史；不得修改文件，也不得复用执行者的结论作为证据。
+- Repository root: `<absolute-task-root>`
+- Expected branch: `<branch-or-n/a>`
+- Do not switch workspaces or branches unless explicitly authorized.
 
-## Allowed edits
+## Read first
 
-- `path/to/allowed-file-a`
-- `path/to/allowed-dir/**`
+- `<path>`
+- `<path>`
 
-## Explicit diff
+## Goal
 
-- Required changes: [逐文件列出允许的新增/删除/替换]
-- Out of scope: [明确禁止的文件、重构和副作用]
+- `<goal-item>`
+- `<goal-item>`
 
-## Do not do
+## Read allowlist
 
-- Do not edit files outside the allowed scope.
-- Do not rewrite unrelated code.
-- Do not ask follow-up questions unless this packet contains direct contradictions.
-- Do not claim completion without running the required verification commands.
+- `<path-or-glob>`
+
+## Write allowlist
+
+- `<path-or-glob>`
+
+## Expected changed files
+
+- `<exact-path>`
+
+## Forbidden paths
+
+- `<path-or-glob>`
+
+## Forbidden actions
+
+- Do not access files outside the declared scope.
+- Do not install dependencies unless explicitly authorized.
+- Do not modify tests/evaluations/scoring/verifier/CI/acceptance rules to make the task pass unless those files are the explicit task target.
+- Do not git commit/push, publish, deploy, migrate production data, write long-term memory, or change external task status unless explicitly authorized.
+
+## Model identity
+
+- Provider: `<provider-or-default>`
+- Model: `<model-or-default>`
+- Variant: `<variant-or-none>`
+- Session: `<session-or-none>`
+- Permission mode: `<actual-mode>`
+
+## Tool / skill scope
+
+- Tool allowlist: `<tool-or-recorded-limitation>`
+- Skill allowlist: `<skill-or-recorded-limitation>`
+- If the CLI cannot enforce an allowlist, record that limitation instead of pretending it is enforced.
 
 ## Verification commands
 
-- `pnpm test --filter ...`
-- `pnpm build --filter ...`
-- `[其他必须执行的命令]`
+- `<frozen-command>`
 
-## Browser verification target
+## Expected artifacts
+
+- `<path-or-output>`
+
+## Budgets
+
+- Time: `<limit>`
+- Token: `<limit-or-unavailable>`
+- Retry limit: `1`
+
+## Result fields
+
+The execution agent may write only:
+
+- `agent_proposed_status`
+- `changed_files`
+- `commands_run`
+- `evidence`
+- `remaining_risks`
+
+The execution agent must not write:
+
+- `verifier_status`
+- `human_accepted`
+
+## Browser verification
 
 - Required: `yes` / `no`
-- URL: `http://localhost:5173/#/`
-- If required, see the browser verification checklist attached below.
-
-## Required output log
-
-Write an execution log that includes:
-
-1. Start time
-2. Files read
-3. Files changed
-4. Commands executed
-5. Verification results
-6. Browser observations
-7. Problems encountered
-8. End time
-9. Final status
-10. Evidence paths or command output excerpts supporting each acceptance item
+- URL: `<url-or-n/a>`
+- If required, attach `frontend-browser-verification-template.md`.
 
 ## Completion rule
 
-You are done only if:
+The execution role is finished only when:
 
-1. Allowed edits are finished
-2. Required verification commands have passed
-3. Browser verification is completed or explicitly marked blocked with reason
-4. The execution log is complete
-5. You exit immediately after writing the result
+1. the assigned actions are complete or explicitly blocked;
+2. frozen verification commands were run where applicable;
+3. changed files and evidence were reported;
+4. remaining risks were reported;
+5. the agent exits without assigning verifier or human acceptance status.
 ```
 
-## 推荐补充字段
+## Preflight
 
-如果任务较复杂，建议再加：
+主代理在模型调用前检查：
 
-- `## Acceptance checklist`
-- `## Known constraints`
-- `## Existing bugs to ignore`
-- `## Output files`
-- `## Rollback trigger`
+1. `working_directory` 是否真实存在且是任务根目录。
+2. read/write allowlist、expected changed files、forbidden paths 是否无冲突。
+3. 跨工作区路径是否显式列入读白名单且可达。
+4. 显式 provider 路径是否记录完整 `provider/model`。
+5. 认证配置是否存在；不要读取或打印秘密值。
+6. permission/tool/skill scope 是否按当前 CLI 的真实能力记录。
+7. verification commands / tests / verifier / CI / acceptance 是否已经冻结。
+8. time/token budget 是否填写；拿不到 token 数据写 `unavailable`。
+9. retry limit 是否为 1。
+10. 报告中期望的 CLI 参数是否由当前 `--help` 证明存在。
 
-## 填写建议
+任一硬门失败：
 
-### Working directory
+`PREFLIGHT_BLOCKED`
 
-必须是明确的绝对路径，不要写“当前目录”。
+不要先调用真实任务 prompt 再等待模型发现问题。
 
-### Read first
+## Role boundaries
 
-只列真正需要先读的文件，不要把整个仓库目录都塞进去。
+### execution
 
-### Allowed edits
+只改允许范围，执行明确动作和冻结验证；不扩需求、不做最终根因/架构/安全签字。
 
-要能清楚约束子会话的写入范围。  
-如果范围不清楚，就先不要启动方案 B。
+### diagnostic
 
-### Verification commands
+只提供原始证据、复现、候选假设和排除链；主代理定案。
 
-只写真正能证明任务完成的命令。  
-不要把和任务无关的全仓重验证当默认项。
+### audit
 
-### Completion rule
+工作树冻结后只读检查；不修改实现，不复用执行者结论作为独立证据。
 
-这一节必须显式写出“什么时候算完成”，否则子会话很容易提前停。
+## Git 提交类附加字段
+
+仅当委托本身就是 Git 提交工作时追加：
+
+```yaml
+git_commit_plan:
+  exclude:
+    - <excluded-worktree-change>
+  groups:
+    - type: <type>
+      scope: <scope>
+      emoji: <emoji>
+      files:
+        - <path>
+      summary: <summary>
+  identity_check: <client-model-trailer-result>
+```
+
+普通委托不要为了复用 git-commit 模板强行加入这些字段。
+
+## 输出日志
+
+Execution log 至少包含：
+
+1. 实际 CLI / provider / model / variant / session
+2. working directory
+3. files read
+4. files changed
+5. commands run
+6. raw evidence path
+7. verification output summary
+8. permission/tool errors
+9. remaining risks
+10. `agent_proposed_status`
+
+Verifier 输出单独记录，不能覆盖 execution log。
+
+## 相关文档
+
+- `delegation-contract.md`：任务合同和 preflight 解释
+- `evidence-verification.md`：状态所有权和独立验证
+- `failure-routing.md`：失败分层和重试
+- `frontend-browser-verification-template.md`：前端浏览器验收

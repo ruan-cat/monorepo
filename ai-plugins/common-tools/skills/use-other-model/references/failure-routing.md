@@ -1,193 +1,196 @@
 # 失败分流与回退策略
 
-方案 B、方案 C 或方案 D 失败时，不要笼统说“模型不工作”。
+失败时先确定层级，再只修这一层。不要笼统说“模型不工作”，也不要靠同参数重试掩盖真实失败。
 
-必须先判断它属于哪一层失败，再处理。
+## 总表
 
-## 分流总表
+| 层级 | 典型信号 | 第一动作 |
+| --- | --- | --- |
+| `PREFLIGHT_BLOCKED` | 工作目录/路径/身份/权限/验收/预算冲突 | 不启动真实任务；修任务合同 |
+| CLI 启动失败 | 参数报错、进程起不来 | 运行当前 CLI `--help`，核对最小命令 |
+| provider/auth 失败 | 配置未注入、401/403、model not found、宿主安全策略阻断 | 核对实际 shell、provider/model 和原始输出 |
+| tool/permission 失败 | permission denied、范围外路径、工具错误 | 修正 scope/permission/tool 条件 |
+| task execution 失败 | 任务理解错、编译/测试/运行失败 | 读原始 stdout/stderr/JSONL 与 execution log |
+| artifact/verifier 失败 | 缺失产物、额外文件、验收失败、规则被篡改 | `VERIFIER_FAIL`，主代理复核 |
+| browser verification 失败 | 页面/布局/交互不符合要求 | 记录具体问题，决定唯一一次修正重试或接管 |
+| cleanup 风险 | 密钥残留、证据误删、临时文件泄漏 | 单独清理并报告，不覆盖 artifact 状态 |
 
-| 失败类型               | 典型表现                                             | 第一动作                                   |
-| ---------------------- | ---------------------------------------------------- | ------------------------------------------ |
-| 启动失败               | CLI 参数报错、进程起不来、OpenCode/Claude CLI 不可用 | 跑 `claude --help` 或 `opencode --help`    |
-| 方案 C provider 层失败 | 配置未注入、认证拒绝、模型名不可用、安全策略拒绝注入 | 核对当前 shell、显式 `--model` 和原始输出  |
-| 方案 D 默认模型层失败  | 默认模型选择、变体不可用、OpenCode 配置错误          | 读取原始 JSONL 和 `opencode models` 输出   |
-| 执行失败               | 子会话跑起来了，但命令失败或任务理解错               | 读 JSON 结果、execution log、stdout/stderr |
-| 浏览器验收失败         | 构建通过，但页面显示或交互不对                       | 记录具体视觉问题，决定继续委托还是本地接管 |
-| 连续两轮失败           | 已经修过一轮仍失败                                   | 停止委托，主代理接管                       |
+## 1. Preflight blocked
 
-## 1. 启动失败
+以下问题应该在模型消耗真实任务 token 前发现：
 
-### 常见症状
+- working directory 不对
+- allowlist / expected files 冲突
+- 跨工作区路径不可达
+- 显式 provider/model 身份不完整
+- 必需认证配置不存在
+- 验收规则未冻结
+- 预算或权限模式互相冲突
 
-- `claude` 不接受某个参数
+动作：
+
+1. 写 `PREFLIGHT_BLOCKED`。
+2. 保存阻断证据。
+3. 修正任务合同。
+4. 不运行真实任务 prompt。
+
+## 2. CLI 启动失败
+
+症状：
+
+- CLI 参数不存在
 - 进程直接退出
-- 显式 provider 路径中的环境变量没有生效
-- 没进入可编辑模式
+- 当前版本不支持文档里假定的参数
 
-### 处理步骤
+动作：
 
-1. 运行 `claude --help`
-2. 确认以下参数是否可用：
-   - `-p`
-   - `--permission-mode`
-   - `--tools`
-   - `--output-format`
-   - `--append-system-prompt`
-3. 如果是方案 C 或其他显式 provider 路径，检查 provider 环境变量；方案 D 不要求这些变量
-4. 检查主代理是否把系统提示和任务封包路径写对了
-5. 如果是方案 C 或 D，运行 `opencode --help`
-6. 必要时做一次最小 smoke check
+1. 运行当前版本 `--help`。
+2. 回到对应最小官方模板。
+3. 核对 shell、工作目录和参数。
+4. 没有直接命令失败证据时，不加 wrapper。
 
-### 最小 smoke check
+报告或设计稿中的 `--dry-run`、`--scope`、`--read-only`、`models --json` 等期望能力，只有 `--help` 明确存在才可使用。
 
-```bash
-claude -p --output-format json "reply with ok"
-```
+## 3. Provider / Auth
 
-如果 smoke check 都失败，先修启动层问题，不要继续怀疑任务内容。
+区分：
 
-方案 C 的 OpenCode 直连 provider 最小 smoke check：
+- 配置未注入
+- provider 拒绝认证
+- 模型名不可用
+- endpoint/baseURL 错误
+- 宿主安全策略拒绝注入
 
-```powershell
-$env:ANTHROPIC_API_KEY = "<api-key>"
-$env:OPENCODE_CONFIG_CONTENT = '{"provider":{"anthropic":{"options":{"baseURL":"https://<anthropic-compatible-endpoint>/v1"}}}}'
-opencode run --model "anthropic/claude-fable-5" "reply with ok"
-```
+动作：
 
-方案 D 的 OpenCode 裸启动最小 smoke check：
+1. 看实际调用 shell，不看聊天里“应该已经设置”的变量。
+2. 读取原始 stdout/stderr/结构化事件。
+3. 显式 provider 模式核对完整 `provider/model`。
+4. 宿主安全策略阻断写 `BLOCKED_EXTERNAL_POLICY`。
 
-```bash
-opencode run --format json --variant max "只回答 OPENCODE_DEFAULT_MODEL_SMOKE_OK，不调用工具，完成后退出。"
-```
+不要把 provider 失败改写成模型能力失败、任务执行失败或 launcher 失败。
 
-如果 OpenCode CLI 可以启动但指定 provider/model 失败，方案 C 转入 provider 层；默认模型选择或变体失败，方案 D 转入默认模型层。不要互相代替，也不要改 Claude Code 启动器。
+## 4. Tool / Permission
 
-## 2. 方案 C provider 层失败
+症状：
 
-### 常见症状
+- 外部目录被拒绝
+- 工具调用 permission denied
+- 自动加载 skill 扩大范围
+- 结构化事件出现关键 tool error
 
-- 当前 shell 中没有 API key 或 provider 配置
-- 聊天消息里给了 `$env:` 赋值，但没有进入实际子进程环境
-- provider 返回 401、403、404、model not found 或 endpoint 错误
-- 宿主环境在子进程创建前拒绝注入 API key
+硬规则：
 
-### 处理步骤
+**exit code 0 也不能覆盖 permission/tool error。**
 
-1. 核对当前 shell 的环境变量，而不是只看聊天文本。
-2. 读取 OpenCode 或 Claude CLI 的原始 stdout/stderr。
-3. 区分四种状态：
-   - `配置未注入`
-   - `provider 拒绝认证`
-   - `模型名不可用`
-   - `宿主安全策略拒绝注入`
-4. 安全策略阻断写成 `BLOCKED_EXTERNAL_POLICY`。
-5. 不把 provider 层失败改写成启动器失败、模型能力失败或任务执行失败。
+动作：
 
-如果显式 provider 层失败，先修配置传播、认证或模型名；不要增加启动 wrapper、进程扫描或 cleanup 逻辑。
+1. 核对 working directory 与 allowlist。
+2. 收窄或修正 permission/tool scope。
+3. 若要重试，必须是本任务唯一一次失败重试，并且失败条件已经变化。
 
-## 3. 方案 D 默认模型层失败
+## 5. Task Execution
 
-### 常见症状
+症状：
 
-- 默认模型无法选择或本机 OpenCode 配置不可用
-- `--variant max` 不被当前默认模型支持
-- OpenCode 返回默认模型元数据或本机认证链路错误
+- 会话启动了，但没有按封包执行
+- 把任务当成聊天总结
+- 完整命令被改写成无关规划/fallback/release/sync
+- 编译、测试或运行失败
 
-### 处理步骤
+动作：
 
-1. 读取原始 JSONL 和 stderr。
-2. 仅在错误给出 provider 线索时运行 `opencode models <provider> --verbose`，核对当前模型和可用变体。
-3. 只在有具体错误时调整 `--variant` 或 OpenCode 配置。
-4. 不要因为默认模型失败就自动改写为方案 C。
-
-## 4. 执行失败
-
-### 常见症状
-
-- 子会话能启动，但没有按任务封包执行
-- 编译失败
-- 测试失败
-- 运行失败
-- 子会话把任务当成聊天总结
-- 完整命令未执行就被改写成规划、fallback、release、sync 或外部模型委托
-
-### 处理步骤
-
-1. 读取 JSON 输出
-2. 读取 execution log
-3. 读取 stdout/stderr
-4. 判断是哪一类失败：
+1. 先读原始 JSON/JSONL、stdout/stderr。
+2. 再读 execution log。
+3. 判断：
    - 任务理解错误
-   - 完整命令被复杂化
    - 文件读取不足
-   - 编译错误
-   - 测试错误
+   - 编译/测试错误
    - 运行错误
-5. 只修当前这一层的问题，不要一口气重写整个流程
+   - 完整命令被过度复杂化
+4. 只修当前原因，不重写整套执行系统。
 
-### 常见修复动作
+## 6. Artifact / Verifier
 
-- 任务理解错误 → 重写任务封包
-- 完整命令被复杂化 → 判为任务理解错误；纠偏一次后仍不回到原命令，主代理接管，只保留原命令和验收标准
-- 文件读取不足 → 补 `Read first`
-- 编译/测试错误 → 明确验证命令和目标范围
-- 运行错误 → 补启动顺序、依赖、环境说明
+以下任一成立即 `VERIFIER_FAIL`：
 
-## 5. 浏览器验收失败
+- expected artifact 缺失
+- changed files 与 expected set 不一致
+- 文件越过 write allowlist
+- frozen verification command 失败
+- 执行者修改 verifier/test/evaluation/score/CI/acceptance 让自己通过
+- 原始证据与派生结果冲突
 
-### 常见症状
+执行者不能自行修改 verifier 后重新宣布 success。
+
+详细确定性检查见 `evidence-verification.md`。
+
+## 7. Browser Verification
+
+症状：
 
 - 页面打不开
 - 首屏白屏
-- 布局明显错位
+- 视觉布局明显错误
 - 核心交互无响应
-- 子会话没有执行浏览器检查
+- 子会话跳过浏览器检查
 
-### 处理步骤
+动作：
 
-1. 先记录具体问题
-2. 判断问题属于：
-   - 页面未启动
-   - 路由不对
-   - 视觉布局错误
-   - 交互错误
-   - 浏览器工具不可用
-3. 决定继续路径：
-   - 问题清晰且局部 → 可再委托一轮
-   - 问题已明显收敛到局部补丁 → 主代理直接接管更快
+1. 记录具体 URL、视觉/交互问题。
+2. 区分启动、路由、布局、交互或工具不可用。
+3. 问题局部且重试条件可改变 → 可使用唯一一次重试。
+4. 已收敛成局部补丁或重试价值低 → 主代理接管。
 
-### 绝对不要做的事
+禁止：
 
-- 不要把“构建通过”说成“页面完成”
-- 不要把“浏览器不可用”当成默认免责
-- 不要只写“看起来正常”这种模糊日志
+- 把 build pass 说成页面完成
+- 把浏览器不可用当默认免责
+- 用“看起来正常”代替证据
 
-## 6. 连续两轮失败
+## 8. Cleanup
 
-这是硬停止条件。
+artifact pass 与 cleanup 是不同状态。
 
-如果已经发生：
+检查：
 
-1. 第一次失败后修正模板/封包再试
-2. 第二次仍失败
+- API key/token 临时文件
+- 环境变量残留
+- 原始证据是否被误删
+- 任务目录是否出现范围外敏感信息
 
-那么：
+cleanup 未完成时单独报告风险，不把前面状态改写成“全部完成”。
 
-- 停止继续使用外部模型
-- 主代理直接接管
-- 向用户明确说明已回退到本地执行
+## 9. 重试上限
 
-不要在错误执行模式上无限打补丁。
+同一任务最多 **一次失败重试**。
 
-## 推荐判断顺序
+允许重试的前提：
 
-每次失败后按这个顺序判断：
+- 已经明确失败层；
+- 失败条件发生实质变化，例如修正路径、权限、provider 配置或任务封包；
+- 保留上一轮原始证据。
 
-1. **启动层** 有没有错
-2. **方案 C provider 层** 有没有错
-3. **方案 D 默认模型层** 有没有错
-4. **执行层** 有没有错
-5. **浏览器验收层** 有没有错
-6. 是否已经达到 **两轮失败**
+以下属于无效重试：
 
-只有层级判断清楚，修复才会有效。
+- 相同命令
+- 相同上下文
+- 相同权限
+- 相同 provider/model 配置
+- 只是“再试一次”
+
+达到上限后主代理接管。
+
+## 10. 判断顺序
+
+1. preflight
+2. CLI start
+3. provider/auth
+4. tool/permission
+5. task execution
+6. artifact/verifier
+7. browser verification
+8. cleanup
+9. retry limit
+
+每一层只处理自己的证据，不跨层代偿。
