@@ -11,32 +11,32 @@
 
 ## 文件导航
 
-| 文件                                                                         | 适用问题                                               |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------ |
-| [`retention-contract.md`](retention-contract.md)                             | 如何防止技能知识衰减、遗忘、过度删减，以及如何审计迁移 |
-| [`workflow-boundaries.md`](workflow-boundaries.md)                           | 写入目标、证据材料、skill 类型边界和编辑准则           |
-| [`rule-extraction.md`](rule-extraction.md)                                   | 将事故材料提炼为 future-agent 规则的五步方法           |
-| [`agent-team-loop.md`](agent-team-loop.md)                                   | 主代理、编辑子代理、验证子代理的职责与闭环             |
-| [`validation-and-failure-modes.md`](validation-and-failure-modes.md)         | 验证清单、路径污染扫描、常见错误和完成条件             |
-| [`plugin-marketplace.md`](plugin-marketplace.md)                             | AI 插件市场的维护入口、用户入口和安装验证              |
-| [`release-ai-plugins-skill-v0.17.4.md`](release-ai-plugins-skill-v0.17.4.md) | `release-ai-plugins` 旧版入口全文与迁移对照            |
-| [`use-other-model-skill-v0.9.0-pre-split.md`](use-other-model-skill-v0.9.0-pre-split.md) | `use-other-model` 拆分前入口全文，用于知识保留与迁移审计 |
-| [`use-other-model-context-packet-v0.9.0-pre-split.md`](use-other-model-context-packet-v0.9.0-pre-split.md) | `use-other-model` 旧任务封包模板 |
-| [`use-other-model-failure-routing-v0.9.0-pre-split.md`](use-other-model-failure-routing-v0.9.0-pre-split.md) | `use-other-model` 旧失败分流规则 |
-| [`use-other-model-references-readme-v0.9.0-pre-split.md`](use-other-model-references-readme-v0.9.0-pre-split.md) | `use-other-model` 旧 references 导航 |
+| 文件                                                                                                             | 适用问题                                                 |
+| ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| [`retention-contract.md`](retention-contract.md)                                                                 | 如何防止技能知识衰减、遗忘、过度删减，以及如何审计迁移   |
+| [`workflow-boundaries.md`](workflow-boundaries.md)                                                               | 写入目标、证据材料、skill 类型边界和编辑准则             |
+| [`rule-extraction.md`](rule-extraction.md)                                                                       | 将事故材料提炼为 future-agent 规则的五步方法             |
+| [`agent-team-loop.md`](agent-team-loop.md)                                                                       | 主代理、编辑子代理、验证子代理的职责与闭环               |
+| [`validation-and-failure-modes.md`](validation-and-failure-modes.md)                                             | 验证清单、路径污染扫描、常见错误和完成条件               |
+| [`plugin-marketplace.md`](plugin-marketplace.md)                                                                 | AI 插件市场的维护入口、用户入口和安装验证                |
+| [`release-ai-plugins-skill-v0.17.4.md`](release-ai-plugins-skill-v0.17.4.md)                                     | `release-ai-plugins` 旧版入口全文与迁移对照              |
+| [`use-other-model-skill-v0.9.0-pre-split.md`](use-other-model-skill-v0.9.0-pre-split.md)                         | `use-other-model` 拆分前入口全文，用于知识保留与迁移审计 |
+| [`use-other-model-context-packet-v0.9.0-pre-split.md`](use-other-model-context-packet-v0.9.0-pre-split.md)       | `use-other-model` 旧任务封包模板                         |
+| [`use-other-model-failure-routing-v0.9.0-pre-split.md`](use-other-model-failure-routing-v0.9.0-pre-split.md)     | `use-other-model` 旧失败分流规则                         |
+| [`use-other-model-references-readme-v0.9.0-pre-split.md`](use-other-model-references-readme-v0.9.0-pre-split.md) | `use-other-model` 旧 references 导航                     |
 
 ## 迁移台账
 
-| 来源章节（原 `SKILL.md` 或模板）           | 目标文件                                               | 迁移原因                                 | 状态         |
-| ------------------------------------------ | ------------------------------------------------------ | ---------------------------------------- | ------------ |
-| 先定写入目标、证据材料读取清单、编辑准则   | `workflow-boundaries.md`                               | 细节稳定但不应挤占入口篇幅               | 已迁移并复核 |
-| 提炼规则的方法                             | `rule-extraction.md`                                   | 保留现象、根因、诱因、规则、验证五要素   | 已迁移并复核 |
-| agent team 闭环                            | `agent-team-loop.md`                                   | 角色边界和清理要求需要独立查阅           | 已迁移并复核 |
-| 验证清单、路径污染扫描、常见错误、完成条件 | `validation-and-failure-modes.md`                      | 保留完整门禁和失败分流                   | 已迁移并复核 |
-| 插件市场变更加固                           | `plugin-marketplace.md`                                | 平台 schema 和安装验证属于专题细节       | 已迁移并复核 |
-| `09.Karpathy Guidelines.md` 的插件市场变更 | `plugin-marketplace.md`、`release-ai-plugins/SKILL.md` | 专项发布规则不应污染通用 AI 记忆模板     | 已迁移并复核 |
-| `release-ai-plugins` v0.17.4 主入口        | `release-ai-plugins-skill-v0.17.4.md`                  | 升级入口压缩后保留旧版发布规则与验证细节 | 已迁移并复核 |
-| `use-other-model` v0.9.0 拆分前主入口 | `use-other-model-skill-v0.9.0-pre-split.md` | 对外 skill 入口收缩前保留全部原始规则，避免知识丢失 | 已迁移并复核 |
-| `use-other-model` 旧任务封包模板 | `use-other-model-context-packet-v0.9.0-pre-split.md` | 升级任务合同 schema 前保留旧模板 | 已迁移并复核 |
-| `use-other-model` 旧失败分流 | `use-other-model-failure-routing-v0.9.0-pre-split.md` | 统一失败层与重试语义前保留旧规则 | 已迁移并复核 |
-| `use-other-model` 旧 references 导航 | `use-other-model-references-readme-v0.9.0-pre-split.md` | 重排渐进披露阅读路线前保留旧导航 | 已迁移并复核 |
+| 来源章节（原 `SKILL.md` 或模板）           | 目标文件                                                | 迁移原因                                            | 状态         |
+| ------------------------------------------ | ------------------------------------------------------- | --------------------------------------------------- | ------------ |
+| 先定写入目标、证据材料读取清单、编辑准则   | `workflow-boundaries.md`                                | 细节稳定但不应挤占入口篇幅                          | 已迁移并复核 |
+| 提炼规则的方法                             | `rule-extraction.md`                                    | 保留现象、根因、诱因、规则、验证五要素              | 已迁移并复核 |
+| agent team 闭环                            | `agent-team-loop.md`                                    | 角色边界和清理要求需要独立查阅                      | 已迁移并复核 |
+| 验证清单、路径污染扫描、常见错误、完成条件 | `validation-and-failure-modes.md`                       | 保留完整门禁和失败分流                              | 已迁移并复核 |
+| 插件市场变更加固                           | `plugin-marketplace.md`                                 | 平台 schema 和安装验证属于专题细节                  | 已迁移并复核 |
+| `09.Karpathy Guidelines.md` 的插件市场变更 | `plugin-marketplace.md`、`release-ai-plugins/SKILL.md`  | 专项发布规则不应污染通用 AI 记忆模板                | 已迁移并复核 |
+| `release-ai-plugins` v0.17.4 主入口        | `release-ai-plugins-skill-v0.17.4.md`                   | 升级入口压缩后保留旧版发布规则与验证细节            | 已迁移并复核 |
+| `use-other-model` v0.9.0 拆分前主入口      | `use-other-model-skill-v0.9.0-pre-split.md`             | 对外 skill 入口收缩前保留全部原始规则，避免知识丢失 | 已迁移并复核 |
+| `use-other-model` 旧任务封包模板           | `use-other-model-context-packet-v0.9.0-pre-split.md`    | 升级任务合同 schema 前保留旧模板                    | 已迁移并复核 |
+| `use-other-model` 旧失败分流               | `use-other-model-failure-routing-v0.9.0-pre-split.md`   | 统一失败层与重试语义前保留旧规则                    | 已迁移并复核 |
+| `use-other-model` 旧 references 导航       | `use-other-model-references-readme-v0.9.0-pre-split.md` | 重排渐进披露阅读路线前保留旧导航                    | 已迁移并复核 |
