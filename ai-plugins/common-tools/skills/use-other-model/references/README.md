@@ -1,6 +1,17 @@
 # References 目录
 
-本目录承载 `use-other-model` 的渐进式加载文档。正常调用先读根目录 `SKILL.md`；只有命中具体路径、失败层或验收需求时，再加载对应 reference。
+本目录承载 `use-other-model` **随技能一起分发的当前渐进式记忆层**。正常调用先读根目录 `SKILL.md`；只有命中具体路径、失败层、验收需求或维护原因时，再加载对应 reference。
+
+## 独立分发边界
+
+对一个全新项目而言，本目录必须足以提供所有运行时必需的详细规则。
+
+- 当前执行不得依赖源 monorepo 的 `.agents/`、`docs/reports/`、内部 CI 路径或 hardening archive。
+- 历史 archive 可以存在于维护源码仓库，但不是独立安装后的运行时依赖。
+- 外部报告只能作为可选背景，不能承载唯一的当前执行规则。
+- 当前硬门的原因保存在 `design-memory.md`；它随技能分发，用于维护或审查时恢复设计意图。
+
+维护时可以用一个简单验收判断是否破坏了自包含性：**假设只剩 `use-other-model/` 目录，正常任务是否仍能完成选路、preflight、执行、失败分流和验证？** 如果不能，就说明必要记忆放错了位置。
 
 ## 核心阅读路线
 
@@ -73,17 +84,32 @@
 
 - `opencode-provider-launch-templates.md`
 - `environment-variables.md`
-- `scripts/smoke-opencode-provider.ps1`
+- `../scripts/smoke-opencode-provider.ps1`
 
 显式记录 provider/model；provider 配置必须进入实际调用 shell。
 
 ### D：OpenCode 默认/headless 模式
 
 - `opencode-headless-launch-templates.md`
-- `scripts/smoke-opencode.ps1`
-- `scripts/launch-opencode-headless.ps1`
+- `../scripts/smoke-opencode.ps1`
+- `../scripts/launch-opencode-headless.ps1`
 
 默认省略 `--model` 时，不凭模型昵称猜 provider；以本次结构化事件为证据。
+
+## 当前设计记忆
+
+- `design-memory.md`
+  - 独立分发自包含原则
+  - 为什么 preflight 必须前置
+  - 为什么模型可发现不等于已选中
+  - 为什么 exit code 0 不等于成功
+  - 为什么 executor 与 verifier 必须分离
+  - 为什么原始 stdout/stderr/JSONL 必须保留
+  - 为什么默认只允许一次有效 retry
+  - 为什么弱模型必须 `DECISION_BUDGET: 0`
+  - 为什么不能假设未来 CLI 参数
+
+它保存的是**当前设计原因**，不是旧版全文；正常执行不必每次加载。
 
 ## 其他资料
 
@@ -103,7 +129,8 @@
   - 兼容保留的旧模板入口；优先级低于当前启动模板和任务合同。
 
 - `technical-reports.md`
-  - 历史技术方案与 token 节省分析；只在追溯背景时读取。
+  - 外部历史技术方案与 token 节省分析；只在追溯背景时读取。
+  - 网络不可用或链接失效时，不影响当前 skill 的正常执行。
 
 ## 渐进披露原则
 
@@ -114,7 +141,9 @@
    - 快速执行卡
    - 弱模型硬门摘要
    - 最小验收
-2. 任务 schema、状态机、详细失败分流、弱执行 packet、命令模板和长案例放在 reference。
-3. 同一规则只维护一个完整真值；`SKILL.md` 写摘要并链接到 reference。
-4. 弱模型的 reference 选择由强主代理完成；弱执行者不通过多跳阅读自行拼装流程。
-5. reference 与入口冲突时，先修冲突，不长期保留“以主文件为准”的双源状态。
+2. 任务 schema、状态机、详细失败分流、弱执行 packet、命令模板和长案例放在当前 reference。
+3. 当前设计原因放在 `design-memory.md`；旧版全文不得拿来充当当前规范。
+4. 同一规则只维护一个完整执行真值；`SKILL.md` 写摘要并链接到对应专题 reference。
+5. 弱模型的 reference 选择由强主代理完成；弱执行者不通过多跳阅读自行拼装流程。
+6. 对外分发 skill 的任何运行时必要记忆都必须位于本技能目录内。
+7. reference 与入口冲突时，先修冲突，不长期保留双源状态。

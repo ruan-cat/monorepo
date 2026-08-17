@@ -43,9 +43,13 @@ metadata:
    - 先运行 CLI 官方、最小、可观察的命令或 smoke check。
    - 没有原始失败证据，不新增复杂进程树、状态机、脱敏、cleanup 或自定义执行协议。
 
-5. **对外分发 skill 站在安装后目录视角**
+5. **对外分发 skill 站在安装后目录视角，并且运行时自包含**
    - 示例只使用技能目录内相对路径。
    - 不写本机绝对路径、开发期报告、monorepo 内部测试/CI 路径或用户私有目录。
+   - 任何正常执行必需的规则、模板、失败边界、验证条件和当前设计依据，都必须位于本 `use-other-model/` 目录的 `SKILL.md`、`references/` 或 `scripts/` 中。
+   - 源 monorepo 的 `.agents/`、`docs/reports/`、hardening archive 和根级 AI 记忆只能作为开发期证据，不能成为独立安装后的运行时依赖。
+   - 外部技术报告只允许作为可选背景；网络不可用时仍必须能从本技能目录完成正常流程。
+   - 当前硬门的因果记忆见 `references/design-memory.md`；维护或扩展本技能时不需要回源 monorepo archive 才能理解当前设计。
 
 ## 什么时候委托
 
@@ -266,5 +270,6 @@ metadata:
 - **独立验证** → `references/evidence-verification.md`
 - **前端浏览器验收** → `references/frontend-browser-verification-template.md`
 - **环境变量识别** → `references/environment-variables.md`
+- **维护/设计原因** → `references/design-memory.md`
 - **案例与背景** → `references/case-study-git-commits.md`、`references/technical-reports.md`
 - **完整 reference 导航** → `references/README.md`

@@ -2,7 +2,7 @@
 name: skill-hardening-from-incidents
 description: Use when upgrading, hardening, or creating skills from reports, incident reviews, historical lessons, agent-team feedback, or repeated workflow failures
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 user-invocable: true
 ---
 
@@ -37,7 +37,8 @@ user-invocable: true
 5. 每次迁移都要在 [`reference/README.md`](reference/README.md) 登记“来源章节、目标文件、迁移原因、验证状态”。历史快照的 Deprecated 状态、日期、替代规则和废弃原因统一登记在 archive 索引或迁移台账，不改写原始快照正文。
 6. 当前参考文件只能追加或定向修订；如果当前规则过时，保留废弃说明或转入 archive，不得让旧规则继续作为当前规范参与执行。
 7. 主文件只保留稳定入口、强制边界和快速检查；细节通过当前参考文件渐进披露。压缩字数不能作为删除知识的理由。
-8. 完成前检查孤立标题、失效链接、未登记的删除块、archive 误入活跃导航和重复/冲突规则；任何无法解释的减少都视为未完成。
+8. 对外分发 skill 还必须满足**运行时自包含**：离开源 monorepo 后，任何正常执行必需的规则、模板、失败边界、验证条件和当前设计依据仍位于该 skill 自己的分发目录内。
+9. 完成前检查孤立标题、失效链接、未登记的删除块、archive 误入活跃导航、外发 skill 回源依赖和重复/冲突规则；任何无法解释的减少都视为未完成。
 
 完整契约见 [`reference/retention-contract.md`](reference/retention-contract.md)。
 
@@ -48,19 +49,33 @@ user-invocable: true
 - `reference/archive/<skill>/...`：历史证据，只用于审计/追溯；不能作为当前技能执行规则。
 - 如果当前规则与 archive 内容冲突，以当前 `SKILL.md` + 当前 `reference/*.md` 为准；archive 只解释“过去是什么”，不能反向覆盖当前规则。
 
+## 对外分发自包含边界
+
+项目级 archive 解决“源仓库历史是否还在”，但不能解决“用户把 skill 单独安装出去后还能不能正确运行”。
+
+因此对 `ai-plugins/*/skills/<skill-name>/`：
+
+- 运行时真值必须随该 skill 自身目录分发。
+- 项目根 `.agents`、AI 记忆、内部报告和 hardening archive 不得成为当前运行依赖。
+- 如果某段事故因果会影响未来维护者保留某个硬门，应提炼成该外发 skill 自己的当前 design/reference memory，而不是只保存在项目级 archive。
+- 外部报告只能是可选背景；断网后正常执行仍应成立。
+- 完成前执行“只复制该 skill 目录到全新项目”的自包含验收。
+
+详细检查见 [`reference/workflow-boundaries.md`](reference/workflow-boundaries.md) 和 [`reference/validation-and-failure-modes.md`](reference/validation-and-failure-modes.md)。
+
 ## 核心执行流程
 
 1. **界定写集**：明确本轮允许修改的 skill、当前参考文件、历史 archive、根级 AI 记忆和（如适用）对外分发入口；不确定时先问用户。
 2. **建立基线**：在编辑前运行压力场景或静态断言，记录当前缺口和可复现的失败输出。
 3. **读取证据**：核对用户材料、当前 skill、相关 diff、根级 AI 记忆、同类事故和发布/同步元数据；默认不读 archive，只有迁移审计需要时才定向读取。
 4. **提炼规则**：按“现象 → 根因 → 错误诱因 → 未来规则 → 验证方式”编写，禁止把事故流水账直接贴进正文。
-5. **迁移与编辑**：当前有效规则先迁移到当前 reference；历史原貌先归档到 `reference/archive/<skill>/` 并登记，再用最小补丁更新入口；不得顺手格式化无关文件。
-6. **独立验证**：主代理亲自查看最终 diff，执行 frontmatter、链接、路径污染、内容保留、archive 隔离和关键命令检查；不能只相信子代理报告。
+5. **迁移与编辑**：当前有效规则先迁移到当前 reference；历史原貌先归档到 `reference/archive/<skill>/` 并登记；对外 skill 的当前必要记忆同步进入其自身分发目录，再用最小补丁更新入口。
+6. **独立验证**：主代理亲自查看最终 diff，执行 frontmatter、链接、路径污染、内容保留、archive 隔离、外发自包含和关键命令检查；不能只相信子代理报告。
 7. **同步收口**：需要时同步根级 `CLAUDE.md`、`AGENTS.md`、`GEMINI.md`；有 Memorix MCP 时记录决策链和完成状态，并 resolve 已完成任务。
 
 ## 写入目标与证据读取
 
-项目局部、对外分发、全局 skill、根级 AI 记忆和 Memorix 的边界及读取清单见 [`reference/workflow-boundaries.md`](reference/workflow-boundaries.md)。局部经验不得误塞进对外分发 skill；对外 skill 的示例必须以安装后目录为基准。
+项目局部、对外分发、全局 skill、根级 AI 记忆和 Memorix 的边界及读取清单见 [`reference/workflow-boundaries.md`](reference/workflow-boundaries.md)。局部经验不得误塞进对外分发 skill；对外 skill 的示例必须以安装后目录为基准，当前运行规则也必须在安装后目录内自包含。
 
 ## 规则提炼
 
@@ -83,6 +98,7 @@ user-invocable: true
 - 目标写集与实际 diff 完全一致，没有无关文件修改。
 - skill 内容是 future-agent 可执行流程，不是事故叙事。
 - 三类 skill 边界清楚，没有把本仓库路径假设泄露到对外分发 skill。
+- 对外分发 skill 在只保留自身目录的全新项目中仍能恢复正常执行规则和必要当前设计记忆。
 - 被正文移除的当前规则均已进入当前 `reference/`；历史原貌进入 `reference/archive/<skill>/` 并登记。
 - archive 没有进入正常执行阅读路线，也没有被当作当前真值。
 - 根级 AI 记忆和 Memorix 已按需同步。
