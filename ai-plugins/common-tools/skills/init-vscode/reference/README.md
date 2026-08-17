@@ -4,10 +4,10 @@
 
 ## 当前参考
 
-| 文件 | 主题 | 何时读取 | 当前状态 | 自动化覆盖 |
-| --- | --- | --- | --- | --- |
-| `extension-replacement-migrations.md` | 扩展 replacement mapping、scope、preflight/postflight、回滚 | 扩展推荐发生替换，或目标项目命中已知旧扩展 ID/settings/command 时 | 当前有效 | 由模板 JSONC/PR diff 与仓库 CI 做静态覆盖；runtime 仍按文档分层验收 |
-| `2026-08-16-todo-tree-ripgrep-migration.md` | Todo Tree 激活失败与 ripgrep 私有路径事故的可复用经验 | Todo Tree/Better Todo Tree 迁移、`command not found`、ripgrep 路径或运行时验收问题 | 当前有效 | 规则型参考；GUI/runtime 项不能由静态 CI 代替 |
+| 文件                                        | 主题                                                        | 何时读取                                                                           | 当前状态 | 自动化覆盖                                                          |
+| ------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------- |
+| `extension-replacement-migrations.md`       | 扩展 replacement mapping、scope、preflight/postflight、回滚 | 扩展推荐发生替换，或目标项目命中已知旧扩展 ID/settings/command 时                  | 当前有效 | 由模板 JSONC/PR diff 与仓库 CI 做静态覆盖；runtime 仍按文档分层验收 |
+| `2026-08-16-todo-tree-ripgrep-migration.md` | Todo Tree 激活失败与 ripgrep 私有路径事故的可复用经验       | Todo Tree/Better Todo Tree 迁移、`command not found`、ripgrep 路径或运行时验收问题 | 当前有效 | 规则型参考；GUI/runtime 项不能由静态 CI 代替                        |
 
 ## 加载边界
 
