@@ -46,11 +46,11 @@ use-other-model/
 
 ## A-D 路由
 
-| 路径 | 用途 |
-| --- | --- |
-| A：MCP | 简单任务、单次工具调用 |
-| B：独立 Claude Code 会话 | 多步骤编码、批量操作、独立读写与验证 |
-| C：OpenCode provider | 显式 provider/API key/baseURL/`provider/model` |
+| 路径                      | 用途                                            |
+| ------------------------- | ----------------------------------------------- |
+| A：MCP                    | 简单任务、单次工具调用                          |
+| B：独立 Claude Code 会话  | 多步骤编码、批量操作、独立读写与验证            |
+| C：OpenCode provider      | 显式 provider/API key/baseURL/`provider/model`  |
 | D：OpenCode 默认/headless | 默认模型链路、未指定 `--model` 的 headless 调用 |
 
 完整证据合同见 `references/delegation-contract.md`。

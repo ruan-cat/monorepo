@@ -54,21 +54,21 @@ rg -n "pre-split|Deprecated historical|NON-NORMATIVE" .agents/skills/skill-harde
 
 ## 常见错误
 
-| 错误 | 修正 |
-| --- | --- |
-| 直接贴事故流水 | 改写成现象、根因、未来规则、验证方式 |
-| 只改 `SKILL.md` 不同步 AI 记忆 | 新增或改名项目局部 skill 时，同步根级三份 AI 记忆文档 |
-| 只信子代理报告不看 diff | 主代理亲自查看 diff、目标文件和关键命令输出 |
-| 没清理旧 agent team | 开始前确认旧任务、旧 handoff、旧计划不会污染本轮目标 |
-| `description` 写 workflow 摘要 | `description` 只写 `Use when...` 触发条件 |
-| 把局部经验塞进对外 skill | 局部规则写项目 skill 或根级 AI 记忆；对外 skill 只保留安装后可复用规则 |
+| 错误                                 | 修正                                                                                      |
+| ------------------------------------ | ----------------------------------------------------------------------------------------- |
+| 直接贴事故流水                       | 改写成现象、根因、未来规则、验证方式                                                      |
+| 只改 `SKILL.md` 不同步 AI 记忆       | 新增或改名项目局部 skill 时，同步根级三份 AI 记忆文档                                     |
+| 只信子代理报告不看 diff              | 主代理亲自查看 diff、目标文件和关键命令输出                                               |
+| 没清理旧 agent team                  | 开始前确认旧任务、旧 handoff、旧计划不会污染本轮目标                                      |
+| `description` 写 workflow 摘要       | `description` 只写 `Use when...` 触发条件                                                 |
+| 把局部经验塞进对外 skill             | 局部规则写项目 skill 或根级 AI 记忆；对外 skill 只保留安装后可复用规则                    |
 | 对外 skill 把必要记忆只留在 monorepo | 把当前执行/维护所需规则与因果记忆迁入该 skill 自己的 `references/`；源码 archive 只做审计 |
-| 当前规则删掉但没有迁移 | 先写入当前 `reference/*.md` 并登记台账，再压缩入口 |
-| 历史快照与当前规则并列 | 历史原貌移到 `reference/archive/<skill>/`；正常执行不加载 archive |
-| archive 没有替代关系 | 在 `reference/archive/README.md` 标注 NON-NORMATIVE、日期、替代规则和原因 |
-| README 与当前 SKILL 漂移 | README 只做导航；发现重试、路由、状态等冲突时立即同步当前规则 |
-| 对外分发 skill 暴露开发路径 | 改成安装目录相对路径，移除本机绝对路径、开发期报告和内部测试/CI 路径 |
-| 完成后不收口 Memorix | 有 MCP 时存储决策链、文件变化和下一步，并 resolve 已完成任务 |
+| 当前规则删掉但没有迁移               | 先写入当前 `reference/*.md` 并登记台账，再压缩入口                                        |
+| 历史快照与当前规则并列               | 历史原貌移到 `reference/archive/<skill>/`；正常执行不加载 archive                         |
+| archive 没有替代关系                 | 在 `reference/archive/README.md` 标注 NON-NORMATIVE、日期、替代规则和原因                 |
+| README 与当前 SKILL 漂移             | README 只做导航；发现重试、路由、状态等冲突时立即同步当前规则                             |
+| 对外分发 skill 暴露开发路径          | 改成安装目录相对路径，移除本机绝对路径、开发期报告和内部测试/CI 路径                      |
+| 完成后不收口 Memorix                 | 有 MCP 时存储决策链、文件变化和下一步，并 resolve 已完成任务                              |
 
 ## 完成条件
 
