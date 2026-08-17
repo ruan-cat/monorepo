@@ -7,6 +7,16 @@
 
 ## [Unreleased]
 
+## [10.3.2] - 2026-08-18
+
+### Changed
+
+- **use-other-model**：`metadata.version` `0.8.0` -> `0.9.0`。
+- 加固多模型委托的 preflight、provider/model 身份、原始证据与独立 verifier，避免仅凭退出码或执行者自报判定成功。
+- 新增 Weak Executor Contract，以 `DECISION_BUDGET: 0`、`EXACT_ACTIONS` 和 `STOP_IF` 收紧低能力执行模型边界。
+- 补齐独立分发自包含与 `design-memory.md`，确保全新项目无需源 monorepo 的 `.agents/` 或内部报告即可恢复当前执行与维护依据。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.3.2`。
+
 ## [10.3.1] - 2026-08-13
 
 ### Changed
