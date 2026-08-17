@@ -121,8 +121,8 @@
       "id": "init-vscode",
       "plugin": "common-tools",
       "name": "init-vscode",
-      "description": "初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json）， 并在合并现有配置时把 `files.eol` 明确收敛为 `\"\\n\"`，配合 `.gitattributes`、 `.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题， 同时补齐大型 monorepo 的 VSCode 启动慢、文件监听、搜索索引与 TypeScript Server 性能优化默认值。 只要用户提到初始化 vscode、编辑器配置、工作区设置、行尾统一、EOL、CRLF/LF、 幽灵修改、团队规范、VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化， 都应该使用本技能。",
-      "version": "0.4.0",
+      "description": "初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json）， 治理扩展推荐的生命周期与已知替代关系，并在 JSONC 安全迁移、工作区/用户级 scope、 preflight/postflight 和可回滚验收之间建立明确边界；同时把 `files.eol` 收敛为 \"\\n\"， 配合 `.gitattributes`、`.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题， 并补齐大型 monorepo 的 VSCode 启动慢、文件监听、搜索索引与 TypeScript Server 性能优化默认值。 只要用户提到初始化 vscode、编辑器配置、工作区设置、扩展替换/弃用迁移、行尾统一、EOL、CRLF/LF、 幽灵修改、团队规范、VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化，都应该使用本技能。",
+      "version": "0.5.0",
       "entry": "ai-plugins/common-tools/skills/init-vscode/SKILL.md"
     },
     {
