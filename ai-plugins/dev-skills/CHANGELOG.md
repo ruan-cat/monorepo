@@ -4,13 +4,13 @@
 
 ## [Unreleased]
 
+## [10.3.2] - 2026-08-18
+
 ### Changed
 
-- **nitro-api-development**: `metadata.version` `0.13.4` -> `0.13.5`。
-
-### Fixed
-
-- **nitro-api-development**: 补充 Nitro v3 `serverDir: "server"` 配置陷阱，避免 `server/` 下路由未进入构建产物而导致端点 404。
+- `dev-skills` 技能树本身无内容变更，插件主版本随发布链路同步至 `10.3.2`。
+- 清理 `Unreleased` 中已在 `8.3.6` 发布的 `nitro-api-development` 重复记录，避免旧版本变更被二次归档。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.3.2`。
 
 ## [10.3.1] - 2026-08-13
 
