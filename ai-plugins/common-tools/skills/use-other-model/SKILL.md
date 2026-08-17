@@ -85,6 +85,32 @@ metadata:
 
 详细能力合同、角色边界和身份等级见 [`references/delegation-contract.md`](references/delegation-contract.md)。
 
+## 弱执行模型硬门
+
+弱模型只能承担**已经被强主代理压平的 execution 任务**，不能运行整套 skill 决策流程。
+
+只有同时满足以下条件才允许使用弱执行模型：
+
+- 目标文件集合可以在启动前精确列出。
+- 修改能写成确定性的逐步动作，不需要架构、根因、安全或产品判断。
+- 验证命令已经冻结。
+- 不需要执行过程中询问用户。
+- 任意意外情况都可以安全停止并交回主代理。
+
+强主代理必须先完成 A-D 选路、preflight、范围冻结和失败策略，再生成 `Weak Executor Packet`。弱执行模型收到的包必须包含 `DECISION_BUDGET: 0`、`EXACT_ACTIONS`、`STOP_IF` 和固定 `RETURN` schema。
+
+弱执行模型禁止：
+
+- 自己选择 A-D、模型层级或实现方案。
+- 自己读取本 skill 的 references 来补全流程。
+- 自己扩大读写范围、换工具、换 provider/model 或安装依赖。
+- 自己恢复未预定义的失败。
+- 自己修改验收规则或写 `verifier_status` / `human_accepted`。
+
+任何未在 packet 中明确给出答案的选择，都返回 `BLOCKED`，不继续推理解决。
+
+完整弱模型合同与固定 packet 见 [`references/weak-executor-contract.md`](references/weak-executor-contract.md)。
+
 ## 启动前固定执行卡
 
 按顺序执行，不得跳过：
@@ -107,22 +133,26 @@ metadata:
    - `verify_commands`、测试、评分、verifier、CI 和 acceptance schema 在执行前冻结。
    - CLI 不支持 allowlist/dry-run/read-only 等能力时，记录能力缺口并用外部校验补齐，不伪造参数。
 
-4. **运行最小 smoke check**
+4. **按模型能力编译执行包**
+   - 中/强 execution agent 可以使用完整 Task Packet。
+   - 弱 execution agent 必须由主代理把完整合同压平成 `Weak Executor Packet`；弱模型不得自己读取 references、选路或补计划。
+
+5. **运行最小 smoke check**
    - B/C/D 的命令模板分别按需读取对应 reference。
    - `--auto` 不是默认开关；只读任务不开启，写任务只有在用户明确授权、范围可枚举且可回滚时使用。
 
-5. **执行任务并保留原始证据**
+6. **执行任务并保留原始证据**
    - stdout、stderr、JSON/JSONL 原样保存。
    - 派生摘要单独保存，不覆盖或“美化”原始输出。
    - 重试不得覆盖上一轮证据。
 
-6. **独立验证**
+7. **独立验证**
    - 精确比较 changed files 与 `expected_changed_files`。
    - 检查越界路径、秘密值、危险动作和验收规则篡改。
    - 同时核对退出码、结构化工具/权限事件、预期产物和冻结验证命令。
    - 只有 `VERIFIER_PASS` 才能向用户报告“候选完成”。
 
-7. **清理与收口**
+8. **清理与收口**
    - 只清理秘密值和明确应删除的临时凭据；证据按任务策略保留。
    - cleanup 风险独立报告，不能被前面步骤的成功掩盖。
 
@@ -141,9 +171,11 @@ metadata:
 | 诊断协作者   | 强           | 独立采证、候选假设、复现        | 不替主代理定案                     |
 | 审计型子代理 | 强且独立     | 冻结工作树后的只读复核          | 不修改实现、不沿用执行者结论当证据 |
 
+补充：弱 execution agent 只能使用 `Weak Executor Packet`，`decision_budget = 0`；诊断、审计、路由、preflight 与最终验收不得下放给弱模型。
+
 推荐顺序：
 
-`主代理冻结范围 → 执行/诊断取证 → 主代理整合 → 工作树冻结 → 独立审计 → 主代理最终验收`
+`主代理冻结范围 → 编译执行包 → 执行/诊断取证 → 主代理整合 → 工作树冻结 → 独立审计 → 主代理最终验收`
 
 ## 方案 B 的额外硬边界
 
@@ -151,6 +183,7 @@ metadata:
 
 - 先写 context packet，再启动子会话。
 - 子会话要能读文件、改文件、运行冻结的验证命令、写 execution log，然后退出。
+- 弱模型使用方案 B 时，仍然只拿主代理生成的 Weak Executor Packet，不把完整 SKILL / references 交给它自行解释。
 - 默认启动模板、浏览器验收模板和详细执行契约按需读取：
   - [`references/method-b-independent-session.md`](references/method-b-independent-session.md)
   - [`references/claude-code-launch-templates.md`](references/claude-code-launch-templates.md)
@@ -183,6 +216,8 @@ metadata:
 
 同一任务**最多一次失败重试**，且必须改变失败层或输入条件，例如先修正路径/权限后再重试。相同命令、上下文和权限条件下原地轮询属于无效重试，主代理接管。
 
+**弱模型例外更严格**：只有 packet 已经预定义具体失败信号与下一动作时，弱模型才可执行一次固定恢复；任何未预定义失败立即 `BLOCKED`，不得自行换方案。
+
 详细信号、第一动作和回退规则见 [`references/failure-routing.md`](references/failure-routing.md)。
 
 ## 预算
@@ -208,17 +243,20 @@ metadata:
 
 - [ ] 工作目录、路径、模型身份、权限和验收规则在调用前已冻结。
 - [ ] 跨工作区不可达时在模型调用前得到 `PREFLIGHT_BLOCKED`。
+- [ ] 弱模型任务满足 weak-executor 适用门槛，且实际收到 `DECISION_BUDGET: 0`、`EXACT_ACTIONS`、`STOP_IF` 和固定 `RETURN` schema。
+- [ ] 弱模型没有自行读取 references、选 A-D、扩 scope、换 provider/model 或恢复未预定义失败。
 - [ ] 退出码 0 但存在权限拒绝、工具错误、缺失产物或 verifier 失败时，没有标成功。
 - [ ] changed files 精确匹配预期集合且全部位于 write allowlist。
 - [ ] 原始 stdout/stderr/JSONL 独立可复核，派生摘要未覆盖原始证据。
 - [ ] 执行者没有写 `verifier_status` / `human_accepted`，也没有改冻结验收规则。
-- [ ] 重试最多一次且改变失败条件。
+- [ ] 重试最多一次且改变失败条件；弱模型只执行预定义恢复。
 - [ ] 主代理亲自查看最终 diff，并完成与任务风险匹配的独立验证。
 
 完整状态机和确定性检查见 [`references/evidence-verification.md`](references/evidence-verification.md)。
 
 ## 按需读取
 
+- **弱执行模型编译** → `references/weak-executor-contract.md`
 - **A：MCP** → `references/method-a-mcp-tools.md`
 - **B：Claude Code 独立会话** → `references/method-b-independent-session.md` + `references/claude-code-launch-templates.md`
 - **C：OpenCode provider** → `references/opencode-provider-launch-templates.md`

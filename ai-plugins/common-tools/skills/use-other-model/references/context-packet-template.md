@@ -2,6 +2,8 @@
 
 主代理在启动外部模型或独立执行器前填写本封包。它定义范围、身份、验收和状态所有权；如果封包本身冲突，先修封包，不启动真实任务。
 
+这份模板是 **Master Contract**。中/强 execution agent 可以直接接收；弱 execution agent 不直接接收本模板，必须由强主代理进一步编译成 `weak-executor-contract.md` 定义的 Weak Executor Packet。
+
 ## 标准模板
 
 ```markdown
@@ -133,11 +135,29 @@ The execution role is finished only when:
 
 不要先调用真实任务 prompt 再等待模型发现问题。
 
+## 弱模型编译门
+
+当 `Model tier: weak` 时，主代理还必须完成下面的编译检查：
+
+1. Role 必须是 `execution`；`diagnostic` / `audit` 不允许使用 weak。
+2. `expected_changed_files` 必须是精确集合，不能只给宽目录。
+3. Goal 必须能转换成逐条 `EXACT_ACTIONS`，且不需要执行者选择实现方案。
+4. 每个可能阻断执行的意外情况必须转换成 `STOP_IF`。
+5. 验证命令必须完全冻结。
+6. 不允许依赖弱模型自行选择 reference、A-D 路线、provider/model、工具或失败恢复。
+7. 生成的 Weak Executor Packet 必须包含 `DECISION_BUDGET: 0`。
+
+任一项做不到：提高模型层级或主代理接管，不要把完整 Master Contract 原样丢给弱模型。
+
+固定 Weak Executor Packet 见 `weak-executor-contract.md`。
+
 ## Role boundaries
 
 ### execution
 
 只改允许范围，执行明确动作和冻结验证；不扩需求、不做最终根因/架构/安全签字。
+
+弱 execution 额外要求：只执行主代理生成的 `EXACT_ACTIONS`；未预定义情况直接 `BLOCKED`。
 
 ### diagnostic
 
@@ -167,6 +187,8 @@ git_commit_plan:
 
 普通委托不要为了复用 git-commit 模板强行加入这些字段。
 
+弱模型默认不执行 Git commit/push；如果确实要委托 Git 提交，应优先使用中等以上模型，并由 `git-commit` 技能产生完整提交计划。
+
 ## 输出日志
 
 Execution log 至少包含：
@@ -184,8 +206,11 @@ Execution log 至少包含：
 
 Verifier 输出单独记录，不能覆盖 execution log。
 
+弱执行模型可以使用 `weak-executor-contract.md` 的固定 RETURN schema 代替自由格式 execution log；主代理负责把该返回映射回 Master Contract 的 evidence 结构。
+
 ## 相关文档
 
+- `weak-executor-contract.md`：弱执行模型固定合同、EXACT_ACTIONS、STOP_IF、RETURN
 - `delegation-contract.md`：任务合同和 preflight 解释
 - `evidence-verification.md`：状态所有权和独立验证
 - `failure-routing.md`：失败分层和重试

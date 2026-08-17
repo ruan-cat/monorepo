@@ -15,11 +15,21 @@
   - 轻量 harness prompt
 
 - `context-packet-template.md`
-  - 可直接填写的任务封包
+  - Master Contract 模板
   - read/write allowlist
   - expected changed files
   - frozen verification
   - 状态所有权与预算
+
+- `weak-executor-contract.md`
+  - 低能力 execution 模式
+  - `DECISION_BUDGET: 0`
+  - `EXACT_ACTIONS`
+  - `STOP_IF`
+  - 固定 RETURN schema
+  - reference 隔离与禁止自主失败恢复
+
+弱模型不直接读取完整 Master Contract 后自行规划。强主代理先选路、preflight、冻结验收，再把任务压平成 Weak Executor Packet。
 
 ### 再理解验收
 
@@ -29,11 +39,13 @@
   - changed-file 精确集合
   - 路径/秘密值/危险动作扫描
   - 多证据一致性
+  - weak-executor 专项验证
   - reviewer 与完成声明
 
 - `failure-routing.md`
   - preflight、CLI、provider/auth、tool/permission、execution、artifact/verifier、browser、cleanup 分层
   - 最多一次且必须改变失败条件的重试规则
+  - weak execution 的未预定义失败直接返回主代理
 
 ## A-D 路径
 
@@ -49,12 +61,13 @@
 
 1. `method-b-independent-session.md`
 2. `context-packet-template.md`
-3. `claude-code-launch-templates.md`
-4. 前端任务再读 `frontend-browser-verification-template.md`
-5. 失败时读 `failure-routing.md`
-6. 最终验收读 `evidence-verification.md`
+3. 如果 execution model 为 weak，再由主代理读取 `weak-executor-contract.md` 并编译执行包
+4. `claude-code-launch-templates.md`
+5. 前端任务再读 `frontend-browser-verification-template.md`
+6. 失败时读 `failure-routing.md`
+7. 最终验收读 `evidence-verification.md`
 
-方案 B 是 unattended coding agent，不是普通问答会话。
+方案 B 是 unattended coding agent，不是普通问答会话。弱执行模型只接收压平后的动作包，不负责解释整套 skill。
 
 ### C：OpenCode provider 模式
 
@@ -99,7 +112,9 @@
    - 稳定路由
    - 强制边界
    - 快速执行卡
+   - 弱模型硬门摘要
    - 最小验收
-2. 任务 schema、状态机、详细失败分流、命令模板和长案例放在 reference。
+2. 任务 schema、状态机、详细失败分流、弱执行 packet、命令模板和长案例放在 reference。
 3. 同一规则只维护一个完整真值；`SKILL.md` 写摘要并链接到 reference。
-4. reference 与入口冲突时，先修冲突，不长期保留“以主文件为准”的双源状态。
+4. 弱模型的 reference 选择由强主代理完成；弱执行者不通过多跳阅读自行拼装流程。
+5. reference 与入口冲突时，先修冲突，不长期保留“以主文件为准”的双源状态。
