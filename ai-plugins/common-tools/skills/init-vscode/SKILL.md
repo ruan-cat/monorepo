@@ -2,15 +2,15 @@
 name: init-vscode
 description: >-
   初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json），
-  并在合并现有配置时把 `files.eol` 明确收敛为 `"\n"`，配合 `.gitattributes`、
-  `.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题，
-  同时补齐大型 monorepo 的 VSCode 启动慢、文件监听、搜索索引与 TypeScript Server 性能优化默认值。
-  只要用户提到初始化 vscode、编辑器配置、工作区设置、行尾统一、EOL、CRLF/LF、
-  幽灵修改、团队规范、VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化，
-  都应该使用本技能。
+  治理扩展推荐的生命周期与已知替代关系，并在 JSONC 安全迁移、工作区/用户级 scope、
+  preflight/postflight 和可回滚验收之间建立明确边界；同时把 `files.eol` 收敛为 `"\n"`，
+  配合 `.gitattributes`、`.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题，
+  并补齐大型 monorepo 的 VSCode 启动慢、文件监听、搜索索引与 TypeScript Server 性能优化默认值。
+  只要用户提到初始化 vscode、编辑器配置、工作区设置、扩展替换/弃用迁移、行尾统一、EOL、CRLF/LF、
+  幽灵修改、团队规范、VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化，都应该使用本技能。
 user-invocable: true
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # Init VSCode
@@ -22,10 +22,14 @@ metadata:
 为项目配置 VSCode 开发环境，包括：
 
 - 扩展推荐（extensions.json）
+- 已知扩展替代关系的生命周期治理与可回滚迁移
 - 工作区设置（settings.json）
 - 大型 monorepo 性能默认值：三层排除、搜索索引收敛、TypeScript Server 限制与监听策略
 
-配置采用智能合并策略，尊重用户现有配置的同时补充最佳实践。但本技能存在一个**强策略例外**：`files.eol` 必须收敛为 `"\n"`。
+配置采用智能合并策略，尊重用户现有配置的同时补充最佳实践。但本技能存在两类**窄范围强策略例外**：
+
+1. `files.eol` 必须收敛为 `"\n"`。
+2. 已登记、证据充分的 extension replacement mapping 优先于 `recommendations` 的普通并集合并规则；未知扩展绝不凭猜测自动删除。
 
 大型 monorepo 必须同步维护三层排除：
 
@@ -56,6 +60,7 @@ mkdir -p .vscode
 - 不要用外层 `/* ... */` 块注释包裹包含 `/* */`、`*/`、代码片段或注释语法示例的说明文本；这会提前结束块注释并造成语法错误。
 - 不要为了消除解析错误而删除说明注释、分组注释或扩展用途注释。正确目标是“保留注释且语法安全”。
 - 写入目标项目后，必须用 JSONC parser 验证 `.vscode/extensions.json`，不能只依赖 VS Code 目测。
+- 判断“活动配置”时必须使用 JSONC-aware 解析能力；禁止用简单正则、逐行字符串搜索或删除注释后再 `JSON.parse` 的方式推断活动键。注释中的扩展 ID、设置键、标签和值都不算活动配置。
 
 **如果文件不存在**：
 
@@ -65,11 +70,83 @@ mkdir -p .vscode
 
 - 读取现有配置
 - 如果现有文件包含注释，按 JSONC 文件处理；不要用 `JSON.parse` 作为唯一解析或验收方式
-- 合并 `recommendations` 数组：去重后保留所有扩展（用户的 + 模板的）
-- 合并 `unwantedRecommendations` 数组：同样去重
+- 在普通情况下，合并 `recommendations` 数组：去重后保留所有扩展（用户的 + 模板的）
+- 在普通情况下，合并 `unwantedRecommendations` 数组：同样去重
+- **在执行普通数组并集前，必须先检查已登记的 replacement mapping；命中时按 2.1 的迁移规则处理，不能让普通并集把旧扩展重新保留下来**
 - 保留用户配置中的其他字段（如果有）
-- 写回文件时保留已有注释与分组；如果所用工具无法保留注释，改用最小文本插入方式补齐缺失扩展，不要把 JSONC 退化成无注释 JSON
+- 写回文件时保留已有注释与分组；如果所用工具无法保留注释，改用最小文本插入/替换方式完成目标变更，不要把 JSONC 退化成无注释 JSON
 - 保持格式美观（2 空格缩进；如果保留注释则按 JSONC 处理）
+
+### 2.1 扩展替代关系与生命周期治理
+
+当前 replacement mapping 的执行真值位于 [`reference/extension-replacement-migrations.md`](reference/extension-replacement-migrations.md)。当模板中的扩展推荐发生替换、目标项目出现已知旧扩展 ID、旧 settings namespace、旧 command/keybinding 或用户报告扩展弃用/激活失败时，必须先读取该 reference，再进行普通合并。
+
+当前至少维护以下替代关系：
+
+```text
+Gruntfuggly.todo-tree -> FanaticPythoner.better-todo-tree
+```
+
+当目标项目命中已知替代关系且用户没有明确要求保留旧推荐时：
+
+1. 从 `recommendations` 删除旧扩展 ID；
+2. 向 `recommendations` 加入新扩展 ID；
+3. 向 `unwantedRecommendations` 加入旧扩展 ID；
+4. 保留用户其他无关推荐、unwanted 项和其他字段；
+5. 在反馈中明确报告这是一次 `replacement migration`，而不是“新增一个推荐”。
+
+replacement mapping 的优先级高于普通数组并集，但自动删除权限只限于**技能已经登记且证据充分的旧 ID**。未知扩展、同类扩展、名称相似扩展不能凭猜测自动删除。
+
+如果用户明确要求继续保留某个旧扩展：
+
+- 尊重用户决定，不自动从该项目的 `recommendations` 删除，也不要自动把它加入 `unwantedRecommendations`；
+- 仍可以加入新扩展，但必须报告“双推荐/兼容风险”和未完成迁移的状态；
+- 不得把用户的显式保留决定解释成“迁移成功”。
+
+`unwantedRecommendations` 只表达工作区“不希望推荐此扩展”的意图，**不是**卸载、禁用或运行时隔离机制。写入它不能被当作扩展迁移完成的证据。
+
+### 2.2 Replacement preflight 与 scope 边界
+
+对命中 replacement mapping 的项目，在修改前先做最小 preflight。可获得对应能力时，至少检查：
+
+- 当前 VS Code 版本；
+- 旧/新扩展是否安装及版本；
+- 工作区 settings 中的 legacy/current namespace；
+- 与旧扩展相关的 keybindings / commands；
+- 显式 executable/path override，尤其是指向 VS Code 私有内部目录的路径；
+- replacement reference 中登记的高风险设置；
+- JSONC 中的**活动值**，而不是注释文本；
+- 是否存在可回滚基线。
+
+scope 必须分层处理：
+
+1. **工作区 `.vscode/*`**：属于本技能的正常写集，可以按当前用户任务直接创建或合并。
+2. **VS Code User Settings / User keybindings**：属于用户级配置。默认只检测并报告；需要修改时必须先明确 scope、获得用户授权、创建可识别的备份，再做最小 JSONC-aware 迁移。只迁移活动旧键，保留注释禁用项，不格式化无关用户设置，并在结束时报告备份位置和迁移 namespace。
+3. **全局扩展安装/启用/禁用/卸载状态**：属于独立运行时动作。不得因为修改了工作区文件就顺手卸载或禁用用户扩展；任何全局状态变更都需要单独授权与证据。
+
+不要在对外分发 skill 中写死某台机器的绝对 User Settings 路径。需要用户级迁移时，应通过当前平台/VS Code 环境定位真实配置文件，并把绝对路径只作为本次执行反馈，而不是技能长期规则。
+
+### 2.3 Todo Tree -> Better Todo Tree 的专用迁移 gate
+
+命中 `Gruntfuggly.todo-tree -> FanaticPythoner.better-todo-tree` 时，除通用 preflight 外按 reference 检查以下风险：
+
+- 无效 `subTagRegex`：BLOCKER，先修复正则再迁移；
+- `customHighlight`：保留人工视觉验收 WARN，不能仅靠静态配置宣称等价；
+- multiline regex：保留 runtime 兼容 WARN；
+- UTF-16 文件：保留 workspace scan WARN；
+- 显式 ripgrep override：如果指向 `resources/app/node_modules*`、`@vscode/ripgrep*` 等 VS Code 私有内部布局，视为高风险 WARN/FAIL，禁止把该路径复制成长期新配置；
+- legacy keybinding / command：核验新扩展是否提供可用命令或兼容 alias；无法静态证明时要求 GUI 人工测试。
+
+Better Todo Tree 的长期配置应优先使用扩展自身 resolver / packaged ripgrep；不要把 VS Code 私有内部二进制路径当成稳定 API。
+
+替换前若需要确认为什么存在这些门禁，读取 [`reference/2026-08-16-todo-tree-ripgrep-migration.md`](reference/2026-08-16-todo-tree-ripgrep-migration.md)。该文件是当前可执行经验层，不依赖源 monorepo 的开发期报告。
+
+### 2.4 可回滚迁移原则
+
+- replacement 首轮可以在获得用户授权后采用“新扩展安装/启用，旧扩展禁用但暂不卸载”的方式保留一个验收周期，便于快速回滚；这不是永久双安装策略。
+- `code --list-extensions` 只能证明“已安装”，不能单独证明“已禁用”。没有额外证据时只能报告安装状态，不能推断启用状态。
+- GUI/runtime 验收稳定后，再提示用户决定是否卸载旧扩展；不得自动卸载。
+- User Settings 发生迁移时，回滚依据是迁移前备份 + 已报告的 namespace 变更，不要靠记忆反向编辑。
 
 ### 2.5 配置检查
 
@@ -92,7 +169,7 @@ mkdir -p .vscode
 1. 如果 `.vscode/settings.json` 不存在，跳过本步骤
 2. 读取现有配置
 3. 扫描上述检查项，生成分类标记
-4. 如果存在任何标记项，使用 `AskUserQuestion` 工具询问用户是否修复
+4. 如果存在任何标记项，使用 AskUserQuestion 工具询问用户是否修复
 5. 用户确认修复后，先执行修正，再进入步骤 3 的合并流程
 6. 用户选择不修复时，保留原配置并进入合并流程（但 `files.eol` 仍按策略键强制收敛）
 
@@ -217,6 +294,10 @@ mkdir -p .vscode
 
 ### 4. 验证结果
 
+验证必须区分三层证据。**配置合法 + 扩展已安装，不等于扩展运行成功。**
+
+#### 层 A：静态配置
+
 检查两个文件是否正确创建/更新：
 
 ```bash
@@ -242,7 +323,40 @@ pnpm exec prettier --parser jsonc --trailing-comma none --check .vscode/settings
 pnpm exec prettier --check .vscode/settings.json
 ```
 
+replacement migration 的静态验收还必须确认：
+
+- `recommendations` / `unwantedRecommendations` 符合 mapping；
+- legacy/current settings namespace 符合迁移计划；
+- 没有把注释禁用项误恢复为活动配置；
+- 没有生成陈旧的 VS Code 私有内部二进制绝对路径；
+- 迁移后需要保持的标签/配置快照顺序与活动值一致。
+
 如果 `pnpm format` 会触碰大量历史文件，可以先运行上述窄范围检查，并在反馈中明确没有运行全量格式化的原因。
+
+#### 层 B：CLI / Extension Host 证据
+
+存在 replacement migration 时，在当前环境允许的范围内检查：
+
+- 新扩展是否真实安装及版本；
+- 旧扩展的安装/禁用策略是否符合本次回滚计划；
+- fresh 日志中是否存在 activation failure、`command not found`、executable/ripgrep missing 等回归信号。
+
+没有 fresh Extension Host / runtime 日志时，只能标记为 WARN / pending，不能把“未发现日志”写成运行时 PASS。
+
+#### 层 C：GUI / runtime 人工验收
+
+凡 replacement 涉及 UI、命令或运行时激活，至少要求用户或有 GUI 能力的执行环境完成相关项：
+
+- Reload Window；
+- 目标视图真实出现；
+- Refresh/重建；
+- 项目内跳转；
+- Filter / Group / Expand/Collapse 等关键操作（按扩展能力取适用项）；
+- 高亮/视觉差异检查；
+- fresh restart 稳定性；
+- 大仓库性能（任务涉及性能时）。
+
+只有 A + B + C 的适用项都满足，才能声明“当前环境 replacement 验证通过”。如果只能完成 A 或 A+B，反馈必须显式写成“静态/CLI 已通过，GUI runtime acceptance pending”。
 
 ### 5. 提供反馈
 
@@ -250,16 +364,20 @@ pnpm exec prettier --check .vscode/settings.json
 
 - 更新了哪些文件（新建 or 合并）
 - 大致变更内容（新增了多少扩展推荐、多少设置项）
+- 如果发生 replacement migration：旧/新扩展 ID、recommendations/unwanted 结果、settings namespace 变化和回滚状态
+- 如果触碰 User Settings：授权范围、备份位置、迁移的活动键/namespace；不得泄露与任务无关的用户配置内容
 - 如果有冲突保留了用户配置的情况，简要说明
 - JSONC / Prettier override 的判断结果：已补齐、已有可复用配置，或当前项目无需补齐
+- 层 A / B / C 各自的验收状态；GUI 未完成时必须明确 pending
 
 **反馈格式示例**：
 
 ```plain
-✅ VSCode 配置已更新
+✅ VSCode 工作区配置已更新
 
-📦 extensions.json: 新增 3 个扩展推荐（保留了你原有的 2 个）
-⚙️  settings.json: 合并了 8 个配置项（你的自定义配置已保留）
+📦 extensions.json: 完成 1 项 replacement migration，并保留其他用户推荐
+⚙️ settings.json: 合并工作区配置；User Settings 未修改
+🧪 验收: 静态配置 PASS，CLI PASS，GUI runtime acceptance pending
 ```
 
 ### 6. 可选插件配置
@@ -439,6 +557,8 @@ merged = [...new Set([...userArray, ...templateArray])];
 
 去重后保留所有项。
 
+**replacement 例外：** 在执行上述并集前，先应用 `reference/extension-replacement-migrations.md` 中的映射。命中的旧扩展先从 `recommendations` 移除，再加入新扩展，并把旧扩展加入 `unwantedRecommendations`；用户明确要求保留旧扩展时除外。普通并集不得把已被 mapping 移除的旧 ID 重新加回来。
+
 `vue.server.includeLanguages` 虽为数组，但属于策略键，不适用默认去重合并，必须收敛为 `["vue"]`，不得包含 `"markdown"`。
 
 ### 对象深度合并
@@ -483,25 +603,35 @@ merged = {
 - 对于 `files.associations` 等对象字段，合并键值对
 - 用户现有配置始终优先，不会被覆盖
 
-## 模板内容
+## 模板与参考内容
 
 模板文件位于 `templates/` 目录：
 
 - `templates/extensions.json` - 扩展推荐列表
 - `templates/settings.json` - 工作区设置
 
-这些模板包含了常用的开发工具扩展、三层排除规则和性能优化设置，适用于大多数前端项目与大型 monorepo。
+当前执行参考位于 `reference/`：
+
+- `reference/README.md` - 当前 reference 索引与加载边界
+- `reference/extension-replacement-migrations.md` - 已知扩展替代关系、scope、preflight/postflight 与回滚规则
+- `reference/2026-08-16-todo-tree-ripgrep-migration.md` - Todo Tree 激活失败事故提炼出的当前迁移经验
+
+这些模板包含了常用的开发工具扩展、三层排除规则和性能优化设置，适用于大多数前端项目与大型 monorepo。reference 只保存对安装后技能仍有执行价值的当前规则，不要求回源读取 monorepo 内部报告。
 
 ## 注意事项
 
-- 不会删除用户的任何现有配置
-- 不会强制覆盖用户的自定义值
-- 但 `files.eol` 属于显式策略键，必须按本技能要求统一为 `"\n"`
+- 默认不删除用户的任何**无关**现有配置；已登记 extension replacement mapping 是窄范围例外，只处理映射明确的旧 ID/旧 namespace
+- 不会在没有明确授权时修改 VS Code User Settings、User keybindings 或全局扩展安装/禁用/卸载状态
+- `unwantedRecommendations` 不等同于卸载或禁用扩展
+- `files.eol` 属于显式策略键，必须按本技能要求统一为 `"\n"`
 - `files.exclude`、`files.watcherExclude`、`search.exclude` 要同步维护；新增或移除性能排除项时不要只改其中一层
 - 不要把 `.vscode/extensions.json` 说成纯文本；它应保持 JSONC 语义，并通过精确 Prettier JSONC override 兼容格式化链路
 - JSON / JSONC 文件格式保持美观（2 空格缩进，无尾随逗号）
-- 对保留注释的配置文件，不要使用 `JSON.parse` 作为验收标准；应使用 JSONC parser 或 Prettier `--parser jsonc`
+- 对保留注释的配置文件，不要使用 `JSON.parse`、简单正则或逐行搜索作为活动配置验收标准；应使用 JSONC-aware parser/CST 能力或等价的注释感知编辑方式，并用 Prettier `--parser jsonc` 做语法验证
+- 不要生成长期指向 VS Code `resources/app/node_modules*`、`@vscode/ripgrep*` 等私有内部目录的二进制绝对路径
+- 静态配置 PASS 不等于 runtime PASS；没有 fresh runtime/GUI 证据时必须保留 pending/WARN
 - 如果 JSONC 解析失败，报告错误并建议用户手动检查文件格式
+- 对外分发文档和 reference 禁止写入开发机绝对路径、源 monorepo 内部测试/报告路径或需要回源才能执行的规则
 
 ## 何时使用此技能
 
@@ -512,6 +642,8 @@ merged = {
 - "设置 vscode"
 - "新建项目需要配置开发环境"
 - "添加 vscode 推荐扩展"
+- "替换/迁移已弃用的 vscode 扩展"
+- "扩展 command not found / 激活失败"
 - "更新工作区设置"
 - "团队开发规范配置"
 - "VSCode 启动慢"

@@ -87,10 +87,13 @@
 
 		// TODO 高亮
 		"wayou.vscode-todo-highlight",
-		// TODO 树统计
-		"Gruntfuggly.todo-tree",
+		// TODO 树统计：原 Todo Tree 的活跃维护替代实现
+		"FanaticPythoner.better-todo-tree",
 		// 自定义代码颜色
 		"warmthsea.vscode-custom-code-color"
 	],
-	"unwantedRecommendations": []
+	"unwantedRecommendations": [
+		// 已知被替代的旧 Todo Tree；这里只表达工作区不再推荐，不代表卸载或禁用
+		"Gruntfuggly.todo-tree"
+	]
 }
