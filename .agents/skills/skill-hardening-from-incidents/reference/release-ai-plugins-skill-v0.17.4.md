@@ -106,7 +106,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ai-plugins/common-tools/skil
 
 验收要求：DryRun 已执行；Apply 后所有步骤 PASS；`git diff --check` 无输出；`git status --short` 只包含预期文件。
 
-```plain
+```
 
 迁移原因：新入口压缩了重复的基础发布说明并新增 registry 阶段；该文件保留旧版现象、边界、反例和验收依据。
 ```
