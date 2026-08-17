@@ -6,9 +6,9 @@
 
 ## 当前 mapping
 
-| 旧扩展 | 新扩展 | 旧 settings namespace | 新 settings namespace | User Settings 可能需要迁移 | GUI/runtime 验收 | 回滚策略 |
-| --- | --- | --- | --- | --- | --- | --- |
-| `Gruntfuggly.todo-tree` | `FanaticPythoner.better-todo-tree` | `todo-tree.` | `better-todo-tree.` | 是 | 必须 | 首轮可保留旧扩展安装但禁用；验收稳定后由用户决定是否卸载 |
+| 旧扩展                  | 新扩展                             | 旧 settings namespace | 新 settings namespace | User Settings 可能需要迁移 | GUI/runtime 验收 | 回滚策略                                                 |
+| ----------------------- | ---------------------------------- | --------------------- | --------------------- | -------------------------- | ---------------- | -------------------------------------------------------- |
+| `Gruntfuggly.todo-tree` | `FanaticPythoner.better-todo-tree` | `todo-tree.`          | `better-todo-tree.`   | 是                         | 必须             | 首轮可保留旧扩展安装但禁用；验收稳定后由用户决定是否卸载 |
 
 ### Todo Tree mapping 的当前依据
 
@@ -40,8 +40,8 @@ unwantedRecommendations = unique(user + template)
 
 ```jsonc
 {
-  "recommendations": ["FanaticPythoner.better-todo-tree"],
-  "unwantedRecommendations": ["Gruntfuggly.todo-tree"]
+	"recommendations": ["FanaticPythoner.better-todo-tree"],
+	"unwantedRecommendations": ["Gruntfuggly.todo-tree"],
 }
 ```
 
@@ -109,14 +109,14 @@ unwantedRecommendations = unique(user + template)
 
 ### Todo Tree 专用风险 gate
 
-| 场景 | 处理 |
-| --- | --- |
-| `subTagRegex` 无效 JavaScript RegExp | **BLOCKER**：先修复正则，再继续迁移 |
-| `customHighlight` 存在 | **WARN**：保留人工视觉验收，不能静态宣称等价 |
-| multiline regex | **WARN**：要求 runtime 兼容验收 |
-| tracked UTF-16 文件 | **WARN**：要求 workspace scan 验收 |
+| 场景                                            | 处理                                                                                 |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `subTagRegex` 无效 JavaScript RegExp            | **BLOCKER**：先修复正则，再继续迁移                                                  |
+| `customHighlight` 存在                          | **WARN**：保留人工视觉验收，不能静态宣称等价                                         |
+| multiline regex                                 | **WARN**：要求 runtime 兼容验收                                                      |
+| tracked UTF-16 文件                             | **WARN**：要求 workspace scan 验收                                                   |
 | 显式 ripgrep override 指向 VS Code 私有内部目录 | **WARN/FAIL**：禁止复制旧路径为长期配置；改回扩展自身 resolver/packaged ripgrep 方向 |
-| legacy keybinding / command | 核验新命令或兼容 alias；无法静态证明时要求 GUI 人工测试 |
+| legacy keybinding / command                     | 核验新命令或兼容 alias；无法静态证明时要求 GUI 人工测试                              |
 
 私有内部路径包括但不限于 `resources/app/node_modules*`、`@vscode/ripgrep*` 一类 VS Code 实现目录。这些路径不是稳定 API，不能成为长期配置。
 

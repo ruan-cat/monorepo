@@ -64,11 +64,11 @@ Gruntfuggly.todo-tree -> FanaticPythoner.better-todo-tree
 
 ```jsonc
 {
-  "better-todo-tree.general.tags": [
-    "TODO",
-    // "参考资料",
-    "待测试"
-  ]
+	"better-todo-tree.general.tags": [
+		"TODO",
+		// "参考资料",
+		"待测试",
+	],
 }
 ```
 
