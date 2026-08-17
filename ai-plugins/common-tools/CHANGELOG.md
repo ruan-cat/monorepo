@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [10.4.0] - 2026-08-18
+
+### Changed
+
+- **init-vscode**：`metadata.version` `0.4.0` -> `0.5.0`。
+- 加固扩展 replacement 生命周期、JSONC 安全迁移、scope 授权边界、preflight/postflight 与可回滚运行验收，并将 Todo Tree 推荐迁移到 Better Todo Tree。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.4.0`。
+
 ## [10.3.2] - 2026-08-18
 
 ### Changed
