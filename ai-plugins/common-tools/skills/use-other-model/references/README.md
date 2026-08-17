@@ -1,126 +1,149 @@
 # References 目录
 
-本目录承载 `use-other-model` 技能的渐进式加载文档。
+本目录承载 `use-other-model` **随技能一起分发的当前渐进式记忆层**。正常调用先读根目录 `SKILL.md`；只有命中具体路径、失败层、验收需求或维护原因时，再加载对应 reference。
 
-升级后的主线已经从“旧的代码模板集合”切换为分层核心文档，但这并不意味着旧文档的解释价值被抹掉。
-这里仍然保留“按主题找文档”的导航方式，只是把启动前固定执行卡、启动模板、任务封包、浏览器验收和失败分流提到了更前面。
+## 独立分发边界
 
-## 文件说明
+对一个全新项目而言，本目录必须足以提供所有运行时必需的详细规则。
 
-### 新主线文档
+- 当前执行不得依赖源 monorepo 的 `.agents/`、`docs/reports/`、内部 CI 路径或 hardening archive。
+- 历史 archive 可以存在于维护源码仓库，但不是独立安装后的运行时依赖。
+- 外部报告只能作为可选背景，不能承载唯一的当前执行规则。
+- 当前硬门的原因保存在 `design-memory.md`；它随技能分发，用于维护或审查时恢复设计意图。
 
-方案 B 现在优先围绕下面四类文档展开：
+维护时可以用一个简单验收判断是否破坏了自包含性：**假设只剩 `use-other-model/` 目录，正常任务是否仍能完成选路、preflight、执行、失败分流和验证？** 如果不能，就说明必要记忆放错了位置。
 
-1. **启动模板**
-2. **任务封包模板**
-3. **前端浏览器验收模板**
-4. **失败分流文档**
+## 核心阅读路线
 
-方案 C 使用 OpenCode 直连 provider 参考；方案 D 使用 OpenCode 裸启动参考和 skill 内脚本。两者都不复用 Claude Code 启动器，也不互相替换。
+### 先理解委托合同
 
-### 核心实现文档
+- `delegation-contract.md`
+  - 最小任务合同
+  - A-D 能力合同
+  - execution / diagnostic / audit 角色边界
+  - provider/model 身份规则
+  - preflight
+  - 轻量 harness prompt
 
-- **`method-a-mcp-tools.md`**
-  - 方案 A 的说明
-  - 适合简单任务和单次调用
+- `context-packet-template.md`
+  - Master Contract 模板
+  - read/write allowlist
+  - expected changed files
+  - frozen verification
+  - 状态所有权与预算
 
-- **`method-b-independent-session.md`**
-  - 方案 B 的执行契约
-  - 说明为什么它是独立编码代理，不是普通问答会话
-  - 包含职责分层图、关键技术点、标准工作流和回退边界
+- `weak-executor-contract.md`
+  - 低能力 execution 模式
+  - `DECISION_BUDGET: 0`
+  - `EXACT_ACTIONS`
+  - `STOP_IF`
+  - 固定 RETURN schema
+  - reference 隔离与禁止自主失败恢复
 
-- **`claude-code-launch-templates.md`**
-  - Bash / PowerShell 的标准启动模板
-  - 基于本机 `claude --help` 核实参数
-  - 默认使用 `--permission-mode bypassPermissions`、`--tools default`、`--output-format json`
+弱模型不直接读取完整 Master Contract 后自行规划。强主代理先选路、preflight、冻结验收，再把任务压平成 Weak Executor Packet。
 
-- **`context-packet-template.md`**
-  - 任务封包模板
-  - 规定工作目录、分支、先读文件、允许修改范围、禁止事项、验证命令、完成规则
+### 再理解验收
 
-- **`frontend-browser-verification-template.md`**
-  - 前端任务专用浏览器验收模板
-  - 强制要求 URL、视觉目标、关键交互、执行日志
+- `evidence-verification.md`
+  - `agent_proposed_status → verifier_status → human_accepted`
+  - 六层证据链
+  - changed-file 精确集合
+  - 路径/秘密值/危险动作扫描
+  - 多证据一致性
+  - weak-executor 专项验证
+  - reviewer 与完成声明
 
-- **`failure-routing.md`**
-  - 启动失败、provider 层失败、执行失败、浏览器验收失败的处理流程
-  - 包含“连续两轮失败后主代理接管”的硬规则
+- `failure-routing.md`
+  - preflight、CLI、provider/auth、tool/permission、execution、artifact/verifier、browser、cleanup 分层
+  - 最多一次且必须改变失败条件的重试规则
+  - weak execution 的未预定义失败直接返回主代理
 
-- **`opencode-headless-launch-templates.md`**
-  - 方案 D 的 OpenCode 默认内部模型最小 smoke check 和无头委托命令
-  - 说明 `--format json`、`--auto`、`--variant`、`--dir` 的职责边界
+## A-D 路径
 
-- **`opencode-provider-launch-templates.md`**
-  - 方案 C 的 OpenCode 直连 provider 最小 smoke check
-  - 明确 API key、baseURL、`--model provider/model` 和当前 shell 的边界
+### A：MCP
 
-- **`scripts/smoke-opencode-provider.ps1`**
-  - 从当前 PowerShell 读取 provider 配置并执行显式 `--model` smoke check
-  - 不把可选的 `ANTHROPIC_MODEL` 当成启动门禁
+- `method-a-mcp-tools.md`
 
-- **`scripts/smoke-opencode.ps1`** 与 **`scripts/launch-opencode-headless.ps1`**
-  - 可直接在技能安装目录下运行的 PowerShell 参考脚本
-  - 不注入 provider 密钥、不生成伪造结果、不承担进程清理
+适合简单任务和单次工具调用。
 
-### 配置与辅助文档
+### B：独立 Claude Code 会话
 
-- **`environment-variables.md`**
-  - provider 环境变量格式识别与提取
-  - 仍然保留用户常见输入格式示例，方便主代理做变量提取和转换
+推荐按需读取：
 
-- **`case-study-git-commits.md`**
-  - 方案 B 的实战案例
-  - 保留了完整计划和启动脚本示例，适合快速理解“主会话编排 + 子会话执行”是什么样子
+1. `method-b-independent-session.md`
+2. `context-packet-template.md`
+3. 如果 execution model 为 weak，再由主代理读取 `weak-executor-contract.md` 并编译执行包
+4. `claude-code-launch-templates.md`
+5. 前端任务再读 `frontend-browser-verification-template.md`
+6. 失败时读 `failure-routing.md`
+7. 最终验收读 `evidence-verification.md`
 
-- **`faq.md`**
-  - 常见问题和回退建议
+方案 B 是 unattended coding agent，不是普通问答会话。弱执行模型只接收压平后的动作包，不负责解释整套 skill。
 
-- **`code-templates.md`**
-  - 兼容保留的旧模板入口
-  - 新流程应优先使用 `claude-code-launch-templates.md` 和 `context-packet-template.md`
-  - 但仍保留“可以直接抄”的模板骨架，方便快速落地
+### C：OpenCode provider 模式
 
-- **`technical-reports.md`**
-  - 历史技术方案与 token 节省分析报告
-  - 需要追溯背景时按需阅读，不作为每次启动的前置步骤
+- `opencode-provider-launch-templates.md`
+- `environment-variables.md`
+- `../scripts/smoke-opencode-provider.ps1`
 
-## 阅读顺序建议
+显式记录 provider/model；provider 配置必须进入实际调用 shell。
 
-### 首次使用方案 B
+### D：OpenCode 默认/headless 模式
 
-1. 先读 `method-b-independent-session.md`
-   - 先理解谁负责什么、为什么要这么分层
-2. 再读 `claude-code-launch-templates.md`
-   - 再拿到可直接运行的启动模板
-3. 然后读 `context-packet-template.md`
-   - 再补完整任务封包
-4. 如果是前端任务，再读 `frontend-browser-verification-template.md`
-5. 最后看 `failure-routing.md`
-   - 明确失败后的分流和停止条件
+- `opencode-headless-launch-templates.md`
+- `../scripts/smoke-opencode.ps1`
+- `../scripts/launch-opencode-headless.ps1`
 
-### 首次使用方案 C
+默认省略 `--model` 时，不凭模型昵称猜 provider；以本次结构化事件为证据。
 
-1. 先读 `opencode-provider-launch-templates.md`
-2. 在实际调用 shell 中注入 API key 与 provider 配置
-3. 运行 `scripts/smoke-opencode-provider.ps1 -Model "provider/model"`
-4. 分别判断 CLI 启动、provider 认证、endpoint 和模型名是否可用
+## 当前设计记忆
 
-### 首次使用方案 D
+- `design-memory.md`
+  - 独立分发自包含原则
+  - 为什么 preflight 必须前置
+  - 为什么模型可发现不等于已选中
+  - 为什么 exit code 0 不等于成功
+  - 为什么 executor 与 verifier 必须分离
+  - 为什么原始 stdout/stderr/JSONL 必须保留
+  - 为什么默认只允许一次有效 retry
+  - 为什么弱模型必须 `DECISION_BUDGET: 0`
+  - 为什么不能假设未来 CLI 参数
 
-1. 先读 `opencode-headless-launch-templates.md`
-2. 先运行最小 smoke check，确认 OpenCode 默认模型选择链可用
-3. 需要改文件时准备 `context-packet.md`，再运行 `scripts/launch-opencode-headless.ps1`
-4. 结果按 `result.jsonl`、输出文件、`execution-log.md`、独立验证命令顺序复核
+它保存的是**当前设计原因**，不是旧版全文；正常执行不必每次加载。
 
-### 需要排错时
+## 其他资料
 
-1. 先看 `failure-routing.md`
-2. 再看 `faq.md`
-3. 若怀疑是 provider 配置问题，查看 `environment-variables.md`
+- `frontend-browser-verification-template.md`
+  - 前端 URL、视觉和交互验收模板。
 
-### 需要快速复用时
+- `environment-variables.md`
+  - provider 环境变量识别与提取。
 
-1. 直接复制 `claude-code-launch-templates.md` 中的启动模板
-2. 填写 `context-packet-template.md`
-3. 前端任务附加 `frontend-browser-verification-template.md`
-4. 如果想先看完整示例，可回看 `case-study-git-commits.md`
+- `case-study-git-commits.md`
+  - 批量 Git 提交委托案例。
+
+- `faq.md`
+  - 常见问题与回退建议。
+
+- `code-templates.md`
+  - 兼容保留的旧模板入口；优先级低于当前启动模板和任务合同。
+
+- `technical-reports.md`
+  - 外部历史技术方案与 token 节省分析；只在追溯背景时读取。
+  - 网络不可用或链接失效时，不影响当前 skill 的正常执行。
+
+## 渐进披露原则
+
+1. `SKILL.md` 只保留：
+   - 触发条件
+   - 稳定路由
+   - 强制边界
+   - 快速执行卡
+   - 弱模型硬门摘要
+   - 最小验收
+2. 任务 schema、状态机、详细失败分流、弱执行 packet、命令模板和长案例放在当前 reference。
+3. 当前设计原因放在 `design-memory.md`；旧版全文不得拿来充当当前规范。
+4. 同一规则只维护一个完整执行真值；`SKILL.md` 写摘要并链接到对应专题 reference。
+5. 弱模型的 reference 选择由强主代理完成；弱执行者不通过多跳阅读自行拼装流程。
+6. 对外分发 skill 的任何运行时必要记忆都必须位于本技能目录内。
+7. reference 与入口冲突时，先修冲突，不长期保留双源状态。

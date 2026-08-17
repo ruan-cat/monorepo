@@ -193,8 +193,8 @@
       "id": "use-other-model",
       "plugin": "common-tools",
       "name": "use-other-model",
-      "description": "Use when the agent needs to delegate work to OpenCode, Claude Code, MiniMax, Gemini, or another model/provider for token savings, batch work, long-running tasks, independent verification, OpenCode provider/model checks, or OpenCode headless internal-model checks, model-tier routing, execution agents, or independent security audits; use when the user mentions another model, provider, saving tokens, batch operations, multi-file work, or a task expected to run longer than 5 minutes; use when choosing MCP tools, an independent Claude Code session, OpenCode direct provider access, or OpenCode internal model launch. 当代理需要驱动 OpenCode、Claude Code、MiniMax、Gemini 或其他模型/Provider， 进行 token 节省、批量操作、长任务、独立验证、OpenCode provider/model 检查或裸启动内部模型检查时使用； 当用户提到“使用其他模型”“provider”“节省 token” “批量操作”“多文件处理”“执行时间超过 5 分钟”“模型分层”或“安全审计”，或需要在 MCP 工具、独立 Claude Code 会话、OpenCode 直连 provider、OpenCode 裸启动内部模型之间选择时使用。",
-      "version": "0.8.0",
+      "description": "Use when the user or agent asks to delegate work to another model/provider such as OpenCode, Claude Code, MiniMax, Gemini, or an independent reviewer; when the goal is token savings, batch or multi-file work, a task expected to run longer than 5 minutes, independent verification or security audit, model-tier routing, provider/model identity checks, OpenCode default/headless model checks, or choosing between MCP tools, an independent Claude Code session, OpenCode provider mode, and OpenCode default/internal-model mode. 当用户或代理要求“使用其他模型/Provider”、节省 token、批量或多文件处理、预计超过 5 分钟的长任务、 独立验证/安全审计、模型分层、provider/model 身份检查、OpenCode 默认/无头模型检查， 或需要在 MCP、独立 Claude Code、OpenCode provider 模式与默认内部模型之间选择时使用。",
+      "version": "0.9.0",
       "entry": "ai-plugins/common-tools/skills/use-other-model/SKILL.md"
     },
     {
