@@ -1,6 +1,6 @@
-import { defineConfig } from "tsup";
+import { defineConfig, type Options } from "tsup";
 
-export default defineConfig({
+const config: Options = {
 	entry: ["./src/index.ts"],
 	sourcemap: true,
 	outDir: "dist",
@@ -8,6 +8,6 @@ export default defineConfig({
 	clean: true,
 	dts: true,
 	tsconfig: "./tsconfig.json",
-	// TODO: 晚点研究该配置
-	// target: "es5",
-});
+};
+
+export default defineConfig(config);
