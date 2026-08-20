@@ -137,6 +137,9 @@ importers:
       simple-git-hooks:
         specifier: ^2.13.1
         version: 2.13.1
+      skill-router-mcp:
+        specifier: workspace:^
+        version: link:packages/skill-router-mcp
       taze:
         specifier: ^19.11.0
         version: 19.17.2
