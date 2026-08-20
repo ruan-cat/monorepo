@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [10.5.0] - 2026-08-20
+
+### Changed
+
+- `dev-skills` 技能树本身无内容变更，插件主版本随发布链路同步至 `10.5.0`。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.5.0`。
+
 ## [10.4.0] - 2026-08-18
 
 ### Changed

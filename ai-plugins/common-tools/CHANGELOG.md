@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [10.5.0] - 2026-08-20
+
+### Changed
+
+- **init-prettier-git-hooks**：`metadata.version` `3.1.0` -> `3.2.0`。
+- 新增 sxzz GitHub PR 工作流直导与安全格式化能力
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.5.0`。
+
 ## [10.4.0] - 2026-08-18
 
 ### Changed
