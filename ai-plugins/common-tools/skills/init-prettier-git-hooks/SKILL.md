@@ -1,11 +1,12 @@
 ---
 name: init-prettier-git-hooks
 description: >-
-  初始化或纠偏 Node.js 项目的 Prettier、lint-staged、simple-git-hooks 与 LF
-  行尾配置。适用于 prettier-plugin-lint-md 版本漂移、插件加载失败、git hooks、EOL、CRLF/LF 和幽灵修改问题。
+  Use when 初始化或纠偏 Node.js 项目的 Prettier、lint-staged、simple-git-hooks、LF
+  行尾配置，或需要在 GitHub PR 云端任务中安装 Node/pnpm 环境并安全格式化 PR 改动；适用于
+  prettier-plugin-lint-md 版本漂移、插件加载失败、git hooks、EOL、CRLF/LF 和幽灵修改问题。
 user-invocable: true
 metadata:
-  version: "3.0.0"
+  version: "3.2.0"
 ---
 
 # 初始化 Prettier + Git Hooks
@@ -39,6 +40,7 @@ metadata:
 - `templates/prettier.config.mjs`
 - `templates/lint-staged.config.mjs`
 - `templates/simple-git-hooks.mjs`
+- `templates/cloud-pr-prettier.yml`（可选的 GitHub PR 云端格式化工作流）
 
 目标文件缺失时可以复制对应模板；存在时必须逐文件定点合并，保留项目特化规则与事故说明注释，不得整文件覆盖。尤其 `prettier.config.mjs` 顶层 lint-md `plugins` 上方的完整 JSDoc 是受保护知识块：它记录版本漂移、对象方案、override 方案和三条入口的纠偏。不得删除、压缩、挪到无关位置或改成普通行注释；需要调整时先更新对应 `references/`，再保持 JSDoc 与现行契约一致。
 
@@ -122,3 +124,16 @@ git status --short
 两条 CLI 都必须证明同一中英文、数字混排 Markdown 样例确实发生 lint-md 规则变换。VSCode 验收必须确认扩展使用工作区 Prettier、`resolveConfig(真实文件路径).plugins` 含顶层字符串，且编辑器格式化同一样例产生相同结果。完整剧本见 [references/verification-playbook.md](references/verification-playbook.md)。
 
 `pnpm exec lint-staged --debug` 不是只读检查：它会执行 lint-staged 任务，可能改写文件、暂存区并触发 stash 流程。只有用户授权后，才运行该命令、`pnpm exec simple-git-hooks`、真实提交验证或 `git add --renormalize .`；执行前后必须展示 `git status --short`、`git diff` 和 `git diff --cached`。
+
+## 6. GitHub PR 云端格式化（可选）
+
+当用户要求在 GitHub PR 场景自动格式化时，才创建 `templates/cloud-pr-prettier.yml` 的工作流；不要把它默认为所有项目启用。该工作流必须满足以下边界：
+
+1. 使用 `pull_request` 事件（`opened`、`synchronize`、`reopened`、`ready_for_review`）和按 PR 编号的 concurrency；禁止为了取得写权限改用 `pull_request_target`，也不要在不检查仓库归属时执行来自 fork 的代码。
+2. 仅当 `github.event.pull_request.head.repo.full_name == github.repository` 时允许提交和推送。fork PR 只能执行只读检查，不能把不受信任的代码与写权限放进同一个 job。
+3. 不得引用目标仓库的本地 composite action 或 monorepo 专用初始化动作。环境初始化按 sxzz `setup-js` 的可迁移顺序执行：checkout PR head → `pnpm/action-setup` → `actions/setup-node`（Node 版本、pnpm cache）→ `pnpm install`。默认使用 `--frozen-lockfile`；没有 lockfile 或项目明确要求例外时，才由项目维护者显式关闭。
+4. 工作流应从 `package.json#packageManager` 或仓库现有配置识别 Node/pnpm 版本；不要把某个 monorepo 的私有包名、filter、脚本或 action 路径写进通用模板。Action 版本应固定到已审查的版本（生产仓库优先使用不可变 SHA，并保留版本注释）。
+5. 只取得 `base.sha...head` 之间的可格式化文件，逐个调用项目本地 `pnpm exec prettier --experimental-cli --no-parallel --write`；不得格式化整个仓库，也不得把 lockfile、生成物或用户未修改文件加入提交。
+6. 格式化后先对精确文件列表执行 `git diff --cached --check`。没有变化时不提交；有变化时使用 `github-actions[bot]` 身份提交，并只推送 PR head 分支。`permissions` 至少显式声明 `contents: write`、`pull-requests: read`，并保持 job 级同仓库条件。
+
+通用模板和安全/可迁移性说明见 [references/pr-workflow.md](references/pr-workflow.md)。
