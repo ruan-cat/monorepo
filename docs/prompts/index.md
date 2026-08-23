@@ -213,7 +213,7 @@ Cloudflare 官方明确要求 Workers Builds API 使用 `User-scoped API token`�
 我对 .github/workflows/cloud-pr-prettier.yml 的 `提取并精准格式化 PR 文件` 的代码组织方式很不满意。我觉得你应该做一个 `.github/workflows` 目录内的合适的附属脚本，做一个专门的 mjs 脚本，实现在 github workflow node 环境内完成你需要的文件处理。做好模块化，我很不喜欢你把一大堆细致的处理逻辑都写到 `cloud-pr-prettier.yml` 工作流文件内。
 这是简单的任务，不是要你推翻掉一切，而是调整文件组织形式。
 
-## 014 <!-- TODO: ChatGPT web正在做 --> 域名包站点增加合适稳妥的说明文本
+## 014 <!-- 已完成 ChatGPT web正在做 --> 域名包站点增加合适稳妥的说明文本
 
 - 你的 pr 工作主分支为： 2026-8-15-domain-add-desc
 
