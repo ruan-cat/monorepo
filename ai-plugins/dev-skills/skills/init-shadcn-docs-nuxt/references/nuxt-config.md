@@ -34,6 +34,10 @@
 | `defineOgImageComponent is not defined`             | 覆盖页面文件移除调用，不要启用 ogImage 模块                                | —                                                                 |
 | Icon 集合缺失提示                                   | 安装 `@iconify-json/lucide` + 配置 `icon.serverBundle.collections`         | 同上 icon 段                                                      |
 
+### `debug` 的窄兼容例外
+
+`vite.resolve.alias` 的本地 debug shim 与 `vite.ssr.noExternal: ["debug"]` 只在 Vite SSR transform 已复现 debug 的 exact error 时使用。它不是 workspace 依赖族的默认配置，不得扩展为宽 `noExternal` 清单或 `nitro.externals.inline`；错误不再复现或入口可解析时，删除该窄例外。
+
 ### 阶段 3：构建优化
 
 仅在构建阶段出问题时添加：

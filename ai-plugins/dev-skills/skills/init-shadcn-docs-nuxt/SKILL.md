@@ -11,7 +11,7 @@ description: >-
   `entities/decode`、`@vueuse/core`、`registerMessageResolver`、`prerender:routes` 等错误信号。
 user-invocable: true
 metadata:
-  version: "1.0.1"
+  version: "1.1.0"
 ---
 
 # 初始化 `shadcn-docs-nuxt` 组件库文档
@@ -47,15 +47,17 @@ metadata:
 
 ## 参考文档索引（references/）
 
-| 文件                                                             | 内容                                                               |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------ |
-| [`references/nuxt-config.md`](references/nuxt-config.md)         | 按需补丁策略、禁改项清单                                           |
-| [`references/compat.md`](references/compat.md)                   | ESM/CJS 兼容速查表、排查顺序、常见误判表                           |
-| [`references/tailwind-css.md`](references/tailwind-css.md)       | content 扫描规则、CSS 变量格式、常见样式问题排查                   |
-| [`references/mdc-prettier.md`](references/mdc-prettier.md)       | MDC 标准语法、5 种错误写法对照、hydration mismatch 因果链          |
-| [`references/windows.md`](references/windows.md)                 | 构建假卡死、子进程链清理、EPERM 文件锁、单进程复现法               |
-| [`references/workspace.md`](references/workspace.md)             | 别名顺序陷阱、依赖矩阵、plugin 注册、i18n 单语、OG Image、目录结构 |
-| [`references/incident-repair.md`](references/incident-repair.md) | Nuxt Content/H3 版本漂移、prerender 钩子历史与构建故障分层排查     |
+| 文件                                                                                                       | 内容                                                                                           |
+| ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| [`references/nuxt-config.md`](references/nuxt-config.md)                                                   | 按需补丁策略、禁改项清单                                                                       |
+| [`references/compat.md`](references/compat.md)                                                             | ESM/CJS 兼容速查表、排查顺序、常见误判表                                                       |
+| [`references/tailwind-css.md`](references/tailwind-css.md)                                                 | content 扫描规则、CSS 变量格式、常见样式问题排查                                               |
+| [`references/mdc-prettier.md`](references/mdc-prettier.md)                                                 | MDC 标准语法、5 种错误写法对照、hydration mismatch 因果链                                      |
+| [`references/windows.md`](references/windows.md)                                                           | 构建假卡死、子进程链清理、EPERM 文件锁、单进程复现法                                           |
+| [`references/workspace.md`](references/workspace.md)                                                       | 别名顺序陷阱、依赖矩阵、plugin 注册、i18n 单语、OG Image、目录结构                             |
+| [`references/incident-repair.md`](references/incident-repair.md)                                           | Nuxt Content/H3 版本漂移、prerender 钩子历史与构建故障分层排查                                 |
+| [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md) | production graph、final Nitro OOM、standalone `MODULE_NOT_FOUND`、Turbo cache 与 artifact 验收 |
+| [`references/README.md`](references/README.md)                                                             | 九份现行参考的信号导航与迁移台账                                                               |
 
 ---
 
@@ -69,7 +71,7 @@ metadata:
 
 ---
 
-## 历史事故强约束（8 条记忆）
+## 历史事故强约束（10 条记忆）
 
 执行本技能时，**必须默认带着这些"已发生过"的事故记忆**：
 
@@ -81,6 +83,8 @@ metadata:
 6. **不要直接启用 `ogImage` 模块**；会触发 `vue.runtime.mjs does not provide an export named toValue` 的 500 错误。→ 见 [`references/nuxt-config.md`](references/nuxt-config.md)
 7. **核心运行时包要按兼容矩阵固定**：至少同时审查 `shadcn-docs-nuxt`、`@ztl-uwu/nuxt-content`、`nuxt`、`h3`，不能只看主题的传递依赖范围。
 8. **`prerender:routes` 不是无条件禁用项，而是历史 workaround**：它曾用于缓解 Windows 构建长尾，但对 document-driven Nuxt Content 会导致内容数据库为空；只有确认项目不依赖 Content prerender 且完成等价验证时才可讨论。→ 见 [`references/incident-repair.md`](references/incident-repair.md)
+9. **final Nitro OOM 与 standalone `MODULE_NOT_FOUND` 必须回到首个失败门**：前者需要测量堆与产物阶段，后者需要区分 Vite SSR transform、Nitro inline、trace 与 manifest，不能用宽配置掩盖。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
+10. **Turbo cache 命中不等于 runtime closure 可信**：只有诊断 cache 可信度或 cache/artifact 证据冲突时，才执行 `turbo run <task> --force`；常规生产验收不执行该命令，但必须启动 `.output` server 并完成 HTTP smoke。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
 
 ---
 
@@ -91,10 +95,14 @@ metadata:
 `page._id` 为空、Windows 构建长时间无输出等信号时，**先读取**
 [`references/incident-repair.md`](references/incident-repair.md)，再修改配置或内容。
 
+出现 final Nitro OOM、standalone `MODULE_NOT_FOUND`、production graph 被 alias 或宽 externalization 放大、
+Turbo cache 与 `.output` 不一致、artifact 无法启动或 HTTP smoke 失败时，**先读取**
+[`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)。
+
 检修时必须先回答三件事：
 
 1. 实际安装的 `shadcn-docs-nuxt`、`@ztl-uwu/nuxt-content`、`nuxt`、`h3` 是否属于同一兼容世代；
-2. 当前错误属于 Content/H3 运行时失配、Windows OOM/NFT 构建长尾，还是 SSR externalization/生产依赖追踪；
+2. 当前错误属于 Content/H3 运行时失配、Windows OOM/NFT 构建长尾，还是 production graph 的 Vite SSR transform、Nitro inline、trace/manifest 闭包；
 3. 当前配置是否误用了历史 `prerender:routes` / `routes.clear()`、无条件 `trace: false` 或全量 `inline`。
 
 不要用单次首页 `200` 或本地 Windows 构建成功替代 Content API、fresh 依赖树和 Linux/Vercel 验证。
@@ -169,15 +177,18 @@ docs-site/
 
 执行后至少提供以下证据：
 
-| 验证项  | 方法                                                     |
-| ------- | -------------------------------------------------------- |
-| 启动    | `pnpm --filter <pkg> dev` → 首页 HTTP 200                |
-| 依赖    | `pnpm list` / `pnpm why h3` → 核心包实际版本可解释       |
-| Content | fresh dev 请求 cache/search API → HTTP 200 且索引非空    |
-| 构建    | `pnpm --filter <pkg> build` → 有 `.output` 产物          |
-| 交互    | 暗黑模式切换、侧边栏折叠可用                             |
-| 内容    | 抽查至少 1 个 `::demo-playground` 页面，无裸 marker 文本 |
-| console | 无阻断 hydration 的 `error`                              |
+| 验证项   | 方法                                                                                                           |
+| -------- | -------------------------------------------------------------------------------------------------------------- |
+| 启动     | `pnpm --filter <pkg> dev` → 首页 HTTP 200                                                                      |
+| 依赖     | `pnpm list` / `pnpm why h3` → 核心包实际版本可解释                                                             |
+| Content  | fresh dev 请求 cache/search API → HTTP 200 且索引非空                                                          |
+| 构建     | `pnpm --filter <pkg> build` → 有 `.output` 产物                                                                |
+| 生产图   | 以首个失败门检查 alias、externalization、inline、trace 与实际部署包 manifest                                   |
+| 产物     | 必须启动 `.output` server → 关键页面与 Content API HTTP smoke 通过                                             |
+| 缓存诊断 | 只有诊断 cache 可信度或 cache/artifact 证据冲突时，才执行 `turbo run <task> --force`；常规生产验收不执行该命令 |
+| 交互     | 暗黑模式切换、侧边栏折叠可用                                                                                   |
+| 内容     | 抽查至少 1 个 `::demo-playground` 页面，无裸 marker 文本                                                       |
+| console  | 无阻断 hydration 的 `error`                                                                                    |
 
 ---
 
@@ -186,10 +197,12 @@ docs-site/
 交互失效（暗黑模式切换失败、侧栏按钮无效）时，**严格按此顺序**：
 
 1. **先**看浏览器 console 是否有模块导入错误 → [`references/compat.md`](references/compat.md)
-2. **再**修依赖入口兼容（alias / optimizeDeps / dedupe / ssr.noExternal）
+2. **再**按首个错误修依赖入口兼容（alias / optimizeDeps / dedupe / `ssr.noExternal`）；Vite SSR transform、Nitro inline 与 trace/manifest 不能互相替代。→ [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
 3. **最后**再做 Tailwind / 主题样式检查 → [`references/tailwind-css.md`](references/tailwind-css.md)
 
 Content API 500、H3 导出错误或版本漂移时 → [`references/incident-repair.md`](references/incident-repair.md)
+
+final Nitro OOM、standalone `MODULE_NOT_FOUND`、artifact 启动失败或 Turbo cache 不可信时 → [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
 
 构建卡住时 → [`references/windows.md`](references/windows.md)
 

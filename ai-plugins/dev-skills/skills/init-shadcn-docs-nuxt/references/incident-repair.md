@@ -136,29 +136,33 @@ Content API 的 H3 失配和 Windows 构建 OOM 不是同一个问题：
 
 ## 事故 B：workspace 文档站的独立生产事故链
 
-不要把这条 workspace 生产事故简单写成版本失配事故的复现。eams 已确认的是 Windows workaround 泄漏到 Vercel 后形成的三层生产故障：
+不要把这条 workspace 生产事故简单写成版本失配事故的复现。历史上，平台 workaround 泄漏到部署环境后形成了三层生产故障：
 
-| 层级   | 现象                                                                 | 根因                                                                                          |
-| ------ | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| 第一层 | `FUNCTION_INVOCATION_FAILED`、`Cannot find module 'entities/decode'` | 无条件 `trace:false` 让云函数缺少外部依赖；`entities` 多版本又造成追踪歧义                    |
-| 第二层 | `ERR_MODULE_NOT_FOUND: Cannot find package '@vueuse/core'`           | workspace 包和 `element-plus` 被 Vite SSR externalize，pnpm 符号链接导致 NFT 没追踪到正确依赖 |
-| 第三层 | `Cannot read properties of null (reading '_id')`                     | `prerender:routes` 清空路由，document-driven Content 没有生成结构化内容缓存                   |
+| 层级   | 现象                                                                 | 根因                                                                        |
+| ------ | -------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| 第一层 | `FUNCTION_INVOCATION_FAILED`、`Cannot find module 'entities/decode'` | 无条件 `trace:false` 让云函数缺少外部依赖；`entities` 多版本又造成追踪歧义  |
+| 第二层 | `ERR_MODULE_NOT_FOUND`                                               | 实际部署包的依赖声明、Vite SSR transform 或产物追踪中至少有一层未闭合       |
+| 第三层 | `Cannot read properties of null (reading '_id')`                     | `prerender:routes` 清空路由，document-driven Content 没有生成结构化内容缓存 |
 
 ### 事故 B 中几个配置的阶段边界
 
-- `vite.ssr.noExternal`：Vite SSR 阶段；优先处理 workspace 包及其运行时依赖被外部化的问题。
-- `nitro.externals.inline`：Nitro Rollup 阶段；不能替代已经发生的 Vite SSR externalization。
-- `nitro.externals.trace`：NFT 外部依赖追踪；Windows 本地可以条件化 workaround，但不能无条件关闭后复用到 Vercel。
+将 workspace/UI 依赖树整体加入 `vite.ssr.noExternal` 是历史误区：它会掩盖首个失败模块，扩大构建图，并把问题推迟到 bundle 或部署阶段。`vite.ssr.noExternal` 只处理 Vite SSR transform 的精确错误；每一项都应有可删除条件。
+
+- `vite.ssr.noExternal`：只在 Vite SSR transform 已复现精确 externalization 错误时准入；不能替代 Nitro inline、追踪或 manifest。
+- `nitro.externals.inline`：只在 Nitro Rollup 阶段为精确 bundle 闭包准入；不能替代已经发生的 Vite SSR transform、trace 或 manifest。
+- `nitro.externals.trace`：只负责运行时文件追踪；条件化 workaround 不能关闭部署环境的正常追踪，也不能替代 Vite transform、inline 或 manifest。
+- 实际部署包 manifest：负责直接运行时依赖声明；不能用根目录提升、其他 workspace 包或任一构建配置替代。
 - `prerender:routes`：会影响 Content document-driven 数据生成；清空路由不能作为默认构建优化。
 
 ### 事故 B 的最终修复组合
 
-1. workspace 包和 `element-plus` 完整运行时依赖树加入 `vite.ssr.noExternal`。
-2. Nitro 只保留精准的 inline 列表，不使用 `inline: [/.*/]` 作为通用解。
-3. Windows trace workaround 平台条件化，Linux/Vercel 保留正常 trace。
-4. 恢复 `prerender: { crawlLinks: true }`，删除活动的 `prerender:routes` 清空钩子。
-5. 用 workspace overrides 统一确实需要统一的多版本依赖；该事故中验证过的示例是 `entities: "^7.0.1"`，但新项目仍必须先检查实际依赖树，不能盲目照搬。
-6. `entities`、`std-env` 等代码实际 import 的包，在当前文档包显式声明。
+1. 先由实际部署包 manifest 显式声明直接运行时依赖，并以 fresh install 检查解析树。
+2. 仅将 Vite SSR transform 首个错误命中的模块加入 `vite.ssr.noExternal`，错误消失或入口修正后删除该项。
+3. Nitro 只保留精准的 inline 列表，不使用 `inline: [/.*/]` 作为通用解。
+4. Windows trace workaround 平台条件化，部署环境保留正常 trace，并检查最终 artifact manifest。
+5. 恢复 `prerender: { crawlLinks: true }`，删除活动的 `prerender:routes` 清空钩子。
+6. 用 workspace overrides 统一确实需要统一的多版本依赖；新项目仍必须先检查实际依赖树，不能盲目照搬。
+7. `entities`、`std-env` 等代码实际 import 的包，在当前文档包显式声明。
 
 ## 推荐的故障排查顺序
 

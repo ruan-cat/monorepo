@@ -10,7 +10,7 @@
  *
  * 使用方式：
  * 1. 复制本文件到文档站的 plugins/ 目录
- * 2. 重命名为你的组件库名（如 vue-element-cui.ts）
+ * 2. 重命名为你的组件库名（如 ui-lib.ts）
  * 3. 替换导入路径和组件库名称
  *
  * 注意：
@@ -26,17 +26,3 @@ export default defineNuxtPlugin((nuxtApp) => {
 	nuxtApp.vueApp.use(ElementPlus);
 	nuxtApp.vueApp.use(YourLib);
 });
-
-/**
- * 实战示例（vue-element-cui 组件库）：
- *
- * import VueElementCui from "@eams-monorepo/vue-element-cui";
- * import "@eams-monorepo/vue-element-cui/styles";
- * import ElementPlus from "element-plus";
- * import "element-plus/dist/index.css";
- *
- * export default defineNuxtPlugin((nuxtApp) => {
- *   nuxtApp.vueApp.use(ElementPlus);
- *   nuxtApp.vueApp.use(VueElementCui);
- * });
- */

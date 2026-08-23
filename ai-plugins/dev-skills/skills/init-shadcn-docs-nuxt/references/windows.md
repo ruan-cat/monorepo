@@ -89,7 +89,7 @@ nitro: {
 Remove-Item -Recurse -Force .nuxt, .output -ErrorAction SilentlyContinue
 
 # 单进程 verbose 构建
-npx nuxi build --logLevel=verbose
+pnpm exec nuxi build --logLevel=verbose
 ```
 
 成功标志：
@@ -125,37 +125,22 @@ PowerShell → pnpm → cmd.exe → node.exe (nuxi)
 - 关闭终端标签页
 - 手动 `Stop-Process` 只杀 pnpm
 
-### 诊断
+### 进程 PID / 命令行审计
 
 ```powershell
-# 查看所有 node 进程
-Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, CPU, WorkingSet64, CommandLine
-
-# 查看 cmd.exe 残留
-Get-Process cmd -ErrorAction SilentlyContinue | Select-Object Id, CPU
+# 记录 PID、父进程和命令行，确认归属后回到对应终端正常结束进程。
+Get-CimInstance Win32_Process -Filter "Name = 'node.exe' OR Name = 'cmd.exe'" |
+  Select-Object ProcessId, ParentProcessId, Name, CommandLine
 ```
 
-### 清理
-
-```powershell
-# 杀死所有 node 进程（谨慎：会影响其他 Node 应用）
-Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
-
-# 更精准：只杀含 nuxi 或 nuxt 的 node 进程
-Get-WmiObject Win32_Process -Filter "Name = 'node.exe'" |
-  Where-Object { $_.CommandLine -match 'nuxi|nuxt' } |
-  ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
-
-# 清理可能被锁的临时文件
-Remove-Item -Recurse -Force .nuxt, .output -ErrorAction SilentlyContinue
-```
+不要使用全量 node 强杀命令；它会中断无关的开发服务器、MCP 或构建。只有审计确认某个 PID 属于当前构建时，才由其所属终端按项目流程处置。
 
 ### 预防
 
-1. 中断构建后，**先清理旧进程，再复现**
+1. 中断构建后，**先审计旧进程的 PID 和命令行，再复现**
 2. 避免在同一终端中叠加多次构建命令
 3. 对"可能卡住"的命令，优先短等待 + 快止损
-4. 使用 `npx nuxi build` 而非 `pnpm run build`，减少进程链层级
+4. 使用 `pnpm exec nuxi build` 而非 `pnpm run build`，减少进程链层级
 
 ---
 
@@ -205,9 +190,9 @@ pnpm install
 当 Windows 环境下出现构建或安装异常时，按以下顺序：
 
 ```plain
-1. 检查是否有残留 node.exe / cmd.exe 进程 → 清理
+1. 审计是否有残留 node.exe / cmd.exe 进程的 PID 和命令行 → 回到所属终端处置
 2. 清理旧产物（.nuxt, .output）
-3. 单进程复现（npx nuxi build --logLevel=verbose）
+3. 单进程复现（pnpm exec nuxi build --logLevel=verbose）
 4. 如果卡在 Nitro 收尾 → 检查 nitro.externals.trace 配置
 5. 如果 pnpm install 报 EPERM → 切换到外部终端
 6. 如果以上都不是 → 检查 Node 内存限制和系统资源

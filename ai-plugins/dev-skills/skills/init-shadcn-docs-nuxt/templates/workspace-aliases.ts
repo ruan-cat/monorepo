@@ -1,7 +1,8 @@
 /**
  * workspace 组件库别名函数
  *
- * 让文档站直接消费 workspace 内组件库的源码，而非构建产物。
+ * 让文档站在显式开启的开发期直接消费 workspace 内组件库的源码。
+ * production 必须从部署文档包 manifest 声明的包入口解析，而不是使用本 helper。
  *
  * 为什么需要：
  * 1. 组件库可能尚未构建（全新克隆、CI 中文档先于组件库构建）
@@ -14,16 +15,13 @@
  *   @scope/lib/styles 必须先于 @scope/lib，
  *   否则 /styles 路径会被主入口吃掉。
  * - 使用 resolve(__dirname, ...) 而非相对字符串，确保在任何 cwd 下都能正确解析。
- * - 指向源码入口（.ts / .scss）而非构建产物，这样文档站不依赖组件库先构建。
+ * - 指向源码入口（.ts / .scss）而非构建产物，但只可配合开发期 opt-in 使用。
  *
  * 使用方式：
  * 1. 将本文件复制到文档站根目录
  * 2. 将函数名和路径替换为你的组件库信息
- * 3. 在 nuxt.config.ts 中：
- *    import { getYourLibAliases } from "./workspace-aliases";
- *    export default defineNuxtConfig({
- *      alias: getYourLibAliases(),
- *    });
+ * 3. 使用 templates/nuxt.config.full.ts 的 development opt-in 逻辑，
+ *    不要把本 helper 作为 production 的默认 alias。
  */
 import { resolve } from "node:path";
 
@@ -34,20 +32,3 @@ export function getYourLibAliases() {
 		"@your-scope/ui-lib": resolve(__dirname, "../ui-lib/src/index.ts"),
 	};
 }
-
-/**
- * 实战示例（vue-element-cui 组件库）：
- *
- * export function getVueElementCuiAliases() {
- *   return {
- *     "@eams-monorepo/vue-element-cui/styles": resolve(
- *       __dirname,
- *       "../vue-element-cui/src/styles/index.scss"
- *     ),
- *     "@eams-monorepo/vue-element-cui": resolve(
- *       __dirname,
- *       "../vue-element-cui/src/index.ts"
- *     ),
- *   };
- * }
- */

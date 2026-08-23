@@ -13,7 +13,8 @@ import { createRequire } from "node:module";
 
 /**
  * workspace 组件库别名函数
- * 让文档站直接消费 workspace 内组件库的源码，而非构建产物。
+ * 只在显式开启的开发期让文档站直接消费 workspace 内组件库源码。
+ * production 必须从部署文档包 manifest 声明的包入口解析。
  * 详见 templates/workspace-aliases.ts
  */
 import { getYourLibAliases } from "./workspace-aliases";
@@ -33,6 +34,14 @@ const dayjsEsmEntry = require.resolve("dayjs/esm/index.js");
 const mermaidEsmEntry = require.resolve("mermaid/dist/mermaid.esm.mjs");
 const debugShimEntry = require.resolve("./shims/debug.ts");
 
+/**
+ * workspace 源码仅用于本地开发的显式 opt-in。
+ * production 保持空 alias，避免源码路径扩大到部署构建图。
+ */
+const useWorkspaceSourceAliases =
+	process.env.NODE_ENV === "development" && process.env.SHADCN_DOCS_USE_WORKSPACE_SOURCE === "1";
+const workspaceAliases = useWorkspaceSourceAliases ? getYourLibAliases() : {};
+
 export default defineNuxtConfig({
 	// ═══════════════════════════════════════════════════════════════════
 	// 基础配置
@@ -42,12 +51,11 @@ export default defineNuxtConfig({
 	devtools: { enabled: true },
 
 	/**
-	 * workspace 组件库源码别名
-	 * 让文档站直接消费源码而非构建产物，这样：
-	 * 1. 组件库无需先构建
-	 * 2. 修改组件库源码后文档站自动热更新
+	 * workspace 组件库源码别名只允许在本地开发显式开启。
+	 * production 必须消费部署文档包 manifest 已声明的包入口，
+	 * 不得把源码 alias、依赖族 noExternal 或 inline 清单作为通用替代。
 	 */
-	alias: getYourLibAliases(),
+	alias: workspaceAliases,
 
 	experimental: {
 		appManifest: false,
@@ -118,6 +126,9 @@ export default defineNuxtConfig({
 			 * debug 在 SSR 端也需要特殊处理。
 			 * 如果被 external 化（默认行为），SSR 端会走 Node 的 CJS require，
 			 * 但我们的 shim 是 ESM 格式，导致入口不匹配。
+			 *
+			 * 这是仅针对 debug exact error 的窄兼容例外；
+			 * 不得扩展为依赖族 noExternal 或 nitro.externals.inline 清单。
 			 */
 			noExternal: ["debug"],
 		},

@@ -15,7 +15,13 @@
 
 ## 适用场景
 
-当文档站位于 pnpm workspace 的 `packages/` 子目录中，且需要消费同 workspace 内的组件库源码时，本文件提供完整的配置模式。
+当文档站位于 pnpm workspace 的 `packages/` 子目录中，且需要在本地开发时联调同 workspace 内的组件库源码时，本文件提供完整的配置模式。
+
+## production package boundary
+
+生产构建先看真正部署的文档包 `package.json`、锁文件和最终 artifact。运行时直接消费的组件库必须由该文档包 manifest 显式声明，并通过其正常包入口解析；根目录提升、其他 workspace 包的传递依赖和开发期 source alias 都不是 production 闭包证据。
+
+`templates/workspace-aliases.ts` 仅用于 development 的显式 opt-in。`templates/nuxt.config.full.ts` 在 `NODE_ENV === "development"` 且 `SHADCN_DOCS_USE_WORKSPACE_SOURCE === "1"` 时才启用它；production 返回空 alias。确认 runtime closure 时，使用 fresh install 构建、启动 `.output` 并执行 HTTP smoke，而不是扩大 alias 或 externalization 清单。
 
 ---
 
@@ -31,7 +37,7 @@
 | `prebuild` → `nuxt prepare`    | 在 `build` 前自动生成 `.nuxt` 目录 | CI 环境可能没有预先运行 dev                           |
 | `postinstall` → `nuxt prepare` | `pnpm install` 后自动准备          | 克隆仓库后直接 `pnpm install` 即可开发                |
 
-### 消费 workspace 组件库时追加
+### 部署文档包直接消费 workspace 组件库时追加
 
 ```json
 {
@@ -48,15 +54,16 @@
 
 ---
 
-## workspace 组件库别名
+## development-only workspace 组件库别名
 
 详见 [`templates/workspace-aliases.ts`](../templates/workspace-aliases.ts)，模板注释解释了前缀匹配陷阱。
 
 ### 关键注意点
 
-1. **styles 别名必须在主入口别名之前声明** — Nuxt/Vite alias 匹配是前缀匹配，`@scope/lib/styles` 必须先于 `@scope/lib`
-2. **使用 `resolve(__dirname, ...)` 而非相对字符串** — 确保在任何 cwd 下都能正确解析
-3. **指向源码入口（`.ts` / `.scss`）而非构建产物** — 这样文档站不依赖组件库先构建
+1. **只在 development 显式 opt-in** — 必须同时满足 `NODE_ENV === "development"` 与 `SHADCN_DOCS_USE_WORKSPACE_SOURCE === "1"`；production 不使用 source alias
+2. **styles 别名必须在主入口别名之前声明** — Nuxt/Vite alias 匹配是前缀匹配，`@scope/lib/styles` 必须先于 `@scope/lib`
+3. **使用 `resolve(__dirname, ...)` 而非相对字符串** — 确保在任何 cwd 下都能正确解析
+4. **指向源码入口（`.ts` / `.scss`）仅供联调** — production 使用 manifest 声明的包入口与构建产物
 
 ---
 

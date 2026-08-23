@@ -20,7 +20,9 @@ MDC（Markdown Components）是 Nuxt Content 的扩展语法，允许在 Markdow
 ## `::demo-playground` 标准语法
 
 ````md
-## ::demo-playground
+::demo-playground
+
+---
 
 title: 示例标题
 description: 示例描述
@@ -83,7 +85,9 @@ description: 示例描述
 
 <!-- ✅ 正确：--- 包裹在键值对的上下两侧 -->
 
-## ::demo-playground
+::demo-playground
+
+---
 
 title: 示例标题
 description: 示例描述
