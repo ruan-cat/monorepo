@@ -106,7 +106,7 @@
       "plugin": "dev-skills",
       "name": "init-shadcn-docs-nuxt",
       "description": "Use when initializing or rebuilding any component-library/project documentation site based on `shadcn-docs-nuxt`, or troubleshooting its Nuxt Content/H3, prerender, SSR externalization, module-compatibility, MDC syntax, or Windows build issues. 适用于初始化或重构任意组件库/项目的 `shadcn-docs-nuxt` 文档站，快速建立可运行、可构建、可维护的 Nuxt 文档底座，或排查配置复杂化、 模块兼容、Nuxt Content/H3 版本漂移、prerender、SSR externalization、MDC 语法错误、 Windows 构建假卡死等故障。触发词包括“搭建组件库文档”“接入 shadcn-docs-nuxt”“重做 Nuxt 文档站”、 “迁移文档模板”以及 Content cache/search API 500、`ERR_INVALID_URL`、`sendError` 导出缺失、 `entities/decode`、`@vueuse/core`、`registerMessageResolver`、`prerender:routes` 等错误信号。",
-      "version": "1.0.1",
+      "version": "1.1.0",
       "entry": "ai-plugins/dev-skills/skills/init-shadcn-docs-nuxt/SKILL.md"
     },
     {
