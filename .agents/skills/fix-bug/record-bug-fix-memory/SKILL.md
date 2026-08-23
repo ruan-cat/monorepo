@@ -111,6 +111,7 @@ metadata:
 - `2026-08-10-init-prettier-git-hooks-overengineering.md` — 升级分发技能时把 AI 操作流程误做成迁移器产品，导致脚本、测试和复核过度膨胀；修复方式为先判定交付模型、用户要求收缩即废止旧架构，并以最小契约验证收口
 - `2026-08-11-vitepress-node24-pnpm-entrypoint.md` — Node.js 24 CI 中 VitePress 宽 barrel 间接加载 `consola`，且 utils 多组 tsup 配置并行清理 `dist` 会删除声明；修复方式为真实窄子路径出口、一次性清理构建目录、删除全局 patch，并用最新远端入口测试确定 `consola`、`tinyglobby`、`pnpm-workspace-yaml` 的最小 ESM 内联边界，同时让 `yaml` 保持外部依赖。
 - `2026-08-12-turbo-cache-output-and-package-closure.md` — Turbo 的 `**/dist/**` 宽缓存输出会越过任务自身产物边界，掩盖并放大工作区依赖布局问题；收紧为 `dist/**` / `.output/**` 后，用全新 CI 继续暴露并补齐每个发布包自己的构建工具与运行时依赖闭包。
+- `2026-08-23-init-shadcn-docs-nuxt-production-boundaries.md` — `shadcn-docs-nuxt` 分发模板泄漏、production source alias、Element Plus npm alias 与 Turbo cache 误导的边界加固。
 
 新增事故记录时，先创建独立案例文件，再在本索引追加一行摘要。**禁止**将完整事故正文直接写入 SKILL.md。
 
