@@ -1,6 +1,6 @@
-# 请重设 `themeConfig.editLink.pattern` 的取值
+# 请重设 `themeConfig.editLink.pattern`
 
-当你点击 `在 github 上打开此页面以预览原版 markdown 文档` 按钮后进入到本页面时，说明对应的网站的 vitepress 主题配置，没有及时重设更改 `themeConfig.editLink.pattern` 的取值，所以默认访问到本页面。
+你进入本页，表示站点仍在使用预设的默认编辑链接。请在 `setUserConfig()` 的 `themeConfig.editLink` 中填写自己的仓库、分支和文档目录；完整示例见 [站点与主题](./config/site-and-theme.md) 和 [常见问题](./faq/index.md)。
 
 ## 具体配置
 
