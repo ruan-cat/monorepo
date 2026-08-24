@@ -84,6 +84,7 @@
 		"tag": "beta"
 	},
 	"files": [
+		"assets/readme",
 		"!**/.vercel/**",
 		"!**/.vitepress/**",
 		"src",
