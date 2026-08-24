@@ -31,6 +31,14 @@ const thisDocUserConfig = setUserConfig({
 // @ts-ignore
 thisDocUserConfig.themeConfig.sidebar = setGenerateSidebar({
 	documentRootPath: "./src/docs",
+	excludeByGlobPattern: [
+		"**/lesson/**",
+		"**/bug-to-fix/**",
+		"**/roadmap/**",
+		"**/prompts/**",
+		"**/feat/**",
+		"**/please-reset-themeConfig-editLink.md",
+	],
 });
 
 export default thisDocUserConfig;
