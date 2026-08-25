@@ -2,6 +2,53 @@
 
 面向 ChatGPT Web Developer Mode 的只读 Skill Router MCP Worker。
 
+## 云 MCP 访问地址
+
+本包已作为只读 Remote MCP Worker 部署到 Cloudflare Workers，任何支持远程 MCP 的客户端（如 ChatGPT Web）都可以通过 HTTPS URL 直接接入，无需本地安装、无需令牌。
+
+| 用途                     | URL                                                      |
+| ------------------------ | -------------------------------------------------------- |
+| 核心访问地址（homepage） | `https://skill-router-mcp.1219043956.workers.dev`        |
+| MCP 端点                 | `https://skill-router-mcp.1219043956.workers.dev/mcp`    |
+| 健康检查                 | `https://skill-router-mcp.1219043956.workers.dev/health` |
+
+URL 链接原理：
+
+- Nitro 采用 file-based routing：`server/api/mcp.post.ts` 把 `POST /mcp` 映射为 MCP 入口，`server/api/health.get.ts` 把 `GET /health` 映射为健康检查；`nitro.config.ts` 中 `apiBaseURL: "/"` 让这些路由直接挂在 Workers 域名根路径之下。
+- 传输层使用 `WebStandardStreamableHTTPServerTransport`（`enableJsonResponse: true`、不生成 sessionId），即 Streamable HTTP + stateless JSON response：客户端无需维持会话、无需先握手，一次 `POST /mcp` 即可拿到 JSON 结果。
+- 内容仓库走 GitHub public source（`GITHUB_OWNER=ruan-cat`、`GITHUB_REPO=monorepo`、`GITHUB_REF=dev`）；`GITHUB_TOKEN` 只由 Worker 侧 secret 注入，客户端零凭据、匿名调用。
+
+## ChatGPT Web 接入
+
+前置条件：
+
+- ChatGPT 付费计划：Plus / Pro / Team / Business / Enterprise / Edu（Free 计划不支持自定义 connector）。
+- 账号开启 Developer Mode；Business / Enterprise 工作区需由管理员在 Workspace Settings 中允许自定义 MCP connector。
+
+配置步骤：
+
+1. 打开 ChatGPT Web（chatgpt.com），进入 `Settings → Apps`（旧版界面显示为 `Connectors`，部分账号显示 `Apps & Connectors`），再进入 `Advanced settings`。
+2. 开启 `Developer mode`。
+3. 返回 Apps / Connectors 列表，点击 `Create`（或 `Create app` / `Add custom connector`）。
+4. 填写表单：
+   - Name：例如 `skill-router-mcp`
+   - Description（可选）：例如 `Read-only Skill Router for ruan-cat/monorepo`
+   - MCP Server URL：`https://skill-router-mcp.1219043956.workers.dev/mcp`
+   - Authentication：选择 `No authentication`（本端点为匿名公开服务，无需 OAuth 或 API Key）
+   - 勾选信任声明后创建
+5. 保存成功后，ChatGPT 会立即拉取 `tools/list`，显示本 Worker 暴露的 6 个只读工具（见上方 Tool Surface）。
+
+使用方式：
+
+- 新开一个对话，点击输入框旁的 `+`（工具菜单）→ `More` → 选择 `skill-router-mcp`，启用后即可让模型调用。
+- Developer Mode 是「账户级开关 + 对话级启用」两层：两处都要打开，工具才会出现在对话中。
+
+注意事项：
+
+- ChatGPT 只支持远程 HTTPS MCP server，不支持本地 stdio 命令，因此本包以 Worker 形态部署。
+- ChatGPT 会缓存连接时的工具列表；Worker 工具变更后，需要删除并重建 connector（或等待其重新扫描）才能看到新工具。
+- Advanced Voice 模式不支持 MCP，工具调用仅限文本对话。
+
 ## 本地运行
 
 1. 复制 `.dev.vars.example` 为 `.dev.vars`，填写 GitHub fine-grained token（目标仓库 `Contents: read`）。
