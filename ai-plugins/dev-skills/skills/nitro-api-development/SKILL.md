@@ -6,7 +6,7 @@ description: >-
   进行数据库交互。当需要开发新的 Nitro 接口、初始化 Nitro 配置、
   或咨询 Nitro 开发规范时使用此技能。
 metadata:
-  version: "0.13.6"
+  version: "0.13.9"
 ---
 
 # Nitro v3 接口开发技能规范
@@ -205,26 +205,84 @@ export default defineHandler(async (event) => {
 
 ## 10. Nitro 配置
 
-### 10.1 基础配置
+### 10.1 最短执行路径 [CRITICAL]
+
+先只完成以下路由，再进入目录、接口、数据库或部署章节。不要从 10.5 的 Cloudflare 片段开始新建 `nitro.config.ts`。
+
+1. 读取 `package.json` 的 scripts 与依赖；存在 `vite.config.*` 时，再读取该文件。
+2. 按 10.2 的判定表选择唯一分支：Vite 全栈、纯 Nitro API，或停止并向用户确认。
+3. **纯 Nitro API**：以 10.3 的完整配置为唯一复制起点；再按需要合并 10.5 的部署片段。
+4. **Vite 全栈**：按 10.4 把 `nitro()` 加入已有 Vite 配置；不要误套用纯 API 的 OpenAPI 配置。
+5. 仅在纯 Nitro API 分支完成后，执行 10.3 的快速核对。
+
+### 10.2 项目类型判定 [CRITICAL]
+
+配置前必须先判断项目是 **Vite 全栈项目** 还是 **纯 Nitro API 项目**，不能因为仓库中同时出现 `server/` 目录就直接套用其中一种配置。
+
+| 已确认的证据                                                                      | 选择的分支   | 下一步           |
+| :-------------------------------------------------------------------------------- | :----------- | :--------------- |
+| `vite.config.*` 导入并使用 `nitro/vite` 的 `nitro()`                              | Vite 全栈    | 按 10.4 集成     |
+| scripts 以 `nitro dev` / `nitro build` 启动和构建，且不存在上述 `nitro/vite` 集成 | 纯 Nitro API | 按 10.3 完整配置 |
+| 同时满足两类证据、只有 `vite` 依赖、或 scripts/配置用途无法确认                   | 不判定       | 停止并向用户确认 |
+
+不要仅凭 `server/` 目录、单独安装了 `vite`，或单独安装了 `nitro` 判定项目类型。
+
+### 10.3 纯 Nitro API 基础配置 [CRITICAL]
+
+纯 Nitro API 项目的 `nitro.config.ts` 必须从 `package.json` 读取版本号，并固定启用 OpenAPI、`/openapi.json` 与 `/scalar`。如果 `package.json` 没有 `version`，先在该文件补充有效的 SemVer 版本（项目没有既有发版约定时使用 `0.1.0`），再使用 `pkg.version`；不得在配置中写死文档版本。`openAPI.meta.title` 与 `description` 必须改为当前项目的名称和接口用途，不能保留示例文本。
+
+`compatibilityDate` **必须**使用包含部署平台的对象形式，并保留每个部署平台官方说明链接的行内注释。禁止退化为单字符串，即使当前只部署一个平台也仍保留 Cloudflare 与 Vercel 两项，以便人类阅读、学习和后续维护。
 
 ```typescript
 import { defineConfig } from "nitro";
+import pkg from "./package.json" with { type: "json" };
 
 export default defineConfig({
 	serverDir: "server",
 	imports: false,
-	compatibilityDate: "2024-09-19",
+	compatibilityDate: {
+		// https://v3.nitro.build/deploy/providers/cloudflare
+		cloudflare: "2024-09-19",
+		// https://nitro.build/deploy/providers/vercel#observability
+		vercel: "2024-09-19",
+	},
+	experimental: {
+		openAPI: true,
+	},
+	openAPI: {
+		meta: {
+			title: "your-project API",
+			description: "Nitro v3 接口文档",
+			version: pkg.version,
+		},
+		production: "prerender",
+		route: "/openapi.json",
+		ui: {
+			scalar: {
+				route: "/scalar",
+			},
+		},
+	},
 	devServer: {
 		port: 3000,
 	},
 });
 ```
 
+完成纯 API 配置后，只做以下两项快速核对，避免引入专用脚本或测试工程：
+
+```bash
+node -p "require('./package.json').version"
+rg -n "compatibilityDate|cloudflare:|vercel:|openAPI:|version: pkg.version|/openapi.json|/scalar" nitro.config.ts
+```
+
+第一条命令必须输出有效版本；第二条命令的输出必须包含上述配置键。命令不替代人工检查 `compatibilityDate` 的两个官方链接注释。
+
 > **CRITICAL：Nitro v3 的 `serverDir` 配置陷阱**
 >
 > Nitro v3 默认从项目根目录扫描 `routes/`、`plugins/` 和 `middleware/`。当服务端代码放在 `server/` 子目录时，必须在 `nitro.config.ts` 中设置 `serverDir: "server"`；否则这些路由不会被构建打包，构建产物中不包含端点，访问时会全部返回 404。Nitro v2 默认扫描 `server/`，升级到 v3 时尤其容易遗漏此配置。
 
-### 10.2 Vite 集成
+### 10.4 Vite 集成
 
 ```typescript
 // vite.config.ts
@@ -238,27 +296,22 @@ export default defineConfig({
 });
 ```
 
-### 10.3 Cloudflare 部署配置
+### 10.5 Cloudflare 部署配置片段
+
+把下列键**合并到现有的** `defineConfig({ ... })` 内；这不是独立的 `nitro.config.ts`，不能单独复制。纯 Nitro API 项目必须从 10.3 的完整配置开始，再合并本片段，因此不会遗漏 OpenAPI、`pkg.version` 或 `compatibilityDate`。
 
 ```typescript
-import { defineConfig } from "nitro";
-
-export default defineConfig({
-	serverDir: "server",
-	imports: false,
-	compatibilityDate: "2024-09-19",
-	cloudflare: {
-		deployConfig: true,
-		nodeCompat: true,
-		wrangler: {
-			name: "your-project-name",
-		},
+cloudflare: {
+	deployConfig: true,
+	nodeCompat: true,
+	wrangler: {
+		name: "your-project-name",
 	},
-	// 如果使用 cloudflare:workers 动态导入
-	rollupConfig: {
-		external: ["cloudflare:workers"],
-	},
-});
+},
+// 如果使用 cloudflare:workers 动态导入
+rollupConfig: {
+	external: ["cloudflare:workers"],
+},
 ```
 
 ## 11. 常见陷阱 （Common Pitfalls）
@@ -273,30 +326,39 @@ export default defineConfig({
 - **模块顶层创建数据库连接**: Cloudflare Worker 环境下会导致连接失败。必须在 handler 内创建。
 - **错误的 Cloudflare 环境变量路径**: Nitro v3 使用 `event.req.runtime?.cloudflare?.env`，而非 `event.context.cloudflare?.env`。
 - **`serverDir` 配置遗漏**: Nitro v3 默认扫描项目根目录的 `routes/`、`plugins/` 和 `middleware/`。若代码位于 `server/` 子目录，必须配置 `serverDir: "server"`，否则路由不会进入构建产物，所有端点返回 404。
+- **将 `compatibilityDate` 写成单字符串**: 必须保留 Cloudflare、Vercel 两个平台键和对应官方链接注释的对象形式；单字符串丢失了部署适配信息。
+- **纯 Nitro API 未暴露接口文档**: 判定为纯 API 项目后，必须启用 `experimental.openAPI`，提供 `/openapi.json`、`/scalar`，并从 `package.json` 读取 `openAPI.meta.version`。
 
 ## 12. 常见错误对比
 
-| 错误写法                                  | 正确写法                                    |
-| :---------------------------------------- | :------------------------------------------ |
-| `import { defineEventHandler } from "h3"` | `import { defineHandler } from "nitro/h3"`  |
-| `export default defineEventHandler(...)`  | `export default defineHandler(...)`         |
-| 直接返回对象无类型注解                    | 使用 `const response: ApiResponse<T> = ...` |
-| `process.env.DATABASE_URL`（CF Worker）   | `event.req.runtime?.cloudflare?.env`        |
-| 模块顶层 `const db = drizzle(...)`        | handler 内 `const db = useDb(event)`        |
+| 错误写法                                  | 正确写法                                        |
+| :---------------------------------------- | :---------------------------------------------- |
+| `import { defineEventHandler } from "h3"` | `import { defineHandler } from "nitro/h3"`      |
+| `export default defineEventHandler(...)`  | `export default defineHandler(...)`             |
+| 直接返回对象无类型注解                    | 使用 `const response: ApiResponse<T> = ...`     |
+| `process.env.DATABASE_URL`（CF Worker）   | `event.req.runtime?.cloudflare?.env`            |
+| 模块顶层 `const db = drizzle(...)`        | handler 内 `const db = useDb(event)`            |
+| 单字符串形式的 `compatibilityDate`        | 带 Cloudflare、Vercel 键及官方链接注释的对象    |
+| 纯 API 不配置接口文档                     | 启用 OpenAPI，暴露 `/openapi.json` 与 `/scalar` |
 
 ## 13. 项目初始化检查清单
 
 ### 13.1 纯后端项目
 
+- [ ] 按 10.2 的判定表确认这是纯 Nitro API 项目，而非 Vite 全栈项目
 - [ ] 安装 `nitro` 依赖包
 - [ ] 创建 `server/routes/` 目录结构
 - [ ] 创建 `nitro.config.ts` 配置文件
 - [ ] 核对 `nitro.config.ts` 已设置 `serverDir: "server"`，确保 `server/` 下的路由、插件和中间件会被构建打包
+- [ ] 核对 `compatibilityDate` 是带 Cloudflare、Vercel 平台键和官方链接注释的对象，不是单字符串
+- [ ] 确认 `package.json` 具有有效 `version`，并通过 `pkg.version` 设置 `openAPI.meta.version`
+- [ ] 启用 `experimental.openAPI`，配置 `/openapi.json` 和 `/scalar`，并为 `openAPI.meta` 填写项目对应的标题和说明
 - [ ] 添加开发和构建脚本到 `package.json`
 - [ ] 创建 `server/types/` 并复制 [templates/types.ts](templates/types.ts) 中的类型定义
 
 ### 13.2 Vite 项目全栈化
 
+- [ ] 按 10.2 的判定表确认由 Vite 负责前端构建，再采用 `nitro/vite` 集成方式
 - [ ] 安装 `nitro` 依赖包
 - [ ] 在 Vite 插件配置中添加 `nitro()` 插件
 - [ ] 创建 `server/` 目录结构
