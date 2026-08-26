@@ -11,7 +11,7 @@ description: >-
   `entities/decode`、`@vueuse/core`、`registerMessageResolver`、`prerender:routes` 等错误信号。
 user-invocable: true
 metadata:
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # 初始化 `shadcn-docs-nuxt` 组件库文档

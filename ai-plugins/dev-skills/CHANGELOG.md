@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [10.6.3] - 2026-08-27
+
+### Changed
+
+- **init-shadcn-docs-nuxt**：`metadata.version` `1.1.1` -> `1.1.2`。
+- 补齐 Nuxt OG Image 兼容门禁，覆盖版本漂移、配置模板与工作区排错说明。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.6.3`。
+
 ## [10.6.2] - 2026-08-26
 
 ### Changed
