@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [10.6.1] - 2026-08-26
+
+### Changed
+
+- **nitro-api-development**：`metadata.version` `0.13.8` -> `0.13.9`。
+- 强化 Nitro 项目类型判定、纯 API OpenAPI 文档配置与多平台 compatibilityDate 规则
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.6.1`。
+
 ## [10.6.0] - 2026-08-23
 
 ### Changed
