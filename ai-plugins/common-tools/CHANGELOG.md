@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [10.6.2] - 2026-08-26
+
+### Changed
+
+- **use-pnpm**：`metadata.version` `0.3.0` -> `0.3.1`。
+- 强化 use-pnpm 全局升级、审批与低模型执行护栏
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.6.2`。
+
 ## [10.6.1] - 2026-08-26
 
 ### Changed

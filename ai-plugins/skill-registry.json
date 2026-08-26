@@ -202,7 +202,7 @@
       "plugin": "common-tools",
       "name": "use-pnpm",
       "description": "Use when 需要处理 pnpm 包管理、workspace 命令、npm/npx/yarn 到 pnpm 的替换、Windows 或 PowerShell pnpm 故障、Corepack 管理的 pnpm、NVM Desktop 切换 Node 后的路径错位、全局包更新、ERR_PNPM_UNEXPECTED_VIRTUAL_STORE、virtual-store-dir 混淆、PNPM_HOME/global-dir/store-dir 诊断，或 pnpm install/update/rebuild 排障；English: handling pnpm package management, workspace commands, npm/npx/yarn replacement, Windows or PowerShell pnpm failures, Corepack-managed pnpm, NVM Desktop Node switches, global package updates, ERR_PNPM_UNEXPECTED_VIRTUAL_STORE, virtual-store-dir confusion, PNPM_HOME/global-dir/store-dir diagnosis, or pnpm install/update/rebuild troubleshooting.",
-      "version": "0.1.0",
+      "version": "0.3.1",
       "entry": "ai-plugins/common-tools/skills/use-pnpm/SKILL.md"
     },
     {
