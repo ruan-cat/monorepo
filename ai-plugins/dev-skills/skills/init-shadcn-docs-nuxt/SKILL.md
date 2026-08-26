@@ -2,7 +2,7 @@
 name: init-shadcn-docs-nuxt
 description: >-
   Use when initializing or rebuilding any component-library/project documentation site based on
-  `shadcn-docs-nuxt`, or troubleshooting its Nuxt Content/H3, prerender, SSR externalization,
+  `shadcn-docs-nuxt`, or troubleshooting its Nuxt Content/H3, `nuxt-og-image` Nuxt-generation drift, prerender, SSR externalization,
   module-compatibility, MDC syntax, or Windows build issues. 适用于初始化或重构任意组件库/项目的
   `shadcn-docs-nuxt` 文档站，快速建立可运行、可构建、可维护的 Nuxt 文档底座，或排查配置复杂化、
   模块兼容、Nuxt Content/H3 版本漂移、prerender、SSR externalization、MDC 语法错误、
@@ -11,7 +11,7 @@ description: >-
   `entities/decode`、`@vueuse/core`、`registerMessageResolver`、`prerender:routes` 等错误信号。
 user-invocable: true
 metadata:
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # 初始化 `shadcn-docs-nuxt` 组件库文档
@@ -71,7 +71,7 @@ metadata:
 
 ---
 
-## 历史事故强约束（10 条记忆）
+## 历史事故强约束（11 条记忆）
 
 执行本技能时，**必须默认带着这些"已发生过"的事故记忆**：
 
@@ -85,6 +85,7 @@ metadata:
 8. **`prerender:routes` 不是无条件禁用项，而是历史 workaround**：它曾用于缓解 Windows 构建长尾，但对 document-driven Nuxt Content 会导致内容数据库为空；只有确认项目不依赖 Content prerender 且完成等价验证时才可讨论。→ 见 [`references/incident-repair.md`](references/incident-repair.md)
 9. **final Nitro OOM 与 standalone `MODULE_NOT_FOUND` 必须回到首个失败门**：前者需要测量堆与产物阶段，后者需要区分 Vite SSR transform、Nitro inline、trace 与 manifest，不能用宽配置掩盖。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
 10. **Turbo cache 命中不等于 runtime closure 可信**：只有诊断 cache 可信度或 cache/artifact 证据冲突时，才执行 `turbo run <task> --force`；常规生产验收不执行该命令，但必须启动 `.output` server 并完成 HTTP smoke。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
+11. **`nuxt-og-image` 也属于 Nuxt 世代边界**：Nuxt 3 保守基线必须将 `nuxt-og-image` 固定为 `5.1.9`；`5.1.10+` 可能解析 Nuxt 4 的 `@nuxt/kit`/H3 v2。仅固定 `h3: 1.15.11` 不足以约束这个传递模块，必须在根 `package.json` 使用 `pnpm.overrides`，并用 `pnpm why nuxt-og-image @nuxt/kit h3` 复核实际树。→ 见 [`references/incident-repair.md`](references/incident-repair.md)
 
 ---
 
@@ -101,7 +102,7 @@ Turbo cache 与 `.output` 不一致、artifact 无法启动或 HTTP smoke 失败
 
 检修时必须先回答三件事：
 
-1. 实际安装的 `shadcn-docs-nuxt`、`@ztl-uwu/nuxt-content`、`nuxt`、`h3` 是否属于同一兼容世代；
+1. 实际安装的 `shadcn-docs-nuxt`、`@ztl-uwu/nuxt-content`、`nuxt`、`h3`、`nuxt-og-image`、`@nuxt/kit` 是否属于同一兼容世代；
 2. 当前错误属于 Content/H3 运行时失配、Windows OOM/NFT 构建长尾，还是 production graph 的 Vite SSR transform、Nitro inline、trace/manifest 闭包；
 3. 当前配置是否误用了历史 `prerender:routes` / `routes.clear()`、无条件 `trace: false` 或全量 `inline`。
 
@@ -152,6 +153,7 @@ docs-site/
 核心要点：
 
 - 依赖：`nuxt`、`shadcn-docs-nuxt`、`vue`、`vue-router`、`tailwindcss`、`tailwindcss-animate`
+- Nuxt 3 文档站还必须固定 `nuxt-og-image: 5.1.9`；若主题传递依赖声明了更宽范围，在根 `package.json` 增加 `pnpm.overrides.nuxt-og-image: 5.1.9`
 - 如需消费 workspace 组件库，补 `workspace:*` 依赖
 - devDependencies：`@iconify-json/lucide`（Nuxt Icon 必需）
 - 脚本必须包含 `predev` / `prebuild` / `postinstall` 三处 `nuxt prepare`
@@ -177,18 +179,19 @@ docs-site/
 
 执行后至少提供以下证据：
 
-| 验证项   | 方法                                                                                                           |
-| -------- | -------------------------------------------------------------------------------------------------------------- |
-| 启动     | `pnpm --filter <pkg> dev` → 首页 HTTP 200                                                                      |
-| 依赖     | `pnpm list` / `pnpm why h3` → 核心包实际版本可解释                                                             |
-| Content  | fresh dev 请求 cache/search API → HTTP 200 且索引非空                                                          |
-| 构建     | `pnpm --filter <pkg> build` → 有 `.output` 产物                                                                |
-| 生产图   | 以首个失败门检查 alias、externalization、inline、trace 与实际部署包 manifest                                   |
-| 产物     | 必须启动 `.output` server → 关键页面与 Content API HTTP smoke 通过                                             |
-| 缓存诊断 | 只有诊断 cache 可信度或 cache/artifact 证据冲突时，才执行 `turbo run <task> --force`；常规生产验收不执行该命令 |
-| 交互     | 暗黑模式切换、侧边栏折叠可用                                                                                   |
-| 内容     | 抽查至少 1 个 `::demo-playground` 页面，无裸 marker 文本                                                       |
-| console  | 无阻断 hydration 的 `error`                                                                                    |
+| 验证项    | 方法                                                                                                           |
+| --------- | -------------------------------------------------------------------------------------------------------------- |
+| 启动      | `pnpm --filter <pkg> dev` → 首页 HTTP 200                                                                      |
+| 依赖      | `pnpm list` / `pnpm why h3` → 核心包实际版本可解释                                                             |
+| Nuxt 世代 | `pnpm why nuxt-og-image @nuxt/kit h3` → `nuxt-og-image@5.1.9` 且不出现 Nuxt 4/H3 v2 混入                       |
+| Content   | fresh dev 请求 cache/search API → HTTP 200 且索引非空                                                          |
+| 构建      | `pnpm --filter <pkg> build` → 有 `.output` 产物                                                                |
+| 生产图    | 以首个失败门检查 alias、externalization、inline、trace 与实际部署包 manifest                                   |
+| 产物      | 必须启动 `.output` server → 关键页面与 Content API HTTP smoke 通过                                             |
+| 缓存诊断  | 只有诊断 cache 可信度或 cache/artifact 证据冲突时，才执行 `turbo run <task> --force`；常规生产验收不执行该命令 |
+| 交互      | 暗黑模式切换、侧边栏折叠可用                                                                                   |
+| 内容      | 抽查至少 1 个 `::demo-playground` 页面，无裸 marker 文本                                                       |
+| console   | 无阻断 hydration 的 `error`                                                                                    |
 
 ---
 

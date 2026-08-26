@@ -166,13 +166,17 @@ export default defineNuxtConfig({
 	},
 
 	// ═══════════════════════════════════════════════════════════════════
-	// OG Image - 必须关闭
+	// OG Image - 先固定 Nuxt 3 兼容版本，再决定是否启用
 	//
-	// 直接启用 ogImage 模块会触发：
+	// shadcn-docs-nuxt@1.1.9 会传递安装 nuxt-og-image。
+	// nuxt-og-image@5.1.10+ 的 @nuxt/kit 依赖线面向 Nuxt 4，
+	// 可能把 H3 v2 裸 import 带入 Nuxt 3/Nitro 2.13，
+	// 触发 Invalid URL 或 sendError 导出缺失。
+	// Nuxt 3 文档站必须在根 package.json 固定 nuxt-og-image@5.1.9。
+	// 依赖未固定时直接启用仍可能触发：
 	//   vue.runtime.mjs does not provide an export named toValue → 500 错误
 	// 如果页面层有 defineOgImageComponent() 调用，
-	// 通过覆盖页面文件（pages/[...slug].vue）移除该调用，
-	// 而不是启用此模块。
+	// 先完成依赖矩阵和 fresh build，再通过覆盖页面文件移除该调用。
 	// ═══════════════════════════════════════════════════════════════════
 	ogImage: {
 		enabled: false,

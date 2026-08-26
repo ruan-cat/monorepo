@@ -4,7 +4,8 @@
 	"$comment_3": "不要预设 .nuxt 一定已存在 或 依赖包一定先构建完成",
 	"$comment_4": "运行时直接消费的依赖必须由部署文档包 manifest 显式声明；开发期 source alias 需经 fresh install、.output 启动与 HTTP smoke 检查",
 	"$comment_5": "@iconify-json/lucide 是必须的 devDependency，不安装会有集合缺失提示",
-	"$comment_6": "核心四包必须成组审查并精确锁定；nuxt.config.ts 直接引用的第三方包也必须显式声明",
+	"$comment_6": "核心 Nuxt/Content/H3/OG Image 五包必须成组审查并精确锁定；nuxt.config.ts 直接引用的第三方包也必须显式声明",
+	"$comment_7": "nuxt-og-image 5.1.10+ 进入 Nuxt 4 @nuxt/kit 依赖线；Nuxt 3 文档站通过 pnpm.overrides 固定 5.1.9",
 	"name": "@your-scope/your-docs",
 	"description": "项目文档站",
 	"version": "1.0.0",
@@ -32,5 +33,10 @@
 	"devDependencies": {
 		"@iconify-json/lucide": "^1.2.101",
 		"typescript": "^5.9.3"
+	},
+	"pnpm": {
+		"overrides": {
+			"nuxt-og-image": "5.1.9"
+		}
 	}
 }

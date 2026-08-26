@@ -9,7 +9,8 @@
 	"shadcn-docs-nuxt": "1.1.9",
 	"@ztl-uwu/nuxt-content": "2.13.9",
 	"nuxt": "3.21.2",
-	"h3": "1.15.11"
+	"h3": "1.15.11",
+	"nuxt-og-image": "5.1.9"
 }
 ```
 
@@ -21,6 +22,8 @@ pnpm --filter <docs-package> why h3
 ```
 
 `ERR_INVALID_URL`、H3 v2 不提供 `sendError`、Content cache/search API 500，优先指向 Content/H3/Nuxt 实际解析失配；不要先改 Markdown 或 CSS。
+
+`nuxt-og-image` 也必须纳入同一世代审查。`5.1.9` 仍使用 Nuxt 3 的 `@nuxt/kit` 依赖线；`5.1.10+` 的依赖范围切到 Nuxt 4 `@nuxt/kit`，其裸 `h3` import 可能解析到 H3 v2。只在文档包声明 `h3: 1.15.11` 不能约束该传递模块；主题仍声明更宽版本时，在根 `package.json` 增加 `pnpm.overrides.nuxt-og-image: 5.1.9`，并用 `pnpm why nuxt-og-image @nuxt/kit h3` 复核实际树。
 
 ## `prerender:routes` 的历史边界
 
@@ -96,6 +99,16 @@ shadcn-docs-nuxt 1.1.9
   -> Nitro prerender 失败
 ```
 
+另一个独立但同类的坏组合是：
+
+```text
+shadcn-docs-nuxt 1.1.9
+  -> nuxt-og-image ^5.1.13
+  -> @nuxt/kit ^4.x / H3 v2
+  -> Nuxt 3.21.2 / Nitro 2.13.3 的 H3 v1 运行时
+  -> sendError 导出缺失或 Content prerender Invalid URL
+```
+
 两个错误信号要区分：
 
 - `ERR_INVALID_URL`：H3 v2 的 `getQuery` 尝试对 Nitro 传入的相对 URL 执行 `new URL()`，没有 base URL。
@@ -112,7 +125,8 @@ shadcn-docs-nuxt 1.1.9
 	"shadcn-docs-nuxt": "1.1.9",
 	"@ztl-uwu/nuxt-content": "2.13.9",
 	"nuxt": "3.21.2",
-	"h3": "1.15.11"
+	"h3": "1.15.11",
+	"nuxt-og-image": "5.1.9"
 }
 ```
 
@@ -161,7 +175,7 @@ Content API 的 H3 失配和 Windows 构建 OOM 不是同一个问题：
 3. Nitro 只保留精准的 inline 列表，不使用 `inline: [/.*/]` 作为通用解。
 4. Windows trace workaround 平台条件化，部署环境保留正常 trace，并检查最终 artifact manifest。
 5. 恢复 `prerender: { crawlLinks: true }`，删除活动的 `prerender:routes` 清空钩子。
-6. 用 workspace overrides 统一确实需要统一的多版本依赖；新项目仍必须先检查实际依赖树，不能盲目照搬。
+6. 用 workspace overrides 统一确实需要统一的多版本依赖；Nuxt 3 文档站应将 `nuxt-og-image` 固定为 `5.1.9`，并用 `pnpm why` 复核 `@nuxt/kit`/H3 世代；新项目仍必须先检查实际依赖树，不能盲目照搬。
 7. `entities`、`std-env` 等代码实际 import 的包，在当前文档包显式声明。
 
 ## 推荐的故障排查顺序

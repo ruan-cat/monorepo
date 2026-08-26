@@ -107,9 +107,23 @@ pnpm add -D @iconify-json/lucide
 
 ---
 
-## OG Image 模块处理
+## OG Image 模块处理与 Nuxt 世代边界
 
-规则：不要启用。详见 [`templates/nuxt.config.full.ts`](../templates/nuxt.config.full.ts) 中 ogImage 段的注释。
+`nuxt-og-image` 是 `shadcn-docs-nuxt@1.1.9` 的传递依赖，不能只审查四个核心包。Nuxt 3 保守基线固定为 `nuxt-og-image@5.1.9`；`5.1.10+` 的 `@nuxt/kit` 依赖线面向 Nuxt 4，可能把 H3 v2 裸 import 带入 Nuxt 3/Nitro 2.13 构建。
+
+在根 `package.json` 增加以下覆盖，避免主题的宽 semver 范围重新解析到 Nuxt 4 世代：
+
+```json
+{
+	"pnpm": {
+		"overrides": {
+			"nuxt-og-image": "5.1.9"
+		}
+	}
+}
+```
+
+规则：先固定并验证版本，再决定是否启用；不能用关闭模块或清空 prerender 代替依赖修复。详见 [`templates/nuxt.config.full.ts`](../templates/nuxt.config.full.ts) 中 ogImage 段的注释。
 
 如果页面层有 `defineOgImageComponent()` 调用，通过创建 `pages/[...slug].vue` 覆盖默认页面来移除该调用。
 
@@ -189,7 +203,8 @@ monorepo/
 	"shadcn-docs-nuxt": "1.1.9",
 	"@ztl-uwu/nuxt-content": "2.13.9",
 	"nuxt": "3.21.2",
-	"h3": "1.15.11"
+	"h3": "1.15.11",
+	"nuxt-og-image": "5.1.9"
 }
 ```
 
@@ -198,6 +213,7 @@ monorepo/
 ```powershell
 pnpm --filter <docs-package> list nuxt shadcn-docs-nuxt @ztl-uwu/nuxt-content h3 nitropack --depth 4
 pnpm --filter <docs-package> why h3
+pnpm --filter <docs-package> why nuxt-og-image @nuxt/kit h3
 ```
 
 Content 运行时可能直接 import `h3` 却没有在上游 manifest 中声明，因此文档包必须显式声明 H3，不能依赖 hoist 或根 workspace 间接安装。
