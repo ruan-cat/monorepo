@@ -4,7 +4,7 @@ description: >-
   Use when 需要处理 pnpm 包管理、workspace 命令、npm/npx/yarn 到 pnpm 的替换、Windows 或 PowerShell pnpm 故障、Corepack 管理的 pnpm、NVM Desktop 切换 Node 后的路径错位、全局包更新、ERR_PNPM_UNEXPECTED_VIRTUAL_STORE、virtual-store-dir 混淆、PNPM_HOME/global-dir/store-dir 诊断，或 pnpm install/update/rebuild 排障；English: handling pnpm package management, workspace commands, npm/npx/yarn replacement, Windows or PowerShell pnpm failures, Corepack-managed pnpm, NVM Desktop Node switches, global package updates, ERR_PNPM_UNEXPECTED_VIRTUAL_STORE, virtual-store-dir confusion, PNPM_HOME/global-dir/store-dir diagnosis, or pnpm install/update/rebuild troubleshooting.
 user-invocable: true
 metadata:
-  version: "0.1.0"
+  version: "0.3.1"
 ---
 
 # use-pnpm
@@ -14,6 +14,21 @@ metadata:
 本技能用于处理 pnpm 相关的安装、更新、工作区命令替换、Windows/PowerShell 故障和全局包恢复。重点覆盖 `ERR_PNPM_UNEXPECTED_VIRTUAL_STORE`、`PNPM_HOME` 与全局依赖树错位、Corepack 管理 pnpm、NVM Desktop 切换 Node 后的 pnpm 运行时混乱。
 
 目标不是复述事故过程，而是给 future-agent 一套可执行判断路径：先识别 pnpm 由谁管理、全局区在哪里、store 在哪里、虚拟 store 指向哪里，再决定是重建依赖树、修配置，还是切回正确的 Node/pnpm 管理链路。
+
+## Low-Model Execution Contract
+
+低等级模型必须把全局升级/审批任务当作“逐步清单”执行，不得凭标题或记忆跳步。相关具体命令只从 [`references/global-upgrade-checklist.md`](references/global-upgrade-checklist.md) 复制，并遵守以下硬门：
+
+1. 先完成运行时盘点；任一命令退出非零、路径为空或结果矛盾，立即 `STOP`，不得继续升级。
+2. 一次只执行一个清单步骤；每步记录命令、退出码、关键输出和下一步。不得把多个升级批次、rebuild 或验证命令拼成一条。
+3. 遇到交互审批时，只选择清单中“已确认用途”的包；不确定就保持未批准并 `STOP`。禁止把 `--all` 当快捷修复。
+4. 出现 `MSB8040`、node-gyp、MSBuild、超时或无输出时，立即停止当前包，保留已写入策略和日志，不扩大审批范围、不重试整批。
+5. 只有四项结论都有证据，才能报告完成：包升级、审批策略写入、构建脚本执行、CLI 可运行。缺任何一项都只能报告“部分完成/待处理”。
+
+全局写操作还必须满足两道授权门：
+
+- 用户未明确授权全局升级、审批、rebuild 或删除时，只执行参考清单第 1 节只读盘点，然后停下并请求授权。
+- 每一节开始前确认上一节账本退出码为 `0`；上一节失败、被中断或未执行时，不得跳到后续章节。
 
 ## When to Use
 
@@ -207,6 +222,37 @@ pnpm list -g --depth 0
 
 注意：`pnpm add -g pnpm` 不是 Corepack 场景下升级 pnpm 本体的默认答案。先确认 pnpm 管理方式。
 
+## Global Upgrade Policy
+
+全局升级先盘点运行时、registry、global-dir、store-dir、待升级包和待审批脚本；不要把一次命令当成完整验收。
+
+- 日常升级禁止使用 `pnpm up -L -g` 扫描并升级全部全局包；按用途分组后使用 `pnpm update -g --latest <packages>`，每批单独记录退出码、版本变化和警告。
+- 先升级包，再单独处理构建脚本审批。包版本已更新不等于 install/postinstall 已执行，也不等于 CLI 已可运行。
+- `pnpm approve-builds -g` 必须交互选择经确认的最小白名单；禁止用 `--all` 作为默认或失败兜底。未确认用途的包保持未批准。
+- 升级、审批、构建和运行验证分别记录；某一阶段失败时停止扩大范围，不用后续成功掩盖前一阶段失败。
+
+具体的包分组、审批候选、备份、验收和单包 rebuild 命令见 [`references/global-upgrade-checklist.md`](references/global-upgrade-checklist.md)。
+
+## Native Module Stop-Loss
+
+看到 `node-gyp`、MSBuild、`MSB8040` 或原生编译失败时，先记录失败包、退出码、缺失组件和已写入的审批策略，然后停止继续构建或扩大白名单。
+
+- `node-pty` 等原生模块的失败属于工具链或平台问题，不通过批准更多包、手改 `.modules.yaml`、写绝对 `virtual-store-dir` 或删除全局依赖树来绕过。
+- `koffi`、`onnxruntime-node` 等包也必须先确认实际功能需求与编译工具链；“能批准”不代表“应该批准”。
+- 单包 rebuild 用于定位卡点；一次只处理一个包，并记录开始/结束时间、退出码和最后输出。约 30 秒无新输出就停止该包并标记候选卡点，不要继续盲等或立即扩大审批范围。
+
+## Approval Policy Persistence
+
+`approve-builds` 的策略写入和构建结果是两个独立事实。命令退出非零或被中断后，仍要检查全局 `pnpm-workspace.yaml`：
+
+- `onlyBuiltDependencies` 只包含本次明确批准且有用途依据的包；`ignoredBuiltDependencies` 保留明确暂缓项。
+- 先记录策略文件是否已持久化，再判断脚本是否成功执行；不能因策略已写入就声称构建完成。
+- 不手写 `.modules.yaml`，不执行超出 `pnpm approve-builds` 的全局构建策略覆盖。
+
+## Interrupted Run Closure
+
+任何升级或审批命令中断、超时或退出非零时，必须输出四项独立结论：包升级是否成功、审批策略是否写入、构建脚本是否执行成功、核心 CLI 是否可运行。记录退出码、已完成包、剩余脚本和下一步；在具体根因修复前不要重试整批，也不要用 `--all` 兜底。
+
 ## Workspace Rules
 
 - 先确认当前目录是否是 workspace 根目录，是否存在 `pnpm-workspace.yaml`。
@@ -261,6 +307,8 @@ pnpm bin -g
 pnpm store path
 pnpm config get virtual-store-dir
 ```
+
+全局升级或审批后的具体命令与四项独立结论模板见 [`references/global-upgrade-checklist.md`](references/global-upgrade-checklist.md)。
 
 然后重跑原失败命令。例如：
 
