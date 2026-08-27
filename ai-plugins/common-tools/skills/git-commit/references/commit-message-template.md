@@ -1,4 +1,4 @@
-# 提交信息模板 (Conventional Commits)
+# 提交信息模板 （Conventional Commits）
 
 > 该文档只提供提交信息写作模板，不是 emoji/type 的 source-of-truth。
 > 实际 emoji/type 必须读取远程 raw `commit-types.ts` 全文后判定；如果抓取失败或无法可靠定位，必须停止提交流程，不得回退到旧表格。
@@ -22,6 +22,18 @@ BREAKING CHANGE: <详细说明破坏性内容及迁移方式>
 <变更内容>
 <变更原因>
 ```
+
+### AI 辅助归因 trailer
+
+当步骤 9 同时可靠获取到 AI 客户端名称与模型型号时，由提交步骤通过 `git commit --trailer` 追加：
+
+```text
+Assisted-by: <AGENT_NAME> / <MODEL_VERSION>
+```
+
+- `Assisted-by` 不直接写入 `commit-message.txt`，避免与步骤 9 的 `--trailer` 重复。
+- `Co-authored-by` 继续按 `SKILL.md` 中现有的 allowlist、GitHub 账号/邮箱与 blacklist 规则独立处理，可与 `Assisted-by` 同时存在。
+- 任一身份字段无法可靠取得时，不生成降级形式的 `Assisted-by`。
 
 注意：
 
