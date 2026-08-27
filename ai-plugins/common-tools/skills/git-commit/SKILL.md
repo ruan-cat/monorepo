@@ -10,7 +10,7 @@ description: >-
   从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。
 user-invocable: true
 metadata:
-  version: "0.6.0"
+  version: "0.7.0"
 ---
 
 # Git Commit
@@ -140,7 +140,7 @@ identityCheck:
    - 如果验证失败，修复问题后重新执行验证。
    - 如果仓库确实不存在任何有意义的自动校验，必须在最终说明中明确“未运行校验，原因是仓库无可用脚本/规则”。
 
-9. **获取 Co-authored-by 信息并执行提交**
+9. **获取 Assisted-by / Co-authored-by 信息并执行提交**
    - **获取 AI 客户端型号**：从当前对话的 system prompt 或初始化信息中查找：
      - "You are Claude Code" → 客户端 = "Claude Code"
      - "You are Cursor" → 客户端 = "Cursor"
@@ -151,7 +151,15 @@ identityCheck:
      - "claude-opus-4-6" → 模型 = "Claude Opus 4.6"
      - "claude-sonnet-4-6" → 模型 = "Claude Sonnet 4.6"
      - 其他模型同理
-   - **逐项判定**：客户端与模型必须分别判断是否在下方 allowlist 中，不得把“客户端可验证”自动扩展为“模型也可验证”。
+   - **生成 Assisted-by** [CRITICAL]：
+     - 直接复用上面已经获取到的客户端名称和模型名称，不新增第二套识别流程，不改变现有客户端/模型获取规则。
+     - 当客户端和模型都可以可靠获取时，必须追加且仅追加一条 `Assisted-by: AGENT_NAME / MODEL_VERSION` trailer；固定为**客户端/Agent 在前、模型在后**，斜杠 `/` 两侧各一个空格。
+     - 示例：`Assisted-by: Codex / gpt-5.6-terra`、`Assisted-by: Claude Code / deepseek-v4-flash`、`Assisted-by: WorkBuddy / MiniMax-M2.5`。
+     - 本步骤不额外判断“AI 是否实质参与”“是否属于 meaningful assistance”或贡献比例；只要本技能实际执行本次 commit 且两个身份字段均已取得，就生成该 trailer。
+     - `Assisted-by` 仅记录本次实际运行的 Agent 与 Model，不查询 GitHub 账号/邮箱，也不使用下方 Co-authored-by 的 allowlist 或 blacklist；它与 `Co-authored-by` 相互独立、可以同时存在。
+     - 只要客户端或模型任一项无法可靠取得，就跳过 `Assisted-by`；不得降级成单字段形式，不得写 `Unknown`，不得猜测或联网补全缺失字段。
+     - **必须输出检测日志**：`→ Assisted-by 检测: 客户端="{客户端名}"; 模型="{模型名}"; 结论="{Assisted-by trailer 或跳过原因}"`。
+   - **Co-authored-by 逐项判定**：客户端与模型必须分别判断是否在下方 allowlist 中，不得把“客户端可验证”自动扩展为“模型也可验证”。
    - **必须输出检测日志**（无论结果如何）：
      - 格式：`→ Co-authored-by 检测: 客户端="{客户端名}" → {在/不在} allowlist; 模型="{模型名}" → {在/不在} allowlist; 结论="{结论}"`
      - 例如：`→ Co-authored-by 检测: 客户端="WorkBuddy" → 不在 allowlist; 模型="Deepseek-V4-Flash" → 不在 allowlist; 结论="不追加任何 trailer"`
@@ -163,7 +171,10 @@ identityCheck:
      4. 二者都不可验证或无法识别 → 不追加任何 trailer
    - 如果当前会话无法可靠得到模型标识，必须视为“模型不可验证”，不得猜测。
    - 当前非 allowlist 客户端（如 Codex、Gemini CLI 等）默认不写 Co-authored-by，除非下方对照表后续明确补充。
-   - **使用 `--trailer` 参数追加**：执行 `git commit -F commit-message.txt` 时，仅为已验证身份追加对应的 `--trailer`；一条身份对应一条 `--trailer`。
+   - **使用 `--trailer` 参数追加**：执行 `git commit -F commit-message.txt` 时：
+     - 若 `Assisted-by` 条件满足，先追加一条对应的 `--trailer "Assisted-by: AGENT_NAME / MODEL_VERSION"`。
+     - 再按原有 Co-authored-by 判定结果，仅为已验证身份追加对应的 `--trailer`；一条身份对应一条 `Co-authored-by` trailer。
+     - `Assisted-by` 是否存在不受 Co-authored-by allowlist 判定影响；即使客户端或模型没有可验证 GitHub 身份，只要两项运行时身份都可靠取得，仍然可以生成 `Assisted-by`。
    - **提交成功后删除临时文件**：
      - PowerShell：`Remove-Item -LiteralPath commit-message.txt`
      - POSIX Shell：`rm -- commit-message.txt`
