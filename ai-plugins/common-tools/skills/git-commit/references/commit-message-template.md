@@ -1,4 +1,4 @@
-# 提交信息模板 (Conventional Commits)
+# 提交信息模板 （Conventional Commits）
 
 > 该文档只提供提交信息写作模板，不是 emoji/type 的 source-of-truth。
 > 实际 emoji/type 必须读取远程 raw `commit-types.ts` 全文后判定；如果抓取失败或无法可靠定位，必须停止提交流程，不得回退到旧表格。
