@@ -7,6 +7,15 @@
 
 ## [Unreleased]
 
+## [10.7.0] - 2026-08-27
+
+### Changed
+
+- **git-commit**：`metadata.version` `0.6.0` -> `0.7.0`。
+- 新增 `Assisted-by: AGENT_NAME / MODEL_VERSION` AI 协助归因，直接复用现有 Agent 与 Model 识别结果。
+- 保留原有 `Co-authored-by` allowlist、GitHub 账号/邮箱与 blacklist 处理行为，两套 trailer 独立并可同时存在。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.7.0`。
+
 ## [10.6.3] - 2026-08-27
 
 ### Changed
