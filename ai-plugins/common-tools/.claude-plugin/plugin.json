@@ -1,6 +1,6 @@
 {
 	"name": "common-tools",
-	"version": "10.6.3",
+	"version": "10.7.0",
 	"description": "阮喵喵开发时常用的一些通用工具",
 	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/common-tools",
 	"author": {
@@ -8,6 +8,13 @@
 		"email": "1219043956@qq.com"
 	},
 	"license": "MIT",
-	"commands": ["./commands/markdown-title-order.md", "./commands/close-window-port.md"],
-	"agents": ["./agents/format-markdown.md", "./agents/migrate-iconify-use-pure-admin.md", "./agents/add-git-mcp.md"]
+	"commands": [
+		"./commands/markdown-title-order.md",
+		"./commands/close-window-port.md"
+	],
+	"agents": [
+		"./agents/format-markdown.md",
+		"./agents/migrate-iconify-use-pure-admin.md",
+		"./agents/add-git-mcp.md"
+	]
 }
