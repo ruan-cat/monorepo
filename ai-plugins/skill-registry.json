@@ -138,7 +138,7 @@
       "plugin": "common-tools",
       "name": "install-skills",
       "description": "Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略，或排查清除 Kimi Desktop（Daimon）等第三方供应器对全局技能目录的污染时。",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "entry": "ai-plugins/common-tools/skills/install-skills/SKILL.md"
     },
     {

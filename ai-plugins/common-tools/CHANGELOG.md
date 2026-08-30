@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [10.9.1] - 2026-08-31
+
+### Changed
+
+- **install-skills**：`metadata.version` `1.1.0` -> `1.1.1`。
+- 目录级链接策略加固：明确符号链接为默认唯一同步策略、禁止实体副本，补充链接穿透预期形态说明与判别方法
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.9.1`。
+
 ## [10.9.0] - 2026-08-31
 
 ### Changed
