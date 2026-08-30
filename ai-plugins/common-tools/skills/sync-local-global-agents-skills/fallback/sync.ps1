@@ -4,7 +4,7 @@
 .SYNOPSIS
     本地全局 Agent Skills 同步器兜底脚本（Windows PowerShell）。
 .DESCRIPTION
-    将 ~/.agents/skills 作为目录级链接分发到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy 平台。
+    将 ~/.agents/skills 作为目录级链接分发到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy、Qoder 平台。
     此脚本在无法使用 Node/TypeScript 主脚本时作为兜底方案。
 #>
 
@@ -49,7 +49,8 @@ $platforms = @(
     @{ Name = "WorkBuddy"; Path = "$env:USERPROFILE\.workbuddy\skills" },
     @{ Name = "QoderWork"; Path = "$env:USERPROFILE\.qoderworkcn\skills" },
     @{ Name = "Kimi Work"; Path = "$env:USERPROFILE\AppData\Roaming\kimi-desktop\daimon-share\daimon\skills" },
-    @{ Name = "CodeBuddy"; Path = "$env:USERPROFILE\.codebuddy\skills" }
+    @{ Name = "CodeBuddy"; Path = "$env:USERPROFILE\.codebuddy\skills" },
+    @{ Name = "Qoder"; Path = "$env:USERPROFILE\.qoder\skills" }
 )
 
 if (-not (Test-Path -Path $Source -PathType Container)) {

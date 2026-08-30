@@ -2,7 +2,7 @@
 
 本地全局 Agent Skills 同步器。
 
-将 Vercel `skills` CLI 全局安装的 skills（`~/.agents/skills`）作为唯一数据源，通过目录级符号链接批量同步到本机其他本地 agent 平台，包括 CodeBuddy。
+将 Vercel `skills` CLI 全局安装的 skills（`~/.agents/skills`）作为唯一数据源，通过目录级符号链接批量同步到本机其他本地 agent 平台，包括 WorkBuddy、QoderWork、Kimi Work、CodeBuddy 和 Qoder。
 
 ## 快速开始
 
@@ -12,7 +12,7 @@ tsx scripts/sync.ts
 
 ## 命令行选项
 
-已支持的平台包括 WorkBuddy、QoderWork、Kimi Work 和 CodeBuddy，其中 CodeBuddy 使用 `~/.codebuddy/skills`。
+已支持的平台包括 WorkBuddy、QoderWork、Kimi Work、CodeBuddy 和 Qoder，其中 CodeBuddy 使用 `~/.codebuddy/skills`，Qoder 使用 `~/.qoder/skills`。
 
 ```text
 --source <path>   指定源 skills 目录（默认：~/.agents/skills）

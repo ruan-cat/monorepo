@@ -203,4 +203,11 @@ describe("DEFAULT_PLATFORMS", () => {
 		expect(codeBuddy).toBeDefined();
 		expect(codeBuddy?.skillsDir).toBe(path.join(homedir(), ".codebuddy", "skills"));
 	});
+
+	test("registers Qoder at the user-level skills directory", () => {
+		const qoder = DEFAULT_PLATFORMS.find((platform) => platform.name === "Qoder");
+
+		expect(qoder).toBeDefined();
+		expect(qoder?.skillsDir).toBe(path.join(homedir(), ".qoder", "skills"));
+	});
 });

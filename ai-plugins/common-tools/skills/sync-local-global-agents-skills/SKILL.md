@@ -1,12 +1,12 @@
 ---
 name: sync-local-global-agents-skills
 description: >-
-  Use when 已完成全局 skills 安装后，需要把 `~/.agents/skills` 后置同步到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy 等本地平台，或显式修复本地 skills 链接。
+  Use when 已完成全局 skills 安装后，需要把 `~/.agents/skills` 后置同步到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy、Qoder 等本地平台，或显式修复本地 skills 链接。
   这是后置同步、显式同步和链接修复工具，不是 `skills add` 的替代安装器。
   支持 dry-run、自动备份、错误链接替换，并可按需刷新 memorix 内部 skills。
   触发关键词：sync-local-global-agents-skills、同步 skills、全局 skills 同步。
 metadata:
-  version: "0.1.2"
+  version: "0.2.0"
 ---
 
 # 本地全局 Agent Skills 同步器
@@ -18,7 +18,7 @@ metadata:
 合法触发包括：
 
 - `skills add ... -g` 已成功后，用户要求继续同步到本地平台。
-- 用户明确要求把全局 `~/.agents/skills` 同步到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy。
+- 用户明确要求把全局 `~/.agents/skills` 同步到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy、Qoder。
 - 新增平台完成目录语义和链接能力核验后，需要执行同步。
 - 目标 skills 链接失效、误删或指向错误位置，需要重建。
 
@@ -28,7 +28,7 @@ metadata:
 
 当遇到以下情况时使用本技能：
 
-- 已使用 `skills add ... -g` 全局安装/更新了 skills，需要同步到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy 等本地 agent 平台
+- 已使用 `skills add ... -g` 全局安装/更新了 skills，需要同步到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy、Qoder 等本地 agent 平台
 - 新增了一个本地 agent 平台，需要把现有 skills 分发过去
 - 某个平台的 skills 目录被误删或链接失效，需要重建
 
@@ -50,6 +50,7 @@ metadata:
 | QoderWork | `~/.qoderworkcn/skills`                                     |
 | Kimi Work | `~/AppData/Roaming/kimi-desktop/daimon-share/daimon/skills` |
 | CodeBuddy | `~/.codebuddy/skills`                                       |
+| Qoder     | `~/.qoder/skills`                                           |
 
 ## 使用方式
 

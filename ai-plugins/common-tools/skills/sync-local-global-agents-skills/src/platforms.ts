@@ -27,4 +27,8 @@ export const DEFAULT_PLATFORMS: AgentPlatform[] = [
 		name: "CodeBuddy",
 		skillsDir: path.join(homedir(), ".codebuddy", "skills"),
 	},
+	{
+		name: "Qoder",
+		skillsDir: path.join(homedir(), ".qoder", "skills"),
+	},
 ];

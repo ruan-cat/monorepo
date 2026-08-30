@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 本地全局 Agent Skills 同步器兜底脚本（Bash）。
-# 将 ~/.agents/skills 作为目录级软链接分发到 WorkBuddy、QoderWork、Kimi Work 平台。
+# 将 ~/.agents/skills 作为目录级软链接分发到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy、Qoder 平台。
 # 在无法使用 Node/TypeScript 主脚本时作为兜底方案。
 
 set -euo pipefail
@@ -92,6 +92,7 @@ platforms=(
   "QoderWork:${HOME_WIN}/.qoderworkcn/skills"
   "Kimi Work:${HOME_WIN}/AppData/Roaming/kimi-desktop/daimon-share/daimon/skills"
   "CodeBuddy:${HOME_WIN}/.codebuddy/skills"
+  "Qoder:${HOME_WIN}/.qoder/skills"
 )
 
 backup_dir() {
