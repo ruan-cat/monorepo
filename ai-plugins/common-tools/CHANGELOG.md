@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+## [10.9.0] - 2026-08-31
+
+### Changed
+
+- **install-mcp**：`metadata.version` `1.0.0` -> `1.1.0`。
+- install-mcp 新增 MiniMax Code 与 Qoder 配置目标。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.9.0`。
+
 ## [10.8.0] - 2026-08-31
 
 ### Changed

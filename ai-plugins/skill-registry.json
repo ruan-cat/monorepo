@@ -130,7 +130,7 @@
       "plugin": "common-tools",
       "name": "install-mcp",
       "description": "Use when 用户需要盘点、规划或批量安装 MCP 配置，确认各 agent 的配置目标、JSON 或 TOML 形态、合并策略、dry-run、备份或第三方 server entry 时。",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entry": "ai-plugins/common-tools/skills/install-mcp/SKILL.md"
     },
     {

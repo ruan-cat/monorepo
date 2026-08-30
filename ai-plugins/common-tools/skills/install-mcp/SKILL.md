@@ -4,7 +4,7 @@ description: >-
   Use when 用户需要盘点、规划或批量安装 MCP 配置，确认各 agent 的配置目标、JSON 或 TOML 形态、合并策略、dry-run、备份或第三方 server entry 时。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # install-mcp
@@ -19,17 +19,19 @@ metadata:
 
 ## 已知配置目标
 
-| 平台        | 配置路径                                             | 格式 |
-| :---------- | :--------------------------------------------------- | :--- |
-| Codex       | `~/.codex/config.toml`                               | TOML |
-| Codex       | `~/.codex/config-2026-6-13-bg.toml`                  | TOML |
-| Claude Code | `~/.claude.json`                                     | JSON |
-| Cursor      | `~/.cursor/mcp.json`                                 | JSON |
-| WorkBuddy   | `~/.workbuddy/mcp.json`                              | JSON |
-| WorkBuddy   | `~/.workbuddy/.mcp.json`                             | JSON |
-| ZCode       | `~/.zcode/cli/config.json`                           | JSON |
-| Qoder       | `~/AppData/Roaming/Qoder/SharedClientCache/mcp.json` | JSON |
-| Kiro        | `~/.kiro/settings/mcp.json`                          | JSON |
+| 平台         | 配置路径                                             | 格式 |
+| :----------- | :--------------------------------------------------- | :--- |
+| Codex        | `~/.codex/config.toml`                               | TOML |
+| Codex        | `~/.codex/config-2026-6-13-bg.toml`                  | TOML |
+| Claude Code  | `~/.claude.json`                                     | JSON |
+| Cursor       | `~/.cursor/mcp.json`                                 | JSON |
+| WorkBuddy    | `~/.workbuddy/mcp.json`                              | JSON |
+| WorkBuddy    | `~/.workbuddy/.mcp.json`                             | JSON |
+| ZCode        | `~/.zcode/cli/config.json`                           | JSON |
+| Qoder        | `~/AppData/Roaming/Qoder/SharedClientCache/mcp.json` | JSON |
+| Qoder        | `~/.qoder/mcp.json`                                  | JSON |
+| MiniMax Code | `~/.minimax/mcp/mcp.json`                            | JSON |
+| Kiro         | `~/.kiro/settings/mcp.json`                          | JSON |
 
 ## 配置合并规则
 
@@ -45,6 +47,28 @@ WorkBuddy 可能向子进程注入 Node 参数。对需要隔离 Node 参数的 
 
 变更 WorkBuddy 的 MCP entry 可能触发新的信任审批；写入后应提示重启应用并重新确认 server 连接状态。
 
+## MiniMax Code 特别处理
+
+`~/.minimax/mcp/mcp.json` 是 MiniMax Code 本地 agent 工具的用户级 MCP 配置，顶层结构为 `mcpServers`，但 entry 字段比通用 JSON 配置更丰富：
+
+- stdio 形态 entry 使用 `command`、`args`、`env`；远程形态 entry 使用 `url` + `type: "streamable-http"`，可带 `headers` 鉴权字段。
+- entry 常携带 `enabled`、`configured`、`builtin`、`description`、`timeout` 等平台元数据字段，合并时必须原样保留，不得删除或改写。
+- `builtin: true` 的 entry 是 MiniMax Code 自管的内置服务；批量安装只新增或更新非内置 entry，不修改、不删除内置 entry。
+- 新增 entry 时优先对照该文件内既有非内置 entry 的字段形态，不臆测平台必需字段集合。
+
+该文件及同目录的 `tokens.json` 可能包含 Bearer token 或 API key：dry-run 预览、备份与报告不得原样输出这些敏感字段，也不得将其写入提交或日志。
+
+## Qoder 特别处理
+
+`~/.qoder/mcp.json` 是单纯的 Qoder agent 工具的用户级 MCP 配置，顶层结构为 `mcpServers`，entry 为极简形态（通常只有 `command`、`args`，可选 `type`）。合并时保持极简形态，不要注入其他平台的元数据字段。注意目标文件是 `mcp.json`，不是同目录的 `mcp-router.json`。
+
+Qoder 系目录归属极易混淆，写入前必须逐个审计目录归属：
+
+- `~/.qoder-cli`、`~/.qoder-cn`、`~/.qoderwork`、`~/.qoderworkcn` 等是不同产品的目录，都不是单纯的 Qoder。
+- 其中 `~/.qoder-cn/mcp.json`、`~/.qoderworkcn/mcp.json` 同样真实存在，但它们不是本技能的可写目标；不得因名称相似而跨写。
+- 清单中的 `~/AppData/Roaming/Qoder/SharedClientCache/mcp.json` 与 `~/.qoder/mcp.json` 是两个相互独立的配置位置，写入前必须明确本次针对哪一个。
+- `~/.qoder` 目录下还有 `extensions/`、`plugins/`、`skills/`、`memories/` 等 Qoder 运行态目录；批量 MCP 安装只写 `mcp.json`，不触碰其他目录。
+
 ## Memorix 与第三方 MCP 调度
 
 | 场景              | 调度规则                                                                          |
@@ -55,7 +79,7 @@ WorkBuddy 可能向子进程注入 Node 参数。对需要隔离 Node 参数的 
 
 ## Future candidates
 
-Antigravity、Trae、Gemini CLI 等仅为候选平台。只有在找到可靠、可验证的 MCP 配置路径及其格式后，才可加入“可写目标”；不得因常见命名或历史印象写死路径。
+Antigravity、Trae、Gemini CLI 等仅为候选平台。只有在找到可靠、可验证的 MCP 配置路径及其格式后，才可加入“可写目标”；不得因常见命名或历史印象写死路径。Qoder 系相似目录（如 `~/.qoder-cn`、`~/.qoderworkcn`）中已存在的 `mcp.json` 属于不同产品，未经归属确认与用户明确授权，不得纳入可写目标。
 
 ## 执行与验收
 
