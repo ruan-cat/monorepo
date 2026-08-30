@@ -1,10 +1,10 @@
 ---
 name: install-skills
 description: >-
-  Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略时。
+  Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略，或排查清除 Kimi Desktop（Daimon）等第三方供应器对全局技能目录的污染时。
 user-invocable: true
 metadata:
-  version: "1.0.4"
+  version: "1.1.0"
 ---
 
 # install-skills
@@ -28,12 +28,13 @@ metadata:
 
 ## 任务类型速查
 
-| 用户请求                       | 出口                                   | 需要读的章节                     |
-| :----------------------------- | :------------------------------------- | :------------------------------- |
-| 给出完整 `skills add` 命令     | **按用户意图直接执行，看摘要验收**     | 仅“第一步”                       |
-| 盘点、规划，或安装命令信息不全 | 最小检查后给出规划或确认               | “职责边界”“调度与验收”           |
-| 卸载或删除 skills              | `skills remove` + 双重验收             | “全局技能卸载流程”               |
-| 同步已安装 skills 到本地平台   | 调度 `sync-local-global-agents-skills` | “已验证可执行目标”至“调度与验收” |
+| 用户请求                       | 出口                                   | 需要读的章节                           |
+| :----------------------------- | :------------------------------------- | :------------------------------------- |
+| 给出完整 `skills add` 命令     | **按用户意图直接执行，看摘要验收**     | 仅“第一步”                             |
+| 盘点、规划，或安装命令信息不全 | 最小检查后给出规划或确认               | “职责边界”“调度与验收”                 |
+| 卸载或删除 skills              | `skills remove` + 双重验收             | “全局技能卸载流程”                     |
+| 同步已安装 skills 到本地平台   | 调度 `sync-local-global-agents-skills` | “已验证可执行目标”至“调度与验收”       |
+| 排查或清除第三方污染           | 标记文件检测 + 黑名单清除              | “Kimi Desktop（Daimon）污染排查与清除” |
 
 ## 职责边界
 
@@ -84,6 +85,28 @@ $matches = @($items | Where-Object {
 
 若保留某个同义或关联 skill，或残留目录不归 CLI 管理，必须逐项说明其来源、是否注册、保留或后续处理理由。
 
+## Kimi Desktop（Daimon）污染排查与清除
+
+Kimi Desktop 的 Daimon 供应器（`kimi-daimon setup`）会把内置技能作为固定步骤写入规范源目录 `~/.agents/skills`。这些技能不是 `skills` CLI 安装的，注册表没有来源记录，会污染所有 agent 共享的技能面，且随 Kimi Desktop 更新或重新供应再次写入。
+
+### 污染检测
+
+发现全局技能目录出现用户未主动安装的 skills，或例行盘点时，先检查标记文件：`~/.agents/skills/.daimon-managed-builtin-skills.json`。标记文件存在即为 Kimi Desktop 污染证据；其 `skills` 数组是本次清除黑名单，`sourceRoot` 指向 Kimi Desktop 应用内的捆绑技能源。
+
+### 清除流程
+
+1. 读取标记文件的 `skills` 数组作为黑名单；黑名单是动态的，不得硬编码技能名或数量。
+2. 校验黑名单条目合法性：仅处理符合 `^[a-z0-9][a-z0-9-]*$` 的名称，其余报告并跳过。
+3. 删除前逐条取证：`lstat` 确认每个条目类型；是符号链接时只移除链接本身；是真实目录时，将其 `SKILL.md` 与 `sourceRoot` 比对确认归属；内容不一致时记录为版本漂移，仍按黑名单处理但如实报告。
+4. 删除每个黑名单条目对应目录，最后删除标记文件本身；标记文件删除后，污染检测才可复现。
+5. 双重验收：`~/.agents/skills` 中黑名单目录残留为 `0`、标记文件不存在、各 agent 入口不再列出对应技能。
+
+### 边界与复发警示
+
+- 只删除黑名单点名的技能；用户通过 `skills add` 或其他途径安装的同名技能不得误删。用户需要其他厂商的同名技能时，删除后通过 `skills add` 流程重装。
+- Kimi Desktop 更新或 Daimon 重新供应会再次写入这些内置技能并重建标记文件；每次 Kimi Desktop 更新后，若要保持全局目录干净，重新执行本流程。
+- 证据链、事件时间线与历史清除记录见 [`references/kimi-desktop-daimon-contamination.md`](references/kimi-desktop-daimon-contamination.md)。
+
 ## 已验证可执行目标
 
 以下目标是本技能发布时从 `DEFAULT_PLATFORMS` 摘录的可读快照，已由 `sync-local-global-agents-skills` 证实支持从 `~/.agents/skills` 建立目录级链接。实际执行前仍应重新定位已安装的同步技能并读取其 `DEFAULT_PLATFORMS`：
@@ -96,10 +119,13 @@ $matches = @($items | Where-Object {
 | QoderWork | `~/.qoderworkcn/skills`                                     | 交给 `sync-local-global-agents-skills` |
 | Kimi Work | `~/AppData/Roaming/kimi-desktop/daimon-share/daimon/skills` | 交给 `sync-local-global-agents-skills` |
 | CodeBuddy | `~/.codebuddy/skills`                                       | 交给 `sync-local-global-agents-skills` |
+| Qoder     | `~/.qoder/skills`                                           | 交给 `sync-local-global-agents-skills` |
+
+Qoder 指 Qoder IDE 与 Qoder agent 本体，专属 skills 目录为 `~/.qoder/skills`。不得与同机其他形似目录混淆：`~/.qoder-cli`（Qoder CLI）、`~/.qoder-cn`（Qoder CN IDE）、`~/.qoderwork` 与 `~/.qoderworkcn`（QoderWork / QoderWork CN，其中 `~/.qoderworkcn/skills` 已作为 QoderWork 平台单列）。
 
 ## 生态入口与待验证候选
 
-Claude Code、Codex、Cursor、Antigravity、Trae、Qoder 等通常通过全局 skills 目录或 `skills` CLI 生态读取 skills。未在已验证资料中确认独立 skills 目录时，只能视为待验证候选，不能据此创建链接或复制目录。
+Claude Code、Codex、Cursor、Antigravity、Trae 等通常通过全局 skills 目录或 `skills` CLI 生态读取 skills。未在已验证资料中确认独立 skills 目录时，只能视为待验证候选，不能据此创建链接或复制目录。
 
 确认新目标前，至少核验：
 
