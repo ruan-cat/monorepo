@@ -137,8 +137,8 @@
       "id": "install-skills",
       "plugin": "common-tools",
       "name": "install-skills",
-      "description": "Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略时。",
-      "version": "1.0.4",
+      "description": "Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略，或排查清除 Kimi Desktop（Daimon）等第三方供应器对全局技能目录的污染时。",
+      "version": "1.1.0",
       "entry": "ai-plugins/common-tools/skills/install-skills/SKILL.md"
     },
     {
@@ -185,8 +185,8 @@
       "id": "sync-local-global-agents-skills",
       "plugin": "common-tools",
       "name": "sync-local-global-agents-skills",
-      "description": "Use when 已完成全局 skills 安装后，需要把 `~/.agents/skills` 后置同步到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy 等本地平台，或显式修复本地 skills 链接。 这是后置同步、显式同步和链接修复工具，不是 `skills add` 的替代安装器。 支持 dry-run、自动备份、错误链接替换，并可按需刷新 memorix 内部 skills。 触发关键词：sync-local-global-agents-skills、同步 skills、全局 skills 同步。",
-      "version": "0.1.2",
+      "description": "Use when 已完成全局 skills 安装后，需要把 `~/.agents/skills` 后置同步到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy、Qoder 等本地平台，或显式修复本地 skills 链接。 这是后置同步、显式同步和链接修复工具，不是 `skills add` 的替代安装器。 支持 dry-run、自动备份、错误链接替换，并可按需刷新 memorix 内部 skills。 触发关键词：sync-local-global-agents-skills、同步 skills、全局 skills 同步。",
+      "version": "0.2.0",
       "entry": "ai-plugins/common-tools/skills/sync-local-global-agents-skills/SKILL.md"
     },
     {

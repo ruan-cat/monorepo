@@ -7,6 +7,15 @@
 
 ## [Unreleased]
 
+## [10.8.0] - 2026-08-31
+
+### Changed
+
+- **install-skills**：`metadata.version` `1.0.4` -> `1.1.0`。
+- **sync-local-global-agents-skills**：`metadata.version` `0.1.2` -> `0.2.0`。
+- install-skills 与 sync-local-global-agents-skills 新增 Qoder 已验证目录级同步目标及 qoder 系目录消歧约束。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.8.0`。
+
 ## [10.7.0] - 2026-08-27
 
 ### Changed

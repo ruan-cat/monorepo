@@ -1,6 +1,6 @@
 {
 	"name": "common-tools",
-	"version": "10.7.0",
+	"version": "10.8.0",
 	"description": "面向日常研发的通用工具与工作流技能集合。",
 	"author": {
 		"name": "阮喵喵",
@@ -10,12 +10,7 @@
 	"homepage": "https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/common-tools",
 	"repository": "https://github.com/ruan-cat/monorepo",
 	"license": "MIT",
-	"keywords": [
-		"开发工具",
-		"开发流程",
-		"技能",
-		"Codex"
-	],
+	"keywords": ["开发工具", "开发流程", "技能", "Codex"],
 	"skills": "./skills",
 	"interface": {
 		"displayName": "通用开发工具",
@@ -23,9 +18,7 @@
 		"longDescription": "为日常研发提供项目配置、代码提交、协作治理等通用技能。Codex 仅加载共享技能目录，不包含 Claude Code 专属命令、代理和钩子。",
 		"developerName": "阮喵喵",
 		"category": "开发工具",
-		"capabilities": [
-			"技能"
-		],
+		"capabilities": ["技能"],
 		"websiteURL": "https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/common-tools",
 		"brandColor": "#149149",
 		"defaultPrompt": [
