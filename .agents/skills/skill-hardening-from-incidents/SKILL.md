@@ -2,7 +2,7 @@
 name: skill-hardening-from-incidents
 description: Use when upgrading, hardening, or creating skills from reports, incident reviews, historical lessons, agent-team feedback, or repeated workflow failures
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 user-invocable: true
 ---
 
@@ -41,6 +41,16 @@ user-invocable: true
 9. 完成前检查孤立标题、失效链接、未登记的删除块、archive 误入活跃导航、外发 skill 回源依赖和重复/冲突规则；任何无法解释的减少都视为未完成。
 
 完整契约见 [`reference/retention-contract.md`](reference/retention-contract.md)。
+
+## 最小修改与差异门禁
+
+升级已有 skill 时，行为迁移不等于整份正文重写。执行前后必须遵守：
+
+1. 先读取目标文件的 `HEAD` 原文，并分别检查 `git diff -- <target>` 与 `git diff --cached -- <target>`，确认 staged/unstaged 边界。
+2. 列出“必须改变”和“必须保持不变”的内容；正常标题、段落、示例、分支、命令、标点和措辞默认属于保护区。
+3. 使用定点 patch 只修改与用户需求直接冲突的部分；禁止为了“更清晰”重排、压缩、改写或规范化未冲突文本。
+4. 每个新增、删除或替换的 diff 块都必须能对应一条明确需求；出现无法解释的减少或新增时，停止继续编辑并恢复到基线重新开始。
+5. 完成前由主代理同时审阅 staged 与 unstaged diff、变更统计和 `git diff --check`；不能只看最终文件或只相信摘要。
 
 ## 当前规则与历史快照边界
 
