@@ -82,7 +82,7 @@
       "plugin": "common-tools",
       "name": "init-prettier-git-hooks",
       "description": "Use when 初始化或纠偏 Node.js 项目的 Prettier、lint-staged、simple-git-hooks、LF 行尾配置，或需要在 GitHub PR 云端任务中安装 Node/pnpm 环境并安全格式化 PR 改动；适用于 prettier-plugin-lint-md 版本漂移、插件加载失败、git hooks、EOL、CRLF/LF 和幽灵修改问题。",
-      "version": "3.2.0",
+      "version": "4.0.0",
       "entry": "ai-plugins/common-tools/skills/init-prettier-git-hooks/SKILL.md"
     },
     {
