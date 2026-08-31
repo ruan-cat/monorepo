@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 直接导入 sxzz 的通用 Node.js 初始化 action：checkout、pnpm、Node、缓存由它负责。
-      # auto-install 必须关闭：该 action 未提供 PR head ref 输入，后续需先检出 head 再在正确提交上安装依赖。
+      # auto-install 必须关闭：该 action 未提供 PR head ref 输入，后续需先检出 head 再在正确提交上无条件安装依赖。
       - name: 使用 sxzz 初始化 Node.js 与 pnpm 环境
         uses: sxzz/workflows/setup-js@main
         with:

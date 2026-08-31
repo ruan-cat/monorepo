@@ -6,12 +6,12 @@ description: >-
   prettier-plugin-lint-md 版本漂移、插件加载失败、git hooks、EOL、CRLF/LF 和幽灵修改问题。
 user-invocable: true
 metadata:
-  version: "3.2.0"
+  version: "4.0.0"
 ---
 
 # 初始化 Prettier + Git Hooks
 
-本技能由 AI 审计目标项目后逐文件定点修改；只分发操作说明、五份配置模板和历史引用。不得创建或调用迁移 CLI、运行时代码或批量覆盖工具。先确认配置所有权和用户改动，再执行最小修改。
+本技能由 AI 审计目标项目后逐文件定点修改；只分发操作说明、六份配置模板和历史引用。不得创建或调用迁移 CLI、运行时代码或批量覆盖工具。先确认配置所有权和用户改动，再执行最小修改。
 
 ## 最高优先级契约
 
@@ -33,14 +33,14 @@ metadata:
 3. 扫描并逐个读取根 `package.json` 的 `prettier` 字段、`prettier.config.*` 与 `.prettierrc*`。发现多个活跃来源、继承关系不明或无法确定唯一有效配置时，停止并请用户决定，禁止新建双配置。
 4. 在修改前列出将创建或定点修改的文件。依赖安装、Hook 安装、`git add --renormalize .` 等会修改 package、lockfile、`.git/hooks` 或暂存区的动作，必须获得用户明确授权。
 
-## 2. 五份模板
+## 2. 六份模板
 
 - `templates/.editorconfig`
 - `templates/.gitattributes`
 - `templates/prettier.config.mjs`
 - `templates/lint-staged.config.mjs`
 - `templates/simple-git-hooks.mjs`
-- `templates/cloud-pr-prettier.yml`（可选的 GitHub PR 云端格式化工作流）
+- `templates/cloud-pr-prettier.yml`（必须安装的 GitHub PR 云端格式化工作流）
 
 目标文件缺失时可以复制对应模板；存在时必须逐文件定点合并，保留项目特化规则与事故说明注释，不得整文件覆盖。尤其 `prettier.config.mjs` 顶层 lint-md `plugins` 上方的完整 JSDoc 是受保护知识块：它记录版本漂移、对象方案、override 方案和三条入口的纠偏。不得删除、压缩、挪到无关位置或改成普通行注释；需要调整时先更新对应 `references/`，再保持 JSDoc 与现行契约一致。
 
@@ -125,9 +125,9 @@ git status --short
 
 `pnpm exec lint-staged --debug` 不是只读检查：它会执行 lint-staged 任务，可能改写文件、暂存区并触发 stash 流程。只有用户授权后，才运行该命令、`pnpm exec simple-git-hooks`、真实提交验证或 `git add --renormalize .`；执行前后必须展示 `git status --short`、`git diff` 和 `git diff --cached`。
 
-## 6. GitHub PR 云端格式化（可选）
+## 6. GitHub PR 云端格式化（无条件安装）
 
-当用户要求在 GitHub PR 场景自动格式化时，才创建 `templates/cloud-pr-prettier.yml` 的工作流；不要把它默认为所有项目启用。该工作流必须满足以下边界：
+将 `templates/cloud-pr-prettier.yml` 无条件复制到目标项目的 `.github/workflows/`；不得把该模板当作可选安装项。在同仓 PR 的安全 job 内，模板校准 PR head 后必须无条件执行 `pnpm install --frozen-lockfile`，不得依赖 `setup-js` 的 `auto-install` 或通过条件跳过依赖安装；fork PR 仍按下方安全边界跳过写回 job。该工作流必须满足以下边界：
 
 1. 使用 `pull_request` 事件（`opened`、`synchronize`、`reopened`、`ready_for_review`）和按 PR 编号的 concurrency；禁止为了取得写权限改用 `pull_request_target`，也不要在不检查仓库归属时执行来自 fork 的代码。
 2. 仅当 `github.event.pull_request.head.repo.full_name == github.repository` 时允许提交和推送。fork PR 只能执行只读检查，不能把不受信任的代码与写权限放进同一个 job。

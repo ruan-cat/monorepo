@@ -6,11 +6,11 @@ sxzz 系列 Node 项目的可复用 `setup-js` composite action 将环境初始�
 
 ## 推荐工作流
 
-将 [../templates/cloud-pr-prettier.yml](../templates/cloud-pr-prettier.yml) 复制到目标项目的 `.github/workflows/` 后，按项目实际脚本和权限审查。模板使用 `pull_request`，只对同仓 PR 写回；fork PR 不进入写回 job。`pull_request_target` 不得作为替代方案，因为它会把目标分支权限暴露给不受信任的 PR 代码。
+将 [../templates/cloud-pr-prettier.yml](../templates/cloud-pr-prettier.yml) 无条件复制到目标项目的 `.github/workflows/`，不得省略该模板或其依赖安装步骤。模板使用 `pull_request`，在同仓 PR 的安全 job 内校准 PR head 后无条件执行 `pnpm install --frozen-lockfile`，只对同仓 PR 写回；fork PR 不进入写回 job。`pull_request_target` 不得作为替代方案，因为它会把目标分支权限暴露给不受信任的 PR 代码。
 
 ## 初始化规则
 
-- `sxzz/workflows/setup-js@main` 负责 pnpm、Node 与 pnpm cache 初始化；模板传入 `fetch-all: "true"`、`persist-credentials: "true"` 和可由仓库变量覆盖的 Node 版本。
+- `sxzz/workflows/setup-js@main` 负责 pnpm、Node 与 pnpm cache 初始化；模板传入 `fetch-all: "true"`、`persist-credentials: "true"` 和可由仓库变量覆盖的 Node 版本。其 `auto-install` 必须保持关闭，依赖安装由模板在 PR head 校准后无条件显式执行。
 - `setup-js` 当前没有 PR head `ref` 输入。为避免其内部 checkout 的 merge 提交被推回来源分支，模板将 `auto-install` 设为 `false`，随后显式 checkout PR head，再在该 head 上执行一次依赖安装。需要比较基线时通过事件中的 `base.sha` 获取。
 - 模板在安装前检查 `package.json`、`pnpm-lock.yaml` 与 `package.json#packageManager` 的 `pnpm@` 声明；这些是可复现的独立运行前提。若缺失 lockfile，应先停下来让维护者决定是否允许非 frozen 安装。
 - Node 版本优先读取 `package.json#engines.node`、`.nvmrc` 或项目约定；`lts/*` 只作为无法识别时的保守默认值。
