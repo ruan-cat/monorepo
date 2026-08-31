@@ -989,3 +989,4 @@ metadata:
 - 2026-08-11 — Node.js 24 下 VitePress 宽 barrel 的 `consola` 间接解析与 utils 并行 tsup 清理声明竞态：`2026-08-11-vitepress-node24-pnpm-entrypoint.md`
 - 2026-08-12 — Turbo 宽缓存输出掩盖真实包依赖闭包缺口：`2026-08-12-turbo-cache-output-and-package-closure.md`
 - 2026-08-31 — 双 Qoder 会话并行重载打满机器 CPU：`2026-08-31-dual-qoder-session-cpu-saturation.md`
+- 2026-09-01 — shadcn-docs-nuxt Vercel Function runtime closure、Nuxt 世代漂移与 READY 口径误导：`2026-09-01-init-shadcn-docs-nuxt-vercel-runtime-closure.md`

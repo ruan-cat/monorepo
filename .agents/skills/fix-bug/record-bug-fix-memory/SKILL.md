@@ -113,6 +113,7 @@ metadata:
 - `2026-08-12-turbo-cache-output-and-package-closure.md` — Turbo 的 `**/dist/**` 宽缓存输出会越过任务自身产物边界，掩盖并放大工作区依赖布局问题；收紧为 `dist/**` / `.output/**` 后，用全新 CI 继续暴露并补齐每个发布包自己的构建工具与运行时依赖闭包。
 - `2026-08-23-init-shadcn-docs-nuxt-production-boundaries.md` — `shadcn-docs-nuxt` 分发模板泄漏、production source alias、Element Plus npm alias 与 Turbo cache 误导的边界加固。
 - `2026-08-31-dual-qoder-session-cpu-saturation.md` — 双 Qoder 会话并行重载把机器 CPU 打满；等待会话选择保持 turn 的内联阻塞等待，放大了并行负载；修复方式为立即静默并改为用户触发式交接，等对方完成后再合并发布，且禁止在批量文件变更中途杀对方进程。
+- `2026-09-01-init-shadcn-docs-nuxt-vercel-runtime-closure.md` — shadcn-docs-nuxt 在 Vercel Function 的 `entities/decode` runtime closure、Nuxt 世代漂移与错误 READY 口径；修复方式为 manifest/override/构建边收敛，生产移除 Nitro externals 常驻配置，并用 Vercel HTTP、日志与可见浏览器证据闭环。
 
 新增事故记录时，先创建独立案例文件，再在本索引追加一行摘要。**禁止**将完整事故正文直接写入 SKILL.md。
 
