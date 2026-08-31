@@ -8,10 +8,11 @@ description: >-
   模块兼容、Nuxt Content/H3 版本漂移、prerender、SSR externalization、MDC 语法错误、
   Windows 构建假卡死等故障。触发词包括“搭建组件库文档”“接入 shadcn-docs-nuxt”“重做 Nuxt 文档站”、
   “迁移文档模板”以及 Content cache/search API 500、`ERR_INVALID_URL`、`sendError` 导出缺失、
-  `entities/decode`、`@vueuse/core`、`registerMessageResolver`、`prerender:routes` 等错误信号。
+  `entities/decode`、`FUNCTION_INVOCATION_FAILED`、Vercel `READY` 但请求失败、`rolldown@nightly` 解析失败、
+  `@vueuse/core`、`registerMessageResolver`、`prerender:routes` 等错误信号。
 user-invocable: true
 metadata:
-  version: "1.1.2"
+  version: "1.3.0"
 ---
 
 # 初始化 `shadcn-docs-nuxt` 组件库文档
@@ -33,7 +34,7 @@ metadata:
 | 模板文件                                                                 | 对应文档站文件            | 说明                             |
 | ------------------------------------------------------------------------ | ------------------------- | -------------------------------- |
 | [`templates/nuxt.config.minimal.ts`](templates/nuxt.config.minimal.ts)   | `nuxt.config.ts`          | 最小启动骨架                     |
-| [`templates/nuxt.config.full.ts`](templates/nuxt.config.full.ts)         | `nuxt.config.ts`          | 生产级完整配置（含全部兼容补丁） |
+| [`templates/nuxt.config.full.ts`](templates/nuxt.config.full.ts)         | `nuxt.config.ts`          | 生产基线（默认保留 Nitro trace） |
 | [`templates/app.config.ts`](templates/app.config.ts)                     | `app.config.ts`           | 站点元信息与 UI 配置             |
 | [`templates/tailwind.config.js`](templates/tailwind.config.js)           | `tailwind.config.js`      | 完整 Tailwind + shadcn-vue 主题  |
 | [`templates/assets/css/tailwind.css`](templates/assets/css/tailwind.css) | `assets/css/tailwind.css` | CSS 入口 + 亮/暗主题变量         |
@@ -61,17 +62,18 @@ metadata:
 
 ---
 
-## 核心原则（5 条铁律）
+## 核心原则（6 条铁律）
 
 1. **保持精简**：`nuxt.config.ts` 和 `app.config.ts` 先最小化，不先堆功能。
 2. **先跑通再美化**：优先确保 `dev` / `build` 稳定，再做样式和内容扩展。
 3. **先修运行链再修样式**：交互异常（暗黑模式、侧边栏折叠失效）先查 hydration 和模块导入报错，不要先改 CSS。
 4. **避免错误扩展**：不要第一时间折腾 i18n / icon 自定义方案，先使用模板默认可用路径。
 5. **内容语法严格**：MDC 容器语法要标准化，参见 [`references/mdc-prettier.md`](references/mdc-prettier.md)。
+6. **生产闭包先证据后配置**：Vercel `READY` 只代表部署编排完成，不代表 Function runtime 可用；必须把部署包 manifest、最终 artifact、远端请求和运行日志串成证据链。
 
 ---
 
-## 历史事故强约束（11 条记忆）
+## 历史事故强约束（14 条记忆）
 
 执行本技能时，**必须默认带着这些"已发生过"的事故记忆**：
 
@@ -86,6 +88,9 @@ metadata:
 9. **final Nitro OOM 与 standalone `MODULE_NOT_FOUND` 必须回到首个失败门**：前者需要测量堆与产物阶段，后者需要区分 Vite SSR transform、Nitro inline、trace 与 manifest，不能用宽配置掩盖。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
 10. **Turbo cache 命中不等于 runtime closure 可信**：只有诊断 cache 可信度或 cache/artifact 证据冲突时，才执行 `turbo run <task> --force`；常规生产验收不执行该命令，但必须启动 `.output` server 并完成 HTTP smoke。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
 11. **`nuxt-og-image` 也属于 Nuxt 世代边界**：Nuxt 3 保守基线必须将 `nuxt-og-image` 固定为 `5.1.9`；`5.1.10+` 可能解析 Nuxt 4 的 `@nuxt/kit`/H3 v2。仅固定 `h3: 1.15.11` 不足以约束这个传递模块，必须在根 `package.json` 使用 `pnpm.overrides`，并用 `pnpm why nuxt-og-image @nuxt/kit h3` 复核实际树。→ 见 [`references/incident-repair.md`](references/incident-repair.md)
+12. **Vercel `READY` 不等于 runtime 通过**：READY 后必须请求部署 URL 的页面与 Content cache/search API，并读取 Function runtime 日志；没有 HTTP/日志证据时只能标记 `candidate` 或 `needs_check`，不能写“生产通过”。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
+13. **修改前后保护 dirty tree**：先记录 `git status --short --untracked-files=all` 与目标 diff；禁止在时间压力下无授权 `git add .`、覆盖、reset 或把用户脏改动混入验证/提交。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
+14. **构建工具 override 必须按包和 registry 证据收窄**：`tsdown@0.3.1>rolldown` 仅用于复现 `rolldown@nightly` registry 解析阻断；禁止用 root 全局 `rolldown` override 掩盖 peer/API 不兼容，必须先检查 `pnpm why/list`、manifest、lockfile 与 clean fresh install。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
 
 ---
 
@@ -99,6 +104,8 @@ metadata:
 出现 final Nitro OOM、standalone `MODULE_NOT_FOUND`、production graph 被 alias 或宽 externalization 放大、
 Turbo cache 与 `.output` 不一致、artifact 无法启动或 HTTP smoke 失败时，**先读取**
 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)。
+
+修改任何 `nuxt.config.ts`、manifest 或 lockfile 前，先读取当前工作树状态；部署验证时必须区分本地、CI、Vercel 和浏览器四类证据。
 
 检修时必须先回答三件事：
 
@@ -179,19 +186,37 @@ docs-site/
 
 执行后至少提供以下证据：
 
-| 验证项    | 方法                                                                                                           |
-| --------- | -------------------------------------------------------------------------------------------------------------- |
-| 启动      | `pnpm --filter <pkg> dev` → 首页 HTTP 200                                                                      |
-| 依赖      | `pnpm list` / `pnpm why h3` → 核心包实际版本可解释                                                             |
-| Nuxt 世代 | `pnpm why nuxt-og-image @nuxt/kit h3` → `nuxt-og-image@5.1.9` 且不出现 Nuxt 4/H3 v2 混入                       |
-| Content   | fresh dev 请求 cache/search API → HTTP 200 且索引非空                                                          |
-| 构建      | `pnpm --filter <pkg> build` → 有 `.output` 产物                                                                |
-| 生产图    | 以首个失败门检查 alias、externalization、inline、trace 与实际部署包 manifest                                   |
-| 产物      | 必须启动 `.output` server → 关键页面与 Content API HTTP smoke 通过                                             |
-| 缓存诊断  | 只有诊断 cache 可信度或 cache/artifact 证据冲突时，才执行 `turbo run <task> --force`；常规生产验收不执行该命令 |
-| 交互      | 暗黑模式切换、侧边栏折叠可用                                                                                   |
-| 内容      | 抽查至少 1 个 `::demo-playground` 页面，无裸 marker 文本                                                       |
-| console   | 无阻断 hydration 的 `error`                                                                                    |
+| 验证项         | 方法                                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 启动           | `pnpm --filter <pkg> dev` → 首页 HTTP 200                                                                           |
+| 依赖           | `pnpm list` / `pnpm why h3` → 核心包实际版本可解释                                                                  |
+| Nuxt 世代      | `pnpm why nuxt-og-image @nuxt/kit h3` → `nuxt-og-image@5.1.9` 且不出现 Nuxt 4/H3 v2 混入                            |
+| Content        | fresh dev 请求 cache/search API → HTTP 200 且索引非空                                                               |
+| 构建           | `pnpm --filter <pkg> build` → 有 `.output` 产物                                                                     |
+| 生产图         | 以首个失败门检查 alias、externalization、inline、trace 与实际部署包 manifest                                        |
+| 产物           | 必须启动 `.output` server → 关键页面与 Content API HTTP smoke 通过                                                  |
+| 缓存诊断       | 只有诊断 cache 可信度或 cache/artifact 证据冲突时，才执行 `turbo run <task> --force`；常规生产验收不执行该命令      |
+| 交互           | 暗黑模式切换、侧边栏折叠可用                                                                                        |
+| 内容           | 抽查至少 1 个 `::demo-playground` 页面，无裸 marker 文本                                                            |
+| console        | 无阻断 hydration 的 `error`                                                                                         |
+| Vercel runtime | READY 后记录部署 URL、Function 日志、页面与 Content API 响应；未实测不得标记完成                                    |
+| 浏览器         | 使用可见浏览器走首页/组件 demo 用户路径，记录 console、hydration 与至少一个交互结果；没有浏览器工具时明确标记未完成 |
+
+### 生产闭包硬门（必须执行）
+
+按以下顺序推进，不得跳过或把后一个阶段的绿灯当成前一个阶段的修复：
+
+1. **保护写集**：保存 dirty-tree 快照，确认目标文件和用户改动边界。
+2. **锁定解析树**：fresh install 后运行 `pnpm why/list`，核对文档包 manifest、root trace 入口与 lockfile。
+3. **定位首错阶段**：将错误归属到 Vite SSR transform、Nitro Rollup、NFT trace、Function manifest 或 runtime startup。
+4. **最小变更**：优先修 manifest/入口；只有 exact error 证实所属阶段需要时才加窄 `noExternal`、`inline` 或 alias；生产默认不添加 `nitro.externals`。
+5. **本地产物**：启动 `.output/server/index.mjs`，请求页面与 Content cache/search，记录 PID、响应体和日志。
+6. **远端闭环**：Linux/Vercel 构建、Function artifact、部署 URL、HTTP smoke、运行日志和可见浏览器证据必须分别记录。
+7. **状态口径**：缺任何外部门时写 `candidate/needs_check`；只有所有可运行门通过后才写 `verified`，并保留 deployment ID/SHA。
+
+`compatibilityDate` 必须与 `nitro-api-development` 技能保持同一对象契约：同时列出 Cloudflare 与 Vercel 两个平台、各自的官方说明链接，并固定为 `2024-09-19`。它只代表目标 Nitro provider 的兼容基线，不是 `entities/decode` 或其他 runtime closure 的修复；不要退化为单字符串或从另一个项目盲抄日期。
+
+文档站 runtime `verified` 与 npm/插件发布是两条独立链路；本技能不把 `changeset`、registry、tarball 或 GitHub Release 的成功当作文档站运行时通过。任务同时要求发布时，另按项目发布技能建立独立证据链。
 
 ---
 
@@ -220,6 +245,8 @@ MDC 裸文本 / hydration mismatch → [`references/mdc-prettier.md`](references
 3. i18n 多语言路线（单语文档站先保持最小配置）
 4. icon 体系大改（先沿用模板可用默认方案）
 5. `ogImage: { enabled: false }`（直接启用会触发 500）
+6. 生产模板不得默认配置 `nitro.externals`；Windows trace workaround 只能按 [`references/windows.md`](references/windows.md) 作为本地、可回滚的诊断开关使用。
+7. 不得把 `tsdown` 的 registry 解析 workaround 扩大成 root 全局 `rolldown` override。
 
 ---
 
@@ -233,6 +260,9 @@ MDC 裸文本 / hydration mismatch → [`references/mdc-prettier.md`](references
 6. 把 `::demo-playground` 写成 `## ::demo-playground`。
 7. 在 Windows 下把"日志停住"直接判定为"进程卡死"而不先清理旧进程。
 8. 把历史上的 `prerender:routes` 清空钩子当成所有 `shadcn-docs-nuxt` 项目的默认配置；应先判断是否使用 document-driven Content。
+9. 把 Vercel `READY`、单次页面 `200` 或本地 build 结果写成生产 runtime 通过。
+10. 未检查 dirty tree 就覆盖配置、执行 `git add .` 或把用户改动带入 release/验证。
+11. 用 root 全局 `rolldown` override 让 `pnpm install` 暂时成功，却没有验证 tsdown 的 peer/range/API 兼容性。
 
 ---
 
@@ -243,3 +273,4 @@ MDC 裸文本 / hydration mismatch → [`references/mdc-prettier.md`](references
 1. 关键改动文件列表（配置、样式、内容）
 2. 运行与构建验证结果
 3. 若有风险项，给出下一步最小补救建议
+4. 明确状态是 `verified`、`candidate` 还是 `needs_check`，并列出未完成的 provider/浏览器证据门

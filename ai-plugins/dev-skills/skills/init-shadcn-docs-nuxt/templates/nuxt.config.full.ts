@@ -47,7 +47,12 @@ export default defineNuxtConfig({
 	// 基础配置
 	// ═══════════════════════════════════════════════════════════════════
 	extends: ["shadcn-docs-nuxt"],
-	compatibilityDate: "2025-05-13",
+	compatibilityDate: {
+		// https://v3.nitro.build/deploy/providers/cloudflare
+		cloudflare: "2024-09-19",
+		// https://nitro.build/deploy/providers/vercel#observability
+		vercel: "2024-09-19",
+	},
 	devtools: { enabled: true },
 
 	/**
@@ -204,25 +209,11 @@ export default defineNuxtConfig({
 	// ═══════════════════════════════════════════════════════════════════
 	// Nitro - 构建与预渲染
 	//
-	// Windows + pnpm workspace 环境下的特殊处理。
-	// 详见 references/windows.md
+	// 生产基线默认保留 Nitro/NFT trace，不配置 nitro.externals。
+	// Windows + pnpm workspace 的 trace 长尾只能按需使用
+	// references/windows.md 中的本地、可回滚 workaround；不要把它带入 Vercel/CI。
 	// ═══════════════════════════════════════════════════════════════════
 	nitro: {
-		externals: {
-			/**
-			 * Windows + pnpm workspace 下 nodeFileTrace（@vercel/nft）
-			 * 会长期占用高 CPU/内存，导致 nuxt build 卡在
-			 * "Building Nuxt Nitro server" 阶段不动。
-			 *
-			 * 这不是"卡死"，是 trace 在递归扫描 pnpm 的硬链 / .pnpm store，
-			 * 扫描范围爆炸性增长，做不完。
-			 *
-			 * 仅在设置 `SHADCN_DOCS_SKIP_NFT_TRACE=1` 后跳过 trace；
-			 * 单进程 `nuxi build --logLevel=verbose` 可验证是否生成
-			 * .output/server/index.mjs 并打印 Build complete!
-			 */
-			...(process.platform === "win32" && process.env.SHADCN_DOCS_SKIP_NFT_TRACE === "1" ? { trace: false } : {}),
-		},
 		prerender: {
 			/**
 			 * node-server 产物不依赖构建期全站静态化。

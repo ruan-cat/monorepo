@@ -14,7 +14,12 @@
  */
 export default defineNuxtConfig({
 	extends: ["shadcn-docs-nuxt"],
-	compatibilityDate: "2025-05-13",
+	compatibilityDate: {
+		// https://v3.nitro.build/deploy/providers/cloudflare
+		cloudflare: "2024-09-19",
+		// https://nitro.build/deploy/providers/vercel#observability
+		vercel: "2024-09-19",
+	},
 
 	ogImage: { enabled: false },
 

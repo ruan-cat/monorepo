@@ -25,6 +25,21 @@ pnpm --filter <docs-package> why h3
 
 `nuxt-og-image` 也必须纳入同一世代审查。`5.1.9` 仍使用 Nuxt 3 的 `@nuxt/kit` 依赖线；`5.1.10+` 的依赖范围切到 Nuxt 4 `@nuxt/kit`，其裸 `h3` import 可能解析到 H3 v2。只在文档包声明 `h3: 1.15.11` 不能约束该传递模块；主题仍声明更宽版本时，在根 `package.json` 增加 `pnpm.overrides.nuxt-og-image: 5.1.9`，并用 `pnpm why nuxt-og-image @nuxt/kit h3` 复核实际树。
 
+## `compatibilityDate` 统一契约
+
+文档站与纯 Nitro API 使用同一平台兼容日期对象，不能退化为单字符串：
+
+```ts
+compatibilityDate: {
+	// https://v3.nitro.build/deploy/providers/cloudflare
+	cloudflare: "2024-09-19",
+	// https://nitro.build/deploy/providers/vercel#observability
+	vercel: "2024-09-19",
+},
+```
+
+该对象只记录 Nitro provider 的兼容基线；它不会替代 `entities/decode` 的 manifest/trace/runtime closure 修复。修改日期或形状后，必须重新执行 `nuxt prepare`、构建和对应 provider 的 HTTP smoke。
+
 ## `prerender:routes` 的历史边界
 
 旧配置曾使用：

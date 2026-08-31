@@ -98,3 +98,40 @@ fresh install 后依次验证：实际解析到的 alias、最终 server bundle 
 | 部署       | 部署环境重复构建、启动和 HTTP smoke | 部署 artifact 与请求证据     | 本地 artifact 证据         |
 
 通过矩阵后，才可以把 runtime closure 视为已验证；任一门失败都回到该门，而不是跨阶段追加宽配置。
+
+## 强制状态与 provider 证据门
+
+### 修改前后保护写集
+
+在修改 `nuxt.config.ts`、workspace manifest 或 lockfile 前后，都记录：
+
+```powershell
+git status --short --untracked-files=all
+git diff -- <目标文件>
+```
+
+用户已有脏改动必须单独列出并保留。禁止为了让 release/验证通过而执行无授权的 `git add .`、覆盖、`reset` 或清理用户文件；需要临时允许 dirty tree 时，必须记录原因、范围和回滚动作。
+
+### Vercel 状态分离
+
+`READY` 只表示 Vercel 部署编排完成，不表示 Function runtime 已启动，更不表示 Content 可用。生产状态至少分为：
+
+- `candidate`：构建或部署完成，但未完成远端请求/日志验证；
+- `needs_check`：存在失败证据或关键门缺失；
+- `verified`：部署 SHA/ID、Function 日志、关键页面、Content cache/search 和浏览器用户路径均通过。
+
+Vercel 验收必须记录部署 URL、Git commit SHA、deployment ID、构建/函数日志，以及首页、至少一个文档/组件页面、Content cache/search API 的状态和非空响应。可见浏览器的 console/hydration 与至少一个用户交互单独记录；HTTP 200、本地 `.output` 或 GitHub CI 不能互相替代。
+
+## 依赖 override 的范围门
+
+先用 `pnpm why/list`、包 manifest、lockfile 和 clean fresh install 证明错误，再选择 override：
+
+- `nuxt-og-image: 5.1.9` 是 Nuxt 3 保守基线的世代覆盖，应与 `nuxt`、`h3`、Content 一起复核；
+- `tsdown@0.3.1>rolldown` 只在公开 registry 确实无法解析 `rolldown@nightly` 时作为包级覆盖；先检查 tsdown 的 peer/range/API，不得改成 root 全局 `rolldown` 覆盖；
+- 任何 override 都要审查 lockfile 精确 diff、全 workspace build/test/typecheck 和回滚路径；“安装不再报错”不是兼容性证明。
+
+`entities/decode` 这类错误优先修部署包 manifest 与产物追踪入口。只有日志和 bundle 明确证明首错位于 Nitro Rollup，且精确 inline 后 `.output`/Function artifact、启动和 HTTP smoke 均通过，才允许保留 `nitro.externals.inline`；否则不得把它写进生产模板。
+
+## Workspace 构建边
+
+当文档包消费同一 workspace 的组件库时，clean checkout 的生产构建必须显式先生成组件库产物，再进入 Nuxt/Vercel 构建。Turbo 或等价编排应为文档的 `build:vercel` 声明 `dependsOn: ["^build"]`，并把实际 `.output/**`、`.vercel/output/**` 纳入 outputs；不能依赖本机 `dist`、旧缓存或 CLI 上传的 Windows 产物。验收时记录组件库入口存在、Nuxt 构建日志、最终 Function artifact 和部署 SHA。

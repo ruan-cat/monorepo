@@ -46,9 +46,11 @@ ls .output/server/ 2>$null                # 应为空或不存在
 
 ### 修复
 
-> 以下是历史 workaround，不是默认配置。它只适用于已经确认 Windows + pnpm workspace 的 NFT trace 是当前瓶颈、且项目不依赖 document-driven Content prerender 的场景。对 `shadcn-docs-nuxt` 默认文档站，先使用临时 8 GiB 堆、单进程复现和完整 Content API 验证；如果采用该 workaround，必须让 Linux/Vercel 保留 trace，并另行验证部署。
+> 以下是本地诊断 workaround，不是生产配置。它只适用于已经确认 Windows + pnpm workspace 的 NFT trace 是当前瓶颈、且项目不依赖 document-driven Content prerender 的场景。对 `shadcn-docs-nuxt` 默认文档站，先使用临时 8 GiB 堆、单进程复现和完整 Content API 验证；如果采用该 workaround，必须让 Linux/Vercel 保留 trace，并另行验证部署。
 
-在 `nuxt.config.ts` 中条件化关闭 trace：
+> **生产边界**：不要把下面的 `nitro.externals` 片段复制进提交到 Vercel/CI 的 `nuxt.config.ts`。生产模板默认不配置 `nitro.externals`；优先在本地临时 overlay/分支中使用，验证后删除或回退。
+
+仅在本地临时 overlay 中条件化关闭 trace：
 
 ```ts
 nitro: {

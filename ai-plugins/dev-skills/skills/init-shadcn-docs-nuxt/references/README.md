@@ -16,8 +16,10 @@
 
 ## 本轮迁移台账
 
-| 规则来源                                         | 目标                                      | 原因                                                                               | 验证方式                                                    |
-| ------------------------------------------------ | ----------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `SKILL.md` 的历史事故约束、检修入口与第 6 步验证 | `production-graph-and-runtime-closure.md` | 让生产构建图与 runtime closure 成为单一现行入口，主技能只负责路由                  | 分发边界测试、文件导航和首个失败门检查                      |
-| `incident-repair.md` 的生产故障分层              | `production-graph-and-runtime-closure.md` | 将宽 `noExternal` 从历史误区中剥离，明确 Vite、Nitro、trace 与 manifest 的独立职责 | 精确错误准入、fresh install、artifact startup 与 HTTP smoke |
-| 既有 Content/H3、MDC、Windows、workspace 参考    | 原入口文件保留不迁移                      | 这些是独立故障域，不能被生产闭包规则覆盖                                           | 按各入口的专门验证执行                                      |
+| 规则来源                                         | 目标                                                  | 原因                                                                                         | 验证方式                                                    |
+| ------------------------------------------------ | ----------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `SKILL.md` 的历史事故约束、检修入口与第 6 步验证 | `production-graph-and-runtime-closure.md`             | 让生产构建图与 runtime closure 成为单一现行入口，主技能只负责路由                            | 分发边界测试、文件导航和首个失败门检查                      |
+| `incident-repair.md` 的生产故障分层              | `production-graph-and-runtime-closure.md`             | 将宽 `noExternal` 从历史误区中剥离，明确 Vite、Nitro、trace 与 manifest 的独立职责           | 精确错误准入、fresh install、artifact startup 与 HTTP smoke |
+| 既有 Content/H3、MDC、Windows、workspace 参考    | 原入口文件保留不迁移                                  | 这些是独立故障域，不能被生产闭包规则覆盖                                                     | 按各入口的专门验证执行                                      |
+| 2026-09-01 Vercel runtime closure 事故复盘       | `production-graph-and-runtime-closure.md`、`SKILL.md` | 增加 READY/runtime 分离、dirty-tree、override 范围与浏览器证据硬门，避免再次把流程绿灯当结果 | RED/GREEN 压力场景、manifest/artifact/HTTP/浏览器证据复核   |
+| `nitro-api-development` compatibilityDate 契约   | `SKILL.md`、`incident-repair.md`、templates           | 统一 Cloudflare/Vercel 双平台对象与 `2024-09-19`，避免字符串/日期漂移被误认为 runtime 修复   | 模板静态断言、Prettier、Nuxt prepare/build 复核             |
