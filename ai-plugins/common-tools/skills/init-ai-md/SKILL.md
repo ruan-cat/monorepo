@@ -1,13 +1,16 @@
 ---
 name: init-ai-md
 description: >-
-  初始化和增量更新 AI 记忆文件（CLAUDE.md、AGENTS.md、GEMINI.md）。
+  初始化、迁移和增量更新项目 AI 记忆文件，以 AGENTS.md 作为唯一事实来源。
   通过交互式选择和差异对比，智能补全记忆项内容。触发条件：
-  当用户提及初始化记忆文件、更新 CLAUDE.md、同步 AI 记忆、
+  当用户提及初始化记忆文件、更新 AGENTS.md、迁移 CLAUDE.md/GEMINI.md、同步 AI 记忆、
   init-ai-md 等关键词时主动调用。
+  Use when initializing, migrating, or incrementally updating project AI memory documents.
+  The skill maintains the canonical root AGENTS.md, redirects CLAUDE.md and GEMINI.md,
+  and manages the project-level record-bug-fix-memory skill.
 user-invocable: true
 metadata:
-  version: "0.21.6"
+  version: "22.0.0"
 ---
 
 # init-ai-md 技能说明
@@ -16,12 +19,24 @@ metadata:
 
 ## 核心功能
 
-1. **初始化 CLAUDE.md**：检查并创建项目的 AI 记忆文件
+1. **初始化 AGENTS.md**：检查并创建项目唯一的 AI 记忆文件
 2. **交互式选择**：扫描现有内容和可用模板，让用户选择需要的记忆项
 3. **差异对比补全**：深度对比文本差异，仅补全缺失内容而非全量替换
-4. **多文件同步**：支持同步更新 AGENTS.md 和 GEMINI.md
-5. **技能表管理**：扫描项目中 `.agents/skills/` 目录下的现有技能，在 CLAUDE.md 中创建并维护「本项目的技能表」章节
+4. **旧模式迁移**：将 legacy CLAUDE.md / GEMINI.md 内容恢复到 AGENTS.md，并把两个旧文件清空为重定向；迁移旧目录中的 `record-bug-fix-memory`
+5. **技能表管理**：扫描项目中 `.agents/skills/` 目录下的现有技能，在 AGENTS.md 中创建并维护「本项目的技能表」章节
 6. **内置技能初始化**：支持将 `record-bug-fix-memory` 等内置技能模板部署到项目的 `.agents/skills/` 目录中
+
+## 唯一文档与旧模式处理
+
+- `AGENTS.md` 是唯一事实来源；所有模板章节和技能表只写入该文件。
+- 根目录存在的 `CLAUDE.md`、`GEMINI.md` 必须删除全部原有内容，只保留：
+
+  ```text
+  请阅读本项目根目录内的 AGENTS.md 文档。@AGENTS.md
+  ```
+
+- 每次执行都删除 `AGENTS.md` 中「获取技术栈对应的上下文」二级章节及正文。
+- `record-bug-fix-memory` 缺失时无条件安装；旧 `.claude/skills` 路径存在时迁移到 `.agents/skills`。
 
 ## 文档读取策略
 
@@ -31,24 +46,28 @@ metadata:
 
 ## 执行流程
 
-### 步骤 1：检查 CLAUDE.md 文件
+### 步骤 1：检查 AGENTS.md 文件
 
-1. 检查项目根目录是否存在 `CLAUDE.md` 文件
-2. 如果不存在：
-   - 先执行 Claude Code 内部的 `/init` 斜杠命令
-   - 确保生成的 `CLAUDE.md` 文件以**中文**编写
-3. 如果已存在：
+1. 检查项目根目录是否存在 `AGENTS.md`、`CLAUDE.md`、`GEMINI.md` 文件
+2. 如果 `AGENTS.md` 不存在：
+   - 如果存在非空 `CLAUDE.md` 或 `GEMINI.md`，先将其内容迁移为新的 `AGENTS.md`
+   - 如果两个 legacy 文件都存在且内容不同，使用 `AskUserQuestion` 让用户选择需要保留的内容
+   - 如果三者都不存在或均为空，创建 `AGENTS.md`，并确保内容以**中文**编写
+3. 如果 `AGENTS.md` 已存在：
    - 读取现有内容，准备进行扫描分析
+4. 对根目录存在的 `CLAUDE.md`、`GEMINI.md` 删除全部原有内容，只保留：
+   - `请阅读本项目根目录内的 AGENTS.md 文档。@AGENTS.md`
+5. 从 `AGENTS.md` 中删除「获取技术栈对应的上下文」二级章节及其正文
 
 ### 步骤 2：扫描分析
 
 1. **扫描目标文件**：
-   - 提取 `CLAUDE.md` 中所有的**二级标题**（`## xxx`）
+   - 提取 `AGENTS.md` 中所有的**二级标题**（`## xxx`）
    - 记录每个二级标题下的内容摘要
    - 建立现存记忆项清单
 
 2. **扫描模板目录**：
-   - 读取 `templates/` 目录下的所有模板文件名
+   - 读取 `templates/` 目录下的所有模板文件名（不包含已删除的技术栈上下文模板）
    - 按照**数字前缀顺序**排序（如 `01.xxx.md`、`02.xxx.md`）
    - 提取每个模板文件内的二级标题
    - 建立可用记忆项清单
@@ -65,7 +84,7 @@ metadata:
 **必须**使用 `AskUserQuestion` 工具与用户交互：
 
 1. **展示扫描结果**：
-   - 列出当前 CLAUDE.md 中已存在的记忆项（二级标题列表）
+   - 列出当前 AGENTS.md 中已存在的记忆项（二级标题列表）
    - 列出 templates 目录中可用的记忆项
 
 2. **生成选择问题**：
@@ -86,7 +105,6 @@ metadata:
    - 主动问询实施细节 [需更新] - 内容存在差异，将补全缺失部分
    - 编写测试用例规范 [缺失] - 将新增此记忆项
    - 报告编写规范 [已完整] - 内容一致，无需更新
-   - 获取技术栈对应的上下文 [需更新] - 缺少部分链接
    ```
 
 4. **等待用户选择**：
@@ -116,36 +134,30 @@ metadata:
 
 4. **示例**：
 
-   假设目标文件 `CLAUDE.md` 存在以下内容：
+   假设目标文件 `AGENTS.md` 存在以下内容：
 
    ```markdown
-   ## 获取技术栈对应的上下文
+   ## 编写测试用例规范
 
-   ### claude code skill
+   测试文件使用 `*.test.ts`，放在项目的 tests 目录中。
 
-   - 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
-   - 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+   - 使用 `describe` 和 `test` 组织测试用例
    ```
 
-   模板文件 `99.获取技术栈对应的上下文.md` 的内容：
+   对应模板的内容：
 
    ```markdown
-   ## 获取技术栈对应的上下文
+   ## 编写测试用例规范
 
-   在处理特定技术栈相关的问题时，你应该主动获取对应的上下文文档和最佳实践。
+   测试文件使用 `*.test.ts`，放在项目的 tests 目录中。
 
-   ### claude code skill
-
-   - 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
-   - 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
-   - 规范文档： https://agentskills.io/home
+   - 使用 `describe` 和 `test` 组织测试用例
    ```
 
    **正确的处理方式**：
    - 识别缺失内容：
-     - 缺失描述段落："在处理特定技术栈相关的问题时，你应该主动获取对应的上下文文档和最佳实践。"
-     - 缺失列表项："- 规范文档： https://agentskills.io/home"
-   - 在原有内容的对应位置补全这两处缺失
+     - 缺失列表项："- 使用 `describe` 和 `test` 组织测试用例"
+   - 在原有内容的对应位置补全缺失项
    - **不要**全量替换整个章节
 
 5. **禁止事项**：
@@ -155,7 +167,7 @@ metadata:
 
 ### 步骤 5：初始化或升级本地技能
 
-在完成 CLAUDE.md 内容更新后，检查项目是否需要部署或升级内置技能：
+在完成 AGENTS.md 内容更新后，检查项目是否需要部署或升级内置技能：
 
 1. **检查技能模板目录**：
    - 读取 `templates/record-bug-fix-memory/` 目录，确认内置技能模板可用
@@ -163,15 +175,13 @@ metadata:
 
 2. **检测旧格式遗留**（迁移检测）：
    - 检查项目中是否存在旧格式 `.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
-   - 如果存在旧格式，且新路径 `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md` **不存在**：
-     - 标记为 `[旧格式可迁移]`
-     - 在询问用户时，额外展示此项，并说明迁移操作
-   - 迁移操作：将 `.claude/skills/` 整个目录的内容移动到 `.agents/skills/`，然后删除旧的 `.claude/skills/` 目录
-   - 如果新路径已存在（说明已迁移），忽略旧格式目录
+   - 如果存在旧格式，且新路径 `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md` **不存在**：标记为 `[旧格式可迁移]`
+   - 迁移操作只处理 `record-bug-fix-memory`，将其内容移动到 `.agents/skills/fix-bug/record-bug-fix-memory/`，然后删除旧的技能目录
+   - 如果新路径已存在，以 `.agents/skills/` 为 canonical，补入旧路径中缺失的独立案例；同名文件不覆盖
 
 3. **检查项目现有技能**（新格式）：
    - 检查项目中是否已存在 `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md`
-   - 如果不存在（且无旧格式可迁移）：标记为 `[可部署]`
+   - 如果不存在（且无旧格式可迁移）：标记为 `[可部署]`，并在情况 A 中无条件部署
    - 如果已存在：读取其 frontmatter 中的 `template-version` 字段
      - 无版本号或版本 < 2.0.0：标记为 `[需升级]`
      - 版本 ≥ 2.0.0：标记为 `[已是最新]`
@@ -181,11 +191,7 @@ metadata:
    - 判断方法：检测 `###` 三级标题下是否存在超过 10 行的内容块
    - 如果存在内嵌案例：标记为 `[需升级 + 需拆分]`
 
-5. **询问用户**：
-   - 使用 `AskUserQuestion` 工具询问用户需要执行的操作
-   - 选项中列出每个技能及其状态：`[可部署]`、`[需升级]`、`[需升级 + 需拆分]`、`[旧格式可迁移]`、`[已是最新]`
-
-6. **执行部署或升级**：
+5. **执行部署或升级**：不再询问是否安装或迁移；状态仅用于选择以下处理分支。
 
    **情况 A：全新部署（`[可部署]`）**
    - 将 `templates/record-bug-fix-memory/SKILL.md` 复制到项目的 `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md`
@@ -207,14 +213,17 @@ metadata:
    - 最终 SKILL.md 只保留流程指导 + 摘要索引，不再包含事故正文
 
    **情况 D：旧格式迁移（`[旧格式可迁移]`）**
-   - 检测到 `.claude/skills/` 下存在旧格式的技能（v0.19.0 及之前版本使用 `.claude` 前缀）
-   - 项目已统一使用 `.agents/skills/` 作为技能目录（v0.20.0+）
-   - 执行迁移操作：
-     1. 创建 `.agents/skills/` 目录（如不存在）
-     2. 将 `.claude/skills/` 下所有内容完整移动到 `.agents/skills/`
-     3. 删除已清空的 `.claude/skills/` 目录
-   - 迁移完成后，重新按新格式（`.agents/skills/`）执行步骤 6 的技能扫描和技能表生成
-   - 注意：迁移**仅移动文件，不修改文件内容**；SKILL.md 内部的路径引用由各技能自身维护
+   - 检测到 `.claude/skills/fix-bug/record-bug-fix-memory/` 下存在旧格式技能
+   - 项目统一使用 `.agents/skills/` 作为技能目录
+   - 创建 `.agents/skills/fix-bug/` 目录（如不存在）
+   - 将旧技能文件和独立案例完整移动到 `.agents/skills/fix-bug/record-bug-fix-memory/`
+   - 删除已迁移的旧 `record-bug-fix-memory` 目录，不处理其他 `.claude/skills/` 技能
+   - 迁移完成后，重新按新格式执行步骤 6 的技能扫描和技能表生成
+   - 注意：迁移仅移动文件，不修改案例正文；SKILL.md 内部的路径引用由各技能自身维护
+
+   **情况 E：已是最新（`[已是最新]`）**
+   - 不替换项目已有的技能正文、案例索引和独立案例文件
+   - 仅检查目标路径和版本字段，然后继续执行步骤 6
 
 ### 步骤 6：生成/更新「本项目的技能表」
 
@@ -245,21 +254,20 @@ metadata:
        - **写入方式**：新增经验时，创建独立案例文件，同时在 SKILL.md 的「案例索引」追加摘要。禁止将完整事故正文写入 SKILL.md。
      ```
 
-3. **插入或更新 CLAUDE.md**：
-   - 如果 CLAUDE.md 中已存在「## 本项目的技能表」章节：执行差异对比，仅补全新增或变更的技能条目
-   - 如果不存在：将技能表章节插入到 CLAUDE.md 的**一级标题之后、其他二级标题之前**（即紧跟在文件开头的项目描述之后）
+3. **插入或更新 AGENTS.md**：
+   - 如果 AGENTS.md 中已存在「## 本项目的技能表」章节：执行差异对比，仅补全新增或变更的技能条目
+   - 如果不存在：将技能表章节插入到 AGENTS.md 的**一级标题之后、其他二级标题之前**（即紧跟在文件开头的项目描述之后）
 
 4. **技能表位置要求**：
    - 技能表**必须**位于所有其他二级标题之前
-   - 这确保 agent 在读取 CLAUDE.md 时最先看到可用的技能清单
+   - 这确保 agent 在读取 AGENTS.md 时最先看到可用的技能清单
 
-### 步骤 7：同步其他 AI 记忆文件
+### 步骤 7：收敛旧 AI 记忆文件
 
-1. 检查项目根目录是否存在 `AGENTS.md` 或 `GEMINI.md` 文件
-2. 如果存在这些文件：
-   - **必须**使用 `AskUserQuestion` 工具询问用户
-   - 询问是否用更新后的 `CLAUDE.md` 全量替换这些文件
-3. 根据用户选择执行替换操作
+1. 检查项目根目录是否存在 `CLAUDE.md` 或 `GEMINI.md` 文件
+2. 如果存在这些文件，删除全部原有内容（包括 frontmatter、标题和项目规则）
+3. 仅写入：`请阅读本项目根目录内的 AGENTS.md 文档。@AGENTS.md`
+4. 回读并确认两个文件内容逐字一致；此固定迁移动作不需要询问用户
 
 ## 模板文件规范
 
@@ -280,7 +288,6 @@ init-ai-md/
     ├── 09.Karpathy Guidelines.md     # Karpathy 编码行为准则模板
     ├── 10.使用superpower技能的个人偏好.md
     ├── 11.文档读取策略.md
-    ├── 99.获取技术栈对应的上下文.md
     └── record-bug-fix-memory/       # 内置技能模板
         └── SKILL.md                 # record-bug-fix-memory 技能模板
 ```
@@ -318,42 +325,42 @@ init-ai-md/
 
 执行流程：
 
-1. 检测到无 CLAUDE.md → 执行 /init 命令
+1. 检测到无 AGENTS.md → 创建 AGENTS.md
 2. 扫描 templates/ 目录，建立可用记忆项清单
 3. 使用 AskUserQuestion 询问用户需要哪些记忆项
 4. 用户选择后，按序号顺序插入选中的模板内容
-5. 检测到无 AGENTS.md/GEMINI.md → 完成
+5. 确认 AGENTS.md 已创建，继续执行技能检查和技能表生成
 ```
 
 ### 场景 2：增量更新现有项目
 
 ```markdown
-用户：请更新我的 CLAUDE.md 记忆文件
+用户：请更新我的 AGENTS.md 记忆文件
 
 执行流程：
 
-1. 检测到已有 CLAUDE.md → 读取现有内容
+1. 检测到已有 AGENTS.md → 读取现有内容
 2. 扫描现有二级标题，建立现存记忆项清单
 3. 扫描 templates/ 目录，建立可用记忆项清单
 4. 对比分析，标注每个记忆项的状态（缺失/需更新/已完整）
 5. 使用 AskUserQuestion 询问用户需要处理哪些记忆项
 6. 用户选择后，对每个选中项执行差异对比和增量补全
-7. 检测到存在 AGENTS.md → 询问用户是否同步替换
-8. 用户确认后执行替换
+7. 检测到存在 CLAUDE.md/GEMINI.md → 删除旧内容并写入固定重定向
+8. 回读 AGENTS.md 与重定向文件，完成验收
 ```
 
 ### 场景 3：差异对比补全示例
 
 ```markdown
-用户：更新 CLAUDE.md 中的"获取技术栈对应的上下文"章节
+用户：更新 AGENTS.md 中的"编写测试用例规范"章节
 
 执行流程：
 
-1. 读取 CLAUDE.md 中该章节的完整内容
-2. 读取模板 99。获取技术栈对应的上下文。md 的内容
+1. 读取 AGENTS.md 中该章节的完整内容
+2. 读取对应的记忆项模板内容
 3. 逐行对比，发现：
    - 缺失描述段落
-   - 缺失"规范文档"链接
+   - 缺失测试文件格式或断言规范
 4. 在对应位置补全缺失内容
 5. 保持原有的自定义内容不变
 ```
@@ -365,40 +372,39 @@ init-ai-md/
 
 执行流程：
 
-1. 检测到无 CLAUDE.md → 执行 /init 命令
+1. 检测到无 AGENTS.md → 创建 AGENTS.md
 2. 扫描 templates/ 目录，建立可用记忆项清单
 3. 使用 AskUserQuestion 询问用户需要哪些记忆项
 4. 用户选择后，按序号顺序插入选中的模板内容
 5. 检查 .agents/skills/ → 不存在 record-bug-fix-memory
-6. 使用 AskUserQuestion 询问用户是否部署 record-bug-fix-memory 技能
-7. 用户确认 → 创建 .agents/skills/fix-bug/record-bug-fix-memory/SKILL.md
-8. 扫描 .agents/skills/ 全部技能 → 生成「本项目的技能表」章节
-9. 将技能表插入 CLAUDE.md 的开头位置（一级标题之后、其他二级标题之前）
-10. 检测到无 AGENTS.md/GEMINI.md → 完成
+6. 无条件创建 .agents/skills/fix-bug/record-bug-fix-memory/SKILL.md
+7. 扫描 .agents/skills/ 全部技能 → 生成「本项目的技能表」章节
+8. 将技能表插入 AGENTS.md 的开头位置（一级标题之后、其他二级标题之前）
+9. 对存在的 CLAUDE.md/GEMINI.md 写入固定重定向并完成验收
 ```
 
 ### 场景 5：增量更新时发现新技能
 
 ```markdown
-用户：请更新我的 CLAUDE.md 记忆文件
+用户：请更新我的 AGENTS.md 记忆文件
 
 执行流程：
 
-1. 检测到已有 CLAUDE.md → 读取现有内容
+1. 检测到已有 AGENTS.md → 读取现有内容
 2. 扫描 templates/ 和已有记忆项 → 对比分析
 3. 用户选择更新记忆项 → 执行差异补全
 4. 检查 .agents/skills/ → 发现已有 record-bug-fix-memory
 5. 扫描 .agents/skills/ → 发现用户新增了 code-style 技能
 6. 对比现有技能表 → 识别新增技能
 7. 补全技能表，新增 code-style 条目
-8. 检测到存在 AGENTS.md → 询问用户是否同步替换
+8. 检测到存在 CLAUDE.md/GEMINI.md → 删除旧内容并写入固定重定向
 ```
 
 ## 技能表管理详细说明
 
 ### 技能表的作用
 
-「本项目的技能表」章节的作用是让 agent 在读取 CLAUDE.md 时，能够**快速了解项目中可用的技能清单**，包括：
+「本项目的技能表」章节的作用是让 agent 在读取 AGENTS.md 时，能够**快速了解项目中可用的技能清单**，包括：
 
 - 技能名称和路径
 - 技能的用途和触发时机
@@ -451,11 +457,11 @@ init-ai-md/
 - **全新部署**：如果目标路径不存在，创建目录结构并部署模板
 - **升级部署**：如果已存在旧版（无 template-version 或 < 2.0.0），执行升级流程（见步骤 5）
 - **不会覆盖案例**：升级时保留项目已有的独立案例文件
-- **技能表同步**：部署完成后自动更新 CLAUDE.md 中的技能表
+- **技能表同步**：部署完成后自动更新 AGENTS.md 中的技能表
 
-### CLAUDE.md / AGENTS.md 中的技能表条目要求
+### AGENTS.md 中的技能表条目要求
 
-部署或升级 `record-bug-fix-memory` 后，在 CLAUDE.md 的技能表中生成的条目**必须**包含以下信息，确保 agent 能正确使用双层架构：
+部署或升级 `record-bug-fix-memory` 后，在 AGENTS.md 的技能表中生成的条目**必须**包含以下信息，确保 agent 能正确使用双层架构：
 
 ```markdown
 - `record-bug-fix-memory` — `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
@@ -464,7 +470,7 @@ init-ai-md/
   - **写入方式**：新增经验时，创建独立案例文件，同时在 SKILL.md 的「案例索引」追加摘要。禁止将完整事故正文写入 SKILL.md。
 ```
 
-这段描述确保任何 agent 在读取 CLAUDE.md / AGENTS.md 后，都能准确理解：
+这段描述确保任何 agent 在读取 AGENTS.md 后，都能准确理解：
 
 1. 经验教训不在 SKILL.md 正文里，而在同目录的独立文件中
 2. 需要先读索引，再按需读详细案例
@@ -504,7 +510,7 @@ init-ai-md/
 
 1. 用户提及 "init-ai-md"
 2. 用户提及 "初始化记忆文件"
-3. 用户提及 "更新 CLAUDE.md"
+3. 用户提及 "更新 AGENTS.md"
 4. 用户提及 "同步 AI 记忆"
 
 ### 上下文触发
@@ -529,7 +535,7 @@ init-ai-md/
 2. **顺序插入**：严格按照模板文件的数字前缀顺序插入
 3. **标题来源**：使用模板内的二级目录标题，而非文件名
 4. **前置插入**：新增记忆项插入到原有二级目录**之前**
-5. **询问确认**：同步 AGENTS.md/GEMINI.md 前必须询问用户
+5. **询问确认**：技能删除时必须询问用户；`CLAUDE.md`/`GEMINI.md` 重定向属于固定迁移动作，不需要询问
 
 ### 格式保持
 
@@ -550,7 +556,7 @@ init-ai-md/
 - **禁止**未经用户选择直接处理所有记忆项
 - **禁止**使用 Python/TypeScript/Shell 等脚本批量处理
 - **禁止**一股脑复制粘贴整个模板文件内容
-- **禁止**覆盖用户在 CLAUDE.md 中的自定义内容
+- **禁止**覆盖用户在 AGENTS.md 中的自定义内容
 - **禁止**跳过交互选择步骤直接执行更新
 
 ## 模板内容参考

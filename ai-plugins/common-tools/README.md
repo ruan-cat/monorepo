@@ -6,6 +6,11 @@
 
 **当前版本**: `10.0.0`
 
+⚠️ **init-ai-md 22.0.0 破坏性变更**：
+
+- 以后只维护项目根目录的 `AGENTS.md`；`CLAUDE.md` 与 `GEMINI.md` 会被清空为 `@AGENTS.md` 重定向。
+- 每次执行都会移除「获取技术栈对应的上下文」章节，并迁移或无条件安装 `record-bug-fix-memory`。
+
 ## Codex 插件市场
 
 Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现有 `commands/`、`agents/` 和 `hooks/` 保持为 Claude Code 专用能力，不会被 Codex manifest 声明或加载。
@@ -159,7 +164,7 @@ Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现�
 - **git-commit**: 创建高质量 Git 提交，支持 Conventional Commits 规范、Emoji、破坏性变更格式、暂存区优先与多提交拆分
 - **add-favicon**: 为文档站或 monorepo 批量站点补全本地 `favicon.svg`，优先参考 Iconify/Lucide 风格，保持透明背景、简洁线性和显式 `head` 配置
 - **do-long-task**: 面向 OpenSpec 长任务、上下文恢复和测试失败重试的可恢复执行纪律，要求动态补全 `tasks.md`、以 OpenSpec 工件链协作推进，并持续维护 `agent-progress.md` / `agent-findings.md`；也支持生成 1500 字以内的 Claude Code `/goal` 与 Codex `/goal` 长任务执行提示词
-- **init-ai-md**: 初始化和增量更新 AI 记忆文件（`CLAUDE.md`、`AGENTS.md`、`GEMINI.md`），包含技能表管理与内置技能部署
+- **init-ai-md**: 以 `AGENTS.md` 为唯一事实来源初始化、迁移和增量更新 AI 记忆文件，并将 `CLAUDE.md` / `GEMINI.md` 固定为重定向文件
 - **init-claude-code-statusline**: 初始化 Claude Code 状态栏配置文件（`.claude/settings.json` + `statusline.sh`），展示目录、分支、模型、上下文窗口
 - **init-prettier-git-hooks**: 初始化基于 lint-staged + simple-git-hooks + prettier 的 Git 提交前代码格式化流程
 - **init-vscode**: 初始化或更新 VSCode 配置文件（`extensions.json`、`settings.json`），支持 monorepo 和单体项目，智能合并现有配置

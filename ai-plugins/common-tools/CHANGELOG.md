@@ -7,6 +7,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **init-ai-md 22.0.0（破坏性变更）**：改为只维护根目录 `AGENTS.md`；`CLAUDE.md` 与 `GEMINI.md` 清空为 `@AGENTS.md` 重定向。
+- 删除已废弃的「获取技术栈对应的上下文」模板和章节处理；旧版 `record-bug-fix-memory` 自动迁移到 `.agents/skills`，缺失时无条件安装。
+
 ## [10.10.0] - 2026-09-01
 
 ### Changed

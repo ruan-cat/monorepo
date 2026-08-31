@@ -120,7 +120,7 @@ metadata:
 - **详细案例**：写到本技能目录下的独立 md 文件（默认落点）
 - **摘要索引**：同步更新 SKILL.md 的"案例索引"章节
 - **跨会话的本地记忆**：写到 Memorix，类型用 `gotcha`、`decision` 或 `problem-solution`
-- **仓库级规则**：只有当经验会影响整个仓库的未来 agent 时，才同步写入根级 `CLAUDE.md`、`AGENTS.md`、`GEMINI.md`
+- **仓库级规则**：只有当经验会影响整个仓库的未来 agent 时，才同步写入根级 `AGENTS.md`。`CLAUDE.md` 与 `GEMINI.md` 仅作为重定向文件，不写入经验内容。
 
 ## 6. 记录流程
 
@@ -199,4 +199,4 @@ metadata:
 ## 14. 本仓库落点覆盖
 
 - 本仓库的 bug 经验优先记录在当前技能目录：`.agents/skills/fix-bug/record-bug-fix-memory/*.md`
-- 根级 `CLAUDE.md`、`AGENTS.md`、`GEMINI.md` 只在用户明确要求同步 AI 记忆文档时才更新
+- 根级 `AGENTS.md` 只在用户明确要求同步 AI 记忆文档时才更新；`CLAUDE.md` 与 `GEMINI.md` 永远不写入记忆正文。

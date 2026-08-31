@@ -57,8 +57,8 @@
       "id": "init-ai-md",
       "plugin": "common-tools",
       "name": "init-ai-md",
-      "description": "初始化和增量更新 AI 记忆文件（CLAUDE.md、AGENTS.md、GEMINI.md）。 通过交互式选择和差异对比，智能补全记忆项内容。触发条件： 当用户提及初始化记忆文件、更新 CLAUDE.md、同步 AI 记忆、 init-ai-md 等关键词时主动调用。",
-      "version": "0.21.6",
+      "description": "初始化、迁移和增量更新项目 AI 记忆文件，以 AGENTS.md 作为唯一事实来源。 通过交互式选择和差异对比，智能补全记忆项内容。触发条件： 当用户提及初始化记忆文件、更新 AGENTS.md、迁移 CLAUDE.md/GEMINI.md、同步 AI 记忆、 init-ai-md 等关键词时主动调用。 Use when initializing, migrating, or incrementally updating project AI memory documents. The skill maintains the canonical root AGENTS.md, redirects CLAUDE.md and GEMINI.md, and manages the project-level record-bug-fix-memory skill.",
+      "version": "22.0.0",
       "entry": "ai-plugins/common-tools/skills/init-ai-md/SKILL.md"
     },
     {
