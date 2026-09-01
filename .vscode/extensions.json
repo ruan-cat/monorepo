@@ -17,7 +17,7 @@
 
 		// ========== init-vscode 技能模板补充（去重合并）==========
 		"EditorConfig.EditorConfig",
-		"Gruntfuggly.todo-tree",
+		"FanaticPythoner.better-todo-tree",
 		"PKief.material-icon-theme",
 		"Vue.volar",
 		"bradlc.vscode-tailwindcss",
@@ -34,5 +34,5 @@
 		"warmthsea.vscode-custom-code-color",
 		"wayou.vscode-todo-highlight"
 	],
-	"unwantedRecommendations": []
+	"unwantedRecommendations": ["Gruntfuggly.todo-tree"]
 }
