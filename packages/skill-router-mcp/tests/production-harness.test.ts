@@ -163,7 +163,9 @@ describe("production Worker harness", () => {
 			capabilities: {},
 			clientInfo: { name: "harness", version: "1" },
 		});
-		expect((initialized.result as { serverInfo?: { name?: string } }).serverInfo?.name).toBe("skill-router-mcp");
+		expect((initialized.result as { serverInfo?: { name?: string } }).serverInfo?.name).toBe(
+			"@ruan-cat/skill-router-mcp",
+		);
 
 		const tools = await mcp("tools/list", {});
 		expect(((tools.result as { tools?: Array<{ name: string }> }).tools ?? []).map((tool) => tool.name)).toEqual(toolNames);

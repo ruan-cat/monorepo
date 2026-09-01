@@ -52,7 +52,7 @@ describe("worker runtime boundaries", () => {
 		});
 		expect(initialized.status).toBe(200);
 		const body = (await initialized.json()) as { result?: { serverInfo?: { name?: string; version?: string } } };
-		expect(body.result?.serverInfo).toEqual({ name: "skill-router-mcp", version: "0.1.0" });
+		expect(body.result?.serverInfo).toEqual({ name: "@ruan-cat/skill-router-mcp", version: "0.2.0" });
 
 		const malformed = await SELF.fetch("https://skill-router-mcp.test/mcp", {
 			method: "POST",

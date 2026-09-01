@@ -16,7 +16,7 @@ describe("MCP Streamable HTTP contract", () => {
 		const { client, transport } = makeClient();
 		try {
 			await client.connect(transport);
-			expect(client.getServerVersion()).toEqual({ name: "skill-router-mcp", version: "0.2.0" });
+			expect(client.getServerVersion()).toEqual({ name: "@ruan-cat/skill-router-mcp", version: "0.2.0" });
 			const listed = await client.listTools();
 			expect(listed.tools.map((tool) => tool.name)).toEqual(toolNames);
 			expect(transport.sessionId).toBeUndefined();
