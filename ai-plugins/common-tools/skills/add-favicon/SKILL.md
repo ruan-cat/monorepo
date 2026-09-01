@@ -7,7 +7,7 @@ description: >-
   尤其适合批量为多个 VitePress 站点设计本地 SVG favicon，并显式配置 head。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Add Favicon
@@ -73,6 +73,18 @@ packages/vitepress-preset-config/src/docs/public/favicon.svg
 - 看 VitePress 命令里的 root，例如 `vitepress build src` 表示源目录是 `src`，公共目录通常是 `src/public`。
 - 看现有构建产物是否会把 `public/favicon.svg` 复制到 `.vitepress/dist/favicon.svg`。
 - 看 config 中是否有自定义 `srcDir`、`outDir` 或 public 相关配置。
+
+#### 纯 Nitro v3 API 项目
+
+纯 Nitro API 没有 HTML `head` 可注入。将 `favicon.svg` 放在项目根目录的 `public/favicon.svg`，再增加浏览器默认 `/favicon.ico` fallback：
+
+```typescript
+import { defineHandler, redirect } from "nitro/h3";
+
+export default defineHandler(() => redirect("/favicon.svg", 302));
+```
+
+文件应为 `server/routes/favicon.ico.get.ts`；Nitro v3 使用 `redirect`，不要再使用已弃用的 `sendRedirect`。为该路由在 `tests/favicon-route.test.ts` 增加 `describe`/`test`，断言 `302` 和 `Location: /favicon.svg`，并在构建后检查 `.output/public/favicon.svg`。
 
 ### 3. 配置 head
 
@@ -160,6 +172,8 @@ rg -n "favicon.svg|rel: \"icon\"|rel=\"icon\"" <目标配置和构建产物>
 - 构建后 `.vitepress/dist/favicon.svg` 存在。
 - 构建后 `index.html` 内包含 `<link rel="icon" type="image/svg+xml" href="/favicon.svg">`。
 
+对纯 Nitro v3 API，额外验证 `GET /favicon.ico` 返回 `302` 且 `Location` 指向 `/favicon.svg`，`GET /favicon.svg` 返回 `200` 和 `image/svg+xml`。
+
 如果站点已经部署，额外验证：
 
 ```bash
@@ -185,5 +199,7 @@ curl -s https://example.com/ | rg 'favicon|rel="icon"|image/svg\+xml'
 - 给每个图标都套黑色圆底或深色方块，浏览器标签页里显得沉重。
 - 直接复制复杂 Iconify SVG，16 px 下看起来像一团线。
 - 只写 SVG 文件，不配置 `head`，依赖浏览器猜测路径。
+- 纯 Nitro 项目只添加 `public/favicon.svg`，没有提供 `/favicon.ico` fallback，浏览器仍会显示默认图标。
+- 在 Nitro v3 继续使用已弃用的 `sendRedirect`，应改为返回 `redirect(location, status)`。
 - 批量站点使用同一个图标，失去项目语义。
 - 部署后不验证 `/favicon.svg`，导致本地正确但线上仍是 404。
