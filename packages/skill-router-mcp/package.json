@@ -1,9 +1,9 @@
 {
-	"name": "skill-router-mcp",
+	"name": "@ruan-cat/skill-router-mcp",
 	"version": "0.2.0",
 	"private": true,
 	"type": "module",
-	"description": "Read-only Remote MCP Skill Router for ChatGPT Web.",
+	"description": "面向 ChatGPT Web Developer Mode 的只读 Skill Router MCP Worker。",
 	"homepage": "https://skill-router-mcp.1219043956.workers.dev",
 	"scripts": {
 		"typecheck": "tsc --noEmit -p tsconfig.json",

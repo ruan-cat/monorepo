@@ -35,6 +35,9 @@ importers:
       "@ruan-cat/release-toolkit":
         specifier: workspace:^
         version: link:packages/release-toolkit
+      "@ruan-cat/skill-router-mcp":
+        specifier: workspace:^
+        version: link:packages/skill-router-mcp
       "@ruan-cat/taze-config":
         specifier: workspace:^
         version: link:configs-package/taze-config
@@ -137,9 +140,6 @@ importers:
       simple-git-hooks:
         specifier: ^2.13.1
         version: 2.13.1
-      skill-router-mcp:
-        specifier: workspace:^
-        version: link:packages/skill-router-mcp
       taze:
         specifier: ^19.11.0
         version: 19.17.2
