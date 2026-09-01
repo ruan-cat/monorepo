@@ -10,7 +10,7 @@ description: >-
   幽灵修改、团队规范、VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化，都应该使用本技能。
 user-invocable: true
 metadata:
-  version: "0.5.0"
+  version: "1.0.0"
 ---
 
 # Init VSCode
