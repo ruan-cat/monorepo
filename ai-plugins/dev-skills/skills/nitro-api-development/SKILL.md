@@ -6,7 +6,7 @@ description: >-
   进行数据库交互。当需要开发新的 Nitro 接口、初始化 Nitro 配置、
   或咨询 Nitro 开发规范时使用此技能。
 metadata:
-  version: "0.13.9"
+  version: "0.14.0"
 ---
 
 # Nitro v3 接口开发技能规范
@@ -143,6 +143,10 @@ return response; // 如果字段名/类型不符合 ApiResponse，编译期立�
 3. **导入类型约束 （Import Types）**: 从你的类型文件导入 `ApiResponse`（列表接口额外导入 `PageData`）。
 4. **查询数据库 （Query Database）**: 导入 `db` 与 schema，使用 Drizzle 查询构建器。
 5. **返回数据 （Return Data）**: 确保返回对象严格符合 `ApiResponse<T>` 结构。
+
+### 6.1 纯 Nitro v3 favicon 路由
+
+纯 Nitro API 的 favicon 实现、浏览器 fallback 和配套测试见 [references/favicon.md](references/favicon.md)。核心边界是：图标放在 `public/favicon.svg`，`server/routes/favicon.ico.get.ts` 返回 `redirect("/favicon.svg", 302)`，并在 `tests/favicon-route.test.ts` 锁定重定向契约。
 
 ## 7. 时间字段格式化
 
@@ -328,6 +332,8 @@ rollupConfig: {
 - **`serverDir` 配置遗漏**: Nitro v3 默认扫描项目根目录的 `routes/`、`plugins/` 和 `middleware/`。若代码位于 `server/` 子目录，必须配置 `serverDir: "server"`，否则路由不会进入构建产物，所有端点返回 404。
 - **将 `compatibilityDate` 写成单字符串**: 必须保留 Cloudflare、Vercel 两个平台键和对应官方链接注释的对象形式；单字符串丢失了部署适配信息。
 - **纯 Nitro API 未暴露接口文档**: 判定为纯 API 项目后，必须启用 `experimental.openAPI`，提供 `/openapi.json`、`/scalar`，并从 `package.json` 读取 `openAPI.meta.version`。
+- **纯 Nitro API 缺少 favicon fallback**: 只添加 `public/favicon.svg` 不足以覆盖浏览器默认的 `/favicon.ico` 请求，必须增加 `server/routes/favicon.ico.get.ts` 并测试重定向。
+- **Nitro v3 使用已弃用的 `sendRedirect`**: 改为 `return redirect(location, status)`，并为 fallback 路由保留状态码和 `Location` 断言。
 
 ## 12. 常见错误对比
 
