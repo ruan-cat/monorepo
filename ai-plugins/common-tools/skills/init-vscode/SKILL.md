@@ -210,7 +210,7 @@ Better Todo Tree 的长期配置应优先使用扩展自身 resolver / packaged 
 - 读取现有配置
 - 如果现有文件包含注释，按 JSONC 文件处理，并复用后续 Prettier JSONC override 规则
 - 深度合并对象：
-  - 对于嵌套对象（如 `files.exclude`、`files.watcherExclude`、`search.exclude`、`explorer.fileNesting.patterns`），合并所有键值对
+  - 对于嵌套对象（如 `files.exclude`、`files.watcherExclude`、`search.exclude`），合并所有键值对；`explorer.fileNesting.patterns` 按 3.4 的迁移规则处理，不得让旧根节点与新根节点并存
   - 对于数组，默认去重合并
   - 对于简单值（字符串、布尔值、数字），默认仍然是**用户现有值优先**
 - 但对以下策略键，必须使用模板值覆盖冲突值：
@@ -221,6 +221,7 @@ Better Todo Tree 的长期配置应优先使用扩展自身 resolver / packaged 
   - `typescript.tsserver.watchOptions`：必须补齐 `watchFile: "useFsEvents"`、`watchDirectory: "useFsEvents"`、`fallbackPolling: "dynamicPriority"`
   - `typescript.tsdk`：默认使用项目内 `node_modules/typescript/lib`
   - `typescript.tsserver.maxTsServerMemory`：缺失或低于 `4096` 时补为 `4096`；高风险 monorepo 可提高到 `8192`
+  - `explorer.fileNesting.patterns`：按 3.4 迁移旧 `CLAUDE.md` 根节点；不得让新旧根节点并存，用户明确自定义的 `AGENTS.md` 值除外
 - 保留用户配置中的其他字段
 - 写回文件，保持 JSON/JSONC 格式美观（2 空格缩进）
 
@@ -292,6 +293,21 @@ Better Todo Tree 的长期配置应优先使用扩展自身 resolver / packaged 
 - 根 `tsconfig.json` 的 `include` 应精确到源码目录，不要把 `.md`、`.github`、`.cursor` 等无关目录纳入 TypeScript 范围。
 - 对外分发的技能文档只写通用经验与相对路径，不要求用户读取本机诊断报告或开发期绝对路径。
 
+### 3.4. AI 记忆文件的文件嵌套迁移
+
+模板已将 `explorer.fileNesting.patterns` 的规范根节点改为：
+
+```json
+{
+	"AGENTS.md": "CLAUDE.md,GEMINI.md,DESIGN.md"
+}
+```
+
+这是与 `init-ai-md` 的 `AGENTS.md` 唯一事实来源策略配套的破坏性变更。处理已有 `settings.json` 时：
+
+- 如果存在旧模板项 `"CLAUDE.md": "GEMINI.md,AGENTS.md"`，先移除该项，再写入新的 `AGENTS.md` 项；不要把两个根节点并列保留。
+- 保留用户其他无关的 `explorer.fileNesting.patterns` 配置；用户已明确自定义的 `AGENTS.md` 值按用户优先原则处理，并在反馈中说明未完全收敛。
+
 ### 4. 验证结果
 
 验证必须区分三层证据。**配置合法 + 扩展已安装，不等于扩展运行成功。**
@@ -330,6 +346,10 @@ replacement migration 的静态验收还必须确认：
 - 没有把注释禁用项误恢复为活动配置；
 - 没有生成陈旧的 VS Code 私有内部二进制绝对路径；
 - 迁移后需要保持的标签/配置快照顺序与活动值一致。
+
+工作区 settings 迁移还必须确认：
+
+- `explorer.fileNesting.patterns` 已移除旧模板根节点，并按用户优先规则处理 `AGENTS.md` 项；
 
 如果 `pnpm format` 会触碰大量历史文件，可以先运行上述窄范围检查，并在反馈中明确没有运行全量格式化的原因。
 
