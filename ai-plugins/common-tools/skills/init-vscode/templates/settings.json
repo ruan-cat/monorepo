@@ -31,7 +31,7 @@
 	},
 	"explorer.fileNesting.enabled": true,
 	"explorer.fileNesting.patterns": {
-		"CLAUDE.md": "GEMINI.md,AGENTS.md"
+		"AGENTS.md": "CLAUDE.md,GEMINI.md,DESIGN.md"
 	},
 	"terminal.integrated.cwd": "${workspaceFolder}",
 	"terminal.integrated.splitCwd": "workspaceRoot",
