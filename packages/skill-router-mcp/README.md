@@ -164,3 +164,15 @@ pnpm --dir packages/skill-router-mcp benchmark:remote -- https://<worker-host> 3
 - Skill-only 内容更新不部署 Worker；下一次未 pin 调用重新解析 `GITHUB_REF`。
 - tool name/schema/description/annotation 变更必须在 Worker 部署后重新进行 Inspector 与 ChatGPT Developer Mode Refresh / Scan Tools。
 - 生产部署 authority 是 Cloudflare Workers Builds Git Integration；本仓库 workflow 只做静态检查、typecheck、测试和构建，不执行 Wrangler deploy 或 promotion。
+
+### Cloudflare Workers Builds 配置
+
+Workers Builds 的 Root directory 为仓库根目录 `/`，实际命令配置如下：
+
+```text
+Build：pnpm --dir packages/skill-router-mcp run build
+Deploy：pnpm --dir packages/skill-router-mcp exec wrangler deploy
+Version（非生产分支）：pnpm --dir packages/skill-router-mcp exec wrangler versions upload
+```
+
+构建时 Nitro 从 `packages/skill-router-mcp/wrangler.toml` 读取并合并 Wrangler 配置，生成 `.output/server/wrangler.json`，同时生成 `.wrangler/deploy/config.json` 重定向文件。Deploy 和 Version 命令不要再传入 `--config wrangler.toml`，让 Wrangler 自动跟随该重定向，使用包含 Nitro 生成入口与 Assets 配置的最终文件。
