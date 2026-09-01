@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [10.13.0] - 2026-09-01
+
+### Changed
+
+- **nitro-api-development**：`metadata.version` `0.13.9` -> `0.14.0`。
+- 补充纯 Nitro v3 API 的 favicon fallback 路由、测试与构建验收指导
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.13.0`。
+
 ## [10.12.0] - 2026-09-01
 
 ### Changed
