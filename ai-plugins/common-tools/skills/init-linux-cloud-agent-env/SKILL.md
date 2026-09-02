@@ -1,12 +1,26 @@
+---
+name: init-linux-cloud-agent-env
+description: >-
+  当用户需要在云 linux 环境内初始化 AI agent 的基础环境时使用本技能：安装 Anthropic Python MCP cli 客户端，
+  按 templates/mcp.json 安装并验证 github、skill-router-mcp、vercel、Neon 四款 http 类型 MCP，
+  安装 gh cli 与 vercel cli，并落地基于 github pr 的云任务执行规范（连接器优先级、备份降级、
+  pr 稿进度工件与阶段收尾汇报）。只要用户提到初始化云 linux 环境、云端 agent 环境、云任务自测自检、
+  MCP 客户端安装、github MCP 连接失败、skill-router-mcp 等场景，都应该使用本技能。
+  Use when initializing an AI agent environment on a cloud Linux host: installing the
+  Anthropic Python MCP CLI client, installing and verifying the four HTTP MCP servers
+  (github, skill-router-mcp, vercel, Neon) from templates/mcp.json, installing the gh
+  and vercel CLIs, and following GitHub-PR-based cloud task conventions such as connector
+  priority, fallback ordering, PR-body progress artifacts and stage-close reporting.
+user-invocable: true
+metadata:
+  version: "0.1.0"
+---
+
 # 初始化云 linux agent 环境
 
 本技能主要用于实现初始化位于云 liunx 环境的基础工具，初始化必要的 MCP 客户端以及具体的 MCP 配置，cli 工具，以及后续对话内需要的指导 skills 技能。
 
 本技能还主要提供基于 github pr 的云任务执行规范。
-
-<!-- TODO: -->
-
-手写并完成具体的细化。
 
 ## 本技能的核心目的
 
@@ -74,3 +88,15 @@
 - **核心工具**：`search_skills`、`load_skill`、`list_skill_resources`、`load_skill_resource`
 
 ## 本技能其他引用项
+
+本技能引用的 MCP 配置以同目录 `templates/mcp.json` 为模板，共四款，全部为 `http` 类型。模板内的 token 均为占位符文本，安装时必须替换为用户自己的真实 token：
+
+- **github**（最高优先级）： 端点 `https://api.githubcopilot.com/mcp/`，需要 `Authorization: Bearer <github token>` 请求头。
+- **skill-router-mcp**： 端点 `https://skill-router-mcp.1219043956.workers.dev/mcp`，匿名可用，无需 token。
+- **vercel**： 端点 `https://mcp.vercel.com`，需要 `Authorization: Bearer <vercel token>` 请求头。
+- **Neon**： 端点 `https://mcp.neon.tech/mcp`，需要 `Authorization: Bearer <neon token>` 请求头。
+
+除 MCP 外，本技能还引用以下外部资源：
+
+- gh cli 官方二进制下载页： https://github.com/cli/cli/releases
+- superpower 系列技能仓库： https://github.com/obra/superpowers/tree/main/skills
