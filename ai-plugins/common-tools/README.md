@@ -166,6 +166,7 @@ Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现�
 - **do-long-task**: 面向 OpenSpec 长任务、上下文恢复和测试失败重试的可恢复执行纪律，要求动态补全 `tasks.md`、以 OpenSpec 工件链协作推进，并持续维护 `agent-progress.md` / `agent-findings.md`；也支持生成 1500 字以内的 Claude Code `/goal` 与 Codex `/goal` 长任务执行提示词
 - **init-ai-md**: 以 `AGENTS.md` 为唯一事实来源初始化、迁移和增量更新 AI 记忆文件，并将 `CLAUDE.md` / `GEMINI.md` 固定为重定向文件
 - **init-claude-code-statusline**: 初始化 Claude Code 状态栏配置文件（`.claude/settings.json` + `statusline.sh`），展示目录、分支、模型、上下文窗口
+- **init-linux-cloud-agent-env**: 初始化云 linux 环境的 AI agent 基础设施：安装 Anthropic Python MCP cli、按模板安装并验证 github/skill-router-mcp/vercel/Neon 四款 MCP、安装 gh cli 与 vercel cli，并提供基于 github pr 的云任务执行规范
 - **init-prettier-git-hooks**: 初始化基于 lint-staged + simple-git-hooks + prettier 的 Git 提交前代码格式化流程
 - **init-vscode**: 初始化或更新 VSCode 配置文件（`extensions.json`、`settings.json`），支持 monorepo 和单体项目，智能合并现有配置
 - **install-mcp**: 维护常见与非常见 AI agent 的 MCP 配置目标清单、格式差异、合并/备份策略与安装调度边界
