@@ -1,0 +1,29 @@
+{
+	"mcpServers": {
+		"Neon": {
+			"type": "http",
+			"url": "https://mcp.neon.tech/mcp",
+			"headers": {
+				"Authorization": "Bearer 自己设置的 neon token"
+			}
+		},
+		"vercel": {
+			"type": "http",
+			"url": "https://mcp.vercel.com",
+			"headers": {
+				"Authorization": "Bearer 自己设置的 vercel token"
+			}
+		},
+		"github": {
+			"type": "http",
+			"url": "https://api.githubcopilot.com/mcp/",
+			"headers": {
+				"Authorization": "Bearer 自己设置的 github token"
+			}
+		},
+		"skill-router-mcp": {
+			"type": "http",
+			"url": "https://skill-router-mcp.1219043956.workers.dev/mcp"
+		}
+	}
+}
