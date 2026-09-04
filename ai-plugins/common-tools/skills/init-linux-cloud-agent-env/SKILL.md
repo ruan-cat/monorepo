@@ -13,7 +13,7 @@ description: >-
   priority, fallback ordering, PR-body progress artifacts and stage-close reporting.
 user-invocable: true
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # 初始化云 linux agent 环境
@@ -100,3 +100,5 @@ metadata:
 
 - gh cli 官方二进制下载页： https://github.com/cli/cli/releases
 - superpower 系列技能仓库： https://github.com/obra/superpowers/tree/main/skills
+- MiniMax 云 Linux agent 沙箱的网络限制、镜像安装与 MCP 工具链实测： https://github.com/ruan-cat/notes/blob/dev/docs/ruan-cat-notes/docs/agents/use-in-agent.minimaxi.com.md
+- 智谱云 Linux agent 环境的会话级隔离、环境重置与恢复经验： https://github.com/ruan-cat/notes/blob/dev/docs/ruan-cat-notes/docs/agents/use-in-agentmore.chatglm.cn.md

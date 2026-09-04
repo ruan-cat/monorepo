@@ -74,7 +74,7 @@
       "plugin": "common-tools",
       "name": "init-linux-cloud-agent-env",
       "description": "当用户需要在云 linux 环境内初始化 AI agent 的基础环境时使用本技能：安装 Anthropic Python MCP cli 客户端， 按 templates/mcp.json 安装并验证 github、skill-router-mcp、vercel、Neon 四款 http 类型 MCP， 安装 gh cli 与 vercel cli，并落地基于 github pr 的云任务执行规范（连接器优先级、备份降级、 pr 稿进度工件与阶段收尾汇报）。只要用户提到初始化云 linux 环境、云端 agent 环境、云任务自测自检、 MCP 客户端安装、github MCP 连接失败、skill-router-mcp 等场景，都应该使用本技能。 Use when initializing an AI agent environment on a cloud Linux host: installing the Anthropic Python MCP CLI client, installing and verifying the four HTTP MCP servers (github, skill-router-mcp, vercel, Neon) from templates/mcp.json, installing the gh and vercel CLIs, and following GitHub-PR-based cloud task conventions such as connector priority, fallback ordering, PR-body progress artifacts and stage-close reporting.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "entry": "ai-plugins/common-tools/skills/init-linux-cloud-agent-env/SKILL.md"
     },
     {
