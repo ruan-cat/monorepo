@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [10.15.1] - 2026-09-05
+
+### Changed
+
+- **init-shadcn-docs-nuxt**：`metadata.version` `1.6.0` -> `1.6.1`。
+- 修正 sharp traceInclude 建议：Vercel 生产实机证伪致 nft 硬错误，改为全平台禁用
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.15.1`。
+
 ## [10.15.0] - 2026-09-05
 
 ### Changed
