@@ -37,4 +37,4 @@
 
 - 三平台真实客户端安装 smoke test 未取得证据（本地无 Claude/Cursor/Codex CLI 验证环境），按 release 技能契约记录为**未验证**，留待真实安装时确认。
 - 发布级版本升级（如 10.16.0）留待后续用 release 脚本统一执行，DryRun 已验证计划正确。
-- 变更归档：实现与发版闭环均已完成，待用户确认后用 openspec-archive-change 归档本变更。
+- 变更归档：实现、发版闭环与文档补遗均已完成，2026-09-05 经用户确认以 `--skip-specs` 归档（delta spec 不同步到主规范，随归档保留），归档位置 `openspec/changes/archive/2026-09-05-add-low-frequency-skill-plugin/`。
