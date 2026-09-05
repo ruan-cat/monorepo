@@ -1,0 +1,26 @@
+{
+	"name": "low-frequency-skill",
+	"version": "10.15.1",
+	"description": "收纳低频运行、低频维护的技能合集，集中统一升级维护。",
+	"author": {
+		"name": "阮喵喵",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	},
+	"homepage": "https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/low-frequency-skill",
+	"repository": "https://github.com/ruan-cat/monorepo",
+	"license": "MIT",
+	"keywords": ["低频技能", "技能收纳", "Codex"],
+	"skills": "./skills",
+	"interface": {
+		"displayName": "低频技能",
+		"shortDescription": "低频运行与低频维护的技能合集",
+		"longDescription": "收纳初始化、修复、清理等低频使用的技能，统一集中升级维护。",
+		"developerName": "阮喵喵",
+		"category": "开发工具",
+		"capabilities": ["技能"],
+		"websiteURL": "https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/low-frequency-skill",
+		"brandColor": "#0F766E",
+		"defaultPrompt": ["根据当前任务选择并使用合适的低频技能。", "梳理技能维护与升级的下一步。"]
+	}
+}

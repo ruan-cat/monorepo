@@ -1,0 +1,13 @@
+{
+	"name": "low-frequency-skill",
+	"version": "10.15.1",
+	"description": "阮喵喵低频使用与低频维护的技能合集",
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com"
+	},
+	"homepage": "https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/low-frequency-skill",
+	"repository": "https://github.com/ruan-cat/monorepo",
+	"license": "MIT",
+	"skills": "./skills"
+}

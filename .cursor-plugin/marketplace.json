@@ -22,6 +22,12 @@
 			"source": "dev-skills",
 			"description": "阮喵喵开发时使用的工程化开发技能",
 			"version": "10.15.1"
+		},
+		{
+			"name": "low-frequency-skill",
+			"source": "low-frequency-skill",
+			"description": "阮喵喵低频使用与低频维护的技能合集",
+			"version": "10.15.1"
 		}
 	]
 }
