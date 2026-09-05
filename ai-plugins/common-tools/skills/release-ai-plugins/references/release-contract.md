@@ -6,29 +6,30 @@
 `scripts/generate-skill-registry.ps1` 仅保留为兼容旧 `-Check/-Apply` CLI 的薄适配器；它只能调用 Node，
 不得自行解析 SKILL.md、序列化 JSON、重算缩进、处理转义或规范化行尾。
 
-Node generator 从以下两个 root 的直接子目录全量扫描当前 working tree：
+Node generator 从以下三个 root 的直接子目录全量扫描当前 working tree：
 
 ```text
 ai-plugins/common-tools/skills
 ai-plugins/dev-skills/skills
+ai-plugins/low-frequency-skill/skills
 ```
 
 Registry v1 的 canonical 结构只有：
 
 ```json
 {
-  "schemaVersion": "1",
-  "roots": ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"],
-  "skills": [
-    {
-      "id": "skill-directory-name",
-      "plugin": "common-tools",
-      "name": "frontmatter name",
-      "description": "frontmatter description",
-      "version": "1.2.3",
-      "entry": "ai-plugins/common-tools/skills/skill-directory-name/SKILL.md"
-    }
-  ]
+	"schemaVersion": "1",
+	"roots": ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills", "ai-plugins/low-frequency-skill/skills"],
+	"skills": [
+		{
+			"id": "skill-directory-name",
+			"plugin": "common-tools",
+			"name": "frontmatter name",
+			"description": "frontmatter description",
+			"version": "1.2.3",
+			"entry": "ai-plugins/common-tools/skills/skill-directory-name/SKILL.md"
+		}
+	]
 }
 ```
 
@@ -104,7 +105,7 @@ generator 缺失时也会失败。本次迁移不扩大 release 主脚本去解�
 - **init-release-base-relizy-and-bumpp**：`metadata.version` `1.1.1` -> `2.0.0`。
 - 根包 changelog 默认链路从 `conventional-changelog` 收口到 `changelogen`。
 - `templates/bump.config.ts` 改为 `execute(newVersion)`。
-- 根级 marketplace 与六个 `plugin.json` 的版本统一至 `5.0.0`。
+- 根级 marketplace 与九个 `plugin.json` 的版本统一至 `5.0.0`。
 ```
 
 禁止把上述多个变化压缩成一条包含多个分号的长 bullet。
@@ -113,9 +114,9 @@ generator 缺失时也会失败。本次迁移不扩大 release 主脚本去解�
 
 `marketplace.json`：
 
-- 两个插件的 `name` 必须是 `common-tools` 和 `dev-skills`。
+- 三个插件的 `name` 必须是 `common-tools`、`dev-skills` 和 `low-frequency-skill`。
 - `source.source` 必须为 `local`。
-- `source.path` 必须分别为 `./ai-plugins/common-tools` 和 `./ai-plugins/dev-skills`。
+- `source.path` 必须分别为 `./ai-plugins/common-tools`、`./ai-plugins/dev-skills` 和 `./ai-plugins/low-frequency-skill`。
 - `policy.installation` 必须为 `AVAILABLE`。
 - `policy.authentication` 必须为 `ON_INSTALL`。
 - 必须存在非空 `category`，且不得存在 marketplace 级 `version` 字段。
@@ -135,7 +136,9 @@ codex plugin marketplace add <repo-root> --json
 codex plugin list --available --json --marketplace ruan-cat-tools
 codex plugin add common-tools@ruan-cat-tools --json
 codex plugin add dev-skills@ruan-cat-tools --json
+codex plugin add low-frequency-skill@ruan-cat-tools --json
 codex plugin remove common-tools@ruan-cat-tools --json
 codex plugin remove dev-skills@ruan-cat-tools --json
+codex plugin remove low-frequency-skill@ruan-cat-tools --json
 codex plugin marketplace remove ruan-cat-tools --json
 ```

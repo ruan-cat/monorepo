@@ -48,3 +48,10 @@
 ## 终审修复（复核子代理发现的回归）
 
 - [x] [修改] `tests/init-simple-memorix/install-mcp.test.ts` 第 6-7 行 — 两行 import 指向旧路径 `ai-plugins/common-tools/skills/init-simple-memorix/src/`（迁移引入的真实回归，根级 `pnpm test` 收集即失败），改为 `ai-plugins/low-frequency-skill/skills/init-simple-memorix/src/`；验证：`pnpm exec vitest run tests/init-simple-memorix/install-mcp.test.ts` 19/19 通过（exit 0）
+
+## 发版闭环补遗（用户指出遗漏后的同类排查）
+
+- [x] [修改] `ai-plugins/docs/use-vercel-skills-install.md` — 用户指出该文档遗漏：新增「批量安装 low-frequency-skill 全部技能」章节、单独安装第三条 URL 模板、个人高频节追加低频插件指引；此前该文件的 7 个新技能技能在 npx skills 渠道无任何安装入口
+- [x] [修改] `ai-plugins/common-tools/skills/release-ai-plugins/references/release-contract.md` — 同类排查发现：三个 root 清单、registry roots JSON 示例、CHANGELOG 示例九个 plugin.json、Codex 字段矩阵三插件、smoke test 命令补 low-frequency-skill
+- [x] [修改] `AGENTS.md` 「对外分发 skill 的目录与路径约束」条款 — 目录枚举补第三个对外分发目录
+- [x] [验证] grep 全仓复扫确认无其他按插件枚举的活文档遗漏（历史记录、归档快照、事故案例除外）；registry `--check` 与 release 脚本安装文档校验通过

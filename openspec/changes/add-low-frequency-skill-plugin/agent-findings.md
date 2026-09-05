@@ -50,3 +50,9 @@
 1. **Critical（已修复）**：根级测试 `tests/init-simple-memorix/install-mcp.test.ts:6-7` 直接 import 技能源码 `ai-plugins/common-tools/skills/init-simple-memorix/src/`，迁移后断链、根级 `pnpm test` 收集即失败。教训：**迁移 ai-plugins 技能目录时，grep 影响面必须包含根级 `tests/` 目录**（此前探索只覆盖了 packages/skill-router-mcp 的测试）。已改 import 指向新路径并验证 19/19 通过。
 2. **Parked Minor（保留原样）**：`factory-reset-vscode-fork-ide/SKILL.md:39` 示例值 `D:/dev-tool/ai-ide/Qoder CN IDE` 为本机盘符风格路径。裁定：保留。理由：该技能的主题就是操作目标机器的 IDE 安装目录，示例路径与 references/cleanup-audit-log.md 的 C 盘审计路径同属用户刻意保留的领域内容；用户指示该技能「原样迁移仅补 metadata.version」，skill-hardening 的路径脱敏约束与技能领域语义冲突时按用户当前指示收敛。若未来要对外公开发布该插件，再统一泛化示例路径。
 3. **既有阻塞（已处置）**：`dev-skills/skills/use-agent-browser` 空占位目录使本地 registry 生成失败（git 不跟踪空目录，CI 不可见）；移除后 TODO 089 意图仍保留于 `docs/prompts/release-ai-plugins/02.md`。
+
+## 发版闭环补遗（2026-09-05，用户指出）
+
+4. **用户指出的漏项（已修复）**：`ai-plugins/docs/use-vercel-skills-install.md` 是按插件组织安装入口的操作文档（批量安装/高频一键/单独安装全部只覆盖两个旧插件），新插件 7 个技能在 `npx skills` 渠道完全没有安装入口。发布脚本的安装文档校验只查「不残留旧 marketplace 路径」，不查「新插件是否被覆盖」，静态校验通过掩盖了漏改。教训：**release SKILL.md「README 与安装文档」清单里的每一份文档，都要按「新插件是否获得同等入口」的语义复核，不能依赖脚本静态 gate**。
+5. **同类排查新发现（已修复）**：`release-ai-plugins/references/release-contract.md`（三个 root 清单、roots JSON 示例、Codex 字段矩阵、smoke test 命令、CHANGELOG 示例数量）与根 `AGENTS.md`「对外分发 skill 目录与路径约束」条款的目录枚举，均仍是双插件口径。终审复核当时只验证了 SKILL.md/ps1/generator/workflow，没有下钻到 SKILL.md 的 references 契约文档与根级约束文档。
+6. **复扫口径**：grep `common-tools/skills|dev-skills/skills` 全仓后逐条裁定——历史事故案例（record-bug-fix-memory）、归档快照（skill-hardening reference/archive）、docs/prompts、CHANGELOG 为历史记录不改；`init-linux-cloud-agent-env` 的 GitHub URL 指向未迁移技能仍有效；MCP README 的 `skill://common-tools/...git-commit` 示例未迁移不受影响。

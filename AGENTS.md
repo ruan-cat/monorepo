@@ -124,7 +124,7 @@
 
 ## 对外分发 skill 的目录与路径约束
 
-在 `ai-plugins/common-tools/skills` 或 `ai-plugins/dev-skills/skills` 下新建对外分发 skill 时，必须区分**仓库源码视角**与**安装后技能视角**。skill 安装后会被同步到用户机的 `~/.agents/skills/<skill-name>/` 目录，因此脚本、文档和示例都应以该安装目录为基准：
+在 `ai-plugins/common-tools/skills`、`ai-plugins/dev-skills/skills` 或 `ai-plugins/low-frequency-skill/skills` 下新建对外分发 skill 时，必须区分**仓库源码视角**与**安装后技能视角**。skill 安装后会被同步到用户机的 `~/.agents/skills/<skill-name>/` 目录，因此脚本、文档和示例都应以该安装目录为基准：
 
 1. **脚本必须放在 skill 目录内部**：所有附属脚本、入口、兜底脚本均应位于 `ai-plugins/common-tools/skills/<skill-name>/scripts/`、`src/`、`fallback/` 等 skill 内部目录，禁止以 `scripts/<skill-name>` 等 monorepo 通用工具路径存放。
 2. **文档路径使用相对路径**：`SKILL.md` / `README.md` 中的命令示例必须使用相对路径（如 `scripts/sync.ts`、`fallback/sync.ps1`），并注明在 skill 安装目录下运行。禁止使用 `ai-plugins/...` 等仓库源码绝对路径。
