@@ -13,7 +13,7 @@ const entry = (id = "demo") => ({
 
 const valid = (skills = [entry()]) => ({
 	schemaVersion: "1",
-	roots: ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"],
+	roots: ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills", "ai-plugins/low-frequency-skill/skills"],
 	skills,
 });
 

@@ -20,7 +20,7 @@ const RULES_CONTENT = "first\nsecond\nthird\n";
 const ICON_CONTENT = Uint8Array.from([0, 1, 2, 3]);
 const registry = {
 	schemaVersion: "1",
-	roots: ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"],
+	roots: ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills", "ai-plugins/low-frequency-skill/skills"],
 	skills: [
 		{
 			id: "fixture-skill",
@@ -56,8 +56,7 @@ async function mcp(method: string, params: unknown, id = 1): Promise<Record<stri
 
 function unpack<T>(message: Record<string, unknown>): T | undefined {
 	const result = message.result as
-		| { structuredContent?: T; content?: Array<{ type: string; text: string }> }
-		| undefined;
+		{ structuredContent?: T; content?: Array<{ type: string; text: string }> } | undefined;
 	if (result?.structuredContent !== undefined) return result.structuredContent;
 	const text = result?.content?.find((part) => part.type === "text")?.text;
 	return text ? (JSON.parse(text) as T) : undefined;
@@ -168,7 +167,9 @@ describe("production Worker harness", () => {
 		);
 
 		const tools = await mcp("tools/list", {});
-		expect(((tools.result as { tools?: Array<{ name: string }> }).tools ?? []).map((tool) => tool.name)).toEqual(toolNames);
+		expect(((tools.result as { tools?: Array<{ name: string }> }).tools ?? []).map((tool) => tool.name)).toEqual(
+			toolNames,
+		);
 
 		const listed = unpack<Array<{ id?: string; sourceCommitSha?: string }>>(
 			await mcp("tools/call", { name: "list_skills", arguments: {} }),
@@ -222,7 +223,8 @@ describe("production Worker harness", () => {
 	test("advertises an immutable Skill resource template without eager resource enumeration", async () => {
 		const templates = await mcp("resources/templates/list", {});
 		const resourceTemplates =
-			(templates.result as { resourceTemplates?: Array<{ name?: string; uriTemplate?: string }> }).resourceTemplates ?? [];
+			(templates.result as { resourceTemplates?: Array<{ name?: string; uriTemplate?: string }> }).resourceTemplates ??
+			[];
 		expect(resourceTemplates).toContainEqual(
 			expect.objectContaining({ name: "skill-resource", uriTemplate: SKILL_RESOURCE_URI_TEMPLATE }),
 		);

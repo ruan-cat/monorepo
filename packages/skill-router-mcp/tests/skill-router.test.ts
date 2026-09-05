@@ -5,7 +5,7 @@ import { SkillRouterError } from "../runtime/errors.ts";
 
 const registry = JSON.stringify({
 	schemaVersion: "1",
-	roots: ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"],
+	roots: ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills", "ai-plugins/low-frequency-skill/skills"],
 	skills: [
 		{
 			id: "demo",

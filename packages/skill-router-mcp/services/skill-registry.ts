@@ -15,7 +15,11 @@ export interface SkillRegistryDocument {
 	source?: { repository?: string };
 	skills: SkillRegistryEntry[];
 }
-export const REQUIRED_REGISTRY_ROOTS = ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"] as const;
+export const REQUIRED_REGISTRY_ROOTS = [
+	"ai-plugins/common-tools/skills",
+	"ai-plugins/dev-skills/skills",
+	"ai-plugins/low-frequency-skill/skills",
+] as const;
 
 const text = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
 

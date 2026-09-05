@@ -8,7 +8,7 @@ const SHA_B = "b".repeat(40);
 
 const registry = JSON.stringify({
 	schemaVersion: "1",
-	roots: ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills"],
+	roots: ["ai-plugins/common-tools/skills", "ai-plugins/dev-skills/skills", "ai-plugins/low-frequency-skill/skills"],
 	skills: [
 		{
 			id: "demo",
@@ -100,10 +100,7 @@ describe("SkillRouter resource pagination snapshot semantics", () => {
 			limit: 10,
 		});
 		expect(latest.sourceCommitSha).toBe(SHA_B);
-		expect(latest.resources.map((resource) => resource.path)).toEqual([
-			"references/b.md",
-			"references/c.md",
-		]);
+		expect(latest.resources.map((resource) => resource.path)).toEqual(["references/b.md", "references/c.md"]);
 		expect(fixture.resolveCount()).toBe(2);
 		expect(fixture.treeCalls).toEqual([SHA_A, SHA_B]);
 	});
@@ -150,9 +147,11 @@ describe("SkillRouter resource pagination snapshot semantics", () => {
 			offset: 0,
 		});
 
-		await expect(fixture.router.listSkillResources({ skillId: "demo", cursor: mutableSnapshot })).rejects.toMatchObject({
-			code: "RESOURCE_CURSOR_INVALID",
-		});
+		await expect(fixture.router.listSkillResources({ skillId: "demo", cursor: mutableSnapshot })).rejects.toMatchObject(
+			{
+				code: "RESOURCE_CURSOR_INVALID",
+			},
+		);
 		await expect(fixture.router.listSkillResources({ skillId: "demo", cursor: invalidPrefix })).rejects.toMatchObject({
 			code: "RESOURCE_CURSOR_INVALID",
 		});
