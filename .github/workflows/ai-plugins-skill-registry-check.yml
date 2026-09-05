@@ -5,6 +5,7 @@ on:
     paths:
       - "ai-plugins/common-tools/skills/**"
       - "ai-plugins/dev-skills/skills/**"
+      - "ai-plugins/low-frequency-skill/skills/**"
       - "ai-plugins/skill-registry.json"
       - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1"
       - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.mjs"
@@ -15,6 +16,7 @@ on:
     paths:
       - "ai-plugins/common-tools/skills/**"
       - "ai-plugins/dev-skills/skills/**"
+      - "ai-plugins/low-frequency-skill/skills/**"
       - "ai-plugins/skill-registry.json"
       - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1"
       - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.mjs"
