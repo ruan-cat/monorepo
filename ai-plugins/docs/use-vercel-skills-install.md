@@ -19,7 +19,7 @@
 
 **仅常用一端时：** 可只保留 `-a codex`。
 
-下文示例中的 `-a` 列表按上表**六端全开**，与本仓库维护者偏好一致。
+下文示例中的 `-a` 列表收敛为 `-a claude-code -a codex`，与本仓库维护者当前实际使用的客户端一致。
 
 ## 重要原则
 
@@ -37,7 +37,7 @@ npx skills add ruan-cat/monorepo --skill '*' -g -y
 ```bash
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/common-tools/skills --list
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/common-tools/skills --skill '*' -g -y \
-  -a claude-code -a codex -a cursor -a antigravity -a trae -a qoder
+  -a claude-code -a codex
 ```
 
 ## 批量安装 `dev-skills` 全部技能
@@ -45,7 +45,7 @@ npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/common-
 ```bash
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/dev-skills/skills --list
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/dev-skills/skills --skill '*' -g -y \
-  -a claude-code -a codex -a cursor -a antigravity -a trae -a qoder
+  -a claude-code -a codex
 ```
 
 ## 批量安装 `low-frequency-skill` 全部技能
@@ -53,33 +53,32 @@ npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/dev-ski
 ```bash
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/low-frequency-skill/skills --list
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/low-frequency-skill/skills --skill '*' -g -y \
-  -a claude-code -a codex -a cursor -a antigravity -a trae -a qoder
+  -a claude-code -a codex
 ```
 
 ## 个人高频一键安装命令
 
-以下是本仓库维护者日常高频使用的命令，直接从 `dev` 开发分支安装 **`dev-skills`** 与 **`common-tools`** 全部技能：
+以下是本仓库维护者日常高频使用的命令，直接从 `dev` 开发分支安装 **`common-tools`**、 **`dev-skills`** 与 **`low-frequency-skill`** 全部技能：
 
 ```bash
-skills add https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/dev-skills/skills --skill '*' -g -y -a claude-code -a codex -a cursor -a antigravity -a trae -a qoder
-skills add https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/common-tools/skills --skill '*' -g -y -a claude-code -a codex -a cursor -a antigravity -a trae -a qoder
+skills add https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/dev-skills/skills --skill '*' -g -y -a claude-code -a codex
+skills add https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/common-tools/skills --skill '*' -g -y -a claude-code -a codex
+skills add https://github.com/ruan-cat/monorepo/tree/dev/ai-plugins/low-frequency-skill/skills --skill '*' -g -y -a claude-code -a codex
 ```
 
 > 注意：上述命令使用 `skills`（全局安装后可直接调用），而不是 `npx skills`；且指向 `dev` 分支，以获取最新开发版技能。若需要稳定版，请将 URL 中的 `dev` 改为 `main`。
->
-> `low-frequency-skill` 收纳低频运行、低频维护的技能，不在高频一键安装范围；需要时使用上文的批量安装命令按插件安装。
 
-> 维护者提示：这两条命令属于完整命令型简单任务。用户要求执行时，agent 应先执行原命令并读取退出码和关键输出；只有失败，或用户另外要求同步、发布时，才进入同步器或 release。
+> 维护者提示：这三条命令属于完整命令型简单任务。用户要求执行时，agent 应先执行原命令并读取退出码和关键输出；只有失败，或用户另外要求同步、发布时，才进入同步器或 release。
 
 ## 单独安装某个技能
 
 ```bash
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/common-tools/skills/<skill-name> -g -y \
-  -a claude-code -a codex -a cursor -a antigravity -a trae -a qoder
+  -a claude-code -a codex
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/dev-skills/skills/<skill-name> -g -y \
-  -a claude-code -a codex -a cursor -a antigravity -a trae -a qoder
+  -a claude-code -a codex
 npx skills add https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/low-frequency-skill/skills/<skill-name> -g -y \
-  -a claude-code -a codex -a cursor -a antigravity -a trae -a qoder
+  -a claude-code -a codex
 ```
 
 ## 常见问题
