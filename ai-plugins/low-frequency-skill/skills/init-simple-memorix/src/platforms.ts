@@ -36,10 +36,7 @@ export const DEFAULT_MCP_PLATFORMS: McpPlatform[] = [
 	},
 	{
 		name: "workbuddy",
-		configFiles: [
-			path.join(homedir(), ".workbuddy", "mcp.json"),
-			path.join(homedir(), ".workbuddy", ".mcp.json"),
-		],
+		configFiles: [path.join(homedir(), ".workbuddy", "mcp.json"), path.join(homedir(), ".workbuddy", ".mcp.json")],
 		format: "json",
 	},
 	{

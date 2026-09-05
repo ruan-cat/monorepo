@@ -3,8 +3,8 @@ import { join } from "node:path";
 import * as fs from "node:fs";
 import * as os from "node:os";
 
-import { installMemorixMcp } from "../../ai-plugins/common-tools/skills/init-simple-memorix/src/install-mcp.ts";
-import { DEFAULT_MCP_PLATFORMS } from "../../ai-plugins/common-tools/skills/init-simple-memorix/src/platforms.ts";
+import { installMemorixMcp } from "../../ai-plugins/low-frequency-skill/skills/init-simple-memorix/src/install-mcp.ts";
+import { DEFAULT_MCP_PLATFORMS } from "../../ai-plugins/low-frequency-skill/skills/init-simple-memorix/src/platforms.ts";
 
 /**
  * 测试 installMemorixMcp 的 MCP 配置文件维护逻辑
@@ -234,7 +234,7 @@ describe("installMemorixMcp", () => {
 
 		test("B2: TOML 文件存在但没有 memorix 部分 → 应该追加，不覆盖已有内容", () => {
 			const configPath = join(tempDir, "mcp.toml");
-			fs.writeFileSync(configPath, "[other]\nkey = \"value\"\n");
+			fs.writeFileSync(configPath, '[other]\nkey = "value"\n');
 			const platforms = [createTestPlatform(configPath, "toml")];
 
 			const results = installMemorixMcp(platforms);
@@ -250,10 +250,7 @@ describe("installMemorixMcp", () => {
 
 		test("B3: TOML 文件有 memorix 但 args 需要更新 → 应该更新", () => {
 			const configPath = join(tempDir, "mcp.toml");
-			fs.writeFileSync(
-				configPath,
-				'[mcpServers.memorix]\ncommand = "memorix"\nargs = ["serve"]\n',
-			);
+			fs.writeFileSync(configPath, '[mcpServers.memorix]\ncommand = "memorix"\nargs = ["serve"]\n');
 			const platforms = [createTestPlatform(configPath, "toml")];
 
 			const results = installMemorixMcp(platforms);
@@ -268,10 +265,7 @@ describe("installMemorixMcp", () => {
 
 		test("B4: TOML 文件有 memorix 且已经是 full 模式 → 应该跳过", () => {
 			const configPath = join(tempDir, "mcp.toml");
-			fs.writeFileSync(
-				configPath,
-				'[mcpServers.memorix]\ncommand = "memorix"\nargs = ["serve", "--mode", "full"]\n',
-			);
+			fs.writeFileSync(configPath, '[mcpServers.memorix]\ncommand = "memorix"\nargs = ["serve", "--mode", "full"]\n');
 			const platforms = [createTestPlatform(configPath, "toml")];
 
 			const results = installMemorixMcp(platforms);
@@ -283,10 +277,7 @@ describe("installMemorixMcp", () => {
 
 		test("B5: TOML 文件使用单引号数组 → 应该正确解析并更新", () => {
 			const configPath = join(tempDir, "mcp.toml");
-			fs.writeFileSync(
-				configPath,
-				"[mcpServers.memorix]\ncommand = 'memorix'\nargs = ['serve']\n",
-			);
+			fs.writeFileSync(configPath, "[mcpServers.memorix]\ncommand = 'memorix'\nargs = ['serve']\n");
 			const platforms = [createTestPlatform(configPath, "toml")];
 
 			const results = installMemorixMcp(platforms);
@@ -306,10 +297,7 @@ describe("installMemorixMcp", () => {
 		test("C1: 多个候选配置文件，第一个不存在但第二个存在 → 应该处理第二个", () => {
 			const firstPath = join(tempDir, "first.json");
 			const secondPath = join(tempDir, "second.json");
-			fs.writeFileSync(
-				secondPath,
-				JSON.stringify({ mcpServers: {} }, null, 2),
-			);
+			fs.writeFileSync(secondPath, JSON.stringify({ mcpServers: {} }, null, 2));
 
 			const platforms = [
 				{

@@ -64,9 +64,7 @@ function installJsonMcp(
 
 		if (mcpServers.memorix) {
 			const existing = mcpServers.memorix as Record<string, unknown>;
-			const previousArgs = Array.isArray(existing.args)
-				? (existing.args as string[])
-				: undefined;
+			const previousArgs = Array.isArray(existing.args) ? (existing.args as string[]) : undefined;
 
 			if (hasFullModeArgs(previousArgs)) {
 				return { status: "skipped", previousArgs };
@@ -125,10 +123,7 @@ function updateTomlSection(
 	// 找到下一个 [xxx] section 的位置，即当前 section 的结束位置
 	const nextSectionRegex = /^\[[^\]]+\]\s*$/m;
 	const nextMatch = nextSectionRegex.exec(afterSection);
-	const sectionEnd =
-		nextMatch !== null
-			? sectionStart + sectionMatch[0].length + nextMatch.index!
-			: content.length;
+	const sectionEnd = nextMatch !== null ? sectionStart + sectionMatch[0].length + nextMatch.index! : content.length;
 
 	const before = content.slice(0, sectionStart);
 	const sectionBody = content.slice(sectionStart, sectionEnd);
@@ -143,10 +138,7 @@ function updateTomlSection(
 		if (hasFullModeArgs(previousArgs)) {
 			return { changed: false, newContent: content, previousArgs };
 		}
-		const newSectionBody = sectionBody.replace(
-			argsRegex,
-			`args = ${formatTomlArgs(newArgs)}`,
-		);
+		const newSectionBody = sectionBody.replace(argsRegex, `args = ${formatTomlArgs(newArgs)}`);
 		return { changed: true, newContent: before + newSectionBody + after, previousArgs };
 	}
 
@@ -208,10 +200,7 @@ function installTomlMcp(
 
 // ---- Main entry ----
 
-export function installMemorixMcp(
-	platforms: McpPlatform[],
-	options?: InstallMcpOptions,
-): InstallMcpResult[] {
+export function installMemorixMcp(platforms: McpPlatform[], options?: InstallMcpOptions): InstallMcpResult[] {
 	const results: InstallMcpResult[] = [];
 	const dryRun = options?.dryRun ?? false;
 
@@ -243,10 +232,7 @@ export function installMemorixMcp(
 		const existingFile = platform.configFiles.find((f) => existsSync(f));
 		const targetFile = existingFile ?? platform.configFiles[0];
 
-		const res =
-			platform.format === "json"
-				? installJsonMcp(targetFile, dryRun)
-				: installTomlMcp(targetFile, dryRun);
+		const res = platform.format === "json" ? installJsonMcp(targetFile, dryRun) : installTomlMcp(targetFile, dryRun);
 
 		results.push({
 			platform: platform.name,
