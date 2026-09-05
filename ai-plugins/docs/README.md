@@ -11,17 +11,30 @@ ai-plugins/
 │   ├── .cursor-plugin/plugin.json
 │   ├── .codex-plugin/plugin.json
 │   └── skills/
-└── dev-skills/
+├── dev-skills/
+│   ├── .claude-plugin/plugin.json
+│   ├── .cursor-plugin/plugin.json
+│   ├── .codex-plugin/plugin.json
+│   └── skills/
+└── low-frequency-skill/
     ├── .claude-plugin/plugin.json
     ├── .cursor-plugin/plugin.json
     ├── .codex-plugin/plugin.json
     └── skills/
+        ├── clone-ruancat-repo/
+        ├── factory-reset-vscode-fork-ide/
+        ├── get-git-branch/
+        ├── init-claude-code-statusline/
+        ├── init-playwright/
+        ├── init-simple-memorix/
+        └── init-tsconfig/
 ```
 
 ## 可安装插件
 
 - `common-tools`：常用开发辅助工具技能
-- `dev-skills`：偏工程研发流程的技能（含 Playwright 初始化、Nitro、OpenSpec 等）
+- `dev-skills`：偏工程研发流程的技能（含 Nitro、OpenSpec 等）
+- `low-frequency-skill`：阮喵喵低频使用与低频维护的技能合集（含 init-playwright、init-simple-memorix 等）
 
 ## 按平台安装
 

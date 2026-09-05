@@ -9,9 +9,10 @@
 ```bash
 /add-plugin ruan-cat-tools/common-tools
 /add-plugin ruan-cat-tools/dev-skills
+/add-plugin ruan-cat-tools/low-frequency-skill
 ```
 
-如果你使用的是 marketplace 页面方式，也可以在 Cursor Marketplace 中搜索 `ruan-cat-tools` 后分别安装 `common-tools` 与 `dev-skills`。
+如果你使用的是 marketplace 页面方式，也可以在 Cursor Marketplace 中搜索 `ruan-cat-tools` 后分别安装 `common-tools`、`dev-skills` 与 `low-frequency-skill`。
 
 ## 更新插件
 

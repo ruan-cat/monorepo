@@ -12,16 +12,18 @@
 
 ## 2) 安装插件
 
-当前提供两个插件：
+当前提供三个插件：
 
 - `common-tools`
 - `dev-skills`
+- `low-frequency-skill`
 
 安装命令示例：
 
 ```bash
 /plugin install common-tools@ruan-cat-tools
 /plugin install dev-skills@ruan-cat-tools
+/plugin install low-frequency-skill@ruan-cat-tools
 ```
 
 ## 3) 更新插件
@@ -35,8 +37,10 @@
 ```bash
 /plugin uninstall common-tools
 /plugin uninstall dev-skills
+/plugin uninstall low-frequency-skill
 /plugin install common-tools@ruan-cat-tools
 /plugin install dev-skills@ruan-cat-tools
+/plugin install low-frequency-skill@ruan-cat-tools
 ```
 
 ## 4) 相关文档

@@ -160,12 +160,10 @@ Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现�
 
 通用开发辅助技能，覆盖 Git 工作流、项目初始化、AI 记忆管理等高频场景：
 
-- **get-git-branch**: 诊断并修复 Git 仓库无法看到所有远程分支的问题，恢复通配符 fetch refspec
 - **git-commit**: 创建高质量 Git 提交，支持 Conventional Commits 规范、Emoji、破坏性变更格式、暂存区优先与多提交拆分
 - **add-favicon**: 为文档站或 monorepo 批量站点补全本地 `favicon.svg`，优先参考 Iconify/Lucide 风格，保持透明背景、简洁线性和显式 `head` 配置
 - **do-long-task**: 面向 OpenSpec 长任务、上下文恢复和测试失败重试的可恢复执行纪律，要求动态补全 `tasks.md`、以 OpenSpec 工件链协作推进，并持续维护 `agent-progress.md` / `agent-findings.md`；也支持生成 1500 字以内的 Claude Code `/goal` 与 Codex `/goal` 长任务执行提示词
 - **init-ai-md**: 以 `AGENTS.md` 为唯一事实来源初始化、迁移和增量更新 AI 记忆文件，并将 `CLAUDE.md` / `GEMINI.md` 固定为重定向文件
-- **init-claude-code-statusline**: 初始化 Claude Code 状态栏配置文件（`.claude/settings.json` + `statusline.sh`），展示目录、分支、模型、上下文窗口
 - **init-linux-cloud-agent-env**: 初始化云 linux 环境的 AI agent 基础设施：安装 Anthropic Python MCP cli、按模板安装并验证 github/skill-router-mcp/vercel/Neon 四款 MCP、安装 gh cli 与 vercel cli，并提供基于 github pr 的云任务执行规范
 - **init-prettier-git-hooks**: 初始化基于 lint-staged + simple-git-hooks + prettier 的 Git 提交前代码格式化流程
 - **init-vscode**: 初始化或更新 VSCode 配置文件（`extensions.json`、`settings.json`），支持 monorepo 和单体项目，智能合并现有配置
@@ -490,12 +488,10 @@ common-tools/
 │   │   ├── AGENT_LONGTASK.md
 │   │   ├── references/                      # 长任务细则：执行纪律、OpenSpec、子代理、验证、/goal 提示词
 │   │   └── evals/
-│   ├── get-git-branch/SKILL.md             # 修复远程分支拉取问题
 │   ├── git-commit/SKILL.md                 # 高质量 Git 提交
 │   ├── init-ai-md/                          # 初始化 AI 记忆文件
 │   │   ├── SKILL.md
 │   │   └── templates/                       # 各类记忆章节模板 + record-bug-fix-memory 子技能
-│   ├── init-claude-code-statusline/SKILL.md # Claude Code 状态栏初始化
 │   ├── init-prettier-git-hooks/SKILL.md    # Prettier + Git Hooks 初始化
 │   ├── init-vscode/SKILL.md                # VSCode 配置初始化
 │   ├── install-mcp/SKILL.md                # AI agent MCP 配置清单与调度

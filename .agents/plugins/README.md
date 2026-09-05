@@ -1,6 +1,6 @@
 # Codex 插件市场
 
-本目录是本仓库的 Codex 插件市场入口，提供 `common-tools` 与 `dev-skills` 两个插件。
+本目录是本仓库的 Codex 插件市场入口，提供 `common-tools`、`dev-skills` 与 `low-frequency-skill` 三个插件。
 
 ## 元数据说明
 
@@ -16,6 +16,7 @@
 codex plugin marketplace add ruan-cat/monorepo --ref main
 codex plugin add common-tools@ruan-cat-tools
 codex plugin add dev-skills@ruan-cat-tools
+codex plugin add low-frequency-skill@ruan-cat-tools
 ```
 
 从本地仓库验证或开发时，将第一条命令替换为：
@@ -32,13 +33,14 @@ codex plugin remove common-tools@ruan-cat-tools
 codex plugin add common-tools@ruan-cat-tools
 ```
 
-对 `dev-skills` 使用相同的 remove/add 流程。更新后新开一个 Codex task，以便加载新技能。
+对 `dev-skills` 与 `low-frequency-skill` 使用相同的 remove/add 流程。更新后新开一个 Codex task，以便加载新技能。
 
 ## 卸载
 
 ```powershell
 codex plugin remove common-tools@ruan-cat-tools
 codex plugin remove dev-skills@ruan-cat-tools
+codex plugin remove low-frequency-skill@ruan-cat-tools
 codex plugin marketplace remove ruan-cat-tools
 ```
 
