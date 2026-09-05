@@ -12,7 +12,7 @@ description: >-
   `@vueuse/core`、`registerMessageResolver`、`prerender:routes` 等错误信号。
 user-invocable: true
 metadata:
-  version: "1.3.0"
+  version: "1.6.0"
 ---
 
 # 初始化 `shadcn-docs-nuxt` 组件库文档
@@ -48,17 +48,19 @@ metadata:
 
 ## 参考文档索引（references/）
 
-| 文件                                                                                                       | 内容                                                                                           |
-| ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| [`references/nuxt-config.md`](references/nuxt-config.md)                                                   | 按需补丁策略、禁改项清单                                                                       |
-| [`references/compat.md`](references/compat.md)                                                             | ESM/CJS 兼容速查表、排查顺序、常见误判表                                                       |
-| [`references/tailwind-css.md`](references/tailwind-css.md)                                                 | content 扫描规则、CSS 变量格式、常见样式问题排查                                               |
-| [`references/mdc-prettier.md`](references/mdc-prettier.md)                                                 | MDC 标准语法、5 种错误写法对照、hydration mismatch 因果链                                      |
-| [`references/windows.md`](references/windows.md)                                                           | 构建假卡死、子进程链清理、EPERM 文件锁、单进程复现法                                           |
-| [`references/workspace.md`](references/workspace.md)                                                       | 别名顺序陷阱、依赖矩阵、plugin 注册、i18n 单语、OG Image、目录结构                             |
-| [`references/incident-repair.md`](references/incident-repair.md)                                           | Nuxt Content/H3 版本漂移、prerender 钩子历史与构建故障分层排查                                 |
-| [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md) | production graph、final Nitro OOM、standalone `MODULE_NOT_FOUND`、Turbo cache 与 artifact 验收 |
-| [`references/README.md`](references/README.md)                                                             | 九份现行参考的信号导航与迁移台账                                                               |
+| 文件                                                                                                       | 内容                                                                                                 |
+| ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| [`references/nuxt-config.md`](references/nuxt-config.md)                                                   | 按需补丁策略、禁改项清单                                                                             |
+| [`references/compat.md`](references/compat.md)                                                             | ESM/CJS 兼容速查表、排查顺序、常见误判表                                                             |
+| [`references/tailwind-css.md`](references/tailwind-css.md)                                                 | content 扫描规则、CSS 变量格式、常见样式问题排查                                                     |
+| [`references/mdc-prettier.md`](references/mdc-prettier.md)                                                 | MDC 标准语法、5 种错误写法对照、hydration mismatch 因果链                                            |
+| [`references/windows.md`](references/windows.md)                                                           | 构建假卡死、子进程链清理、EPERM 文件锁、单进程复现法                                                 |
+| [`references/workspace.md`](references/workspace.md)                                                       | 别名顺序陷阱、依赖矩阵、plugin 注册、i18n 单语、OG Image、目录结构                                   |
+| [`references/incident-repair.md`](references/incident-repair.md)                                           | Nuxt Content/H3 版本漂移、prerender 钩子历史与构建故障分层排查                                       |
+| [`references/dependency-triage.md`](references/dependency-triage.md)                                       | 依赖提升层排查、packageExtensions/overrides/patch 决策、optimizeDeps 盲区、fork 治理、平台二进制追踪 |
+| [`references/ssr-hydration.md`](references/ssr-hydration.md)                                               | 水合诊断工具链、非 SSR-safe 包隔离手法、hoisted 组件解析陷阱、HTTP 200 假象、SSR 验收清单            |
+| [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md) | production graph、final Nitro OOM、standalone `MODULE_NOT_FOUND`、Turbo cache 与 artifact 验收       |
+| [`references/README.md`](references/README.md)                                                             | 九份现行参考的信号导航与迁移台账                                                                     |
 
 ---
 
@@ -73,7 +75,7 @@ metadata:
 
 ---
 
-## 历史事故强约束（14 条记忆）
+## 历史事故强约束（22 条记忆）
 
 执行本技能时，**必须默认带着这些"已发生过"的事故记忆**：
 
@@ -91,6 +93,14 @@ metadata:
 12. **Vercel `READY` 不等于 runtime 通过**：READY 后必须请求部署 URL 的页面与 Content cache/search API，并读取 Function runtime 日志；没有 HTTP/日志证据时只能标记 `candidate` 或 `needs_check`，不能写“生产通过”。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
 13. **修改前后保护 dirty tree**：先记录 `git status --short --untracked-files=all` 与目标 diff；禁止在时间压力下无授权 `git add .`、覆盖、reset 或把用户脏改动混入验证/提交。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
 14. **构建工具 override 必须按包和 registry 证据收窄**：`tsdown@0.3.1>rolldown` 仅用于复现 `rolldown@nightly` registry 解析阻断；禁止用 root 全局 `rolldown` override 掩盖 peer/API 不兼容，必须先检查 `pnpm why/list`、manifest、lockfile 与 clean fresh install。→ 见 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)
+15. **依赖提升层污染（2026-09-05 ai-vue-doc 实证）**：monorepo 中任一包引入新版传递依赖（如 h3 v2）会翻转 pnpm 提升层，所有「未声明该依赖却裸导入」的包同时中招；`pnpm why` 显示单版本 ≠ 运行时单实例。修复用 `packageExtensions` 逐包注入，禁用全局 override。→ 见 [`references/dependency-triage.md`](references/dependency-triage.md)
+16. **optimizeDeps 预构建盲区（2026-09-05 实证）**：`.client` 插件导入与插件内动态导入的包不在扫描入口，CJS 传递依赖无 interop → 整站不水合且 console 常无错。修复用 `vite.optimizeDeps.include` 显式纳入（嵌套 `>` 语法）。→ 见 [`references/dependency-triage.md`](references/dependency-triage.md)
+17. **HTTP 200 ≠ 内容正常（catch-all 假象）**：`pages/[...slug].vue` 会把 404 UI 以 200 返回；验证必须断言 `<title>` 或正文内容。→ 见 [`references/ssr-hydration.md`](references/ssr-hydration.md)
+18. **模块执行失败不一定走 console（水合诊断工具链）**：判定水合用 `__vue_app__`；抓真实错误用动态 `import(entry + '?v=diag')`；定位导入链用 CDP `Network.requestWillBeSent` 的 `initiator.url`；Chrome 152 自动启动失败时走手动 CDP 降级路径。→ 见 [`references/ssr-hydration.md`](references/ssr-hydration.md)
+19. **客户端/服务端组件注册不对称（hoisted 解析陷阱）**：Vue 把组件解析 hoist 到 render 开头，`v-if` 为假也执行；client-only 注册的组件被 SSR 引用必警告，静态 import 修复会把非 SSR-safe 包拉进 SSR 图致 500，标准解法是 `defineAsyncComponent`。→ 见 [`references/ssr-hydration.md`](references/ssr-hydration.md)
+20. **fork 包改名的硬编码自引用残留（2026-09-05 实证）**：fork 的 dist 内可能硬编码旧包名前缀的 `optimizeDeps.include` 条目，vite 必然解析失败；用 `pnpm patch` 修正前缀（先确认依赖链物理完整）。引入 fork 后先 grep 其 dist 自引用字符串。→ 见 [`references/dependency-triage.md`](references/dependency-triage.md)
+21. **非 SSR-safe 包的隔离与 UI 配置陷阱**：非 SSR-safe 包（顶层 DOM API、dist 内 CSS 导入）一律走 `.client` 边界；UI 配置（logo 等）修改必须过桌面视口浏览器验收，源码 `v-if` 分支推断不可靠。→ 见 [`references/ssr-hydration.md`](references/ssr-hydration.md)
+22. **构建期平台二进制警告先验证再定性**：`sharp binaries cannot be found` 不一定是缺依赖——nitro `trace: false` 下追踪目录必然为空；先验证 sharp 可加载性，再查 trace 配置与部署产物。→ 见 [`references/dependency-triage.md`](references/dependency-triage.md)
 
 ---
 
@@ -101,17 +111,27 @@ metadata:
 `page._id` 为空、Windows 构建长时间无输出等信号时，**先读取**
 [`references/incident-repair.md`](references/incident-repair.md)，再修改配置或内容。
 
+出现依赖解析类信号——`Failed to resolve dependency`、整批包同时报同一依赖的导出缺失、
+`sharp binaries ... cannot be found`、fork 包升级后批量 WARN、`pnpm why` 与实际行为矛盾——
+**先读取** [`references/dependency-triage.md`](references/dependency-triage.md)。
+
+出现 SSR/水合类信号——页面 200 但交互全死、console 干净却不水合、
+`Failed to resolve component: X`、SSR 渲染非 SSR-safe 包致 500、
+暗黑模式/侧栏失效且组件注册在 `.client` 插件——**先读取**
+[`references/ssr-hydration.md`](references/ssr-hydration.md)。
+
 出现 final Nitro OOM、standalone `MODULE_NOT_FOUND`、production graph 被 alias 或宽 externalization 放大、
 Turbo cache 与 `.output` 不一致、artifact 无法启动或 HTTP smoke 失败时，**先读取**
 [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md)。
 
 修改任何 `nuxt.config.ts`、manifest 或 lockfile 前，先读取当前工作树状态；部署验证时必须区分本地、CI、Vercel 和浏览器四类证据。
 
-检修时必须先回答三件事：
+检修时必须先回答四件事：
 
-1. 实际安装的 `shadcn-docs-nuxt`、`@ztl-uwu/nuxt-content`、`nuxt`、`h3`、`nuxt-og-image`、`@nuxt/kit` 是否属于同一兼容世代；
-2. 当前错误属于 Content/H3 运行时失配、Windows OOM/NFT 构建长尾，还是 production graph 的 Vite SSR transform、Nitro inline、trace/manifest 闭包；
-3. 当前配置是否误用了历史 `prerender:routes` / `routes.clear()`、无条件 `trace: false` 或全量 `inline`。
+1. 实际安装的 `shadcn-docs-nuxt`、`@ztl-uwu/nuxt-content`、`nuxt`、`h3`、`nuxt-og-image`、`@nuxt/kit` 是否属于同一兼容世代；提升层 `.pnpm/node_modules` 的版本与裸导入的解析目标是否与 `pnpm why` 一致；
+2. 当前错误属于 Content/H3 运行时失配、依赖提升层/预构建盲区（→ dependency-triage.md）、SSR/水合边界（→ ssr-hydration.md）、Windows OOM/NFT 构建长尾，还是 production graph 的 Vite SSR transform、Nitro inline、trace/manifest 闭包；
+3. 当前配置是否误用了历史 `prerender:routes` / `routes.clear()`、无条件 `trace: false` 或全量 `inline`；
+4. 验证口径是否包含内容断言、水合判定、浏览器桌面视口截图与交互闭环（状态码 200 与 console 干净都不足为证）。
 
 不要用单次首页 `200` 或本地 Windows 构建成功替代 Content API、fresh 依赖树和 Linux/Vercel 验证。
 
