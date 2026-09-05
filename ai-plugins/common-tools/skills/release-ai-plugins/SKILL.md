@@ -1,14 +1,14 @@
 ---
 name: release-ai-plugins
 description: >-
-  Use when releasing or upgrading the common-tools or dev-skills plugins, synchronizing
+  Use when releasing or upgrading the common-tools, dev-skills, or low-frequency-skill plugins, synchronizing
   Claude/Cursor/Codex manifests and marketplaces, updating CHANGELOG files, validating
   README and installation-document consistency, or generating/checking the
   skill-registry.json discovery manifest for Skill Router MCP.
   当用户要求插件发布、版本升级、更新日志、manifest、marketplace、README 一致性、
   skill-registry.json、MCP skill registry 或 registry stale 校验时使用。
 metadata:
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # AI Plugins 发布流程
@@ -26,7 +26,7 @@ metadata:
 - `-Skill`：确实修改过的 skill 名称，可重复或逗号分隔；省略时由脚本根据 Git 变更自动发现。
 - `-ChangeType`：`added`、`major`、`minor` 或 `patch`，用于升级每个被修改 skill 的
   `metadata.version`。
-- `-Summary`：写入两个 CHANGELOG 的简短说明。
+- `-Summary`：写入三个 CHANGELOG 的简短说明。
 - `-NewSkill`：新增 skill 名称；对应插件根 README 必须先包含该名称。
 - `-Apply`：明确允许写文件；未指定时为 DryRun。
 
@@ -34,13 +34,13 @@ metadata:
 
 1. 核对输入、Skill 所属 root 及每个 `SKILL.md` 的 frontmatter。
 2. 只升级本次确实变更的 Skill `metadata.version`，不得顺手升级其他 Skill。
-3. 同步六个 `plugin.json`、Claude/Cursor 两个带版本 marketplace；校验 Codex marketplace 和两个 Codex manifest 的专属字段。
-4. 更新两个插件 CHANGELOG；新增 Skill 先通过对应插件 README 阻断校验。
+3. 同步九个 `plugin.json`、Claude/Cursor 两个带版本 marketplace；校验 Codex marketplace 和三个 Codex manifest 的专属字段。
+4. 更新三个插件 CHANGELOG；新增 Skill 先通过对应插件 README 阻断校验。
 5. Apply 时，在所有 Skill 版本和发布文件完成后只调用一次 registry Apply，再只调用一次 Check。
    release 主脚本可继续通过 PowerShell 兼容入口调用；实际生成和比较必须由 Node `.mjs` 完成。
 6. 完成既有 JSON、版本、README、CHANGELOG、安装文档和 `git diff --check` 验收。
 
-多 Skill 批量发布不得在 changed-Skill 循环中重复生成 registry。Generator 始终从两个
+多 Skill 批量发布不得在 changed-Skill 循环中重复生成 registry。Generator 始终从三个
 Skill roots 全量扫描当前 working tree；新增、删除、重命名分别表现为 entry 增加、消失和
 旧 id 消失/新 id 出现。
 
@@ -69,7 +69,7 @@ manifest，不是人工维护的第二真源。v1 只包含 `schemaVersion`、�
 ## CI Workflow 维护契约
 
 固定维护入口是 `.github/workflows/ai-plugins-skill-registry-check.yml`。它保持只读 `-Check` 契约，
-并覆盖两个 Skill roots、registry、`.ps1` 兼容入口、`.mjs` generator 和 workflow 自身；不允许 Apply、commit 或 push。
+并覆盖三个 Skill roots、registry、`.ps1` 兼容入口、`.mjs` generator 和 workflow 自身；不允许 Apply、commit 或 push。
 
 - CI 在 Ubuntu 与 Windows 上运行同一 Node generator，验证 canonical output 不依赖操作系统。
 - CI 固定使用仓库 `engines.node` 的最低支持版本；generator 只使用 Node 内置模块，不安装项目依赖。
@@ -111,7 +111,7 @@ CLI 或官方安装验证后才能标记已验证。受账号、客户端或环�
 ## 版本与文件契约
 
 - 插件主版本来源是 `.claude-plugin/marketplace.json` 的 `metadata.version`，必须同步到 Cursor marketplace
-  与六个 `plugin.json`；Codex marketplace 不得虚构版本字段。
+  与九个 `plugin.json`；Codex marketplace 不得虚构版本字段。
 - Skill 的 `metadata.version` 独立演进，只在该 Skill 确实变化时升级。
 - Node `.mjs` generator 是 registry 的唯一 canonical 写入者；PowerShell wrapper 只是兼容适配器；release 主脚本只把 registry 作为严格白名单中的预期产物。
 - 参考字段矩阵、CHANGELOG 格式、Codex smoke test 和 exact-commit 规则见
@@ -139,6 +139,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ai-plugins/common-tools/skil
 - `.claude-plugin/README.md`
 - `.cursor-plugin/README.md`
 - `.agents/plugins/README.md`
+- `ai-plugins/low-frequency-skill/README.md`
 - 根 `README.md`
 
 安装命令和 source 路径必须使用 `ai-plugins/...`，不得残留 `claude-code-marketplace/`；新增 Skill
@@ -154,7 +155,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ai-plugins/common-tools/skil
 
 ## 验收清单
 
-- [ ] DryRun 输出 Skill、九个 JSON、两个 CHANGELOG、README、registry 计划且零写入。
+- [ ] DryRun 输出 Skill、十二个 JSON、三个 CHANGELOG、README、registry 计划且零写入。
 - [ ] Apply 后 Node generator Apply 与最终 Check 均通过，且批量只各调用一次。
 - [ ] PowerShell 兼容入口只转发参数，不含任何 registry 文本/JSON 处理逻辑。
 - [ ] `.github/workflows/ai-plugins-skill-registry-check.yml` 保持只读核心 contract，且显式监听 `.mjs` generator。

@@ -2,7 +2,8 @@
   "schemaVersion": "1",
   "roots": [
     "ai-plugins/common-tools/skills",
-    "ai-plugins/dev-skills/skills"
+    "ai-plugins/dev-skills/skills",
+    "ai-plugins/low-frequency-skill/skills"
   ],
   "skills": [
     {
@@ -23,11 +24,11 @@
     },
     {
       "id": "clone-ruancat-repo",
-      "plugin": "common-tools",
+      "plugin": "low-frequency-skill",
       "name": "clone-ruancat-repo",
       "description": "按固定清单快速克隆 GitHub 用户 ruan-cat 的常用仓库（及 tocque/h5mota-web）到约定目录名， 支持浅克隆与多分支抓取等参数组合。在用户提及「克隆 ruan-cat 仓库」「拉常用仓库」 「clone-ruan-cat」「初始化本地多仓」「同步阮喵喵 GitHub 仓库」或需要一键复现本机仓库存量时使用。 命令清单以 references/clone-commands.md 为唯一真实来源。",
       "version": "0.2.1",
-      "entry": "ai-plugins/common-tools/skills/clone-ruancat-repo/SKILL.md"
+      "entry": "ai-plugins/low-frequency-skill/skills/clone-ruancat-repo/SKILL.md"
     },
     {
       "id": "do-long-task",
@@ -38,12 +39,20 @@
       "entry": "ai-plugins/common-tools/skills/do-long-task/SKILL.md"
     },
     {
+      "id": "factory-reset-vscode-fork-ide",
+      "plugin": "low-frequency-skill",
+      "name": "factory-reset-vscode-fork-ide",
+      "description": "将基于 VSCode 二次开发的 IDE（如 Qoder CN IDE、Trae、Cursor、Windsurf、Cline 类）还原到出厂状态：强制卸载全部导入/内置的 vscode 插件、删除扩展残留文件夹、重置用户级 settings.json / keybindings.json / snippets。当用户提到「还原出厂」「清空插件」「删除导入的 vscode 扩展」「重置 IDE 配置」「二次开发 IDE 清理」「factory reset」「uninstall all extensions」，或给出某个 IDE 安装目录要求删光其插件与个人配置时使用。内置 CLI 选错入口、built-in 扩展拦截、目录找错时的主动探索方案。",
+      "version": "1.0.0",
+      "entry": "ai-plugins/low-frequency-skill/skills/factory-reset-vscode-fork-ide/SKILL.md"
+    },
+    {
       "id": "get-git-branch",
-      "plugin": "common-tools",
+      "plugin": "low-frequency-skill",
       "name": "get-git-branch",
       "description": "诊断并修复 Git 仓库无法看到所有远程分支的问题，将受限的 fetch refspec 恢复为通配符模式， 使 git fetch 能拉取全部远程分支。当用户提及「看不到远程分支」「分支不全」 「只有 master/main」「fetch 所有分支」「shallow clone 补全分支」 「--single-branch 修复」「远程分支丢失」「获取全部分支」等关键词时使用此技能。 即使用户没有明确提到 refspec 或 shallow clone，只要意图是让仓库能看到并拉取所有远程分支， 就应触发此技能。",
       "version": "0.1.0",
-      "entry": "ai-plugins/common-tools/skills/get-git-branch/SKILL.md"
+      "entry": "ai-plugins/low-frequency-skill/skills/get-git-branch/SKILL.md"
     },
     {
       "id": "git-commit",
@@ -63,11 +72,11 @@
     },
     {
       "id": "init-claude-code-statusline",
-      "plugin": "common-tools",
+      "plugin": "low-frequency-skill",
       "name": "init-claude-code-statusline",
       "description": "初始化、更新或覆盖 Claude Code 状态栏配置文件（.claude/settings.json 和 .claude/statusline.sh）。用于在任何项目中快速搭建 Claude Code 状态栏显示功能， 展示目录、Git 分支、模型、版本和上下文窗口使用情况。",
       "version": "0.15.0",
-      "entry": "ai-plugins/common-tools/skills/init-claude-code-statusline/SKILL.md"
+      "entry": "ai-plugins/low-frequency-skill/skills/init-claude-code-statusline/SKILL.md"
     },
     {
       "id": "init-linux-cloud-agent-env",
@@ -79,11 +88,11 @@
     },
     {
       "id": "init-playwright",
-      "plugin": "dev-skills",
+      "plugin": "low-frequency-skill",
       "name": "init-playwright",
       "description": "在 pnpm monorepo 初始化 Playwright 三件套（@playwright/test + @playwright/cli + playwright-mcp），含 e2e/视觉测试骨架、MCP 配置、AI skills 生成、AI 记忆更新。 内置无头浏览器 CPU 过载事故复盘与故障排查指南：可排查 headless 模式下的 高 CPU 占用（100%）、浏览器卡死、Chromium 进程残留无法退出、 大屏 3D WebGL 渲染性能问题；提供紧急止损步骤和长期回归检查清单。 当用户提及 playwright 初始化、大屏视觉测试、e2e 测试搭建、 playwright monorepo 配置、pw_core/pw_visual MCP 等时触发。 也适用于无头浏览器性能故障排查、headless CPU 100% 诊断、 Chromium 进程残留清理、浏览器进程无法退出处理、 大屏 3D 渲染性能调优等排查场景。",
       "version": "1.1.0",
-      "entry": "ai-plugins/dev-skills/skills/init-playwright/SKILL.md"
+      "entry": "ai-plugins/low-frequency-skill/skills/init-playwright/SKILL.md"
     },
     {
       "id": "init-prettier-git-hooks",
@@ -119,11 +128,19 @@
     },
     {
       "id": "init-simple-memorix",
-      "plugin": "common-tools",
+      "plugin": "low-frequency-skill",
       "name": "init-simple-memorix",
       "description": "Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、full 模式、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、setup 或升级后重新精简等场景。",
       "version": "2.4.0",
-      "entry": "ai-plugins/common-tools/skills/init-simple-memorix/SKILL.md"
+      "entry": "ai-plugins/low-frequency-skill/skills/init-simple-memorix/SKILL.md"
+    },
+    {
+      "id": "init-tsconfig",
+      "plugin": "low-frequency-skill",
+      "name": "init-tsconfig",
+      "description": "通过 tsconfig.json 的合理配置降低 VSCode tsserver 的运行时内存占用，附 14 仓库实证策略矩阵与批量落地流程。当用户要求降低 tsserver 或 TypeScript 内存、优化 VSCode/IDE 内存占用、批量治理项目 tsconfig 时使用。",
+      "version": "1.0.0",
+      "entry": "ai-plugins/low-frequency-skill/skills/init-tsconfig/SKILL.md"
     },
     {
       "id": "init-vscode",
@@ -185,8 +202,8 @@
       "id": "release-ai-plugins",
       "plugin": "common-tools",
       "name": "release-ai-plugins",
-      "description": "Use when releasing or upgrading the common-tools or dev-skills plugins, synchronizing Claude/Cursor/Codex manifests and marketplaces, updating CHANGELOG files, validating README and installation-document consistency, or generating/checking the skill-registry.json discovery manifest for Skill Router MCP. 当用户要求插件发布、版本升级、更新日志、manifest、marketplace、README 一致性、 skill-registry.json、MCP skill registry 或 registry stale 校验时使用。",
-      "version": "2.0.0",
+      "description": "Use when releasing or upgrading the common-tools, dev-skills, or low-frequency-skill plugins, synchronizing Claude/Cursor/Codex manifests and marketplaces, updating CHANGELOG files, validating README and installation-document consistency, or generating/checking the skill-registry.json discovery manifest for Skill Router MCP. 当用户要求插件发布、版本升级、更新日志、manifest、marketplace、README 一致性、 skill-registry.json、MCP skill registry 或 registry stale 校验时使用。",
+      "version": "2.1.0",
       "entry": "ai-plugins/common-tools/skills/release-ai-plugins/SKILL.md"
     },
     {

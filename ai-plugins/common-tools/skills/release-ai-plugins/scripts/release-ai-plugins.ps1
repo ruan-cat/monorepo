@@ -7,11 +7,11 @@
 .DESCRIPTION
     默认 DryRun 只输出计划，不写任何文件；只有显式 -Apply 才写文件。
     只允许操作白名单文件：
-      - 6 份 plugin.json（common-tools / dev-skills x Claude / Cursor / Codex）
+      - 9 份 plugin.json（common-tools / dev-skills / low-frequency-skill x Claude / Cursor / Codex）
       - 2 份 marketplace.json（根级 .claude-plugin / .cursor-plugin，含版本字段）
       - 1 份 Codex marketplace.json（.agents/plugins，无版本字段，仅校验）
-      - 2 份 CHANGELOG.md（common-tools / dev-skills）
-      - 2 份插件 README.md（新增技能时的阻断校验，只读）
+      - 3 份 CHANGELOG.md（common-tools / dev-skills / low-frequency-skill）
+      - 3 份插件 README.md（新增技能时的阻断校验，只读）
       - ai-plugins/skill-registry.json（仅由独立 generator 生成）
       - -Skill / -NewSkill 显式指定的 SKILL.md
     仓库根目录自动定位（向上查找 pnpm-workspace.yaml 或 .git）。
@@ -107,7 +107,10 @@ $PluginJson = @(
     "ai-plugins/common-tools/.codex-plugin/plugin.json",
     "ai-plugins/dev-skills/.claude-plugin/plugin.json",
     "ai-plugins/dev-skills/.cursor-plugin/plugin.json",
-    "ai-plugins/dev-skills/.codex-plugin/plugin.json"
+    "ai-plugins/dev-skills/.codex-plugin/plugin.json",
+    "ai-plugins/low-frequency-skill/.claude-plugin/plugin.json",
+    "ai-plugins/low-frequency-skill/.cursor-plugin/plugin.json",
+    "ai-plugins/low-frequency-skill/.codex-plugin/plugin.json"
 )
 $MarketplaceJson = @(
     ".claude-plugin/marketplace.json",
@@ -116,11 +119,13 @@ $MarketplaceJson = @(
 )
 $Changelogs = @(
     "ai-plugins/common-tools/CHANGELOG.md",
-    "ai-plugins/dev-skills/CHANGELOG.md"
+    "ai-plugins/dev-skills/CHANGELOG.md",
+    "ai-plugins/low-frequency-skill/CHANGELOG.md"
 )
 $PluginReadmes = @(
     "ai-plugins/common-tools/README.md",
-    "ai-plugins/dev-skills/README.md"
+    "ai-plugins/dev-skills/README.md",
+    "ai-plugins/low-frequency-skill/README.md"
 )
 $ReleaseDocs = @(
     "ai-plugins/docs/README.md",
@@ -132,7 +137,8 @@ $ReleaseDocs = @(
 )
 $SkillTrees = @(
     "ai-plugins/common-tools/skills",
-    "ai-plugins/dev-skills/skills"
+    "ai-plugins/dev-skills/skills",
+    "ai-plugins/low-frequency-skill/skills"
 )
 $SkillRegistry = "ai-plugins/skill-registry.json"
 $SkillRegistryWorkflow = ".github/workflows/ai-plugins-skill-registry-check.yml"
@@ -155,6 +161,7 @@ function Assert-SkillRegistryWorkflow {
     $required = @(
         "ai-plugins/common-tools/skills/**",
         "ai-plugins/dev-skills/skills/**",
+        "ai-plugins/low-frequency-skill/skills/**",
         "ai-plugins/skill-registry.json",
         "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1",
         "generate-skill-registry.ps1 -Check",
@@ -186,10 +193,10 @@ function Get-ModifiedSkillNames {
     $names = @()
     $isGit = (& git -C $Root rev-parse --is-inside-work-tree 2>$null)
     if ($isGit -ne "true") { return $names }
-    $tracked = @(& git -C $Root diff HEAD --name-only -- ai-plugins/common-tools/skills ai-plugins/dev-skills/skills 2>$null)
-    $untracked = @(& git -C $Root ls-files --others --exclude-standard -- ai-plugins/common-tools/skills ai-plugins/dev-skills/skills 2>$null)
+    $tracked = @(& git -C $Root diff HEAD --name-only -- ai-plugins/common-tools/skills ai-plugins/dev-skills/skills ai-plugins/low-frequency-skill/skills 2>$null)
+    $untracked = @(& git -C $Root ls-files --others --exclude-standard -- ai-plugins/common-tools/skills ai-plugins/dev-skills/skills ai-plugins/low-frequency-skill/skills 2>$null)
     foreach ($line in ($tracked + $untracked)) {
-        if ($line -match '^ai-plugins/(common-tools|dev-skills)/skills/([^/]+)/') {
+        if ($line -match '^ai-plugins/(common-tools|dev-skills|low-frequency-skill)/skills/([^/]+)/') {
             $name = $Matches[2]
             if ($name -and ($names -notcontains $name)) { $names += $name }
         }
@@ -230,13 +237,12 @@ function Resolve-SkillFile {
         $p = Join-Path (Get-RepoPath $tree) ($Name + "/SKILL.md")
         if (Test-Path -LiteralPath $p) { return $p }
     }
-    Fail ("技能不存在: " + $Name + "（已扫描 ai-plugins/common-tools/skills 与 ai-plugins/dev-skills/skills）")
+    Fail ("技能不存在: " + $Name + "（已扫描 ai-plugins/common-tools/skills、ai-plugins/dev-skills/skills 与 ai-plugins/low-frequency-skill/skills）")
 }
 
 function Get-SkillPluginLabel {
     param([string]$Path)
-    if ($Path -match 'ai-plugins\\common-tools\\skills\\') { return "common-tools" }
-    if ($Path -match 'ai-plugins/common-tools/skills/') { return "common-tools" }
+    if ($Path -match 'ai-plugins[/\\]([^/\\]+)[/\\]skills[/\\]') { return $Matches[1] }
     return "dev-skills"
 }
 
@@ -380,7 +386,7 @@ if ($Version) {
 foreach ($name in $NewSkillList) {
     $plugin = "dev-skills"
     foreach ($sc in $SkillChanges) { if ($sc.Name -eq $name) { $plugin = $sc.Plugin } }
-    $readmeRel = if ($plugin -eq "common-tools") { "ai-plugins/common-tools/README.md" } else { "ai-plugins/dev-skills/README.md" }
+    $readmeRel = if ($plugin -eq "common-tools") { "ai-plugins/common-tools/README.md" } elseif ($plugin -eq "low-frequency-skill") { "ai-plugins/low-frequency-skill/README.md" } else { "ai-plugins/dev-skills/README.md" }
     $content = [System.IO.File]::ReadAllText((Get-RepoPath $readmeRel))
     if ($content -notmatch [regex]::Escape($name)) {
         Fail ("新增技能必须更新对应插件 README：阻断验收失败 - " + $readmeRel + " 未包含技能名 " + $name)
@@ -426,7 +432,7 @@ function New-ChangelogSection {
     # Summary 只在「本插件有技能变化」或「全仓库无任何技能变化」时写入，避免与「无内容变更」表述矛盾
     $anySkillChange = @($SkillChanges).Count -gt 0
     if ($Summary -and ($hasSkill -or -not $anySkillChange)) { $lines.Add('- ' + $Summary) }
-    $lines.Add('- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `' + $NewVersion + '`。')
+    $lines.Add('- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `' + $NewVersion + '`。')
     return (($lines.ToArray() -join "`n") + "`n")
 }
 
@@ -458,7 +464,7 @@ $ChangelogPlans = New-Object System.Collections.Generic.List[object]
 $skillArr = @($SkillChanges.ToArray())
 if ($Version) {
     foreach ($rel in $Changelogs) {
-        $pluginLabel = if ($rel -match 'common-tools') { "common-tools" } else { "dev-skills" }
+        $pluginLabel = if ($rel -match 'common-tools') { "common-tools" } elseif ($rel -match 'low-frequency-skill') { "low-frequency-skill" } else { "dev-skills" }
         $section = New-ChangelogSection $pluginLabel $skillArr $Summary $Version $Date $ChangeType
         $content = Add-ChangelogSection $rel $section $Version $Date
         $ChangelogPlans.Add(@{ Rel = $rel; Action = ("CHANGELOG 顶部追加 [" + $Version + "] 条目"); Content = $content })
@@ -505,8 +511,8 @@ function Assert-CodexMarketplaceFile {
     }
     if (@($json.PSObject.Properties.Name) -contains "version") { Fail ("Codex marketplace 不应包含 version 字段: " + $Rel) }
     $plugs = @($json.plugins)
-    if ($plugs.Count -ne 2) { Fail ("Codex marketplace 应恰好包含 2 个插件条目: " + $Rel) }
-    $expectedNames = @("common-tools", "dev-skills")
+    if ($plugs.Count -ne 3) { Fail ("Codex marketplace 应恰好包含 3 个插件条目: " + $Rel) }
+    $expectedNames = @("common-tools", "dev-skills", "low-frequency-skill")
     $seenNames = @{}
     foreach ($p in $plugs) {
         if ($p.name -notin $expectedNames -or $seenNames.ContainsKey($p.name)) { Fail ("Codex 插件 name 非法或重复: " + $p.name) }
@@ -596,19 +602,20 @@ if ($Version) {
             $null = Assert-JsonContent $plan.Content $plan.Rel $Version
         }
     }
-    Ok "计划 JSON 校验通过: 6 份 plugin.json + Claude/Cursor marketplace 版本均为 $Version 且可解析"
+    Ok "计划 JSON 校验通过: 9 份 plugin.json + Claude/Cursor marketplace 版本均为 $Version 且可解析"
 }
 foreach ($plan in $JsonPlans) { $null = Assert-JsonContent $plan.Content $plan.Rel $null }
 Ok "计划 JSON 可解析性校验通过"
 
-# 既有 9 份 JSON 可解析（含未改动的 Codex marketplace）
+# 既有 12 份 JSON 可解析（含未改动的 Codex marketplace）
 foreach ($rel in ($PluginJson + $MarketplaceJson)) {
     $null = Assert-JsonContent ([System.IO.File]::ReadAllText((Get-RepoPath $rel))) $rel $null
 }
-Ok "磁盘上 9 份 JSON 均可解析"
+Ok "磁盘上 12 份 JSON 均可解析"
 Assert-CodexMarketplaceFile ".agents/plugins/marketplace.json"
 Assert-CodexManifestFile "ai-plugins/common-tools/.codex-plugin/plugin.json"
 Assert-CodexManifestFile "ai-plugins/dev-skills/.codex-plugin/plugin.json"
+Assert-CodexManifestFile "ai-plugins/low-frequency-skill/.codex-plugin/plugin.json"
 
 # ============ 写入 ============
 function Write-Atomic {
@@ -645,17 +652,18 @@ if ($DoWrite) {
         foreach ($rel in @(".claude-plugin/marketplace.json", ".cursor-plugin/marketplace.json")) {
             $null = Assert-MarketplaceContent ([System.IO.File]::ReadAllText((Get-RepoPath $rel))) $rel $Version
         }
-        Ok "写后版本一致性校验通过: 6 份 plugin.json + Claude/Cursor marketplace 均为 $Version"
+        Ok "写后版本一致性校验通过: 9 份 plugin.json + Claude/Cursor marketplace 均为 $Version"
         foreach ($rel in $Changelogs) { $null = Assert-ChangelogTop $rel $Version $Date }
         Ok ("写后 CHANGELOG 顶部条目校验通过: [" + $Version + "] - " + $Date)
     }
     foreach ($rel in ($PluginJson + $MarketplaceJson)) {
         $null = Assert-JsonContent ([System.IO.File]::ReadAllText((Get-RepoPath $rel))) $rel $null
     }
-    Ok "写后 9 份 JSON 可解析性校验通过"
+    Ok "写后 12 份 JSON 可解析性校验通过"
     Assert-CodexMarketplaceFile ".agents/plugins/marketplace.json"
     Assert-CodexManifestFile "ai-plugins/common-tools/.codex-plugin/plugin.json"
     Assert-CodexManifestFile "ai-plugins/dev-skills/.codex-plugin/plugin.json"
+    Assert-CodexManifestFile "ai-plugins/low-frequency-skill/.codex-plugin/plugin.json"
     foreach ($sc in $SkillChanges) { Assert-SkillVersionFile $sc.Path $sc.New }
     Ok "写后技能 metadata.version 校验通过"
 }
