@@ -12,7 +12,7 @@ description: >-
   `@vueuse/core`、`registerMessageResolver`、`prerender:routes` 等错误信号。
 user-invocable: true
 metadata:
-  version: "1.6.0"
+  version: "1.6.1"
 ---
 
 # 初始化 `shadcn-docs-nuxt` 组件库文档
@@ -100,7 +100,7 @@ metadata:
 19. **客户端/服务端组件注册不对称（hoisted 解析陷阱）**：Vue 把组件解析 hoist 到 render 开头，`v-if` 为假也执行；client-only 注册的组件被 SSR 引用必警告，静态 import 修复会把非 SSR-safe 包拉进 SSR 图致 500，标准解法是 `defineAsyncComponent`。→ 见 [`references/ssr-hydration.md`](references/ssr-hydration.md)
 20. **fork 包改名的硬编码自引用残留（2026-09-05 实证）**：fork 的 dist 内可能硬编码旧包名前缀的 `optimizeDeps.include` 条目，vite 必然解析失败；用 `pnpm patch` 修正前缀（先确认依赖链物理完整）。引入 fork 后先 grep 其 dist 自引用字符串。→ 见 [`references/dependency-triage.md`](references/dependency-triage.md)
 21. **非 SSR-safe 包的隔离与 UI 配置陷阱**：非 SSR-safe 包（顶层 DOM API、dist 内 CSS 导入）一律走 `.client` 边界；UI 配置（logo 等）修改必须过桌面视口浏览器验收，源码 `v-if` 分支推断不可靠。→ 见 [`references/ssr-hydration.md`](references/ssr-hydration.md)
-22. **构建期平台二进制警告先验证再定性**：`sharp binaries cannot be found` 不一定是缺依赖——nitro `trace: false` 下追踪目录必然为空；先验证 sharp 可加载性，再查 trace 配置与部署产物。→ 见 [`references/dependency-triage.md`](references/dependency-triage.md)
+22. **构建期平台二进制警告先验证再定性，且禁用 traceInclude**：`sharp binaries cannot be found` 不一定是缺依赖——nitro `trace: false` 下追踪目录必然为空；先验证 sharp 可加载性再定性。**任何平台都勿配置 `traceInclude: ["sharp"]`**（Vercel linux 生产实机证伪：nft emitDependency 对 resolve 出的伪路径抛硬错误，构建失败）。→ 见 [`references/dependency-triage.md`](references/dependency-triage.md)
 
 ---
 

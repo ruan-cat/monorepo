@@ -180,12 +180,25 @@ node -e "const s=require('sharp'); console.log(s.versions.sharp)"  # 能加载 =
 若项目 win32 上设置了 `nitro.externals.trace: false`（OOM 修复的有意决策），则 `buildEnd` 直接跳过追踪，`.output/server/node_modules/@img/` 必然为空 → 警告必然出现，**在不回退 OOM 修复的前提下无法消除**。此时：
 
 - 本地 preview 不受影响（Node 从工作区 node_modules 解析到 sharp）。
-- 处置：win32 保留决策并在 nuxt.config.ts **注释文档化**该警告为已知良性副作用。
-- 非 win32（CI/Vercel 部署构建）分支补 `externals.traceInclude: ["sharp"]`——IPX 对 sharp 的 require 是变量拼接动态路径，NFT 静态分析可能漏追平台二进制。
+- 处置：保留决策并在 nuxt.config.ts **注释文档化**该警告为已知良性副作用。
 
-### 6.3 铁律
+### 6.3 铁律：禁用 `traceInclude: ["sharp"]`（2026-09-05 Vercel 生产实机证伪）
 
-**勿把此警告当缺依赖反复安装 sharp。** 先区分"本地构建警告"（可能良性）与"部署产物真缺"（需要 traceInclude），判据是 `.output/server/node_modules` 的实际内容与目标运行环境。
+**任何平台都不要配置 `externals.traceInclude: ["sharp"]`。** 曾经的"非 win32 补 traceInclude"建议已被生产构建证伪（Vercel linux 构建硬失败）：
+
+```text
+Error: File /vercel/path0/packages/<pkg>/sharp does not exist.
+  at Job.emitDependency (@vercel/nft) / plugin: node-externals / hook: buildEnd
+```
+
+机理：nitro 在 pnpm 环境下把 traceInclude 的包名 `"sharp"` resolve 成 `<pkg>/sharp` 伪路径交给 `@vercel/nft`，nft 对不存在的文件直接抛硬错误。**该分支只在非 win32 生效，win32 本地构建永远走不到**——跨平台构建分支必须在目标平台实测后才能合入。
+
+处置结论：
+
+1. sharp 警告（无论 win32 `trace: false` 还是 linux 默认 trace）按**良性噪音**处理，勿配置 traceInclude。
+2. 若部署产物真缺 sharp（以 `.output/server/node_modules` 实际内容与目标运行环境判据），优先考虑在部署包 manifest 显式声明依赖，而非 traceInclude。
+
+**勿把此警告当缺依赖反复安装 sharp。**
 
 ---
 
@@ -200,8 +213,10 @@ node -e "const s=require('sharp'); console.log(s.versions.sharp)"  # 能加载 =
 │   └─ entry 级 SyntaxError + 整站不水合 → 本手册 §4（optimizeDeps 盲区）
 ├─ Failed to resolve dependency: "A > B"
 │   → 本手册 §5（fork 自引用残留，pnpm patch）
-├─ sharp/NFT 警告
-│   → 本手册 §6（先验证可加载性，再查 trace 配置）
+├─ sharp 警告（cannot be found）
+│   → 本手册 §6（验证可加载性 → 定性良性噪音，勿装依赖勿配 traceInclude）
+├─ File .../<pkg>/sharp does not exist（nft emitDependency 硬错误）
+│   → 本手册 §6.3（有人在 traceInclude 里写了 sharp，删掉）
 └─ 同型错误 ≥2 次
     → 停止逐错修复，回 §1 三层解析链找共同机制
 ```
@@ -214,4 +229,4 @@ node -e "const s=require('sharp'); console.log(s.versions.sharp)"  # 能加载 =
 - [ ] dev 多页面 200 且 `<title>`/内容断言通过（防 catch-all 200 假象）
 - [ ] optimizeDeps 警告归零（`Failed to resolve dependency` 计数 = 0）
 - [ ] 生产构建 EXIT=0（依赖重算 / patch 后必做构建回归）
-- [ ] 非 win32 部署链路的 traceInclude / manifest 已按 §6.2 处理
+- [ ] 全平台 nuxt.config 均无 `traceInclude: ["sharp"]`（§6.3 实机证伪）
