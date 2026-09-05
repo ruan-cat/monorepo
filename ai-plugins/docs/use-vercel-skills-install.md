@@ -6,18 +6,18 @@
 
 以下分类用于说明**个人使用频率**，不影响 `npx skills` 的安装目标：批量安装时仍可将技能同步到所列全部客户端；若你只想装到其中一部分，可删减对应的 `-a` 参数。
 
-| 频率 | 产品                | `skills` CLI 的 `--agent` / `-a` 名称                  |
-| ---- | ------------------- | ------------------------------------------------------ |
-| 常用 | Claude Code         | `claude-code`                                          |
-| 常用 | OpenAI Codex（CLI） | `codex`                                                |
-| 常用 | Cursor              | `cursor`                                               |
-| 低频 | Antigravity         | `antigravity`                                          |
-| 低频 | Trae                | `trae`（国内版客户端若单独区分，官方还提供 `trae-cn`） |
-| 低频 | Qoder               | `qoder`                                                |
+| 频率 | 产品         | `skills` CLI 的 `--agent` / `-a` 名称                  |
+| ---- | ------------ | ------------------------------------------------------ |
+| 常用 | OpenAI Codex | `codex`                                                |
+| 低频 | Claude Code  | `claude-code`                                          |
+| 低频 | Cursor       | `cursor`                                               |
+| 低频 | Antigravity  | `antigravity`                                          |
+| 低频 | Trae         | `trae`（国内版客户端若单独区分，官方还提供 `trae-cn`） |
+| 低频 | Qoder        | `qoder`                                                |
 
 **为何必须写 `-a`：** 在非交互场景使用 `-y` 时，若不指定 `-a`，CLI 可能将技能安装到其支持的**全部** agent。通过 repeated `-a` 显式列出本机会用的客户端，可避免向未安装的 IDE 目录写入或无意义的占位。
 
-**仅常用三端时：** 可只保留 `-a claude-code -a codex -a cursor`。
+**仅常用一端时：** 可只保留 `-a codex`。
 
 下文示例中的 `-a` 列表按上表**六端全开**，与本仓库维护者偏好一致。
 
