@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [10.15.0] - 2026-09-05
+
+### Changed
+
+- **init-shadcn-docs-nuxt**：`metadata.version` `1.5.0` -> `1.6.0`。
+- 升级 init-shadcn-docs-nuxt：新增依赖排查与 SSR 水合深度参考并强化检修路由
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` 的六份三平台 `plugin.json` 版本统一提升至 `10.15.0`。
+
 ## [10.14.1] - 2026-09-04
 
 ### Changed
