@@ -15,6 +15,7 @@
 3. 用 TS 脚本（tsx 调度）批量删除，支持 `--limit` 小批量试跑验证，并发删除时 NOT_FOUND 归类为成功。
 4. 为全部项目配置 Deployment Retention（端点 `PATCH /v9/projects/{id}/deployment-expiration`），知道 Hobby plan 的 production 上限是 `1m`。
 5. 避开已踩过的坑：`vercel api` DELETE 必须加 `--dangerously-skip-permissions`；大规模并发 spawn CLI 会打挂本地凭据；retention 端点在官方文档/OpenAPI 中查不到。
+6. **在删除开始前验证 token 权限**：scan 前置 preflight（token 身份 + 目标团队归属 + 角色判定），slug 自动解析为 canonical teamId，preflight 结果作为证据写入 dry-run 报告；execute 拒绝执行无 preflight 或 preflight 未通过的报告。
 
 ## 已确认设计决策
 
@@ -39,6 +40,22 @@ src/cli.ts    # 入口：解析 argv，组装 token 解析链与 api.ts，输出
 ```
 
 `--token` / `--team-id` 参数始终可用作显式覆盖。不自动读取 `~/.workbuddy/.mcp.json`（WorkBuddy 专属路径，不可外发移植），该兜底路径只写入 references 供 agent 参考。
+
+### Token 权限预检（preflight）
+
+「token 存在」不等于「token 有权删」。删除动作前的证据链分三层：
+
+```text
+1. 身份     GET /v2/user           → token 有效 + 所属账号（username）
+2. 归属     GET /v2/teams          → 目标 teamId/slug 存在，取出 membership.role
+3. 角色     纯函数 judgePreflight  → OWNER / DEVELOPER = PASS；
+                                     MEMBER / VIEWER / BILLING = FAIL（提示到 Dashboard 提权）
+```
+
+- 目标团队传 slug（如 `ruancat-projects`）时，由 preflight 自动解析为 canonical `teamId`（`team_xxx`），后续请求一律用 canonical id。
+- preflight 结果写入 scan 报告的 `preflight` 字段：`{ status, identity, teamId, role, plan?, checkedAt }`。
+- `execute` 读取报告时强制校验 `preflight.status === "PASS"`，缺失或未通过直接拒绝——防止跨账号 token、低权限角色、或复用陈旧报告导致删到一半 403 的脏状态。
+- 不做独立的 `doctor` 子命令、不做细粒度 scope 探测（Vercel 无「试探性删除」安全端点，角色判定即最大可行验证，YAGNI）。
 
 ### 默认删除策略（烘焙进 core，不做配置项）
 
@@ -91,7 +108,7 @@ tsx src/cli.ts verify   --team-id <id>
 
 ### 测试驱动（先红后绿）
 
-1. `core.test.ts`：对 `buildPlan`/分页合并/摘要写场景断言，先在无实现时失败，实现后转绿。
+1. `core.test.ts`：对 `buildPlan`/分页合并/摘要/`judgePreflight` 写场景断言（含 OWNER PASS、VIEWER FAIL、目标团队不存在 FAIL、slug 解析），先在无实现时失败，实现后转绿。
 2. `skill-contract.test.ts`：对技能文件结构与发布联动写静态断言，缺失文件/未收录 README 时失败。
 
 ### 人工验收

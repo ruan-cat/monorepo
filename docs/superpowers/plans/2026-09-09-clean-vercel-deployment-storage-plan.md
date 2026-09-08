@@ -38,6 +38,10 @@
   - `function mergePages<T extends { uid: string }>(accumulated: Map<string, T>, page: T[]): number`（返回新增条数）
   - `function buildPlan(deployments: DeploymentLike[], projectNames?: Record<string, string>): { summary: PlanSummary; entries: PlanEntry[] }`
   - `function summarize(entries: PlanEntry[]): PlanSummary`
+  - `const PASS_ROLES = ["OWNER", "DEVELOPER"]`
+  - `interface PreflightInput { identity?: string; teams: { id: string; slug?: string; name?: string; role?: string; plan?: string }[]; targetTeamId: string }`
+  - `interface PreflightResult { status: "PASS" | "FAIL"; identity?: string; teamId?: string; role?: string; plan?: string; reason?: string }`
+  - `function judgePreflight(input: PreflightInput): PreflightResult`（targetTeamId 兼容传 slug：按 id 或 slug 匹配；匹配不到团队 / 缺身份 / 角色不在 PASS_ROLES → FAIL + reason）
 - 常量：`SKIP_STATES = ["BUILDING", "QUEUED", "INITIALIZING"]`；`target` 缺省视为 `"preview"`。
 
 - [ ] **Step 1: 写失败测试**
@@ -48,6 +52,7 @@ import {
 	buildPlan,
 	mergePages,
 	summarize,
+	judgePreflight,
 } from "../../ai-plugins/low-frequency-skill/skills/clean-vercel-deployment-storage/src/core.ts";
 
 describe("mergePages 分页合并", () => {
@@ -140,6 +145,43 @@ describe("buildPlan 保留策略", () => {
 		const { summary, entries } = buildPlan([]);
 		expect(entries).toEqual([]);
 		expect(summary).toEqual({ totalProjects: 0, totalDeployments: 0, keep: 0, delete: 0, skipBuilding: 0 });
+	});
+});
+
+describe("judgePreflight 权限预检", () => {
+	const teams = [
+		{ id: "team_ok", slug: "my-projects", name: "my team", role: "OWNER", plan: "hobby" },
+		{ id: "team_view", slug: "other-projects", name: "other", role: "VIEWER" },
+	];
+
+	test("P1: OWNER 角色 + 按 id 命中 → PASS 且回填 canonical teamId", () => {
+		const r = judgePreflight({ identity: "ruan-cat", teams, targetTeamId: "team_ok" });
+		expect(r.status).toBe("PASS");
+		expect(r.teamId).toBe("team_ok");
+		expect(r.role).toBe("OWNER");
+	});
+
+	test("P2: 传 slug → 自动解析为 canonical team_xxx", () => {
+		const r = judgePreflight({ identity: "ruan-cat", teams, targetTeamId: "my-projects" });
+		expect(r.status).toBe("PASS");
+		expect(r.teamId).toBe("team_ok");
+	});
+
+	test("P3: VIEWER 角色 → FAIL 且 reason 指向提权", () => {
+		const r = judgePreflight({ identity: "ruan-cat", teams, targetTeamId: "team_view" });
+		expect(r.status).toBe("FAIL");
+		expect(r.reason).toContain("VIEWER");
+	});
+
+	test("P4: 目标团队不存在（token 属于另一账号）→ FAIL", () => {
+		const r = judgePreflight({ identity: "ruan-cat", teams, targetTeamId: "team_elsewhere" });
+		expect(r.status).toBe("FAIL");
+		expect(r.reason).toContain("team_elsewhere");
+	});
+
+	test("P5: 身份缺失 → FAIL", () => {
+		const r = judgePreflight({ teams, targetTeamId: "team_ok" });
+		expect(r.status).toBe("FAIL");
 	});
 });
 
@@ -249,12 +291,51 @@ export function summarize(entries: PlanEntry[]): PlanSummary {
 		skipBuilding: entries.filter((e) => e.action === "SKIP-BUILDING").length,
 	};
 }
+
+/** token 权限预检：纯函数，输入身份与团队成员关系，输出 PASS/FAIL 证据。 */
+export const PASS_ROLES = ["OWNER", "DEVELOPER"];
+
+export interface PreflightInput {
+	identity?: string;
+	teams: { id: string; slug?: string; name?: string; role?: string; plan?: string }[];
+	targetTeamId: string;
+}
+
+export interface PreflightResult {
+	status: "PASS" | "FAIL";
+	identity?: string;
+	teamId?: string;
+	role?: string;
+	plan?: string;
+	reason?: string;
+}
+
+export function judgePreflight(input: PreflightInput): PreflightResult {
+	const { identity, teams, targetTeamId } = input;
+	if (!identity) return { status: "FAIL", reason: "无法确认 token 身份（GET /v2/user 未返回 username）" };
+	const team = teams.find((t) => t.id === targetTeamId || t.slug === targetTeamId);
+	if (!team)
+		return {
+			status: "FAIL",
+			reason: `目标团队 ${targetTeamId} 不在 token 所属账号的团队列表中（token 可能属于另一账号）`,
+		};
+	if (!PASS_ROLES.includes(team.role ?? "")) {
+		return {
+			status: "FAIL",
+			identity,
+			teamId: team.id,
+			role: team.role ?? "UNKNOWN",
+			reason: `团队角色 ${team.role ?? "UNKNOWN"} 无删除部署权限，请到 Vercel Dashboard → Team Settings → Members 提权为 OWNER 或 DEVELOPER`,
+		};
+	}
+	return { status: "PASS", identity, teamId: team.id, role: team.role, plan: team.plan };
+}
 ```
 
 - [ ] **Step 4: 运行测试确认通过**
 
 Run: `pnpm vitest run tests/clean-vercel-deployment-storage/core.test.ts`
-Expected: PASS（9 个用例全绿）
+Expected: PASS（14 个用例全绿：mergePages 2 + buildPlan 6 + judgePreflight 5 + summarize 1）
 
 - [ ] **Step 5: 提交**
 
@@ -278,6 +359,8 @@ git commit -m "✨ feat(clean-vercel-deployment-storage): 新增 core 纯函数�
 - Produces:
   - `function resolveToken(explicit?: string): string`（优先级：explicit → CLI auth.json → `VERCEL_TOKEN` env → throw 带指引的 Error）
   - `function createClient(token: string): VercelClient`，其中
+    - `getMe(): Promise<{ username?: string }>`
+    - `getTeams(): Promise<{ id: string; slug?: string; name?: string; role?: string; plan?: string }[]>`（`GET /v2/teams`，plan 取 `billing.plan ?? plan`）
     - `listAllDeployments(teamId: string): Promise<DeploymentLike[]>`
     - `listProjectNames(teamId: string): Promise<Record<string, string>>`
     - `deleteDeployment(uid: string, teamId: string): Promise<{ ok: boolean; note?: string; status?: number; error?: string }>`（404/NOT_FOUND → `{ ok: true, note: "already-deleted" }`）
@@ -324,6 +407,8 @@ export function resolveToken(explicit?: string): string {
 }
 
 export interface VercelClient {
+	getMe(): Promise<{ username?: string }>;
+	getTeams(): Promise<{ id: string; slug?: string; name?: string; role?: string; plan?: string }[]>;
 	listAllDeployments(teamId: string): Promise<DeploymentLike[]>;
 	listProjectNames(teamId: string): Promise<Record<string, string>>;
 	listProjectIds(teamId: string): Promise<{ id: string; name: string; deploymentExpiration?: unknown }[]>;
@@ -348,6 +433,31 @@ export function createClient(token: string): VercelClient {
 	}
 
 	return {
+		async getMe() {
+			const j = await getJson<{ user?: { username?: string } }>("/v2/user");
+			return { username: j.user?.username };
+		},
+
+		async getTeams() {
+			const j = await getJson<{
+				teams: {
+					id: string;
+					slug?: string;
+					name?: string;
+					membership?: { role?: string };
+					billing?: { plan?: string };
+					plan?: string;
+				}[];
+			}>("/v2/teams");
+			return (j.teams ?? []).map((t) => ({
+				id: t.id,
+				slug: t.slug,
+				name: t.name,
+				role: t.membership?.role,
+				plan: t.billing?.plan ?? t.plan,
+			}));
+		},
+
 		async listAllDeployments(teamId) {
 			const all = new Map<string, DeploymentLike>();
 			let until: number | undefined;
@@ -420,7 +530,7 @@ export function createClient(token: string): VercelClient {
 /** 入口：tsx src/cli.ts <scan|execute|retention|verify>。只做参数解析与 IO 编排。 */
 import { writeFileSync, readFileSync } from "node:fs";
 import { resolveToken, createClient } from "./api.ts";
-import { buildPlan, type PlanEntry } from "./core.ts";
+import { buildPlan, judgePreflight, type PlanEntry } from "./core.ts";
 
 function arg(name: string): string | undefined {
 	const i = process.argv.indexOf(`--${name}`);
@@ -436,20 +546,35 @@ const token = resolveToken(arg("token"));
 const client = createClient(token);
 
 if (cmd === "scan") {
-	const teamId = arg("team-id") ?? process.env.VERCEL_TEAM_ID;
-	if (!teamId) throw new Error("缺少 --team-id 或 VERCEL_TEAM_ID");
+	const targetTeam = arg("team-id") ?? process.env.VERCEL_TEAM_ID;
+	if (!targetTeam) throw new Error("缺少 --team-id 或 VERCEL_TEAM_ID");
+	// preflight：身份 + 团队归属 + 角色判定，证据写入报告
+	const me = await client.getMe();
+	const teams = await client.getTeams();
+	const preflight = judgePreflight({ identity: me.username, teams, targetTeamId: targetTeam });
+	console.log(`preflight: ${JSON.stringify(preflight)}`);
+	if (preflight.status !== "PASS") {
+		console.error(`权限预检未通过：${preflight.reason}`);
+		process.exit(2);
+	}
+	const teamId = preflight.teamId!; // slug 已解析为 canonical team_xxx
 	const deps = await client.listAllDeployments(teamId);
 	const names = await client.listProjectNames(teamId);
 	const { summary, entries } = buildPlan(deps, names);
 	const out = arg("out") ?? "dry-run-report.json";
 	writeFileSync(
 		out,
-		JSON.stringify({ scannedAt: new Date().toISOString(), teamId, summary, deployments: entries }, null, 2),
+		JSON.stringify({ scannedAt: new Date().toISOString(), teamId, preflight, summary, deployments: entries }, null, 2),
 	);
 	console.log(JSON.stringify(summary, null, 2));
 	console.log(`\nreport → ${out}`);
 } else if (cmd === "execute") {
 	const report = JSON.parse(readFileSync(arg("report") ?? "dry-run-report.json", "utf8"));
+	// 门控：报告必须携带通过的 preflight 证据，防止跨账号 token / 低权限角色 / 陈旧报告
+	if (report.preflight?.status !== "PASS") {
+		console.error("报告缺少通过记录的 preflight 证据，拒绝执行。请先重新运行 scan 生成带预检的清单。");
+		process.exit(2);
+	}
 	let targets: PlanEntry[] = report.deployments.filter((d: PlanEntry) => d.action === "DELETE");
 	const teamId = report.teamId ?? arg("team-id");
 	if (!teamId) throw new Error("报告缺 teamId 且未传 --team-id");
@@ -524,8 +649,9 @@ if (cmd === "scan") {
 
 - [ ] **Step 3: 本机真实通道 smoke（人工验收，不进 CI）**
 
-Run（在技能目录）: `pnpm dlx tsx src/cli.ts scan --team-id team_cUeGw4TtOCLp0bbuH8kA7BYH --out /tmp/scan-smoke.json --limit 1 --token <用户提供>`
-Expected: 输出 summary JSON 且 report 落盘；token 解析链走 CLI auth.json 时可不传 `--token`。
+Run（在技能目录）: `pnpm dlx tsx src/cli.ts scan --team-id <真实团队 slug 或 team_xxx> --out /tmp/scan-smoke.json`
+Expected: 先输出 `preflight: {"status":"PASS",...}`（身份/角色/canonical teamId），再输出 summary 且 report 落盘；token 解析链走 CLI auth.json 时可不传 `--token`。
+另需反向验证：故意传一个 token 无权访问的团队 id，确认 scan 以 exit 2 + FAIL reason 退出（预检门真实生效）。
 若 token/团队不可用：标记「真实 smoke 未验证」，不得伪造输出。
 
 - [ ] **Step 4: 提交**
@@ -570,14 +696,14 @@ metadata:
 
 ## 执行流程（严格按序）
 
-1. **扫描**：`pnpm dlx tsx src/cli.ts scan --team-id <id> --out report.json` 生成 dry-run 清单（每项目保留最新 1 个 production，其余标记 DELETE）。
-2. **确认**：把清单摘要（总数/删除数/每项目分布）交给用户审核，**未经确认禁止执行**。
+1. **扫描**：`pnpm dlx tsx src/cli.ts scan --team-id <id> --out report.json`。scan 自动执行权限预检（token 身份 + 团队归属 + OWNER/DEVELOPER 角色判定），未通过直接退出；通过后生成 dry-run 清单（每项目保留最新 1 个 production，其余标记 DELETE），preflight 证据写入报告。
+2. **确认**：把清单摘要（总数/删除数/每项目分布 + preflight 身份与角色）交给用户审核，**未经确认禁止执行**。
 3. **删除**：先用 `execute --limit 10` 试跑验证通道，独立复查成功后再全量执行（默认并发 3，NOT_FOUND 视为已删）。
 4. **治理**：`retention --team-id <id>` 为全部项目配置自动过期，防止额度复发；`verify` 复查最终状态。
 
 ## 红线
 
-- 删除不可逆：无 dry-run 清单与用户确认，不得调用 execute 全量。
+- 删除不可逆：无 dry-run 清单与用户确认，不得调用 execute 全量；execute 只接受携带 PASS preflight 证据的报告。
 - 禁止大规模并发 spawn `vercel` CLI 执行删除——会把本地凭据打挂；脚本走 fetch 直连 REST API。
 - 项目一律不删，只删部署；保留例外（平台自动保留最近 10/20 个 Ready 部署与带 alias 部署）见 references。
 
@@ -697,6 +823,13 @@ describe("clean-vercel-deployment-storage 技能契约", () => {
 		expect(readme).toContain("clean-vercel-deployment-storage");
 		expect(changelog).toContain("clean-vercel-deployment-storage");
 	});
+
+	test("C6: SKILL.md 含权限预检流程描述，execute 有 preflight 门控", () => {
+		const md = readFileSync(skill("SKILL.md"), "utf8");
+		expect(md).toContain("预检");
+		const cliSrc = readFileSync(skill("src", "cli.ts"), "utf8");
+		expect(cliSrc).toContain("preflight");
+	});
 });
 ```
 
@@ -722,7 +855,7 @@ CHANGELOG.md 的 `[Unreleased] → Added` 末尾追加：
 - [ ] **Step 4: 运行全部测试确认通过**
 
 Run: `pnpm vitest run tests/clean-vercel-deployment-storage`
-Expected: PASS（core 9 例 + contract 5 例全绿）
+Expected: PASS（core 14 例 + contract 6 例全绿）
 
 - [ ] **Step 5: 提交**
 
@@ -743,6 +876,6 @@ git commit -m "✅ test(clean-vercel-deployment-storage): 静态契约测试与�
 
 ## 自检记录
 
-- Spec 覆盖：架构分层（T1/T2）、token 链（T2）、四子命令（T2）、SKILL.md+references(T3)、双测试（T1/T4）、README/CHANGELOG(T4)、发布联动边界（全局约束+T5）——无缺口。
-- 类型一致性：`DeploymentLike`/`PlanEntry`/`PlanSummary`/`mergePages`/`buildPlan`/`summarize`/`resolveToken`/`createClient` 在 T1/T2/T4 间签名一致。
+- Spec 覆盖：架构分层（T1/T2）、token 解析链（T2）、**token 权限预检 judgePreflight(T1 纯函数 + T2 scan 前置 + execute 门控）**、四子命令（T2）、SKILL.md+references(T3)、双测试（T1/T4）、README/CHANGELOG(T4)、发布联动边界（全局约束+T5）——无缺口。
+- 类型一致性：`DeploymentLike`/`PlanEntry`/`PlanSummary`/`PreflightInput`/`PreflightResult`/`mergePages`/`buildPlan`/`summarize`/`judgePreflight`/`resolveToken`/`createClient` 在 T1/T2/T4 间签名一致。
 - 无占位符：所有步骤含完整代码或精确事实清单。
