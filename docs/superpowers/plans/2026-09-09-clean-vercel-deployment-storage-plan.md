@@ -44,7 +44,7 @@
   - `function judgePreflight(input: PreflightInput): PreflightResult`（targetTeamId 兼容传 slug：按 id 或 slug 匹配；匹配不到团队 / 缺身份 / 角色不在 PASS_ROLES → FAIL + reason）
 - 常量：`SKIP_STATES = ["BUILDING", "QUEUED", "INITIALIZING"]`；`target` 缺省视为 `"preview"`。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 ```ts
 import { describe, test, expect } from "vitest";
@@ -197,12 +197,12 @@ describe("summarize 摘要", () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试确认失败**
+- [x] **Step 2: 运行测试确认失败**
 
 Run: `pnpm vitest run tests/clean-vercel-deployment-storage/core.test.ts`（在 monorepo 根执行）
 Expected: FAIL（模块 `src/core.ts` 不存在）
 
-- [ ] **Step 3: 实现 core.ts 最小实现**
+- [x] **Step 3: 实现 core.ts 最小实现**
 
 ```ts
 /** 纯函数层：保留策略、分页合并、摘要。禁止任何 IO 与第三方依赖。 */
@@ -332,12 +332,12 @@ export function judgePreflight(input: PreflightInput): PreflightResult {
 }
 ```
 
-- [ ] **Step 4: 运行测试确认通过**
+- [x] **Step 4: 运行测试确认通过**
 
 Run: `pnpm vitest run tests/clean-vercel-deployment-storage/core.test.ts`
 Expected: PASS（14 个用例全绿：mergePages 2 + buildPlan 6 + judgePreflight 5 + summarize 1）
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add ai-plugins/low-frequency-skill/skills/clean-vercel-deployment-storage/src/core.ts tests/clean-vercel-deployment-storage/core.test.ts
@@ -369,7 +369,7 @@ git commit -m "✨ feat(clean-vercel-deployment-storage): 新增 core 纯函数�
   - CLI 子命令：`scan` / `execute` / `retention` / `verify`（语义见 spec）
 - 端点常量（照抄，勿改）：列表 `GET /v6/deployments?teamId=&limit=100[&until=]`；项目名 `GET /v9/projects?teamId=&limit=100[&until=]`；删除 `DELETE /v13/deployments/{uid}?teamId=`；retention `PATCH /v9/projects/{id}/deployment-expiration?teamId=`，body `{ expiration, expirationProduction, expirationCanceled, expirationErrored }`。
 
-- [ ] **Step 1: 实现 api.ts**
+- [x] **Step 1: 实现 api.ts**
 
 ```ts
 /** 薄 REST 封装：token 由外部注入，全程仅全局 fetch。 */
@@ -524,7 +524,7 @@ export function createClient(token: string): VercelClient {
 }
 ```
 
-- [ ] **Step 2: 实现 cli.ts**
+- [x] **Step 2: 实现 cli.ts**
 
 ```ts
 /** 入口：tsx src/cli.ts <scan|execute|retention|verify>。只做参数解析与 IO 编排。 */
@@ -647,14 +647,14 @@ if (cmd === "scan") {
 }
 ```
 
-- [ ] **Step 3: 本机真实通道 smoke（人工验收，不进 CI）**
+- [x] **Step 3: 本机真实通道 smoke（人工验收，不进 CI）**
 
 Run（在技能目录）: `pnpm dlx tsx src/cli.ts scan --team-id <真实团队 slug 或 team_xxx> --out /tmp/scan-smoke.json`
 Expected: 先输出 `preflight: {"status":"PASS",...}`（身份/角色/canonical teamId），再输出 summary 且 report 落盘；token 解析链走 CLI auth.json 时可不传 `--token`。
 另需反向验证：故意传一个 token 无权访问的团队 id，确认 scan 以 exit 2 + FAIL reason 退出（预检门真实生效）。
 若 token/团队不可用：标记「真实 smoke 未验证」，不得伪造输出。
 
-- [ ] **Step 4: 提交**
+- [x] **Step 4: 提交**
 
 ```bash
 git add ai-plugins/low-frequency-skill/skills/clean-vercel-deployment-storage/src/api.ts ai-plugins/low-frequency-skill/skills/clean-vercel-deployment-storage/src/cli.ts
@@ -677,7 +677,7 @@ git commit -m "✨ feat(clean-vercel-deployment-storage): 新增 REST 封装与 
 - Consumes: Task 1/2 的脚本路径与子命令名（正文命令示例必须与 `src/cli.ts` 实际参数一致）
 - Produces: 供 Task 4 静态契约测试断言的文件结构与措辞
 
-- [ ] **Step 1: 写 SKILL.md（目标 < 500 词）**
+- [x] **Step 1: 写 SKILL.md（目标 < 500 词）**
 
 ```markdown
 ---
@@ -714,7 +714,7 @@ metadata:
 - [references/incident-2026-09-08.md](./references/incident-2026-09-08.md)：845→27 实战复盘与凭据失效事故。
 ```
 
-- [ ] **Step 2: 写 references/tool-landscape.md**
+- [x] **Step 2: 写 references/tool-landscape.md**
 
 内容要点（正文详述，此处为必须覆盖的事实清单）：
 
@@ -723,7 +723,7 @@ metadata:
 - API 通道：最优解。`DELETE /v13/deployments/{id}?teamId=`；分页 `GET /v6/deployments?limit=100&until=`；并发 3、顺序批处理即可；404 归为成功。
 - token 获取链：CLI auth.json（Windows `%APPDATA%/com.vercel.cli/Data/auth.json`，Unix `~/.local/share/com.vercel.cli/auth.json`）→ `VERCEL_TOKEN` env → 向用户索要；`--token` 显式覆盖。
 
-- [ ] **Step 3: 写 references/rest-api-playbook.md**
+- [x] **Step 3: 写 references/rest-api-playbook.md**
 
 内容要点：
 
@@ -734,7 +734,7 @@ metadata:
 - 删除后 30 天恢复期（Dashboard → Settings → Security → Recently Deleted）；retention 到期标记删除通常 48h 内执行。
 - Deployment Storage 计费背景：$0.10/GB/月，Hobby 含 10GB；Usage 页按项目查看。
 
-- [ ] **Step 4: 写 references/incident-2026-09-08.md**
+- [x] **Step 4: 写 references/incident-2026-09-08.md**
 
 内容要点（全中文，脱敏——团队写「某 Hobby 团队」，不出现 SmallAliceWeb、内部绝对路径）：
 
@@ -745,7 +745,7 @@ metadata:
 - 教训：批量删除工具链必须「REST fetch 直连为正路，CLI 仅小规模使用」；任何批量脚本先 `--limit` 试跑 + 独立 API 复查，再全量。
 - WorkBuddy 环境补充（仅本仓库 agent 参考，外发执行者可忽略）：`~/.workbuddy/.mcp.json` 的 vercel server `headers.Authorization` 存有独立有效 Bearer token，可作 CLI 凭据失效时的兜底。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add ai-plugins/low-frequency-skill/skills/clean-vercel-deployment-storage/SKILL.md ai-plugins/low-frequency-skill/skills/clean-vercel-deployment-storage/references/
@@ -767,7 +767,7 @@ git commit -m "📃 docs(clean-vercel-deployment-storage): 新增技能正文与
 - Consumes: Task 1-3 产出的全部文件路径
 - Produces: 无（最终守护测试）
 
-- [ ] **Step 1: 写失败的契约测试**
+- [x] **Step 1: 写失败的契约测试**
 
 ```ts
 import { describe, test, expect } from "vitest";
@@ -833,12 +833,12 @@ describe("clean-vercel-deployment-storage 技能契约", () => {
 });
 ```
 
-- [ ] **Step 2: 运行测试确认 C5 失败（C1-C4 应通过）**
+- [x] **Step 2: 运行测试确认 C5 失败（C1-C4 应通过）**
 
 Run: `pnpm vitest run tests/clean-vercel-deployment-storage/skill-contract.test.ts`
 Expected: C5 FAIL（README/CHANGELOG 尚未收录），其余 PASS
 
-- [ ] **Step 3: 更新插件 README 与 CHANGELOG**
+- [x] **Step 3: 更新插件 README 与 CHANGELOG**
 
 README.md 的 Skills 清单末尾追加：
 
@@ -852,12 +852,12 @@ CHANGELOG.md 的 `[Unreleased] → Added` 末尾追加：
 - 新增 **clean-vercel-deployment-storage**：批量清理 Vercel 部署存储（每项目保留最新生产部署）并配置 Deployment Retention 防额度复发，附 TS 批处理脚本（仅 Node 内置模块，tsx 调度）、REST API 端点速查与 2026-09-08 实战复盘。
 ```
 
-- [ ] **Step 4: 运行全部测试确认通过**
+- [x] **Step 4: 运行全部测试确认通过**
 
 Run: `pnpm vitest run tests/clean-vercel-deployment-storage`
 Expected: PASS（core 14 例 + contract 6 例全绿）
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add tests/clean-vercel-deployment-storage/skill-contract.test.ts ai-plugins/low-frequency-skill/README.md ai-plugins/low-frequency-skill/CHANGELOG.md
@@ -868,11 +868,11 @@ git commit -m "✅ test(clean-vercel-deployment-storage): 静态契约测试与�
 
 ### Task 5: 最终验收（人工 gate）
 
-- [ ] **Step 1**: monorepo 根 `pnpm vitest run tests/clean-vercel-deployment-storage` 全绿。
-- [ ] **Step 2**: 真实通道 smoke：`scan --limit 1` 打通（若团队/token 不可用，在交付说明标记「未验证」）。
-- [ ] **Step 3**: `git diff --check` 通过；`git status` 仅含本计划内文件。
-- [ ] **Step 4**: 对照 spec「验收设计」逐项勾选；确认未触碰 `skill-registry.json` 与插件主版本号。
-- [ ] **Step 5**: 通知用户进入发布轮（`release-ai-plugins -NewSkill clean-vercel-deployment-storage -ChangeType added`，DryRun → Apply 另行执行）。
+- [x] **Step 1**: monorepo 根 `pnpm vitest run tests/clean-vercel-deployment-storage` 全绿。
+- [x] **Step 2**: 真实通道 smoke：`scan --limit 1` 打通（若团队/token 不可用，在交付说明标记「未验证」）。
+- [x] **Step 3**: `git diff --check` 通过；`git status` 仅含本计划内文件。
+- [x] **Step 4**: 对照 spec「验收设计」逐项勾选；确认未触碰 `skill-registry.json` 与插件主版本号。
+- [x] **Step 5**: 通知用户进入发布轮（`release-ai-plugins -NewSkill clean-vercel-deployment-storage -ChangeType added`，DryRun → Apply 另行执行）。
 
 ## 自检记录
 
