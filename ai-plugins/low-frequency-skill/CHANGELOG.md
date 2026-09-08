@@ -10,3 +10,10 @@
 - 自 `dev-skills` 迁移：**init-playwright**。
 - 自 `common-tools` 迁移：**clone-ruancat-repo**、**get-git-branch**、**init-claude-code-statusline**、**init-simple-memorix**，技能内容与 `metadata.version` 均保持原样。
 - 自外部项目（WorkBuddy `2026-6-30-common` 仓库）迁入：**init-tsconfig**、**factory-reset-vscode-fork-ide**，并按本仓库规范补齐 frontmatter，`metadata.version` 从 `1.0.0` 起步。
+
+## [10.16.0] - 2026-09-08
+
+### Added
+
+- `low-frequency-skill` 技能树本身无内容变更，插件主版本随发布链路同步至 `10.16.0`。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `10.16.0`。

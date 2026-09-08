@@ -219,7 +219,7 @@
       "plugin": "dev-skills",
       "name": "use-agent-browser",
       "description": "规范化使用 agent-browser（AI 浏览器自动化 CLI/MCP）完成页面打开、元素交互、截图取证与 Web 调试： 安装与 doctor 诊断、open/snapshot/@ref 工作流、等待与视口策略、Windows 启动失败降级链 （--no-sandbox、CDP 接管、headless 连接）、会话与登录态管理、截图证据规范与进程收口。 当需要打开网页、浏览器自我验收、视觉验证、E2E 冒烟、前端页面调试、登录态操作， 或用户提到 agent-browser、agent browser、浏览器自动化、snapshot 截图取证时使用。 Use when driving the agent-browser CLI/MCP for browser acceptance, visual verification, web debugging, or Windows startup-failure fallbacks.",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "entry": "ai-plugins/dev-skills/skills/use-agent-browser/SKILL.md"
     },
     {

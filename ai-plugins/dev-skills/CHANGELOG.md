@@ -4,10 +4,13 @@
 
 ## [Unreleased]
 
+## [10.16.0] - 2026-09-08
+
 ### Added
 
-- **use-agent-browser**：新增技能（`metadata.version` `1.0.0`），规范化 agent-browser CLI/MCP 的浏览器验收使用：标准工作流、等待与视口策略、Windows 启动失败降级链、启动失败分流（分离诊断）、截图证据规范与进程收口。经验来源为 SmallAliceWeb / eams-component-lib / gzpc-big-screen / WorkBuddy 四个工作区的实战复盘与 memorix 记忆（调查报告：`docs/reports/2026-09-05-agent-browser-usage-experience-survey.md`）。
-- **use-agent-browser** 参考层扩展（`metadata.version` `1.0.0` -> `1.1.0`）：新增 `references/` 目录共 7 个渐进式加载文件——`command-cookbook.md`（命令手册、接管/降级配方、MCP 工具集选择、受控验收 mock）、`verification-templates.md`（视觉验证报告、生产验收八要素、流式四状态、三层验收链路、验证口径等模板）、5 组脱敏实战案例集 37 例（Windows 启动、证据误判、等待与动画、Shell 工具链、进程治理）；SKILL.md 增加渐进式加载地图与内联指针。
+- **use-agent-browser**：`metadata.version` `1.1.0` -> `1.1.1`。
+- 新增 use-agent-browser 技能：规范化 agent-browser CLI/MCP 的浏览器验收使用——标准工作流、等待与视口策略、Windows 启动失败降级链、启动失败分流（分离诊断）、截图证据规范与进程收口；附带 `references/` 参考层（命令手册、验收模板、5 组脱敏实战案例集 37 例），SKILL.md 提供渐进式加载地图。经验来源为 SmallAliceWeb / eams-component-lib / gzpc-big-screen / WorkBuddy 四个工作区的实战复盘与 memorix 记忆（调查报告：`docs/reports/2026-09-05-agent-browser-usage-experience-survey.md`）。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `10.16.0`。
 
 ## [10.15.1] - 2026-09-05
 

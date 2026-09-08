@@ -10,7 +10,7 @@ description: >-
   web debugging, or Windows startup-failure fallbacks.
 user-invocable: true
 metadata:
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # use-agent-browser
