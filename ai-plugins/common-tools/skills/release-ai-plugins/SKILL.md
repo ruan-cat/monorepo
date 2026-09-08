@@ -8,7 +8,7 @@ description: >-
   当用户要求插件发布、版本升级、更新日志、manifest、marketplace、README 一致性、
   skill-registry.json、MCP skill registry 或 registry stale 校验时使用。
 metadata:
-  version: "2.1.0"
+  version: "2.1.1"
 ---
 
 # AI Plugins 发布流程
@@ -29,6 +29,18 @@ metadata:
 - `-Summary`：写入三个 CHANGELOG 的简短说明。
 - `-NewSkill`：新增 skill 名称；对应插件根 README 必须先包含该名称。
 - `-Apply`：明确允许写文件；未指定时为 DryRun。
+
+## `-NewSkill` 的版本升级行为
+
+脚本对 `-NewSkill` 列出的技能**强制按 patch 升级 `metadata.version`**（源码语义
+`if ($isNew) { $type = "patch" }`），`-ChangeType` 对新技能不生效。这意味着即使新技能以
+`1.0.0` 起步首发，Apply 后也会被升级为 `1.0.1`。
+
+- 调用方必须预知该行为：为技能编写的契约测试若断言版本号，应使用语义化版本正则
+  （如 `/version: "1\.0\.\d+"/`），不要 pin 死字面量，否则发布后测试转红。
+- 若新技能必须保持 `1.0.0` 首发：不要传 `-NewSkill`，只传 `-Version` + `-Summary` 完成发布；
+  registry 在 Apply 时仍会全量再生成并收录新技能。此时脚本不执行新增技能 README 阻断校验，
+  调用方必须自行核对该 README 已收录技能名。
 
 ## 强制执行顺序
 
