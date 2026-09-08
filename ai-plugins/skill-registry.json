@@ -211,7 +211,7 @@
       "plugin": "common-tools",
       "name": "release-ai-plugins",
       "description": "Use when releasing or upgrading the common-tools, dev-skills, or low-frequency-skill plugins, synchronizing Claude/Cursor/Codex manifests and marketplaces, updating CHANGELOG files, validating README and installation-document consistency, or generating/checking the skill-registry.json discovery manifest for Skill Router MCP. 当用户要求插件发布、版本升级、更新日志、manifest、marketplace、README 一致性、 skill-registry.json、MCP skill registry 或 registry stale 校验时使用。",
-      "version": "2.1.0",
+      "version": "2.1.1",
       "entry": "ai-plugins/common-tools/skills/release-ai-plugins/SKILL.md"
     },
     {

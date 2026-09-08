@@ -7,7 +7,7 @@
 	},
 	"metadata": {
 		"description": "阮喵喵自用的一整套 Cursor 插件合集",
-		"version": "10.17.0",
+		"version": "10.17.1",
 		"pluginRoot": "ai-plugins"
 	},
 	"plugins": [
@@ -15,19 +15,19 @@
 			"name": "common-tools",
 			"source": "common-tools",
 			"description": "阮喵喵开发时常用的一些通用工具",
-			"version": "10.17.0"
+			"version": "10.17.1"
 		},
 		{
 			"name": "dev-skills",
 			"source": "dev-skills",
 			"description": "阮喵喵开发时使用的工程化开发技能",
-			"version": "10.17.0"
+			"version": "10.17.1"
 		},
 		{
 			"name": "low-frequency-skill",
 			"source": "low-frequency-skill",
 			"description": "阮喵喵低频使用与低频维护的技能合集",
-			"version": "10.17.0"
+			"version": "10.17.1"
 		}
 	]
 }
