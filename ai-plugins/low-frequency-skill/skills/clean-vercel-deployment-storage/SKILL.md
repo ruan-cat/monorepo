@@ -3,7 +3,7 @@ name: clean-vercel-deployment-storage
 description: 使用时机：当 Vercel Deployment Storage 部署存储额度将满或已满、需要批量删除历史部署、需要为 Vercel 项目配置 Deployment Retention 自动清理、或删除部署时遇到 vercel api 要求确认、CLI 凭据失效等问题时使用。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # clean-vercel-deployment-storage：批量清理 Vercel 部署存储
