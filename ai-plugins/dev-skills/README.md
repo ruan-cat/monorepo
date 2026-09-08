@@ -109,6 +109,7 @@ Codex 通过 `.codex-plugin/plugin.json` 加载本插件共享的 `skills/`。�
 - **init-release-base-relizy-and-bumpp**: 为任意 pnpm monorepo 接入 relizy + bumpp 组合发版方案：子包独立版本由 relizy 管理，根包版本由 bumpp 管理，GitHub Release 由 CI 工作流自动创建
 - **nitro-api-development**: 使用 Nitro v3 框架和 H3 编写服务端 API，适用于纯后端 Nitro 项目初始化、Vite 项目全栈化、Drizzle ORM 数据库交互与多平台部署
 - **openspec**: OpenSpec 规范驱动开发助手，基于 OPSX 工作流在编写代码前与 AI 就需求达成一致，使用 Schema 驱动的工件依赖系统管理变更
+- **use-agent-browser**: 规范化使用 agent-browser CLI/MCP 完成浏览器验收与 Web 调试，覆盖 open/snapshot/@ref 工作流、等待与视口策略、Windows 启动失败降级链与截图证据规范
 
 ## 安装
 
@@ -150,6 +151,7 @@ Codex 通过 `.codex-plugin/plugin.json` 加载本插件共享的 `skills/`。�
 | `init-release-base-relizy-and-bumpp` | 接入 relizy + bumpp、monorepo 发版初始化、relizy.config、bump.config |
 | `nitro-api-development`              | 开发 Nitro 接口、全栈化 Vite、Drizzle ORM                            |
 | `openspec`                           | openspec、规范驱动开发、/opsx:new                                    |
+| `use-agent-browser`                  | 浏览器验收、agent-browser、截图取证、视觉验证                        |
 
 ## 技能详情
 
@@ -215,6 +217,20 @@ Codex 通过 `.codex-plugin/plugin.json` 加载本插件共享的 `skills/`。�
 
 推荐场景：改进现有项目（棕地开发）、需要高质量实现的关键功能、团队协作开发。
 
+### use-agent-browser
+
+**版本**: `1.1.0` | **可主动调用**: 是
+
+规范化驱动 agent-browser（Chrome/CDP 浏览器自动化 CLI/MCP）完成页面验收与调试：
+
+- **标准工作流** — open → wait → snapshot -i → @eN 交互 → screenshot → close
+- **Windows 专章** — exit code 3 降级、`--no-sandbox`、CDP 接管本机 Chrome、headless=new 连接、PowerShell eval 纪律
+- **失败分流** — 分离诊断（新建链路 vs 现存会话）、最小探针、四级降级链
+- **证据规范** — 最小视觉证据、生产验收八要素、流式四状态、截图落临时目录
+- **references/ 参考层** — 命令手册、验收与报告模板、五组实战案例集（Windows 启动、证据误判、等待与动画、Shell 工具链、进程治理），渐进式按需加载
+
+命令细节以 `agent-browser skills get core` 的版本匹配输出为最终权威。
+
 ## 开发
 
 ### 目录结构
@@ -243,6 +259,9 @@ dev-skills/
 │   │   ├── SKILL.md
 │   │   ├── references/                      # API 参考与迁移指南
 │   │   └── templates/                       # 类型定义与工具函数模板
+│   ├── use-agent-browser/                   # agent-browser 浏览器自动化使用规范
+│   │   ├── SKILL.md
+│   │   └── references/                      # 命令手册、验收模板与五组实战案例集
 │   └── openspec/                            # 规范驱动开发助手
 │       ├── SKILL.md
 │       └── references/                      # 配置说明与任务编写指南
