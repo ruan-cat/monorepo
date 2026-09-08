@@ -15,6 +15,7 @@
 - **init-simple-memorix**: 精简 Memorix MCP 的 hooks 配置，处理项目级/全局 hooks 噪音、MCP 工具缺失、full 模式与 WorkBuddy MCP 启动失败等问题。
 - **init-tsconfig**: 通过 tsconfig.json 的合理配置降低 VSCode tsserver 的运行时内存占用，附 14 仓库实证策略矩阵。
 - **factory-reset-vscode-fork-ide**: 将基于 VSCode 二次开发的 IDE（Qoder CN IDE、Trae、Cursor、Windsurf、Cline 类）还原出厂状态。
+- **clean-vercel-deployment-storage**: 批量清理 Vercel 部署存储并配置 Retention 自动清理，附 REST API 端点速查与大规模删除事故复盘。
 
 ## 维护约定
 
