@@ -20,6 +20,7 @@
 - 🎯 **类型安全**：导出 `defineConfig` 提供完整的 TypeScript 类型提示
 - 🔧 **灵活配置**：基于 [c12](https://github.com/unjs/c12) 支持多种配置文件格式
 - 🎨 **多命令别名**：支持 `vercel-deploy-tool`、`vdt`、`@ruan-cat/vercel-deploy-tool`
+- 🧹 **部署后自动清理旧部署**：通过 `deploymentCleanup` 配置，在每次部署成功后按保留名额增量回收历史部署，防止 Deployment Storage 额度增长。详见 [清理旧部署文档](./src/docs/cleanup-deployments.md)
 
 ## 📦 安装
 
