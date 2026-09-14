@@ -3,7 +3,22 @@ import { consola } from "consola";
 import type { VercelDeployConfig, DeployTarget } from "../config/schema";
 import { VERCEL_NULL_CONFIG_PATH } from "../utils/vercel-null-config";
 
-export const MIN_VERCEL_CLI_VERSION = "47.2.2";
+/**
+ * Vercel CLI 最低支持版本
+ *
+ * 历史值 47.2.2 是"幽灵版本"——在 registry.npmjs.org 上并不存在该发布版本，
+ * 属于早期配置遗留的占位值，语义上不可信。
+ *
+ * 此处抬升至 50.5.0 的原因：
+ * 部署后自动清理旧部署依赖 `vercel deployment ls --format json` 这一 JSON 输出能力，
+ * 该能力自 50.5.0 起引入。经二分实证：
+ *   - 50.4.11 执行 `vercel deployment ls --format json` 报错（不支持 --format json）
+ *   - 50.5.0  执行 `vercel deployment ls --format json` 正常输出 JSON
+ * 故将下限对齐到 50.5.0，确保清理功能所需 CLI 能力可用。
+ *
+ * 设计依据见：src/docs/superpower/2026-09-09-cleanup-old-deployments-design.md
+ */
+export const MIN_VERCEL_CLI_VERSION = "50.5.0";
 
 /**
  * 获取 Vercel 项目名称参数

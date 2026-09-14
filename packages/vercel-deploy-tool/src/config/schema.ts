@@ -83,6 +83,18 @@ export interface DeployTargetWithUserCommands extends DeployTargetBase {
 /** 部署目标的具体项目配置 */
 export type DeployTarget = DeployTargetBase | DeployTargetWithUserCommands;
 
+/** 部署后自动清理旧部署的配置 */
+export interface DeploymentCleanup {
+	/** 是否开启部署后自动清理 @default false */
+	isEnable?: boolean;
+	/** 保留最近 N 个生产部署 @default 10 */
+	keepProductionCount?: number;
+	/** 保留最近 N 个预览部署 @default 5 */
+	keepPreviewCount?: number;
+	/** 是否跳过带活跃 alias 的部署（remove --safe） @default true */
+	isKeepAliased?: boolean;
+}
+
 /** Vercel部署工具的配置 */
 export interface VercelDeployConfig {
 	/** 项目名称 */
@@ -117,4 +129,14 @@ export interface VercelDeployConfig {
 	 * 考虑monorepo的情况
 	 */
 	deployTargets: DeployTarget[];
+
+	/**
+	 * 部署后自动清理旧部署配置
+	 * @description
+	 * 部署成功后自动清理历史部署，保留最近若干个生产与预览部署。
+	 *
+	 * 默认关闭（不配置则无任何清理动作）。
+	 * @default undefined（关闭）
+	 */
+	deploymentCleanup?: DeploymentCleanup;
 }

@@ -9,8 +9,8 @@ describe("Vercel CLI 版本检查", () => {
 	});
 
 	test("判断 Vercel CLI 是否满足最低版本", () => {
-		strictEqual(isVercelCliVersionSupported("47.2.1"), false);
-		strictEqual(isVercelCliVersionSupported("47.2.2"), true);
-		strictEqual(isVercelCliVersionSupported("51.8.0"), true);
+		strictEqual(isVercelCliVersionSupported("50.4.11"), false);
+		strictEqual(isVercelCliVersionSupported("50.5.0"), true);
+		strictEqual(isVercelCliVersionSupported("58.7.1"), true);
 	});
 });
