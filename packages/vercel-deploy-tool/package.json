@@ -27,7 +27,7 @@
 		"test:cli": "node dist/cli.js deploy",
 		"test:prod": "node ./dist/index.js",
 		"test:dev": "tsx ./src/cli.ts deploy",
-		"test:config": "dotenvx run -f .env.test -f .env.test-2 -- tsx ./tests/config.test.ts"
+		"test:config": "dotenvx run -f .env.test -f .env.test-2 -- tsx ./tests/config.check.ts"
 	},
 	"exports": {
 		".": {
