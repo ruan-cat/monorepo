@@ -158,6 +158,10 @@ vercel.null.def.json
 # 忽略掉 vitest 的过程文件
 vitest.config.ts.timestamp-*.mjs
 
+# 忽略掉 tsup / vitepress 构建产生的临时捆绑与时间戳文件
+tsup.config.bundled_*.mjs
+config.mts.timestamp-*.mjs
+
 # 我们自动生成工作区文件 所以不提交到仓库内
 *.code-workspace
 
