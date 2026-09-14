@@ -7,6 +7,9 @@
 	"homepage": "https://skill-router-mcp.1219043956.workers.dev",
 	"scripts": {
 		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"predev": "node scripts/generate-build-info.mjs",
+		"pretest": "node scripts/generate-build-info.mjs",
+		"pretypecheck": "node scripts/generate-build-info.mjs",
 		"test": "vitest run --config vitest.unit.config.ts",
 		"test:unit": "vitest run --config vitest.unit.config.ts",
 		"test:worker": "pnpm run build && vitest run --config vitest.worker.config.ts",

@@ -1,3 +1,7 @@
 .output/
 .wrangler/
 .dev.vars
+
+# 构建产物：由 scripts/generate-build-info.mjs 在 build/dev/typecheck/test 前生成
+# SHA 戳随构建时点变化，入库只会制造无意义的工作区噪音
+runtime/build-info.generated.ts
