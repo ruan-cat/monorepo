@@ -61,7 +61,11 @@ function listAllDeployments(config: VercelDeployConfig, scope: string[], token: 
 			args.push("-N", String(cursor));
 		}
 
-		const result = spawnSync("vercel", args, createVercelSpawnOptions("pipe"));
+		const result = spawnSync(
+			"vercel",
+			args,
+			createVercelSpawnOptions("pipe", { maxBuffer: 32 * 1024 * 1024, captureStderr: true }),
+		);
 
 		if (result.error) {
 			throw new Error(`列取部署失败（第 ${page + 1} 页）: ${result.error.message}`);
@@ -159,7 +163,11 @@ export function createCleanupTask(config: VercelDeployConfig): { name: string; f
 			for (const batch of batches) {
 				// 红线：remove 参数只能是 url 列表，绝不出现项目名
 				const removeArgs = ["remove", ...batch, "--yes", ...safeOpt, ...scope, ...token];
-				const removeResult = spawnSync("vercel", removeArgs, createVercelSpawnOptions("pipe"));
+				const removeResult = spawnSync(
+					"vercel",
+					removeArgs,
+					createVercelSpawnOptions("pipe", { maxBuffer: 32 * 1024 * 1024, captureStderr: true }),
+				);
 
 				if (removeResult.error || removeResult.status !== 0) {
 					failedBatches++;

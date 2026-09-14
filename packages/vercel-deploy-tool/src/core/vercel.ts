@@ -58,15 +58,32 @@ export function getTargetCWDArg(target: DeployTarget): string[] {
 /**
  * 统一的 Vercel CLI spawn 配置
  * @param stdoutMode stdout 行为，默认继承终端；需要读取 stdout 时传入 "pipe"
+ * @param options 进阶透传选项
+ * @param options.maxBuffer stdout/stderr 缓冲区上限（字节）。仅当显式传入时生效，
+ *   默认不设置以保留 Node.js 原生行为（`assertVercelCliAvailable` 等未传入路径零变化）。
+ *   清理任务传入 32MB 以容纳大积压项目的列表输出，避免超 1MB 默认上限静默截断。
+ * @param options.captureStderr 是否捕获 stderr 到管道。为 true 时 stderr 写入
+ *   `result.stderr`（供清理任务读取 CLI 错误输出）；为 false/缺省时 stderr 直通终端
+ *   （`assertVercelCliAvailable` 保持原状）。
  */
-export function createVercelSpawnOptions(stdoutMode: "inherit" | "pipe" = "inherit"): SpawnSyncOptions {
+export function createVercelSpawnOptions(
+	stdoutMode: "inherit" | "pipe" = "inherit",
+	options?: { maxBuffer?: number; captureStderr?: boolean },
+): SpawnSyncOptions {
 	const base: SpawnSyncOptions = {
 		encoding: "utf8",
 		shell: process.platform === "win32",
 	};
 
 	if (stdoutMode === "pipe") {
-		return { ...base, stdio: ["inherit", "pipe", "inherit"] };
+		const stdio: SpawnSyncOptions["stdio"] = options?.captureStderr
+			? ["inherit", "pipe", "pipe"]
+			: ["inherit", "pipe", "inherit"];
+		const result: SpawnSyncOptions = { ...base, stdio };
+		if (options?.maxBuffer !== undefined) {
+			result.maxBuffer = options.maxBuffer;
+		}
+		return result;
 	}
 
 	return { ...base, stdio: "inherit" };
