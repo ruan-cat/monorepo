@@ -677,7 +677,7 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       vercel:
-        specifier: ">=47.2.2"
+        specifier: ">=50.5.0"
         version: 51.8.0(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(encoding@0.1.13)(rollup@4.62.4)(typescript@5.9.3)
     devDependencies:
       "@ruan-cat/vitepress-preset-config":

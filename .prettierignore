@@ -14,3 +14,6 @@ ai-plugins/skill-registry.json
 
 # 无效 不生效的
 **/snippets/*.md
+
+# pnpm-lock.yaml 由 pnpm 生成与更新，禁止 prettier 重排（flow mapping 会被展开造成数千行噪音）
+pnpm-lock.yaml

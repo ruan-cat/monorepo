@@ -14,5 +14,5 @@ export default {
 	 * 可能导致 worker 线程崩溃，抛出 `WorkTankWorkerError`，从而阻塞提交。
 	 * 提交钩子的第一优先级是稳定性，因此关闭并行；其他全量格式化脚本可保留并行以换取速度。
 	 */
-	"*": "prettier --experimental-cli --write --no-parallel",
+	["**/*", "!pnpm-lock.yaml"]: "prettier --experimental-cli --write --no-parallel",
 };
