@@ -8,9 +8,9 @@ packages:
   - learn-create-compoents-lib/*
   - configs-package/*
 
-onlyBuiltDependencies:
-  - "@parcel/watcher"
-  - esbuild
-  - simple-git-hooks
-  - vitepress-carbon
-  - vue-demi
+allowBuilds:
+  "@parcel/watcher": true
+  esbuild: true
+  simple-git-hooks: true
+  vitepress-carbon: true
+  workerd: true
