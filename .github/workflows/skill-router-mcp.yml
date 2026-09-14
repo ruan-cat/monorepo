@@ -7,10 +7,6 @@ on:
         type: string
         required: false
         default: "22"
-      pnpm-version:
-        type: string
-        required: false
-        default: "10.33.0"
       package-dir:
         type: string
         required: false
@@ -24,8 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v6
-        with:
-          version: ${{ inputs.pnpm-version }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
