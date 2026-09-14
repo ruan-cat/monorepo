@@ -14,6 +14,7 @@ import { createUserCommandTasks } from "./user-commands";
 import { createCopyDistTasks } from "./copy-dist";
 import { createDeployTask } from "./deploy";
 import { createAliasTask } from "./alias";
+import { createCleanupTask } from "./cleanup";
 
 /**
  * 生成 Vercel 空配置文件
@@ -197,6 +198,12 @@ export async function executeDeploymentWorkflow(config: VercelDeployConfig, opti
 
 			// 并行处理所有目标的部署和别名
 			await task.group((task) => deployAliasTasks.map((t) => task(t.name, t.fn)));
+		});
+
+		// 6. 清理旧部署（deploymentCleanup.isEnable 时生效；失败不阻塞）
+		await task("6. 清理旧部署", async () => {
+			const cleanupTask = createCleanupTask(config);
+			await cleanupTask.fn();
 		});
 	});
 
