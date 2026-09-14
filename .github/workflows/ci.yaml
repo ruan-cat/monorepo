@@ -64,5 +64,4 @@ jobs:
       contents: read
     with:
       node-version: "22"
-      pnpm-version: "10.33.0"
       package-dir: "packages/skill-router-mcp"
