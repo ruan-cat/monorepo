@@ -75,10 +75,10 @@ export default defineConfig({
 典型日志示例：
 
 ```plain
-✔ 6. Cleanup: 清理旧部署
+✔ 6. 清理旧部署
 清理计划: 共 23 个部署，保留 production 10 / preview 5，待删除 8（跳过 1 个 building 状态）
-待删除: dpl_xxx1 | state=READY | target=production
-待删除: dpl_xxx2 | state=READY | target=preview
+待删除: notes-f28lutryb-ruancat-projects.vercel.app | state=READY | target=production
+待删除: notes-g7h2m9k1-ruancat-projects.vercel.app | state=READY | target=preview
 ...
 已删除 8 个旧部署
 旧部署清理完成
@@ -95,7 +95,7 @@ export default defineConfig({
 
 ## 版本要求
 
-- **vercel CLI ≥ 50.5.0**：清理依赖 `vercel deployment ls --format json`（结构化列取部署），该能力自 `50.5.0` 引入。低于该版本将因无法解析 JSON 列表而失败。
+- **vercel CLI ≥ 50.5.0**：清理依赖 `vercel ls <project-name> --format json`（结构化列取部署），该能力自 `50.5.0` 引入。低于该版本将因无法解析 JSON 列表而失败。
 - 本包的 `peerDependencies` 已声明 `vercel: ">=50.5.0"`，请确保使用方项目安装满足该下限的 CLI。
 
 `ls --format json` 能力下限的二分实证（在 npm 历史版本上逐一验证）：
