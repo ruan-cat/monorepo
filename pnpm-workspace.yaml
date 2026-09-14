@@ -14,3 +14,17 @@ allowBuilds:
   simple-git-hooks: true
   vitepress-carbon: true
   workerd: true
+
+# pnpm 12 不再从 .npmrc 读取设置项，由本文件接管（registry 除外，仍在 .npmrc）
+linkWorkspacePackages: deep
+publicHoistPattern:
+  - "*vue*"
+  - "@braintree/sanitize-url"
+  - "cytoscape"
+  - "cytoscape-cose-bilkent"
+  - "mermaid"
+  - "dayjs"
+  - "debug"
+  - "*eslint*"
+  - "*prettier*"
+ignoreWorkspaceRootCheck: true
