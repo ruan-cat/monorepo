@@ -38,14 +38,18 @@ runs:
         cache: pnpm
         registry-url: ${{ inputs.registry-url }}
 
-    - name: corepack手动再安装一次pnpm
-      shell: bash
-      run: corepack enable && corepack install
-
+    # pnpm 12 起 corepack 无法安装/运行 pnpm（原生二进制分发），
+    # corepack enable/install 步骤已移除
     # 全局安装 CI 所需的工具（与项目依赖隔离，避免污染 install 参数）
+    # pnpm 12 要求全局 bin 目录在 PATH 中（ERR_PNPM_GLOBAL_BIN_DIR_NOT_IN_PATH），
+    # 故显式声明 PNPM_HOME 并回写 GITHUB_PATH 供后续步骤使用
     - name: 全局安装CI工具
       shell: bash
       run: |
+        export PNPM_HOME="$HOME/.local/share/pnpm"
+        export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"
+        echo "$PNPM_HOME/bin" >> "$GITHUB_PATH"
+        echo "$PNPM_HOME" >> "$GITHUB_PATH"
         GLOBAL_TOOLS="@dotenvx/dotenvx tsx turbo"
         if [ "${{ inputs.with-vercel }}" = "true" ]; then
           GLOBAL_TOOLS="$GLOBAL_TOOLS vercel"
