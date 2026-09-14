@@ -55,13 +55,13 @@ deno install --dev npm:@ruan-cat/vercel-deploy-tool
 pnpm add -D vercel@latest
 ```
 
-Vercel 部署接口要求 CLI 版本至少为 `47.2.2`。推荐使用 `vercel@latest`，避免 CI 因锁文件中的旧版 CLI 被服务端拒绝。
+Vercel 部署接口要求 CLI 版本至少为 `50.5.0`。推荐使用 `vercel@latest`，避免 CI 因锁文件中的旧版 CLI 被服务端拒绝。
 
 ## 🔧 环境要求
 
 - Node.js >= 18
-- pnpm >= 9 (推荐)
-- Vercel CLI >= 47.2.2（peerDependency，推荐安装 `vercel@latest`）
+- pnpm >= 9 （推荐）
+- Vercel CLI >= 50.5.0（peerDependency，推荐安装 `vercel@latest`）
 
 ## 🚀 快速开始
 
@@ -349,9 +349,7 @@ Options:
 import { defineConfig, loadConfig, getConfig } from "@ruan-cat/vercel-deploy-tool";
 
 // 定义配置（提供类型提示）
-export const config = defineConfig({
-	/* ... */
-});
+export const config = defineConfig({/* ... */});
 
 // 加载配置（异步工厂函数）
 const config = await loadConfig();
@@ -420,7 +418,7 @@ v1.0 是一个**破坏性更新**，请参考 [迁移指南](./src/docs/migratio
 
 ### 快速迁移
 
-**旧版本 (v0.x)**：
+**旧版本 （v0.x）**：
 
 ```typescript
 // bin/vercel-deploy-tool.ts
@@ -436,7 +434,7 @@ import "@ruan-cat/vercel-deploy-tool/src/index.ts";
 }
 ```
 
-**新版本 (v1.0)**：
+**新版本 （v1.0）**：
 
 ```bash
 # 初始化配置
