@@ -54,21 +54,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 安装pnpm
-        uses: pnpm/action-setup@v5
+      # 环境初始化统一收敛到复合 action，禁止在本文件内自行安装 pnpm / Node。
+      # 全局工具（vercel / @dotenvx/dotenvx / tsx / turbo）与项目依赖由该 action 一并处理，
+      # pnpm 12 所需的 PNPM_HOME → GITHUB_PATH 回写逻辑亦在其中。
+      - name: 初始化 monorepo 环境
+        uses: ./.github/actions/setup-monorepo
         with:
-          # 项目提供了packageManager，故我们不提供该配置
-          # version: 9
-          # vercel-deploy-tool 将 vercel 作为 peerDependency，这里显式安装最新版 CLI。
-          run_install: |
-            - recursive: true
-            - args: [--global, "vercel@latest", "@dotenvx/dotenvx", "tsx", "turbo"]
-
-      - name: 安装node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24.18.0
-          cache: pnpm
+          with-vercel: "true"
 
       - name: 检查版本
         run: |
