@@ -7,10 +7,6 @@ on:
         type: string
         required: false
         default: "22"
-      pnpm-version:
-        type: string
-        required: false
-        default: "12.4.1"
       package-dir:
         type: string
         required: false
@@ -22,15 +18,16 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v6
-        with:
-          version: ${{ inputs.pnpm-version }}
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+
+      # 环境初始化统一收敛到复合 action，禁止在本文件内自行安装 pnpm / Node。
+      # 该验证任务不需要 vercel CLI，且以 frozen lockfile + 跳过脚本的方式安装依赖。
+      - name: 初始化 monorepo 环境
+        uses: ./.github/actions/setup-monorepo
         with:
           node-version: ${{ inputs.node-version }}
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile --ignore-scripts
+          with-vercel: "false"
+          install-flags: "--frozen-lockfile --ignore-scripts"
       - run: pnpm --dir ${{ inputs.package-dir }} run typecheck
       - run: pnpm --dir ${{ inputs.package-dir }} run test:all
       - run: pnpm --dir ${{ inputs.package-dir }} run build
