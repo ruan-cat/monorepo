@@ -63,8 +63,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 开启 corepack
-        run: corepack enable && corepack install
+      - name: 安装pnpm
+        uses: pnpm/action-setup@v6
 
       - name: 检查pnpm版本
         run: pnpm -v
