@@ -38,11 +38,14 @@ jobs:
         run: |
           set -uo pipefail
 
-          # setup-monorepo 自身是实现处，必须允许它调用底层 action，故排除。
+          # 排除两个"实现处"文件：
+          #   1. setup-monorepo 必须调用底层 action，否则无人能装 pnpm / Node；
+          #   2. workflow-guard 本体的规则表达式与报错文案天然含违规样例字面量，
+          #      无法被注释剥离逻辑过滤，若不排除会永久自匹配红灯。
           mapfile -t files < <(
             find .github/workflows .github/actions -type f \
               \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null \
-              | grep -v '^\.github/actions/setup-monorepo/' || true
+              | grep -vE '^\.github/actions/setup-monorepo/|^\.github/workflows/workflow-guard\.yml$' || true
           )
 
           bad=0
@@ -71,7 +74,7 @@ jobs:
 
             # 旧链路拦截：pnpm 12 起 corepack 已无法安装 pnpm，出现即为必炸死代码。
             if sed 's/#.*$//' "$f" | grep -qE 'corepack[[:space:]]+(enable|install)'; then
-              echo "::error file=$f::pnpm 12 起 corepack 无法安装 pnpm，corepack enable/install 是必炸死代码，请移除"
+              echo "::error file=$f::pnpm 12 起 corepack 已无法安装 pnpm，此类启用步骤是必炸死代码，请移除"
               bad=1
             fi
           done
