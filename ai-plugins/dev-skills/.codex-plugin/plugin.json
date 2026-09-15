@@ -1,6 +1,6 @@
 {
 	"name": "dev-skills",
-	"version": "10.17.1",
+	"version": "10.18.0",
 	"description": "面向项目初始化、架构搭建与规范驱动研发的工程化技能集合。",
 	"author": {
 		"name": "阮喵喵",
@@ -21,6 +21,9 @@
 		"capabilities": ["技能"],
 		"websiteURL": "https://github.com/ruan-cat/monorepo/tree/main/ai-plugins/dev-skills",
 		"brandColor": "#0F766E",
-		"defaultPrompt": ["根据当前项目选择并使用合适的工程开发技能。", "梳理项目初始化、工程配置或规范驱动研发的下一步。"]
+		"defaultPrompt": [
+			"根据当前项目选择并使用合适的工程开发技能。",
+			"梳理项目初始化、工程配置或规范驱动研发的下一步。"
+		]
 	}
 }
