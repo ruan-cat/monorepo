@@ -21,6 +21,10 @@ inputs:
     description: 是否全局安装 npm（release 流程需要）
     required: false
     default: "false"
+  install-flags:
+    description: 传给 pnpm install 的附加参数（如 --frozen-lockfile --ignore-scripts）
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -61,4 +65,4 @@ runs:
 
     - name: 安装整个项目的依赖
       shell: bash
-      run: pnpm i
+      run: pnpm i ${{ inputs.install-flags }}
