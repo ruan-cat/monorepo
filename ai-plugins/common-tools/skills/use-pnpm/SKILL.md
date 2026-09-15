@@ -1,10 +1,10 @@
 ---
 name: use-pnpm
 description: >-
-  Use when 需要处理 pnpm 包管理、workspace 命令、npm/npx/yarn 到 pnpm 的替换、Windows 或 PowerShell pnpm 故障、Corepack 管理的 pnpm、NVM Desktop 切换 Node 后的路径错位、全局包更新、ERR_PNPM_UNEXPECTED_VIRTUAL_STORE、virtual-store-dir 混淆、PNPM_HOME/global-dir/store-dir 诊断，或 pnpm install/update/rebuild 排障；English: handling pnpm package management, workspace commands, npm/npx/yarn replacement, Windows or PowerShell pnpm failures, Corepack-managed pnpm, NVM Desktop Node switches, global package updates, ERR_PNPM_UNEXPECTED_VIRTUAL_STORE, virtual-store-dir confusion, PNPM_HOME/global-dir/store-dir diagnosis, or pnpm install/update/rebuild troubleshooting.
+  Use when 需要处理 pnpm 包管理、workspace 命令、npm/npx/yarn 到 pnpm 的替换、pnpm 12 断代差异（allowBuilds、blockExoticSubdeps、ERR_PNPM_IGNORED_BUILDS、.npmrc 设置迁移）、Windows 或 PowerShell pnpm 故障、Corepack 管理的 pnpm 或 corepack 退役与 shim 复活、NVM Desktop 切换 Node 后的路径错位、全局包更新、ERR_PNPM_UNEXPECTED_VIRTUAL_STORE、virtual-store-dir 混淆、PNPM_HOME/global-dir/store-dir 诊断，或 pnpm install/update/rebuild 排障；English: handling pnpm package management, workspace commands, npm/npx/yarn replacement, pnpm 12 migration gaps (allowBuilds, blockExoticSubdeps, ERR_PNPM_IGNORED_BUILDS, .npmrc settings migration), Windows or PowerShell pnpm failures, Corepack-managed pnpm or corepack deprecation and shim resurrection, NVM Desktop Node switches, global package updates, ERR_PNPM_UNEXPECTED_VIRTUAL_STORE, virtual-store-dir confusion, PNPM_HOME/global-dir/store-dir diagnosis, or pnpm install/update/rebuild troubleshooting.
 user-invocable: true
 metadata:
-  version: "0.3.1"
+  version: "0.4.0"
 ---
 
 # use-pnpm
@@ -14,6 +14,8 @@ metadata:
 本技能用于处理 pnpm 相关的安装、更新、工作区命令替换、Windows/PowerShell 故障和全局包恢复。重点覆盖 `ERR_PNPM_UNEXPECTED_VIRTUAL_STORE`、`PNPM_HOME` 与全局依赖树错位、Corepack 管理 pnpm、NVM Desktop 切换 Node 后的 pnpm 运行时混乱。
 
 目标不是复述事故过程，而是给 future-agent 一套可执行判断路径：先识别 pnpm 由谁管理、全局区在哪里、store 在哪里、虚拟 store 指向哪里，再决定是重建依赖树、修配置，还是切回正确的 Node/pnpm 管理链路。
+
+**pnpm 12 断代前提**：pnpm 12（Rust 原生版）对配置读取位置、构建审批、供应链校验有四处语义收紧，且 corepack 从此无法安装 pnpm。凡涉及 pnpm 版本判定、升级、CI 安装，先读 [`references/pnpm12-migration.md`](references/pnpm12-migration.md) 与 [`references/corepack-eol-and-shim.md`](references/corepack-eol-and-shim.md)。
 
 ## Low-Model Execution Contract
 
@@ -37,6 +39,7 @@ metadata:
 - pnpm 报错包含 `ERR_PNPM_UNEXPECTED_VIRTUAL_STORE`、`virtual-store-dir`、`store-dir`、`PNPM_HOME`、global root、global bin 等关键词。
 - Windows 或 PowerShell 下 pnpm 命令异常、全局命令找不到、全局包升级失败。
 - Corepack 管理 pnpm，或 NVM Desktop 切换 Node 后 pnpm 版本、路径、全局区不一致。
+- 升级到 pnpm 12 后遇到 `ERR_PNPM_IGNORED_BUILDS`、`allowBuilds`、`blockExoticSubdeps`、`ERR_PNPM_MISSING_TARBALL_INTEGRITY`、`.npmrc` 设置不生效、`pnpm.overrides` 被忽略，或需要迁移 workflow 里的 corepack 步骤。
 - pnpm workspace 中需要判断命令应该在根目录、子包目录，还是通过 `--filter` 执行。
 
 ## When Not to Use
@@ -166,7 +169,7 @@ pnpm store path
 
 不要把绝对 `virtual-store-dir` 写进全局 `.npmrc` 或全局 pnpm 配置来压住错误。绝对 virtual store 会把不同 Node、不同用户、不同全局区耦合到同一个布局路径，后续切 Node 或迁移目录时更容易复发。
 
-## NVM Desktop + Corepack Rules
+## NVM Desktop + Corepack Rules（版本分域）
 
 Windows + NVM Desktop + Corepack 的核心风险是：`node`、`corepack`、`pnpm` 可能来自不同 Node 版本或不同 shim 目录。切 Node 或换 pnpm 版本后，先验证路径和版本，再重建 global 区。
 
@@ -187,12 +190,24 @@ pnpm config get store-dir
 pnpm config get virtual-store-dir
 ```
 
-规则：
+规则按目标 pnpm 大版本分域，先确认 `package.json` 的 `packageManager` 字段再行动：
 
-- 如果项目使用 Corepack 管 pnpm，不要把 `npm i -g pnpm` 或 `pnpm add -g pnpm` 当作升级 pnpm 本体的首选方式。
-- Corepack 管理时，优先使用 Corepack 激活或准备目标 pnpm 版本；如果当前 pnpm 明确支持并且管理链路允许，也可以使用 `pnpm self-update`。
+**pnpm ≥12（目标版本为新版）：**
+
+- corepack 路线全面禁用：`corepack install` 装不了 pnpm 12（机制性死路，非版本未跟上），workflow 或 preinstall 钩子里的 `corepack enable` 是必炸死代码，见到即删。
+- 全局升级用 `pnpm self-update`（corepack 托管的 pnpm 会拒绝 self-update，需先脱离 corepack）、`npm i -g pnpm@latest-12` 或原生二进制；具体路线与 shim 复活防治见 [`references/corepack-eol-and-shim.md`](references/corepack-eol-and-shim.md)。
+- pnpm 12 原生 exe 不依赖 Node，切 Node 不影响全局 pnpm 版本；但 PATH 中 pnpm 入口必须唯一且优先级正确。
+
+**pnpm ≤11（历史仓库）：**
+
+- 如果项目使用 Corepack 管 pnpm，不要把 `npm i -g pnpm` 或 `pnpm add -g pnpm` 当作升级 pnpm 本体的首选方式；优先 Corepack 激活或准备目标版本。
+- 升级目标跨到 12 时，按 `references/corepack-eol-and-shim.md` 的原生安装路线迁移，不要试图让 corepack 跨代。
+
+**通用：**
+
 - 切换 Node 后，全局包区和 shim 可能需要重新安装或重建。先让 `where.exe node`、`where.exe pnpm`、`where.exe corepack` 指向同一套预期链路，再运行 `pnpm i -g`。
 - 不要混用多个来源安装 pnpm。出现多个 `where.exe pnpm` 结果时，先解释路径优先级，再决定清理哪一个。
+- `~\.nvmd\bin` 等 node 管理器 shim 目录里复活的 pnpm shim 属于旧链路残留，直接删除；防治机制见 [`references/corepack-eol-and-shim.md`](references/corepack-eol-and-shim.md) 第 3 节。
 
 ## Command Mapping
 
@@ -220,7 +235,7 @@ pnpm remove -g <pkg>
 pnpm list -g --depth 0
 ```
 
-注意：`pnpm add -g pnpm` 不是 Corepack 场景下升级 pnpm 本体的默认答案。先确认 pnpm 管理方式。
+注意：`pnpm add -g pnpm` 不是升级 pnpm 本体的默认答案。先确认 pnpm 管理方式与目标大版本（corepack 场景见上文版本分域规则；pnpm 12 场景见 [`references/corepack-eol-and-shim.md`](references/corepack-eol-and-shim.md)）。
 
 ## Global Upgrade Policy
 
@@ -332,6 +347,9 @@ pnpm update -g <pkg>
 - 把 `pnpm root -g` 当成 global-dir；它返回的是全局 `node_modules`，global `package.json` 和 `pnpm-lock.yaml` 在它的父目录。
 - 看到 `ERR_PNPM_UNEXPECTED_VIRTUAL_STORE` 就先改全局 `virtual-store-dir`。
 - 在 Corepack 管理 pnpm 时用 `npm i -g pnpm` 覆盖 shim，导致 `where.exe pnpm` 指向混乱。
+- pnpm 12 下试图用 corepack 安装或升级 pnpm（机制性死路），或保留 workflow / preinstall 里的 `corepack enable` 步骤。
+- pnpm 12 下继续把设置写在 `.npmrc` 或 package.json 的 `pnpm` 字段里——只迁到 `pnpm-workspace.yaml`，否则被静默忽略（见 [`references/pnpm12-migration.md`](references/pnpm12-migration.md) 第 4 节）。
+- pnpm 12 下用 `onlyBuiltDependencies` 授权构建脚本——它不再生效，授权表是 `allowBuilds`。
 - NVM Desktop 切 Node 后只看 `node -v`，不看 `where.exe node`、`where.exe pnpm`、`where.exe corepack`。
 - 不备份 global 元数据就删除全局依赖树。
 - 在无 TTY 环境永久设置 `CI=true`，影响后续命令行为。
