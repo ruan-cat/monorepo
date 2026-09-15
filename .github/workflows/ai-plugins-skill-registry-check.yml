@@ -1,5 +1,9 @@
 name: AI Plugins Skill Registry Check
 
+# workflow-guard: exempt —— 本 workflow 只在 Node 环境内运行纯文本校验脚本
+# （generator 仅用 Node 内置模块，无任何依赖），不需要 pnpm 与项目依赖，
+# 因此不接入 .github/actions/setup-monorepo。固定到仓库 engines.node 的最低版本即可。
+
 on:
   pull_request:
     paths:

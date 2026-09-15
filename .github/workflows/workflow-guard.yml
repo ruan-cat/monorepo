@@ -1,0 +1,82 @@
+name: Workflow Guard
+
+# 单入口护栏：CI 环境初始化只允许存在一个入口 —— .github/actions/setup-monorepo。
+#
+# 背景：pnpm 12 升级时 setup-monorepo 已补齐 PNPM_HOME 回写等要求，但
+# vercel-deploy-tool.yaml 因自行安装 pnpm 而漏改，导致 main 分支部署任务以
+# ERR_PNPM_GLOBAL_BIN_DIR_NOT_IN_PATH 失败。靠"记得改每个文件"不可靠，
+# 本 workflow 把"绕过统一入口"变成确定性的红灯。
+#
+# 豁免方式（二选一，均无需在规则处维护白名单）：
+#   1. 文件内显式声明：在被豁免文件里加一条含 exempt 关键字的 workflow-guard 豁免注释
+#   2. 自动豁免：push.branches 不含 dev/main/master 且分支名含 notuse（死代码）
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - ".github/actions/**"
+  push:
+    branches:
+      - dev
+    paths:
+      - ".github/workflows/**"
+      - ".github/actions/**"
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    name: 校验环境初始化入口唯一
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: 禁止绕过 setup-monorepo 自行安装 pnpm / Node
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          # setup-monorepo 自身是实现处，必须允许它调用底层 action，故排除。
+          mapfile -t files < <(
+            find .github/workflows .github/actions -type f \
+              \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null \
+              | grep -v '^\.github/actions/setup-monorepo/' || true
+          )
+
+          bad=0
+          checked=0
+          for f in "${files[@]}"; do
+            # 豁免 1：文件内就近声明。理由写在被豁免文件里，规则处不维护白名单。
+            if grep -qE 'workflow-guard:[[:space:]]*exempt' "$f"; then
+              echo "· 豁免（文件内声明）: $f"
+              continue
+            fi
+
+            # 豁免 2：不触发 dev/main/master 且分支名含 notuse 的死代码 workflow。
+            if ! sed 's/#.*$//' "$f" | grep -qE '^[[:space:]]*-[[:space:]]*(dev|main|master)[[:space:]]*$' \
+               && sed 's/#.*$//' "$f" | grep -qE 'notuse'; then
+              echo "· 豁免（仅 *notuse 分支触发）: $f"
+              continue
+            fi
+
+            checked=$((checked + 1))
+
+            # 剥离行内注释后再匹配，避免注释里写的示例被误判为违规。
+            if sed 's/#.*$//' "$f" | grep -qE "uses:[[:space:]]*['\"]?(pnpm/action-setup|actions/setup-node)"; then
+              echo "::error file=$f::检测到绕过统一入口的 CI 环境初始化。请改为 uses: ./.github/actions/setup-monorepo"
+              bad=1
+            fi
+
+            # 旧链路拦截：pnpm 12 起 corepack 已无法安装 pnpm，出现即为必炸死代码。
+            if sed 's/#.*$//' "$f" | grep -qE 'corepack[[:space:]]+(enable|install)'; then
+              echo "::error file=$f::pnpm 12 起 corepack 无法安装 pnpm，corepack enable/install 是必炸死代码，请移除"
+              bad=1
+            fi
+          done
+
+          if [ "$bad" -eq 0 ]; then
+            echo "✅ CI 环境初始化入口唯一：已校验 ${checked} 个活跃 workflow / action。"
+          fi
+          exit "$bad"
