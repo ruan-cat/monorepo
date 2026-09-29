@@ -4,7 +4,7 @@ description: >-
   Use when 用户需要盘点、规划或批量安装 MCP 配置，确认各 agent 的配置目标、JSON 或 TOML 形态、合并策略、dry-run、备份或第三方 server entry 时。
 user-invocable: true
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # install-mcp
@@ -55,6 +55,32 @@ WorkBuddy 存在两套相互独立的用户级配置目录，写入前必须确�
 两套目录下的 `mcp.json` 与 `.mcp.json` 各自独立，同一台机器上可同时存在；修改其中一套不会影响另一套，也不代表另一套需要同步修改。无法从目录名判断版本时，可读取该目录下 `.connectors-marketplace.meta.json` 的 `sourceKey` 域名来确认。
 
 WorkBuddy 可能向子进程注入 Node 参数。对需要隔离 Node 参数的 MCP entry，可建议设置 `env.NODE_OPTIONS = ""`。这是兼容性建议，不代表所有脚本或所有配置都会自动补齐该字段。
+
+### MCP 信任审批门：写入 `mcp.json` 不等于可用
+
+WorkBuddy 对每个用户级 MCP 服务器设有独立的本地信任审批门。只写入 `mcp.json` **不会**让服务器连接：未获审批的服务器不会被加载，其名称也不会出现在任何应用日志中——这一现象极易被误判为「配置格式错误」或「命令不可用」。
+
+审批记录保存在**同一配置目录**下的 `mcp-approvals.json`，key 格式为：
+
+```text
+<sha256>::<服务器名>
+```
+
+哈希口径是**该服务器条目自身的紧凑 JSON**：保持原文件键序、无任何空白字符，且不重新序列化整个 `mcp.json`。
+
+```js
+const key = `${sha256(JSON.stringify(entry))}::${name}`;
+```
+
+其中 `entry` 即 `mcpServers[name]` 的原始对象；不得 `sort_keys`，不得使用缩进格式。value 为审批时刻的毫秒时间戳。
+
+推论与诊断：
+
+- **配置一改即失效**：哈希覆盖 entry 的全部字段，任何字段增删改都会产生新哈希，旧审批不再匹配。同一服务器在 `mcp-approvals.json` 中出现多个哈希属正常现象。
+- **诊断未连接**：先确认 `mcp-approvals.json` 是否含该服务器当前哈希；再比较 `mcp-tool-list.json` 的修改时间是否晚于本次配置变更；最后在应用日志（`logs/main.log`、`logs/daemon.log`）中检索服务器名——出现 0 次即说明应用根本没有尝试加载。
+- **`disabled: true` 的 entry 不应写入审批**。
+
+该文件是本地命令执行的安全门，等价于用户对「运行该 MCP 服务器」的显式同意。**未经用户明确授权，不得代为生成或改写审批记录**；默认路径是让用户在应用内自行确认信任。
 
 变更 WorkBuddy 的 MCP entry 可能触发新的信任审批；写入后应提示重启应用并重新确认 server 连接状态。
 
