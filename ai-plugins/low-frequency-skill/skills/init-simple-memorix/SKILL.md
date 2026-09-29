@@ -2,9 +2,9 @@
 name: init-simple-memorix
 user-invocable: true
 description: >-
-  Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、full 模式、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、setup 或升级后重新精简等场景。
+  Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、full 模式、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、memorix 裸命令报「不是内部或外部命令」、全局命令 shim 被历史坏 shim 劫持、包管理器迁移后 MCP 突然失联、setup 或升级后重新精简等场景。
 metadata:
-  version: "2.4.0"
+  version: "2.5.0"
 ---
 
 # init-simple-memorix
@@ -24,6 +24,7 @@ metadata:
 - 用户需要项目级或全局级 hooks 模板参考。
 - 用户反馈 Memorix MCP 工具缺失、不是 full 模式、MCP server 启动失败。
 - 用户在 WorkBuddy 中看到 memorix MCP 反复断开、审批后仍不可用、`NODE_OPTIONS` 或 Node ABI 相关错误。
+- 用户反馈 memorix 裸命令报「不是内部或外部命令」、`where memorix` 第一命中可疑 shim，或包管理器迁移（如 pnpm 布局变更）后 memorix MCP 突然失联但记忆数据完好。
 
 ## When Not to Use
 
@@ -38,6 +39,7 @@ metadata:
    - 记忆太多、太杂、每次工具调用都记录：处理 hooks。
    - MCP 工具缺失、full 模式不可用、server 断开：检查 MCP 配置。
    - WorkBuddy 审批、Node 参数、better-sqlite3 报错：进入 WorkBuddy Notes。
+   - memorix 裸命令本身执行失败（报「不是内部或外部命令」）、`memorix --version` 异常而 `~/.memorix/` 数据完好：命令解析链劫持分支（WorkBuddy Notes 与 `references/workbuddy-mcp-notes.md` 的 shim 劫持小节）。
 2. 再定作用域。
    - 只影响当前项目：使用 `templates/` 下的项目级模板。
    - 影响用户全局 Agent：参考 `templates-global/`，但不要在未获明确授权时写入用户主目录配置。
@@ -50,11 +52,11 @@ metadata:
 
 本技能正文只保留判断入口和高频规则。需要细节时按场景读取对应参考文件，不要一次性加载全部 references。
 
-| 参考文件                            | 何时读取                                                                                                                         |
-| :---------------------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
-| `references/hooks-reference.md`     | 用户要求精简 hooks、检查噪音、合并项目级/全局级 hooks，或需要旧版完整 hooks 表格与模板格式细节。                                 |
-| `references/workbuddy-mcp-notes.md` | 用户反馈 WorkBuddy 中 memorix MCP 连接失败、untrusted/disabled、`Connection closed`、Node/ABI、`NODE_OPTIONS` 或审批 hash 问题。 |
-| `references/memorix-setup-notes.md` | 用户刚执行 `memorix setup`、全局安装、升级 Memorix 插件，或需要理解 setup 后哪些 hooks/MCP 配置可能被覆盖。                      |
+| 参考文件                            | 何时读取                                                                                                                                                                                           |
+| :---------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `references/hooks-reference.md`     | 用户要求精简 hooks、检查噪音、合并项目级/全局级 hooks，或需要旧版完整 hooks 表格与模板格式细节。                                                                                                   |
+| `references/workbuddy-mcp-notes.md` | 用户反馈 WorkBuddy 中 memorix MCP 连接失败、untrusted/disabled、`Connection closed`、Node/ABI、`NODE_OPTIONS` 或审批 hash 问题；以及 memorix 裸命令失灵、shim 劫持、包管理器迁移后解析链断裂问题。 |
+| `references/memorix-setup-notes.md` | 用户刚执行 `memorix setup`、全局安装、升级 Memorix 插件，或需要理解 setup 后哪些 hooks/MCP 配置可能被覆盖。                                                                                        |
 
 如果用户只抱怨“记忆太吵”或“每次工具调用都记录”，优先读取 `references/hooks-reference.md`。只有同时出现 MCP 连接、工具缺失、审批或 Node 错误时，才读取 `references/workbuddy-mcp-notes.md`。
 
@@ -239,6 +241,7 @@ Bash 兜底：
 ## WorkBuddy Notes
 
 - WorkBuddy 可能向子进程注入 `NODE_OPTIONS`。旧 Node 版本不识别 `--use-system-ca` 时，stdio MCP 会在启动阶段退出。memorix MCP entry 中建议显式设置 `env.NODE_OPTIONS = ""`。
+- memorix MCP 启动失败有第三类根因：**命令解析链劫持**——裸命令 `"command": "memorix"` 被 PATH 中更靠前的历史坏 shim（node 管理器遗物）抢先命中，配置本身完全正确也会失败。典型背景是包管理器迁移让 memorix 的 pnpm shim 从 PATH 高位跌落。判定与修复见 `references/workbuddy-mcp-notes.md` 的 shim 劫持小节。
 - WorkBuddy 的 MCP 信任 hash 基于 server entry 的 `JSON.stringify` 结果再做 SHA-256。任何 `mcp.json` entry 变化都可能触发重新审批。
 - 修改 `mcp.json` 后需要完全重启 WorkBuddy；只刷新窗口或重开会话可能仍使用旧信任状态。
 - Node 22.x 的 ABI 都是 127。同 major 内一般不需要重建 `better-sqlite3`；跨 major 升级或降级后才优先考虑 rebuild。
