@@ -170,7 +170,7 @@ pnpm --dir packages/skill-router-mcp benchmark:remote -- https://<worker-host> 3
 Workers Builds 的 Root directory 为仓库根目录 `/`，实际命令配置如下：
 
 ```text
-Build：pnpm --dir packages/skill-router-mcp run build
+Build：pnpm i && pnpm --dir packages/skill-router-mcp run build
 Deploy：pnpm --dir packages/skill-router-mcp exec wrangler deploy
 Version（非生产分支）：pnpm --dir packages/skill-router-mcp exec wrangler versions upload
 ```
