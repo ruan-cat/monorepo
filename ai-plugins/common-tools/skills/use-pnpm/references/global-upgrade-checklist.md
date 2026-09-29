@@ -77,7 +77,12 @@ $globalDir = Split-Path -Parent (pnpm root -g)
 Get-Content (Join-Path $globalDir 'pnpm-workspace.yaml')
 ```
 
-确认 `onlyBuiltDependencies` 仅含明确批准项，`ignoredBuiltDependencies` 保留暂缓项。策略写入成功不等于构建成功；遇到 `MSB8040`、node-gyp 或 MSBuild 错误，记录缺失组件并停止扩大审批范围。
+确认构建审批策略已持久化，字段按运行中的 pnpm 大版本核对（见 [`pnpm12-migration.md`](pnpm12-migration.md) 第 1 节）：
+
+- pnpm ≥12：授权表是全局区 `pnpm-workspace.yaml` 的 `allowBuilds`（map 语法），`onlyBuiltDependencies` 在 12 下不再授予构建权限。
+- pnpm ≤11：授权表是 `onlyBuiltDependencies`（仅含明确批准项），`ignoredBuiltDependencies` 保留暂缓项。
+
+策略写入成功不等于构建成功；遇到 `MSB8040`、node-gyp 或 MSBuild 错误，记录缺失组件并停止扩大审批范围。
 
 ## 5. 最小运行验证
 

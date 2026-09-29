@@ -6,14 +6,16 @@ pnpm 12（2026-08-26 发布，Rust 重写）对 pnpm 10/11 的命令、flags、l
 
 安装或 CI 失败时，按错误关键词对号入座：
 
-| 错误/现象                                  | 对应章节 |
-| ------------------------------------------ | -------- |
-| `ERR_PNPM_IGNORED_BUILDS`                  | 1        |
-| `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS` | 2        |
-| `blockExoticSubdeps` 拦截 URL/git 依赖     | 3        |
-| `ERR_PNPM_MISSING_TARBALL_INTEGRITY`       | 3        |
-| `.npmrc` 设置项疑似不生效                  | 4        |
-| `pnpm.overrides` 在 package.json 里被无视  | 4        |
+| 错误/现象                                  | 对应章节                                                     |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| `ERR_PNPM_IGNORED_BUILDS`                  | 1                                                            |
+| `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS` | 2                                                            |
+| `blockExoticSubdeps` 拦截 URL/git 依赖     | 3                                                            |
+| `ERR_PNPM_MISSING_TARBALL_INTEGRITY`       | 3                                                            |
+| `.npmrc` 设置项疑似不生效                  | 4                                                            |
+| `pnpm.overrides` 在 package.json 里被无视  | 4                                                            |
+| 全局区迁移后某 CLI 报原生绑定缺失          | 7                                                            |
+| 全局命令被坏 shim 劫持 / `ls -g` 空列表    | [`layout-migration-fallout.md`](layout-migration-fallout.md) |
 
 ## 1. 构建脚本审批：警告变硬错误
 
@@ -50,7 +52,7 @@ pnpm clean --lockfile   # 移除 node_modules 与 pnpm-lock.yaml（git 跟踪的
 pnpm install            # 全新 resolution，新 lockfile 会带上 integrity
 ```
 
-## 4. 配置读取位置迁移（最大面积)
+## 4. 配置读取位置迁移（最大面积）
 
 pnpm 12 **不再读取**两处旧位置的设置，全部迁到 `pnpm-workspace.yaml`（camelCase）：
 
@@ -72,3 +74,18 @@ pnpm 12 **不再读取**两处旧位置的设置，全部迁到 `pnpm-workspace.
 - `pnpm/action-setup@v5/v6`、官方 `pnpm/setup` 均自动读取 `packageManager` 字段——**删除 workflow 里的 version 硬编码**，否则报 `Multiple versions of pnpm specified`。
 - action-setup 的 `run_install` args 全局安装模式与 pnpm 12 的全局 bin 目录校验不兼容（`ERR_PNPM_GLOBAL_BIN_DIR_NOT_IN_PATH`）——全局工具改用显式 `pnpm add -g` 步骤并声明 `PNPM_HOME`，或迁移官方 `pnpm/setup`。
 - Vercel：`ENABLE_EXPERIMENTAL_COREPACK=1` + packageManager 字段已被原生支持（构建日志可验证 `using pnpm v12.4.1`），无需仓库内 corepack 脚本。
+
+## 7. 全局区迁移的构建白名单盘点
+
+迁移全局区（旧布局 → 新布局）时，除照抄声明的构建白名单外，还必须盘点**旧布局中实际存在构建产物的包**：
+
+- 声明白名单只覆盖配置里显式列出的包；传递依赖的原生绑定（如某 CLI 依赖的原生 SQLite 绑定）通常不在声明里，但旧布局当年实际构建过它们。
+- 漏盘的症状：迁移后该 CLI 启动即报 `Could not locate the bindings file`，列出全部候选 `.node` 路径均不存在。
+- 盘点方法：在旧布局的依赖树里搜实际构建产物，例如 `find <旧全局node_modules> -name '*.node'`，把命中的包与声明白名单求差集。
+
+```bash
+# 补装并允许该包构建（--allow-build 针对单个包，不等于交互审批 --all 兜底）
+pnpm add -g --allow-build=<missing-native-pkg> "<pkg>@<version-range>"
+```
+
+验证：CLI `--version` 能正常启动（输出业务态提示而非绑定缺失错误即视为恢复）。
