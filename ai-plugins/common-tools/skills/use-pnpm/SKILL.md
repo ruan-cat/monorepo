@@ -1,10 +1,10 @@
 ---
 name: use-pnpm
 description: >-
-  Use when 需要处理 pnpm 包管理、workspace 命令、npm/npx/yarn 到 pnpm 的替换、pnpm 12 断代差异（allowBuilds、blockExoticSubdeps、ERR_PNPM_IGNORED_BUILDS、.npmrc 设置迁移）、Windows 或 PowerShell pnpm 故障、Corepack 管理的 pnpm 或 corepack 退役与 shim 复活、NVM Desktop 切换 Node 后的路径错位、全局包更新、ERR_PNPM_UNEXPECTED_VIRTUAL_STORE、virtual-store-dir 混淆、PNPM_HOME/global-dir/store-dir 诊断，或 pnpm install/update/rebuild 排障；English: handling pnpm package management, workspace commands, npm/npx/yarn replacement, pnpm 12 migration gaps (allowBuilds, blockExoticSubdeps, ERR_PNPM_IGNORED_BUILDS, .npmrc settings migration), Windows or PowerShell pnpm failures, Corepack-managed pnpm or corepack deprecation and shim resurrection, NVM Desktop Node switches, global package updates, ERR_PNPM_UNEXPECTED_VIRTUAL_STORE, virtual-store-dir confusion, PNPM_HOME/global-dir/store-dir diagnosis, or pnpm install/update/rebuild troubleshooting.
+  Use when 需要处理 pnpm 包管理、workspace 命令、npm/npx/yarn 到 pnpm 的替换、pnpm 12 断代差异（allowBuilds、blockExoticSubdeps、ERR_PNPM_IGNORED_BUILDS、.npmrc 设置迁移）、Windows 或 PowerShell pnpm 故障、Corepack 管理的 pnpm 或 corepack 退役与 shim 复活、pnpm self-update 升级不生效或假成功（双行为分支、PNPM 布局迁移残留、Windows PATH 优先级竞争）、NVM Desktop 切换 Node 后的路径错位、全局包更新、ERR_PNPM_UNEXPECTED_VIRTUAL_STORE、virtual-store-dir 混淆、PNPM_HOME/global-dir/store-dir 诊断，或 pnpm install/update/rebuild 排障；English: handling pnpm package management, workspace commands, npm/npx/yarn replacement, pnpm 12 migration gaps (allowBuilds, blockExoticSubdeps, ERR_PNPM_IGNORED_BUILDS, .npmrc settings migration), Windows or PowerShell pnpm failures, Corepack-managed pnpm or corepack deprecation and shim resurrection, pnpm self-update upgrade-not-effective or false success (dual behavior branches, layout migration residue, Windows PATH priority competition), NVM Desktop Node switches, global package updates, ERR_PNPM_UNEXPECTED_VIRTUAL_STORE, virtual-store-dir confusion, PNPM_HOME/global-dir/store-dir diagnosis, or pnpm install/update/rebuild troubleshooting.
 user-invocable: true
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # use-pnpm
@@ -16,6 +16,8 @@ metadata:
 目标不是复述事故过程，而是给 future-agent 一套可执行判断路径：先识别 pnpm 由谁管理、全局区在哪里、store 在哪里、虚拟 store 指向哪里，再决定是重建依赖树、修配置，还是切回正确的 Node/pnpm 管理链路。
 
 **pnpm 12 断代前提**：pnpm 12（Rust 原生版）对配置读取位置、构建审批、供应链校验有四处语义收紧，且 corepack 从此无法安装 pnpm。凡涉及 pnpm 版本判定、升级、CI 安装，先读 [`references/pnpm12-migration.md`](references/pnpm12-migration.md) 与 [`references/corepack-eol-and-shim.md`](references/corepack-eol-and-shim.md)。
+
+**self-update 前提**：`pnpm self-update` 有两个行为分支（pin 项目只改 pin / 项目外才装全局），且 pnpm 11+ 布局迁移残留会让旧二进制继续占据 PATH——"报告成功"不等于"全局生效"。凡涉及 pnpm 自身升级、升级后版本不变化、PATH 多来源竞争，先读 [`references/self-update-and-path-governance.md`](references/self-update-and-path-governance.md)。
 
 ## Low-Model Execution Contract
 
@@ -40,6 +42,7 @@ metadata:
 - Windows 或 PowerShell 下 pnpm 命令异常、全局命令找不到、全局包升级失败。
 - Corepack 管理 pnpm，或 NVM Desktop 切换 Node 后 pnpm 版本、路径、全局区不一致。
 - 升级到 pnpm 12 后遇到 `ERR_PNPM_IGNORED_BUILDS`、`allowBuilds`、`blockExoticSubdeps`、`ERR_PNPM_MISSING_TARBALL_INTEGRITY`、`.npmrc` 设置不生效、`pnpm.overrides` 被忽略，或需要迁移 workflow 里的 corepack 步骤。
+- `pnpm self-update` 报告成功但 `pnpm --version` 没变、升级后裸命令版本与预期不符、`where.exe pnpm` 出现多个来源，或需要治理 Windows 系统级/用户级 PATH 中 pnpm 入口的优先级。
 - pnpm workspace 中需要判断命令应该在根目录、子包目录，还是通过 `--filter` 执行。
 
 ## When Not to Use
@@ -195,7 +198,7 @@ pnpm config get virtual-store-dir
 **pnpm ≥12（目标版本为新版）：**
 
 - corepack 路线全面禁用：`corepack install` 装不了 pnpm 12（机制性死路，非版本未跟上），workflow 或 preinstall 钩子里的 `corepack enable` 是必炸死代码，见到即删。
-- 全局升级用 `pnpm self-update`（corepack 托管的 pnpm 会拒绝 self-update，需先脱离 corepack）、`npm i -g pnpm@latest-12` 或原生二进制；具体路线与 shim 复活防治见 [`references/corepack-eol-and-shim.md`](references/corepack-eol-and-shim.md)。
+- 全局升级用 `pnpm self-update`（corepack 托管的 pnpm 会拒绝 self-update，需先脱离 corepack）、`npm i -g pnpm@latest-12` 或原生二进制；具体路线与 shim 复活防治见 [`references/corepack-eol-and-shim.md`](references/corepack-eol-and-shim.md)。**self-update 必须在无 `packageManager` pin 的目录执行**（pin 项目内只会改 pin 字符串），升级前后用解析链验证生效性，完整判定与治理见 [`references/self-update-and-path-governance.md`](references/self-update-and-path-governance.md)。
 - pnpm 12 原生 exe 不依赖 Node，切 Node 不影响全局 pnpm 版本；但 PATH 中 pnpm 入口必须唯一且优先级正确。
 
 **pnpm ≤11（历史仓库）：**
@@ -207,7 +210,7 @@ pnpm config get virtual-store-dir
 
 - 切换 Node 后，全局包区和 shim 可能需要重新安装或重建。先让 `where.exe node`、`where.exe pnpm`、`where.exe corepack` 指向同一套预期链路，再运行 `pnpm i -g`。
 - 不要混用多个来源安装 pnpm。出现多个 `where.exe pnpm` 结果时，先解释路径优先级，再决定清理哪一个。
-- `~\.nvmd\bin` 等 node 管理器 shim 目录里复活的 pnpm shim 属于旧链路残留，直接删除；防治机制见 [`references/corepack-eol-and-shim.md`](references/corepack-eol-and-shim.md) 第 3 节。
+- `~\.nvmd\bin` 等 node 管理器 shim 目录里复活的 pnpm shim 属于旧链路残留，直接删除；防治机制见 [`references/corepack-eol-and-shim.md`](references/corepack-eol-and-shim.md) 第 3 节。pnpm 11+ 布局迁移残留（`<PNPM_HOME>` 根目录旧版二进制）的治理方式不同（重命名退役 + PATH 排序），见 [`references/self-update-and-path-governance.md`](references/self-update-and-path-governance.md)。
 
 ## Command Mapping
 
@@ -351,6 +354,9 @@ pnpm update -g <pkg>
 - pnpm 12 下继续把设置写在 `.npmrc` 或 package.json 的 `pnpm` 字段里——只迁到 `pnpm-workspace.yaml`，否则被静默忽略（见 [`references/pnpm12-migration.md`](references/pnpm12-migration.md) 第 4 节）。
 - pnpm 12 下用 `onlyBuiltDependencies` 授权构建脚本——它不再生效，授权表是 `allowBuilds`。
 - NVM Desktop 切 Node 后只看 `node -v`，不看 `where.exe node`、`where.exe pnpm`、`where.exe corepack`。
+- 在 pin 了 `packageManager` 的项目目录里跑 `pnpm self-update`，看到 `pnpm --version` 变化就认为全局升级完成——实际只改了 pin 字符串，版本号是 `manage-package-manager-versions` 自动切换的假象。
+- `pnpm self-update` 输出成功就收工，不跑 `where.exe pnpm` / `which -a pnpm` 验证解析链——pnpm 11+ 布局迁移残留（`<PNPM_HOME>` 根目录旧版二进制）会让升级"成功但不生效"。
+- 只改用户级 PATH 就认为能压制 pnpm 入口优先级——Windows 系统级（Machine）PATH 整体优先于用户级，系统级条目必须管理员权限治理。
 - 不备份 global 元数据就删除全局依赖树。
 - 在无 TTY 环境永久设置 `CI=true`，影响后续命令行为。
 - 在 workspace 根目录不带 `--filter` 或 `-w` 直接加依赖。
