@@ -16,6 +16,14 @@
 - **init-ai-md 22.0.0（破坏性变更）**：改为只维护根目录 `AGENTS.md`；`CLAUDE.md` 与 `GEMINI.md` 清空为 `@AGENTS.md` 重定向。
 - 删除已废弃的「获取技术栈对应的上下文」模板和章节处理；旧版 `record-bug-fix-memory` 自动迁移到 `.agents/skills`，缺失时无条件安装。
 
+## [10.19.0] - 2026-09-29
+
+### Changed
+
+- **use-pnpm**：`metadata.version` `0.4.0` -> `0.5.0`。
+- use-pnpm 新增 self-update 双行为分支、布局迁移残留与 PATH 优先级治理参考章节，升级至 0.5.0
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `10.19.0`。
+
 ## [10.18.0] - 2026-09-15
 
 ### Changed
@@ -2615,9 +2623,7 @@ gemini --version  # 可选
 
 ```json
 {
-	"PostToolUse": [
-		{ "command": "pnpm dlx @ruan-cat/claude-notifier@latest ..." }
-	],
+	"PostToolUse": [{ "command": "pnpm dlx @ruan-cat/claude-notifier@latest ..." }],
 	"PreToolUse": [{ "command": "pnpm dlx @ruan-cat/claude-notifier@latest ..." }]
 }
 ```
@@ -2629,10 +2635,7 @@ gemini --version  # 可选
 ```json
 {
 	"PreToolUse": [{ "command": "claude-notifier ..." }],
-	"Stop": [
-		{ "command": "bash .../task-complete-notifier.sh" },
-		{ "command": "bash .../cleanup-orphan-processes.sh" }
-	]
+	"Stop": [{ "command": "bash .../task-complete-notifier.sh" }, { "command": "bash .../cleanup-orphan-processes.sh" }]
 }
 ```
 
@@ -2835,10 +2838,7 @@ if (msg.role === "user") { ... }  // ❌ role 不在顶层
 // 正确：先解析为 TranscriptLine，再提取嵌套的 message
 const transcriptLine = JSON.parse(line) as TranscriptLine;
 
-if (
-	(transcriptLine.type === "user" || transcriptLine.type === "assistant") &&
-	transcriptLine.message
-) {
+if ((transcriptLine.type === "user" || transcriptLine.type === "assistant") && transcriptLine.message) {
 	messages.push(transcriptLine.message); // ✅ 提取真正的消息对象
 }
 ```
