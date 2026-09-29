@@ -6,7 +6,7 @@ description: >-
   支持 dry-run、自动备份、错误链接替换，并可按需刷新 memorix 内部 skills。
   触发关键词：sync-local-global-agents-skills、同步 skills、全局 skills 同步。
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # 本地全局 Agent Skills 同步器
@@ -44,13 +44,23 @@ metadata:
 
 平台注册表在 `src/platforms.ts` 中维护，新增平台需修改该文件并升级技能版本。
 
-| 平台      | 目标目录                                                    |
-| :-------- | :---------------------------------------------------------- |
-| WorkBuddy | `~/.workbuddy/skills`                                       |
-| QoderWork | `~/.qoderworkcn/skills`                                     |
-| Kimi Work | `~/AppData/Roaming/kimi-desktop/daimon-share/daimon/skills` |
-| CodeBuddy | `~/.codebuddy/skills`                                       |
-| Qoder     | `~/.qoder/skills`                                           |
+| 平台             | 目标目录                                                    |
+| :--------------- | :---------------------------------------------------------- |
+| WorkBuddy        | `~/.workbuddy/skills`                                       |
+| WorkBuddy 国际版 | `~/.workbuddy-ai/skills`                                    |
+| QoderWork        | `~/.qoderworkcn/skills`                                     |
+| Kimi Work        | `~/AppData/Roaming/kimi-desktop/daimon-share/daimon/skills` |
+| CodeBuddy        | `~/.codebuddy/skills`                                       |
+| Qoder            | `~/.qoder/skills`                                           |
+
+WorkBuddy 分国内版与国际版，两者用户级配置目录相互独立，可同时存在于同一台机器，需分别登记、分别同步：
+
+| 版本   | 配置目录          | skills 目录              | 连接器市场源域名        |
+| :----- | :---------------- | :----------------------- | :---------------------- |
+| 国内版 | `~/.workbuddy`    | `~/.workbuddy/skills`    | `static.workbuddy.cn`   |
+| 国际版 | `~/.workbuddy-ai` | `~/.workbuddy-ai/skills` | `download.codebuddy.ai` |
+
+只同步其中一个版本时，另一个版本不会随之更新。无法从目录名判断版本时，可读取该目录下 `.connectors-marketplace.meta.json` 的 `sourceKey` 域名来确认。
 
 ## 使用方式
 

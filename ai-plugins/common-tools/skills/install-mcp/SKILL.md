@@ -4,7 +4,7 @@ description: >-
   Use when 用户需要盘点、规划或批量安装 MCP 配置，确认各 agent 的配置目标、JSON 或 TOML 形态、合并策略、dry-run、备份或第三方 server entry 时。
 user-invocable: true
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # install-mcp
@@ -27,6 +27,8 @@ metadata:
 | Cursor       | `~/.cursor/mcp.json`                                 | JSON |
 | WorkBuddy    | `~/.workbuddy/mcp.json`                              | JSON |
 | WorkBuddy    | `~/.workbuddy/.mcp.json`                             | JSON |
+| WorkBuddy    | `~/.workbuddy-ai/mcp.json`                           | JSON |
+| WorkBuddy    | `~/.workbuddy-ai/.mcp.json`                          | JSON |
 | ZCode        | `~/.zcode/cli/config.json`                           | JSON |
 | Qoder        | `~/AppData/Roaming/Qoder/SharedClientCache/mcp.json` | JSON |
 | Qoder        | `~/.qoder/mcp.json`                                  | JSON |
@@ -42,6 +44,15 @@ metadata:
 - 不用模板整体覆盖现有配置，也不假设不同平台的 JSON entry 可以直接互换。
 
 ## WorkBuddy 特别处理
+
+WorkBuddy 存在两套相互独立的用户级配置目录，写入前必须确认本次针对哪一套，不得因名称相似而跨写：
+
+| 版本   | 配置目录          | 连接器市场源域名        |
+| :----- | :---------------- | :---------------------- |
+| 国内版 | `~/.workbuddy`    | `static.workbuddy.cn`   |
+| 国际版 | `~/.workbuddy-ai` | `download.codebuddy.ai` |
+
+两套目录下的 `mcp.json` 与 `.mcp.json` 各自独立，同一台机器上可同时存在；修改其中一套不会影响另一套，也不代表另一套需要同步修改。无法从目录名判断版本时，可读取该目录下 `.connectors-marketplace.meta.json` 的 `sourceKey` 域名来确认。
 
 WorkBuddy 可能向子进程注入 Node 参数。对需要隔离 Node 参数的 MCP entry，可建议设置 `env.NODE_OPTIONS = ""`。这是兼容性建议，不代表所有脚本或所有配置都会自动补齐该字段。
 

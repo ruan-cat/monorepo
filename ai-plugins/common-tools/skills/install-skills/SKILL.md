@@ -4,7 +4,7 @@ description: >-
   Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略，或排查清除 Kimi Desktop（Daimon）等第三方供应器对全局技能目录的污染时。
 user-invocable: true
 metadata:
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # install-skills
@@ -113,13 +113,23 @@ Kimi Desktop 的 Daimon 供应器（`kimi-daimon setup`）会把内置技能作�
 
 > 本表仅描述从 `~/.agents/skills` 建立目录级链接的平台可执行目标，属于 `sync-local-global-agents-skills` 的职责范围。**不适用于 `skills add ... -a <agent>` 的 CLI 安装语义**：CLI 安装目标由 skills CLI 原生支持，与是否在本表内无关，无需核验本表。
 
-| 平台      | 目标目录                                                    | 调度策略                               |
-| :-------- | :---------------------------------------------------------- | :------------------------------------- |
-| WorkBuddy | `~/.workbuddy/skills`                                       | 交给 `sync-local-global-agents-skills` |
-| QoderWork | `~/.qoderworkcn/skills`                                     | 交给 `sync-local-global-agents-skills` |
-| Kimi Work | `~/AppData/Roaming/kimi-desktop/daimon-share/daimon/skills` | 交给 `sync-local-global-agents-skills` |
-| CodeBuddy | `~/.codebuddy/skills`                                       | 交给 `sync-local-global-agents-skills` |
-| Qoder     | `~/.qoder/skills`                                           | 交给 `sync-local-global-agents-skills` |
+| 平台             | 目标目录                                                    | 调度策略                               |
+| :--------------- | :---------------------------------------------------------- | :------------------------------------- |
+| WorkBuddy        | `~/.workbuddy/skills`                                       | 交给 `sync-local-global-agents-skills` |
+| WorkBuddy 国际版 | `~/.workbuddy-ai/skills`                                    | 交给 `sync-local-global-agents-skills` |
+| QoderWork        | `~/.qoderworkcn/skills`                                     | 交给 `sync-local-global-agents-skills` |
+| Kimi Work        | `~/AppData/Roaming/kimi-desktop/daimon-share/daimon/skills` | 交给 `sync-local-global-agents-skills` |
+| CodeBuddy        | `~/.codebuddy/skills`                                       | 交给 `sync-local-global-agents-skills` |
+| Qoder            | `~/.qoder/skills`                                           | 交给 `sync-local-global-agents-skills` |
+
+WorkBuddy 分国内版与国际版，两者用户级配置目录相互独立，可同时存在于同一台机器，需分别登记、分别同步：
+
+| 版本   | 配置目录          | skills 目录              | 连接器市场源域名        |
+| :----- | :---------------- | :----------------------- | :---------------------- |
+| 国内版 | `~/.workbuddy`    | `~/.workbuddy/skills`    | `static.workbuddy.cn`   |
+| 国际版 | `~/.workbuddy-ai` | `~/.workbuddy-ai/skills` | `download.codebuddy.ai` |
+
+只同步其中一个版本时，另一个版本不会随之更新。无法从目录名判断版本时，可读取该目录下 `.connectors-marketplace.meta.json` 的 `sourceKey` 域名来确认。
 
 Qoder 指 Qoder IDE 与 Qoder agent 本体，专属 skills 目录为 `~/.qoder/skills`。不得与同机其他形似目录混淆：`~/.qoder-cli`（Qoder CLI）、`~/.qoder-cn`（Qoder CN IDE）、`~/.qoderwork` 与 `~/.qoderworkcn`（QoderWork / QoderWork CN，其中 `~/.qoderworkcn/skills` 已作为 QoderWork 平台单列）。
 

@@ -12,7 +12,7 @@ tsx scripts/sync.ts
 
 ## 命令行选项
 
-已支持的平台包括 WorkBuddy、QoderWork、Kimi Work、CodeBuddy 和 Qoder，其中 CodeBuddy 使用 `~/.codebuddy/skills`，Qoder 使用 `~/.qoder/skills`。
+已支持的平台包括 WorkBuddy（国内版 `~/.workbuddy/skills` 与国际版 `~/.workbuddy-ai/skills`）、QoderWork、Kimi Work、CodeBuddy 和 Qoder，其中 CodeBuddy 使用 `~/.codebuddy/skills`，Qoder 使用 `~/.qoder/skills`。WorkBuddy 的两个版本配置目录相互独立，需分别同步。
 
 ```text
 --source <path>   指定源 skills 目录（默认：~/.agents/skills）

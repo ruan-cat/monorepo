@@ -47,6 +47,7 @@ if (-not $SkipMemorixRefresh) {
 
 $platforms = @(
     @{ Name = "WorkBuddy"; Path = "$env:USERPROFILE\.workbuddy\skills" },
+    @{ Name = "WorkBuddy 国际版"; Path = "$env:USERPROFILE\.workbuddy-ai\skills" },
     @{ Name = "QoderWork"; Path = "$env:USERPROFILE\.qoderworkcn\skills" },
     @{ Name = "Kimi Work"; Path = "$env:USERPROFILE\AppData\Roaming\kimi-desktop\daimon-share\daimon\skills" },
     @{ Name = "CodeBuddy"; Path = "$env:USERPROFILE\.codebuddy\skills" },
