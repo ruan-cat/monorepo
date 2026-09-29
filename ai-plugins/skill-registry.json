@@ -138,8 +138,8 @@
       "id": "init-simple-memorix",
       "plugin": "low-frequency-skill",
       "name": "init-simple-memorix",
-      "description": "Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、full 模式、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、setup 或升级后重新精简等场景。",
-      "version": "2.4.0",
+      "description": "Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、full 模式、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、memorix 裸命令报「不是内部或外部命令」、全局命令 shim 被历史坏 shim 劫持、包管理器迁移后 MCP 突然失联、setup 或升级后重新精简等场景。",
+      "version": "2.5.0",
       "entry": "ai-plugins/low-frequency-skill/skills/init-simple-memorix/SKILL.md"
     },
     {
@@ -242,8 +242,8 @@
       "id": "use-pnpm",
       "plugin": "common-tools",
       "name": "use-pnpm",
-      "description": "Use when 需要处理 pnpm 包管理、workspace 命令、npm/npx/yarn 到 pnpm 的替换、pnpm 12 断代差异（allowBuilds、blockExoticSubdeps、ERR_PNPM_IGNORED_BUILDS、.npmrc 设置迁移）、Windows 或 PowerShell pnpm 故障、Corepack 管理的 pnpm 或 corepack 退役与 shim 复活、pnpm self-update 升级不生效或假成功（双行为分支、PNPM 布局迁移残留、Windows PATH 优先级竞争）、NVM Desktop 切换 Node 后的路径错位、全局包更新、ERR_PNPM_UNEXPECTED_VIRTUAL_STORE、virtual-store-dir 混淆、PNPM_HOME/global-dir/store-dir 诊断，或 pnpm install/update/rebuild 排障；English: handling pnpm package management, workspace commands, npm/npx/yarn replacement, pnpm 12 migration gaps (allowBuilds, blockExoticSubdeps, ERR_PNPM_IGNORED_BUILDS, .npmrc settings migration), Windows or PowerShell pnpm failures, Corepack-managed pnpm or corepack deprecation and shim resurrection, pnpm self-update upgrade-not-effective or false success (dual behavior branches, layout migration residue, Windows PATH priority competition), NVM Desktop Node switches, global package updates, ERR_PNPM_UNEXPECTED_VIRTUAL_STORE, virtual-store-dir confusion, PNPM_HOME/global-dir/store-dir diagnosis, or pnpm install/update/rebuild troubleshooting.",
-      "version": "0.5.0",
+      "description": "Use when 需要处理 pnpm 包管理、workspace 命令、npm/npx/yarn 到 pnpm 的替换、pnpm 12 断代差异（allowBuilds、blockExoticSubdeps、ERR_PNPM_IGNORED_BUILDS、.npmrc 设置迁移）、Windows 或 PowerShell pnpm 故障、Corepack 管理的 pnpm 或 corepack 退役与 shim 复活、pnpm self-update 升级不生效或假成功（双行为分支、PNPM 布局迁移残留、Windows PATH 优先级竞争）、pnpm ls -g 空列表假象、manage-package-manager-versions 自动切换与 cwd 祖先链钉住、全局命令 shim 被历史坏 shim 劫持、包管理器迁移后第三方命令或 MCP 启动失败、全局 CLI 双安装遮蔽、NVM Desktop 切换 Node 后的路径错位、全局包更新、ERR_PNPM_UNEXPECTED_VIRTUAL_STORE、virtual-store-dir 混淆、PNPM_HOME/global-dir/store-dir 诊断，或 pnpm install/update/rebuild 排障；English: handling pnpm package management, workspace commands, npm/npx/yarn replacement, pnpm 12 migration gaps (allowBuilds, blockExoticSubdeps, ERR_PNPM_IGNORED_BUILDS, .npmrc settings migration), Windows or PowerShell pnpm failures, Corepack-managed pnpm or corepack deprecation and shim resurrection, pnpm self-update upgrade-not-effective or false success (dual behavior branches, layout migration residue, Windows PATH priority competition), pnpm ls -g empty-list illusion, manage-package-manager-versions auto-switching and cwd ancestor-chain pinning, global command shims hijacked by stale shims, third-party command or MCP startup failures after package-manager migration, dual-install version shadowing, NVM Desktop Node switches, global package updates, ERR_PNPM_UNEXPECTED_VIRTUAL_STORE, virtual-store-dir confusion, PNPM_HOME/global-dir/store-dir diagnosis, or pnpm install/update/rebuild troubleshooting.",
+      "version": "0.6.0",
       "entry": "ai-plugins/common-tools/skills/use-pnpm/SKILL.md"
     },
     {
