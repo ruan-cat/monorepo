@@ -16,6 +16,16 @@
 - **init-ai-md 22.0.0（破坏性变更）**：改为只维护根目录 `AGENTS.md`；`CLAUDE.md` 与 `GEMINI.md` 清空为 `@AGENTS.md` 重定向。
 - 删除已废弃的「获取技术栈对应的上下文」模板和章节处理；旧版 `record-bug-fix-memory` 自动迁移到 `.agents/skills`，缺失时无条件安装。
 
+## [10.21.0] - 2026-09-30
+
+### Changed
+
+- **install-mcp**：`metadata.version` `1.1.0` -> `1.2.0`。
+- **install-skills**：`metadata.version` `1.1.1` -> `1.2.0`。
+- **sync-local-global-agents-skills**：`metadata.version` `0.2.0` -> `0.3.0`。
+- 三个技能补齐 WorkBuddy 国际版（~/.workbuddy-ai）的 MCP 配置目标与 skills 目录，并统一国内版 / 国际版双目录辨识说明
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `10.21.0`。
+
 ## [10.20.0] - 2026-09-30
 
 ### Changed
