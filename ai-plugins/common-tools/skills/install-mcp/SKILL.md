@@ -4,7 +4,7 @@ description: >-
   Use when 用户需要盘点、规划或批量安装 MCP 配置，确认各 agent 的配置目标、JSON 或 TOML 形态、合并策略、dry-run、备份或第三方 server entry 时。
 user-invocable: true
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # install-mcp
@@ -19,21 +19,24 @@ metadata:
 
 ## 已知配置目标
 
-| 平台         | 配置路径                                             | 格式 |
-| :----------- | :--------------------------------------------------- | :--- |
-| Codex        | `~/.codex/config.toml`                               | TOML |
-| Codex        | `~/.codex/config-2026-6-13-bg.toml`                  | TOML |
-| Claude Code  | `~/.claude.json`                                     | JSON |
-| Cursor       | `~/.cursor/mcp.json`                                 | JSON |
-| WorkBuddy    | `~/.workbuddy/mcp.json`                              | JSON |
-| WorkBuddy    | `~/.workbuddy/.mcp.json`                             | JSON |
-| WorkBuddy    | `~/.workbuddy-ai/mcp.json`                           | JSON |
-| WorkBuddy    | `~/.workbuddy-ai/.mcp.json`                          | JSON |
-| ZCode        | `~/.zcode/cli/config.json`                           | JSON |
-| Qoder        | `~/AppData/Roaming/Qoder/SharedClientCache/mcp.json` | JSON |
-| Qoder        | `~/.qoder/mcp.json`                                  | JSON |
-| MiniMax Code | `~/.minimax/mcp/mcp.json`                            | JSON |
-| Kiro         | `~/.kiro/settings/mcp.json`                          | JSON |
+| 平台         | 配置路径                                                   | 格式 |
+| :----------- | :--------------------------------------------------------- | :--- |
+| Codex        | `~/.codex/config.toml`                                     | TOML |
+| Codex        | `~/.codex/config-2026-6-13-bg.toml`                        | TOML |
+| Claude Code  | `~/.claude.json`                                           | JSON |
+| Cursor       | `~/.cursor/mcp.json`                                       | JSON |
+| WorkBuddy    | `~/.workbuddy/mcp.json`                                    | JSON |
+| WorkBuddy    | `~/.workbuddy/.mcp.json`                                   | JSON |
+| WorkBuddy    | `~/.workbuddy-ai/mcp.json`                                 | JSON |
+| WorkBuddy    | `~/.workbuddy-ai/.mcp.json`                                | JSON |
+| ZCode        | `~/.zcode/cli/config.json`                                 | JSON |
+| Qoder        | `~/AppData/Roaming/Qoder/SharedClientCache/mcp.json`       | JSON |
+| Qoder        | `~/.qoder/mcp.json`                                        | JSON |
+| MiniMax Code | `~/.minimax/mcp/mcp.json`                                  | JSON |
+| Kiro         | `~/.kiro/settings/mcp.json`                                | JSON |
+| TRAE Work CN | `~/AppData/Roaming/TRAE SOLO CN/User/mcp.json`             | JSON |
+| TRAE Work CN | `~/Library/Application Support/TRAE SOLO CN/User/mcp.json` | JSON |
+| TRAE Work CN | `<project_root>/.trae/mcp.json`（项目级，仅当前项目生效）  | JSON |
 
 ## 配置合并规则
 
@@ -106,6 +109,29 @@ Qoder 系目录归属极易混淆，写入前必须逐个审计目录归属：
 - 清单中的 `~/AppData/Roaming/Qoder/SharedClientCache/mcp.json` 与 `~/.qoder/mcp.json` 是两个相互独立的配置位置，写入前必须明确本次针对哪一个。
 - `~/.qoder` 目录下还有 `extensions/`、`plugins/`、`skills/`、`memories/` 等 Qoder 运行态目录；批量 MCP 安装只写 `mcp.json`，不触碰其他目录。
 
+## TRAE Work 特别处理
+
+TRAE Work CN 的 MCP 配置与其他 agent 不同，存在两个独立的配置层级和一个缓存目录，写入前必须区分清楚：
+
+| 层级           | 路径                                                                                                                             | 作用                                                                        |
+| :------------- | :------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------- |
+| 全局配置       | `~/AppData/Roaming/TRAE SOLO CN/User/mcp.json`（Windows）<br>`~/Library/Application Support/TRAE SOLO CN/User/mcp.json`（macOS） | 所有项目通用的 MCP server 配置                                              |
+| 项目级配置     | `<project_root>/.trae/mcp.json`                                                                                                  | 仅当前项目生效的 MCP server 配置                                            |
+| 工具描述符缓存 | `~/.trae-cn/mcps/<scope>/<server>/tools/*.json`                                                                                  | TRAE 启动时从 server 拉取的工具 schema 缓存，**不是配置来源**，不要手动编辑 |
+
+配置格式为标准 JSON，顶层结构为 `mcpServers` 对象，支持 stdio 与 http 两种类型：
+
+- stdio 类型：`command`、`args`、`env`
+- http 类型：`url`、`headers`（可带 `Authorization` 鉴权）
+
+写入规则：
+
+- 全局配置写入 `User/mcp.json`，保留既有 entries，只新增或更新目标 server。
+- 项目级配置需用户在 TRAE 设置中开启"启用项目级 MCP"开关后才生效。
+- `~/.trae-cn/mcps/` 是缓存目录，TRAE 每次启动会根据 `User/mcp.json` 重新生成工具描述符；修改此目录不会改变 MCP 配置，重启后会被覆盖。
+- 写入或修改 `User/mcp.json` 后，**必须重启 TRAE** 才能生效。
+- HTTP 类型的 server 首次连接时，TRAE 可能弹出信任审批，需用户在应用内手动确认。
+
 ## Memorix 与第三方 MCP 调度
 
 | 场景              | 调度规则                                                                          |
@@ -116,7 +142,7 @@ Qoder 系目录归属极易混淆，写入前必须逐个审计目录归属：
 
 ## Future candidates
 
-Antigravity、Trae、Gemini CLI 等仅为候选平台。只有在找到可靠、可验证的 MCP 配置路径及其格式后，才可加入“可写目标”；不得因常见命名或历史印象写死路径。Qoder 系相似目录（如 `~/.qoder-cn`、`~/.qoderworkcn`）中已存在的 `mcp.json` 属于不同产品，未经归属确认与用户明确授权，不得纳入可写目标。
+Antigravity、Gemini CLI 等仅为候选平台。Trae 已验证并收入「已知配置目标」。只有在找到可靠、可验证的 MCP 配置路径及其格式后，才可加入“可写目标”；不得因常见命名或历史印象写死路径。Qoder 系相似目录（如 `~/.qoder-cn`、`~/.qoderworkcn`）中已存在的 `mcp.json` 属于不同产品，未经归属确认与用户明确授权，不得纳入可写目标。
 
 ## 执行与验收
 
