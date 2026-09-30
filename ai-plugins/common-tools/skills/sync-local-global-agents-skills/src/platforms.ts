@@ -1,4 +1,4 @@
-import { homedir } from "node:os";
+﻿import { homedir } from "node:os";
 import path from "node:path";
 
 /** 本地 agent 平台定义 */
@@ -35,5 +35,9 @@ export const DEFAULT_PLATFORMS: AgentPlatform[] = [
 	{
 		name: "Qoder",
 		skillsDir: path.join(homedir(), ".qoder", "skills"),
+	},
+	{
+		name: "TRAE Work CN",
+		skillsDir: path.join(homedir(), ".trae-cn", "skills"),
 	},
 ];

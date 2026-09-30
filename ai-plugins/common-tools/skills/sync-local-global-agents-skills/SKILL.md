@@ -6,7 +6,7 @@ description: >-
   支持 dry-run、自动备份、错误链接替换，并可按需刷新 memorix 内部 skills。
   触发关键词：sync-local-global-agents-skills、同步 skills、全局 skills 同步。
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # 本地全局 Agent Skills 同步器
