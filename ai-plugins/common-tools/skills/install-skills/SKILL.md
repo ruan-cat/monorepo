@@ -4,7 +4,7 @@ description: >-
   Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略，或排查清除 Kimi Desktop（Daimon）等第三方供应器对全局技能目录的污染时。
 user-invocable: true
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # install-skills
@@ -121,6 +121,7 @@ Kimi Desktop 的 Daimon 供应器（`kimi-daimon setup`）会把内置技能作�
 | Kimi Work        | `~/AppData/Roaming/kimi-desktop/daimon-share/daimon/skills` | 交给 `sync-local-global-agents-skills` |
 | CodeBuddy        | `~/.codebuddy/skills`                                       | 交给 `sync-local-global-agents-skills` |
 | Qoder            | `~/.qoder/skills`                                           | 交给 `sync-local-global-agents-skills` |
+| TRAE Work CN     | `~/.trae-cn/skills`                                         | 交给 `sync-local-global-agents-skills` |
 
 WorkBuddy 分国内版与国际版，两者用户级配置目录相互独立，可同时存在于同一台机器，需分别登记、分别同步：
 
@@ -133,9 +134,11 @@ WorkBuddy 分国内版与国际版，两者用户级配置目录相互独立，�
 
 Qoder 指 Qoder IDE 与 Qoder agent 本体，专属 skills 目录为 `~/.qoder/skills`。不得与同机其他形似目录混淆：`~/.qoder-cli`（Qoder CLI）、`~/.qoder-cn`（Qoder CN IDE）、`~/.qoderwork` 与 `~/.qoderworkcn`（QoderWork / QoderWork CN，其中 `~/.qoderworkcn/skills` 已作为 QoderWork 平台单列）。
 
+TRAE Work CN 的 skills 目录为 `~/.trae-cn/skills`，其内部结构是**逐条 junction**：每个技能子目录是指向 `~/.agents/skills/<skill>` 的目录级链接（Junction）。TRAE 同时直接读取 `~/.agents/skills` 作为全局技能源，因此 `~/.trae-cn/skills` 是镜像入口而非唯一来源。此外 `~/.trae-cn/builtin_skills` 存放 TRAE 内置技能（如 TRAE-code-review、TRAE-debugger），不属于同步范围，不要替换或覆盖。
+
 ## 生态入口与待验证候选
 
-Claude Code、Codex、Cursor、Antigravity、Trae 等通常通过全局 skills 目录或 `skills` CLI 生态读取 skills。未在已验证资料中确认独立 skills 目录时，只能视为待验证候选，不能据此创建链接或复制目录。
+Claude Code、Codex、Cursor、Antigravity 等通常通过全局 skills 目录或 `skills` CLI 生态读取 skills。Trae（TRAE Work CN）已验证并收入「已验证可执行目标」。未在已验证资料中确认独立 skills 目录时，只能视为待验证候选，不能据此创建链接或复制目录。
 
 确认新目标前，至少核验：
 
