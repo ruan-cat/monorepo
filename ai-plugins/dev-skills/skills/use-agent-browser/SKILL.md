@@ -10,7 +10,7 @@ description: >-
   web debugging, or Windows startup-failure fallbacks.
 user-invocable: true
 metadata:
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # use-agent-browser
@@ -30,6 +30,7 @@ SKILL.md 只保留入口纪律；以下参考文件按需加载，全部位于�
 | :----------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------- |
 | `references/command-cookbook.md`           | 命令手册：安装自检、标准工作流、会话/profile 与 MCP 工具集选择、Windows 接管与降级配方、等待与调试配方、受控验收 mock、速查表                    | 执行命令前不确定写法，或需要配方模板时 |
 | `references/verification-templates.md`     | 验收与报告模板：视觉验证报告、生产验收八要素、流式四状态、smoke→矩阵→fullscreen 节奏、三层验收链路、验证口径、证据 supersede、工件登记、截图命名 | 需要产出验收记录或写报告时             |
+| `references/acceptance-discipline.md`      | 验收纪律：四层 checkpoint 会话分层与时间盒、失败边界止损表、常见合理化借口、Red Flags、提交前证据落盘门禁                                        | 规划验收节奏，或失败后判断是否止损时   |
 | `references/cases-windows-startup.md`      | 案例集：exit code 3、分离诊断、CDP 接管、headless 降级、Chrome 连接器、typed MCP 超时、实例可用性预检                                            | Windows 启动/连接失败分流时            |
 | `references/cases-evidence-misjudgment.md` | 案例集：加载≠视觉、截图时机、快照≠截图、READY/200/保护页、console 第一信号、流式部分成功、单样本外推、归档缺图、URL 改写、移动视口门禁           | 下验收结论前自检证据强度时             |
 | `references/cases-waiting-animation.md`    | 案例集：headless CPU 炸弹、动画冻结无效、load 不可靠、等待策略表、SSR 诊断链、WebGL 假象                                                         | 被测页面含动画/SSR/WebGL 时            |
@@ -44,6 +45,7 @@ SKILL.md 只保留入口纪律；以下参考文件按需加载，全部位于�
 4. **证据落临时目录。** 截图默认写入系统临时目录并带任务前缀与来源命名（dev / preview / production），不写入仓库；确需版本化证据时，经用户确认后复制进对应 evidence 目录并单独说明。
 5. **同一方法失败 ≥2 次即换本质不同的方案**，按启动失败分流链推进，禁止原地反复重试。
 6. **部分证据不包装成完整成功。** 流式回答、登录、取消等链路按状态逐项报告；HTTP 200、READY、加载统计不得替代完整链路结论。
+7. **先探针，后矩阵。** 每个环境先做 ≤5 分钟能力探针（headed launch、前台 visibility、截图、network、close），通过后再进产品核心矩阵；整轮验收按「能力探针 → 产品核心矩阵 → 故障/资源补证 → 独立复核」四层推进，禁止把一次长跑当成整体验收。
 
 ## 标准工作流
 
@@ -142,6 +144,9 @@ agent-browser close                    # 任务结束必须收口
 | 把 Vercel READY / 预览域名保护页当应用证据 | 生产域名 + 浏览器实操作为证据                   |
 | 任务结束不 close、不复查端口               | close + 复查端口/PID/profile/临时截图           |
 | 截图直接写进仓库                           | 默认临时目录，版本化需用户确认                  |
+| 把一个环境压进一次复合长跑                 | 按四层 checkpoint 分段，层间只保存结构化状态    |
+| 控制面故障时另开 session 拼接              | 同 session 一次恢复，否则标记 `blocked`         |
+| 只用 axe 扫描就宣称无障碍通过              | 补语义树快照 + 真实键盘与焦点读数               |
 
 ## 完成自检清单
 
@@ -151,8 +156,9 @@ agent-browser close                    # 任务结束必须收口
 - 启动失败走了分流链，且每步有记录。
 - 生产验收记录八要素齐全。
 - 会话已 close，端口/PID/profile/临时截图已复查。
+- 整轮验收按四层 checkpoint 推进，先能力探针后核心矩阵，未把一次长跑当成整体验收。
 - 记录中区分了事实、推断与未验证项。
 
 ## 相关文件
 
-本技能为纯文档技能，无附属脚本。参考层为 `references/` 目录（命令手册、验收模板、五组实战案例集），加载时机见「渐进式加载地图」。命令语法以 `agent-browser skills get core` 的输出为最终权威；残留进程治理见 `cleanup-agent-team-node-processes` 技能（如已安装）。
+本技能为纯文档技能，无附属脚本。参考层为 `references/` 目录（命令手册、验收模板、验收纪律、五组实战案例集），加载时机见「渐进式加载地图」。命令语法以 `agent-browser skills get core` 的输出为最终权威；残留进程治理见 `cleanup-agent-team-node-processes` 技能（如已安装）。

@@ -127,7 +127,29 @@ agent-browser network route <pattern> <固定可结束的响应>   # 具体语�
 - mock 响应必须带终止帧，否则页面永远处于流式状态，无法验收「完成」态。
 - 受控 mock 只覆盖 UI 渲染与交互闭环；「真实后端/真实模型响应」的结论必须另做真实链路验收，两类证据分开记录，不得互相替代。
 
-## 7. 常见命令速查
+## 7. 无障碍验收三件套：axe + 语义树 + 真实键盘
+
+agent-browser 已内置 axe-core 审计，标准无障碍验收不需要另写扫描脚本；但 axe 不能证明键盘顺序、焦点回收或视觉焦点是否可见，必须组合三类证据：
+
+1. **规则扫描**：在稳定页面执行 `a11y --json --tags wcag2a,wcag2aa`（必要时追加 `--selector` 只看目标子树），登记 `violations` 与 `incomplete`；`incomplete` 必须人工解释，不能直接当通过。
+2. **语义树**：重新执行 `snapshot -i`，核对 `role=search/listbox/option/status/alert/separator` 与 `aria-label`、`aria-expanded`、`aria-selected`、`aria-pressed`、`aria-busy` 是否出现在预期节点上。
+3. **真实键盘**：使用 `focus` 与 `press Tab/Enter/Space/ArrowUp/ArrowDown/Escape` 走完用户路径；不要用 `dispatchEvent` 冒充键盘操作。用短 `eval` 只读取 `document.activeElement`、`aria-*` 与 Portal 节点数量，记录焦点顺序与关闭后的回收目标。
+
+```log
+agent-browser --session <name> a11y --json --tags wcag2a,wcag2aa
+agent-browser --session <name> snapshot -i
+agent-browser --session <name> focus "input[aria-label='<搜索框>']"
+agent-browser --session <name> press Tab
+agent-browser --session <name> press Space
+agent-browser --session <name> press ArrowDown
+agent-browser --session <name> press Escape
+agent-browser --session <name> console --clear
+```
+
+- 页面专属断言只在通用 axe / 语义树不足时添加；优先用一次性 `eval -b` 读取，不把临时脚本提交到仓库。
+- axe 报告第三方或站点基线问题时，记录选择器、是否影响目标子树与处置结论，不能用「全站已有警告」掩盖新增问题。
+
+## 8. 常见命令速查
 
 | 命令                                    | 用途                                       |
 | :-------------------------------------- | :----------------------------------------- |
