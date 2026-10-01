@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [10.24.0] - 2026-10-01
+
+### Changed
+
+- **use-agent-browser**：`metadata.version` `1.1.1` -> `1.2.0`。
+- use-agent-browser 加固验收纪律、失败止损与无障碍验收能力
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `10.24.0`。
+
 ## [10.23.0] - 2026-09-30
 
 ### Changed
