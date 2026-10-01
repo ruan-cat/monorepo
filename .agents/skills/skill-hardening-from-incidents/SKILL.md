@@ -2,7 +2,7 @@
 name: skill-hardening-from-incidents
 description: Use when upgrading, hardening, or creating skills from reports, incident reviews, historical lessons, agent-team feedback, or repeated workflow failures
 metadata:
-  version: "1.4.0"
+  version: "1.5.0"
 user-invocable: true
 ---
 

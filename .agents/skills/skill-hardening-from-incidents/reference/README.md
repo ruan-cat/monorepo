@@ -14,7 +14,7 @@
 | 文件                                                                 | 适用问题                                                       |
 | -------------------------------------------------------------------- | -------------------------------------------------------------- |
 | [`retention-contract.md`](retention-contract.md)                     | 如何防止技能知识衰减、遗忘、过度删减，以及如何隔离历史 archive |
-| [`workflow-boundaries.md`](workflow-boundaries.md)                   | 写入目标、证据材料、skill 类型边界和编辑准则                   |
+| [`workflow-boundaries.md`](workflow-boundaries.md)                   | 写入目标、证据材料、skill 类型边界、派生技能边界和编辑准则     |
 | [`rule-extraction.md`](rule-extraction.md)                           | 将事故材料提炼为 future-agent 规则的五步方法                   |
 | [`agent-team-loop.md`](agent-team-loop.md)                           | 主代理、编辑子代理、验证子代理的职责与闭环                     |
 | [`validation-and-failure-modes.md`](validation-and-failure-modes.md) | 验证清单、路径污染扫描、常见错误和完成条件                     |
