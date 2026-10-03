@@ -6,8 +6,8 @@
 
 - `memorix setup` 可能重新安装或覆盖默认 hooks。
 - setup 后如果用户目标是“减少记忆噪音”，应再次执行 hooks 精简。
-- MCP full mode 和 hooks 精简是两条链路：工具缺失优先查 MCP，记忆噪音优先查 hooks。
-- 不要把 setup 验证里的通过项数量当成 full mode 工具数量；full mode 只应描述为“完整工具面”，不要写死工具数。
+- MCP mode 和 hooks 精简是两条链路：工具缺失优先查 MCP，记忆噪音优先查 hooks。
+- 不要把 setup 验证里的通过项数量当成 MCP 工具数量；工具面随 `--mode` 变化（默认 micro），不要写死工具数。
 
 ## 常见 agent 影响
 
@@ -27,7 +27,7 @@ Trae / Qoder 没有 hooks 系统时，不要承诺可精简 hooks；只处理 MC
 如果用户已经执行 setup：
 
 1. 明确用户诉求：工具缺失还是记忆噪音。
-2. 工具缺失：检查 MCP full mode、启动环境和对应 agent 的配置文件。
+2. 工具缺失：检查 MCP 的 `--mode` 取值、启动环境和对应 agent 的配置文件。
 3. 记忆噪音：读取 `references/hooks-reference.md`，检查高频 hooks。
 4. 全局 hooks：使用 `templates-global/` 作为目标形态，但不要在未授权时写入用户主目录。
 5. 项目 hooks：使用 `templates/` 作为目标形态，只处理当前项目。
@@ -62,8 +62,8 @@ Windows 下 Cursor hooks 可使用：
 
 ## 避免误读
 
-- setup 端到端验证中的 “PASS 数量” 是检查项数量，不是 MCP full mode 工具数。
-- 不要在文档中写死 full mode 的工具数量；不同 memorix 版本可能变化。
+- setup 端到端验证中的 “PASS 数量” 是检查项数量，不是 MCP 工具数。
+- 不要在文档中写死 MCP 工具数量；不同 memorix 版本与 `--mode` 取值都会变化。
 - setup 创建的 rules / memory 指引不等于 hooks 已精简。
-- setup 幂等跳过 MCP 不代表 MCP 已是 full mode；仍需检查 args。
+- setup 幂等跳过 MCP 不代表 MCP 的 mode 已达标；仍需检查 args。
 - hooks 精简不是 cleanup 历史记忆；不要主动清理用户已有记忆。

@@ -8,7 +8,21 @@ export interface McpPlatform {
 	configFiles: string[];
 	/** 配置文件格式 */
 	format: "json" | "toml";
+	/**
+	 * MCP server 定义的键路径。
+	 *
+	 * - JSON 平台：顶层键路径。多数平台是 `["mcpServers"]`；
+	 *   ZCode 用 `["mcp", "servers"]`（注意是嵌套的 `mcp.servers`，不是 `mcpServers`）。
+	 * - TOML 平台：表名。Codex 用 `["mcp_servers"]`（**下划线**，不是 `mcpServers`）。
+	 *
+	 * 省略时默认 `["mcpServers"]`。写错这里会让脚本找不到已有 entry，
+	 * 转而在配置文件里新增一个目标程序根本不识别的键。
+	 */
+	serverPath?: string[];
 }
+
+/** 未显式声明 `serverPath` 时的默认值。 */
+export const DEFAULT_SERVER_PATH = ["mcpServers"] as const;
 
 /**
  * 默认 MCP 平台注册表。
@@ -23,6 +37,7 @@ export const DEFAULT_MCP_PLATFORMS: McpPlatform[] = [
 			path.join(homedir(), ".codex", "config-2026-6-13-bg.toml"),
 		],
 		format: "toml",
+		serverPath: ["mcp_servers"],
 	},
 	{
 		name: "claude-code",
@@ -43,10 +58,11 @@ export const DEFAULT_MCP_PLATFORMS: McpPlatform[] = [
 		name: "zcode",
 		configFiles: [path.join(homedir(), ".zcode", "cli", "config.json")],
 		format: "json",
+		serverPath: ["mcp", "servers"],
 	},
 	{
 		name: "qoder",
-		configFiles: [path.join(homedir(), "AppData", "Roaming", "Qoder", "SharedClientCache", "mcp.json")],
+		configFiles: [path.join(homedir(), ".qoder", "mcp.json")],
 		format: "json",
 	},
 	{

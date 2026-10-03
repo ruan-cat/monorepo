@@ -12,6 +12,18 @@
 - 自外部项目（WorkBuddy `2026-6-30-common` 仓库）迁入：**init-tsconfig**、**factory-reset-vscode-fork-ide**，并按本仓库规范补齐 frontmatter，`metadata.version` 从 `1.0.0` 起步。
 - 新增 **clean-vercel-deployment-storage**：批量清理 Vercel 部署存储（每项目保留最新生产部署）并配置 Deployment Retention 防额度复发，附 TS 批处理脚本（仅 Node 内置模块，tsx 调度）、REST API 端点速查与 2026-09-08 实战复盘。
 
+### Changed
+
+- **init-simple-memorix**：`metadata.version` `2.5.0` -> `2.7.0`，memorix MCP 的目标 mode 由 `full` 改为 `micro`（`memorix serve` 的默认档，9 工具 / ~4,516 token）。三个入口同步：
+  - `src/install-mcp.ts`、`fallback/install-mcp.sh`、`fallback/install-mcp.ps1` 的 `MEMORIX_ARGS` 改为 `["serve", "--mode", "micro"]`。
+  - **修正平台 server 键路径**：ZCode 用嵌套的 `mcp.servers`、Codex 用 `mcp_servers`（下划线，不是 `mcpServers`）。旧实现只认顶层 `mcpServers`，对这两个平台会新增一个目标程序不识别的键（dry-run 报 updated，实际不生效）。
+  - **修正 Qoder 配置路径**：`~/AppData/Roaming/Qoder/SharedClientCache/mcp.json` -> `~/.qoder/mcp.json`（原路径在本机不存在）。
+  - **只调整 `--mode` 的值，不再整体替换 `args`**：保留 Codex 的 `["/c", "memorix.cmd", ...]` 启动器前缀；裸 `serve`（等价 micro）判定为已满足，不产生无谓 diff。
+  - **写回保真**：按原文件的缩进、行尾与「结尾是否带换行」序列化，避免 100KB 级配置文件整文件重排。
+  - **修复 `fallback/install-mcp.sh` 的数据丢失缺陷**：新增 memorix entry 时改用 `setpath` 在原文基础上补建，旧实现的 `reduce` 会把 `github` / `codegraph` 等既有 server 条目整体丢弃。
+  - **重写 `fallback/install-mcp.ps1` 为定点文本编辑**：PS 5.1 的 `ConvertFrom-Json` 无法解析 `~/.claude.json`（含仅大小写不同的重复键），`ConvertTo-Json` 又固定输出 4 空格 + CRLF；同时该脚本必须以 **UTF-8 with BOM** 保存，否则 PS 5.1 按 ANSI 解码会把中文注释解析成非法 token。
+  - `references/memorix-setup-notes.md`、`references/workbuddy-mcp-notes.md` 中 12 处 `full mode` 表述改为 mode 中性（默认 micro）。
+
 ## [10.24.0] - 2026-10-01
 
 ### Changed

@@ -56,7 +56,7 @@
 
 ```bash
 memorix --version
-memorix serve --mode full --help
+memorix serve --help
 ```
 
 只需要确认 CLI 存在和 serve 命令可解析。不要让长驻 server 阻塞会话。
@@ -103,7 +103,7 @@ memorix entry 的目标形态：
 ```json
 {
 	"command": "memorix",
-	"args": ["serve", "--mode", "full"],
+	"args": ["serve", "--mode", "micro"],
 	"env": {
 		"NODE_OPTIONS": ""
 	}
@@ -112,9 +112,9 @@ memorix entry 的目标形态：
 
 说明：
 
-- `serve --mode full` 负责工具面完整性。
+- `serve --mode micro` 是低上下文默认档（裸 `serve` 等价于此）；确需完整工具面时才显式切到 `full`。
 - `env.NODE_OPTIONS = ""` 负责覆盖 WorkBuddy 注入的 Node 参数。
-- 当前 `scripts/install-mcp.ts` 的主责是校准 full mode；不要声称它一定会补齐 WorkBuddy 的 `env.NODE_OPTIONS`。
+- 当前 `scripts/install-mcp.ts` 的主责是校准 `--mode` 取值（默认 micro）；不要声称它一定会补齐 WorkBuddy 的 `env.NODE_OPTIONS`。
 
 ### 4. 计算审批 hash
 
@@ -191,7 +191,7 @@ memorix MCP 启动失败有三类根因，排查时按层分流，不要混在�
 可以建议：
 
 - 为 memorix entry 增加或保留 `env.NODE_OPTIONS = ""`。
-- 将 memorix args 收敛为 `["serve", "--mode", "full"]`。
+- 将 memorix args 的 `--mode` 校准为 `micro`（`["serve", "--mode", "micro"]`），同时保留 Codex 等平台已有的启动器前缀（如 `["/c", "memorix.cmd", ...]`）。
 - 解析链劫持实锤后（裸命令失败 + 绝对路径成功 + 数据完好），删除 node 管理器 shim 目录里的 memorix/memcode 失效遗物——先列出待删文件清单并获用户确认。
 - 将 memorix entry 的 `command` 改为 `<PNPM_HOME>\bin\memorix.cmd` 绝对路径，并同步说明会触发重新审批。
 - 重新计算当前 entry hash，并在用户授权后更新审批文件。
@@ -210,6 +210,6 @@ memorix MCP 启动失败有三类根因，排查时按层分流，不要混在�
 hooks 噪音和 MCP 连接是两条链路：
 
 - 记忆噪音：检查 hooks 文件是否包含高频事件。
-- 工具缺失：检查 MCP full mode、启动环境、审批和日志。
+- 工具缺失：检查 MCP 的 `--mode` 取值、启动环境、审批和日志。
 
 用户只问 hooks 时，不要把审批 hash 不匹配写成主结论。最多把它列为“非本次焦点的附带发现”。

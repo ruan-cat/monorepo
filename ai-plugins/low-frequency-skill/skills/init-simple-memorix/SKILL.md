@@ -2,9 +2,9 @@
 name: init-simple-memorix
 user-invocable: true
 description: >-
-  Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、full 模式、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、memorix 裸命令报「不是内部或外部命令」、全局命令 shim 被历史坏 shim 劫持、包管理器迁移后 MCP 突然失联、setup 或升级后重新精简等场景。
+  Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、mode 选择（micro/lite/team/full）、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、memorix 裸命令报「不是内部或外部命令」、全局命令 shim 被历史坏 shim 劫持、包管理器迁移后 MCP 突然失联、setup 或升级后重新精简等场景。
 metadata:
-  version: "2.5.0"
+  version: "2.7.0"
 ---
 
 # init-simple-memorix
@@ -14,7 +14,7 @@ metadata:
 本技能用于精简 Memorix hooks 和检查 Memorix MCP 配置。核心原则是先判断问题属于 hooks 噪音还是 MCP 连接/工具暴露问题，再只处理对应层面。
 
 - hooks 目标：移除工具调用、文件编辑、命令执行等高频触发器，只保留会话生命周期事件。
-- MCP 目标：确认 memorix server entry 使用 `serve --mode full`，并避免 WorkBuddy 注入的 Node 参数破坏 stdio MCP 启动。
+- MCP 目标：确认 memorix server entry 使用低消耗的 `serve --mode micro`（9 工具，约 4.5k token），并避免 WorkBuddy 注入的 Node 参数破坏 stdio MCP 启动。工具面裁剪依据见 `docs/memorix/2026-10-1-low-cost-config/reports/2026-10-01-mcp-context-cost-audit.md`。
 - 分发视角：脚本、模板、源码索引都以技能安装目录为根，不引用仓库源码路径或开发期产物。
 
 ## When to Use
@@ -22,7 +22,7 @@ metadata:
 - 用户明确提到 `init-simple-memorix`、初始化 Memorix、精简 Memorix hooks、移除记忆噪音。
 - 用户完成 Memorix setup 或升级后，怀疑默认 hooks 又引入高频噪音。
 - 用户需要项目级或全局级 hooks 模板参考。
-- 用户反馈 Memorix MCP 工具缺失、不是 full 模式、MCP server 启动失败。
+- 用户反馈 Memorix MCP 工具缺失、不是预期 mode、MCP server 启动失败。
 - 用户在 WorkBuddy 中看到 memorix MCP 反复断开、审批后仍不可用、`NODE_OPTIONS` 或 Node ABI 相关错误。
 - 用户反馈 memorix 裸命令报「不是内部或外部命令」、`where memorix` 第一命中可疑 shim，或包管理器迁移（如 pnpm 布局变更）后 memorix MCP 突然失联但记忆数据完好。
 
@@ -37,7 +37,7 @@ metadata:
 
 1. 先定性问题。
    - 记忆太多、太杂、每次工具调用都记录：处理 hooks。
-   - MCP 工具缺失、full 模式不可用、server 断开：检查 MCP 配置。
+   - MCP 工具缺失、预期 mode 不可用、server 断开：检查 MCP 配置。
    - WorkBuddy 审批、Node 参数、better-sqlite3 报错：进入 WorkBuddy Notes。
    - memorix 裸命令本身执行失败（报「不是内部或外部命令」）、`memorix --version` 异常而 `~/.memorix/` 数据完好：命令解析链劫持分支（WorkBuddy Notes 与 `references/workbuddy-mcp-notes.md` 的 shim 劫持小节）。
 2. 再定作用域。
@@ -66,7 +66,7 @@ metadata:
 - 不要在未获明确授权时修改用户主目录配置。
 - 不要删除用户的非 Memorix 配置字段，例如 permissions、自定义 hooks、其他 MCP server entries。
 - 不要承诺不存在的模板：项目级没有 Codex hooks 模板；Codex 只在全局模板中出现。
-- 不要写死 full 模式的工具数量；只要求 full 模式暴露完整工具面。
+- 不要写死任何 mode 的精确工具数量；只要求目标 mode 暴露预期工具面。
 - 不要在正文命令或资源索引中引用开发期路径、测试目录、CI 配置、报告目录或依赖安装目录。
 - 合并配置时保留未知字段，只精确调整 Memorix 相关 entry。
 
@@ -163,16 +163,16 @@ metadata:
 - 同一事件已有合格 lifecycle hook 时不要重复添加。
 - 用户要求清理历史噪音记忆时，先说明风险；不要主动运行 `memorix cleanup`。
 
-## MCP Full Mode
+## MCP 低消耗 Mode
 
-memorix MCP server entry 的通用核心要求是 `command` 与 `args` 指向 full 模式：
+memorix MCP server entry 的通用核心要求是 `command` 与 `args` 指向**低上下文消耗**的 micro 模式：
 
 ```json
 {
 	"mcpServers": {
 		"memorix": {
 			"command": "memorix",
-			"args": ["serve", "--mode", "full"]
+			"args": ["serve", "--mode", "micro"]
 		}
 	}
 }
@@ -183,8 +183,23 @@ TOML 形态：
 ```toml
 [mcpServers.memorix]
 command = "memorix"
-args = ["serve", "--mode", "full"]
+args = ["serve", "--mode", "micro"]
 ```
+
+mode 对照（实测 schema 体积，详见 `docs/memorix/2026-10-1-low-cost-config/reports/2026-10-01-mcp-context-cost-audit.md`）：
+
+| mode  | 工具数 | 估算 token |
+| :---- | -----: | ---------: |
+| micro |      9 |     ~4,516 |
+| lite  |     20 |     ~7,438 |
+| team  |     28 |    ~10,447 |
+| full  |     47 |    ~14,329 |
+
+默认安装 micro；需要 agent 自主调用 reasoning / session_end 时改 lite；
+team / full 仅在显式需要协作面或兼容面时使用。上表为实测值，随 memorix 版本可能变化。
+
+> `memorix serve` 的 `--mode` 默认值就是 `micro`，所以裸 `serve`（不带 `--mode`）等价于 micro。
+> 脚本判定时把裸 `serve` 视为已满足，不产生无谓 diff。
 
 脚本入口只在技能安装目录下使用：
 
@@ -208,35 +223,49 @@ Bash 兜底：
 维护要点：
 
 - `scripts/install-mcp.ts` 支持 dry-run 和额外配置文件参数；真实写入前先 dry-run。
-- MCP 配置中已有 memorix entry 时，只检查 `args` 是否包含 `--mode full`。
-- WorkBuddy 相关 MCP entry 应额外保留或建议 `env.NODE_OPTIONS = ""`，避免继承父进程注入的 Node 参数；当前脚本主责是校准 full args，不要声称 dry-run 一定会补齐 WorkBuddy env。
+- MCP 配置中已有 memorix entry 时，只检查 `args` 是否为 `--mode micro`；裸 `serve` 视为等价，不产生 diff。
+- **只改 `--mode` 的值，不动 `command`**。Codex 的 args 形如 `["/c", "memorix.cmd", "serve", "--mode", "..."]`，
+  整体替换 args 会把 `cmd /c memorix.cmd` 启动器丢掉。
+- 写回时按**原文件的缩进、行尾与「结尾是否带换行」**序列化。否则一个 100KB 的 `~/.claude.json`
+  会因为缩进/行尾翻转产生整文件 diff。
+- `scripts/install-mcp.ts` 每个平台只处理**第一个存在**的配置文件；两个 fallback 脚本会遍历该平台的
+  全部候选路径。需要一并覆盖 `config-2026-6-13-bg.toml` 或 `.mcp.json` 时，用 fallback 脚本。
+- `fallback/install-mcp.ps1` 只做**定点文本编辑**，不做 JSON 解析 + 重序列化：`~/.claude.json` 含
+  仅大小写不同的重复键，PS 5.1 的 `ConvertFrom-Json` 会直接报错；`ConvertTo-Json` 又固定输出
+  4 空格 + CRLF，会把 2 空格 / LF 的配置整文件重排。
+- **`fallback/install-mcp.ps1` 必须以 UTF-8 with BOM 保存**。PS 5.1 对无 BOM 的 UTF-8 按 ANSI 解码，
+  会把中文注释解析成非法 token，报「表达式或语句中包含意外的标记」。
+- WorkBuddy 相关 MCP entry 应额外保留或建议 `env.NODE_OPTIONS = ""`，避免继承父进程注入的 Node 参数；当前脚本主责是校准 mode args，不要声称 dry-run 一定会补齐 WorkBuddy env。
 
 已知 MCP 配置平台：
 
-| 平台        | 配置路径                                                    | 格式 |
-| :---------- | :---------------------------------------------------------- | :--- |
-| Codex       | `~/.codex/config.toml`, `~/.codex/config-2026-6-13-bg.toml` | TOML |
-| Claude Code | `~/.claude.json`                                            | JSON |
-| Cursor      | `~/.cursor/mcp.json`                                        | JSON |
-| WorkBuddy   | `~/.workbuddy/mcp.json`, `~/.workbuddy/.mcp.json`           | JSON |
-| ZCode       | `~/.zcode/cli/config.json`                                  | JSON |
-| Qoder       | `~/AppData/Roaming/Qoder/SharedClientCache/mcp.json`        | JSON |
-| Kiro        | `~/.kiro/settings/mcp.json`                                 | JSON |
+| 平台        | 配置路径                                                    | 格式 | server 键路径             |
+| :---------- | :---------------------------------------------------------- | :--- | :------------------------ |
+| Codex       | `~/.codex/config.toml`, `~/.codex/config-2026-6-13-bg.toml` | TOML | `mcp_servers`（下划线）   |
+| Claude Code | `~/.claude.json`                                            | JSON | `mcpServers`              |
+| Cursor      | `~/.cursor/mcp.json`                                        | JSON | `mcpServers`              |
+| WorkBuddy   | `~/.workbuddy/mcp.json`, `~/.workbuddy/.mcp.json`           | JSON | `mcpServers`              |
+| ZCode       | `~/.zcode/cli/config.json`                                  | JSON | `mcp.servers`（嵌套两层） |
+| Qoder       | `~/.qoder/mcp.json`                                         | JSON | `mcpServers`              |
+| Kiro        | `~/.kiro/settings/mcp.json`                                 | JSON | `mcpServers`              |
+
+> 键路径必须与目标程序一致。写错时脚本找不到已有 entry，会**在配置里新增一个目标程序不识别的键**，
+> 表现为「脚本说改好了、但工具面没变化」。ZCode 与 Codex 是两个典型反例。
 
 脚本输出状态：
 
-| 状态      | 含义                                                               |
-| :-------- | :----------------------------------------------------------------- |
-| `created` | 配置文件不存在，脚本会创建新文件；dry-run 下只预览。               |
-| `updated` | 配置文件存在，memorix entry 需要改为 full 模式；dry-run 下只预览。 |
-| `skipped` | 配置已满足要求，或 dry-run 下跳过实际写入。                        |
-| `error`   | 配置解析、读写或格式处理失败，需要先排除该文件问题。               |
+| 状态      | 含义                                                                |
+| :-------- | :------------------------------------------------------------------ |
+| `created` | 配置文件不存在，脚本会创建新文件；dry-run 下只预览。                |
+| `updated` | 配置文件存在，memorix entry 需要改为 micro 模式；dry-run 下只预览。 |
+| `skipped` | 配置已满足要求，或 dry-run 下跳过实际写入。                         |
+| `error`   | 配置解析、读写或格式处理失败，需要先排除该文件问题。                |
 
 与 `memorix setup` / 升级配合：
 
 - `memorix setup` 可能重新安装默认 hooks；setup 后如果用户要求降噪，应再次执行 hooks 精简。
 - Memorix 插件升级后，全局 hooks 文件可能被新版本目录或默认内容覆盖；尤其是 Claude Code 全局路径含版本号，需要重新动态发现。
-- MCP full 模式和 hooks 精简是两条链路：工具缺失优先查 MCP，记忆噪音优先查 hooks。
+- MCP mode 配置和 hooks 精简是两条链路：工具缺失优先查 MCP，记忆噪音优先查 hooks。
 
 ## WorkBuddy Notes
 
@@ -257,7 +286,12 @@ Bash 兜底：
 - 项目级模板表没有 Codex；Codex 只出现在 `templates-global/codex.hooks.json`。
 - ZCode 文档明确配置文件 hooks 必须 `hooks.enabled: true` 且事件写在 `hooks.events`，不包含不支持的 `PreCompact`。
 - Cursor 格式说明是对象数组，不是 command 字符串数组。
-- 文档没有写死 full 模式工具数量。
+- 文档没有写死任何 mode 的精确工具数量（模式对照表标注为实测值，允许随版本变化）。
+- 文档中的目标 mode 与 `src/install-mcp.ts`、两个 fallback 脚本完全一致。
+- 平台表的 server 键路径与实际配置一致：ZCode 是 `mcp.servers`（嵌套），Codex 是 `mcp_servers`（下划线）。
+- 三个入口都只改 `--mode` 的值，Codex 的 `["/c", "memorix.cmd", ...]` 启动器前缀被保留。
+- 三个入口对同一份配置给出相同结论（`scripts/install-mcp.ts` 只处理首个存在的配置文件，属已知差异）。
+- `fallback/install-mcp.ps1` 带 UTF-8 BOM；三个入口的 dry-run 都能在 PS 5.1 下正常输出。
 - 命令示例只有帮助或 dry-run，不会写入用户配置。
 - 资源索引只列技能安装目录内的相对路径。
 
