@@ -16,6 +16,14 @@
 - **init-ai-md 22.0.0（破坏性变更）**：改为只维护根目录 `AGENTS.md`；`CLAUDE.md` 与 `GEMINI.md` 清空为 `@AGENTS.md` 重定向。
 - 删除已废弃的「获取技术栈对应的上下文」模板和章节处理；旧版 `record-bug-fix-memory` 自动迁移到 `.agents/skills`，缺失时无条件安装。
 
+## [10.25.0] - 2026-10-13
+
+### Changed
+
+- `common-tools` 技能树本身无内容变更，插件主版本随发布链路同步至 `10.25.0`。
+- init-simple-memorix memorix MCP 目标 mode 由 full 改为 micro，并修正 ZCode / Codex / Qoder 平台 server 键路径与写回保真
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `10.25.0`。
+
 ## [10.24.0] - 2026-10-01
 
 ### Changed

@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [10.25.0] - 2026-10-13
+
+### Changed
+
+- `dev-skills` 技能树本身无内容变更，插件主版本随发布链路同步至 `10.25.0`。
+- init-simple-memorix memorix MCP 目标 mode 由 full 改为 micro，并修正 ZCode / Codex / Qoder 平台 server 键路径与写回保真
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `10.25.0`。
+
 ## [10.24.0] - 2026-10-01
 
 ### Changed

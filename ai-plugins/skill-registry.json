@@ -138,8 +138,8 @@
       "id": "init-simple-memorix",
       "plugin": "low-frequency-skill",
       "name": "init-simple-memorix",
-      "description": "Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、full 模式、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、memorix 裸命令报「不是内部或外部命令」、全局命令 shim 被历史坏 shim 劫持、包管理器迁移后 MCP 突然失联、setup 或升级后重新精简等场景。",
-      "version": "2.5.0",
+      "description": "Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、mode 选择（micro/lite/team/full）、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、memorix 裸命令报「不是内部或外部命令」、全局命令 shim 被历史坏 shim 劫持、包管理器迁移后 MCP 突然失联、setup 或升级后重新精简等场景。",
+      "version": "2.7.0",
       "entry": "ai-plugins/low-frequency-skill/skills/init-simple-memorix/SKILL.md"
     },
     {

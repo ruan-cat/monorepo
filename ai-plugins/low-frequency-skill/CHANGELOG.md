@@ -24,6 +24,14 @@
   - **重写 `fallback/install-mcp.ps1` 为定点文本编辑**：PS 5.1 的 `ConvertFrom-Json` 无法解析 `~/.claude.json`（含仅大小写不同的重复键），`ConvertTo-Json` 又固定输出 4 空格 + CRLF；同时该脚本必须以 **UTF-8 with BOM** 保存，否则 PS 5.1 按 ANSI 解码会把中文注释解析成非法 token。
   - `references/memorix-setup-notes.md`、`references/workbuddy-mcp-notes.md` 中 12 处 `full mode` 表述改为 mode 中性（默认 micro）。
 
+## [10.25.0] - 2026-10-13
+
+### Changed
+
+- **init-simple-memorix**：`metadata.version` `2.5.0` -> `2.7.0`。
+- init-simple-memorix memorix MCP 目标 mode 由 full 改为 micro，并修正 ZCode / Codex / Qoder 平台 server 键路径与写回保真，详见上方 `[Unreleased]` 条目。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `10.25.0`。
+
 ## [10.24.0] - 2026-10-01
 
 ### Changed
