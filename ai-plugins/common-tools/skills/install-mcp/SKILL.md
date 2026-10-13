@@ -4,7 +4,7 @@ description: >-
   Use when 用户需要盘点、规划或批量安装 MCP 配置，确认各 agent 的配置目标、JSON 或 TOML 形态、合并策略、dry-run、备份或第三方 server entry 时。
 user-invocable: true
 metadata:
-  version: "1.4.0"
+  version: "1.4.1"
 ---
 
 # install-mcp
@@ -32,7 +32,7 @@ metadata:
 | ZCode        | `~/.zcode/cli/config.json`                                 | JSON |
 | Qoder        | `~/AppData/Roaming/Qoder/SharedClientCache/mcp.json`       | JSON |
 | Qoder        | `~/.qoder/mcp.json`                                        | JSON |
-| MiniMax Code | `~/.minimax/mcp/mcp.json`                                  | JSON |
+| MiniMax Code | `~/.minimax/mcp.json`                                      | JSON |
 | Kiro         | `~/.kiro/settings/mcp.json`                                | JSON |
 | TRAE Work CN | `~/AppData/Roaming/TRAE SOLO CN/User/mcp.json`             | JSON |
 | TRAE Work CN | `~/Library/Application Support/TRAE SOLO CN/User/mcp.json` | JSON |
@@ -89,12 +89,13 @@ const key = `${sha256(JSON.stringify(entry))}::${name}`;
 
 ## MiniMax Code 特别处理
 
-`~/.minimax/mcp/mcp.json` 是 MiniMax Code 本地 agent 工具的用户级 MCP 配置，顶层结构为 `mcpServers`，但 entry 字段比通用 JSON 配置更丰富：
+`~/.minimax/mcp.json` 是 MiniMax Code 本地 agent 工具的用户级 MCP 配置**生效路径**，顶层结构为 `mcpServers`，但 entry 字段比通用 JSON 配置更丰富：
 
 - stdio 形态 entry 使用 `command`、`args`、`env`；远程形态 entry 使用 `url` + `type: "streamable-http"`，可带 `headers` 鉴权字段。
-- entry 常携带 `enabled`、`configured`、`builtin`、`description`、`timeout` 等平台元数据字段，合并时必须原样保留，不得删除或改写。
+- entry 常携带 `enabled`、`configured`、`builtin`、`description`、`timeout`、`env` 等平台元数据字段，合并时必须原样保留，不得删除或改写；既有 entry 的 `env` 键值对在合并时最易被遗漏，需重点核对。
 - `builtin: true` 的 entry 是 MiniMax Code 自管的内置服务；批量安装只新增或更新非内置 entry，不修改、不删除内置 entry。
 - 新增 entry 时优先对照该文件内既有非内置 entry 的字段形态，不臆测平台必需字段集合。
+- `~/.minimax/mcp/mcp.json` 是 legacy 文件：运行时只读取 `~/.minimax/mcp.json`，legacy 文件不参与 MCP 注册与连接；把配置写入 legacy 路径会静默不生效，不得将其作为配置目标。
 
 该文件及同目录的 `tokens.json` 可能包含 Bearer token 或 API key：dry-run 预览、备份与报告不得原样输出这些敏感字段，也不得将其写入提交或日志。
 
