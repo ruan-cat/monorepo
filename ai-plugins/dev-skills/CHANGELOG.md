@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [11.0.0] - 2026-10-15
+
+### Changed
+
+- **nitro-api-development**：`metadata.version` `0.14.0` -> `1.0.0`。
+- 六个技能 references 下沉重构：自包含参考块逐字搬移至 references/ 并加执行指针，正文保留全部 CRITICAL 指令
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `11.0.0`。
+
 ## [10.25.1] - 2026-10-13
 
 ### Changed

@@ -27,7 +27,7 @@
       "plugin": "common-tools",
       "name": "cleanup-agent-team-node-processes",
       "description": "Use when Windows or PowerShell agent-team sessions leave suspected stale node, npx, Windows command processor, agent-browser browser or CLI processes, stale MCP or dev-server children provably owned by the current run, lingering listeners, unclear process ownership after multi-agent automation, or unexplained WorkBuddy prewarm pools, MCP subtrees, native agent-browser workers, or shell-snapshot bash processes. 当 Windows 或 PowerShell 的 agent team 会话结束后，出现疑似残留 node / npx / Windows 命令处理程序 / agent browser 浏览器或 CLI 进程、可证明归属当前 run 的残留 MCP 或开发服务器子进程、残留监听器、多代理自动化后的进程归属不清，或无法解释的 WorkBuddy prewarm 池、MCP 子树、原生 agent-browser worker、shell snapshot bash 进程时使用。",
-      "version": "1.4.2",
+      "version": "2.0.0",
       "entry": "ai-plugins/common-tools/skills/cleanup-agent-team-node-processes/SKILL.md"
     },
     {
@@ -75,7 +75,7 @@
       "plugin": "common-tools",
       "name": "init-ai-md",
       "description": "初始化、迁移和增量更新项目 AI 记忆文件，以 AGENTS.md 作为唯一事实来源。 通过交互式选择和差异对比，智能补全记忆项内容。触发条件： 当用户提及初始化记忆文件、更新 AGENTS.md、迁移 CLAUDE.md/GEMINI.md、同步 AI 记忆、 init-ai-md 等关键词时主动调用。 Use when initializing, migrating, or incrementally updating project AI memory documents. The skill maintains the canonical root AGENTS.md, redirects CLAUDE.md and GEMINI.md, and manages the project-level record-bug-fix-memory skill.",
-      "version": "22.0.0",
+      "version": "23.0.0",
       "entry": "ai-plugins/common-tools/skills/init-ai-md/SKILL.md"
     },
     {
@@ -155,7 +155,7 @@
       "plugin": "common-tools",
       "name": "init-vscode",
       "description": "初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json）， 治理扩展推荐的生命周期与已知替代关系，并在 JSONC 安全迁移、工作区/用户级 scope、 preflight/postflight 和可回滚验收之间建立明确边界；同时把 `files.eol` 收敛为 `\"\\n\"`， 配合 `.gitattributes`、`.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题， 并补齐大型 monorepo 的 VSCode 启动慢、文件监听、搜索索引与 TypeScript Server 性能优化默认值。 只要用户提到初始化 vscode、编辑器配置、工作区设置、扩展替换/弃用迁移、行尾统一、EOL、CRLF/LF、 幽灵修改、团队规范、VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化，都应该使用本技能。",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "entry": "ai-plugins/common-tools/skills/init-vscode/SKILL.md"
     },
     {
@@ -179,7 +179,7 @@
       "plugin": "dev-skills",
       "name": "nitro-api-development",
       "description": "使用 Nitro v3 框架和 H3 编写服务端 API 的技能。适用于初始化纯后端 Nitro 项目、 为 Vite 项目赋予全栈能力、编写符合规范的 CRUD 接口、以及使用 Drizzle ORM 进行数据库交互。当需要开发新的 Nitro 接口、初始化 Nitro 配置、 或咨询 Nitro 开发规范时使用此技能。",
-      "version": "0.14.0",
+      "version": "1.0.0",
       "entry": "ai-plugins/dev-skills/skills/nitro-api-development/SKILL.md"
     },
     {
@@ -195,7 +195,7 @@
       "plugin": "common-tools",
       "name": "pr-ruancat-repo",
       "description": "用于对 ruan-cat 相关仓库执行批量 Pull Request、跨仓库同步改动、为多个已克隆本地仓库规划 PR 策略、选择本地 git/Bash 与 GitHub API/MCP 混合执行方式的场景。触发关键词包括“批量 PR” “多仓库同步改动”“对 ruan-cat 的仓库发 PR”“pr-ruancat-repo”。",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "entry": "ai-plugins/common-tools/skills/pr-ruancat-repo/SKILL.md"
     },
     {
@@ -243,7 +243,7 @@
       "plugin": "common-tools",
       "name": "use-pnpm",
       "description": "Use when 需要处理 pnpm 包管理、workspace 命令、npm/npx/yarn 到 pnpm 的替换、pnpm 12 断代差异（allowBuilds、blockExoticSubdeps、ERR_PNPM_IGNORED_BUILDS、.npmrc 设置迁移）、Windows 或 PowerShell pnpm 故障、Corepack 管理的 pnpm 或 corepack 退役与 shim 复活、pnpm self-update 升级不生效或假成功（双行为分支、PNPM 布局迁移残留、Windows PATH 优先级竞争）、pnpm ls -g 空列表假象、manage-package-manager-versions 自动切换与 cwd 祖先链钉住、全局命令 shim 被历史坏 shim 劫持、包管理器迁移后第三方命令或 MCP 启动失败、全局 CLI 双安装遮蔽、NVM Desktop 切换 Node 后的路径错位、全局包更新、ERR_PNPM_UNEXPECTED_VIRTUAL_STORE、virtual-store-dir 混淆、PNPM_HOME/global-dir/store-dir 诊断，或 pnpm install/update/rebuild 排障；English: handling pnpm package management, workspace commands, npm/npx/yarn replacement, pnpm 12 migration gaps (allowBuilds, blockExoticSubdeps, ERR_PNPM_IGNORED_BUILDS, .npmrc settings migration), Windows or PowerShell pnpm failures, Corepack-managed pnpm or corepack deprecation and shim resurrection, pnpm self-update upgrade-not-effective or false success (dual behavior branches, layout migration residue, Windows PATH priority competition), pnpm ls -g empty-list illusion, manage-package-manager-versions auto-switching and cwd ancestor-chain pinning, global command shims hijacked by stale shims, third-party command or MCP startup failures after package-manager migration, dual-install version shadowing, NVM Desktop Node switches, global package updates, ERR_PNPM_UNEXPECTED_VIRTUAL_STORE, virtual-store-dir confusion, PNPM_HOME/global-dir/store-dir diagnosis, or pnpm install/update/rebuild troubleshooting.",
-      "version": "0.6.0",
+      "version": "1.0.0",
       "entry": "ai-plugins/common-tools/skills/use-pnpm/SKILL.md"
     },
     {

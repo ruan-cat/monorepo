@@ -16,6 +16,18 @@
 - **init-ai-md 22.0.0（破坏性变更）**：改为只维护根目录 `AGENTS.md`；`CLAUDE.md` 与 `GEMINI.md` 清空为 `@AGENTS.md` 重定向。
 - 删除已废弃的「获取技术栈对应的上下文」模板和章节处理；旧版 `record-bug-fix-memory` 自动迁移到 `.agents/skills`，缺失时无条件安装。
 
+## [11.0.0] - 2026-10-15
+
+### Changed
+
+- **cleanup-agent-team-node-processes**：`metadata.version` `1.4.2` -> `2.0.0`。
+- **init-vscode**：`metadata.version` `1.0.0` -> `2.0.0`。
+- **pr-ruancat-repo**：`metadata.version` `1.0.0` -> `2.0.0`。
+- **init-ai-md**：`metadata.version` `22.0.0` -> `23.0.0`。
+- **use-pnpm**：`metadata.version` `0.6.0` -> `1.0.0`。
+- 六个技能 references 下沉重构：自包含参考块逐字搬移至 references/ 并加执行指针，正文保留全部 CRITICAL 指令
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `11.0.0`。
+
 ## [10.25.1] - 2026-10-13
 
 ### Changed
