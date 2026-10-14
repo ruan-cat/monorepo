@@ -6,7 +6,7 @@ description: >-
   “多仓库同步改动”“对 ruan-cat 的仓库发 PR”“pr-ruancat-repo”。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # PR ruan-cat Repo
@@ -31,6 +31,8 @@ metadata:
 - 目标仓库清单：[references/target-repos.md](references/target-repos.md)
 - 执行规范、PR 策略与输出模板：[references/workflow-and-template.md](references/workflow-and-template.md)
 - 脚本自动化模式模板：[references/batch-pr-script.ts](references/batch-pr-script.ts)
+- 设计规格模板：[references/design-spec-template.md](references/design-spec-template.md)
+- 数据契约：[references/data-contracts.md](references/data-contracts.md)
 
 ## 工作流程
 
@@ -106,14 +108,9 @@ metadata:
 				"repo": "ruan-cat/notes",
 				"localPath": "D:/code/ruan-cat/notes",
 				"status": "in-scope",
-				"affectedFiles": [
-					".github/workflows/ci.yaml",
-					".github/workflows/vercel-deploy-tool.yaml"
-				],
+				"affectedFiles": [".github/workflows/ci.yaml", ".github/workflows/vercel-deploy-tool.yaml"],
 				"fileCount": 2,
-				"observations": [
-					"包含 release 工作流，需保留 registry-url"
-				],
+				"observations": ["包含 release 工作流，需保留 registry-url"],
 				"currentValues": ["22.14.0", "22.14.0"]
 			}
 		],
@@ -125,10 +122,7 @@ metadata:
 		],
 		"totalFiles": 22,
 		"totalOccurrences": 23,
-		"specialPatterns": [
-			"release 工作流需保留 registry-url",
-			"lts/* 版本需要替换为具体版本号"
-		],
+		"specialPatterns": ["release 工作流需保留 registry-url", "lts/* 版本需要替换为具体版本号"],
 		"transformations": [
 			{
 				"description": "替换所有 setup-node 的 node-version 为 24.18.0",
@@ -163,129 +157,7 @@ metadata:
 
 ### spec.md 结构
 
-```markdown
-# YYYY-MM-DD <仓库名> <任务名> 设计规格
-
-## 1. 背景与目标
-
-### 1.1 背景
-
-{从阶段 2α 的统一内容中提取：为什么要做这次批量改动}
-
-### 1.2 当前状态扫描
-
-{从阶段 2β 的范围探索中提取：当前版本分布、扫描命令、扫描结论}
-
-### 1.3 目标
-
-{本次批量改动要达成的具体目标}
-
-## 2. 改动范围
-
-### 2.1 目标仓库
-
-| 序号 | 仓库 | 本地路径 | 涉及文件数 |
-| :--: | :--- | :------- | :--------: |
-| ...  | ...  | ...      | ...        |
-
-### 2.2 未包含的仓库
-
-{本地未克隆或没有目标文件的仓库及原因}
-
-### 2.3 涉及的文件
-
-{具体的文件路径列表，含每个仓库的当前值/预期值/备注}
-
-## 3. 替换策略
-
-### 3.1 统一规则
-
-{对所有仓库一致的替换规则}
-
-### 3.2 特殊处理
-
-{需要特殊处理的仓库或文件，例如 release 工作流保留 registry-url}
-
-### 3.3 转换规则（pr-transform.json）
-
-{从 scopeAnalysis.transformations[] 派生的 JSON 规则及说明}
-
-## 4. 范围探索数据契约
-
-{scopeAnalysis JSON 的完整内容或摘要}
-
-## 5. 执行模式
-
-推荐使用**脚本自动化模式**（生成 `batch-pr.ts` 由用户本地执行）。
-
-## 6. 分支策略
-
-- 来源分支：{sourceBranch}
-- 目标分支探测：dev > main > master
-
-## 7. Commit 与 PR 文案
-
-### 7.1 Commit Message
-
-{commitMessage}
-
-### 7.2 PR 标题
-
-{prTitle}
-
-### 7.3 PR 正文
-
-{prBody}
-
-## 8. 验证方式
-
-### 8.1 替换验证
-
-{例如 grep 命令}
-
-### 8.2 语法验证
-
-{例如 YAML 语法检查方式}
-
-### 8.3 PR 状态验证
-
-{PR URL、状态汇总}
-
-### 8.4 执行命令示例
-
-{dry-run 和实际执行命令}
-
-## 9. PR 合并与分支清理
-
-### 9.1 合并命令
-
-{`npx tsx batch-pr.ts merge` 等}
-
-### 9.2 合并流程
-
-{扫描 PR → rebase 合并 → 删除分支 → 验证 → 生成 merge-summary.md}
-
-### 9.3 分支清理原则
-
-{必须删除本次来源分支，不得删除默认分支和 GitHub Pages 源分支}
-
-### 9.4 合并后状态
-
-| 仓库 | PR | 目标分支 | 分支删除 |
-| :--- | --- | :--- | :------: |
-| ...  | ... | ...  | ...      |
-
-## 10. 风险与回滚
-
-| 序号 | 风险 | 影响 | 应对措施 |
-| :--: | :--- | :--- | :------- |
-| ...  | ...  | ...  | ...      |
-
-## 11. 验收标准
-
-- [ ] 验收项 1
-- [ ] 验收项 2
-```
+> spec.md 的完整模板（11 节结构）逐字下沉至 [`references/design-spec-template.md`](references/design-spec-template.md)；生成 spec.md 前必须先读取该模板。
 
 ### 生成要求
 
@@ -320,35 +192,35 @@ metadata:
 
 ### 收益量化
 
-| 指标            | 子代理模式（18 仓库） | 脚本自动化模式 | 节省幅度 |
-| :-------------- | :------------------- | :------------- | :------- |
-| AI 工具调用次数 | 90–180 次            | 0 次（执行阶段）| ~100%    |
-| AI token 消耗   | 80k–150k             | 5k–15k         | ~80–90%  |
-| 用户等待时间    | 10–30 min（AI 执行） | 1–3 min（本地）| ~90%     |
-| 可重复执行      | 需重新调度           | 可随意重跑     | —        |
+| 指标            | 子代理模式（18 仓库） | 脚本自动化模式   | 节省幅度 |
+| :-------------- | :-------------------- | :--------------- | :------- |
+| AI 工具调用次数 | 90–180 次             | 0 次（执行阶段） | ~100%    |
+| AI token 消耗   | 80k–150k              | 5k–15k           | ~80–90%  |
+| 用户等待时间    | 10–30 min（AI 执行）  | 1–3 min（本地）  | ~90%     |
+| 可重复执行      | 需重新调度            | 可随意重跑       | —        |
 
 ### 产出物清单
 
 当选择脚本自动化模式时，AI 在阶段 3a 一次性生成以下文件，**全部放在 `batch-pr-<YYYY-MM-DD>/` 工作目录中**（目录名不可省略）：
 
-| 文件                     | 用途                           | 生成者 |
-| :----------------------- | :----------------------------- | :----- |
-| `pr-config.json`         | 仓库清单 + 本地路径 + PR 元数据 | AI     |
-| `pr-body.md`             | PR 正文（Markdown，默认）       | AI     |
-| `commit-message.txt`     | git commit 信息（纯文本，默认） | AI     |
-| `spec.md`                | 完整设计规格文档               | AI     |
-| `pr-transform.json`      | 文件内容转换规则（如有）       | AI     |
-| `batch-pr.ts`            | 可执行的 TypeScript 脚本       | AI     |
-| `README.md`              | 使用说明与执行指引             | AI     |
-| `changes/<repo_safe>/*`  | 跨仓库共享的待修改文件（可选） | AI     |
-| `commit-message--<repo_safe>.txt` | **per-repo 差异化** commit（可选） | AI |
-| `pr-body--<repo_safe>.md`         | **per-repo 差异化** PR 正文（可选） | AI |
+| 文件                              | 用途                                | 生成者 |
+| :-------------------------------- | :---------------------------------- | :----- |
+| `pr-config.json`                  | 仓库清单 + 本地路径 + PR 元数据     | AI     |
+| `pr-body.md`                      | PR 正文（Markdown，默认）           | AI     |
+| `commit-message.txt`              | git commit 信息（纯文本，默认）     | AI     |
+| `spec.md`                         | 完整设计规格文档                    | AI     |
+| `pr-transform.json`               | 文件内容转换规则（如有）            | AI     |
+| `batch-pr.ts`                     | 可执行的 TypeScript 脚本            | AI     |
+| `README.md`                       | 使用说明与执行指引                  | AI     |
+| `changes/<repo_safe>/*`           | 跨仓库共享的待修改文件（可选）      | AI     |
+| `commit-message--<repo_safe>.txt` | **per-repo 差异化** commit（可选）  | AI     |
+| `pr-body--<repo_safe>.md`         | **per-repo 差异化** PR 正文（可选） | AI     |
 
 用户只需执行 `npx tsx batch-pr.ts`，脚本会自动完成所有仓库的 git 操作 + PR 创建，并输出 `execution-summary.md`。
 
 ### 与子代理模式的对比
 
-```
+```plain
 ┌─ 子代理模式（v0.4.0 默认） ─────────────────────┐
 │  AI → 18× sub-agent → ~90 tool calls → 报告      │
 │  Token 消耗: 高                                    │
@@ -371,7 +243,7 @@ metadata:
 1. **创建强制工作目录**：**必须**在工作目录或当前项目根目录下创建 `batch-pr-<YYYY-MM-DD>/` 目录。AI 生成的所有产物文件全部写入该目录。用户后续在此目录中执行脚本。
 
 2. **生成 `pr-config.json`**：包含仓库列表、本地路径、来源分支名、PR 标题。格式如下：
-2. **生成 `pr-config.json`**：包含仓库列表、本地路径、来源分支名、PR 标题。格式如下：
+3. **生成 `pr-config.json`**：包含仓库列表、本地路径、来源分支名、PR 标题。格式如下：
 
    ```json
    {
@@ -387,7 +259,7 @@ metadata:
    }
    ```
 
-3. **生成 `pr-body.md`**：面向用户的 PR 正文 Markdown。聚焦"改动了什么 + 为什么改 + 如何验证"。正文中建议包含：
+4. **生成 `pr-body.md`**：面向用户的 PR 正文 Markdown。聚焦"改动了什么 + 为什么改 + 如何验证"。正文中建议包含：
 
    ```markdown
    ## 改动内容
@@ -403,9 +275,9 @@ metadata:
    - 构建、测试或人工检查步骤
    ```
 
-4. **生成 `commit-message.txt`**：从阶段 2 冻结的 `commitMessage` 写入纯文本文件，**不带 Emoji**（`gh` CLI 创建的 PR 标题会独立使用 emoji，commit 内容保持干净）。例如：`feat(config): update vitepress base path configuration`。
+5. **生成 `commit-message.txt`**：从阶段 2 冻结的 `commitMessage` 写入纯文本文件，**不带 Emoji**（`gh` CLI 创建的 PR 标题会独立使用 emoji，commit 内容保持干净）。例如：`feat(config): update vitepress base path configuration`。
 
-5. **生成 `batch-pr.ts`**：以 `references/batch-pr-script.ts` 为参考模板，根据本次任务的实际情况生成**定制化**的 TypeScript 脚本：
+6. **生成 `batch-pr.ts`**：以 `references/batch-pr-script.ts` 为参考模板，根据本次任务的实际情况生成**定制化**的 TypeScript 脚本：
    - 必须将 `pr-config.json` 中的仓库列表直接嵌入脚本（或用读取 `pr-config.json` 的方式）。
    - 必须硬编码 `prTitle` 和 `sourceBranch`。
    - 默认使用脚本自身所在目录作为工作目录（通过 `import.meta.url` 解析），确保用户从任意目录执行都不会读错配置。
@@ -417,7 +289,7 @@ metadata:
    - 必须支持 per-repo 差异化文件（`commit-message--<repo_safe>.txt`、`pr-body--<repo_safe>.md`），读取优先级：per-repo 文件 > 通用文件。
    - 建议内建任务相关残留改动的自动清理：若工作树中的未提交文件全部被 `transformations[]` 规则覆盖，可安全 `git reset --hard HEAD` 后重跑；否则保留跳过行为，避免覆盖用户真实改动。
 
-6. **生成 `pr-transform.json`（如有转换规则）**：从 `scopeAnalysis.transformations[]` 写入独立 JSON 文件，格式如下：
+7. **生成 `pr-transform.json`（如有转换规则）**：从 `scopeAnalysis.transformations[]` 写入独立 JSON 文件，格式如下：
 
    ```json
    {
@@ -432,28 +304,28 @@ metadata:
    }
    ```
 
-7. **生成 per-repo 差异化文件（可选）**：当某仓库需要与其他仓库不同的 commit 或 PR 正文时，按以下命名规则额外生成覆盖文件：
+8. **生成 per-repo 差异化文件（可选）**：当某仓库需要与其他仓库不同的 commit 或 PR 正文时，按以下命名规则额外生成覆盖文件：
 
-   ```
+   ```plain
    commit-message--<repo_safe>.txt   # 例如：commit-message--ruan-cat__notes.txt
    pr-body--<repo_safe>.md            # 例如：pr-body--ruan-cat__notes.md
    ```
 
    其中 `<repo_safe>` 为 repo 标识中的 `/` 替换为 `__`。脚本读取时**优先使用 per-repo 文件**，不存在时回退到通用文件。
 
-8. **生成待修改文件（可选）**：在 `changes/` 子目录下以 `<repo_safe>` 格式组织待拷贝文件：
+9. **生成待修改文件（可选）**：在 `changes/` 子目录下以 `<repo_safe>` 格式组织待拷贝文件：
 
-   ```
+   ```plain
    changes/ruan-cat__notes/    # per-repo 优先
    changes/ruan-cat__monorepo/ # per-repo 优先
    ```
 
    脚本执行顺序为：inline 转换 → per-repo changes 拷贝 → 通用 changes 拷贝。
 
-9. **验证产出物**：
-   - 确保所有文件在同一目录下。
-   - 确保 `pr-config.json` 中的路径**均为有效绝对路径**。
-   - 对 `batch-pr.ts` 做**语法快速检查**（如 `npx tsx --eval 'import "./batch-pr.ts"'` 或直接 `npx tsc --noEmit batch-pr.ts`），确保无误。
+10. **验证产出物**：
+    - 确保所有文件在同一目录下。
+    - 确保 `pr-config.json` 中的路径**均为有效绝对路径**。
+    - 对 `batch-pr.ts` 做**语法快速检查**（如 `npx tsx --eval 'import "./batch-pr.ts"'` 或直接 `npx tsc --noEmit batch-pr.ts`），确保无误。
 
 ### 阶段 3b：用户本地执行
 
@@ -550,87 +422,7 @@ metadata:
   - 默认返回"已存在"并附现有 PR 链接；
   - 不重复创建新的 PR（除非用户明确要求新建）。
 
-## 数据契约
-
-### 输入契约
-
-```json
-{
-	"repo": "owner/name",
-	"prTitle": "string",
-	"prBody": "string",
-	"commitMessage": "string",
-	"sourceBranch": "string"
-}
-```
-
-### 输出契约
-
-```json
-{
-	"repo": "owner/name",
-	"localPath": "string | null",
-	"executionMode": "remote-api|local-git|hybrid|script-auto",
-	"complexity": "low|medium|high",
-	"targetBranch": "dev|main|master|unknown",
-	"status": "success|failed",
-	"prUrl": "string | null",
-	"reason": "string | null"
-}
-```
-
-### 范围探索契约（scopeAnalysis）
-
-```json
-{
-	"scopeAnalysis": {
-		"repos": [
-			{
-				"repo": "owner/name",
-				"localPath": "absolute/path",
-				"status": "in-scope|excluded",
-				"excludeReason": "string | null",
-				"affectedFiles": ["path/to/file.yml"],
-				"fileCount": 3,
-				"observations": ["特殊模式说明"],
-				"currentValues": ["22.14.0"]
-			}
-		],
-		"excludedRepos": [
-			{
-				"repo": "owner/name",
-				"reason": "未克隆 / 无目标文件 / 权限不足"
-			}
-		],
-		"totalFiles": 22,
-		"totalOccurrences": 23,
-		"specialPatterns": ["release 工作流需保留 registry-url"],
-		"transformations": [
-			{
-				"description": "描述转换目的",
-				"glob": ".github/workflows/*.{yml,yaml}",
-				"search": "搜索正则",
-				"replace": "替换字符串"
-			}
-		]
-	}
-}
-```
-
-### 转换规则契约（pr-transform.json）
-
-```json
-{
-	"transformations": [
-		{
-			"description": "人类可读的描述",
-			"glob": "匹配文件的 glob 模式",
-			"search": "搜索正则（不含 / 定界符）",
-			"replace": "替换字符串（支持 $1 捕获组引用）"
-		}
-	]
-}
-```
+> 输入契约、输出契约、scopeAnalysis 范围探索契约与 pr-transform.json 转换规则契约的完整定义见 [`references/data-contracts.md`](references/data-contracts.md)；阶段 2β「归纳转换规则」所指的「见下方数据契约」即此文件。
 
 ## 强制要求
 
