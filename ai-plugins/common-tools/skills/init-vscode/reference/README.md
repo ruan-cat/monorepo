@@ -8,14 +8,17 @@
 | ------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------- |
 | `extension-replacement-migrations.md`       | 扩展 replacement mapping、scope、preflight/postflight、回滚 | 扩展推荐发生替换，或目标项目命中已知旧扩展 ID/settings/command 时                  | 当前有效 | 由模板 JSONC/PR diff 与仓库 CI 做静态覆盖；runtime 仍按文档分层验收 |
 | `2026-08-16-todo-tree-ripgrep-migration.md` | Todo Tree 激活失败与 ripgrep 私有路径事故的可复用经验       | Todo Tree/Better Todo Tree 迁移、`command not found`、ripgrep 路径或运行时验收问题 | 当前有效 | 规则型参考；GUI/runtime 项不能由静态 CI 代替                        |
+| `optional-plugin-configs.md`                | git-graph / cursor / i18n-ally 可选插件配置详情与占位符替换 | 执行工作流程步骤 6、用户选择添加可选插件配置时                                     | 当前有效 | 配置内容型参考；占位符替换需在执行时完成                            |
+| `merge-logic.md`                            | 合并优先级完整定义（数组/深度/简单值/策略键例外/可选插件）  | 对合并行为有疑问、或需要复核正文策略键清单之外的合并规则时                         | 当前有效 | 规则型参考；策略键可执行真值在 SKILL.md 步骤 3                      |
 
 ## 加载边界
 
 1. `SKILL.md` 是执行入口；普通 VS Code 初始化不需要无条件加载所有 reference。
 2. 命中 extension replacement 时，必须先读 `extension-replacement-migrations.md`。
 3. Todo Tree -> Better Todo Tree、`command not found`、ripgrep executable/path、legacy settings/keybindings 等场景，再读 `2026-08-16-todo-tree-ripgrep-migration.md`。
-4. reference 只保存当前规则，不保存开发期全文快照；如果未来需要历史归档，应使用明确的 archive 层并从正常执行导航中隔离。
-5. 如果 reference 与 `SKILL.md` 冲突，以更新后的 `SKILL.md` + 当前 reference 的更具体规则为准，并在维护时消除冲突。
+4. 用户在步骤 6 选择添加可选插件配置时，读 `optional-plugin-configs.md`；对合并行为有疑问时读 `merge-logic.md`。
+5. reference 只保存当前规则，不保存开发期全文快照；如果未来需要历史归档，应使用明确的 archive 层并从正常执行导航中隔离。
+6. 如果 reference 与 `SKILL.md` 冲突，以更新后的 `SKILL.md` + 当前 reference 的更具体规则为准，并在维护时消除冲突。
 
 ## 对外分发约束
 

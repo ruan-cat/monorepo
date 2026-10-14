@@ -10,7 +10,7 @@ description: >-
   幽灵修改、团队规范、VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化，都应该使用本技能。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Init VSCode
@@ -225,6 +225,8 @@ Better Todo Tree 的长期配置应优先使用扩展自身 resolver / packaged 
 - 保留用户配置中的其他字段
 - 写回文件，保持 JSON/JSONC 格式美观（2 空格缩进）
 
+> 合并优先级的完整定义（数组合并 / 对象深度合并 / 简单值用户优先 / 策略键例外 / 可选插件合并）见 [`reference/merge-logic.md`](reference/merge-logic.md)；上方策略键清单是可执行真值，与 reference 冲突时以正文为准。
+
 ### 3.1. `files.eol` 的特殊规则
 
 本技能专门负责 `.vscode/settings.json` 中的：
@@ -418,210 +420,7 @@ replacement migration 的静态验收还必须确认：
 
 根据用户选择，将对应的配置合并到 `settings.json` 中（使用与步骤 3 相同的深度合并逻辑）。
 
-## 可选插件配置
-
-### git-graph 插件配置
-
-**用途**：自定义分支筛选模式，适合团队有特定分支命名规范的场景。
-
-**配置示例**：
-
-```json
-{
-	"git-graph.customBranchGlobPatterns": [
-		{
-			"name": "主要分支",
-			"glob": "{main,dev}"
-		},
-		{
-			"name": "功能分支",
-			"glob": "feat/*"
-		},
-		{
-			"name": "修复分支",
-			"glob": "fix/*"
-		},
-		{
-			"name": "发布分支",
-			"glob": "release/*"
-		}
-	]
-}
-```
-
-**如何自定义**：
-
-- `customBranchGlobPatterns` 是一个对象数组，每个对象包含 `name` 和 `glob` 字段
-- `name`：分支组的显示名称，用于在 Git Graph 界面中标识
-- `glob`：分支匹配模式，支持 glob 语法（如 `*`、`{}`、`?` 等）
-- 常见团队分支模式：`feat/*`、`fix/*`、`hotfix/*`、`release/*`
-- 可根据团队的 Git Flow 或 GitHub Flow 规范调整
-- 支持使用花括号匹配多个分支：`{main,dev,master}`
-
-### cursor 文件关联配置
-
-**用途**：将 `.cursorignore` 文件识别为 ignore 文件类型，提供语法高亮和编辑体验。
-
-**配置说明**：
-
-```json
-{
-	"files.associations": {
-		".cursorignore": "ignore"
-	}
-}
-```
-
-此配置会让 VSCode 将 `.cursorignore` 文件视为与 `.gitignore` 相同的文件类型，提供相应的语法支持。
-
-### i18n-ally 插件配置
-
-**用途**：国际化工具配置，自动识别项目中的语言文件路径。
-
-**模板占位符**：
-模板文件 `templates/plugin-configs/i18n-ally.json` 使用 `{{LOCALES_PATH}}` 占位符，需要在应用配置时替换为实际路径。
-
-**占位符替换逻辑**：
-
-1. **检测项目中的 i18n 路径**：
-   使用 Glob 工具搜索常见的国际化目录模式：
-
-   ```javascript
-   // 搜索模式（按优先级排序）
-   const patterns = ["**/locales", "**/i18n", "**/lang", "**/locale", "**/translations"];
-   ```
-
-2. **路径处理**：
-   - 找到的路径需要转换为相对于项目根目录的路径
-   - 如果找到多个路径，选择最短的（通常是最顶层的）
-   - 排除 `node_modules`、`dist`、`.git` 等目录中的路径
-
-3. **替换占位符**：
-
-   ```javascript
-   // 伪代码示例
-   let localesPath = detectI18nPath(); // 返回如 "src/locales"
-
-   if (!localesPath) {
-   	// 如果未找到，使用默认值或询问用户
-   	localesPath = "src/locales"; // 默认值
-   	// 或使用 AskUserQuestion 询问用户
-   }
-
-   // 替换模板中的占位符
-   config["i18n-ally.localesPaths"] = localesPath;
-   ```
-
-4. **处理失败情况**：
-   - 如果自动检测失败，使用默认值 `"src/locales"`
-   - 或使用 AskUserQuestion 工具询问用户实际的 i18n 路径
-   - 在反馈中告知用户使用了默认值，建议手动检查
-
-**常见路径模式**：
-
-```json
-{
-	"i18n-ally.localesPaths": "src/locales"
-}
-```
-
-**配置参数说明**：
-
-- `localesPaths`：语言文件所在目录的相对路径（字符串）或路径数组
-- 路径相对于项目根目录
-- 支持单个路径（字符串）或多个路径（数组）
-
-**完整配置示例**：
-
-```json
-{
-	"i18n-ally.localesPaths": "src/locales",
-	"i18n-ally.pathMatcher": "{locale}/{namespace}.{ext}",
-	"i18n-ally.keystyle": "nested",
-	"i18n-ally.sortKeys": true,
-	"i18n-ally.namespace": true,
-	"i18n-ally.enabledParsers": ["yaml", "js", "json"],
-	"i18n-ally.sourceLanguage": "en",
-	"i18n-ally.displayLanguage": "zh-CN",
-	"i18n-ally.enabledFrameworks": ["vue"]
-}
-```
-
-**实现步骤**：
-
-1. 读取模板文件 `templates/plugin-configs/i18n-ally.json`
-2. 使用 Glob 搜索项目中的 i18n 目录：
-   ```bash
-   # 搜索常见的 i18n 目录（排除 node_modules 等）
-   **/locales
-   **/i18n
-   **/lang
-   ```
-3. 选择找到的第一个路径（优先选择 `src/` 下的路径）
-4. 如果未找到任何路径：
-   - 使用默认值 `"src/locales"`
-   - 在反馈中提示用户："未检测到 i18n 目录，使用默认路径 'src/locales'，请根据实际情况调整"
-5. 替换模板中的 `{{LOCALES_PATH}}` 占位符
-6. 将处理后的配置合并到 `settings.json`
-
-## 合并逻辑详解
-
-### 数组合并
-
-对于 `recommendations`、`unwantedRecommendations` 等数组字段，默认去重合并：
-
-```javascript
-// 伪代码
-merged = [...new Set([...userArray, ...templateArray])];
-```
-
-去重后保留所有项。
-
-**replacement 例外：** 在执行上述并集前，先应用 `reference/extension-replacement-migrations.md` 中的映射。命中的旧扩展先从 `recommendations` 移除，再加入新扩展，并把旧扩展加入 `unwantedRecommendations`；用户明确要求保留旧扩展时除外。普通并集不得把已被 mapping 移除的旧 ID 重新加回来。
-
-`vue.server.includeLanguages` 虽为数组，但属于策略键，不适用默认去重合并，必须收敛为 `["vue"]`，不得包含 `"markdown"`。
-
-### 对象深度合并
-
-对于嵌套对象（如 `files.exclude`、`files.watcherExclude`、`search.exclude`）：
-
-```javascript
-// 伪代码
-merged = {
-	...templateObject,
-	...userObject, // 用户的键值对优先
-};
-```
-
-用户已有的键保持不变，模板中新增的键会被添加。
-
-### 简单值优先级
-
-对于 `explorer.fileNesting.enabled`、`terminal.integrated.cwd` 等简单值：
-
-- 如果用户已有配置，**完全保留用户的值**
-- 如果用户没有配置，使用模板值
-
-### 策略键例外
-
-以下键不走“用户优先”，而是必须按模板收敛：
-
-- `files.eol` → 必须为 `"\n"`
-- `vue.server.includeLanguages` → 必须为 `["vue"]`，不得包含 `"markdown"`
-- `search.indexing.maxFileSize` → 必须为 `1048576`
-- `typescript.disableAutomaticTypeAcquisition` → 必须为 `true`
-- `typescript.tsserver.watchOptions` → 必须补齐 `useFsEvents` 与 `dynamicPriority`
-- `typescript.tsdk` → 默认使用 `node_modules/typescript/lib`
-- `typescript.tsserver.maxTsServerMemory` → 缺失或低于 `4096` 时补齐，高风险项目可升到 `8192`
-
-### 可选插件配置合并
-
-对于用户选择添加的可选插件配置（git-graph、cursor、i18n-ally）：
-
-- 使用与 settings.json 相同的深度合并逻辑
-- 对于 `git-graph.repository.onLoad.showSpecificBranches` 等数组字段，去重合并
-- 对于 `files.associations` 等对象字段，合并键值对
-- 用户现有配置始终优先，不会被覆盖
+> 三个插件的完整配置说明、示例与 `{{LOCALES_PATH}}` 占位符替换逻辑见 [`reference/optional-plugin-configs.md`](reference/optional-plugin-configs.md)；按用户选择执行前必须先读取对应章节，完成占位符替换后再合并。
 
 ## 模板与参考内容
 
@@ -635,6 +434,8 @@ merged = {
 - `reference/README.md` - 当前 reference 索引与加载边界
 - `reference/extension-replacement-migrations.md` - 已知扩展替代关系、scope、preflight/postflight 与回滚规则
 - `reference/2026-08-16-todo-tree-ripgrep-migration.md` - Todo Tree 激活失败事故提炼出的当前迁移经验
+- `reference/optional-plugin-configs.md` - git-graph / cursor / i18n-ally 可选插件配置详情与占位符替换逻辑
+- `reference/merge-logic.md` - 合并优先级完整定义（正文步骤 3 的策略键清单为可执行真值）
 
 这些模板包含了常用的开发工具扩展、三层排除规则和性能优化设置，适用于大多数前端项目与大型 monorepo。reference 只保存对安装后技能仍有执行价值的当前规则，不要求回源读取 monorepo 内部报告。
 
