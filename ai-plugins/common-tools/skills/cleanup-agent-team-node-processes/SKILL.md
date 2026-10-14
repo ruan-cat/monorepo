@@ -4,7 +4,7 @@ description: |-
   Use when Windows or PowerShell agent-team sessions leave suspected stale node, npx, Windows command processor, agent-browser browser or CLI processes, stale MCP or dev-server children provably owned by the current run, lingering listeners, unclear process ownership after multi-agent automation, or unexplained WorkBuddy prewarm pools, MCP subtrees, native agent-browser workers, or shell-snapshot bash processes.
   当 Windows 或 PowerShell 的 agent team 会话结束后，出现疑似残留 node / npx / Windows 命令处理程序 / agent browser 浏览器或 CLI 进程、可证明归属当前 run 的残留 MCP 或开发服务器子进程、残留监听器、多代理自动化后的进程归属不清，或无法解释的 WorkBuddy prewarm 池、MCP 子树、原生 agent-browser worker、shell snapshot bash 进程时使用。
 metadata:
-  version: "1.4.2"
+  version: "2.0.0"
 user-invocable: true
 ---
 
@@ -72,27 +72,7 @@ powershell -ExecutionPolicy Bypass -File scripts/agent-team-node-cleanup.ps1
 
 3. 在执行清理前，逐行复核 dry-run 输出。
 
-需要重点检查这些字段：
-
-| 字段                          | 为什么重要                                                                                                                                                         |
-| :---------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Pid` / `ParentPid`           | 判断父子进程关系和孤儿状态。                                                                                                                                       |
-| `Name` / `ProcessFamily`      | 区分 Node 运行时、命令包装器、agent browser CLI 或浏览器。                                                                                                         |
-| `CommandLine`                 | 区分 agent worker、MCP 服务、包脚本和用户开发服务器。                                                                                                              |
-| `ExecutablePath`              | 确认 Node 二进制路径，避免假设所有 Node 都可以清理。                                                                                                               |
-| `CreationTime` / `AgeMinutes` | 避免停止刚生成、仍在工作的进程。                                                                                                                                   |
-| `WorkingDirectoryHint`        | 当命令行带有 cwd 相关参数时，辅助判断进程属于哪个工作区。                                                                                                          |
-| `ListeningPorts`              | 标出开发服务器或 MCP transport，需要人工复核。                                                                                                                     |
-| `ListenerObservation`         | 区分“已观察且零监听”与“监听查询不可用 / 失败”；后者阻断清理。                                                                                                      |
-| `ParentAlive`                 | 父进程已不存在的候选项，更可能是孤儿进程。                                                                                                                         |
-| `AgentKeywordMatches`         | 辅助判断归属，包含 `agent-browser`、`agent_browser`、`playwright`、`remote-debugging-port` 等线索，但不能单独作为清理依据。                                        |
-| `AgentBrowserEvidence`        | 浏览器进程专用证据，至少需要 agent browser / Playwright / profile / run / session / workspace 等线索配合 include 或工作目录，普通 Chrome / Edge 默认不会成为候选。 |
-| `SafetyIssues`                | 自动清理的阻断原因。                                                                                                                                               |
-| `WorkBuddyGrouping`           | WorkBuddy 核心链、prewarm 池边界、三态会话归属、置信度、保护原因和单池停止计划。                                                                                   |
-
-`Summary.NodeProcessCount` 是兼容字段；应优先看 `Summary.TargetProcessCount` 和 `Summary.ProcessNameCounts`。
-
-脚本字段之外，还要结合当前会话已有上下文核对 agent run 维度证据：runId / sessionId、父 agent 或父任务、checkpoint、日志位置、trace、失败重试 / scheduled retry 状态、人工确认结论、端口用途、PPID 链路和完整命令行。无需为此新建报告；补不齐这些证据时，不要把进程升级为可清理候选。
+> 完整字段字典与 `Summary` 兼容字段说明见 [`references/dry-run-field-reference.md`](references/dry-run-field-reference.md)；逐行复核前先读取。
 
 4. 只有收窄候选列表后，才允许执行清理。
 
@@ -164,42 +144,7 @@ try {
 
 强制重试必须重新运行上一个完整代码块，以生成新的 `$ledgerPath` 并继续执行相同的 `try/finally`，仅在 `-Apply` 后追加 `-Force`；不要把路径改回当前工作区。
 
-### 已证实卡死的一次性 Node CLI 例外
-
-这一例外只适用于已由证据证明为同步 CPU 自旋的一次性命令，例如 Windows 路径边界导致 `--help`、`--version` 或查询命令在无输出、无端口的情况下持续占用 CPU。它不是网络连接、鉴权、MCP、开发服务器或一般 Node 高 CPU 的清理入口。
-
-先核对常规 dry-run 输出，并在当前会话中确认命令、Node PID、直接父 `cmd.exe` PID、开始时间、CPU 与 stdout/stderr 采样、监听端口和复现证据。确认该命令不应长期运行后，才可执行受限恢复；不要新建独立报告：
-
-```powershell
-$ledgerPath = Join-Path ([IO.Path]::GetTempPath()) (
-  "agent-process-ledger-{0}.json" -f [guid]::NewGuid()
-)
-try {
-  powershell -ExecutionPolicy Bypass `
-    -File scripts/agent-team-node-cleanup.ps1 `
-    -Apply -EnableStuckOneShotRecovery `
-    -IncludePattern "run-id-fragment|task-token" `
-    -OneShotCommandPattern "(?i)cli\.js\s+--help|neonctl.*--help" `
-    -ExcludePattern "mcp|gateway|memory|monitor|cron|scheduler|queue|sse|rag|vector|extensionHost|tsserver|vite|next|storybook" `
-    -MinAgeMinutes 5 -CpuSampleIntervalSeconds 5 `
-    -MinCpuDeltaSeconds 3 -OutputPath $ledgerPath
-  if ($LASTEXITCODE -ne 0) {
-    throw "One-shot recovery failed with exit code $LASTEXITCODE."
-  }
-} finally {
-  Remove-Item -LiteralPath $ledgerPath -Force -ErrorAction SilentlyContinue
-}
-```
-
-启用 `-EnableStuckOneShotRecovery` 时，脚本强制要求 `-Apply`、任务级 `-IncludePattern`、带参数而非仅可执行文件名的 `-OneShotCommandPattern` 与 `-OutputPath`。恢复候选必须同时满足：
-
-- 仅为 `node.exe`，直接父进程仍为 `cmd.exe`；
-- 子进程和直接父进程的命令行都命中同一条一次性命令模式；
-- 达到 `-MinAgeMinutes`，命中 include，不命中 exclude，没有监听端口，也不属于脚本自身父进程链；
-- 两次 CPU 采样的增量达到 `-MinCpuDeltaSeconds`；
-- 除 `parent-process-alive` 外不存在任何安全阻断项。
-
-候选将以 `candidate-stuck-one-shot` 出现在命令结果中。脚本只先普通终止 Node 子进程；父 `cmd.exe` 未自行退出时必须回到人工审计，不能因为子进程异常而批量终止包装器。`-Force` 仍仅用于该 Node PID 的普通终止失败，不改变父进程处理规则。
+> **卡死一次性 Node CLI 例外**：仅适用于已由证据证明为同步 CPU 自旋的一次性命令，且必须启用 `-EnableStuckOneShotRecovery`；执行前必须完整阅读 [`references/stuck-one-shot-recovery.md`](references/stuck-one-shot-recovery.md)，不得凭记忆或猜测拼装命令。
 
 5. 复核重新采样结果。
    - 确认 `Verification.RemainingCandidatePids` 为空；如果不为空，逐个解释剩余 PID。
@@ -223,28 +168,7 @@ try {
 
 除上述 WorkBuddy pool 决策外，其他进程都会保持为 `audit-only` 或 `excluded`。
 
-## 常见错误
-
-| 错误做法                                                                                           | 修正方式                                                                                          |
-| :------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------ |
-| agent team 结束后杀掉所有 `node.exe`、命令处理程序或浏览器进程。                                   | 先生成台账，再复核归属证据。                                                                      |
-| 把 VSCode、搜索、TS Server 或 Defender 的高占用当成残留进程。                                      | 先定位资源来源；不是当前 agent run 残留时转配置治理。                                             |
-| 把包装器关键词当作唯一证据。                                                                       | 组合命令行、父进程状态、年龄、路径、端口和 include/exclude 范围一起判断。                         |
-| 只看父进程不存在就清理。                                                                           | 继续核对 runId、sessionId、checkpoint、日志、trace、端口、PPID 链路和人工确认。                   |
-| 误伤 MCP gateway、记忆、监控、队列、SSE、RAG / vector 或定时任务。                                 | 把长期服务加入排除规则；高风险停止必须先人工确认。                                                |
-| 忽略监听端口。                                                                                     | 记录端口，并判断它是残留服务还是有意保留的开发服务器。                                            |
-| 把监听器查询失败当成没有监听。                                                                     | 检查 `ListenerObservation`；`unknown` 必须阻断，不能解释成空列表。                                |
-| 在当前工作区写入 `agent-process-ledger*.json`。                                                    | dry-run 只读标准输出；`-Apply` 的 `-OutputPath` 使用系统临时文件，并在 `finally` 删除。           |
-| 把临时台账留给后续 AI 模型清理。                                                                   | 临时文件的创建和删除必须在同一段确定性 PowerShell 中闭环，不依赖模型善后。                        |
-| 不重新采样就宣称清理完成。                                                                         | 检查脚本的 `Verification` 区块，或清理后重新执行不落盘的 dry-run。                                |
-| 把一次性 CLI 的无输出或高 CPU 当成可直接杀进程的理由。                                             | 先核对 dry-run 与复现证据；只在受限恢复门禁同时命中精确命令、CPU 增量和无端口时停止 Node 子进程。 |
-| 因一次性 Node CLI 卡死而停止它的父 `cmd.exe`。                                                     | 只先停止 `candidate-stuck-one-shot` 的 Node PID；父包装器是否退出必须人工复核。                   |
-| 把 WorkBuddy 进程年龄或“最近没新子进程”当成僵尸证明。                                              | 年龄只作辅助门禁；会话归属或空闲无法证明时保持 `unknown` / `needs-confirmation`。                 |
-| 不传精确 pool 选择器，或一次选多个 pool 就 Apply。                                                 | 每次只用一个 `-WorkBuddyPoolId` 或 `-WorkBuddyPoolPid`，并分别传入非当前会话与空闲双确认。        |
-| 只传 `-ConfirmWorkBuddyPoolIdle` 就当成非当前会话。                                                | 空闲确认不改变 `SessionState`；还必须独立传入 `-ConfirmWorkBuddyPoolNotCurrent`。                 |
-| 清理 WorkBuddy daemon、sidecar、MCP server、UI / renderer、未知角色、嵌套 pool 或 shell snapshot。 | 选中根之外的 WorkBuddy 角色全部永久保护；普通 Git Bash 和 shell snapshot bash 都只审计。          |
-| 给 `topology-inferred` 中置信度池猜测 pool ID，或用非根 PID 清理。                                 | 不生成虚构 pool ID；只允许 dry-run 输出中的精确根 PID，并继续通过双确认与全部安全门禁。           |
-| 先杀池内 node/cmd，再让 daemon 继续补拉。                                                          | 先停止 pool 根，等待 2 秒，再按冻结快照从叶到根处理遗留子孙；新 respawn 只报告。                  |
+> 执行前对照 [`references/common-mistakes.md`](references/common-mistakes.md) 逐条自检；每一条都对应历史踩坑场景，命中任意一条立即停止并回到审计步骤。
 
 ## 完成条件
 
@@ -257,7 +181,10 @@ try {
 
 ## 资源索引
 
-| 路径                                  | 用途                                    |
-| :------------------------------------ | :-------------------------------------- |
-| `scripts/agent-team-node-cleanup.ps1` | Windows PowerShell 审计与门禁清理脚本。 |
-| `scripts/lib/`                        | 入口按固定顺序加载的私有实现模块。      |
+| 路径                                    | 用途                                            |
+| :-------------------------------------- | :---------------------------------------------- |
+| `scripts/agent-team-node-cleanup.ps1`   | Windows PowerShell 审计与门禁清理脚本。         |
+| `scripts/lib/`                          | 入口按固定顺序加载的私有实现模块。              |
+| `references/dry-run-field-reference.md` | dry-run 输出字段字典与 `Summary` 兼容字段说明。 |
+| `references/stuck-one-shot-recovery.md` | 卡死一次性 Node CLI 受限恢复的完整命令与门禁。  |
+| `references/common-mistakes.md`         | 常见错误做法与修正方式对照表。                  |
