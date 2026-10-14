@@ -61,7 +61,10 @@ async function assertReference(skill: SkillRegistryEntry, referencePath: string)
 	const loaded = await resolver.loadResource(skill, snapshot, { path: referencePath });
 	expect(loaded.contentType).toBe("text");
 	if (loaded.contentType !== "text") throw new Error("expected text resource");
-	const expected = await readFile(resolve(REPO_ROOT, skill.entry.slice(0, skill.entry.lastIndexOf("/")), referencePath), "utf8");
+	const expected = await readFile(
+		resolve(REPO_ROOT, skill.entry.slice(0, skill.entry.lastIndexOf("/")), referencePath),
+		"utf8",
+	);
 	expect(loaded.content).toBe(expected);
 	expect(loaded.sourceCommitSha).toBe(SOURCE_SHA);
 	expect(loaded.uri).toContain(SOURCE_SHA);
@@ -77,6 +80,8 @@ describe("real Skill resource contracts", () => {
 		const skill = (await registry()).get("pr-ruancat-repo");
 		for (const referencePath of [
 			"references/batch-pr-script.ts",
+			"references/data-contracts.md",
+			"references/design-spec-template.md",
 			"references/target-repos.md",
 			"references/workflow-and-template.md",
 		]) {
@@ -89,6 +94,8 @@ describe("real Skill resource contracts", () => {
 		const listed = await new ResourceResolver(localSource()).listResources(skill, snapshot, { prefix: "references/" });
 		expect(listed.resources.map((resource) => resource.path)).toEqual([
 			"references/batch-pr-script.ts",
+			"references/data-contracts.md",
+			"references/design-spec-template.md",
 			"references/target-repos.md",
 			"references/workflow-and-template.md",
 		]);
