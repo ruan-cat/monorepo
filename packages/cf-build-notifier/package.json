@@ -1,0 +1,25 @@
+{
+	"name": "@ruan-cat/cf-build-notifier",
+	"private": true,
+	"version": "0.1.0",
+	"description": "Cloudflare Workers Builds 构建失败/取消邮件通知 Worker，基于 Nitro v3 cloudflare:queue runtime hook 与 send_email binding。",
+	"type": "module",
+	"scripts": {
+		"dev": "nitro dev",
+		"build": "nitro build --preset=cloudflare_module",
+		"deploy": "pnpm build && cd .output && cf deploy",
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit",
+		"prepare": "nitro prepare"
+	},
+	"devDependencies": {
+		"nitro": "3.0.260610-beta",
+		"typescript": "^5.9.3",
+		"vitest": "^3.2.4"
+	},
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
+	}
+}
