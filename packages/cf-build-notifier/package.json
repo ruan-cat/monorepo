@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "nitro dev",
-		"build": "nitro build --preset=cloudflare_module",
+		"build": "nitro build",
 		"deploy": "pnpm build && cd .output && cf deploy",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit",
@@ -15,11 +15,15 @@
 	"devDependencies": {
 		"nitro": "3.0.260610-beta",
 		"typescript": "^5.9.3",
-		"vitest": "^3.2.4"
+		"vitest": "^3.2.4",
+		"wrangler": "^4.151.1"
 	},
 	"author": {
 		"name": "ruan-cat",
 		"email": "1219043956@qq.com",
 		"url": "https://github.com/ruan-cat"
+	},
+	"dependencies": {
+		"mimetext": "^3.0.28"
 	}
 }
