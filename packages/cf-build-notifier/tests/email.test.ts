@@ -1,5 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { buildEmailContent, buildMimeMessage, checkEmailConfig, DEFAULT_FROM_ADDRESS } from "../server/notifier/email";
+import {
+	buildEmailContent,
+	buildMimeMessage,
+	checkEmailConfig,
+	DEFAULT_FROM_ADDRESS,
+	FROM_DISPLAY_NAME,
+} from "../server/notifier/email";
 import type { BuildEventSummary, NotifierEnv } from "../server/notifier/types";
 
 const summary: BuildEventSummary = {
@@ -82,10 +88,17 @@ describe("DEFAULT_FROM_ADDRESS", () => {
 	});
 });
 
+describe("FROM_DISPLAY_NAME", () => {
+	test("显示名为 cloudflare-build-error", () => {
+		expect(FROM_DISPLAY_NAME).toBe("cloudflare-build-error");
+	});
+});
+
 describe("buildMimeMessage", () => {
-	test("raw MIME 包含收发件人地址", () => {
+	test("From 头携带 cloudflare-build-error 显示名与裸地址", () => {
 		const content = buildEmailContent(summary, "");
 		const raw = buildMimeMessage("builds@ruan-cat.com", "1219043956@qq.com", content);
+		expect(raw).toContain("From: cloudflare-build-error <builds@ruan-cat.com>");
 		expect(raw).toContain("builds@ruan-cat.com");
 		expect(raw).toContain("1219043956@qq.com");
 	});

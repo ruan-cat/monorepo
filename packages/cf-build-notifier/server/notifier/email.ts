@@ -18,6 +18,14 @@ import type { BuildEventSummary, EmailContent, NotifierEnv } from "./types";
 /** 默认发件地址，发送域 ruan-cat.com 已是 Email Routing 托管域（MX 实证） */
 export const DEFAULT_FROM_ADDRESS = "builds@ruan-cat.com";
 
+/**
+ * 发件人显示名（MIME From 头）。
+ *
+ * envelope MAIL FROM 必须是裸地址（EmailMessage 构造参数），
+ * 显示名仅存在于 MIME From 头，供收件箱列表直观识别告警来源。
+ */
+export const FROM_DISPLAY_NAME = "cloudflare-build-error";
+
 /** 发送前置检查，返回错误描述；null 表示配置齐备 */
 export function checkEmailConfig(env: NotifierEnv | undefined | null): string | null {
 	if (!env) {
@@ -68,7 +76,7 @@ function encodeSubject(subject: string): string {
 /** 手工构造 raw MIME 邮件（纯文本单 part；正文 base64 传输，规避换行与编码问题） */
 export function buildMimeMessage(from: string, to: string, content: EmailContent): string {
 	const lines = [
-		`From: ${from}`,
+		`From: ${FROM_DISPLAY_NAME} <${from}>`,
 		`To: ${to}`,
 		`Subject: ${encodeSubject(content.subject)}`,
 		"MIME-Version: 1.0",
