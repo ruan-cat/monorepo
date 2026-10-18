@@ -3,6 +3,9 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 main = "./.output/server/index.mjs"
 
+# 关闭 Preview URLs，对齐 skill-router-mcp 的 previews_enabled=false 语义
+preview_urls = false
+
 [vars]
 NOTIFY_EMAIL_FROM = "builds@ruan-cat.com"
 
@@ -20,6 +23,3 @@ queue = "builds-event-subscriptions"
 [observability]
 enabled = true
 head_sampling_rate = 1
-
-# 关闭 Preview URLs，对齐 skill-router-mcp 的 previews_enabled=false 语义
-preview_urls = false
