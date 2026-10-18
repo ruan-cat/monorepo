@@ -179,6 +179,9 @@ importers:
       '@prettier/plugin-oxc':
         specifier: ^0.1.3
         version: 0.1.4
+      '@ruan-cat/cf-build-notifier':
+        specifier: workspace:^
+        version: link:packages/cf-build-notifier
       '@ruan-cat/claude-notifier':
         specifier: workspace:^
         version: link:packages/claude-notifier
@@ -547,6 +550,18 @@ importers:
       vue-tsc:
         specifier: ^2.2.12
         version: 2.2.12(typescript@5.9.3)
+
+  packages/cf-build-notifier:
+    devDependencies:
+      nitro:
+        specifier: 3.0.260610-beta
+        version: 3.0.260610-beta(@vercel/blob@2.3.0)(chokidar@5.0.0)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(lru-cache@11.5.2)(rollup@4.63.3)(vite@6.4.3(@types/node@22.19.15)(jiti@2.7.0)(less@4.9.1(supports-color@10.2.2))(sass-embedded@1.104.1)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))(wrangler@4.122.0)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@edge-runtime/vm@3.2.0)(@types/debug@4.1.13)(@types/node@22.19.15)(@vitest/ui@3.2.7)(jiti@2.7.0)(jsdom@29.1.1)(less@4.9.1(supports-color@10.2.2))(sass-embedded@1.104.1)(sass@1.104.1)(supports-color@10.2.2)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/claude-notifier:
     dependencies:
@@ -966,7 +981,7 @@ importers:
         version: 22.19.15
       '@types/rollup-plugin-visualizer':
         specifier: ^5.0.3
-        version: 5.0.3(rollup@4.63.3)
+        version: 5.0.3(rolldown@1.2.8)(rollup@4.63.3)
       automd:
         specifier: ^0.4.3
         version: 0.4.3
@@ -14950,7 +14965,7 @@ snapshots:
     dependencies:
       '@types/node': 22.19.15
 
-  '@types/rollup-plugin-visualizer@5.0.3(rollup@4.63.3)':
+  '@types/rollup-plugin-visualizer@5.0.3(rolldown@1.2.8)(rollup@4.63.3)':
     dependencies:
       rollup-plugin-visualizer: 5.14.0(rolldown@1.2.8)(rollup@4.63.3)
     transitivePeerDependencies:

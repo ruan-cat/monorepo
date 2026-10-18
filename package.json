@@ -56,6 +56,7 @@
 		"@antfu/eslint-config": "^5.4.1",
 		"@changesets/cli": "^2.30.0",
 		"@prettier/plugin-oxc": "^0.1.3",
+		"@ruan-cat/cf-build-notifier": "workspace:^",
 		"@ruan-cat/claude-notifier": "workspace:^",
 		"@ruan-cat/commitlint-config": "workspace:^",
 		"@ruan-cat/domains": "workspace:^",
