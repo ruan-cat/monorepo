@@ -145,3 +145,48 @@ T1 / T2 / T3 相互独立可并行实施；T4 必须收口验证；T5/T6 依赖 
 - [ ] README 与线上实配一致（Root=/、wrangler deploy、includes 三项）
 - [ ] 实施报告 + 记忆沉淀完成
 - [ ] Phase B 序列经用户逐项确认后执行
+
+---
+
+## 七、修正记录：Workers Paid 付费墙与免费邮件路径（2026-10-18 深夜）
+
+> 触发：用户在 Dashboard「电子邮件服务 > 电子邮件发送（Beta）」页面撞上 Workers Paid 付费墙。
+> 用户拍板：走免费邮件路径（不开 Workers Paid）。
+
+### 7.1 付费墙事实（官方文档实锤）
+
+| 事实                                                                                                                                                | 来源                                                                                          |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
+| Email Sending（结构化发送、onboard 发送域）**需要 Workers Paid**（$5/月）                                                                           | Dashboard 实况 + Pricing 页："Sending to arbitrary recipients requires the Workers Paid plan" |
+| **发到"已验证目标地址"（verified destination addresses）在所有计划免费**，不占月配额、不占日限额，"including when only Email Routing is configured" | Pricing + Limits 页原文                                                                       |
+| 目标地址验证：Dashboard > Compute > Email Service > Email Routing > Destination Addresses → 添加 → 收验证邮件点确认                                 | Email routing addresses 页                                                                    |
+
+**场景匹配**：通知 Worker 只发用户自己的固定收件邮箱 = verified destination address 场景，零成本。
+
+### 7.2 ruan-cat.com DNS 现状核实（DoH 只读查询，2026-10-18）
+
+- MX：`route1.mx.cloudflare.net (70)` / `route3.mx.cloudflare.net (79)` / `route2.mx.cloudflare.net (80)`
+- SPF：`v=spf1 include:_spf.mx.cloudflare.net ~all`
+- **结论：Email Routing 已启用**（Cloudflare 已接管 MX），无切换风险，免费路径前提全部满足。
+
+### 7.3 技术修正清单（待用户命令实施）
+
+| #   | 项                       | 原方案（Paid）                                  | 免费路径修正                                                                                                          |
+| :-- | :----------------------- | :---------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| 1   | wrangler.toml send_email | `[[send_email]]` 仅 name                        | 加 `destination_addresses = ["<已验证收件邮箱>"]`（restricted 形态）                                                  |
+| 2   | 发送 API                 | 结构化 `env.EMAIL.send({to,from,subject,text})` | MIME 形态：`env.EMAIL.send(new EmailMessage(from, to, mimeRaw))`，`EmailMessage` 来自 `cloudflare:email` runtime 模块 |
+| 3   | MIME 构造                | 无                                              | `mimetext`（官方文档示例同款）新增 dependency                                                                         |
+| 4   | 用户人工前置             | Onboard 发件域 + API token                      | ~~Onboard 发送域~~ 取消；改为：验证收件邮箱（Email Routing > Destination Addresses）+ API token 不变                  |
+| 5   | NOTIFY_EMAIL_TO          | 任意邮箱                                        | 必须是已验证的目标地址                                                                                                |
+| 6   | 发件地址                 | builds@ruan-cat.com（onboard 域）               | 不变——ruan-cat.com 已是 routing domain，可直接作发件域                                                                |
+
+**新增待验证点**：
+
+- R5（中）：`cloudflare:email` runtime 模块在 nitro/rolldown 打包下能否正确 external + 类型声明来源（@cloudflare/workers-types 的 declare module 或手写 d.ts）。
+- R6（低）：mimetext 在 workers 运行时的兼容性（官方 reply 示例同款，风险低；备选手写最小 MIME）。
+
+### 7.4 修订后 Phase B 前置（用户侧，全部免费）
+
+1. ~~Onboard 发件域 ruan-cat.com~~ → **取消**（Email Routing 已启用）
+2. **验证收件邮箱**：Email Routing > Destination Addresses → 添加收件邮箱 → 收验证邮件点确认（提供给我的地址将写入 binding destination_addresses 与 NOTIFY_EMAIL_TO）
+3. 创建构建 API token（Workers Builds Configuration: Read + Workers Scripts: Read）——不变
