@@ -10,6 +10,7 @@ packages:
 
 allowBuilds:
   "@parcel/watcher": true
+  core-js-pure: false
   esbuild: true
   simple-git-hooks: true
   vitepress-carbon: true
