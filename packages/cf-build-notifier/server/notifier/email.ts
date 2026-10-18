@@ -5,10 +5,14 @@
  * （verified destination addresses），官方明文免费、不占 Workers Paid 配额。
  * 发送 API 为 MIME 形态：env.EMAIL.send(new EmailMessage(from, to, raw))。
  *
+ * MIME 手工构造：本 Worker 只发纯文本单 part 邮件，无需 mimetext 依赖
+ * （其 node:os 引用会触发部署校验 10021 错误——node:os 不被
+ * nodejs_compat 部署校验白名单接受，实测 node:buffer 可用）。
+ *
  * @see https://developers.cloudflare.com/email-routing/email-workers/
  */
 
-import { createMimeMessage } from "mimetext";
+import { Buffer } from "node:buffer";
 import type { BuildEventSummary, EmailContent, NotifierEnv } from "./types";
 
 /** 默认发件地址，发送域 ruan-cat.com 已是 Email Routing 托管域（MX 实证） */
@@ -56,14 +60,24 @@ export function buildEmailContent(summary: BuildEventSummary, logTail: string): 
 	return { subject, text: sections.join("\n") };
 }
 
-/** 由结构化内容构造 raw MIME 邮件（纯函数，mimetext 负责头编码与分节） */
+/** RFC 2047 B-encoding：非 ASCII 主题必须编码，避免裸 UTF-8 头注入 */
+function encodeSubject(subject: string): string {
+	return `=?UTF-8?B?${Buffer.from(subject, "utf8").toString("base64")}?=`;
+}
+
+/** 手工构造 raw MIME 邮件（纯文本单 part；正文 base64 传输，规避换行与编码问题） */
 export function buildMimeMessage(from: string, to: string, content: EmailContent): string {
-	const message = createMimeMessage();
-	message.setSender({ addr: from });
-	message.setRecipient(to);
-	message.setSubject(content.subject);
-	message.addMessage({ contentType: "text/plain", data: content.text });
-	return message.asRaw();
+	const lines = [
+		`From: ${from}`,
+		`To: ${to}`,
+		`Subject: ${encodeSubject(content.subject)}`,
+		"MIME-Version: 1.0",
+		"Content-Type: text/plain; charset=utf-8",
+		"Content-Transfer-Encoding: base64",
+		"",
+		Buffer.from(content.text, "utf8").toString("base64"),
+	];
+	return lines.join("\r\n");
 }
 
 export async function sendBuildFailureEmail(env: NotifierEnv, content: EmailContent): Promise<void> {

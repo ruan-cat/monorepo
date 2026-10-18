@@ -13,7 +13,9 @@ import { defineNitroConfig } from "nitro/config";
 export default defineNitroConfig({
 	preset: "cloudflare_module",
 	compatibilityDate: {
-		cloudflare: "2024-09-19",
+		// nodejs_compat v2（完整 node: 模块支持）自 2024-09-23 起生效；
+		// mimetext 引用 node:os，日期早于该值会导致部署校验 10021 报错
+		cloudflare: "2024-09-23",
 	},
 	serverDir: "server",
 	imports: false,

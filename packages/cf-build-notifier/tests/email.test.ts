@@ -96,12 +96,15 @@ describe("buildMimeMessage", () => {
 		expect(raw).toMatch(/Subject:\s*=\?UTF-8\?/i);
 	});
 
-	test("纯文本正文包含关键元数据", () => {
+	test("纯文本正文 base64 解码后包含关键元数据", () => {
 		const content = buildEmailContent(summary, "line-1");
 		const raw = buildMimeMessage("builds@ruan-cat.com", "1219043956@qq.com", content);
-		expect(raw).toContain("demo-worker");
-		expect(raw).toContain("build-uuid-001");
-		expect(raw).toContain("line-1");
-		expect(raw).toContain("text/plain");
+		expect(raw).toContain("Content-Type: text/plain; charset=utf-8");
+		expect(raw).toContain("Content-Transfer-Encoding: base64");
+		const body = raw.split("\r\n\r\n")[1] ?? "";
+		const decoded = Buffer.from(body, "base64").toString("utf8");
+		expect(decoded).toContain("demo-worker");
+		expect(decoded).toContain("build-uuid-001");
+		expect(decoded).toContain("line-1");
 	});
 });
