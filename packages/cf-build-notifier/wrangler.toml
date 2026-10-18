@@ -1,0 +1,22 @@
+name = "cf-build-notifier"
+compatibility_date = "2024-09-19"
+compatibility_flags = ["nodejs_compat"]
+main = "./.output/server/index.mjs"
+
+[vars]
+NOTIFY_EMAIL_FROM = "builds@ruan-cat.com"
+
+# Cloudflare Email Service 发送 binding（restricted 形态）
+# 免费路径：仅可发送到已验证目标地址（verified destination addresses），
+# 官方明文免费、不占 Workers Paid 配额。收件邮箱变更时需同步修改。
+[[send_email]]
+name = "EMAIL"
+allowed_destination_addresses = ["1219043956@qq.com"]
+
+# 消费 Workers Builds 事件订阅投递的队列
+[[queues.consumers]]
+queue = "builds-event-subscriptions"
+
+[observability]
+enabled = true
+head_sampling_rate = 1

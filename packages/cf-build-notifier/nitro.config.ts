@@ -1,16 +1,17 @@
-import { defineConfig } from "nitro";
+import { defineNitroConfig } from "nitro/config";
 
 /**
  * Cloudflare Workers Builds 失败通知 Worker 配置。
  *
- * - preset 由 build 命令指定：`nitro build --preset=cloudflare_module`
- * - `cloudflare.deployConfig: true` 时 Nitro 在构建时自动生成 `.output/wrangler.json`
- * - `cloudflare.wrangler` 与 wrangler.json 同类型，queues.consumers 与 send_email
- *   binding 在此注入，随构建产物一并生成
+ * - preset 内置于配置（build 命令无需 --preset 传参）
+ * - 部署配置（name/vars/send_email/queues/observability）的单一事实源是
+ *   包根 wrangler.toml，nitro 构建时读取并合并进 .output/server/wrangler.json，
+ *   并生成 .wrangler/deploy/config.json 重定向，wrangler deploy 自动跟随
  *
  * @see https://nitro.build/deploy/providers/cloudflare
  */
-export default defineConfig({
+export default defineNitroConfig({
+	preset: "cloudflare_module",
 	compatibilityDate: {
 		cloudflare: "2024-09-19",
 	},
@@ -20,22 +21,8 @@ export default defineConfig({
 		deployConfig: true,
 		nodeCompat: true,
 		wrangler: {
-			// Worker 名称，与 Cloudflare 账号下部署名一致
+			// Worker 名称，与 Cloudflare 账号下部署名一致；其余部署配置见 wrangler.toml
 			name: "cf-build-notifier",
-			// 消费 Workers Builds 事件订阅投递的队列
-			queues: {
-				consumers: [
-					{
-						queue: "builds-event-subscriptions",
-					},
-				],
-			},
-			// Cloudflare Email Service 结构化发送 binding
-			send_email: [
-				{
-					name: "EMAIL",
-				},
-			],
 		},
 	},
 });
