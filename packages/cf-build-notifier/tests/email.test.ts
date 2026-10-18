@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { buildEmailContent, checkEmailConfig, DEFAULT_FROM_ADDRESS } from "../server/notifier/email";
+import { buildEmailContent, buildMimeMessage, checkEmailConfig, DEFAULT_FROM_ADDRESS } from "../server/notifier/email";
 import type { BuildEventSummary, NotifierEnv } from "../server/notifier/types";
 
 const summary: BuildEventSummary = {
@@ -79,5 +79,29 @@ describe("buildEmailContent", () => {
 describe("DEFAULT_FROM_ADDRESS", () => {
 	test("默认发件地址位于 ruan-cat.com 域", () => {
 		expect(DEFAULT_FROM_ADDRESS).toBe("builds@ruan-cat.com");
+	});
+});
+
+describe("buildMimeMessage", () => {
+	test("raw MIME 包含收发件人地址", () => {
+		const content = buildEmailContent(summary, "");
+		const raw = buildMimeMessage("builds@ruan-cat.com", "1219043956@qq.com", content);
+		expect(raw).toContain("builds@ruan-cat.com");
+		expect(raw).toContain("1219043956@qq.com");
+	});
+
+	test("中文主题被 RFC 2047 编码而非裸 UTF-8 注入", () => {
+		const content = buildEmailContent(summary, "");
+		const raw = buildMimeMessage("builds@ruan-cat.com", "1219043956@qq.com", content);
+		expect(raw).toMatch(/Subject:\s*=\?UTF-8\?/i);
+	});
+
+	test("纯文本正文包含关键元数据", () => {
+		const content = buildEmailContent(summary, "line-1");
+		const raw = buildMimeMessage("builds@ruan-cat.com", "1219043956@qq.com", content);
+		expect(raw).toContain("demo-worker");
+		expect(raw).toContain("build-uuid-001");
+		expect(raw).toContain("line-1");
+		expect(raw).toContain("text/plain");
 	});
 });

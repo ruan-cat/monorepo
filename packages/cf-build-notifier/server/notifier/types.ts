@@ -68,18 +68,14 @@ export interface BuildLogsResponse {
 // Worker 运行时 Env（wrangler secret / vars + send_email binding）
 // =============================================================================
 
-/** Cloudflare Email Service 结构化发送 payload */
-export interface EmailPayload {
-	to: string | string[];
-	from: string;
-	subject: string;
-	text?: string;
-	html?: string;
-}
-
-/** send_email binding 的结构化发送接口 */
+/**
+ * send_email binding（MIME 形态）。
+ *
+ * 免费路径（restricted binding）使用 cloudflare:email 的 EmailMessage 实例，
+ * 运行时类型无法静态导入，此处以 unknown 承载，构造逻辑见 email.ts。
+ */
 export interface SendEmailBinding {
-	send(payload: EmailPayload): Promise<unknown>;
+	send(message: unknown): Promise<unknown>;
 }
 
 export interface NotifierEnv {
