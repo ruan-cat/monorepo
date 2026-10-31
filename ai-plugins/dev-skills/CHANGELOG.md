@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [11.1.0] - 2026-10-31
+
+### Changed
+
+- **use-agent-browser**：`metadata.version` `1.2.0` -> `1.3.0`。
+- use-agent-browser 补齐 MCP 传输层故障指导：三岔口分流、四层超时模型、并发隔离与状态文件取证。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `11.1.0`。
+
 ## [11.0.0] - 2026-10-15
 
 ### Changed
