@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [11.2.0] - 2026-10-31
+
+### Changed
+
+- **init-shadcn-docs-nuxt**：`metadata.version` `1.6.1` -> `1.7.0`。
+- 新增 unstorage 1.17.6 key 校验事故（R46-R51 定案）：description 触发词、历史事故强约束第 23 条、故障检修入口信号句与 incident-repair 事故 C 节同步落地。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `11.2.0`。
+
 ## [11.1.0] - 2026-10-31
 
 ### Changed
