@@ -12,7 +12,7 @@ description: >-
   web debugging, Windows startup-failure fallbacks, or MCP transport-failure triage.
 user-invocable: true
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # use-agent-browser
@@ -97,7 +97,7 @@ agent-browser close                    # 任务结束必须收口
 4. **daemon EOF 处置**：先 `doctor` / `close` / 重启会话；EOF 后子命令偶然成功不算可靠流程，不得作为标准路径记录。
 5. **typed MCP 长时间无响应**（曾实证等待 300 秒超时）：记录失败路径后立即切换证据来源，不重复等待。
 
-## 传输层故障三岔口（MCP 全灭时）
+## 传输层故障三岔口（MCP 全灭时）（2026-10-31 固化）
 
 MCP 工具族全线 30s 超时属于传输层故障，与启动失败是两类场景：此时 Chrome/CDP 层可能完全健康、守护进程可能已被新实例接管。分流前先建立四层超时模型，禁止把 30s 硬顶当成 agent-browser 的配置问题。
 
@@ -117,6 +117,12 @@ MCP 工具族全线 30s 超时属于传输层故障，与启动失败是两类�
 3. **CDP 直连兜底**：自起 headless Chrome（固定 `--remote-debugging-port` + 独立 profile）+ Node 22 内置 WebSocket 直连，或 `--cdp <port>` 接管。
 
 完整决策树、sidecar 状态文件取证配方、版本与 Chrome 复用、上游已知问题见 `references/transport-failure-triage.md`。
+
+## 技能资产边界（2026-10-31 确立）
+
+- 全局 `agent-browser` 技能（`~/.agents/skills/agent-browser/SKILL.md`）源自上游 `vercel-labs/agent-browser`，由 `~/.agents/.skill-lock.json` 锁定追踪；`~/.zcode/skills/**` 由 ZCode 自己管理。这些是上游/宿主资产，**禁止直接修改**——升级时会被覆盖，且会污染上游分发。
+- 一切故障经验、操作纪律、补丁内容只能沉淀在**本技能（use-agent-browser）**内，随本仓发布链分发与升级。
+- 同理，当本技能已覆盖某主题时，禁止再新建本地级（项目 `.agents/skills/`）重复技能层——避免双源漂移。
 
 ## 等待与稳定性策略
 
