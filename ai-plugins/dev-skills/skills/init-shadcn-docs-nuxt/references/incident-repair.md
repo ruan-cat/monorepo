@@ -273,3 +273,32 @@ pnpm exec nuxi build --logLevel=verbose
 2. **content 升级（2.13.9→2.14.1）不能规避**——失败写入在 Nuxt 生成 renderer，与 content 版本无关。
 3. **Nuxt 4 迁移**：该校验维度天然免疫，但 **content runtime 的「构建全绿 + Content API 全空集合」阻断独立存在**（与 unstorage 校验无关、机理未归因）——Nuxt 4 迁移 ≠ 解脱，升级后必须对 Content query 做**响应体内容断言**（HTTP 200 不足为证）。
 4. 验收纪律：`[unstorage] Invalid key` 是**硬红**（build exit 1）；但同一依赖态在 Nuxt 4 是**假绿**（build 全绿 + 数据全空）——两个世代的表现形态完全不同，跨世代诊断必须先确认 renderer 世代。
+
+`构建全绿 + 内容库为空`的独立机理已于同日定案为 F50（buildDir 错位）——见下文事故 D。
+
+## 事故 D：Nuxt 4 buildDir 改写 × content v2 预热目录错位 ⇒ 快照读空 ⇒ 生产内容库为空（2026-10-31 R52 代码级定案，F50）
+
+**信号**：build exit 0、Prerendered 全绿（页面渲染成功）、但生产/产物运行时 Content API 全空集合（`contents: []` / `documentCount: 0` / `navigation: []`）；产物 `nitro:bundled:cache:content:*` 资产**零条**；`.nuxt/content-cache/parsed/*` 停留预热裸 markdown、缺 `content-index.json`。
+
+**早期判别（构建后一条命令，无需启动）**：
+
+```bash
+grep -c "nitro:bundled:cache:content" apps/docs/.output/server/chunks/_/nitro.mjs
+# Nuxt 3 正常 = 5 条；Nuxt 4 错位 = 0 条 → F50 中招
+```
+
+**机理（插桩实测）**：Nuxt 4 把主 bundle nitro 实例的 buildDir 改写为 `node_modules/.cache/nuxt/.nuxt`（Nuxt 3 恒 `.nuxt`）；content 的 `devStorage["cache:content"].base` 由 `nuxt.options.buildDir` 解析（module.mjs:261-264）→ 随实例错位；`build:before` 预热（写 source 原文到 parsed/*——**设计行为**）落在旧目录；主 bundle `_snapshot`（buildProduction 内、rollup 前）读新目录空 → bundled 零条；prerender 期 `content:source` 挂载指向绝对路径 `content/` 不受错位影响 → 页面渲染成功（假绿）；运行时 `setItem` 回写目标目录不存在 → 被 `storage.js:163` 的 `.catch(() => {})` 吞。
+
+**插桩定位法**（nuxt.config.ts `nitro:init` 钩子）：
+
+```ts
+async "nitro:init"(nitro) {
+  const dev = nitro.options.devStorage;
+  console.log(`buildDir=${nitro.options.buildDir} cacheBase=${JSON.stringify(dev["cache:content"])}`);
+  console.log(`keys=${JSON.stringify(await nitro.storage.getKeys("/cache/content"))}`);
+}
+```
+
+双实例 base 不一致（一个 `.nuxt/content-cache`、一个 `node_modules/.cache/nuxt/.nuxt/content-cache`）即错位实锤。
+
+**处置**：升级 Nuxt 4 前先跑早判命令；中招后向上游反馈（[nuxt/nuxt#36792](https://github.com/nuxt/nuxt/issues/36792) 的 F50 评论）——修复方向 = content 的预热/devStorage 对齐 nitro 实际 buildDir，或 nuxt 不让 buildDir 在模块 setup 与实例间分叉；本仓无用户侧规避（payloadExtraction 只解 F48 不解 F50）。验收纪律：升级后 Content query 必须**响应体内容断言**（HTTP 200 不足为证）。

@@ -7,12 +7,12 @@ description: >-
   `shadcn-docs-nuxt` 文档站，快速建立可运行、可构建、可维护的 Nuxt 文档底座，或排查配置复杂化、
   模块兼容、Nuxt Content/H3 版本漂移、prerender、SSR externalization、MDC 语法错误、
   Windows 构建假卡死等故障。触发词包括“搭建组件库文档”“接入 shadcn-docs-nuxt”“重做 Nuxt 文档站”、
-  “迁移文档模板”以及 Content cache/search API 500、`ERR_INVALID_URL`、`sendError` 导出缺失、
+  “迁移文档模板”以及 Content cache/search API 500、`contents: []`、`ERR_INVALID_URL`、`sendError` 导出缺失、
   `entities/decode`、`FUNCTION_INVOCATION_FAILED`、`[unstorage] Invalid key`、Vercel `READY` 但请求失败、`rolldown@nightly` 解析失败、
   `@vueuse/core`、`registerMessageResolver`、`prerender:routes` 等错误信号。
 user-invocable: true
 metadata:
-  version: "1.7.0"
+  version: "1.8.0"
 ---
 
 # 初始化 `shadcn-docs-nuxt` 组件库文档
@@ -103,11 +103,13 @@ metadata:
 22. **构建期平台二进制警告先验证再定性，且禁用 traceInclude**：`sharp binaries cannot be found` 不一定是缺依赖——nitro `trace: false` 下追踪目录必然为空；先验证 sharp 可加载性再定性。**任何平台都勿配置 `traceInclude: ["sharp"]`**（Vercel linux 生产实机证伪：nft emitDependency 对 resolve 出的伪路径抛硬错误，构建失败）。→ 见 [`references/dependency-triage.md`](references/dependency-triage.md)
 23. **unstorage 1.17.6 的 key 校验是 nitro ≥2.13.5 的世代边界（2026-10-31 R46-R51 代码级实证）**：`[unstorage] Invalid key: "/"` 在 **Nuxt 3 世代** = prerender 500——content v2 根路由 payload 键 `"/"` 被 1.17.6 `prefixStorage.itemKey` 校验拒绝（`normalizeKey("/")` 归空串）；**Nuxt 4 世代键形态天然合法**（写入迁入 `getPayloadCacheKey` → `"/.json"`）。规避：root override 钉 `unstorage` 1.17.5（全保真）或 `experimental.payloadExtraction: false`（调用点消除）；content 升级不能规避。**Nuxt 4 迁移不免疫 content runtime 的「构建全绿 + 内容库为空」阻断**（独立机理，与该校验无关）。→ 见 [`references/incident-repair.md`](references/incident-repair.md) 事故 C
 
+**✝️ 2026-10-31 机理定案（R52）**：该「独立机理」= **F50——Nuxt 4 把主 bundle nitro 实例的 buildDir 改写为 `node_modules/.cache/nuxt/.nuxt`**，content 的 `devStorage` base 随实例错位 ⇒ `_snapshot` 读空 ⇒ bundled 零条 ⇒ 生产内容库为空。早期判别：构建后 `grep -c "nitro:bundled:cache:content" .output/server/chunks/_/nitro.mjs`（N3 正常 = 5 条 / N4 错位 = 0 条）。上游已提交 [nuxt/nuxt#36792](https://github.com/nuxt/nuxt/issues/36792)。→ 见 [`references/incident-repair.md`](references/incident-repair.md) 事故 D
+
 ---
 
 ## 故障检修入口（命中信号后必须执行）
 
-当出现 Content cache/search API `500`、`ERR_INVALID_URL`、`[unstorage] Invalid key`、H3 `sendError` 导出缺失、
+当出现 Content cache/search API `500`、构建全绿但 Content API 返回空集合（`contents: []`）、`ERR_INVALID_URL`、`[unstorage] Invalid key`、H3 `sendError` 导出缺失、
 `entities/decode` 或 `@vueuse/core` 缺包、`registerMessageResolver`、Nitro prerender 失败、
 `page._id` 为空、Windows 构建长时间无输出等信号时，**先读取**
 [`references/incident-repair.md`](references/incident-repair.md)，再修改配置或内容。

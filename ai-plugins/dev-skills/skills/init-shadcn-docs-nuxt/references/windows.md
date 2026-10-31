@@ -187,6 +187,12 @@ pnpm install
 
 ---
 
+## 产物内 symlink 的平台形态（2026-10-31 R53 实证）
+
+Windows 构建的 `.output/server/node_modules/` 内 symlink 指向**构建机绝对路径**（如 `css-tree -> /d/code/…/.nitro/css-tree@2.3.1`，110 字节），Linux 同位为**相对路径**（`css-tree -> .nitro/css-tree@2.3.1`，21 字节）——与「`trace:false` 产物依赖写成 `file://` 构建机绝对路径」（R22）同族：**Windows 构建产物内的链接类引用默认不可移植，换机启动即断**。默认 trace + 本机/同机运行不触发（绝对路径自洽）；生产部署构建在云端 Linux，不经 Windows 产物。workspace 包（`@repro/*`）**零产物 symlink**——被 bundle 内联，`.output/server/node_modules/@repro/` 双平台均不存在（R38 关注的风险面在产物内不存在）。
+
+---
+
 ## 综合排查流程
 
 当 Windows 环境下出现构建或安装异常时，按以下顺序：
