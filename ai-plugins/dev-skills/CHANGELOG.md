@@ -4,6 +4,15 @@
 
 ## [Unreleased]
 
+## [11.5.0] - 2026-10-31
+
+### Changed
+
+- **use-agent-browser**：`metadata.version` `1.4.0` -> `1.5.0`。
+- use-agent-browser 1.5.0：固化 dev server 等待语义（open 发射后探针、禁强杀）、遮挡处置与延迟健康基线，新增案例 9 与多版本共存归属判定
+
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `11.5.0`。
+
 ## [11.4.0] - 2026-10-31
 
 ### Changed
