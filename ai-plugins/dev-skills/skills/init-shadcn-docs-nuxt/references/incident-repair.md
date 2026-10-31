@@ -73,13 +73,14 @@ hooks: {
 
 ## 其他高价值信号
 
-| 信号                                        | 第一检查点                                  |
-| ------------------------------------------- | ------------------------------------------- |
-| `entities/decode` 缺失                      | `entities` 多版本与 trace 产物              |
-| `@vueuse/core` 缺失                         | workspace 包是否被 Vite SSR externalize     |
-| `registerMessageResolver is not a function` | `@intlify/*` 多版本与 workspace overrides   |
-| `.nuxt` 缺失或 `#app-manifest` 异常         | `predev`/`prebuild` 是否执行 `nuxt prepare` |
-| MDC marker 裸文本                           | MDC 语法与 Prettier 是否改写了 content      |
+| 信号                                        | 第一检查点                                                           |
+| ------------------------------------------- | -------------------------------------------------------------------- |
+| `entities/decode` 缺失                      | `entities` 多版本与 trace 产物                                       |
+| `@vueuse/core` 缺失                         | workspace 包是否被 Vite SSR externalize                              |
+| `registerMessageResolver is not a function` | `@intlify/*` 多版本与 workspace overrides                            |
+| `.nuxt` 缺失或 `#app-manifest` 异常         | `predev`/`prebuild` 是否执行 `nuxt prepare`                          |
+| MDC marker 裸文本                           | MDC 语法与 Prettier 是否改写了 content                               |
+| `[unstorage] Invalid key: "/"`              | nitro ≥2.13.5（unstorage 1.17.6）× content v2 根路由键，见下文事故 C |
 
 ## 事故 A：Nuxt 3 / H3 v1 的版本失配链
 
@@ -254,3 +255,21 @@ pnpm exec nuxi build --logLevel=verbose
 - “当前固定基线已验证”不等于“Nuxt 4 候选线已验证”。
 - “本地 Windows 构建成功”不等于“Linux/Vercel 生产成功”。
 - “`prerender:routes` 历史 workaround 存在”不等于“它适合 document-driven Content 默认使用”。
+
+## 事故 C：unstorage 1.17.6 key 校验 × content v2 根路由键（2026-10-31 R46-R51 代码级定案）
+
+**信号**：prerender 期 `[unstorage] Invalid key: "/"` → `[request error] [unhandled] [GET] http://localhost/` → 500 → `Errors prerendering` → build exit 1。失败路由固定从 `/` 开始（Linked from 子页面）。
+
+**机理（字节级实锤）**：
+
+- `unstorage@1.17.6`（**nitro ≥2.13.5 的传递依赖**）给 `prefixStorage` 新增 `itemKey(key)` 校验：`if (!normalizeKey(key)) throw`，而 `normalizeKey("/")` → `":"` → `""` ⇒ falsy ⇒ `"/"` 被判非法；**1.17.5 无任何校验**。
+- **Nuxt 3 世代**：生成 renderer（`.nuxt/prerender/chunks/_/renderer.mjs:390`）的 payload 抽取写入键 = 内联三元 `ssrContext.url === "/" ? "/" : …` ⇒ 根路由键 = `"/"` ⇒ **prerender 500**（报错栈 `renderer.mjs:390:22`）。同文件 `:382` 的 payload 直渲路由键（如 `/guide/_payload.json`）合法——失败只在根路由的抽取写入。
+- **Nuxt 4 世代（≥4.6.3）**：payload 写入实现迁入 `nuxt/dist/runtime/server/renderer/index.js` 的 `getPayloadCacheKey(url)`（`"/" + … + ".json"`）⇒ 根路由键 = **`"/.json"`** ⇒ 同一校验**通过**；`@nuxt/nitro-server@4.6.3` 的 renderer 模板仅剩 27 行薄壳（`createNuxtRenderer("nuxt/internal/renderer")`），payload 内联逻辑消失。
+- content runtime（2.13.9/2.14.1）**自 import 的 unstorage 为 1.17.5（无校验）**⇒ 其 `storage.js:163` 的 `.catch(() => {})` 吞的**不是** `Invalid key`——「Nuxt 4 下该校验被吞导致内容库空」是错误归因。
+
+**处置**：
+
+1. **Nuxt 3 + nitro ≥2.13.5**：root override 钉 `unstorage: 1.17.5`（全保真、唯一语义零代价路径；nitro 未来升级须重评）或 `experimental.payloadExtraction: false`（调用点消除——prerender 11→7 路由、4 个 `_payload.json` 消失、SSR 完好）。
+2. **content 升级（2.13.9→2.14.1）不能规避**——失败写入在 Nuxt 生成 renderer，与 content 版本无关。
+3. **Nuxt 4 迁移**：该校验维度天然免疫，但 **content runtime 的「构建全绿 + Content API 全空集合」阻断独立存在**（与 unstorage 校验无关、机理未归因）——Nuxt 4 迁移 ≠ 解脱，升级后必须对 Content query 做**响应体内容断言**（HTTP 200 不足为证）。
+4. 验收纪律：`[unstorage] Invalid key` 是**硬红**（build exit 1）；但同一依赖态在 Nuxt 4 是**假绿**（build 全绿 + 数据全空）——两个世代的表现形态完全不同，跨世代诊断必须先确认 renderer 世代。
