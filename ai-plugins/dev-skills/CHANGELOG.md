@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [11.4.0] - 2026-10-31
+
+### Changed
+
+- **init-shadcn-docs-nuxt**：`metadata.version` `1.7.0` -> `1.8.0`。
+- init-shadcn-docs-nuxt 升级 1.8.0：F50 buildDir 错位机理定案与一条命令早判，R53 产物内 symlink 平台形态
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `11.4.0`。
+
 ## [11.3.0] - 2026-10-31
 
 ### Changed
