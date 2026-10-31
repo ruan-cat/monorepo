@@ -73,3 +73,12 @@
 - **有效修复**：按三岔口分流——①只读取证（`~/.agent-browser/{session}.pid/.port` + `Get-NetTCPConnection` 查端口归属）；②CLI 探活（`--help` 不依赖 daemon，`doctor --offline --quick`）；③CDP 直连兜底（固定 `--remote-debugging-port` 自起 headless Chrome + Node 22 内置 WebSocket，或 `--cdp <port>` 接管），全部验收由此完成。
 - **验证方式**：CDP 通道完成全部页面验收且截图经人工判读；分流每步命令与输出留有记录；工件标注「MCP 通道不可用、以 CDP 证据为准」。
 - **后续约束**：MCP 工具 30s 被杀是宿主行为，包内链路允许到 120s——不要在 MCP 通道内调超时救硬顶；升级到 0.41.0 并先 `doctor`（旧 daemon 可能仍在服役，读 `{session}.version` sidecar 判断）；任务前核查版本不低于 0.41.0；冷启动 dev server 先 `curl -s -m 5` 探活再 open。完整决策树与取证配方见 `transport-failure-triage.md`。
+
+## 案例 9：dev server 上 open 挂起，强杀后会话 EOF（2026-10-31）
+
+- **现象**：`agent-browser open http://localhost:8080/`（VitePress dev）挂起 2 分钟以上不返回；强杀该 CLI 进程后，同会话后续命令报 `✗ Invalid response: EOF while parsing a value at line 1 column 0`。换新会话名后 `open` 依旧挂起，但 `get url` / `get title` 秒回且页面标题正确。
+- **根因**：两层叠加——①VitePress dev 页面因 HMR 长连接，`open` 内部 load/networkidle 等待不收敛，命令挂起但页面早已加载；②强杀 CLI 进程把会话状态写坏，该会话所有命令 EOF。EOF 是会话状态损坏，不是 daemon 死亡（daemon 进程与端口监听全程正常）。
+- **关键误导点**：①把 open 挂起当成页面没加载，反复等它返回；②强杀卡住的命令「图省事」；③EOF 后误判 daemon 死亡想去杀 daemon——实测 `doctor` 全绿（Launch test 1.01s pass）证明新建链路健康，坏的只是现存会话状态。
+- **有效修复**：open 采用「发射后不等待」姿势——发射后直接 `get title` / `snapshot -i` 探针确认加载（实测 3.8s 内就绪）再操作；已损坏的会话用 `close --session <name>` 关闭后换新会话名重开即愈，无需杀 daemon。
+- **验证方式**：新会话完成「snapshot 定位悬浮按钮 → click → 面板展开 → 关闭」全闭环；`get title` 返回正确页面标题。
+- **后续约束**：dev server 页面一律「发射 open → 探针确认」两段式，禁止干等 open 返回、禁止强杀卡住的 open；EOF 处置顺序仍为 `doctor`（判新建链路）→ `close`（重建会话）→ 新会话名重开。延迟健康基线：预热 2~~5s、稳态每命令 0.5~~1s，超过 30s 无返回按三岔口分流。

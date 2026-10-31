@@ -12,7 +12,7 @@ description: >-
   web debugging, Windows startup-failure fallbacks, or MCP transport-failure triage.
 user-invocable: true
 metadata:
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # use-agent-browser
@@ -34,11 +34,11 @@ SKILL.md 只保留入口纪律；以下参考文件按需加载，全部位于�
 | `references/transport-failure-triage.md`   | 传输层故障三岔口：四层超时模型、三层进程拓扑、MCP 全灭分流决策树（只读取证 → CLI 探活 → CDP 兜底）、状态文件取证、版本与 Chrome 复用、open 前探活、上游已知问题 | MCP 工具全线超时、CLI 连不上 daemon，或升级版本前后排查时 |
 | `references/verification-templates.md`     | 验收与报告模板：视觉验证报告、生产验收八要素、流式四状态、smoke→矩阵→fullscreen 节奏、三层验收链路、验证口径、证据 supersede、工件登记、截图命名                | 需要产出验收记录或写报告时                                |
 | `references/acceptance-discipline.md`      | 验收纪律：四层 checkpoint 会话分层与时间盒、失败边界止损表、常见合理化借口、Red Flags、提交前证据落盘门禁                                                       | 规划验收节奏，或失败后判断是否止损时                      |
-| `references/cases-windows-startup.md`      | 案例集：exit code 3、分离诊断、CDP 接管、headless 降级、Chrome 连接器、typed MCP 超时、实例可用性预检                                                           | Windows 启动/连接失败分流时                               |
+| `references/cases-windows-startup.md`      | 案例集：exit code 3、分离诊断、CDP 接管、headless 降级、Chrome 连接器、typed MCP 超时、实例可用性预检、dev server open 挂起与强杀 EOF                           | Windows 启动/连接失败分流时                               |
 | `references/cases-evidence-misjudgment.md` | 案例集：加载≠视觉、截图时机、快照≠截图、READY/200/保护页、console 第一信号、流式部分成功、单样本外推、归档缺图、URL 改写、移动视口门禁                          | 下验收结论前自检证据强度时                                |
 | `references/cases-waiting-animation.md`    | 案例集：headless CPU 炸弹、动画冻结无效、load 不可靠、等待策略表、SSR 诊断链、WebGL 假象                                                                        | 被测页面含动画/SSR/WebGL 时                               |
 | `references/cases-shell-tooling.md`        | 案例集：PowerShell eval 脏文件、@eN 引号、`--` 透传、set viewport 命令名、wait 写法时效、参数固化、hash 路由入口形态                                            | shell 层写法存疑或 eval 失败时                            |
-| `references/cases-process-governance.md`   | 案例集：进程拓扑与 prewarm 池、循环批量卡死、登记红线、清理边界、归属误判、配置≠拉起、三态归属                                                                  | 涉及进程归属、残留或清理决策时                            |
+| `references/cases-process-governance.md`   | 案例集：进程拓扑与 prewarm 池、循环批量卡死、登记红线、清理边界、归属误判、配置≠拉起、三态归属、多版本共存 daemon 归属                                          | 涉及进程归属、残留或清理决策时                            |
 
 ## 不可跳过纪律
 
@@ -69,6 +69,10 @@ agent-browser close                    # 任务结束必须收口
 - 每次导航后：等待 → 读标题 → 再操作，不连续盲操作。
 - 视觉判定必须将目标元素滚动到视口后截图并实际查看；`naturalWidth`、资源加载数只证明加载状态。
 - 命令细节与配方模板见 `references/command-cookbook.md`。
+
+**dev server 等待语义（2026-10-31 实证）**：VitePress / Nuxt 等 dev server 页面因 HMR 长连接，`open` 与 `wait --load networkidle` 的完成判定可能永不收敛——命令挂起但页面早已加载。正确姿势：发射 `open` 后不等待其返回，直接 `get title` / `snapshot -i` 探针确认加载状态再操作。**禁止强杀卡住的 open 进程**：强杀会损坏会话状态，后续命令全部报 EOF；用 `close --session <name>` 重建会话即愈。
+
+延迟健康基线（2026-10-31 实测）：会话预热（daemon 拉起 + Chrome 启动 + 首帧）约 2~~5s 一次性成本；稳态每条命令（snapshot / click / get title）约 0.5~~1s。命令明显超过 30s 无返回即按「传输层故障三岔口」分流，不算正常延迟。
 
 ## 会话、profile 与登录态
 
@@ -166,26 +170,28 @@ MCP 工具族全线 30s 超时属于传输层故障，与启动失败是两类�
 
 ## 常见错误对照表
 
-| 错误做法                                   | 修正方式                                                       |
-| :----------------------------------------- | :------------------------------------------------------------- |
-| 改写用户给定 URL 后访问                    | 原样打开；失败后按证据提出替代路径                             |
-| 只用 `naturalWidth` 判定视觉通过           | scrollintoview + 视口截图 + 实际查看                           |
-| doctor 失败就断定页面有问题                | 分离诊断：最小探针验证现存会话                                 |
-| 同一启动命令反复重试 5 次以上              | 失败 ≥2 次切换降级链                                           |
-| PowerShell 里拼复杂 inline eval            | 简单命令或 stdin / base64；事后 git status 复查                |
-| 未固定视口、未等动画就截图下结论           | 先 set viewport，按等待策略表执行                              |
-| 动画大屏用 headless 跑像素对比             | 强制可见浏览器；先 smoke 再矩阵                                |
-| 把 Vercel READY / 预览域名保护页当应用证据 | 生产域名 + 浏览器实操作为证据                                  |
-| 任务结束不 close、不复查端口               | close + 复查端口/PID/profile/临时截图                          |
-| 截图直接写进仓库                           | 默认临时目录，版本化需用户确认                                 |
-| 把一个环境压进一次复合长跑                 | 按四层 checkpoint 分段，层间只保存结构化状态                   |
-| 控制面故障时另开 session 拼接              | 同 session 一次恢复，否则标记 `blocked`                        |
-| 只用 axe 扫描就宣称无障碍通过              | 补语义树快照 + 真实键盘与焦点读数                              |
-| MCP 工具超时后反复重试                     | 停止重试，按三岔口分流：只读取证 → CLI 探活 → CDP 兜底         |
-| MCP 超时就先杀 daemon                      | daemon 可能被并发会话使用且会被新实例接管；粘死点在 MCP 传输层 |
-| 多会话共用默认 default 会话                | `--session` / `AGENT_BROWSER_NAMESPACE` 隔离                   |
-| 对冷启动 dev server 直接 open              | 先 `curl -s -m 5` 探活；open 后 `wait --load networkidle`      |
-| 凭记忆使用 0.41.0 新旗标                   | 先 `agent-browser --help` / `skills get core` 核对再写         |
+| 错误做法                                   | 修正方式                                                                      |
+| :----------------------------------------- | :---------------------------------------------------------------------------- |
+| 改写用户给定 URL 后访问                    | 原样打开；失败后按证据提出替代路径                                            |
+| 只用 `naturalWidth` 判定视觉通过           | scrollintoview + 视口截图 + 实际查看                                          |
+| doctor 失败就断定页面有问题                | 分离诊断：最小探针验证现存会话                                                |
+| 同一启动命令反复重试 5 次以上              | 失败 ≥2 次切换降级链                                                          |
+| PowerShell 里拼复杂 inline eval            | 简单命令或 stdin / base64；事后 git status 复查                               |
+| 未固定视口、未等动画就截图下结论           | 先 set viewport，按等待策略表执行                                             |
+| 动画大屏用 headless 跑像素对比             | 强制可见浏览器；先 smoke 再矩阵                                               |
+| 把 Vercel READY / 预览域名保护页当应用证据 | 生产域名 + 浏览器实操作为证据                                                 |
+| 任务结束不 close、不复查端口               | close + 复查端口/PID/profile/临时截图                                         |
+| 截图直接写进仓库                           | 默认临时目录，版本化需用户确认                                                |
+| 把一个环境压进一次复合长跑                 | 按四层 checkpoint 分段，层间只保存结构化状态                                  |
+| 控制面故障时另开 session 拼接              | 同 session 一次恢复，否则标记 `blocked`                                       |
+| 只用 axe 扫描就宣称无障碍通过              | 补语义树快照 + 真实键盘与焦点读数                                             |
+| MCP 工具超时后反复重试                     | 停止重试，按三岔口分流：只读取证 → CLI 探活 → CDP 兜底                        |
+| MCP 超时就先杀 daemon                      | daemon 可能被并发会话使用且会被新实例接管；粘死点在 MCP 传输层                |
+| 多会话共用默认 default 会话                | `--session` / `AGENT_BROWSER_NAMESPACE` 隔离                                  |
+| 对冷启动 dev server 直接 open              | 先 `curl -s -m 5` 探活；open 后 `wait --load networkidle`                     |
+| dev server 页面干等 open 返回              | 发射后用 get title / snapshot 探针；强杀 open 损坏会话（EOF），close 重建即愈 |
+| 点击报 covered 后反复盲试同一引用          | 读错误里的遮挡元素名，Escape / 点外部 / 等动画收起遮挡物，重新 snapshot 再点  |
+| 凭记忆使用 0.41.0 新旗标                   | 先 `agent-browser --help` / `skills get core` 核对再写                        |
 
 ## 完成自检清单
 

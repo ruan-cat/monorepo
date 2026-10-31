@@ -64,3 +64,12 @@
 - **有效修复**：归属判定用三态：`current`（有明确归属证据）/ `not-current`（有明确非归属证据）/ `unknown`（证据不足）；`unknown` 只审计不清理。
 - **验证方式**：清理决策仅落在 `current` 且已确认空闲的实例上，重采样确认结果。
 - **后续约束**：证据缺失时降低置信度而不是补一个结论；「宁可不清理，不可误清理」。
+
+## 案例 8：多版本共存 daemon 的归属判定（2026-10-31）
+
+- **现象**：会话内测试收口后仍剩 23 个 chrome.exe；其中一棵 Chrome 树（headless、临时 profile `agent-browser-chrome-*`）的父 daemon 二进制路径为 `agent-browser@0.35.2`，而当前 CLI 明明是 0.41.0。
+- **根因**：多版本共存——用户全局 CLI（pnpm global 新目录 0.41.0）与宿主 MCP server 捆绑的 agent-browser（旧目录 0.35.2）可各自拉起 daemon；残留旧 daemon 会持有端口、sidecar 状态文件与 Chrome 树。本次旧 daemon 在本次会话开始前就存在（状态文件时间戳早于首个 open），非会话产物。
+- **关键误导点**：按「进程名 + 数量」把所有 agent-browser/Chrome 进程当成自己的残留；或反向「我 close 过了=机器上没有 agent-browser 进程」。
+- **有效修复**：归属判定看进程 **CommandLine 里的二进制完整路径**（含版本号目录）+ 状态文件时间戳 + PPID 链三证据；`close` 后核对自身会话 daemon pid 已消失，幸存树逐个溯源到非归属 daemon 即标记 not-current，不动。
+- **验证方式**：本次两个会话 daemon（0.41.0）close 后均消失；幸存 Chrome 根的父 daemon 路径实证为 0.35.2 旧目录——归因为宿主侧常驻，零误杀。
+- **后续约束**：升级 CLI 后旧版本 daemon 可能仍在服役（呼应 `cases-windows-startup.md` 案例 8 的「旧 daemon 服役」），先读 `{session}.version` sidecar 与二进制路径再判归属；宿主 MCP 侧常驻 daemon 不是本技能清理目标。
