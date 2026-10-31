@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [11.3.0] - 2026-10-31
+
+### Changed
+
+- **use-agent-browser**：`metadata.version` `1.3.0` -> `1.4.0`。
+- 固化传输层故障三岔口日期标记并新增技能资产边界声明
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `11.3.0`。
+
 ## [11.2.0] - 2026-10-31
 
 ### Changed
