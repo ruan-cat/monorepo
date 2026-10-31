@@ -42,9 +42,14 @@ agent-browser close                     # 任务结束必须收口
 agent-browser --session <name> open <URL>                          # 命名会话
 agent-browser --session <name> --restore open <URL>                # 启动并恢复状态
 agent-browser session id --scope worktree --prefix <app>           # 稳定的 worktree 作用域会话 ID
+AGENT_BROWSER_SESSION=<name> agent-browser open <URL>              # 环境变量设定当前 shell 默认会话
+agent-browser --namespace <task> open <URL>                        # 隔离 daemon socket 与恢复状态目录（或 AGENT_BROWSER_NAMESPACE）
 agent-browser --profile <name> open <URL>                          # 复用用户 Chrome profile（涉及用户数据，先授权）
+agent-browser profiles                                             # 列出可用 Chrome profile
 ```
 
+- 并发隔离纪律：默认 `default` 会话全机共享（CLI 自带 core 技能明言），多 agent / 多会话并发必须用 `--session` 或 `--namespace` / `AGENT_BROWSER_NAMESPACE` 隔离，杜绝守护进程争用与页面互踩。
+- 复用现成浏览器（0.41.0 起）：`--executable-path <path>`（或 `AGENT_BROWSER_EXECUTABLE_PATH`）指定浏览器可执行文件；`--auto-connect` 接管已运行 Chrome；`--profile <name|path>` 复用登录态或持久化自定义 profile。MCP 形态下 `--executable-path`、`--allowed-domains`、`--args`、`--config` 等全局旗标必须在 MCP server 的环境变量或 config 中设置，工具 `extraArgs` 会拒绝。
 - Chrome 连接器模式（连接用户本机 Chrome）：需要 Chrome 扩展 + Native Messaging 就绪；Chrome 未运行时返回 "Browser is not available"——等待用户打开 Chrome 或明确授权，不得擅自拉起用户浏览器。
 - 无头/自动化环境与会话：本机接管的实例必须登记端口、profile 目录、PID 与关闭策略（见案例集 `cases-process-governance.md`）。
 
@@ -74,10 +79,16 @@ agent-browser connect 9222
 
 # 配方 C：追加启动参数 —— 自动启动 exit code 3 / 无 DevToolsActivePort 时
 agent-browser --args "--no-sandbox" open <URL>
+
+# 配方 D：复用现成浏览器 —— 不依赖自带下载 Chrome / 接管已运行 Chrome（0.41.0 起）
+agent-browser --executable-path "C:\Program Files\Google\Chrome\Application\chrome.exe" open <URL>
+agent-browser --auto-connect snapshot
 ```
 
 - 动画密集页面（GSAP / Three.js / ECharts 循环动画）禁止使用配方 B：JS 驱动动画在无头模式以最高帧率运行，会打满 CPU。
 - Chrome 安装路径因机器而异，以 `agent-browser doctor` 输出为准。
+- 版本纪律：任务前 `agent-browser --version` 核查不低于 0.41.0（旧版本处于上游「守护进程静默挂起」行为段）；升级后读 `~/.agent-browser/{session}.version` sidecar 确认旧 daemon 是否仍在服役，先 `doctor` 再开新会话。
+- MCP 工具族全线 30s 超时的传输层故障分流（只读取证 → CLI 探活 → CDP 兜底）见 `transport-failure-triage.md`。
 
 ## 5. 等待配方
 
@@ -151,17 +162,19 @@ agent-browser --session <name> console --clear
 
 ## 8. 常见命令速查
 
-| 命令                                    | 用途                                       |
-| :-------------------------------------- | :----------------------------------------- |
-| `open <URL>`                            | 打开页面（URL 原样）                       |
-| `snapshot -i`                           | 可访问性快照 + @eN 引用                    |
-| `click / fill / select / press @eN`     | 元素交互                                   |
-| `scrollintoview @eN`                    | 元素滚入视口（截图前必做）                 |
-| `set viewport <w> <h>`                  | 设置视口（带空格，不是 set-viewport）      |
-| `screenshot [name]`                     | 截图（默认落系统临时目录）                 |
-| `wait --load networkidle` / `wait 1000` | 条件等待 / 固定等待                        |
-| `get title / url / count / attr`        | 细粒度读取探针                             |
-| `eval "expr"`                           | 页面内脚本（复杂脚本走 stdin/base64 入口） |
-| `--session <name> --restore`            | 命名会话与状态恢复                         |
-| `--cdp <port>` / `connect <port>`       | CDP 接管 / 连接已有浏览器                  |
-| `doctor` / `upgrade` / `close`          | 诊断 / 升级 / 收口                         |
+| 命令                                    | 用途                                               |
+| :-------------------------------------- | :------------------------------------------------- |
+| `open <URL>`                            | 打开页面（URL 原样）                               |
+| `snapshot -i`                           | 可访问性快照 + @eN 引用                            |
+| `click / fill / select / press @eN`     | 元素交互                                           |
+| `scrollintoview @eN`                    | 元素滚入视口（截图前必做）                         |
+| `set viewport <w> <h>`                  | 设置视口（带空格，不是 set-viewport）              |
+| `screenshot [name]`                     | 截图（默认落系统临时目录）                         |
+| `wait --load networkidle` / `wait 1000` | 条件等待 / 固定等待                                |
+| `get title / url / count / attr`        | 细粒度读取探针                                     |
+| `eval "expr"`                           | 页面内脚本（复杂脚本走 stdin/base64 入口）         |
+| `--session <name> --restore`            | 命名会话与状态恢复                                 |
+| `--namespace <name>`                    | 隔离 daemon socket 与恢复状态目录（并发必备）      |
+| `--executable-path` / `--auto-connect`  | 指定浏览器可执行文件 / 接管已运行 Chrome（0.41.0） |
+| `--cdp <port>` / `connect <port>`       | CDP 接管 / 连接已有浏览器                          |
+| `doctor` / `upgrade` / `close`          | 诊断 / 升级 / 收口                                 |

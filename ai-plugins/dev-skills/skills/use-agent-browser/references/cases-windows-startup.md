@@ -64,3 +64,12 @@
 - **有效修复**：依赖浏览器实例前先做可用性预检（`agent-browser doctor`、实例/会话列表、最小探针）；不可用时改用等价工具完成本轮验收，并显式记录环境限制。
 - **验证方式**：替代路径完成验收且「插件不可用」的限制被写入工件，后续会话不再盲目依赖。
 - **后续约束**：把可用性预检纳入 smoke 第一步；「改用替代工具」的决策与原因必须记录（对齐案例 6 的切换纪律）。
+
+## 案例 8：MCP 传输层全线 30s 超时，跨 daemon 换血不自愈
+
+- **现象**：MCP 工具族（open / tab_list / get_url）对任何调用一律报 `timed out after 30000ms`，显式传 `timeoutMs=120000` 仍被忽略；期间守护进程死亡（旧 pid 消失）后被新实例接管同一端口，MCP 依旧超时。同一时刻 CLI 报 `os error 10061/10060`（daemon 死亡窗口），而自起 headless Chrome + CDP 直连的导航、求值、截图全部成功。
+- **根因**：四层超时叠加——宿主 MCP 工具调用 30s 硬顶（参数不可调）× 首次 open 目标是冷启动 dev server（首屏超出 30s 窗口）× 并发会话共享默认 `default` 守护进程 × 0.35.2 处于上游「守护进程静默挂起」行为段且故障窗口内发生 Chrome 二进制在线下载切换。粘死点在本会话 MCP stdio 传输层，与 daemon、Chrome 层无关。
+- **关键误导点**：把「MCP 30s 超时」当成 agent-browser 配置问题去调包内超时；反复重试 MCP（每次白耗 30s）；MCP 超时就先杀 daemon——实测 daemon 会被新实例接管且可能正被并发会话使用，杀了也不解决 MCP 层粘死。
+- **有效修复**：按三岔口分流——①只读取证（`~/.agent-browser/{session}.pid/.port` + `Get-NetTCPConnection` 查端口归属）；②CLI 探活（`--help` 不依赖 daemon，`doctor --offline --quick`）；③CDP 直连兜底（固定 `--remote-debugging-port` 自起 headless Chrome + Node 22 内置 WebSocket，或 `--cdp <port>` 接管），全部验收由此完成。
+- **验证方式**：CDP 通道完成全部页面验收且截图经人工判读；分流每步命令与输出留有记录；工件标注「MCP 通道不可用、以 CDP 证据为准」。
+- **后续约束**：MCP 工具 30s 被杀是宿主行为，包内链路允许到 120s——不要在 MCP 通道内调超时救硬顶；升级到 0.41.0 并先 `doctor`（旧 daemon 可能仍在服役，读 `{session}.version` sidecar 判断）；任务前核查版本不低于 0.41.0；冷启动 dev server 先 `curl -s -m 5` 探活再 open。完整决策树与取证配方见 `transport-failure-triage.md`。
