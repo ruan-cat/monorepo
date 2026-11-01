@@ -4,15 +4,19 @@ description: >-
   规范化使用 agent-browser（AI 浏览器自动化 CLI/MCP）完成页面打开、元素交互、截图取证与 Web 调试：
   安装与 doctor 诊断、open/snapshot/@ref 工作流、等待与视口策略、Windows 启动失败降级链
   （--no-sandbox、CDP 接管、headless 连接）、MCP 传输层故障三岔口分流（只读取证 → CLI 探活 → CDP 兜底）、
-  四层超时模型、并发会话与 namespace 隔离、浏览器复用与版本核查、截图证据规范与进程收口。
-  当需要打开网页、浏览器自我验收、视觉验证、E2E 冒烟、前端页面调试、登录态操作，
-  或用户提到 agent-browser、agent browser、浏览器自动化、snapshot 截图取证，
+  四层超时模型、并发会话与 namespace 隔离、浏览器复用与版本核查、截图证据规范与进程收口、
+  可视化默认（config headed 有头）、仿人指针 --input-mode human、highlight 元素高亮、
+  tab 聚合（--pin-tab 单窗口多 tab / session=窗口）。
+  当需要打开网页、浏览器自我验收、视觉验证、E2E 冒烟、前端页面调试、登录态操作、
+  想让 agent 的浏览器「可见、光标会动、元素高亮、标签聚合」，
+  或用户提到 agent-browser、agent browser、浏览器自动化、snapshot 截图取证、可视化有头浏览器，
   或遇到 MCP 浏览器工具全线超时、agent-browser 连接失败时使用。
   Use when driving the agent-browser CLI/MCP for browser acceptance, visual verification,
+  headed/visible defaults, human-like pointer movement, tab aggregation,
   web debugging, Windows startup-failure fallbacks, or MCP transport-failure triage.
 user-invocable: true
 metadata:
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 
 # use-agent-browser
@@ -39,6 +43,7 @@ SKILL.md 只保留入口纪律；以下参考文件按需加载，全部位于�
 | `references/cases-waiting-animation.md`    | 案例集：headless CPU 炸弹、动画冻结无效、load 不可靠、等待策略表、SSR 诊断链、WebGL 假象                                                                        | 被测页面含动画/SSR/WebGL 时                               |
 | `references/cases-shell-tooling.md`        | 案例集：PowerShell eval 脏文件、@eN 引号、`--` 透传、set viewport 命令名、wait 写法时效、参数固化、hash 路由入口形态                                            | shell 层写法存疑或 eval 失败时                            |
 | `references/cases-process-governance.md`   | 案例集：进程拓扑与 prewarm 池、循环批量卡死、登记红线、清理边界、归属误判、配置≠拉起、三态归属、多版本共存 daemon 归属                                          | 涉及进程归属、残留或清理决策时                            |
+| `references/midscene-boundary.md`          | 与 VLM 方案的边界：什么场景才值得引入 Midscene 这类 VLM 驱动工具，本技能为何坚持零模型调用                                                                      | 用户问「要不要上 Midscene / 视觉模型」时                  |
 
 ## 不可跳过纪律
 
@@ -55,15 +60,18 @@ SKILL.md 只保留入口纪律；以下参考文件按需加载，全部位于�
 ## 标准工作流
 
 ```log
-agent-browser open <URL>
-agent-browser wait --load networkidle
-agent-browser get title                # 防 404：读标题确认页面真实加载
-agent-browser snapshot -i              # 交互快照，取 @eN 元素引用
-agent-browser click @e1                # 或 fill @e2 "text"、select、press
-agent-browser wait 1000                # 固定等待用裸毫秒参数，不是 --time
-agent-browser screenshot <task-prefix>-<step>.png
-agent-browser eval "简单表达式"
-agent-browser close                    # 任务结束必须收口
+# 差异化约定：--input-mode 无 config/env 通道（每 session 首条命令必带；粘性未验证，重要交互命令可重复带，幂等无成本）；--session 非粘性，必须每条命令都带
+# （也可先 export AGENT_BROWSER_SESSION=<task> 一次性生效；--namespace 同理按需每条带或走 env）
+agent-browser --session <task> --input-mode human open <URL>
+# 档位 A（单窗口多 tab 聚合）改用：--session <task> --cdp 9222 --pin-tab --input-mode human open <URL>
+agent-browser --session <task> wait --load networkidle
+agent-browser --session <task> get title                # 防 404：读标题确认页面真实加载
+agent-browser --session <task> snapshot -i              # 交互快照，取 @eN 元素引用
+agent-browser --session <task> click @e1                # 或 fill @e2 "text"、select、press
+agent-browser --session <task> wait 1000                # 固定等待用裸毫秒参数，不是 --time
+agent-browser --session <task> screenshot <task-prefix>-<step>.png
+agent-browser --session <task> eval "简单表达式"
+agent-browser --session <task> close                    # 任务结束必须收口
 ```
 
 - 每次导航后：等待 → 读标题 → 再操作，不连续盲操作。
@@ -76,11 +84,75 @@ agent-browser close                    # 任务结束必须收口
 
 ## 会话、profile 与登录态
 
+**开工绑定（一次性，减少逐行手写）**：新任务第一条命令前先绑定会话，此后同一 shell 内漏写 `--session` 也不会掉回全机共享的 `default`。
+
+```log
+export AGENT_BROWSER_SESSION=<task>            # bash / Git Bash
+$env:AGENT_BROWSER_SESSION = "<task>"          # PowerShell
+```
+
+- **显式旗标照旧保留**：`agent-browser --help` 的 Configuration 块明文给出 4 层优先级（低 → 高）——`~/.agent-browser/config.json` < 项目级 `./agent-browser.json` < 环境变量 < CLI 旗标。env 可作开工绑定的默认值，但跨终端 / 子进程调用时不会跟随，建议每条命令仍带 `--session` 作双保险。
+- **收工核对**：`agent-browser --session <task> close` 之后，复查 `~/.agent-browser/` 下本会话的 `.pid` / `.port` 已释放，确认没把 `default` 会话留在运行态。
+
 - 命名会话：`--session <name>`；恢复状态：`--session <name> --restore`；稳定会话 ID：`agent-browser session id --scope worktree --prefix <app>`。
 - 并发隔离：多 agent / 多会话并发时，除 `--session` 外可用 `--namespace <name>`（或 `AGENT_BROWSER_NAMESPACE` 环境变量）隔离 daemon socket 与恢复状态目录；默认 `default` 会话全机共享，禁止并发共用。
 - 复用用户 Chrome profile：`--profile <name>`（涉及用户数据，先获得授权）。
 - 复用现成浏览器（0.41.0 起）：`--executable-path <path>` 指定浏览器可执行文件、`--auto-connect` 接管已运行 Chrome；MCP 形态下这些全局旗标必须在 MCP server 的环境变量或 config 中设置（`extraArgs` 会被拒绝）。避免任务中途触发 Chrome 在线下载切换（监控 `~/.agent-browser/browsers/`），需要固定来源时用 `--executable-path` 钉死。
 - Chrome 连接器模式（用户本机 Chrome + 扩展 + Native Messaging）：Chrome 未运行时连接器返回 "Browser is not available"——等待用户打开 Chrome 或明确授权启动，不得擅自拉起用户浏览器。
+
+## 可视化与标签聚合（默认有头 + 仿人指针 + tab 聚合）（2026-11-01 固化）
+
+**一次配置、永久有头（config 化）**：`~/.agent-browser/config.json` 写 `{"headed": true}`，此后所有会话默认可见窗口。优先级链（低 → 高）：user 级 `~/.agent-browser/config.json` < 项目级 `./agent-browser.json` < 环境变量 < CLI 旗标。**项目级 `./agent-browser.json` 只接受白名单键**（`headed` / `json` / `debug` / `userAgent` / `hideScrollbars` / `annotate` / `colorScheme` / `maxOutput` / `screenshotQuality` / `screenshotFormat` / `idleTimeout`）；`executablePath` / `args` / `plugins` 写进项目级会被**忽略并告警**，需要写全量键时写在 user 级、或用 `--config <path>` 显式加载（`--config` 指向缺失/非法文件会直接报错退出，实测 exit=1）。键名 camelCase；未知键静默忽略；可加 `"$schema": "https://agent-browser.dev/schema.json"` 获得 IDE 补全。等价环境变量 `AGENT_BROWSER_HEADED=1`；临时覆盖用 `--headed` / `--headed false`。Windows 上有头走**交互桌面**（headless 走私有桌面），且**有头会话豁免 daemon 空闲回收**，不会看着看着被回收。
+
+**仿人指针 `--input-mode human`（无 config/env 通道；粘性未验证）**：
+
+- 取值 `instant`（默认）/ `smooth` / `human`；`human` = 真实指针平滑仿人移动（弯曲路径），肉眼可见光标在动。
+- **写进 config.json 无效**（三重证据：官方 schema `https://agent-browser.dev/schema.json` 无 `inputMode` 键且 `additionalProperties: true`；`AGENT_BROWSER_INPUT_MODE` 环境变量不存在；实测写入未知键被静默忽略）。必须**每个会话首条命令**带上，重要交互命令可重复带。
+- **粘性未验证**：`--help` 对 `--input-mode` 只写 `Session pointer movement: instant (default), smooth, human`，**未标注 sticky**（对比 `--pin-tab` 明确写「Sticky per session」）；会话内是否记忆该值外部不可观测。执行上按「每个 session 首条命令必带」处理，重要交互命令上可重复带（幂等、零成本），**不要依赖粘性**。
+- 与 core 技能里的**逐命令** `--human`（如 `click @e1 --human`、`drag … --human`）不是一回事：本节的 `--input-mode human` 是会话级默认指针模式。
+- 该旗标在版本匹配的 `skills get core` 内 0 记载（文档薄区），语义以 `agent-browser --help` 为最终权威。
+
+**元素高亮 `highlight`**：`agent-browser highlight <sel>` 为一次性调试命令（Debug 组），无 config/env/持续开关——需要视觉取证时逐次调用；配 `--annotate`（编号标注截图）标注给视觉模型或人看。
+
+**tab 聚合三档**（原生 Chrome 彩色 tab group 不可达：`--help` / schema / 官方文档三重 0 命中，CDP `Target.createTarget` 无 group 参数，Chrome UI 层特性 CLI 无法触达）：
+
+| 档位                                 | 形态                                              | 命令 / 配置                                                                                                                | 隔离代价                                                       | 适用场景                                |
+| :----------------------------------- | :------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------- | :-------------------------------------- |
+| **A 单窗口多 tab**（最接近分组体感） | 一台专用 Chrome 一个窗口，多 session 各钉一个 tab | 自起 Chrome（独立临时 profile + `--remote-debugging-port=9222`，登记 PID/端口负责清理）→ 每 session `--cdp 9222 --pin-tab` | cookies/storage **共享**，仅 tab 选择隔离                      | 多任务并发、希望一眼看到全部 agent 活动 |
+| **B 单任务单窗口**                   | 每 session 自带浏览器实例（默认行为）             | config `{"headed": true}` + `--session <task>`                                                                             | 无共享，隔离最干净                                             | 任务隔离优先、验收类任务                |
+| **C 用户 Chrome 内混开**             | 接管用户日常浏览器                                | `--auto-connect` / `--cdp <用户端口>`                                                                                      | tab 混入用户窗口；须授权（见上文纪律：不得擅自拉起用户浏览器） | 必须复用用户登录态时                    |
+
+- 档位 A 硬性要求：**共享 Chrome 时每 session 首条命令就必须带 `--pin-tab`**（上游 #1530：否则各会话在共享活动 tab 上互踩）；可 `AGENT_BROWSER_PIN_TAB=1` 环境变量化，或写进 config.json（schema 含 `pinTab: boolean`）。
+- `--profile <name>` 只是登录态复用，**不是分组手段**（Windows 上还要求先关掉正在运行的 Chrome）。
+- 组不了 Chrome 原生彩色分组就别假装有——需要「分组」语义时用档位 A 的窗口聚合 + tab 标题加任务前缀表达，并在记录中写明用的是哪种档位。
+- **#1348 风险（0.41.0 未验证修复）**：Windows 11 非 TTY 上下文（PowerShell `-File`、bash `2>&1` 重定向等 agent 典型调用方式）拉起 `--headed` 可能不弹窗——与「agent 自主唤起可见窗口」正面相关。首次在有头模式跑任务时先做可见性探针（窗口是否出现 / 截图；判定方法见本节「本机已落地状态」的可见性判据），不弹窗立即走兜底 `--cdp <port>` 接管你手动启动的 Chrome，不反复重试 `--headed`。
+
+**档位 A 落地配方（默认推荐：单窗口多 tab 的有头 Chrome）**
+
+```log
+# 1) 自起专属 Chrome：独立临时 profile + 固定调试端口；登记 PID / 端口 / profile 目录，收尾负责清理
+chrome.exe --user-data-dir="<临时 profile 目录>" --remote-debugging-port=9222
+
+# 2) 每个任务一个 session，首条命令就必须带 --cdp 与 --pin-tab
+#    上游 #1530：不首条带，多会话会在共享活动 tab 上互踩
+export AGENT_BROWSER_SESSION=<task>        # PowerShell: $env:AGENT_BROWSER_SESSION = "<task>"
+export AGENT_BROWSER_PIN_TAB=1             # 等价于每条命令带 --pin-tab
+agent-browser --session <task> --cdp 9222 --pin-tab --input-mode human open <URL>
+agent-browser --session <task> snapshot -i   # 之后照「标准工作流」推进
+
+# 3) 收尾三件套：close 各 session → 按登记 PID 结束本次 Chrome → 删除临时 profile 目录
+agent-browser --session <task> close
+```
+
+- 代价：同窗口各 session 的 cookies / storage **共享**，只有 tab 选择隔离；需要登录态隔离的任务改走档位 B。
+- 收尾三件套是硬性要求不是可选项：PID、端口、`user-data-dir` 必须登记在案，只关自己启动的实例。
+
+**本机已落地状态（2026-11-02）**：`~/.agent-browser/config.json` 已写入 `{"$schema":"https://agent-browser.dev/schema.json","headed":true}`，新开会话默认有头，无需再传 `--headed`。
+
+- **有头窗口存在性判据（可见与否另需桌面截图）**：主判据 = 窗口标题 + 进程列表 + 桌面截图，任一成立即认定「有头窗口存在」。`eval "document.visibilityState"` / `eval "document.hasFocus()"` **不可作为有头判据**——窗口存在但被遮挡 / 最小化 / 未聚焦时前者可能返回 `hidden`，后者只要用户切到别的应用就恒为 `false`（2026-11-02 本机已抓到反例：`MainWindowTitle` 有值，两读数分别为 `hidden` / `false`）。
+- **#1348 口径**：上述反例只能证明「存在带标题的 Chrome 顶层窗口」，**不能据此断言 #1348 未复现**——同机反例与 #1348 的表现是兼容的（窗口可能落在私有桌面，与「被遮挡 / 最小化」当前无法区分）。要闭合这个判断，需补桌面截图或 `IsWindowVisible` 级别的窗口可见性证据。
+- **headed 下 `open` 可能长挂（2026-11-02 本机实测，单次观测）**：`open https://example.com` 在 headed 会话里约 3 分 49 秒后首次输出 `✓ Example Domain`（该时刻是首条输出，**并非命令返回**），而窗口与页面早已就绪（进程 `MainWindowTitle` = `Example Domain`、`get title` 正常）。未定位根因（疑与窗口未聚焦 / 渲染节流相关），**不构成标准现象**，不要据此预期所有 headed `open` 都慢。判定「是否已加载」用窗口标题 / `get title` / 进程列表探针，不靠 `open` 是否返回；**禁止强杀挂住的 open**（损坏会话状态，后续命令报 EOF），改 `close --session` 重建。
+- 提醒：`--input-mode human` 仍无 config 通道（源码证据见上），每个 session 首条命令必须带。
 
 ## Windows 专属规则
 
@@ -170,28 +242,33 @@ MCP 工具族全线 30s 超时属于传输层故障，与启动失败是两类�
 
 ## 常见错误对照表
 
-| 错误做法                                   | 修正方式                                                                      |
-| :----------------------------------------- | :---------------------------------------------------------------------------- |
-| 改写用户给定 URL 后访问                    | 原样打开；失败后按证据提出替代路径                                            |
-| 只用 `naturalWidth` 判定视觉通过           | scrollintoview + 视口截图 + 实际查看                                          |
-| doctor 失败就断定页面有问题                | 分离诊断：最小探针验证现存会话                                                |
-| 同一启动命令反复重试 5 次以上              | 失败 ≥2 次切换降级链                                                          |
-| PowerShell 里拼复杂 inline eval            | 简单命令或 stdin / base64；事后 git status 复查                               |
-| 未固定视口、未等动画就截图下结论           | 先 set viewport，按等待策略表执行                                             |
-| 动画大屏用 headless 跑像素对比             | 强制可见浏览器；先 smoke 再矩阵                                               |
-| 把 Vercel READY / 预览域名保护页当应用证据 | 生产域名 + 浏览器实操作为证据                                                 |
-| 任务结束不 close、不复查端口               | close + 复查端口/PID/profile/临时截图                                         |
-| 截图直接写进仓库                           | 默认临时目录，版本化需用户确认                                                |
-| 把一个环境压进一次复合长跑                 | 按四层 checkpoint 分段，层间只保存结构化状态                                  |
-| 控制面故障时另开 session 拼接              | 同 session 一次恢复，否则标记 `blocked`                                       |
-| 只用 axe 扫描就宣称无障碍通过              | 补语义树快照 + 真实键盘与焦点读数                                             |
-| MCP 工具超时后反复重试                     | 停止重试，按三岔口分流：只读取证 → CLI 探活 → CDP 兜底                        |
-| MCP 超时就先杀 daemon                      | daemon 可能被并发会话使用且会被新实例接管；粘死点在 MCP 传输层                |
-| 多会话共用默认 default 会话                | `--session` / `AGENT_BROWSER_NAMESPACE` 隔离                                  |
-| 对冷启动 dev server 直接 open              | 先 `curl -s -m 5` 探活；open 后 `wait --load networkidle`                     |
-| dev server 页面干等 open 返回              | 发射后用 get title / snapshot 探针；强杀 open 损坏会话（EOF），close 重建即愈 |
-| 点击报 covered 后反复盲试同一引用          | 读错误里的遮挡元素名，Escape / 点外部 / 等动画收起遮挡物，重新 snapshot 再点  |
-| 凭记忆使用 0.41.0 新旗标                   | 先 `agent-browser --help` / `skills get core` 核对再写                        |
+| 错误做法                                    | 修正方式                                                                                                                                                                                                   |
+| :------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 改写用户给定 URL 后访问                     | 原样打开；失败后按证据提出替代路径                                                                                                                                                                         |
+| 只用 `naturalWidth` 判定视觉通过            | scrollintoview + 视口截图 + 实际查看                                                                                                                                                                       |
+| doctor 失败就断定页面有问题                 | 分离诊断：最小探针验证现存会话                                                                                                                                                                             |
+| 同一启动命令反复重试 5 次以上               | 失败 ≥2 次切换降级链                                                                                                                                                                                       |
+| PowerShell 里拼复杂 inline eval             | 简单命令或 stdin / base64；事后 git status 复查                                                                                                                                                            |
+| 未固定视口、未等动画就截图下结论            | 先 set viewport，按等待策略表执行                                                                                                                                                                          |
+| 动画大屏用 headless 跑像素对比              | 强制可见浏览器；先 smoke 再矩阵                                                                                                                                                                            |
+| 把 Vercel READY / 预览域名保护页当应用证据  | 生产域名 + 浏览器实操作为证据                                                                                                                                                                              |
+| 任务结束不 close、不复查端口                | close + 复查端口/PID/profile/临时截图                                                                                                                                                                      |
+| 截图直接写进仓库                            | 默认临时目录，版本化需用户确认                                                                                                                                                                             |
+| 把一个环境压进一次复合长跑                  | 按四层 checkpoint 分段，层间只保存结构化状态                                                                                                                                                               |
+| 控制面故障时另开 session 拼接               | 同 session 一次恢复，否则标记 `blocked`                                                                                                                                                                    |
+| 只用 axe 扫描就宣称无障碍通过               | 补语义树快照 + 真实键盘与焦点读数                                                                                                                                                                          |
+| MCP 工具超时后反复重试                      | 停止重试，按三岔口分流：只读取证 → CLI 探活 → CDP 兜底                                                                                                                                                     |
+| MCP 超时就先杀 daemon                       | daemon 可能被并发会话使用且会被新实例接管；粘死点在 MCP 传输层                                                                                                                                             |
+| 多会话共用默认 default 会话                 | `--session` / `AGENT_BROWSER_NAMESPACE` 隔离                                                                                                                                                               |
+| 对冷启动 dev server 直接 open               | 先 `curl -s -m 5` 探活；open 后 `wait --load networkidle`                                                                                                                                                  |
+| dev server 页面干等 open 返回               | 发射后用 get title / snapshot 探针；强杀 open 损坏会话（EOF），close 重建即愈                                                                                                                              |
+| 排障时随手加 `--debug` 判断卡顿             | `--debug` 在管道场景下有分钟级延迟（本机实测 `eval "1+1"` 加 `--debug` 后 4 分 32 秒才返回 `2`，不加则秒回）；会把「命令慢」误判成页面卡死/会话挂了。排障先用不加 `--debug` 的命令做基线，再决定是否开调试 |
+| 点击报 covered 后反复盲试同一引用           | 读错误里的遮挡元素名，Escape / 点外部 / 等动画收起遮挡物，重新 snapshot 再点                                                                                                                               |
+| 凭记忆使用 0.41.0 新旗标                    | 先 `agent-browser --help` / `skills get core` 核对再写                                                                                                                                                     |
+| 默认无头 + instant 指针就开始验收           | 先落 config `{"headed": true}`；每 session 首条命令带 `--input-mode human`                                                                                                                                 |
+| 把 `"inputMode": "human"` 写进 config.json  | 无效键被忽略；`--input-mode` 只能走 CLI 旗标（每 session 首条命令必带，粘性未验证，重要交互可重复带）                                                                                                      |
+| 指望 agent-browser 开 Chrome 原生彩色分组   | 不可达；用档位 A（`--cdp` + `--pin-tab` 单窗口多 tab）或档位 B（session=窗口）                                                                                                                             |
+| 共享 Chrome 时第二 session 才补 `--pin-tab` | 首条命令就必须带（上游 #1530），否则各会话互踩共享活动 tab                                                                                                                                                 |
 
 ## 完成自检清单
 
@@ -206,7 +283,11 @@ MCP 工具族全线 30s 超时属于传输层故障，与启动失败是两类�
 - 会话已 close，端口/PID/profile/临时截图已复查。
 - 整轮验收按四层 checkpoint 推进，先能力探针后核心矩阵，未把一次长跑当成整体验收。
 - 记录中区分了事实、推断与未验证项。
+- 可视化默认已固化：config `{"headed": true}` 已落（或命令显式 `--headed`），每 session 首条命令带 `--input-mode human`。
+- 已声明 tab 聚合档位（A 单窗口多 tab / B session=窗口 / C 用户 Chrome 混开），并记录对应隔离代价（A 档 cookies 共享、C 档需授权）。
+- 会话绑定已做（`AGENT_BROWSER_SESSION` env 或每条命令显式 `--session`），收工已复查 `~/.agent-browser/` 下本会话 `.pid` / `.port` 已释放。
+- 档位 A 已登记 Chrome 的 PID / 调试端口 / `user-data-dir`，并明确了 profile 目录与进程的清理责任。
 
 ## 相关文件
 
-本技能为纯文档技能，无附属脚本。参考层为 `references/` 目录（命令手册、传输层故障三岔口、验收模板、验收纪律、五组实战案例集），加载时机见「渐进式加载地图」。命令语法以 `agent-browser skills get core` 的输出为最终权威；残留进程治理见 `cleanup-agent-team-node-processes` 技能（如已安装）。
+本技能为纯文档技能，无附属脚本。参考层为 `references/` 目录（命令手册、传输层故障三岔口、验收模板、验收纪律、五组实战案例集、与 VLM 方案的边界 `midscene-boundary.md`），加载时机见「渐进式加载地图」。命令语法以 `agent-browser skills get core` 的输出为最终权威；残留进程治理见 `cleanup-agent-team-node-processes` 技能（如已安装）。
