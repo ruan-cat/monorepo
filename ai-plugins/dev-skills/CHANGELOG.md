@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [11.6.0] - 2026-11-02
+
+### Changed
+
+- **use-agent-browser**：`metadata.version` `1.5.0` -> `1.6.0`。
+- 可视化默认固化（config {"headed": true} 有头 + 有头窗口存在性判据）、仿人指针 --input-mode human（无 config/env 通道，粘性未验证）、highlight 元素高亮、tab 聚合三档与档位 A 落地配方（--cdp + 每 session 首条 --pin-tab）、会话开工绑定与收工复查、补齐 --help 明文 4 层配置优先级与项目级白名单键、headed 下 open 首帧后长挂与 --debug 管道延迟两条实测 gotcha；新增 references/midscene-boundary.md（agent-browser 零模型调用与 Midscene VLM 驱动的决策边界）
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `11.6.0`。
+
 ## [11.5.0] - 2026-10-31
 
 ### Changed

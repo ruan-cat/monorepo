@@ -226,8 +226,8 @@
       "id": "use-agent-browser",
       "plugin": "dev-skills",
       "name": "use-agent-browser",
-      "description": "规范化使用 agent-browser（AI 浏览器自动化 CLI/MCP）完成页面打开、元素交互、截图取证与 Web 调试： 安装与 doctor 诊断、open/snapshot/@ref 工作流、等待与视口策略、Windows 启动失败降级链 （--no-sandbox、CDP 接管、headless 连接）、MCP 传输层故障三岔口分流（只读取证 → CLI 探活 → CDP 兜底）、 四层超时模型、并发会话与 namespace 隔离、浏览器复用与版本核查、截图证据规范与进程收口。 当需要打开网页、浏览器自我验收、视觉验证、E2E 冒烟、前端页面调试、登录态操作， 或用户提到 agent-browser、agent browser、浏览器自动化、snapshot 截图取证， 或遇到 MCP 浏览器工具全线超时、agent-browser 连接失败时使用。 Use when driving the agent-browser CLI/MCP for browser acceptance, visual verification, web debugging, Windows startup-failure fallbacks, or MCP transport-failure triage.",
-      "version": "1.5.0",
+      "description": "规范化使用 agent-browser（AI 浏览器自动化 CLI/MCP）完成页面打开、元素交互、截图取证与 Web 调试： 安装与 doctor 诊断、open/snapshot/@ref 工作流、等待与视口策略、Windows 启动失败降级链 （--no-sandbox、CDP 接管、headless 连接）、MCP 传输层故障三岔口分流（只读取证 → CLI 探活 → CDP 兜底）、 四层超时模型、并发会话与 namespace 隔离、浏览器复用与版本核查、截图证据规范与进程收口、 可视化默认（config headed 有头）、仿人指针 --input-mode human、highlight 元素高亮、 tab 聚合（--pin-tab 单窗口多 tab / session=窗口）。 当需要打开网页、浏览器自我验收、视觉验证、E2E 冒烟、前端页面调试、登录态操作、 想让 agent 的浏览器「可见、光标会动、元素高亮、标签聚合」， 或用户提到 agent-browser、agent browser、浏览器自动化、snapshot 截图取证、可视化有头浏览器， 或遇到 MCP 浏览器工具全线超时、agent-browser 连接失败时使用。 Use when driving the agent-browser CLI/MCP for browser acceptance, visual verification, headed/visible defaults, human-like pointer movement, tab aggregation, web debugging, Windows startup-failure fallbacks, or MCP transport-failure triage.",
+      "version": "1.6.0",
       "entry": "ai-plugins/dev-skills/skills/use-agent-browser/SKILL.md"
     },
     {
