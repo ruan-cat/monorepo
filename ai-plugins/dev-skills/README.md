@@ -219,10 +219,11 @@ Codex 通过 `.codex-plugin/plugin.json` 加载本插件共享的 `skills/`。�
 
 ### use-agent-browser
 
-**版本**: `1.2.0` | **可主动调用**: 是
+**版本**: `1.6.0` | **可主动调用**: 是
 
 规范化驱动 agent-browser（Chrome/CDP 浏览器自动化 CLI/MCP）完成页面验收与调试：
 
+- **可视化默认** — config `{"headed": true}` 一次配置永久有头、`--input-mode human` 仿人指针（会话粘性）、`highlight` + `--annotate` 元素高亮、tab 聚合三档（单窗口多 tab / session=窗口 / 用户 Chrome 混开）
 - **标准工作流** — open → wait → snapshot -i → @eN 交互 → screenshot → close
 - **Windows 专章** — exit code 3 降级、`--no-sandbox`、CDP 接管本机 Chrome、headless=new 连接、PowerShell eval 纪律
 - **失败分流** — 分离诊断（新建链路 vs 现存会话）、最小探针、四级降级链
