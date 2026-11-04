@@ -63,9 +63,9 @@
 
 预估：4–8 小时。主要困难是让 node/jsdom、包级配置和根 reporters 保持边界，同时消除 workspace 的隐式发现。
 
-- [ ] 在保持 Vite 6 的前提下，把 workspace glob 收敛为显式 project 配置。
-- [ ] 为 node、jsdom、包级配置分别声明 include、setup、继承和命名。
-- [ ] 让无独立配置的包不再被隐式发现，同时保留必要的显式测试入口。
+- [x] 在保持 Vite 6 的前提下，把 workspace glob 收敛为显式 project 配置。
+- [x] 为 node、jsdom、包级配置分别声明 include、setup、继承和命名。
+- [x] 让无独立配置的包不再被隐式发现，同时保留必要的显式测试入口。
 - 验证：逐 project list/run、根命令、utils entrypoints 和 CI 等价测试。
 - 停止条件：项目发现或配置继承语义无法解释时，不升级 Vitest 4。
 

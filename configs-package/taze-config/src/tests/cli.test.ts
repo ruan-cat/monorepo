@@ -3,6 +3,12 @@ import { mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from "node
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 import { tmpdir } from "node:os";
+import { fileURLToPath } from "node:url";
+
+// CLI 产物相对本测试文件固定位于包根 dist/ 下；不能用 process.cwd() 定位——
+// 从根 vitest projects 运行时 cwd 是 monorepo 根，而不是本包目录。
+const pkgRoot = fileURLToPath(new URL("../..", import.meta.url));
+const cliPath = join(pkgRoot, "dist/cli.js");
 
 describe("CLI init command", () => {
 	let testDir: string;
@@ -43,7 +49,6 @@ describe("CLI init command", () => {
 			writeFileSync(join(testDir, "package.json"), JSON.stringify(packageJson, null, 2));
 
 			// 执行 CLI 命令
-			const cliPath = join(originalCwd, "dist/cli.js");
 			execSync(`node "${cliPath}" init --force`, { cwd: testDir });
 
 			// 验证文件是否被创建
@@ -70,7 +75,6 @@ describe("CLI init command", () => {
 			writeFileSync(join(testDir, "package.json"), JSON.stringify(packageJson, null, 2));
 
 			// 执行 CLI 命令
-			const cliPath = join(originalCwd, "dist/cli.js");
 			execSync(`node "${cliPath}" init --force`, { cwd: testDir });
 
 			// 读取更新后的 package.json
@@ -101,7 +105,6 @@ describe("CLI init command", () => {
 			writeFileSync(join(testDir, "package.json"), JSON.stringify(packageJson, null, 2));
 
 			// 执行 CLI 命令
-			const cliPath = join(originalCwd, "dist/cli.js");
 			execSync(`node "${cliPath}" init --force`, { cwd: testDir });
 
 			// 读取更新后的 package.json
@@ -143,7 +146,6 @@ describe("CLI init command", () => {
 			writeFileSync(join(packagesDir, "package.json"), JSON.stringify(subPackageJson, null, 2));
 
 			// 执行 CLI 命令
-			const cliPath = join(originalCwd, "dist/cli.js");
 			execSync(`node "${cliPath}" init --force`, { cwd: testDir });
 
 			// 读取更新后的 package.json
@@ -179,7 +181,6 @@ describe("CLI init command", () => {
 			writeFileSync(join(packagesDir, "package.json"), JSON.stringify(subPackageJson, null, 2));
 
 			// 执行 CLI 命令
-			const cliPath = join(originalCwd, "dist/cli.js");
 			execSync(`node "${cliPath}" init --force`, { cwd: testDir });
 
 			// 验证配置文件是否被创建
@@ -203,7 +204,6 @@ describe("CLI init command", () => {
 			writeFileSync(join(testDir, "package.json"), JSON.stringify(packageJson, null, 2));
 
 			// 执行 CLI 命令
-			const cliPath = join(originalCwd, "dist/cli.js");
 			execSync(`node "${cliPath}" init --force`, { cwd: testDir });
 
 			// 读取更新后的 package.json
@@ -235,7 +235,6 @@ describe("CLI init command", () => {
 			writeFileSync(join(testDir, "package.json"), JSON.stringify(packageJson, null, 2));
 
 			// 执行 CLI 命令
-			const cliPath = join(originalCwd, "dist/cli.js");
 			execSync(`node "${cliPath}" init --force`, { cwd: testDir });
 
 			// 读取更新后的 package.json
