@@ -9,6 +9,9 @@
 - pathChange（node-cjs/tools.ts）与 getRuanCatPkgInfo（node-esm/ruan-cat-pkg-info.ts）的测试 import 已迁移到现有入口；根入口导出随 755e294b node 场景拆分有意移除，未恢复。
 - 09oa.test.ts 为无 test 调用、无人引用的死文件，已删除。
 - **遗留**：useAxiosWrapper/index.test.ts 打外部黑马接口 404（外部依赖失效，非仓库契约）；该测试将继续存在于 utils project 内，验收时按既有基线外部依赖解释。
+- **CP-04 实施输入**：tests/vitest.config.ts（node，include `**/*.test.ts`）单独跑产生 77 失败（window is not defined，jsdom 需求测试被 node 误捕）；useIconEffect(59)/cleanup（20） 单独跑全绿。CP-04 必须收窄其 include 并逐 project 验证。
+- **CP-04 实施输入**：vitest 3 workspace 目录 glob 有探测怪癖（从包目录跑 vitest 向上命中根 workspace 时报 references non-existing file）；迁移为显式文件引用后自然消除。
+- vitest 3.2 的 projects `extends` 默认值未实测（官方文档基于 5.1）；CP-04 以逐 project list/run 实测为准。
 - skill-router-mcp 双轨错配：根 packages/* glob 用 vitest 3.2.7 扫其 16 个测试，包内实际用 vitest 4.1.0 + cloudflare pool 三具名配置——版本与配置双重错配，根发现必须排除。
 - release-toolkit 双轨：src/tests/*.test.ts 会被 vitest 默认 include 发现，包内又有自研 runner（tsx run-tests.ts）——同一批文件两套执行语义。
 - utils 游离测试 5 组在所有 include 之外（node-esm/scripts、disposal-auto-router、autogeneration-import-file/tests、vueuse/*/tests、tests/fix-consola-esm.test.ts）。
