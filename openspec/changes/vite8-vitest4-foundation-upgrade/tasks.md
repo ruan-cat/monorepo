@@ -24,8 +24,8 @@
 
 预估：0.5–1 小时。主要困难是确认破坏性范围和双轨策略；若用户改变目标，先更新工件，不进入实现。
 
-- [ ] 审核 `proposal.md`、`design.md`、三份 delta spec、`tasks.md`、`agent-progress.md`、`agent-findings.md` 的范围和风险。
-- [ ] 审核决定是否允许进入 CP-01；在获得明确确认前不得修改源码、依赖、锁文件或测试配置。
+- [x] 审核 `proposal.md`、`design.md`、三份 delta spec、`tasks.md`、`agent-progress.md`、`agent-findings.md` 的范围和风险。
+- [x] 审核决定是否允许进入 CP-01；在获得明确确认前不得修改源码、依赖、锁文件或测试配置。
 - 验证：仅检查 OpenSpec 状态和工件静态格式，不运行升级或修复命令。
 - 停止条件：用户要求调整目标、保留双轨或删除某个能力时，先更新工件再继续。
 
@@ -33,9 +33,9 @@
 
 预估：3–6 小时。主要故障点是既有测试失败与迁移回归混杂、`packages/*` 发现范围过宽以及 Vite 多版本来源难以一次收敛。
 
-- [ ] 重新记录 Node、pnpm、Vite、Vitest、VitePress、VuePress bundler 的声明与锁定版本。
-- [ ] 建立包入口、`exports`、源码文件、`dist` 产物和测试引用的对应清单。
-- [ ] 将 `packages/*` 的实际测试发现范围改造方案落到显式 project 清单，但不先修业务代码。
+- [x] 重新记录 Node、pnpm、Vite、Vitest、VitePress、VuePress bundler 的声明与锁定版本。
+- [x] 建立包入口、`exports`、源码文件、`dist` 产物和测试引用的对应清单。
+- [x] 将 `packages/*` 的实际测试发现范围改造方案落到显式 project 清单，但不先修业务代码。
 - 验证：`pnpm install --frozen-lockfile`、版本树检查、根 Vitest 列表命令及失败分类记录。
 - 停止条件：无法区分既有基线失败与迁移回归时，冻结范围并补充证据。
 
