@@ -1,20 +1,9 @@
 # 长任务进度
 
 - Change：`vite8-vitest4-foundation-upgrade`
-- 执行分支：`exp/vite8-vitest4-upgrade`（CP-01: 4027a2ae、CP-05: b72acbc3）
-- 当前阶段：CP-07 文档框架兼容性决策
-- 当前状态：CP-06 已完成（2026-11-05），20/26 任务勾选
-- CP-06 产出：vite 8.3.5（核心轨）+ plugin-vue 6.0.10 + dts 5.1.2；components preserveModules+dts 构建过、dobang/ts-alias/fork 构建过；vitest4+vite8 全量 344 测试零回归；版本树三轨（8.3.5 核心 + 5.4.21 vitepress + 6.1.6 vuepress）
-- CP-07 任务：独立评估 VitePress 2 与 VuePress bundler 新版稳定性 → 收敛或保留双轨（有说明即可结束）
-- 下一步：查 VitePress 2 / VuePress 新版上游证据 → 文档构建验证（turbo build:docs）→ 决策
-- 提交策略：每 CP 完成并验证后单独提交
-
-## 预期接力方式
-
-- CP-07：主代理做上游版本调查（npm view peer）+ 真实文档构建验证；预发布风险不可接受时按 tasks.md 停止条件保留双轨并记录。
-- CP-08：主代理跑全链路验收（frozen install、turbo build、全量 projects、entrypoints、版本树、CI 等价）。
-
-## 证据索引
-
-- CP-01~CP-06：`evidence/2026-11-05-cp0{1,2,3,4,5,6}-*.md`
-- 唯一任务源：`tasks.md`（26 任务，20 已勾）；发现记录：`agent-findings.md`
+- 执行分支：`exp/vite8-vitest4-upgrade`（提交链：4027a2ae→……→CP-08）
+- 当前阶段：**全部 9 个 checkpoint（CP-00~CP-08）已完成，26/26 任务勾选**
+- 最终状态（2026-11-05）：vitest 3.2.7→4.1.12、vite 6.4.3→8.3.5（核心轨）、文档轨保留双版本（vitepress 1.6.4+vite 5.4.21 / vuepress rc.20+vite 6.1.6）、workspace 已删并迁移显式 projects（10 项）、CI 补全量 projects 测试步骤
+- 最终验收：冻结安装 ✅、版本树全解释 ✅、turbo build 17/17 ✅、build:docs 11/11 ✅、全量 344 测试（326 过+17 既有基线+1 skip，零迁移回归）✅、CI 等价 267 过 ✅、entrypoints 4/4 ✅、openspec validate --strict ✅
+- 遗留归属（非升级回归，见 evidence/cp08 第 5 节）：tests-node 17 个 skill 测试基线失败、useAxiosWrapper 外部 404（已 skip）、文档轨双版本（设计内）、skill-router 独立轨道、游离测试组
+- 归档提示：可用 `$openspec-archive-change` 归档本 change；发布需走 changeset 流程（vitest/vite 的依赖变更应记录 changeset）

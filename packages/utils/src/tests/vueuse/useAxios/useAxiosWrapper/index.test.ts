@@ -47,8 +47,12 @@ function createAxiosInstance() {
 
 const instance = createAxiosInstance();
 
-interface _Params<T = any, K extends KeyAxiosRequestConfig<D> = "url", D = any>
-	extends UseAxiosWrapperParams<T, K, UseAxiosOptions<ApifoxModel<T>>, D> {}
+interface _Params<T = any, K extends KeyAxiosRequestConfig<D> = "url", D = any> extends UseAxiosWrapperParams<
+	T,
+	K,
+	UseAxiosOptions<ApifoxModel<T>>,
+	D
+> {}
 
 type Params = PartialPick<_Params, "instance" | "options">;
 
@@ -93,7 +97,8 @@ function homeCategoryHead() {
 	});
 }
 
-test("测试接口请求", async () => {
+// 外部练习接口（黑马商城 devtest 环境）已 404 失效，跳过真实请求；恢复外部接口或补 mock 后移除 skip。
+test.skip("测试接口请求", async () => {
 	const homeCategoryHeadObj = homeCategoryHead();
 	await homeCategoryHeadObj.execute();
 	console.log(` 输出结果？ `, homeCategoryHeadObj.data.value);

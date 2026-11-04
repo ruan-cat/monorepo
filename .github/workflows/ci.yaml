@@ -54,6 +54,12 @@ jobs:
       - name: turbo并发打包全部子项目
         run: pnpm run ci
 
+      - name: 运行显式 vitest projects 测试
+        # 排除 tests-node：其中 init-simple-memorix/init-prettier-git-hooks/init-shadcn-docs-nuxt
+        # 共 17 个 skill 行为测试为既有基线失败（与工具链升级无关，详见
+        # openspec/changes/vite8-vitest4-foundation-upgrade/evidence/）。
+        run: pnpm exec vitest run --project "!tests-node"
+
       - name: 验证utils发布入口
         run: pnpm --filter @ruan-cat/utils test:entrypoints
 

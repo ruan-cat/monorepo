@@ -37,5 +37,13 @@
 
 ## 待后续验证
 
-- Vitest 3.2 projects extends 默认值与 reporter/UI 行为（CP-04）。
-- Vite 8 Rolldown/Oxc 对自有插件与文档框架的真实构建结果（CP-06/07）。
+（以下两条已在 CP-04/CP-06 完成验证：projects 语义结论见 cp04 evidence 第 5 节；Rolldown 构建结果见 cp06 evidence 第 2 节。）
+
+## 最终验收遗留归属（2026-11-05，全部为既有基线/设计内状态，非升级回归）
+
+1. tests-node 内 17 个 skill 行为测试失败（init-simple-memorix 14 / init-prettier-git-hooks 2 / init-shadcn-docs-nuxt 1）——skill 测试套件自身问题，另行处理。
+2. useAxiosWrapper 外部接口 404——已 test.skip，待接口恢复或补 mock。
+3. 文档轨双版本（vite 5.4.21/6.1.6）——设计内双轨，收敛条件见 design.md CP-07 决策记录。
+4. skill-router-mcp 独立轨道（vitest 4.1.0 + cloudflare pool）——包内自治 CI。
+5. 游离测试组（utils 5 组 + autogeneration-import-file 示例配置）——不在 project 发现范围，与迁移前等价。
+6. turbo 警告 @test/monorepo-1#build:docs 的 outputs glob 未覆盖产物——turbo 缓存配置问题，与本升级无关。

@@ -103,8 +103,8 @@
 
 预估：3–6 小时。主要困难是本地 Node 22 与 CI Node 24 的漂移、多版本 Vite 的合理保留，以及 CI 未覆盖全仓 Vitest 的现状。
 
-- [ ] 统一本地与 CI 的 Node/pnpm 矩阵，避免环境漂移掩盖工具链问题。
-- [ ] 将核心 build、docs build、显式 projects test、entrypoints 和版本树检查纳入等价验收路径。
-- [ ] 复核锁文件中的保留旧 Vite 版本都有明确依赖链和文档说明。
+- [x] 统一本地与 CI 的 Node/pnpm 矩阵，避免环境漂移掩盖工具链问题。
+- [x] 将核心 build、docs build、显式 projects test、entrypoints 和版本树检查纳入等价验收路径。
+- [x] 复核锁文件中的保留旧 Vite 版本都有明确依赖链和文档说明。
 - 验证：冻结安装、Turbo build/docs、全量显式 projects、entrypoints、CI 等价命令。
 - 停止条件：任一关键层缺少真实输出证据时，只报告阶段性结果。
