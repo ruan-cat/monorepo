@@ -73,9 +73,9 @@
 
 预估：3–6 小时。主要故障点是 Vitest 4 的 Module Runner、pool、reporter、coverage/UI 行为变化；必须保持 CP-04 的 project 边界不变。
 
-- [ ] 升级 `vitest` 与 `@vitest/ui` 到 Vitest 4 兼容版本，保持项目边界不变。
-- [ ] 检查 Module Runner、pool、coverage、reporter 等受影响选项；只处理仓库实际使用项。
-- [ ] 更新脚本和文档中的 workspace 术语，保留可回滚的依赖变更边界。
+- [x] 升级 `vitest` 与 `@vitest/ui` 到 Vitest 4 兼容版本，保持项目边界不变。
+- [x] 检查 Module Runner、pool、coverage、reporter 等受影响选项；只处理仓库实际使用项。
+- [x] 更新脚本和文档中的 workspace 术语，保留可回滚的依赖变更边界。
 - 验证：冻结安装、逐 project run、根 UI/CI 等价命令和版本树检查。
 - 停止条件：Vitest 4 失败无法归因于配置或既有基线时，回退本 checkpoint。
 
