@@ -83,9 +83,9 @@
 
 预估：6–12 小时。主要困难是 Rolldown/Oxc 与现有 Rollup 选项、自有插件和 dts 构建的组合回归。
 
-- [ ] 升级根核心 Vite 与已确认兼容的插件，先覆盖自有 Vite 插件、学习组件和 dts 构建。
-- [ ] 检查 Rolldown/Oxc 下的 `rollupOptions`、external、target 和插件行为。
-- [ ] 保留 VitePress/VuePress 旧版本轨道，不把文档构建混入核心收敛。
+- [x] 升级根核心 Vite 与已确认兼容的插件，先覆盖自有 Vite 插件、学习组件和 dts 构建。
+- [x] 检查 Rolldown/Oxc 下的 `rollupOptions`、external、target 和插件行为。
+- [x] 保留 VitePress/VuePress 旧版本轨道，不把文档构建混入核心收敛。
 - 验证：核心包 build、插件 smoke test、版本树和产物检查。
 - 停止条件：插件 peer 或构建回归未解决时，不进入文档轨道升级。
 
