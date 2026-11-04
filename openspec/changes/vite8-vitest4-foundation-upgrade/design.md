@@ -37,6 +37,13 @@ VitePress 1.x 和 VuePress bundler rc20 当前会拉入 Vite 5/6。文档构建�
 
 文档轨道的出口必须分别覆盖 dev、build、链接检查、主题/插件加载和部署产物；不能用核心包构建通过替代文档兼容性证据。
 
+### CP-07 决策记录（2026-11-05）：保留双轨
+
+- 上游证据：VitePress 2 目前为 `2.0.0-alpha.21`（其 vite 依赖已指向 `^8.3.4`）；VuePress bundler 全系为 rc（当前锁定 rc.20，next 为 rc.31，其 vite 依赖 `^8.1.5`）。两者均为预发布，未达稳定门槛。
+- 锁定原因：alpha/rc 框架与 10+ 主题/插件生态（teek、nolebase、hope、demo-plugin 等）的组合稳定性未经验证；生产 monorepo 文档栈不承担预发布风险。当前栈（vitepress 1.6.4 + vuepress rc.20 + vite 5.4.21/6.1.6）在核心轨升级 Vite 8 后 `pnpm turbo build:docs` 11/11 全绿。
+- 维护边界：核心轨（vite 8.3.5）只覆盖非文档构建入口；文档轨的 vite 5.4.21（vitepress@1.6.4 自带）与 6.1.6（@vuepress/bundler-vite@rc.20 自带）作为独立实例保留，禁止用 override/patch 强行统一。
+- 后续收敛条件：VitePress 2 进入稳定版、VuePress bundler 进入稳定版（或团队显式接受 rc），且主题/插件生态完成真实文档构建验证后，另起变更收敛；届时以 `pnpm why vite` 中 5.x/6.x 实例消失为收敛完成的可审计信号。
+
 ## Vite 8/Rolldown 兼容性检查
 
 - 现有 `build.rollupOptions` 先在兼容层验证，再依据实际使用情况决定是否转写 `rolldownOptions`；不得为了追求新配置名而做无证据重写。
