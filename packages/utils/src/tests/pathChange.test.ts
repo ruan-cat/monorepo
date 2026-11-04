@@ -1,6 +1,6 @@
 import { test, expect } from "vitest";
 
-import { pathChange } from "@ruan-cat/utils";
+import { pathChange } from "@ruan-cat/utils/node-cjs";
 
 test("pathChange路径转换", () => {
 	expect(pathChange("C:\\Users\\ruanc\\Desktop\\test\\test.ts")).toBe("C:/Users/ruanc/Desktop/test/test.ts");

@@ -4,8 +4,11 @@
 
 - 原设计草案已吸收进本 change 工件；后续只以本 change 工件为准。
 - 版本树（动态+静态双证）：vite 3 主版本 5 实例（5.4.21←vitepress@1.6.4、6.1.6←vuepress bundler rc.20、6.4.3←根直装）；vitest 2 版本（3.2.7←根/domains/cf-build-notifier、**4.1.0←skill-router-mcp 精确声明**）；@vitest/ui 仅 3.2.7（与 vitest 4 跨版本组合）；vitepress@1.6.4 唯一；@vuepress/bundler-vite@2.0.0-rc.20 + theme-hope rc.73。
-- `vitest list` 基线全局失败 3 类：workspace DEPRECATED、cloudflare:test×2（skill-router-mcp 误入根发现）、`@ruan-cat/utils/src/rmmv-class-expand-tools.ts` 解析失败（src 下无 rmmv 文件，grep 无定义；git e607d433 曾迁移位置）。证据：`evidence/2026-11-05-cp01-dynamic-verification.md`。
-- utils exports `.` require 指向 `./dist/index.cjs` 但 dist 无此文件（CJS 入口断链）；tsup 配置未产出或被 clean 后未重建。
+- `vitest list` 基线全局失败 3 类：workspace DEPRECATED、cloudflare:test×2（skill-router-mcp 误入根发现）、`@ruan-cat/utils/src/rmmv-class-expand-tools.ts` 解析失败（已于 CP-02 处置：rmmv API 于 d96dd29f 有意删除，测试已删）。证据：`evidence/2026-11-05-cp01-dynamic-verification.md`。
+- utils exports `.` require 指向 `./dist/index.cjs` 断链已修复（→ dist/node-cjs/index.cjs，CJS 场景专用入口，tsup 从不产出根 index.cjs）。
+- pathChange（node-cjs/tools.ts）与 getRuanCatPkgInfo（node-esm/ruan-cat-pkg-info.ts）的测试 import 已迁移到现有入口；根入口导出随 755e294b node 场景拆分有意移除，未恢复。
+- 09oa.test.ts 为无 test 调用、无人引用的死文件，已删除。
+- **遗留**：useAxiosWrapper/index.test.ts 打外部黑马接口 404（外部依赖失效，非仓库契约）；该测试将继续存在于 utils project 内，验收时按既有基线外部依赖解释。
 - skill-router-mcp 双轨错配：根 packages/* glob 用 vitest 3.2.7 扫其 16 个测试，包内实际用 vitest 4.1.0 + cloudflare pool 三具名配置——版本与配置双重错配，根发现必须排除。
 - release-toolkit 双轨：src/tests/*.test.ts 会被 vitest 默认 include 发现，包内又有自研 runner（tsx run-tests.ts）——同一批文件两套执行语义。
 - utils 游离测试 5 组在所有 include 之外（node-esm/scripts、disposal-auto-router、autogeneration-import-file/tests、vueuse/*/tests、tests/fix-consola-esm.test.ts）。
@@ -31,7 +34,5 @@
 
 ## 待后续验证
 
-- utils rmmv API 的历史契约与陈旧测试处置（CP-02）。
-- utils dist/index.cjs require 入口的 tsup 产出（CP-02/CP-03）。
 - Vitest 3.2 projects extends 默认值与 reporter/UI 行为（CP-04）。
 - Vite 8 Rolldown/Oxc 对自有插件与文档框架的真实构建结果（CP-06/07）。

@@ -40,7 +40,7 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
+			"require": "./dist/node-cjs/index.cjs"
 		},
 		"./node-cjs": {
 			"types": "./dist/node-cjs/index.d.cts",
