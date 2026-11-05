@@ -125,9 +125,23 @@ Vitest 4 本身也已经把旧 workspace 配置迁向 projects；因此更没有
 `docs\prompts\release-ai-plugins\2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web` 目录全都是已经设计好的东西，全都是已经设计好任务提示词。你直接拿来用就行，我相信大多数的实施细节和边缘问题都已经写清楚了。
 但是我要求你，按照严格的 do-long-task 技能 ，新建一个独立的长任务。我相信这个云 MCP 制作任务，是一个很困难的任务。是需要你长期完成的任务，因此我要求你在保留这些必要的 `docs\prompts\release-ai-plugins\2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web` 上下文的同时，制作一个基于 do-long-task 的长任务执行工件。便于我随时根据实际 token 供应情况，做出任务中断与任务恢复。
 
-## 011 <!-- TODO: --> 2026-8-13 执行长任务 vite8-vitest4-foundation-upgrade
+## 011 <!-- TODO: ZCode 夜间额度正在做 --> 2026-8-13 执行长任务 vite8-vitest4-foundation-upgrade
 
 阅读 - openspec\changes\vite8-vitest4-foundation-upgrade 目录内的全部必要的任务工件，用 do-long-task 技能完成这个艰巨的长任务。
+
+---
+
+1. 目前你在 exp/vite8-vitest4-upgrade 分支内。
+2. 在 exp/vite8-vitest4-upgrade 内，你首先对全部的 git commit，做 git message 的改写。你写的这些 git commit 信息，不满足全局技能 git-commit 的编写规范。我要求你做出更改。
+3. 你在 exp/vite8-vitest4-upgrade 分支内，对 docs\prompts\index.md 这份文件做 git commit。确保 exp/vite8-vitest4-upgrade 分支干净。
+4. 在你完成更改后，我要求你完成分支合并，用 rebase 的方式完成合并，合并到 dev 分支。接下来的工作就全部在 dev 分支内完成。
+5. 授权你完成 dev push origin，然后你用 gh cli 做监听，监听确保没有出现 github workflow 层面的故障。
+   - 如果你发现 github workflow 执行的时候，在 dev 分支内出现了故障，我要求你在 dev 分支内继续完成修复。在确保不要降低 vite 以及相关依赖的版本的情况下，在保证满足并完成 `openspec\changes\vite8-vitest4-foundation-upgrade` 系列任务的前提下，修复故障。
+6. 在 dev 分支正常的时候，做好收尾工作。删除掉本地和远程的 `exp/vite8-vitest4-upgrade` 分支，这个实验分支完成职责了。
+7. 执行 `.agents\skills\openspec-archive-change` 技能，对 vite8-vitest4-foundation-upgrade 任务做归档，但是不同步，不保留 spec 规范。这是任务的一次性规范，不值得成为项目级别的长期 spec 规范。
+8. 在 dev 分支内，执行一次 git-commit 技能，因为归档文件产生了修改。随后 git push。
+9. 最后用 memorix 完成收尾。
+   - 做好会话收尾。我准备关闭本次会话了，用 memorix 做好收尾工作。
 
 ## 012 <!-- 已完成第一阶段的开发和生产环境部署； codex pro5 正在做 --> 2026-8-13 执行长任务 make-skill-router-mcp-for-chatgpt-web
 
