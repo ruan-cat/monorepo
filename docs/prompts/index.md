@@ -125,7 +125,7 @@ Vitest 4 本身也已经把旧 workspace 配置迁向 projects；因此更没有
 `docs\prompts\release-ai-plugins\2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web` 目录全都是已经设计好的东西，全都是已经设计好任务提示词。你直接拿来用就行，我相信大多数的实施细节和边缘问题都已经写清楚了。
 但是我要求你，按照严格的 do-long-task 技能 ，新建一个独立的长任务。我相信这个云 MCP 制作任务，是一个很困难的任务。是需要你长期完成的任务，因此我要求你在保留这些必要的 `docs\prompts\release-ai-plugins\2026-8-11-make-Skill-Router-MCP-for-ChatGPT-web` 上下文的同时，制作一个基于 do-long-task 的长任务执行工件。便于我随时根据实际 token 供应情况，做出任务中断与任务恢复。
 
-## 011 <!-- TODO: ZCode 夜间额度正在做 --> 2026-8-13 执行长任务 vite8-vitest4-foundation-upgrade
+## 011 <!-- 已完成 ZCode 夜间额度正在做 --> 2026-8-13 执行长任务 vite8-vitest4-foundation-upgrade
 
 阅读 - openspec\changes\vite8-vitest4-foundation-upgrade 目录内的全部必要的任务工件，用 do-long-task 技能完成这个艰巨的长任务。
 
