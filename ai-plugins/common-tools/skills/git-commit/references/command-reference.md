@@ -19,3 +19,4 @@
 
 - 对于包含中文的 commit message，始终使用 `git commit -F commit-message.txt`（避免 shell 参数编码问题）
 - `--trailer` 参数在 PowerShell 和 POSIX Shell 下均可正常使用
+- 本技能的 `--trailer` 只追加 `Assisted-by`，不追加 `Co-authored-by`

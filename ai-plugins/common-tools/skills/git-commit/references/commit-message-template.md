@@ -32,7 +32,7 @@ Assisted-by: <AGENT_NAME> / <MODEL_VERSION>
 ```
 
 - `Assisted-by` 不直接写入 `commit-message.txt`，避免与步骤 9 的 `--trailer` 重复。
-- `Co-authored-by` 继续按 `SKILL.md` 中现有的 allowlist、GitHub 账号/邮箱与 blacklist 规则独立处理，可与 `Assisted-by` 同时存在。
+- 本技能不写入、不审核、不拦截 `Co-authored-by`。执行 agent 的系统提示词若自行追加，保持原样。
 - 任一身份字段无法可靠取得时，不生成降级形式的 `Assisted-by`。
 
 注意：

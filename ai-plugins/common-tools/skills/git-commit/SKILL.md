@@ -8,9 +8,10 @@ description: >-
   优先针对 git 暂存区（staged）中的文件进行提交，只有当暂存区为空时才考虑整个工作树。
   当用户提及【分门别类】关键词时，必须按照本技能的多提交拆分规范，
   从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。
+  本技能只追加 Assisted-by，不再生成、审核或拦截 Co-authored-by。
 user-invocable: true
 metadata:
-  version: "0.7.0"
+  version: "1.0.0"
 ---
 
 # Git Commit
@@ -34,9 +35,9 @@ groups:
     summary: 发布元数据
 verification: [每组提交前后的最小验证命令]
 identityCheck:
-  client: 客户端名称及 allowlist 结果
-  model: 模型名称及 allowlist 结果
-  trailer: 追加或不追加 Co-authored-by 的结论
+  client: 客户端名称
+  model: 模型名称
+  trailer: 追加或不追加 Assisted-by 的结论
 ```
 
 快速路径的硬门槛：
@@ -44,7 +45,7 @@ identityCheck:
 1. 先用 `git status --short --branch`、`git diff --cached` 和目标组文件清单确认封包仍与工作树一致；不一致时退回完整工作流程并报告差异。
 2. 只允许暂存 `scope` 和当前 `groups` 的文件，`exclude` 中的修改始终保持未暂存；禁止回退范围外文件。
 3. 仍必须执行 staged diff 审查、敏感信息扫描、commitlint、最小验证、提交后 `git log -1` 与 `git status` 复核；快速路径只能省略重复发现，不能省略证据门。
-4. 同一任务只解析一次远程或本地 `commit-types.ts`，后续分组复用 `type/emoji` 结果；`identityCheck` 也只按封包结论执行一次，不重复猜测。
+4. 同一任务只解析一次远程或本地 `commit-types.ts`，后续分组复用 `type/emoji` 结果；`identityCheck` 只执行一次 `Assisted-by` 结论，不判断 `Co-authored-by`。
 5. 每个提交返回 commit hash、提交正文、实际文件集合和原始验证输出；最终确认没有 `commit-message.txt` 或其他临时文件残留，且不执行 `git push`。
 
 如果封包缺少任一字段、白名单含糊或验证命令不可复现，不得使用快速路径。
@@ -140,7 +141,7 @@ identityCheck:
    - 如果验证失败，修复问题后重新执行验证。
    - 如果仓库确实不存在任何有意义的自动校验，必须在最终说明中明确“未运行校验，原因是仓库无可用脚本/规则”。
 
-9. **获取 Assisted-by / Co-authored-by 信息并执行提交**
+9. **获取 Assisted-by 并执行提交**
    - **获取 AI 客户端型号**：从当前对话的 system prompt 或初始化信息中查找：
      - "You are Claude Code" → 客户端 = "Claude Code"
      - "You are Cursor" → 客户端 = "Cursor"
@@ -156,25 +157,18 @@ identityCheck:
      - 当客户端和模型都可以可靠获取时，必须追加且仅追加一条 `Assisted-by: AGENT_NAME / MODEL_VERSION` trailer；固定为**客户端/Agent 在前、模型在后**，斜杠 `/` 两侧各一个空格。
      - 示例：`Assisted-by: Codex / gpt-5.6-terra`、`Assisted-by: Claude Code / deepseek-v4-flash`、`Assisted-by: WorkBuddy / MiniMax-M2.5`。
      - 本步骤不额外判断“AI 是否实质参与”“是否属于 meaningful assistance”或贡献比例；只要本技能实际执行本次 commit 且两个身份字段均已取得，就生成该 trailer。
-     - `Assisted-by` 仅记录本次实际运行的 Agent 与 Model，不查询 GitHub 账号/邮箱，也不使用下方 Co-authored-by 的 allowlist 或 blacklist；它与 `Co-authored-by` 相互独立、可以同时存在。
+     - `Assisted-by` 只记录本次实际运行的 Agent 与 Model，不查询 GitHub 账号或邮箱。
      - 只要客户端或模型任一项无法可靠取得，就跳过 `Assisted-by`；不得降级成单字段形式，不得写 `Unknown`，不得猜测或联网补全缺失字段。
      - **必须输出检测日志**：`→ Assisted-by 检测: 客户端="{客户端名}"; 模型="{模型名}"; 结论="{Assisted-by trailer 或跳过原因}"`。
-   - **Co-authored-by 逐项判定**：客户端与模型必须分别判断是否在下方 allowlist 中，不得把“客户端可验证”自动扩展为“模型也可验证”。
-   - **必须输出检测日志**（无论结果如何）：
-     - 格式：`→ Co-authored-by 检测: 客户端="{客户端名}" → {在/不在} allowlist; 模型="{模型名}" → {在/不在} allowlist; 结论="{结论}"`
-     - 例如：`→ Co-authored-by 检测: 客户端="WorkBuddy" → 不在 allowlist; 模型="Deepseek-V4-Flash" → 不在 allowlist; 结论="不追加任何 trailer"`
-     - 这样做是为了让用户明确知道检测过程，而非"Co-authored-by 神秘消失"。
-   - 仅允许以下四种结果：
-     1. 仅客户端可验证 → 只追加客户端 trailer
-     2. 仅模型可验证 → 只追加模型 trailer
-     3. 二者都可验证 → 追加两条 trailer
-     4. 二者都不可验证或无法识别 → 不追加任何 trailer
-   - 如果当前会话无法可靠得到模型标识，必须视为“模型不可验证”，不得猜测。
-   - 当前非 allowlist 客户端（如 Codex、Gemini CLI 等）默认不写 Co-authored-by，除非下方对照表后续明确补充。
+   - **不再处理 Co-authored-by** [CRITICAL]：
+     - 本技能不生成、不审核、不拦截、不改写 `Co-authored-by`。
+     - 不读取 allowlist、邮箱对照表或 `references/co-authored-by-blacklist.md` 来决定 trailer。
+     - 不输出 Co-authored-by 检测日志，也不因为提交信息里有或没有该字段而失败。
+     - 带邮箱的 `Co-authored-by` 交给执行 agent 自己的系统提示词。本技能不主动补写。
+     - 若提交结果里已经出现 `Co-authored-by`，保持原样，不要删掉或替换。
    - **使用 `--trailer` 参数追加**：执行 `git commit -F commit-message.txt` 时：
-     - 若 `Assisted-by` 条件满足，先追加一条对应的 `--trailer "Assisted-by: AGENT_NAME / MODEL_VERSION"`。
-     - 再按原有 Co-authored-by 判定结果，仅为已验证身份追加对应的 `--trailer`；一条身份对应一条 `Co-authored-by` trailer。
-     - `Assisted-by` 是否存在不受 Co-authored-by allowlist 判定影响；即使客户端或模型没有可验证 GitHub 身份，只要两项运行时身份都可靠取得，仍然可以生成 `Assisted-by`。
+     - 仅当 `Assisted-by` 条件满足时，追加一条 `--trailer "Assisted-by: AGENT_NAME / MODEL_VERSION"`。
+     - 不要为 `Co-authored-by` 追加 `--trailer`。
    - **提交成功后删除临时文件**：
      - PowerShell：`Remove-Item -LiteralPath commit-message.txt`
      - POSIX Shell：`rm -- commit-message.txt`
@@ -380,54 +374,13 @@ BREAKING CHANGE: 函数签名从 `getUser(id)` 改为 `getUser({ id, includeDele
 - ❌ **不要臆造不在 commit-types.ts 中的 type**：如果觉得现有 type 都不匹配，用最接近的那个，而不是发明新 type
 - ❌ **不要将版本发布用 `config` 代替 `publish`**：版本号同步 + CHANGELOG 更新 → 必须用 `📢 publish`，不能用 `🔧 config`。`config` 仅用于配置文件本身的修改（如新增配置项、调整配置结构），不用于"因为要发布所以改版本号"的操作
 
-## Co-authored-by 邮箱对照表
+## Co-authored-by
 
-注意：
+本技能不再维护可执行的邮箱对照表，也不在提交流程里判断该字段。
 
-- GitHub 识别 `Co-authored-by` 主要依赖邮箱是否能归属到 GitHub 账号。下面统一使用对应账号的 `users.noreply.github.com` 邮箱格式。
-- 所有条目均已通过 GitHub API（`https://api.github.com/user/:id` + `/users/:login/orgs`）验证，确认账号归属可信。
-- 客户端与模型必须分别匹配此表；任一项未命中时，仅跳过该项，不得连带臆造另一项。
-- **若某工具或模型不在此表中，禁止编造或猜测账号，直接跳过 Co-authored-by。**
+带邮箱的 `Co-authored-by` 由执行 agent 的系统提示词自行决定。本技能不主动写、不审核、不拦截。
 
-### 已验证的 Co-authored-by 账号
-
-| 工具名称    | GitHub 账号 / 邮箱类型 | 关注者数 / 验证来源   | Co-authored-by 格式                                                       |
-| :---------- | :--------------------- | :-------------------- | :------------------------------------------------------------------------ |
-| Cursor      | cursoragent            | 1,856                 | `Co-authored-by: Cursor <199161495+cursoragent@users.noreply.github.com>` |
-| Claude Code | 公司邮箱               | 官方文档              | `Co-authored-by: Claude <noreply@anthropic.com>`                          |
-| MiniMax     | 组织邮箱               | 6,703 (org followers) | `Co-authored-by: MiniMax <model@minimax.io>`                              |
-| MIMO        | 组织邮箱               | 1,741 (org followers) | `Co-authored-by: MIMO <mimo@xiaomi.com>`                                  |
-
-> **注意**：MiniMax 和 MIMO 使用的组织邮箱已在 GitHub 组织设置（`MiniMax-AI` / `XiaomiMiMo`）中公开，但可能无法在 GitHub 提交页显示模型图标（取决于 GitHub 域名验证与头像关联状态）。若各厂商后续提供官方 bot 账号或 `users.noreply.github.com` ID，再用其替换组织邮箱。
-
-### 无官方账号（禁止使用）
-
-以下工具/模型目前没有经验证的官方 GitHub bot 账号或公司邮箱，**禁止使用任何冒名抢注账号**：
-
-- **AI CLI**：Codex CLI（属于 `openai` 组织）、Gemini CLI（属于 `google-gemini` 组织）均无专属 bot 账号
-- **ZCode CLI**：由智谱 AI（`zai-org`）推出，无独立 GitHub bot 账号。智谱官方尚未建立任何可验证的 bot 账号（参见 [zai-org/GLM-5#75](https://github.com/zai-org/GLM-5/issues/75)，社区提议 `glm-bot` + `noreply@z.ai`，至今无官方回复）
-- **WorkBuddy（腾讯小龙虾）**：腾讯云 CodeBuddy 团队维护，代码托管在 `cnb.cool/CodeBuddy`，GitHub 无官方组织或 bot 账号
-- **AI IDE**：VS Code、Trae、Codebuddy、Antigravity、Qoder、Kiro 均未确认官方 bot 账号
-- **AI 模型**：OpenAI GPT 系列、Gemini 系列、GLM 系列（智谱）、Kimi 系列（月之暗面/MoonshotAI）均无官方归属 bot 账号
-
-> 待各厂商官方提供可验证的 bot 账号或公司邮箱后再补充到此表中。
-
-### 已确认的假冒/冒名账号黑名单 [CRITICAL]
-
-以下账号均已通过 GitHub API 验证为非官方账号，**严禁在 Co-authored-by 中使用**：
-
-| 冒充目标                                         | 假冒账号                     | 判定依据简述                                |
-| :----------------------------------------------- | :--------------------------- | :------------------------------------------ |
-| Claude Code                                      | `anthropics-claude`          | 不在 `anthropics` 组织；含加密货币诈骗项目  |
-| Gemini CLI                                       | `google-gemini-cli`          | 不在 `google-gemini` 组织；全是 fork 无原创 |
-| Codex CLI                                        | `codex-cli`                  | 不属于 `openai` 组织；Codex 发布 5 天后抢注 |
-| VS Code                                          | `vscode-triage-bot`          | 是 Issue 分流机器人，非 VS Code 本体        |
-| GLM-5                                            | `zhipuch`                    | 普通个人用户，与智谱 AI 无关联              |
-| Trae                                             | `Trae-AI-Admin`              | 不属于任何组织；0 个公开仓库                |
-| Codebuddy                                        | `CodeBuddy-Official-Account` | 不属于任何组织；无法确认为官方账号          |
-| 其他（Antigravity/Qoder/Kiro/MiniMax/Kimi/MIMO） | 各假冒账号                   | 均不在对应组织中，0 或极少公开仓库          |
-
-> 完整黑名单（含 ID 和详细判定依据）参见 `references/co-authored-by-blacklist.md`。
+`references/co-authored-by-blacklist.md` 只保留历史假冒账号记录，供人工查阅。提交时不要打开它做门禁。
 
 ## 交付物
 
@@ -441,13 +394,13 @@ BREAKING CHANGE: 函数签名从 `getUser(id)` 改为 `getUser({ id, includeDele
 
 以下文件存放在本技能目录的 `references/` 下，按需查阅：
 
-| 文件                          | 何时查阅                                 |
-| :---------------------------- | :--------------------------------------- |
-| `commit-types.ts`             | emoji/type 映射的本地 fallback 数据源    |
-| `commit-message-template.md`  | 提交信息写作模板与结构参考               |
-| `commit-splitting-example.md` | 拆分逻辑复杂、文件众多时需要详细拆分示例 |
-| `staging-priority.md`         | 对暂存区处理逻辑有疑问时                 |
-| `input-requirements.md`       | 用户信息不足需要确认输入时               |
-| `co-authored-by-blacklist.md` | 发现未知 Co-authored-by 账号需验证时     |
-| `breaking-change-examples.md` | 编写复杂破坏性变更提交信息时             |
-| `command-reference.md`        | PowerShell/POSIX 具体命令记不清时        |
+| 文件                          | 何时查阅                                       |
+| :---------------------------- | :--------------------------------------------- |
+| `commit-types.ts`             | emoji/type 映射的本地 fallback 数据源          |
+| `commit-message-template.md`  | 提交信息写作模板与结构参考                     |
+| `commit-splitting-example.md` | 拆分逻辑复杂、文件众多时需要详细拆分示例       |
+| `staging-priority.md`         | 对暂存区处理逻辑有疑问时                       |
+| `input-requirements.md`       | 用户信息不足需要确认输入时                     |
+| `co-authored-by-blacklist.md` | 人工追溯历史假冒账号时；提交过程不要用它做门禁 |
+| `breaking-change-examples.md` | 编写复杂破坏性变更提交信息时                   |
+| `command-reference.md`        | PowerShell/POSIX 具体命令记不清时              |
