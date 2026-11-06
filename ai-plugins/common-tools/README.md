@@ -160,7 +160,7 @@ Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现�
 
 通用开发辅助技能，覆盖 Git 工作流、项目初始化、AI 记忆管理等高频场景：
 
-- **git-commit**: 创建高质量 Git 提交，支持 Conventional Commits 规范、Emoji、破坏性变更格式、暂存区优先与多提交拆分
+- **git-commit**: 创建高质量 Git 提交，支持 Conventional Commits 规范、Emoji、破坏性变更格式、暂存区优先与多提交拆分；只追加 `Assisted-by`，不再生成或审核 `Co-authored-by`
 - **add-favicon**: 为文档站或 monorepo 批量站点补全本地 `favicon.svg`，优先参考 Iconify/Lucide 风格，保持透明背景、简洁线性和显式 `head` 配置
 - **do-long-task**: 面向 OpenSpec 长任务、上下文恢复和测试失败重试的可恢复执行纪律，要求动态补全 `tasks.md`、以 OpenSpec 工件链协作推进，并持续维护 `agent-progress.md` / `agent-findings.md`；也支持生成 1500 字以内的 Claude Code `/goal` 与 Codex `/goal` 长任务执行提示词
 - **init-ai-md**: 以 `AGENTS.md` 为唯一事实来源初始化、迁移和增量更新 AI 记忆文件，并将 `CLAUDE.md` / `GEMINI.md` 固定为重定向文件
