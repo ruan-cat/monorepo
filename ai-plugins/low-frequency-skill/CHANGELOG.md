@@ -24,6 +24,14 @@
   - **重写 `fallback/install-mcp.ps1` 为定点文本编辑**：PS 5.1 的 `ConvertFrom-Json` 无法解析 `~/.claude.json`（含仅大小写不同的重复键），`ConvertTo-Json` 又固定输出 4 空格 + CRLF；同时该脚本必须以 **UTF-8 with BOM** 保存，否则 PS 5.1 按 ANSI 解码会把中文注释解析成非法 token。
   - `references/memorix-setup-notes.md`、`references/workbuddy-mcp-notes.md` 中 12 处 `full mode` 表述改为 mode 中性（默认 micro）。
 
+## [12.0.0] - 2026-11-07
+
+### Changed
+
+- 本插件技能树无内容变更。
+- 主版本随 `common-tools` 的 **git-commit** 破坏性变更同步至 `12.0.0`。
+- 根级 Claude / Cursor marketplace 与三个插件的九份三平台 `plugin.json` 提升至 `12.0.0`。
+
 ## [11.6.0] - 2026-11-02
 
 ### Changed

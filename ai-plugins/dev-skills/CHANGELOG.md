@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [12.0.0] - 2026-11-07
+
+### Changed
+
+- 本插件技能树无内容变更。
+- 主版本随 `common-tools` 的 **git-commit** 破坏性变更同步至 `12.0.0`。
+- 根级 Claude / Cursor marketplace 与三个插件的九份三平台 `plugin.json` 提升至 `12.0.0`。
+
 ## [11.6.0] - 2026-11-02
 
 ### Changed

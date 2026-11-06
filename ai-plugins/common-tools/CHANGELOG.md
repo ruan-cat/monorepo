@@ -16,6 +16,17 @@
 - **init-ai-md 22.0.0（破坏性变更）**：改为只维护根目录 `AGENTS.md`；`CLAUDE.md` 与 `GEMINI.md` 清空为 `@AGENTS.md` 重定向。
 - 删除已废弃的「获取技术栈对应的上下文」模板和章节处理；旧版 `record-bug-fix-memory` 自动迁移到 `.agents/skills`，缺失时无条件安装。
 
+## [12.0.0] - 2026-11-07
+
+### Changed
+
+- **git-commit** `metadata.version` `0.7.0` -> `1.0.0`。
+- 提交时只主动追加一条 `Assisted-by: AGENT_NAME / MODEL_VERSION`。
+- 技能不再生成、审核、拦截或改写 `Co-authored-by`。
+- 正文中的邮箱对照表和 allowlist 判定已删除。
+- `references/co-authored-by-blacklist.md` 保留为历史记录，退出提交流程。
+- 根级 Claude / Cursor marketplace 与三个插件的九份三平台 `plugin.json` 提升至 `12.0.0`。
+
 ## [11.6.0] - 2026-11-02
 
 ### Changed
