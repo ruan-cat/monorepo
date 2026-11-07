@@ -10,7 +10,7 @@ description: >-
   and manages the project-level record-bug-fix-memory skill.
 user-invocable: true
 metadata:
-  version: "23.0.0"
+  version: "24.0.0"
 ---
 
 # init-ai-md 技能说明

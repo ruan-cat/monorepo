@@ -16,6 +16,15 @@
 - **init-ai-md 22.0.0（破坏性变更）**：改为只维护根目录 `AGENTS.md`；`CLAUDE.md` 与 `GEMINI.md` 清空为 `@AGENTS.md` 重定向。
 - 删除已废弃的「获取技术栈对应的上下文」模板和章节处理；旧版 `record-bug-fix-memory` 自动迁移到 `.agents/skills`，缺失时无条件安装。
 
+## [13.0.0] - 2026-11-07
+
+### Changed
+
+- **init-ai-md**：`metadata.version` `23.0.0` -> `24.0.0`。
+- **init-linux-cloud-agent-env**：`metadata.version` `0.1.1` -> `0.1.2`。
+- init-ai-md 将 record-bug-fix-memory 项目级技能部署到扁平路径 .agents/skills/record-bug-fix-memory；嵌套旧目录搬迁不再因 template-version 拦截整篇替换。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `13.0.0`。
+
 ## [12.0.0] - 2026-11-07
 
 ### Changed
@@ -1156,7 +1165,7 @@
 
 - **📝 技能增强**: `init-ai-md` - 新增技能表管理和内置技能部署能力 （v0.15.0 → v0.16.0）
   - **技能表管理**：新增步骤 6「生成/更新本项目的技能表」，自动扫描项目 `.claude/skills/` 目录下的所有技能，在 CLAUDE.md 中创建并维护「本项目的技能表」章节，确保 agent 读取 CLAUDE.md 时能快速了解可用技能清单
-  - **内置技能初始化**：新增步骤 5「初始化本地技能」，支持将 `record-bug-fix-memory` 内置技能模板部署到项目的 `.claude/skills/fix-bug/record-bug-fix-memory/` 目录中，通过交互式询问用户确认后执行部署
+  - **内置技能初始化**：新增步骤 5「初始化本地技能」，支持将 `record-bug-fix-memory` 内置技能模板部署到项目的 `.agents/skills/record-bug-fix-memory/` 目录中，通过交互式询问用户确认后执行部署
   - **新增模板文件** `08.本项目的技能表.md`：技能表章节模板，定义技能条目的标准格式（名称、路径、用途、触发时机、参考作用、约束）
   - **新增内置技能模板** `record-bug-fix-memory/SKILL.md`：从两个实际项目（01s-11comm、eams-frontend-monorepo）中提取通用化的 bug 修复记忆技能模板，去除项目特有事故记录，保留框架结构供新项目逐步积累
   - **新增文档章节**：技能表管理详细说明、内置技能部署详细说明、内置技能模板规范、场景 4/5 执行示例

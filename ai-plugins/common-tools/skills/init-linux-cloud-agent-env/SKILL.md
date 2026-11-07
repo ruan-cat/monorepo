@@ -13,7 +13,7 @@ description: >-
   priority, fallback ordering, PR-body progress artifacts and stage-close reporting.
 user-invocable: true
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 ---
 
 # 初始化云 linux agent 环境
