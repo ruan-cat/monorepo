@@ -131,7 +131,7 @@ In each file, change the current flat skill list into this structure:
 ### 项目局部技能（仓库内维护）
 
 - `record-bug-fix-memory`
-  - 路径：`.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
+  - 路径：`.agents/skills/record-bug-fix-memory/SKILL.md`
   - ...
 
 ### 对外分发技能（ai-plugins）

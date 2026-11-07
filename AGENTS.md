@@ -6,7 +6,7 @@
 
 ### 项目局部技能（仓库内维护）
 
-- `record-bug-fix-memory` — `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
+- `record-bug-fix-memory` — `.agents/skills/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
   - **存储架构**：双层存储。SKILL.md 只放流程指导和摘要索引，详细案例存储在同目录下的独立 `YYYY-MM-DD-{slug}.md` 文件中。
   - **阅读方式**：使用此技能前，先读 SKILL.md 了解流程，再根据「案例索引」章节按需读取相关的独立案例文件。
   - **写入方式**：新增经验时，创建独立案例文件，同时在 SKILL.md 的「案例索引」追加摘要。禁止将完整事故正文写入 SKILL.md。
@@ -131,7 +131,7 @@
 3. **不暴露开发期产物**：不要把 monorepo 内部测试文件、CI 配置、开发期报告写入用户分发的 `SKILL.md`「相关文件」或说明中。
 4. **计划文档与实现同步**：一旦进入执行阶段，设计/计划文档必须随实现同步更新，禁止出现计划代码块与实际落地文件不一致的情况。
 
-违反上述约束的具体案例与修复过程，参见 `.agents/skills/fix-bug/record-bug-fix-memory/2026-07-02-sync-local-global-agents-skills-design-pitfalls.md`。
+违反上述约束的具体案例与修复过程，参见 `.agents/skills/record-bug-fix-memory/2026-07-02-sync-local-global-agents-skills-design-pitfalls.md`。
 
 ## 主动问询实施细节
 
@@ -967,11 +967,11 @@ metadata:
 4. 提交前先 `git fetch origin` 确认远端状态，避免 push 被拒后再处理 rebase
 5. 本地有未提交文件时**先 stash 再 rebase**，避免无关文件干扰冲突处理
 
-**案例文件**：`.agents/skills/fix-bug/record-bug-fix-memory/2026-07-02-git-commit-skill-violation.md`
+**案例文件**：`.agents/skills/record-bug-fix-memory/2026-07-02-git-commit-skill-violation.md`
 
 ## 仓库级排错经验索引
 
-详细记录均存放在 `.agents/skills/fix-bug/record-bug-fix-memory/` 案例文件中，根级 AI 记忆文档仅保留索引。
+详细记录均存放在 `.agents/skills/record-bug-fix-memory/` 案例文件中，根级 AI 记忆文档仅保留索引。
 
 - 2026-07-02 — 新建 `use-vercel-deploy-in-monorepo` skill 时的误判链：`2026-07-02-use-vercel-deploy-skill-pitfalls.md`
 - 2026-06-30 — consola Node.js 24 ESM 解析失败：`2026-06-30-consola-node24-esm-resolve.md`

@@ -32,8 +32,8 @@
 | `.../references/{incident-repair,workspace,nuxt-config,windows,mdc-prettier}.md`                             | 修正现行规则、生产边界和安全诊断。                                                   |
 | `.../templates/{nuxt.config.full.ts,workspace-aliases.ts,plugins/ui-lib.ts,package.json}`                    | 去除 production source alias 默认值和项目特例。                                      |
 | `ai-plugins/dev-skills/CHANGELOG.md`、六份 `plugin.json`、两份 marketplace、`ai-plugins/skill-registry.json` | `release-ai-plugins` 的 `10.6.0` 发布产物。                                          |
-| `.agents/skills/fix-bug/record-bug-fix-memory/2026-08-23-init-shadcn-docs-nuxt-production-boundaries.md`     | 经验证的根因、修复和后续约束。                                                       |
-| `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md`                                                      | 仅追加新案例的索引行。                                                               |
+| `.agents/skills/record-bug-fix-memory/2026-08-23-init-shadcn-docs-nuxt-production-boundaries.md`             | 经验证的根因、修复和后续约束。                                                       |
+| `.agents/skills/record-bug-fix-memory/SKILL.md`                                                              | 仅追加新案例的索引行。                                                               |
 
 ## Task 1：建立分发边界的失败测试
 
@@ -309,8 +309,8 @@ git diff --check -- ai-plugins/dev-skills ai-plugins/skill-registry.json tests/i
 
 **文件：**
 
-- 新建：`.agents/skills/fix-bug/record-bug-fix-memory/2026-08-23-init-shadcn-docs-nuxt-production-boundaries.md`
-- 修改：`.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md`
+- 新建：`.agents/skills/record-bug-fix-memory/2026-08-23-init-shadcn-docs-nuxt-production-boundaries.md`
+- 修改：`.agents/skills/record-bug-fix-memory/SKILL.md`
 
 **接口：**
 
@@ -339,8 +339,8 @@ codex plugin marketplace remove ruan-cat-tools --json
 
 ```powershell
 rg -n 'D:/|[A-Za-z]:[\\/]|/Users/|/home/|docs/reports|tests/|@eams-monorepo' ai-plugins/dev-skills/skills/init-shadcn-docs-nuxt
-git diff --check -- ai-plugins/dev-skills ai-plugins/skill-registry.json tests/init-shadcn-docs-nuxt .agents/skills/fix-bug/record-bug-fix-memory
-git status --short --untracked-files=all -- ai-plugins/dev-skills ai-plugins/skill-registry.json tests/init-shadcn-docs-nuxt .agents/skills/fix-bug/record-bug-fix-memory docs/superpowers
+git diff --check -- ai-plugins/dev-skills ai-plugins/skill-registry.json tests/init-shadcn-docs-nuxt .agents/skills/record-bug-fix-memory
+git status --short --untracked-files=all -- ai-plugins/dev-skills ai-plugins/skill-registry.json tests/init-shadcn-docs-nuxt .agents/skills/record-bug-fix-memory docs/superpowers
 ```
 
 预期：路径扫描零命中；diff 检查通过；状态只包含本计划文件、发布文件、目标测试与案例文件，且不包含用户已有 `docs/prompts/**` 修改。

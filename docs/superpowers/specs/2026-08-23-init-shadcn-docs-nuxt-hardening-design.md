@@ -57,24 +57,24 @@ Turbo 只在目标项目实际使用 Turbo 时适用，不提供通用 `turbo.js
 
 ## 文件结构与职责
 
-| 路径                                                                                                     | 变更职责                                                                                                                |
-| -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `ai-plugins/dev-skills/skills/init-shadcn-docs-nuxt/SKILL.md`                                            | 升级入口、错误信号路由、生产验收合同、版本至 `1.1.0`。                                                                  |
-| `.../references/production-graph-and-runtime-closure.md`                                                 | 新增 current reference：生命周期、externalization、Element Plus/Popper、Node heap、wrapper 退役、artifact HTTP、Turbo。 |
-| `.../references/README.md`                                                                               | 新增当前 reference 导航与迁移台账；不把历史 archive 作为运行时依赖。                                                    |
-| `.../references/incident-repair.md`                                                                      | 消除“完整 workspace/UI 依赖树加入 noExternal”的泛化建议，保留它作为历史误区与受限纠偏。                                 |
-| `.../references/workspace.md`                                                                            | 写入开发 source alias 与 production package boundary、manifest 优先于 hoist/linker。                                    |
-| `.../references/nuxt-config.md`                                                                          | 限定 `debug` 兼容例外，补充不外推为依赖族配置的门禁。                                                                   |
-| `.../references/windows.md`                                                                              | 将宽杀进程示例改为 PID/命令行审计；统一使用 `pnpm exec nuxi`；保留条件化 trace 与跨平台复验。                           |
-| `.../references/mdc-prettier.md`                                                                         | 修正 MDC 正例，确保开标记不带 Markdown 标题。                                                                           |
-| `.../templates/nuxt.config.full.ts`                                                                      | 默认移除 production source alias；提供开发期显式 opt-in 的泛化模式。                                                    |
-| `.../templates/workspace-aliases.ts`、`.../templates/plugins/ui-lib.ts`                                  | 移除项目特例，保留可复制的泛化样例。                                                                                    |
-| `.../templates/package.json`                                                                             | 仅增加 runtime alias 检查说明；不预置 Element Plus/Popper alias。                                                       |
-| `.../templates/.nuxt/**`                                                                                 | 删除 25 个非分发生成物；不迁移、不归档。                                                                                |
-| `tests/init-shadcn-docs-nuxt/skill-behavior.test.ts`                                                     | 新增 Vitest 静态行为契约，防止上述边界回退。                                                                            |
-| `ai-plugins/dev-skills/CHANGELOG.md`                                                                     | 记录技能 `1.1.0` 的公开能力变化。                                                                                       |
-| 发布 metadata、marketplace、registry                                                                     | 由 `release-ai-plugins` 发布流程更新为 `10.6.0`，registry 只由 canonical generator 写入。                               |
-| `.agents/skills/fix-bug/record-bug-fix-memory/2026-08-23-init-shadcn-docs-nuxt-production-boundaries.md` | 实施验证后记录问题、根因、误导点、有效修复、验证与后续约束，并更新案例索引。                                            |
+| 路径                                                                                             | 变更职责                                                                                                                |
+| ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| `ai-plugins/dev-skills/skills/init-shadcn-docs-nuxt/SKILL.md`                                    | 升级入口、错误信号路由、生产验收合同、版本至 `1.1.0`。                                                                  |
+| `.../references/production-graph-and-runtime-closure.md`                                         | 新增 current reference：生命周期、externalization、Element Plus/Popper、Node heap、wrapper 退役、artifact HTTP、Turbo。 |
+| `.../references/README.md`                                                                       | 新增当前 reference 导航与迁移台账；不把历史 archive 作为运行时依赖。                                                    |
+| `.../references/incident-repair.md`                                                              | 消除“完整 workspace/UI 依赖树加入 noExternal”的泛化建议，保留它作为历史误区与受限纠偏。                                 |
+| `.../references/workspace.md`                                                                    | 写入开发 source alias 与 production package boundary、manifest 优先于 hoist/linker。                                    |
+| `.../references/nuxt-config.md`                                                                  | 限定 `debug` 兼容例外，补充不外推为依赖族配置的门禁。                                                                   |
+| `.../references/windows.md`                                                                      | 将宽杀进程示例改为 PID/命令行审计；统一使用 `pnpm exec nuxi`；保留条件化 trace 与跨平台复验。                           |
+| `.../references/mdc-prettier.md`                                                                 | 修正 MDC 正例，确保开标记不带 Markdown 标题。                                                                           |
+| `.../templates/nuxt.config.full.ts`                                                              | 默认移除 production source alias；提供开发期显式 opt-in 的泛化模式。                                                    |
+| `.../templates/workspace-aliases.ts`、`.../templates/plugins/ui-lib.ts`                          | 移除项目特例，保留可复制的泛化样例。                                                                                    |
+| `.../templates/package.json`                                                                     | 仅增加 runtime alias 检查说明；不预置 Element Plus/Popper alias。                                                       |
+| `.../templates/.nuxt/**`                                                                         | 删除 25 个非分发生成物；不迁移、不归档。                                                                                |
+| `tests/init-shadcn-docs-nuxt/skill-behavior.test.ts`                                             | 新增 Vitest 静态行为契约，防止上述边界回退。                                                                            |
+| `ai-plugins/dev-skills/CHANGELOG.md`                                                             | 记录技能 `1.1.0` 的公开能力变化。                                                                                       |
+| 发布 metadata、marketplace、registry                                                             | 由 `release-ai-plugins` 发布流程更新为 `10.6.0`，registry 只由 canonical generator 写入。                               |
+| `.agents/skills/record-bug-fix-memory/2026-08-23-init-shadcn-docs-nuxt-production-boundaries.md` | 实施验证后记录问题、根因、误导点、有效修复、验证与后续约束，并更新案例索引。                                            |
 
 ## 非目标
 

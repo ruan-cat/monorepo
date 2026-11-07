@@ -161,7 +161,7 @@
 这一部分保持现状，仍然只面向 `.claude/skills/`：
 
 - 例如部署 `record-bug-fix-memory`
-- 例如创建 `.claude/skills/fix-bug/record-bug-fix-memory/`
+- 例如创建 `.agents/skills/record-bug-fix-memory/`
 
 原因是这些属于仓库局部技能模板，不属于对外分发插件树。
 

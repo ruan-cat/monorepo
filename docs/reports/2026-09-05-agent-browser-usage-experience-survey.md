@@ -92,7 +92,7 @@ agent-browser close
 - **降级路径**（同报告附录 L219）：`chrome --headless=new --remote-debugging-port=<port>` + `agent-browser connect <port>`。
 - **console 捕获不可靠** → playwright-core `connectOverCDP` 直连 CDP，用 `Network.requestWillBeSent` 的 `initiator.url` 精确定位导入链（定位到 mermaid chunk 导入了 dayjs）。
 - **SSR 时机坑**（plan.md 12.5）：VitePress SSR 模式下 `eval` 可能取不到客户端注入的 CSS 变量，需确保客户端渲染完成后执行。
-- **命令名坑**（`.agents/skills/fix-bug/record-bug-fix-memory/2026-09-05-ai-vue-doc-local-dev-fix.md` 经验 7）：设置视口的命令是 `set viewport <w> <h>`，不是 `set-viewport`；验收必须桌面视口（`hidden md:flex` 类容器窄视口本就不渲染）。
+- **命令名坑**（`.agents/skills/record-bug-fix-memory/2026-09-05-ai-vue-doc-local-dev-fix.md` 经验 7）：设置视口的命令是 `set viewport <w> <h>`，不是 `set-viewport`；验收必须桌面视口（`hidden md:flex` 类容器窄视口本就不渲染）。
 - **typed MCP 超时**（`openspec/changes/archive/2026-08-24-build-ai-chat-packages/agent-progress.md`）：`agent_browser_open` 等待 300 秒超时；Nuxt 与 VitePress 均复现后，决策改用 Chrome DevTools 证据并在 findings 保留失败路径，**不再重复等待**。
 
 ### 1.6 事故报告 §7 的技能改进清单（未落地的直接诉求）
@@ -111,7 +111,7 @@ agent-browser close
 
 - **三层验收链路**（事故复盘 §5）：转换层（Vitest/fixture）→ 本地页面层（本机 Chrome + 视口截图）→ 生产页面层（同路径复验 + 部署 SHA），层层不可互相替代。
 - **生产验收记录八要素**（§6 标准 6）：浏览器可执行程序、CDP 端口/会话类型、精确 URL、截图路径、部署 ID、提交 SHA、图片加载统计、视觉结论。
-- **流式四状态**（`.agents/skills/fix-bug/record-bug-fix-memory/2026-09-01-vercel-project-binding-production-browser-closure.md`）：「请求已发出」「来源已渲染」「取消成功」「完整回答完成」必须按证据逐项报告，HTTP 200 不得替代完整回答流结论。
+- **流式四状态**（`.agents/skills/record-bug-fix-memory/2026-09-01-vercel-project-binding-production-browser-closure.md`）：「请求已发出」「来源已渲染」「取消成功」「完整回答完成」必须按证据逐项报告，HTTP 200 不得替代完整回答流结论。
 - **验证口径四件套**（`reports/2026-9-5-fix-shadcn-docs-nuxt/README.md` §9）：状态码 + 标题/正文断言 + 水合判定 + 桌面视口截图 + 至少一个交互闭环，缺一不可。
 - **证据 supersede**（`openspec/changes/archive/2026-08-31-ai-rag-phase2/tasks.md`）：验收证据带「修复前 / 已被后续验收取代」标记，避免过期证据误导。
 - **截图存档惯例**：统一落系统临时目录（如 `C:\Users\pc\AppData\Local\Temp\<任务前缀>-*.png`），证据文件以表格记录样本页面/统计/截图路径/结论。
@@ -133,7 +133,7 @@ agent-browser close
 - **唯一直接命中**：`openspec/changes/implement-linkage-collaboration/agent-findings.md` —「agent-browser 可见浏览器会话启动超时，当前只能依赖 DevTools smoke；如果后续必须做完整可见 Chrome 验收，需要换一条可稳定启动的浏览器路径」。属未解决待办。
 - **项目内最核心资产**：`.agents/skills/chrome-mcp-visual-workflow/SKILL.md` — 完整的浏览器联调 SOP：核心原则 → 三类任务（原型视觉分析/接口按钮模拟/dev-preview 双向对比）→ 执行节奏（smoke → 分批矩阵 → 单独 fullscreen）→ 截图位置纪律 → 实例管理纪律 → 工具调用表 → Headless 禁令 → 借口反制表 → 完成检查清单（10 项）。工具名可一一映射到 agent-browser。
 - **等待策略表**（`docs/reports/2026-7-6-use-chrome-devtools/best-practices.md`）：首屏 ≥8s（Loading 3-4s + GSAP 入场 2-3s + 渲染稳定）、路由切换 ≥5s、刷新 ≥6s；`Page.loadEventFired` 对动画大屏不可靠，固定视口后等 8-9 秒再读 DOM 几何。
-- **headless 三禁**（`.agents/skills/fix-bug/record-bug-fix-memory/2026-06-29-playwright-headless-cpu-overload.md`）：无头 Chromium + GSAP 呼吸动效 + ECharts Ring3D + Three.js WebGL（无 VSync 限制、以最高帧率运行）= CPU 死亡螺旋；`reducedMotion: 'reduce'` 只冻结 CSS 动画，冻不住 JS 驱动动画；禁止 `gsap.globalTimeline.progress(1)` 和手动覆盖 `element.style.opacity`（下一 tick 被重新覆盖），正确做法是等自然完成 + `pause()` + `ticker.sleep()`。用户原话：「禁用无头浏览器！卡死了！」→ Playwright 视觉测试方案整体弃用（`docs/reports/2026-06-29-playwright-visual-testing-abandoned.md`）。
+- **headless 三禁**（`.agents/skills/record-bug-fix-memory/2026-06-29-playwright-headless-cpu-overload.md`）：无头 Chromium + GSAP 呼吸动效 + ECharts Ring3D + Three.js WebGL（无 VSync 限制、以最高帧率运行）= CPU 死亡螺旋；`reducedMotion: 'reduce'` 只冻结 CSS 动画，冻不住 JS 驱动动画；禁止 `gsap.globalTimeline.progress(1)` 和手动覆盖 `element.style.opacity`（下一 tick 被重新覆盖），正确做法是等自然完成 + `pause()` + `ticker.sleep()`。用户原话：「禁用无头浏览器！卡死了！」→ Playwright 视觉测试方案整体弃用（`docs/reports/2026-06-29-playwright-visual-testing-abandoned.md`）。
 - **截图时机过早 = 假故障**（`2026-06-29-chrome-devtools-screenshot-timing-misjudgment.md`）：未固定视口、未等 loading、未等动画就截图，把过早截图当成真实渲染失败，险些启动大量组件重构。
 - **快照 ≠ 视觉证据**（`docs/superpowers/agent-findings.md`）：loading 遮罩 `opacity: 0` 隐藏后，a11y snapshot 仍能读到文本节点——DOM 可访问性树与视觉截图要分开判定。
 - **截图纪律**（chrome-mcp-visual-workflow SKILL.md ：92-107）：默认放 `%TEMP%`，路径含任务名/时间戳/来源（dev、preview、production、fullscreen），默认压缩 JPEG，任务结束前删除，不写入仓库。
@@ -191,7 +191,7 @@ WorkBuddy (32648) → sidecar (10892) → MCP server (32212)
 
 - `ai-plugins/common-tools/skills/cleanup-agent-team-node-processes/SKILL.md`（v1.4.2）：agent-browser 残留进程治理的对外分发技能，覆盖 `agent-browser.exe`、`agent-browser-cli.exe`、`agent-browser-win32-x64.exe`、WorkBuddy prewarm 池归属、单池单清理、禁 Force 等门禁。新技能的进程治理章节应引用它而不是重复实现。
 - `ai-plugins/dev-skills/skills/init-shadcn-docs-nuxt/references/ssr-hydration.md` §2.4：浏览器接入降级路径表（exit 3 → `--no-sandbox` / 手动 headless=new + connect / console 捕获不可靠 → connectOverCDP / `set viewport` 命令名）。
-- `.agents/skills/fix-bug/record-bug-fix-memory/2026-09-01-init-shadcn-docs-nuxt-vercel-runtime-closure.md`：可见浏览器证据闭环案例。
+- `.agents/skills/record-bug-fix-memory/2026-09-01-init-shadcn-docs-nuxt-vercel-runtime-closure.md`：可见浏览器证据闭环案例。
 - `docs/prompts/release-ai-plugins/02.md`：任务 089 即本次任务（2026-9-5 ZCode 正在做）。
 - 全局技能 `C:\Users\pc\.agents\skills\agent-browser\SKILL.md`（来源 vercel-labs/agent-browser）：本身是 discovery stub，要求动手前先 `agent-browser skills get core` 读取版本匹配的完整指南——新技能必须保留这个「以 CLI 自带内容为最终权威」的设计。
 

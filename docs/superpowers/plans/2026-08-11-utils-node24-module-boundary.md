@@ -111,8 +111,8 @@ test("在禁止解析 consola 时加载 conditions", () => {
 
 **文件：**
 
-- 修改：`.agents/skills/fix-bug/record-bug-fix-memory/2026-08-11-vitepress-node24-pnpm-entrypoint.md`
-- 修改：`.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md`
+- 修改：`.agents/skills/record-bug-fix-memory/2026-08-11-vitepress-node24-pnpm-entrypoint.md`
+- 修改：`.agents/skills/record-bug-fix-memory/SKILL.md`
 - 修改：`AGENTS.md`
 - 修改：`CLAUDE.md`
 - 修改：`GEMINI.md`
