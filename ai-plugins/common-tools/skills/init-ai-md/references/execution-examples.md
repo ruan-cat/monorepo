@@ -60,11 +60,13 @@
 2. 扫描 templates/ 目录，建立可用记忆项清单
 3. 使用 AskUserQuestion 询问用户需要哪些记忆项
 4. 用户选择后，按序号顺序插入选中的模板内容
-5. 检查 .agents/skills/ → 不存在 record-bug-fix-memory
-6. 无条件创建 .agents/skills/fix-bug/record-bug-fix-memory/SKILL.md
-7. 扫描 .agents/skills/ 全部技能 → 生成「本项目的技能表」章节
-8. 将技能表插入 AGENTS.md 的开头位置（一级标题之后、其他二级标题之前）
-9. 对存在的 CLAUDE.md/GEMINI.md 写入固定重定向并完成验收
+5. 检查扁平目录 → 不存在 `.agents/skills/record-bug-fix-memory/SKILL.md`，且两处旧嵌套目录亦无正文
+6. 将模板复制到 `.agents/skills/record-bug-fix-memory/SKILL.md`（全新部署）
+7. 若存在旧嵌套目录 → 按步骤 5 将 Markdown 剪切到扁平目录后删除变空的嵌套目录
+8. 扫描 .agents/skills/ 全部技能 → 生成「本项目的技能表」章节
+9. 将技能表插入 AGENTS.md 的开头位置（一级标题之后、其他二级标题之前）
+10. 在扁平 `SKILL.md` 与技能表该行收敛四段旧路径前缀（若有）
+11. 对存在的 CLAUDE.md/GEMINI.md 写入固定重定向并完成验收
 ```
 
 ### 场景 5：增量更新时发现新技能
@@ -77,7 +79,7 @@
 1. 检测到已有 AGENTS.md → 读取现有内容
 2. 扫描 templates/ 和已有记忆项 → 对比分析
 3. 用户选择更新记忆项 → 执行差异补全
-4. 检查 .agents/skills/ → 发现已有 record-bug-fix-memory
+4. 检查扁平 `.agents/skills/record-bug-fix-memory/` → 已存在；若仍有旧嵌套目录则执行压平搬迁（即使 template-version ≥ 2.0.0）
 5. 扫描 .agents/skills/ → 发现用户新增了 code-style 技能
 6. 对比现有技能表 → 识别新增技能
 7. 补全技能表，新增 code-style 条目

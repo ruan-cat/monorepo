@@ -22,7 +22,7 @@ metadata:
 1. **初始化 AGENTS.md**：检查并创建项目唯一的 AI 记忆文件
 2. **交互式选择**：扫描现有内容和可用模板，让用户选择需要的记忆项
 3. **差异对比补全**：深度对比文本差异，仅补全缺失内容而非全量替换
-4. **旧模式迁移**：将 legacy CLAUDE.md / GEMINI.md 内容恢复到 AGENTS.md，并把两个旧文件清空为重定向；迁移旧目录中的 `record-bug-fix-memory`
+4. **旧模式迁移**：将 legacy CLAUDE.md / GEMINI.md 内容恢复到 AGENTS.md，并把两个旧文件清空为重定向；将嵌套目录中的 `record-bug-fix-memory` 压平到 `.agents/skills/record-bug-fix-memory/`
 5. **技能表管理**：扫描项目中 `.agents/skills/` 目录下的现有技能，在 AGENTS.md 中创建并维护「本项目的技能表」章节
 6. **内置技能初始化**：支持将 `record-bug-fix-memory` 等内置技能模板部署到项目的 `.agents/skills/` 目录中
 
@@ -36,7 +36,7 @@ metadata:
   ```
 
 - 每次执行都删除 `AGENTS.md` 中「获取技术栈对应的上下文」二级章节及正文。
-- `record-bug-fix-memory` 缺失时无条件安装；旧 `.claude/skills` 路径存在时迁移到 `.agents/skills`。
+- `record-bug-fix-memory` 缺失时无条件安装到 `.agents/skills/record-bug-fix-memory/`；只认两个旧嵌套目录（见步骤 5：`` `.agents/skills/` `` + `` `fix-bug/record-bug-fix-memory/` ``；`` `.claude/skills/` `` + `` `fix-bug/record-bug-fix-memory/` ``），将其中的 Markdown 剪切到扁平目录。
 
 ## 文档读取策略
 
@@ -167,63 +167,54 @@ metadata:
 
 ### 步骤 5：初始化或升级本地技能
 
-在完成 AGENTS.md 内容更新后，检查项目是否需要部署或升级内置技能：
+在完成 AGENTS.md 内容更新后，检查项目是否需要部署或压平内置技能 `record-bug-fix-memory`。
+
+**唯一部署位置**：`.agents/skills/record-bug-fix-memory/SKILL.md`（扁平目录，无 `fix-bug` 中间层）。
+
+**只认的两个旧嵌套目录**（以下两段路径拼接后即为完整嵌套路径）：
+
+- `` `.agents/skills/` `` + `` `fix-bug/record-bug-fix-memory/` ``
+- `` `.claude/skills/` `` + `` `fix-bug/record-bug-fix-memory/` ``
 
 1. **检查技能模板目录**：
    - 读取 `templates/record-bug-fix-memory/` 目录，确认内置技能模板可用
-   - 读取模板的 `template-version` 字段（当前为 `2.0.0`）
+   - 模板的 `template-version` 当前为 `2.0.0`（仅作参考；**不再**因项目副本的 `template-version` 缺失或低于 `2.0.0` 而整篇替换 `SKILL.md` 正文）
 
-2. **检测旧格式遗留**（迁移检测）：
-   - 检查项目中是否存在旧格式 `.claude/skills/fix-bug/record-bug-fix-memory/SKILL.md`
-   - 如果存在旧格式，且新路径 `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md` **不存在**：标记为 `[旧格式可迁移]`
-   - 迁移操作只处理 `record-bug-fix-memory`，将其内容移动到 `.agents/skills/fix-bug/record-bug-fix-memory/`，然后删除旧的技能目录
-   - 如果新路径已存在，以 `.agents/skills/` 为 canonical，补入旧路径中缺失的独立案例；同名文件不覆盖
+2. **正文来源判断顺序**（确定以哪份 `SKILL.md` 为正文，再决定是否从模板复制）：
+   1. 扁平目录 `.agents/skills/record-bug-fix-memory/SKILL.md` 已存在 → 以它为正文来源
+   2. 否则，`` `.agents/skills/` `` + `` `fix-bug/record-bug-fix-memory/SKILL.md` `` 存在 → 以它为正文来源
+   3. 否则，`` `.claude/skills/` `` + `` `fix-bug/record-bug-fix-memory/SKILL.md` `` 存在 → 以它为正文来源
+   4. 三处都没有 → **情况 A**：将 `templates/record-bug-fix-memory/SKILL.md` 复制到扁平目录
 
-3. **检查项目现有技能**（新格式）：
-   - 检查项目中是否已存在 `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md`
-   - 如果不存在（且无旧格式可迁移）：标记为 `[可部署]`，并在情况 A 中无条件部署
-   - 如果已存在：读取其 frontmatter 中的 `template-version` 字段
-     - 无版本号或版本 < 2.0.0：标记为 `[需升级]`
-     - 版本 ≥ 2.0.0：标记为 `[已是最新]`
+3. **压平搬迁（无论 `template-version` 高低，只要存在旧嵌套目录就必须执行）**：
+   - 若正文来源不在扁平目录，将对应 `SKILL.md` 放到扁平目录（不整篇换成模板）
+   - 将两个旧嵌套目录中的 **Markdown 文件剪切**到 `.agents/skills/record-bug-fix-memory/`；**同名文件不覆盖**（扁平目录已有则保留）
+   - 两个旧目录同时存在、扁平目录尚无对应文件时：以 `.agents` 嵌套目录中的文件为准，再从 `.claude` 嵌套目录补缺失的 Markdown
+   - `` `.claude/skills/` `` + `` `fix-bug/record-bug-fix-memory/` `` 内**只剪切该技能目录下的 Markdown**；其余 `.claude` 下文件不动
+   - 旧嵌套路径若是**软链接**：停下来单独报告，不搬迁
+   - **非 Markdown** 留在原目录并写入报告，**不删除**含非 Markdown 的旧目录
+   - 仅删除**已变空**的 `record-bug-fix-memory` 目录与**已变空**的上一层 `fix-bug` 目录；`.claude` 与 `.claude/skills` **即使变空也保留**
+   - 旧嵌套路径**不留**跳转说明或重定向 stub
 
-4. **判断是否为旧版单层架构**：
-   - 如果标记为 `[需升级]`，检查现有 SKILL.md 是否内嵌了大段事故记录正文
+4. **内嵌案例拆分（情况 C）**：
+   - 检查扁平目录内 `SKILL.md` 是否仍内嵌大段事故记录正文
    - 判断方法：检测 `###` 三级标题下是否存在超过 10 行的内容块
-   - 如果存在内嵌案例：标记为 `[需升级 + 需拆分]`
+   - 若存在：提取每条事故记录（`###` 三级标题 + 正文），在扁平目录创建 `YYYY-MM-DD-{slug}.md`（日期从标题提取或使用当前日期；slug 从标题关键词生成）
+   - 在 `SKILL.md` 的「案例索引」章节为每条拆分案例生成摘要索引；**不**因 `template-version` 用模板整篇替换正文
 
-5. **执行部署或升级**：不再询问是否安装或迁移；状态仅用于选择以下处理分支。
+5. **路径字符串收敛**（`init-ai-md` **仅**修改以下两处，不在全仓库批量替换）：
+   - 扁平目录 `.agents/skills/record-bug-fix-memory/SKILL.md` 内的四段完整旧路径前缀
+   - `AGENTS.md`「本项目的技能表」中 `record-bug-fix-memory` **那一行**内的四段完整旧路径前缀
 
-   **情况 A：全新部署（`[可部署]`）**
-   - 将 `templates/record-bug-fix-memory/SKILL.md` 复制到项目的 `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md`
-   - 创建必要的目录结构
-   - 模板中的「案例索引」章节初始为空，随项目积累逐步补充
+   四段「原文」前缀与对应「替换为」见发版规格 `docs/prompts/release-ai-plugins/2026-11-7-init-ai-md-with-new-local-skills/spec.md` 的「文本」表（含 `.agents` / `.claude` 与正斜杠、反斜杠共四行）。执行时仅替换前缀，后缀如 `/SKILL.md`、`\SKILL.md`、具体案例文件名保持不动。
 
-   **情况 B：升级骨架（`[需升级]`，无内嵌案例）**
-   - 用模板的流程指导部分替换现有 SKILL.md 的对应章节
-   - 保留项目已有的案例索引内容（如果有）
-   - 保留同目录下已有的独立案例文件
+6. **执行分支摘要**（不再询问是否安装或搬迁）：
 
-   **情况 C：升级 + 拆分（`[需升级 + 需拆分]`）**
-   - 提取 SKILL.md 中内嵌的每条事故记录（`###` 三级标题 + 正文）
-   - 为每条记录创建独立的案例文件 `YYYY-MM-DD-{slug}.md`
-     - 日期从标题中提取（如有），否则使用当前日期
-     - slug 从标题关键词生成
-   - 在 SKILL.md 的「案例索引」章节为每条拆分出的案例生成摘要索引
-   - 用模板的流程指导部分替换 SKILL.md 的骨架
-   - 最终 SKILL.md 只保留流程指导 + 摘要索引，不再包含事故正文
+   **情况 A：全新部署** — 三处均无 `SKILL.md`，复制模板到扁平目录；「案例索引」初始为空。
 
-   **情况 D：旧格式迁移（`[旧格式可迁移]`）**
-   - 检测到 `.claude/skills/fix-bug/record-bug-fix-memory/` 下存在旧格式技能
-   - 项目统一使用 `.agents/skills/` 作为技能目录
-   - 创建 `.agents/skills/fix-bug/` 目录（如不存在）
-   - 将旧技能文件和独立案例完整移动到 `.agents/skills/fix-bug/record-bug-fix-memory/`
-   - 删除已迁移的旧 `record-bug-fix-memory` 目录，不处理其他 `.claude/skills/` 技能
-   - 迁移完成后，重新按新格式执行步骤 6 的技能扫描和技能表生成
-   - 注意：迁移仅移动文件，不修改案例正文；SKILL.md 内部的路径引用由各技能自身维护
+   **情况 C：内嵌案例拆分** — 见上文第 4 步；案例文件落在扁平目录。
 
-   **情况 E：已是最新（`[已是最新]`）**
-   - 不替换项目已有的技能正文、案例索引和独立案例文件
-   - 仅检查目标路径和版本字段，然后继续执行步骤 6
+   **情况 E：`template-version` ≥ 2.0.0 或缺失/偏低** — **不**按版本号整篇替换 `SKILL.md` 正文；**仍执行**第 3 步压平搬迁与第 5 步路径收敛。情况 E「已是最新」仅表示跳过版本驱动的正文替换，**不表示**可保留嵌套目录不搬迁。
 
 ### 步骤 6：生成/更新「本项目的技能表」
 
@@ -248,7 +239,7 @@ metadata:
      ```
    - **特殊处理 `record-bug-fix-memory`**：该技能采用双层存储架构，技能表条目必须额外包含存储架构说明和阅读指引，格式如下：
      ```markdown
-     - `record-bug-fix-memory` — `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
+     - `record-bug-fix-memory` — `.agents/skills/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
        - **存储架构**：双层存储。SKILL.md 只放流程指导和摘要索引，详细案例存储在同目录下的独立 `YYYY-MM-DD-{slug}.md` 文件中。
        - **阅读方式**：使用此技能前，先读 SKILL.md 了解流程，再根据「案例索引」章节按需读取相关的独立案例文件。
        - **写入方式**：新增经验时，创建独立案例文件，同时在 SKILL.md 的「案例索引」追加摘要。禁止将完整事故正文写入 SKILL.md。

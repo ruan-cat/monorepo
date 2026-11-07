@@ -50,8 +50,8 @@ metadata:
    - 其次使用 gh cli
 4. 上下文要求：
    - 主动阅读目标项目根目录的 `AGENTS.md` 和项目级别 `record-bug-fix-memory` 技能存储的经验教训。
-   - 首先阅读 `.agents\skills\fix-bug\record-bug-fix-memory\SKILL.md` ，找到与本次任务可能相关的错误，作为你的历史参考。
-   - 针对性的阅读 `.agents\skills\fix-bug\record-bug-fix-memory` 目录内提供的详细错误经验。
+   - 首先阅读 `.agents\skills\record-bug-fix-memory\SKILL.md` ，找到与本次任务可能相关的错误，作为你的历史参考。
+   - 针对性的阅读 `.agents\skills\record-bug-fix-memory` 目录内提供的详细错误经验。
    - 通过 `Skill Router MCP` 获取指导 skills： 用这款 skill-router-mcp 来获取本任务必要的指导技能。
 5. pr 稿 title 要求：
    - 优先使用 `@Skill Router MCP` 连接器/skill-router-mcp 获取指导技能 `git-commit` 来编写 pr 稿 title 。

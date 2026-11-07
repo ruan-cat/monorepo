@@ -37,34 +37,37 @@
 
 这是一个专用于 bug 修复经验沉淀的技能，采用**双层存储架构**。部署后：
 
-1. **目标路径**：`.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md`
+1. **目标路径（扁平部署）**：`.agents/skills/record-bug-fix-memory/SKILL.md`
 2. **来源模板**：`templates/record-bug-fix-memory/SKILL.md`（template-version: 2.0.0）
-3. **双层存储架构**：
+3. **旧嵌套遗留（仅认两处）**：`` `.agents/skills/` `` + `` `fix-bug/record-bug-fix-memory/` ``；`` `.claude/skills/` `` + `` `fix-bug/record-bug-fix-memory/` ``。Markdown 剪切到扁平目录，同名不覆盖；非 Markdown 留原地并报告；软链接则停下报告。只删变空的 `record-bug-fix-memory` 与变空的 `fix-bug`；`.claude` / `.claude/skills` 空目录仍保留。
+4. **双层存储架构**：
    - **SKILL.md**：只放流程指导 + 案例摘要索引（保持精简）
    - **独立案例文件**：每条详细事故记录写成 `YYYY-MM-DD-{slug}.md`，与 SKILL.md 同目录
    - **禁止**将完整事故记录正文内嵌到 SKILL.md 中
-4. **部署后状态**：
+5. **部署后状态**：
    - 技能的通用框架已就绪（概述、何时使用、记录流程、案例文件规范等）
    - 「案例索引」章节为空，等待项目实际积累
    - agent 可以立即使用该技能记录 bug 修复经验
-5. **持续演进**：
+6. **持续演进**：
    - 每次 bug 修复后，agent 创建独立案例文件 `YYYY-MM-DD-{slug}.md`
    - 同时在 SKILL.md 的「案例索引」章节追加一条摘要索引
    - 这使得技能随项目使用逐步丰富，同时 SKILL.md 保持精简可读
 
 ### 部署注意事项
 
-- **全新部署**：如果目标路径不存在，创建目录结构并部署模板
-- **升级部署**：如果已存在旧版（无 template-version 或 < 2.0.0），执行升级流程（见步骤 5）
-- **不会覆盖案例**：升级时保留项目已有的独立案例文件
-- **技能表同步**：部署完成后自动更新 AGENTS.md 中的技能表
+- **正文判断顺序**：扁平目录已有 `SKILL.md` → 它是正文；否则 `.agents` 嵌套；再否则 `.claude` 嵌套；三处都没有则复制模板到扁平目录
+- **压平搬迁**：无论 `template-version` 是否 ≥ 2.0.0，只要存在旧嵌套目录就必须搬迁；情况 E「已是最新」只表示不按版本号整篇替换正文，不表示跳过搬迁
+- **不再版本整替**：不因 `template-version` 缺失或低于 `2.0.0` 整篇替换 `SKILL.md` 正文；内嵌案例仍走情况 C，拆到扁平目录的 `YYYY-MM-DD-*.md`
+- **不会覆盖案例**：剪切时扁平目录同名 Markdown 保留；独立案例文件不因搬迁丢失
+- **路径收敛范围**：`init-ai-md` 只在扁平目录 `SKILL.md` 与 `AGENTS.md` 技能表 `record-bug-fix-memory` 那一行替换四段完整旧路径（见同发版规格「文本」表）
+- **技能表同步**：部署或搬迁完成后自动更新 AGENTS.md 中的技能表
 
 ### AGENTS.md 中的技能表条目要求
 
 部署或升级 `record-bug-fix-memory` 后，在 AGENTS.md 的技能表中生成的条目**必须**包含以下信息，确保 agent 能正确使用双层架构：
 
 ```markdown
-- `record-bug-fix-memory` — `.agents/skills/fix-bug/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
+- `record-bug-fix-memory` — `.agents/skills/record-bug-fix-memory/SKILL.md` — bug 修复后的经验与事故记录沉淀（非调试流程本身）。
   - **存储架构**：双层存储。SKILL.md 只放流程指导和摘要索引，详细案例存储在同目录下的独立 `YYYY-MM-DD-{slug}.md` 文件中。
   - **阅读方式**：使用此技能前，先读 SKILL.md 了解流程，再根据「案例索引」章节按需读取相关的独立案例文件。
   - **写入方式**：新增经验时，创建独立案例文件，同时在 SKILL.md 的「案例索引」追加摘要。禁止将完整事故正文写入 SKILL.md。
