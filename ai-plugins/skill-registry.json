@@ -186,8 +186,8 @@
       "id": "openspec",
       "plugin": "dev-skills",
       "name": "openspec",
-      "description": "OpenSpec 规范驱动开发助手 - 基于 OPSX 工作流的 AI 辅助编程框架。 在编写代码前与 AI 就需求达成一致，使用 Schema 驱动的工件依赖系统管理变更。 \n 触发条件（满足任意一项即触发）： 1. 用户提及 \"openspec\"、\"opsx\"、规范驱动开发、spec-driven 2. 用户想要开始新功能开发、重构或探索复杂需求 3. 用户抱怨 AI 理解偏差或频繁返工 4. 用户使用斜杠命令如 /opsx:new、/opsx:ff、/opsx:apply 等 5. 项目初始化或准备重大变更时 6. 需要生成 proposal、design、tasks 等规范文档时 \n 推荐使用：改进现有项目（棕地开发）、需要高质量实现的关键功能、团队协作开发。 不推荐：快速原型验证（0→1 探索）、一次性小脚本、需求极度不明确的创新探索。",
-      "version": "1.3.0",
+      "description": "OpenSpec 规范驱动开发助手 - 基于 OPSX 工作流的 AI 辅助编程框架。 在编写代码前与 AI 就需求达成一致，使用 Schema 驱动的工件依赖系统管理变更。 \n 触发条件（满足任意一项即触发）： 1. 用户提及 \"openspec\"、\"opsx\"、规范驱动开发、spec-driven 2. 用户想要开始新功能开发、重构或探索复杂需求 3. 用户抱怨 AI 理解偏差或频繁返工 4. 用户使用斜杠命令如 /opsx:new、/opsx:ff、/opsx:apply 等 5. 项目初始化或准备重大变更时 6. 需要生成 proposal、design、tasks 等规范文档时 7. 进入某个项目，需要检查项目级技能目录里是否还有用户不再使用的 openspec 局部技能 \n 推荐使用：改进现有项目（棕地开发）、需要高质量实现的关键功能、团队协作开发。 不推荐：快速原型验证（0→1 探索）、一次性小脚本、需求极度不明确的创新探索。",
+      "version": "1.4.0",
       "entry": "ai-plugins/dev-skills/skills/openspec/SKILL.md"
     },
     {
