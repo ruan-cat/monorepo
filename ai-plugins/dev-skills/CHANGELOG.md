@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [13.1.0] - 2026-11-09
+
+### Changed
+
+- **openspec**：`metadata.version` `1.3.0` -> `1.4.0`。
+- openspec 在进入项目时检查冗余的项目级局部技能，并在用户明确同意后才删除。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `13.1.0`。
+
 ## [13.0.0] - 2026-11-07
 
 ### Changed
