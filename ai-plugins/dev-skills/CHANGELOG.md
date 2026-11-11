@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [13.2.0] - 2026-11-12
+
+### Changed
+
+- **init-shadcn-docs-nuxt**：`metadata.version` `1.8.0` -> `1.9.0`。
+- 新增 Nuxt 4 世代升级与部署通道裁决参考，沉淀已验证矩阵、条件准入配方与「配置优先、通道最后」归因纪律
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `13.2.0`。
+
 ## [13.1.0] - 2026-11-09
 
 ### Changed
