@@ -150,7 +150,7 @@ pnpm patch @ztl-uwu/nuxt-content@2.13.9
 grep -A20 '"dependencies"' <fork>/package.json   # fork 必须声明 slugify 与 @nuxtjs/mdc
 
 # 4. 提交
-pnpm patch-commit "D:/.../.pnpm_patches/@ztl-uwu/nuxt-content@2.13.9"
+pnpm patch-commit "<repo>/.pnpm_patches/@ztl-uwu/nuxt-content@2.13.9"
 # 产物：patches/@ztl-uwu__nuxt-content@2.13.9.patch + 根 package.json patchedDependencies
 ```
 

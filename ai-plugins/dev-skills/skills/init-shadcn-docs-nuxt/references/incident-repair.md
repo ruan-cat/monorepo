@@ -146,7 +146,7 @@ shadcn-docs-nuxt 1.1.9
 }
 ```
 
-`shadcn-docs-nuxt@1.2.2 + Content@2.14.1 + Nuxt 4.4.x` 只能作为 manifest 看起来同代的候选迁移线。本仓库没有对它执行迁移、构建或部署验证，不能写成“已经可用”。
+`shadcn-docs-nuxt@1.2.2 + Content@2.14.1 + Nuxt 4` 曾只是 manifest 看起来同代的候选迁移线；2026-11-11 eams-component-lib 已完成生产级验证（nuxt 4.6.4 + nitropack 2.13.6，三环境真实浏览器与生产部署证据齐全），已验证矩阵与配置配方见 [`nuxt4-upgrade.md`](nuxt4-upgrade.md)。上文 Nuxt 3 保守基线仍是本技能模板的默认世代；repro 实验仓自身未执行 Nuxt 4 迁移验证。
 
 不要把结论扩大成“任何 minor 漂移都会失败”。当前证据只能证明一个已复现坏组合和一个已完整验证的固定基线。
 
@@ -255,6 +255,7 @@ pnpm exec nuxi build --logLevel=verbose
 - “当前固定基线已验证”不等于“Nuxt 4 候选线已验证”。
 - “本地 Windows 构建成功”不等于“Linux/Vercel 生产成功”。
 - “`prerender:routes` 历史 workaround 存在”不等于“它适合 document-driven Content 默认使用”。
+- “云端构建 500”不等于“部署通道/平台不可靠”：闭包缺包指向配置（externals/inline），通道变更是最后手段；修复与基础设施同时落地时归因无效，须补单变量对照。→ 见 [`nuxt4-upgrade.md`](nuxt4-upgrade.md) §9 部署通道裁决与绕远路误区。
 
 ## 事故 C：unstorage 1.17.6 key 校验 × content v2 根路由键（2026-10-31 R46-R51 代码级定案）
 
@@ -301,4 +302,4 @@ async "nitro:init"(nitro) {
 
 双实例 base 不一致（一个 `.nuxt/content-cache`、一个 `node_modules/.cache/nuxt/.nuxt/content-cache`）即错位实锤。
 
-**处置**：升级 Nuxt 4 前先跑早判命令；中招后向上游反馈（[nuxt/nuxt#36792](https://github.com/nuxt/nuxt/issues/36792) 的 F50 评论）——修复方向 = content 的预热/devStorage 对齐 nitro 实际 buildDir，或 nuxt 不让 buildDir 在模块 setup 与实例间分叉；本仓无用户侧规避（payloadExtraction 只解 F48 不解 F50）。验收纪律：升级后 Content query 必须**响应体内容断言**（HTTP 200 不足为证）。
+**处置**：升级 Nuxt 4 前先跑早判命令；中招后向上游反馈（[nuxt/nuxt#36792](https://github.com/nuxt/nuxt/issues/36792) 的 F50 评论）——修复方向 = content 的预热/devStorage 对齐 nitro 实际 buildDir，或 nuxt 不让 buildDir 在模块 setup 与实例间分叉；本仓当时无用户侧规避（payloadExtraction 只解 F48 不解 F50）。**2026-11-11 更新**：eams-component-lib 已验证用户侧规避 `buildDir: ".nuxt"`（F50 探针 0→39，生产内容库恢复），见 [`nuxt4-upgrade.md`](nuxt4-upgrade.md) §2。验收纪律：升级后 Content query 必须**响应体内容断言**（HTTP 200 不足为证）。

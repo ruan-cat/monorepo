@@ -33,6 +33,8 @@ source alias 会改变模块从何处解析；宽 externalization 会把原应�
 
 `nitro.externals.inline` 的删除条件同样与命中的模块绑定：Nitro Rollup 独立阶段不再出现该模块的 exact error，或部署包 manifest 和精准 bundle 已闭合时，移除该条 inline 配置。
 
+删除任何运行时补丁（`noExternal`、`inline`、alias、overrides）前必须取得**产物级回归证据**：产物启动、HTTP 内容断言与闭包复核均通过才可删除；没有证据时保留。「配置简化」目标不凌驾于该纪律——激进删除→被迫补回的返工案例（commit 对质表）见 [`nuxt4-upgrade.md`](nuxt4-upgrade.md) §9。
+
 ## 实际部署包 manifest 优先
 
 先检查真正构建并部署的文档包 `package.json`、锁文件和解析树。运行时直接消费的包应由该部署包显式声明；根目录提升、其他 workspace 包的传递依赖、开发环境碰巧可解析，都不是生产闭包证据。
@@ -99,6 +101,8 @@ fresh install 后依次验证：实际解析到的 alias、最终 server bundle 
 
 通过矩阵后，才可以把 runtime closure 视为已验证；任一门失败都回到该门，而不是跨阶段追加宽配置。
 
+升级类变更（Nuxt 世代、依赖矩阵、部署通道）另须**三环境无假阳性复核**：dev、preview、生产分别独立起服务，真实浏览器交互与 console 三重证据；版本身份分别记录（dev 日志横幅、preview `nitro.json`、生产部署来源与页面体量）。entry 哈希的跨平台重构建差异不是假阳性信号。
+
 ## 强制状态与 provider 证据门
 
 ### 修改前后保护写集
@@ -131,6 +135,12 @@ Vercel 验收必须记录部署 URL、Git commit SHA、deployment ID、构建/�
 - 任何 override 都要审查 lockfile 精确 diff、全 workspace build/test/typecheck 和回滚路径；“安装不再报错”不是兼容性证明。
 
 `entities/decode` 这类错误优先修部署包 manifest 与产物追踪入口。只有日志和 bundle 明确证明首错位于 Nitro Rollup，且精确 inline 后 `.output`/Function artifact、启动和 HTTP smoke 均通过，才允许保留 `nitro.externals.inline`；否则不得把它写进生产模板。
+
+## 部署通道默认态与混淆变量纪律
+
+闭包配置修复后，Vercel Git-integration 云端 Linux 自建是默认通道（push 即部署，最简）；CI prebuilt workflow 只作「本地 Windows 产物直接上传」场景的 scoped fallback——Windows 产物链接类引用换机即断（见 [`windows.md`](windows.md) R53），Linux 相对 symlink 可移植。**R53 适用面不得泛化到云端自建**：云端 Linux 自建不经 Windows 产物，「Windows 产物不可移植」与「云端构建闭包缺包」是两个故障面。
+
+配置优先、通道最后：构建/运行时 500 先穷尽配置级单变量实验（externals/inline/alias/overrides），基础设施是最后手段。**修复与基础设施变更同时落地 ⇒ 成功归因无效**，必须补「撤掉基础设施」或「撤掉修复」的单变量对照，再决定基础设施去留；每加一层写明可删除条件。完整裁决案例与纪律五条见 [`nuxt4-upgrade.md`](nuxt4-upgrade.md) §9。
 
 ## Workspace 构建边
 
