@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [13.2.1] - 2026-11-14
+
+### Changed
+
+- **init-shadcn-docs-nuxt**：`metadata.version` `1.9.0` -> `1.9.1`。
+- nuxt4-upgrade §8 新增「子包共存隔离纪律（pnpm isolated）」：显式声明 h3、禁裸导入、fresh install 双树复核、G10 跨应用隔离门与 packageExtensions 逐包注入，交叉链接 dependency-triage；历史事故强约束续编号至 29 条
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `13.2.1`。
+
 ## [13.2.0] - 2026-11-12
 
 ### Changed
