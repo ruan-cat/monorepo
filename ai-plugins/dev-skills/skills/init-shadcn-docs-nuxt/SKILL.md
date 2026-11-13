@@ -13,7 +13,7 @@ description: >-
   `stream did not contain valid UTF-8`、`/_ipx` logo 404、prebuilt workflow 过度设计等错误信号与场景。
 user-invocable: true
 metadata:
-  version: "1.9.0"
+  version: "1.9.1"
 ---
 
 # 初始化 `shadcn-docs-nuxt` 组件库文档
@@ -77,7 +77,7 @@ metadata:
 
 ---
 
-## 历史事故强约束（28 条记忆）
+## 历史事故强约束（29 条记忆）
 
 执行本技能时，**必须默认带着这些"已发生过"的事故记忆**：
 
@@ -112,6 +112,7 @@ metadata:
 26. **部署通道误区：闭包缺包指向配置，不指向通道（2026-11-11 eams B 对照实验定案）**：云端构建 500 先穷尽配置级单变量实验；修复与基础设施同时落地 ⇒ 归因无效，须补对照；「云端/平台不可靠」结论须对照实验支撑；每加一层写明可删除条件。CI prebuilt workflow 仅作「本地 Windows 产物直接上传」的 scoped fallback，R53 适用面不得泛化到云端自建。→ 见 [`references/nuxt4-upgrade.md`](references/nuxt4-upgrade.md) §9
 27. **nitro v3 / h3 v2 不能作 Nuxt 文档站运行时（加载期崩溃实测）**：override 强塞 → `Loading @nuxt/nitro-server server builder failed`；docs 运行时必然 nitropack 2/h3 v1（Nuxt 内置不可替换），项目级 v3/v2 需求用独立 API 应用（双应用架构，`/health` 实证）。→ 见 [`references/nuxt4-upgrade.md`](references/nuxt4-upgrade.md) §8
 28. **Nuxt 4 版本矩阵与 F50 用户侧规避（2026-11-11 生产实证）**：nitropack 2.13.4 与 Nuxt 4 不兼容（本地 500 实测）、2.13.5 有 unstorage 回归（R46）⇒ Nuxt 4 用 2.13.6；`buildDir: ".nuxt"` 是 F50 首个已验证用户侧规避（探针 0→39），升级后仍须 Content 响应体内容断言。→ 见 [`references/nuxt4-upgrade.md`](references/nuxt4-upgrade.md) §1/§2
+29. **双应用两代 nitro/h3 共存必须过隔离门（pnpm isolated）**：docs 包显式声明 `h3: 1.15.11` + 禁裸导入（未声明 h3 的包命中提升层「彩票」，任一 sibling 引入 h3 v2 即集体翻转爆炸）+ fresh install 后双树 `pnpm why` 复核（docs h3 1.x/nitropack 2.x，api h3 2.x 仅经 nitro 3）+ G10 跨应用对照（docs-only/api-only/双应用/不同构建顺序，解析变化必须留证据）；第三方包漏声明用 `packageExtensions` 逐包注入，禁全局 override。→ 见 [`references/nuxt4-upgrade.md`](references/nuxt4-upgrade.md) §8 与 [`references/dependency-triage.md`](references/dependency-triage.md)
 
 ---
 

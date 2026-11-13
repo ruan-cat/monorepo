@@ -211,6 +211,24 @@ nitro: {
 - **结论**：文档站运行时必然 nitropack 2 / h3 v1（Nuxt 内置，不可替换）；项目级 nitro v3 / h3 v2 需求用**独立 API 应用**（双应用架构）：`packages/api` 配 `nitro ^3.0.261103-rc` + `h3 ^2.0.8`，`serverDir: "server"`，路由用 `defineHandler`，`/health` 返回 `{"ok":true,"nitro":3,"h3":2}` 实证。API 的 compatibilityDate 遵循 `nitro-api-development` 契约。
 - **不要用 override 强塞**——那会把可部署站点变成不可构建。
 
+### 子包共存隔离纪律（pnpm isolated）
+
+双应用落地后，docs（nitropack 2 / h3 v1）与 api（nitro 3 / h3 v2）在同一 pnpm workspace 共存，必须过以下隔离门（机制层见 [`dependency-triage.md`](dependency-triage.md) §1/§2）：
+
+1. **显式声明**：docs 包 `dependencies` 显式写 `h3: 1.15.11`（repro `apps/docs` 与 eams 均如此），把自身子树钉在 v1；api 包的 h3 v2 由 nitro v3 自带，**不向 docs 泄露**。
+2. **禁裸导入**：未声明 h3 却 `import "h3"` 的包会命中 `.pnpm/node_modules` 隐藏提升层「彩票」；任一 sibling 引入 h3 v2 即翻转提升层、所有裸导入包集体爆炸（ai-vue-doc 2026-09-05 实证：`ai-rag-api` 引入 `nitro@3.0-beta` 后四包同时中招）。排查用 [`dependency-triage.md`](dependency-triage.md) §2.2 排雷脚本。
+3. **fresh install 后双树复核**：
+
+   ```bash
+   pnpm --filter <docs> why h3 nitropack   # 期望 h3 1.x / nitropack 2.x 单版本
+   pnpm --filter <api> why h3 nitro        # 期望 h3 2.x 仅经 nitro 3 引入
+   ```
+
+   2026-11-14 实测：docs `h3@1.15.11` + `nitropack@2.13.4`；api `h3@2.0.1-rc.22` + `nitro@3.0.260610-beta`。
+
+4. **跨应用隔离门（G10）**：按 repro `docs/task-artifacts/acceptance-gates.md` G10 做 docs-only / api-only / 双应用 / 不同构建顺序四组对照；加入 sibling 后 docs 解析若变化，必须保存 dependency resolution 证据。云侧实证：repro R34 + `evidence/2026-09-30-vercel-deploy-e2e.md`（api `/v1/runtime` 返回 `"generation":"nitro3-h3v2"`）。
+5. **第三方包漏声明**：用 `packageExtensions` 逐包注入（v1 世代包注 v1），**禁全局 override**——h3 v1/v2 共存时 override 会破坏真正需要 v2 的 api 子树（决策表见 [`dependency-triage.md`](dependency-triage.md) §3）。
+
 ## 9. 部署通道裁决与绕远路误区（本轮最重要新增）
 
 ### 默认通道：Git-integration 云端自建（实证）
