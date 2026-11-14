@@ -1,6 +1,6 @@
 # 委托合同与 Preflight
 
-本文件承载 `use-other-model` 的详细任务合同、A-D 能力合同、模型身份规则、preflight 和轻量 prompt 约束。正常调用先读 `SKILL.md`；只有准备真实委托时再加载本文件。
+本文件承载 `use-other-model` 的详细任务合同、A-E 能力合同、模型身份规则、preflight 和轻量 prompt 约束。正常调用先读 `SKILL.md`；只有准备真实委托时再加载本文件。
 
 ## 1. 最小任务合同
 
@@ -58,6 +58,8 @@ retry_limit: 1
 
 ```yaml
 git_commit_plan:
+  scope:
+    - <允许提交的仓库相对路径或绝对路径>
   exclude:
     - <explicitly-excluded-worktree-change>
   groups:
@@ -67,8 +69,15 @@ git_commit_plan:
       files:
         - <path>
       summary: <summary>
-  identity_check: <client-model-trailer-result>
+  verification:
+    - <每组提交前后的最小验证命令>
+  identityCheck:
+    client: <客户端名称>
+    model: <模型名称>
+    trailer: <追加或不追加 Assisted-by 的结论>
 ```
+
+`git_commit_plan` 字段与 git-commit 技能「快速路径任务包」封包保持一致；该封包是 schema 的单一事实源，本文不重复定义字段语义。
 
 ### 范围语义
 
@@ -78,7 +87,7 @@ git_commit_plan:
 - `forbidden_paths`：即使位于更宽工作区内也禁止访问的路径。
 - 实际 changed files 默认必须与 `expected_changed_files` 一致；不能用宽泛 `write_allowlist` 掩盖额外改动。
 
-## 2. A-D 能力合同
+## 2. A-E 能力合同
 
 | 路径                 | 必须记录                                                                                 | 能证明                                     | 不能证明                                                 |
 | -------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------- |
@@ -86,6 +95,7 @@ git_commit_plan:
 | B：Claude Code       | 实际 `claude` 命令、工作目录、permission/tools、显式模型（若有）、原始输出、退出码       | 会话真实启动并执行了记录中的动作           | 子会话自报成功等于任务通过                               |
 | C：OpenCode provider | provider/model、variant、session、工作目录、认证链路存在性、实际命令、原始事件、退出原因 | 指定 provider/model 链路按记录身份运行     | 同名模型的其他 provider 也可用；退出码 0 等于任务成功    |
 | D：OpenCode 默认模型 | 默认模型选择链、variant/session、工作目录、结构化事件暴露出的实际 provider/model（若有） | 默认链路真实启动；事件明确时可记录实际身份 | 省略 `--model` 时凭昵称猜 provider；模型可发现等于已选中 |
+| E：宿主原生子代理    | 子代理类型、实际模型身份（不可选模型时如实记录）、任务封包、原始返回与退出状态           | 原生子代理真实运行并返回了记录中的结果     | 不可选模型时伪造模型层级；返回即任务通过（仍是候选状态） |
 
 ### 模型身份规则
 

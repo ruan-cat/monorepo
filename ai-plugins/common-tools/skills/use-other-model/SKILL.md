@@ -6,14 +6,15 @@ description: >-
   when the goal is token savings, batch or multi-file work, a task expected to
   run longer than 5 minutes, independent verification or security audit,
   model-tier routing, provider/model identity checks, OpenCode default/headless
-  model checks, or choosing between MCP tools, an independent Claude Code
-  session, OpenCode provider mode, and OpenCode default/internal-model mode.
+  model checks, or choosing between MCP tools, a host-native subagent, an
+  independent Claude Code session, OpenCode provider mode, and OpenCode
+  default/internal-model mode.
   当用户或代理要求“使用其他模型/Provider”、节省 token、批量或多文件处理、预计超过 5 分钟的长任务、
   独立验证/安全审计、模型分层、provider/model 身份检查、OpenCode 默认/无头模型检查，
-  或需要在 MCP、独立 Claude Code、OpenCode provider 模式与默认内部模型之间选择时使用。
+  或需要在 MCP、宿主原生子代理、独立 Claude Code、OpenCode provider 模式与默认内部模型之间选择时使用。
 user-invocable: true
 metadata:
-  version: "0.9.0"
+  version: "0.10.0"
 ---
 
 # Use Other Model
@@ -71,7 +72,7 @@ metadata:
 
 用户已经给出完整 `opencode run` / `claude -p` / `skills add` 命令时，默认尊重原命令，不为了“更稳”自动扩张成 wrapper、agent team、发布流程或同步 fallback。
 
-## A-D 路由
+## A-E 路由
 
 | 路径                          | 适用场景                                         | 最低证据                                                       |
 | ----------------------------- | ------------------------------------------------ | -------------------------------------------------------------- |
@@ -79,13 +80,16 @@ metadata:
 | **B：独立 Claude Code 会话**  | 多步骤编码、批量操作、需要独立读写与验证         | 实际命令、工作目录、permission/tools、原始输出、退出码         |
 | **C：OpenCode provider 模式** | 显式 provider、API key/baseURL、`provider/model` | provider/model/variant/session、认证链路、结构化事件、退出原因 |
 | **D：OpenCode 默认内部模型**  | 默认模型 smoke check、headless、未指定 `--model` | 默认选择链、variant/session、可观察到的实际模型身份、原始事件  |
+| **E：宿主原生子代理**         | 宿主原生 Task/Agent 工具且支持指定模型           | 子代理类型、实际模型身份、任务封包、原始返回与退出状态         |
 
 硬规则：
 
 - C 与 D 不互相替代；显式 provider/model 走 C，默认内部模型走 D。
 - OpenCode 直启与原生临时子代理默认互斥；只有用户明确要求嵌套时才组合。
+- E 只允许在宿主原生工具可指定模型时使用；不可指定模型（层级跟随主代理）时改走 B/C/D，或明确接受同层级模型并相应降低任务的判断要求。
+- E 的返回仍然是 `AGENT_PROPOSED_*` 候选状态；异步（后台运行 + 完成通知）委托不减少主代理的验收义务，主代理收到完成通知后必须立即执行验收。
 - “模型可发现”不等于“本次 session 已选中”。同名模型需要区分 `provider/model`。
-- A-D 是调用路径，不代表模型强度。复杂诊断、安全审计和最终判断仍交给强模型/主代理。
+- A-E 是调用路径，不代表模型强度。复杂诊断、安全审计和最终判断仍交给强模型/主代理。
 
 详细能力合同、角色边界和身份等级见 [`references/delegation-contract.md`](references/delegation-contract.md)。
 
@@ -101,11 +105,11 @@ metadata:
 - 不需要执行过程中询问用户。
 - 任意意外情况都可以安全停止并交回主代理。
 
-强主代理必须先完成 A-D 选路、preflight、范围冻结和失败策略，再生成 `Weak Executor Packet`。弱执行模型收到的包必须包含 `DECISION_BUDGET: 0`、`EXACT_ACTIONS`、`STOP_IF` 和固定 `RETURN` schema。
+强主代理必须先完成 A-E 选路、preflight、范围冻结和失败策略，再生成 `Weak Executor Packet`。弱执行模型收到的包必须包含 `DECISION_BUDGET: 0`、`EXACT_ACTIONS`、`STOP_IF` 和固定 `RETURN` schema。
 
 弱执行模型禁止：
 
-- 自己选择 A-D、模型层级或实现方案。
+- 自己选择 A-E、模型层级或实现方案。
 - 自己读取本 skill 的 references 来补全流程。
 - 自己扩大读写范围、换工具、换 provider/model 或安装依赖。
 - 自己恢复未预定义的失败。
@@ -248,13 +252,14 @@ metadata:
 - [ ] 工作目录、路径、模型身份、权限和验收规则在调用前已冻结。
 - [ ] 跨工作区不可达时在模型调用前得到 `PREFLIGHT_BLOCKED`。
 - [ ] 弱模型任务满足 weak-executor 适用门槛，且实际收到 `DECISION_BUDGET: 0`、`EXACT_ACTIONS`、`STOP_IF` 和固定 `RETURN` schema。
-- [ ] 弱模型没有自行读取 references、选 A-D、扩 scope、换 provider/model 或恢复未预定义失败。
+- [ ] 弱模型没有自行读取 references、选 A-E、扩 scope、换 provider/model 或恢复未预定义失败。
 - [ ] 退出码 0 但存在权限拒绝、工具错误、缺失产物或 verifier 失败时，没有标成功。
 - [ ] changed files 精确匹配预期集合且全部位于 write allowlist。
 - [ ] 原始 stdout/stderr/JSONL 独立可复核，派生摘要未覆盖原始证据。
 - [ ] 执行者没有写 `verifier_status` / `human_accepted`，也没有改冻结验收规则。
 - [ ] 重试最多一次且改变失败条件；弱模型只执行预定义恢复。
 - [ ] 主代理亲自查看最终 diff，并完成与任务风险匹配的独立验证。
+- [ ] 异步委托（后台运行 + 完成通知）在收到通知后已由主代理完成验收；未验收的委托不报告完成。
 
 完整状态机和确定性检查见 [`references/evidence-verification.md`](references/evidence-verification.md)。
 

@@ -11,7 +11,7 @@ description: >-
   本技能只追加 Assisted-by，不再生成、审核或拦截 Co-authored-by。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Git Commit
@@ -49,6 +49,17 @@ identityCheck:
 5. 每个提交返回 commit hash、提交正文、实际文件集合和原始验证输出；最终确认没有 `commit-message.txt` 或其他临时文件残留，且不执行 `git push`。
 
 如果封包缺少任一字段、白名单含糊或验证命令不可复现，不得使用快速路径。
+
+### 委托执行（配合 use-other-model）
+
+快速路径封包本身就是弱执行模型的程序合同。主代理按 `use-other-model` 技能委托低级模型执行时，按以下约束走：
+
+1. 封包全字段必须填死，子代理不做任何封包外判断；`type/emoji` 由主代理解析 `commit-types.ts` 后写入 `groups`，子代理无需再解析。
+2. 子代理的 READ 白名单仅限：封包文件与本技能 `SKILL.md` 的快速路径章节；禁止自行加载 references。
+3. 委托期间主代理冻结工作树写操作，只做只读工作；避免触发硬门槛 1 的「封包与工作树不一致」退回。子代理可后台运行，但主代理收到完成通知后必须立即验收。
+4. 主代理验收不可省略：返回的 commit hash 数量应等于 `groups` 数量，`git log` 与 `git status` 结果应与封包一致；验收未过不得宣称完成。
+5. 子代理按固定 schema 汇报：每组 commit hash + 一行 summary + 验证命令原始输出；不向主会话倾倒长输出。
+6. 本节「快速路径任务包」是封包 schema 的单一事实源；`use-other-model` `references/delegation-contract.md` 中的 `git_commit_plan` 与之对齐。
 
 ## 规则来源优先级 [CRITICAL]
 
@@ -178,7 +189,10 @@ identityCheck:
      - 若 commit 过程中出现 warning、hook 改写了文件、或最终提交信息与预期不一致，不能直接宣称完成，必须先修正。
    - **🛑 不要推送**：执行完提交后，**不要执行 `git push`**。推送操作由用户自行决定并执行。
 
-10. **重复下一个提交，直到工作树干净**
+10. **重复下一个提交，直到封包/计划内的 groups 全部提交完成**
+    - 循环终止条件是「计划内 groups 全部提交」，不是「工作树干净」。
+    - 范围外文件保持未暂存（见步骤 2），不计入未完成，在最终汇报中提示用户。
+    - 仅当用户明确要求提交全部工作树变更时，才以「无未纳入范围的修改」为终止条件。
 
 ## 最小有效校验矩阵 [CRITICAL]
 

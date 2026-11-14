@@ -19,7 +19,7 @@
 
 - `delegation-contract.md`
   - 最小任务合同
-  - A-D 能力合同
+  - A-E 能力合同
   - execution / diagnostic / audit 角色边界
   - provider/model 身份规则
   - preflight
@@ -58,7 +58,7 @@
   - 最多一次且必须改变失败条件的重试规则
   - weak execution 的未预定义失败直接返回主代理
 
-## A-D 路径
+## A-E 路径
 
 ### A：MCP
 

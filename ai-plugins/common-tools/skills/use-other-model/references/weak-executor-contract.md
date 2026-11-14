@@ -21,7 +21,7 @@
 
 弱模型不得自己把完整 Task Contract 转换成执行计划。主代理必须先完成：
 
-1. 选择 A-D 路径。
+1. 选择 A-E 路径。
 2. 确认执行角色确实可以使用弱模型。
 3. 完成 working directory、权限、provider/model、工具范围与路径 preflight。
 4. 冻结 read/write allowlist、expected changed files、verification commands 和 forbidden actions。
@@ -29,7 +29,7 @@
 6. 把所有异常分支改写成 `STOP_IF`。
 7. 只把压平后的 Weak Executor Packet 交给弱模型。
 
-弱执行模型**不负责**：选 A-D、选模型层级、设计实现方案、选择 reference、补全缺失规则、修正 Task Contract 或决定失败恢复策略。
+弱执行模型**不负责**：选 A-E、选模型层级、设计实现方案、选择 reference、补全缺失规则、修正 Task Contract 或决定失败恢复策略。
 
 ## 3. Decision budget = 0
 
@@ -75,7 +75,7 @@ EXACT_ACTIONS:
 
 DO_NOT:
 - Do not read any skill or reference file unless it is explicitly listed in READ.
-- Do not choose A/B/C/D.
+- Do not choose A/B/C/D/E.
 - Do not change the task plan, acceptance rules, tests, verifier, CI, dependencies, branch, or model configuration.
 - Do not edit files outside WRITE.
 - Do not install dependencies.

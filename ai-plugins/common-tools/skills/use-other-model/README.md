@@ -44,7 +44,7 @@ use-other-model/
 - 无法预先列出范围和验收标准；
 - 把复杂根因、架构、安全判断或最终验收交给弱模型。
 
-## A-D 路由
+## A-E 路由
 
 | 路径                      | 用途                                            |
 | ------------------------- | ----------------------------------------------- |
@@ -52,6 +52,7 @@ use-other-model/
 | B：独立 Claude Code 会话  | 多步骤编码、批量操作、独立读写与验证            |
 | C：OpenCode provider      | 显式 provider/API key/baseURL/`provider/model`  |
 | D：OpenCode 默认/headless | 默认模型链路、未指定 `--model` 的 headless 调用 |
+| E：宿主原生子代理         | 宿主原生 Task/Agent 工具且支持指定模型          |
 
 完整证据合同见 `references/delegation-contract.md`。
 
@@ -61,7 +62,7 @@ use-other-model/
 
 强主代理先完成：
 
-1. A-D 选路；
+1. A-E 选路；
 2. preflight；
 3. 范围和验收冻结；
 4. 把 Goal 编译为 `EXACT_ACTIONS`；
@@ -157,7 +158,7 @@ use-other-model/
 正常调用：
 
 1. `SKILL.md`
-2. 根据 A-D 路由读取对应模板
+2. 根据 A-E 路由读取对应模板
 3. 写任务封包：`references/context-packet-template.md`
 4. 弱模型任务：主代理额外读取 `references/weak-executor-contract.md`
 5. 验收：`references/evidence-verification.md`

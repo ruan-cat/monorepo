@@ -211,7 +211,7 @@ Reviewer：
 1. **编译门成立**：任务满足 `weak-executor-contract.md` 的适用门槛；如果实际上需要架构/根因/安全/产品判断，直接判定路由错误。
 2. **Packet 形态**：执行者实际收到 `ROLE: EXECUTION_ONLY`、`DECISION_BUDGET: 0`、`READ`、`WRITE`、`EXACT_ACTIONS`、`DO_NOT`、`VERIFY`、`STOP_IF`、`RETURN`。
 3. **Reference 隔离**：除非某个 reference 是任务目标或被主代理明确列入 READ，否则弱模型没有自行加载 `SKILL.md` / references 来补流程。
-4. **无自主选路**：执行者没有自行选择 A-D、provider/model、工具、依赖、实现方案或失败恢复。
+4. **无自主选路**：执行者没有自行选择 A-E、provider/model、工具、依赖、实现方案或失败恢复。
 5. **STOP 行为**：如果原始证据命中 STOP_IF，执行者没有继续扩大操作；应返回 `BLOCKED`。
 6. **动作闭包**：commands/actions 都可以映射到 `EXACT_ACTIONS` 或 `VERIFY`；出现未授权动作即 `VERIFIER_FAIL`。
 7. **返回格式**：弱模型只返回固定 schema；不能把“解释性成功声明”代替 changed files、commands 和 evidence。

@@ -144,7 +144,7 @@ The execution role is finished only when:
 3. Goal 必须能转换成逐条 `EXACT_ACTIONS`，且不需要执行者选择实现方案。
 4. 每个可能阻断执行的意外情况必须转换成 `STOP_IF`。
 5. 验证命令必须完全冻结。
-6. 不允许依赖弱模型自行选择 reference、A-D 路线、provider/model、工具或失败恢复。
+6. 不允许依赖弱模型自行选择 reference、A-E 路线、provider/model、工具或失败恢复。
 7. 生成的 Weak Executor Packet 必须包含 `DECISION_BUDGET: 0`。
 
 任一项做不到：提高模型层级或主代理接管，不要把完整 Master Contract 原样丢给弱模型。
