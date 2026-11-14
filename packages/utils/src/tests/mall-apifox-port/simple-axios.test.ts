@@ -31,7 +31,9 @@ async function main() {
 	return instance.get("/home/category/head");
 }
 
-test(`测试axios在node环境内的请求`, async () => {
+// 该测试真实请求外部第三方教学接口（黑马商城 devtest 环境），其前置阿里云 WAF 会拦截 GitHub Actions 美国 runner 的首次请求（405 挑战）。
+// 属于不可控的「外部世界健康检查」，默认 skip，不进确定性 CI 门禁；本地显式设置 RUN_EXTERNAL_API=1 才真实请求。
+test.skipIf(!process.env.RUN_EXTERNAL_API)(`测试axios在node环境内的请求`, async () => {
 	const res = await main();
 	console.log(res.data);
 });
