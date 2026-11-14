@@ -938,3 +938,4 @@ metadata:
 - 2026-08-12 — Turbo 宽缓存输出掩盖真实包依赖闭包缺口：`2026-08-12-turbo-cache-output-and-package-closure.md`
 - 2026-08-31 — 双 Qoder 会话并行重载打满机器 CPU：`2026-08-31-dual-qoder-session-cpu-saturation.md`
 - 2026-09-01 — shadcn-docs-nuxt Vercel Function runtime closure、Nuxt 世代漂移与 READY 口径误导：`2026-09-01-init-shadcn-docs-nuxt-vercel-runtime-closure.md`
+- 2026-11-15 — use-other-model 与 git-commit 组合委托提交的指令集冲突与修复：`2026-11-15-use-other-model-git-commit-conflict.md`
