@@ -5,7 +5,7 @@
 	"$comment_4": "运行时直接消费的依赖必须由部署文档包 manifest 显式声明；开发期 source alias 需经 fresh install、.output 启动与 HTTP smoke 检查",
 	"$comment_5": "@iconify-json/lucide 是必须的 devDependency，不安装会有集合缺失提示",
 	"$comment_6": "核心 Nuxt/Content/H3/OG Image 五包必须成组审查并精确锁定；nuxt.config.ts 直接引用的第三方包也必须显式声明",
-	"$comment_7": "nuxt-og-image 5.1.10+ 进入 Nuxt 4 @nuxt/kit 依赖线；Nuxt 3 文档站通过 pnpm.overrides 固定 5.1.9（pnpm 12 下该设置块静默失效，须迁 pnpm-workspace.yaml，见 dependency-triage.md「pnpm 12 配置迁移门」）",
+	"$comment_7": "nuxt-og-image 5.1.10+ 进入 Nuxt 4 @nuxt/kit 依赖线；Nuxt 3 文档站通过 pnpm.overrides 固定 5.1.9（pnpm 12 下该设置块静默失效，须迁 pnpm-workspace.yaml，见 dependency-triage.md「pnpm 12 配置迁移门」）；pnpm12 下必须删除本 pnpm.overrides 死块并迁 pnpm-workspace.yaml（见 templates/pnpm-workspace.yaml）；同时复制两模板会形成双源，pnpm12 项目以 pnpm-workspace.yaml 为唯一设置源",
 	"$comment_8": "Nuxt 4 路径见 references/nuxt4-upgrade.md §1–§7 已验证矩阵；本模板为 Nuxt 3 基线，跨世代不得盲抄版本",
 	"$comment_9": "build 的堆预算为项目实测值：SmallAliceWeb 已验证边界 5120MiB，8GiB 不作永久通用推荐；按项目测量调整（见 production-graph-and-runtime-closure.md「Node heap 是测量预算」）",
 	"$comment_10": "build:vercel 是部署任务入口：turbo.json 应为其声明 dependsOn: [\"^build\"]、outputs 含 .output/** 与 .vercel/output/**、cache: false（见 production-graph-and-runtime-closure.md「Workspace 构建边」与 nuxt4-upgrade.md §9 部署链缓存门）",

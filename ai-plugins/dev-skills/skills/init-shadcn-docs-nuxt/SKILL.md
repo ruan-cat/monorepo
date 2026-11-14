@@ -291,7 +291,7 @@ Nuxt 4 升级类变更另须**三环境无假阳性复核**：dev/preview/生产
 - **Vercel Git-integration 云端自建 = 默认通道**（push 即部署，最简）；
 - **CI prebuilt 仅作「本地 Windows 产物直传」的 scoped fallback**，不得泛化到云端自建（见 nuxt4-upgrade §9）；
 - **CF Worker 通道**独立验收（workerd 运行时，Content API 假阳性同样存在）。
-- ipx `routeRules` 仅适用 Vercel 非 Git 通道（Git-integration 下 @nuxt/image 走 `/_vercel/image`，见 nuxt4-upgrade §7）；**content API 内容断言全通道必须**，HTTP 200 不足为证。
+- ipx `routeRules`：Vercel 非 Git 通道必需；Git-integration 与本地为可选回退（Git-integration 下 @nuxt/image 走 `/_vercel/image`，见 nuxt4-upgrade §7）；**content API 内容断言全通道必须**，HTTP 200 不足为证。
 
 ---
 

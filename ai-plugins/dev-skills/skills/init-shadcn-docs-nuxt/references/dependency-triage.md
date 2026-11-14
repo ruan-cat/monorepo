@@ -77,7 +77,7 @@ grep -rl 'from "h3"' node_modules/.pnpm/@nuxt+*/node_modules/@nuxt/*/dist \
 | ------------------------ | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | `pnpm.packageExtensions` | 给第三方包**注入它漏写的声明**       | 包未声明某依赖但代码在用（如裸导入 h3）；pnpm 12 落点为 `pnpm-workspace.yaml`（见下方迁移门）                                     | 不能改代码逻辑；版本要写给该包期望的（v1 世代包注入 v1）                                    |
 | `pnpm.overrides`         | **全局强制**某包版本                 | 上游声明范围过宽跨世代（如 `nuxt-og-image: 5.1.9` 固定）；根 `pnpm.*` 写法仅 pnpm 10 旧世代，pnpm 12 必须迁 `pnpm-workspace.yaml` | 会波及全仓库所有使用者——**h3 v1/v2 共存时禁用**（会破坏真正需要 v2 的包，如 nitro v3 beta） |
-| `pnpm patch`             | **改第三方包的产物代码**             | 包改了名但 dist 内硬编码旧自引用（fork 残留）、需最小逻辑修正                                                                     | patch 绑定精确版本，升级需重做；只做最小 diff                                               |
+| `pnpm patch`             | **改第三方包的产物代码**             | 包改了名但 dist 内硬编码旧自引用（fork 残留）、需最小逻辑修正；pnpm 12 落点为 `pnpm-workspace.yaml`（见下方迁移门）               | patch 绑定精确版本，升级需重做；只做最小 diff                                               |
 | 文档包直接声明依赖       | 给文档站自己的 deps 加 `h3: 1.15.11` | 只影响文档包自身子树的解析兜底                                                                                                    | 管不到其他包的裸导入，通常与 packageExtensions 配合                                         |
 
 **h3 案例的最终组合**（已验证）：`packageExtensions` 四包注入 `h3@1.15.11` + `overrides` 仅固定 `nuxt-og-image: 5.1.9`（它是世代越界源，需强制）+ 文档包声明 `h3` 兜底。
@@ -169,7 +169,7 @@ grep -A20 '"dependencies"' <fork>/package.json   # fork 必须声明 slugify 与
 
 # 4. 提交
 pnpm patch-commit "<repo>/.pnpm_patches/@ztl-uwu/nuxt-content@2.13.9"
-# 产物：patches/@ztl-uwu__nuxt-content@2.13.9.patch + 根 package.json patchedDependencies
+# 产物：patches/@ztl-uwu__nuxt-content@2.13.9.patch + pnpm-workspace.yaml patchedDependencies（pnpm10 旧世代才写根 package.json pnpm.*）
 ```
 
 **验证口径**：dev 警告归零 + 多页面 200 + 生产构建 EXIT=0（patch-commit 重组过依赖树，必须做构建回归）。

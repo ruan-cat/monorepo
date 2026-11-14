@@ -87,8 +87,8 @@ vite: {
 - 平台包名按实际平台替换（`oxide-win32-x64-msvc` 为 Windows x64 实测值）。
 - 修复后清 `node_modules/.cache/vite` 再重启 dev；验收 = oxide 报错计数 0 + 真实浏览器交互全绿。
 - 排查纪律：dev「页面能打开」≠「可用」；用网络面板找 `[pending]` 的优化依赖请求，console 干净 ≠ 模块图健康（另见 [`ssr-hydration.md`](ssr-hydration.md)）。
-- **2026-11-14 冷缓存 A/B 复测**：移除 exclude → rolldown 1.2.18 `UNLOADABLE_DEPENDENCY`、dev 503；保留 exclude → oxide 报错 0 + 真实 Chrome 全绿。exclude 是当前必需项，不是可顺手删除的历史包袱。
-- **删除条件**：vite 8.3.8+ 上游修复后，冷缓存（清 `node_modules/.cache/vite`）复测通过才可移除双排除；未命中前保留。
+- **2026-11-14 冷缓存 A/B 复测**：移除 exclude → vite 8.3.7 / rolldown 1.2.18 `UNLOADABLE_DEPENDENCY`、dev 503；保留 exclude → oxide 报错 0 + 真实 Chrome 全绿。exclude 是当前必需项，不是可顺手删除的历史包袱。
+- **删除条件**：vite 8.3.8+ 上游修复后，冷缓存（清 `node_modules/.cache/vite`）复测通过才可移除双排除；未命中前保留。dev-only 配置（如 oxide exclude）以 dev 冷缓存复测为准，不适用 §9 产物级回归证据的广谱措辞。
 - **作用域**：dev 直跑 `nuxt dev`，不经 turbo；`optimizeDeps` 仅作用 dev 依赖预构建，不影响云端构建——云端构建故障不要归因到这段配置。
 
 ## 4. popper ESM alias（Nuxt 4 实证值）
@@ -204,7 +204,7 @@ nitro: {
 **ipx SVG logo 404（通道依赖）**：
 
 - Vercel node-server / CI-prebuilt 产物下 `/_ipx/_/logo.svg`、`/_ipx/_/logo-dark.svg` 404（ipx 在 Vercel 对 SVG 优化失败）。修复 = §6 块中的 `routeRules` redirect 到静态原图（eams `63b37e8`，生产实测 307 → `/logo.svg` 200）。
-- **Git-integration 下 @nuxt/image 自动走 `/_vercel/image` provider，ipx 404 不复存在**（B 实验实测 `naturalWidth > 0`）。routeRules 保留为本地 ipx 回退，不是 Git-integration 通道的必需项。
+- **Git-integration 下 @nuxt/image 自动走 `/_vercel/image` provider，ipx 404 不复存在**（B 实验实测 `naturalWidth > 0`）。routeRules 为 Git-integration 与本地的可选回退，不是 Git-integration 通道的必需项。
 - logo 资源纪律不变：必须指向 `public/` 下真实资源，不要置空 logo（见 [`nuxt-config.md`](nuxt-config.md)）。
 
 ## 8. nitro v3 / h3 v2：双应用架构，不是文档站运行时（实测裁决）
