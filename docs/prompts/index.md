@@ -242,4 +242,17 @@ Cloudflare 官方明确要求 Workers Builds API 使用 `User-scoped API token`�
 
 本质上是 packages\domains\package.json 这个 @ruan-cat/domains 有了新的更改，增加了新的版本。请你编写 changeset 更新日志，发版标签为 minor。为 `@ruan-cat/domains` 包编写 minor 版本的 changeset 发版日志。
 
-## 015 <!-- TODO: -->
+## 015 <!-- 已完成 trae cn --> 处理本项目工作流
+
+和其他 agent 协助开发时，他们给出的这样的反馈。
+
+```markdown
+tests/init-prettier-git-hooks/skill-behavior.test.ts 有 2 个基线失败：断言 templates 仅 5 个文件、version 3.0.0——测试自 2026-08-13 起没跟上 v4 演进，这次加模板后过时面更大了。
+CI 的 vitest 用 html reporter，失败摘要不进 Actions 日志，排障只能靠本地复现。
+```
+
+1. 我们的测试用例是不是很久没有及时更新了，才导致了误判？
+2. 我们本仓库的 github action 经常出现错误，你用 gh cli 查看一下，是不是经常出现 vitest 用 html reporter 导致的错误呢？
+3. 帮我检查清楚是什么情况，并且给我一个解决上述问题的方案。
+
+## 016 <!-- TODO: -->
