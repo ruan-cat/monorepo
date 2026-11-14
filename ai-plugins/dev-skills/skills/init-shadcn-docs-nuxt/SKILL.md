@@ -13,7 +13,7 @@ description: >-
   `stream did not contain valid UTF-8`、`/_ipx` logo 404、prebuilt workflow 过度设计等错误信号与场景。
 user-invocable: true
 metadata:
-  version: "1.9.2"
+  version: "1.9.3"
 ---
 
 # 初始化 `shadcn-docs-nuxt` 组件库文档

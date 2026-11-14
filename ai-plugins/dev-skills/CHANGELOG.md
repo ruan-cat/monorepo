@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [13.2.3] - 2026-11-14
+
+### Changed
+
+- **init-shadcn-docs-nuxt**：`metadata.version` `1.9.2` -> `1.9.3`。
+- init-shadcn-docs-nuxt 1.9.3 口径微补丁：修正 G1-G4 四处口径瑕疵（pnpm12 patch-commit 落点与决策表注记、package.json 模板 pnpm.overrides 死块与双源警示、ipx routeRules 通道口径统一为可选回退、冷缓存 A/B 补 vite 8.3.7 版本与 dev-only 例外注）
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `13.2.3`。
+
 ## [13.2.2] - 2026-11-14
 
 ### Changed
