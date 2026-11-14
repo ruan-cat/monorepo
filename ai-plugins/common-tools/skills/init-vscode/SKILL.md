@@ -10,7 +10,7 @@ description: >-
   幽灵修改、团队规范、VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化，都应该使用本技能。
 user-invocable: true
 metadata:
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Init VSCode
@@ -301,7 +301,8 @@ Better Todo Tree 的长期配置应优先使用扩展自身 resolver / packaged 
 
 ```json
 {
-	"AGENTS.md": "CLAUDE.md,GEMINI.md,DESIGN.md"
+	"AGENTS.md": "CLAUDE.md,GEMINI.md,DESIGN.md",
+	"package.json": "lychee.toml"
 }
 ```
 
@@ -309,6 +310,7 @@ Better Todo Tree 的长期配置应优先使用扩展自身 resolver / packaged 
 
 - 如果存在旧模板项 `"CLAUDE.md": "GEMINI.md,AGENTS.md"`，先移除该项，再写入新的 `AGENTS.md` 项；不要把两个根节点并列保留。
 - 保留用户其他无关的 `explorer.fileNesting.patterns` 配置；用户已明确自定义的 `AGENTS.md` 值按用户优先原则处理，并在反馈中说明未完全收敛。
+- `"package.json": "lychee.toml"` 用于把断链门禁配置文件嵌套在 `package.json` 下，配合 `init-prettier-git-hooks` 的链接完整性门禁使用。该 pattern 是惰性的：项目不存在 `lychee.toml` 时无任何副作用，无需按项目条件增删。
 
 ### 4. 验证结果
 

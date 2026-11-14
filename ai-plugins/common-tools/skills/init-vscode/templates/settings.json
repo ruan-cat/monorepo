@@ -31,7 +31,8 @@
 	},
 	"explorer.fileNesting.enabled": true,
 	"explorer.fileNesting.patterns": {
-		"AGENTS.md": "CLAUDE.md,GEMINI.md,DESIGN.md"
+		"AGENTS.md": "CLAUDE.md,GEMINI.md,DESIGN.md",
+		"package.json": "lychee.toml"
 	},
 	"terminal.integrated.cwd": "${workspaceFolder}",
 	"terminal.integrated.splitCwd": "workspaceRoot",
