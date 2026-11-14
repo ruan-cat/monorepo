@@ -16,6 +16,15 @@
 - **init-ai-md 22.0.0（破坏性变更）**：改为只维护根目录 `AGENTS.md`；`CLAUDE.md` 与 `GEMINI.md` 清空为 `@AGENTS.md` 重定向。
 - 删除已废弃的「获取技术栈对应的上下文」模板和章节处理；旧版 `record-bug-fix-memory` 自动迁移到 `.agents/skills`，缺失时无条件安装。
 
+## [13.3.0] - 2026-11-14
+
+### Changed
+
+- **init-prettier-git-hooks**：`metadata.version` `4.0.0` -> `4.1.0`。
+- **init-vscode**：`metadata.version` `2.0.0` -> `2.1.0`。
+- init-prettier-git-hooks 新增 lychee 链接门禁条件注入模板；init-vscode 文件嵌套新增 lychee.toml
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `13.3.0`。
+
 ## [13.2.3] - 2026-11-14
 
 ### Changed

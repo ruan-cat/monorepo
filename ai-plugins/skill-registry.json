@@ -107,7 +107,7 @@
       "plugin": "common-tools",
       "name": "init-prettier-git-hooks",
       "description": "Use when 初始化或纠偏 Node.js 项目的 Prettier、lint-staged、simple-git-hooks、LF 行尾配置，或需要在 GitHub PR 云端任务中安装 Node/pnpm 环境并安全格式化 PR 改动；适用于 prettier-plugin-lint-md 版本漂移、插件加载失败、git hooks、EOL、CRLF/LF 和幽灵修改问题。",
-      "version": "4.0.0",
+      "version": "4.1.0",
       "entry": "ai-plugins/common-tools/skills/init-prettier-git-hooks/SKILL.md"
     },
     {
@@ -155,7 +155,7 @@
       "plugin": "common-tools",
       "name": "init-vscode",
       "description": "初始化或更新 VSCode 配置文件（.vscode/extensions.json 和 .vscode/settings.json）， 治理扩展推荐的生命周期与已知替代关系，并在 JSONC 安全迁移、工作区/用户级 scope、 preflight/postflight 和可回滚验收之间建立明确边界；同时把 `files.eol` 收敛为 `\"\\n\"`， 配合 `.gitattributes`、`.editorconfig`、Prettier 解决 Windows 上的 CRLF/LF 漂移与 git 幽灵修改问题， 并补齐大型 monorepo 的 VSCode 启动慢、文件监听、搜索索引与 TypeScript Server 性能优化默认值。 只要用户提到初始化 vscode、编辑器配置、工作区设置、扩展替换/弃用迁移、行尾统一、EOL、CRLF/LF、 幽灵修改、团队规范、VSCode 启动慢、大仓库性能、文件监听降噪、搜索索引优化，都应该使用本技能。",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "entry": "ai-plugins/common-tools/skills/init-vscode/SKILL.md"
     },
     {
