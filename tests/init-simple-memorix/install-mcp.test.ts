@@ -54,7 +54,7 @@ describe("installMemorixMcp", () => {
 			expect(content.mcpServers).toBeDefined();
 			expect(content.mcpServers.memorix).toBeDefined();
 			expect(content.mcpServers.memorix.command).toBe("memorix");
-			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "full"]);
+			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "micro"]);
 		});
 
 		test("A2: 配置文件存在但没有 mcpServers → 应该添加 mcpServers.memorix", () => {
@@ -69,7 +69,7 @@ describe("installMemorixMcp", () => {
 
 			const content = JSON.parse(fs.readFileSync(configPath, "utf-8"));
 			expect(content.someOtherField).toBe(true);
-			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "full"]);
+			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "micro"]);
 			expect(content.mcpServers.memorix.command).toBe("memorix");
 		});
 
@@ -97,10 +97,10 @@ describe("installMemorixMcp", () => {
 			const content = JSON.parse(fs.readFileSync(configPath, "utf-8"));
 			expect(content.mcpServers.otherServer).toBeDefined();
 			expect(content.mcpServers.memorix.command).toBe("memorix");
-			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "full"]);
+			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "micro"]);
 		});
 
-		test('A4: 配置文件有 memorix 但 args 是 ["serve"] → 应该更新为 ["serve", "--mode", "full"]', () => {
+		test('A4: 配置文件有 memorix 但 args 是 ["serve"]（等价 micro）→ 应该跳过', () => {
 			const configPath = join(tempDir, "mcp.json");
 			fs.writeFileSync(
 				configPath,
@@ -119,15 +119,15 @@ describe("installMemorixMcp", () => {
 			const results = installMemorixMcp(platforms);
 
 			expect(results).toHaveLength(1);
-			expect(results[0].status).toBe("updated");
+			expect(results[0].status).toBe("skipped");
 			expect(results[0].previousArgs).toEqual(["serve"]);
 
 			const content = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "full"]);
+			expect(content.mcpServers.memorix.args).toEqual(["serve"]);
 			expect(content.mcpServers.memorix.command).toBe("memorix");
 		});
 
-		test('A5: 配置文件有 memorix 且 args 已经是 ["serve", "--mode", "full"] → 应该跳过', () => {
+		test('A5: 配置文件有 memorix 且 args 是 ["serve", "--mode", "full"] → 应该校准为 micro', () => {
 			const configPath = join(tempDir, "mcp.json");
 			fs.writeFileSync(
 				configPath,
@@ -146,11 +146,14 @@ describe("installMemorixMcp", () => {
 			const results = installMemorixMcp(platforms);
 
 			expect(results).toHaveLength(1);
-			expect(results[0].status).toBe("skipped");
+			expect(results[0].status).toBe("updated");
 			expect(results[0].previousArgs).toEqual(["serve", "--mode", "full"]);
+
+			const content = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "micro"]);
 		});
 
-		test('A6: 配置文件有 memorix 且 args 是 ["serve", "--mode", "team"] → 应该更新为 ["serve", "--mode", "full"]', () => {
+		test('A6: 配置文件有 memorix 且 args 是 ["serve", "--mode", "team"] → 应该更新为 ["serve", "--mode", "micro"]', () => {
 			const configPath = join(tempDir, "mcp.json");
 			fs.writeFileSync(
 				configPath,
@@ -173,7 +176,7 @@ describe("installMemorixMcp", () => {
 			expect(results[0].previousArgs).toEqual(["serve", "--mode", "team"]);
 
 			const content = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "full"]);
+			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "micro"]);
 		});
 
 		test("A7: dryRun 模式 → 不应该实际写入文件（即使是创建操作）", () => {
@@ -194,7 +197,7 @@ describe("installMemorixMcp", () => {
 				JSON.stringify(
 					{
 						mcpServers: {
-							memorix: { command: "memorix", args: ["serve"] },
+							memorix: { command: "memorix", args: ["serve", "--mode", "team"] },
 						},
 					},
 					null,
@@ -229,7 +232,7 @@ describe("installMemorixMcp", () => {
 			const content = fs.readFileSync(configPath, "utf-8");
 			expect(content).toContain("[mcpServers.memorix]");
 			expect(content).toContain('command = "memorix"');
-			expect(content).toContain('args = ["serve", "--mode", "full"]');
+			expect(content).toContain('args = ["serve", "--mode", "micro"]');
 		});
 
 		test("B2: TOML 文件存在但没有 memorix 部分 → 应该追加，不覆盖已有内容", () => {
@@ -245,48 +248,49 @@ describe("installMemorixMcp", () => {
 			const content = fs.readFileSync(configPath, "utf-8");
 			expect(content).toContain("[other]");
 			expect(content).toContain("[mcpServers.memorix]");
-			expect(content).toContain('args = ["serve", "--mode", "full"]');
+			expect(content).toContain('args = ["serve", "--mode", "micro"]');
 		});
 
 		test("B3: TOML 文件有 memorix 但 args 需要更新 → 应该更新", () => {
 			const configPath = join(tempDir, "mcp.toml");
-			fs.writeFileSync(configPath, '[mcpServers.memorix]\ncommand = "memorix"\nargs = ["serve"]\n');
+			fs.writeFileSync(configPath, '[mcpServers.memorix]\ncommand = "memorix"\nargs = ["serve", "--mode", "team"]\n');
 			const platforms = [createTestPlatform(configPath, "toml")];
 
 			const results = installMemorixMcp(platforms);
 
 			expect(results).toHaveLength(1);
 			expect(results[0].status).toBe("updated");
-			expect(results[0].previousArgs).toEqual(["serve"]);
+			expect(results[0].previousArgs).toEqual(["serve", "--mode", "team"]);
 
 			const content = fs.readFileSync(configPath, "utf-8");
-			expect(content).toContain('args = ["serve", "--mode", "full"]');
+			expect(content).toContain('args = ["serve", "--mode", "micro"]');
 		});
 
-		test("B4: TOML 文件有 memorix 且已经是 full 模式 → 应该跳过", () => {
+		test("B4: TOML 文件有 memorix 且已经是 micro 模式 → 应该跳过", () => {
 			const configPath = join(tempDir, "mcp.toml");
-			fs.writeFileSync(configPath, '[mcpServers.memorix]\ncommand = "memorix"\nargs = ["serve", "--mode", "full"]\n');
+			fs.writeFileSync(configPath, '[mcpServers.memorix]\ncommand = "memorix"\nargs = ["serve", "--mode", "micro"]\n');
 			const platforms = [createTestPlatform(configPath, "toml")];
 
 			const results = installMemorixMcp(platforms);
 
 			expect(results).toHaveLength(1);
 			expect(results[0].status).toBe("skipped");
-			expect(results[0].previousArgs).toEqual(["serve", "--mode", "full"]);
+			expect(results[0].previousArgs).toEqual(["serve", "--mode", "micro"]);
 		});
 
 		test("B5: TOML 文件使用单引号数组 → 应该正确解析并更新", () => {
 			const configPath = join(tempDir, "mcp.toml");
-			fs.writeFileSync(configPath, "[mcpServers.memorix]\ncommand = 'memorix'\nargs = ['serve']\n");
+			fs.writeFileSync(configPath, "[mcpServers.memorix]\ncommand = 'memorix'\nargs = ['serve', '--mode', 'team']\n");
 			const platforms = [createTestPlatform(configPath, "toml")];
 
 			const results = installMemorixMcp(platforms);
 
 			expect(results).toHaveLength(1);
 			expect(results[0].status).toBe("updated");
+			expect(results[0].previousArgs).toEqual(["serve", "--mode", "team"]);
 
 			const content = fs.readFileSync(configPath, "utf-8");
-			expect(content).toContain('args = ["serve", "--mode", "full"]');
+			expect(content).toContain('args = ["serve", "--mode", "micro"]');
 		});
 	});
 
@@ -314,7 +318,7 @@ describe("installMemorixMcp", () => {
 			expect(results[0].configFile).toBe(secondPath);
 
 			const content = JSON.parse(fs.readFileSync(secondPath, "utf-8"));
-			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "full"]);
+			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "micro"]);
 		});
 
 		test("C2: JSON 解析错误 → 应该返回 error 状态", () => {
@@ -329,7 +333,7 @@ describe("installMemorixMcp", () => {
 			expect(results[0].error).toBeDefined();
 		});
 
-		test("C3: 空的 args 数组 → 应该更新为 full 模式", () => {
+		test("C3: 空的 args 数组 → 应该更新为 micro 模式", () => {
 			const configPath = join(tempDir, "mcp.json");
 			fs.writeFileSync(
 				configPath,
@@ -351,7 +355,7 @@ describe("installMemorixMcp", () => {
 			expect(results[0].status).toBe("updated");
 
 			const content = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "full"]);
+			expect(content.mcpServers.memorix.args).toEqual(["serve", "--mode", "micro"]);
 		});
 
 		test("C4: 使用 extraConfigs 自定义路径 → 应该处理额外配置", () => {

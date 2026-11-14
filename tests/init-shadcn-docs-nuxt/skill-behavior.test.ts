@@ -58,10 +58,13 @@ describe("init-shadcn-docs-nuxt 分发与生产边界", () => {
 		expect(listRelativeFiles(referencesRoot).sort()).toEqual([
 			"README.md",
 			"compat.md",
+			"dependency-triage.md",
 			"incident-repair.md",
 			"mdc-prettier.md",
 			"nuxt-config.md",
+			"nuxt4-upgrade.md",
 			"production-graph-and-runtime-closure.md",
+			"ssr-hydration.md",
 			"tailwind-css.md",
 			"windows.md",
 			"workspace.md",

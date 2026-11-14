@@ -12,14 +12,20 @@ const prettierTemplate = readFileSync(resolve(templateRoot, "prettier.config.mjs
 const lintStagedTemplate = readFileSync(resolve(templateRoot, "lint-staged.config.mjs"), "utf8");
 const simpleGitHooksTemplate = readFileSync(resolve(templateRoot, "simple-git-hooks.mjs"), "utf8");
 
-const distributedSources = () => [
-	skill,
-	...readdirSync(templateRoot).map((name) => readFileSync(resolve(templateRoot, name), "utf8")),
-	...readdirSync(referencesRoot).map((name) => readFileSync(resolve(referencesRoot, name), "utf8")),
-];
+const registry = JSON.parse(readFileSync(resolve(root, "ai-plugins/skill-registry.json"), "utf8")) as {
+	skills: Array<{ id: string; version: string }>;
+};
+const registeredVersion = registry.skills.find((entry) => entry.id === "init-prettier-git-hooks")?.version;
 
-describe("init-prettier-git-hooks v3 分发边界", () => {
-	test("只分发 AI 操作说明、五份纯配置模板和历史引用", () => {
+const templateSources = () =>
+	readdirSync(templateRoot).map((name) => readFileSync(resolve(templateRoot, name), "utf8"));
+const referenceSources = () =>
+	readdirSync(referencesRoot).map((name) => readFileSync(resolve(referencesRoot, name), "utf8"));
+
+const distributedSources = () => [skill, ...templateSources(), ...referenceSources()];
+
+describe("init-prettier-git-hooks v4 分发边界", () => {
+	test("只分发 AI 操作说明、纯配置模板和历史引用", () => {
 		for (const directory of [
 			resolve(skillRoot, "scripts"),
 			resolve(skillRoot, "src"),
@@ -32,7 +38,10 @@ describe("init-prettier-git-hooks v3 分发边界", () => {
 		expect(readdirSync(templateRoot).sort()).toEqual([
 			".editorconfig",
 			".gitattributes",
+			"cloud-pr-prettier.yml",
+			"link-check.yml",
 			"lint-staged.config.mjs",
+			"lychee.toml",
 			"prettier.config.mjs",
 			"simple-git-hooks.mjs",
 		]);
@@ -41,6 +50,7 @@ describe("init-prettier-git-hooks v3 分发边界", () => {
 			"crlf-and-hook-incidents.md",
 			"decision-evolution.md",
 			"pnpm-resolution.md",
+			"pr-workflow.md",
 			"runtime-loading-model.md",
 			"verification-playbook.md",
 			"version-matrix.md",
@@ -48,7 +58,8 @@ describe("init-prettier-git-hooks v3 分发边界", () => {
 	});
 
 	test("锁定 1.0.1 并使用顶层字符串插件", () => {
-		expect(skill).toContain('version: "3.0.0"');
+		expect(registeredVersion, "skill-registry.json 必须登记 init-prettier-git-hooks").toBeDefined();
+		expect(skill).toContain(`version: "${registeredVersion}"`);
 		expect(skill).toContain("prettier-plugin-lint-md@1.0.1");
 		expect(skill).toMatch(/package\.json[\s\S]*lockfile[\s\S]*运行时解析/);
 		expect(skill).toContain('plugins: ["prettier-plugin-lint-md"]');
@@ -80,7 +91,7 @@ describe("init-prettier-git-hooks v3 分发边界", () => {
 	});
 
 	test("保留完整错误演进并标明现行与废弃状态", () => {
-		const references = distributedSources().slice(6).join("\n");
+		const references = referenceSources().join("\n");
 
 		expect(references).toMatch(/现行/);
 		expect(references).toMatch(/已废弃/);
