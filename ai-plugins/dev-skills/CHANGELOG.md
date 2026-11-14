@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [13.2.2] - 2026-11-14
+
+### Changed
+
+- **init-shadcn-docs-nuxt**：`metadata.version` `1.9.1` -> `1.9.2`。
+- init-shadcn-docs-nuxt 1.9.2 缺口补丁：oxide 冷缓存 A/B 复测与删除条件、检索先于动手、既有项目接入判定 runbook、裁决变更四处同日同步、pnpm 12 配置迁移门、pnpm-workspace.yaml 基线模板与模板层 Nuxt 4 指针/堆预算/build:vercel
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `13.2.2`。
+
 ## [13.2.1] - 2026-11-14
 
 ### Changed
