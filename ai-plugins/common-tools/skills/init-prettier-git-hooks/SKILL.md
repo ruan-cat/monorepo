@@ -6,12 +6,12 @@ description: >-
   prettier-plugin-lint-md 版本漂移、插件加载失败、git hooks、EOL、CRLF/LF 和幽灵修改问题。
 user-invocable: true
 metadata:
-  version: "4.0.0"
+  version: "4.1.0"
 ---
 
 # 初始化 Prettier + Git Hooks
 
-本技能由 AI 审计目标项目后逐文件定点修改；只分发操作说明、六份配置模板和历史引用。不得创建或调用迁移 CLI、运行时代码或批量覆盖工具。先确认配置所有权和用户改动，再执行最小修改。
+本技能由 AI 审计目标项目后逐文件定点修改；只分发操作说明、六份基础配置模板、两份按条件注入的链接门禁模板和历史引用。不得创建或调用迁移 CLI、运行时代码或批量覆盖工具。先确认配置所有权和用户改动，再执行最小修改。
 
 ## 最高优先级契约
 
@@ -41,6 +41,11 @@ metadata:
 - `templates/lint-staged.config.mjs`
 - `templates/simple-git-hooks.mjs`
 - `templates/cloud-pr-prettier.yml`（必须安装的 GitHub PR 云端格式化工作流）
+
+按条件注入的链接门禁模板（见第 7 节，仅在 markdown 密集型项目安装）：
+
+- `templates/lychee.toml`（离线断链检查配置）
+- `templates/link-check.yml`（双 job：本地断链硬门禁 / 外链周检软告警）
 
 目标文件缺失时可以复制对应模板；存在时必须逐文件定点合并，保留项目特化规则与事故说明注释，不得整文件覆盖。尤其 `prettier.config.mjs` 顶层 lint-md `plugins` 上方的完整 JSDoc 是受保护知识块：它记录版本漂移、对象方案、override 方案和三条入口的纠偏。不得删除、压缩、挪到无关位置或改成普通行注释；需要调整时先更新对应 `references/`，再保持 JSDoc 与现行契约一致。
 
@@ -137,3 +142,39 @@ git status --short
 6. 格式化后先对精确文件列表执行 `git diff --cached --check`。没有变化时不提交；有变化时使用 `github-actions[bot]` 身份提交，并只推送 PR head 分支。`permissions` 至少显式声明 `contents: write`、`pull-requests: read`，并保持 job 级同仓库条件。
 
 通用模板和安全/可迁移性说明见 [references/pr-workflow.md](references/pr-workflow.md)。
+
+## 7. 链接完整性门禁（可选，按条件注入）
+
+lychee 是 Markdown 仓库的断链门禁工具：离线模式只校验本地文件与 `#锚点`，不发起任何网络请求，实测全仓数百个文件、上千条链接约 260 ms，挂 pre-commit 无感；联网模式要 108 秒且大量 403/429 反爬误报，只能放进定时 CI。它本质上是文档依赖关系的可解析性检查，等价于 Markdown 仓库的 `tsc --noEmit`。
+
+### 触发条件
+
+只有 markdown 密集型项目才注入这组模板：项目存在 `docs/` 目录且全仓 md 文件数 > 50。纯代码仓库什么都不加，模板目录与 workflow 一律不落盘。
+
+### 前置检查
+
+1. 运行 `lychee --version` 确认 lychee 已安装（可用 `cargo install lychee`、`scoop install lychee`、`brew install lychee` 等渠道）。未安装时先征询用户安装意愿；用户不安装则跳过整个门禁，不得写出半套配置。
+2. 确认项目 pre-commit 由 simple-git-hooks 管理（本技能第 4 节）；其他 Hook 管理器按其规则停止询问。
+
+### 落盘文件
+
+- 复制 `templates/lychee.toml` 到仓库根，按项目实际情况增删 `exclude_path`（如 `_sources/` 快照目录等本仓不维护的噪音来源）。
+- 复制 `templates/link-check.yml` 到 `.github/workflows/`。触发频度已刻意收敛：`local` 只挂 main push，`external` 只挂每周一定时 + `workflow_dispatch`，**不做 pull_request 触发**——private 仓库按分钟计费，agent 密集提交下 per-push 会吃光额度，且让外站可用性决定能否合并是错误的因果。
+- 不给项目分发任何包装脚本（如 `scripts/check-links.mjs`）。接入门禁的前提就是「已安装 lychee」，钩子直接写 `lychee ...`。
+
+### pre-commit 定点合并
+
+在目标项目现有 `simple-git-hooks.mjs` 的 `pre-commit` 串**最前面**插入 `lychee --config lychee.toml --no-progress "**/*.md" &&`，例如：
+
+```js
+"pre-commit":
+	'lychee --config lychee.toml --no-progress "**/*.md" && pnpm exec lint-staged',
+```
+
+链接检查排在格式化之前：prettier 会重排文档，放在它前面拿到的才是作者实际写进去的内容；且改标题导致的跨文件 `#锚点` 失效只有全仓扫描才能发现。修改后必须经用户授权执行 `pnpm exec simple-git-hooks` 使钩子生效。
+
+### 硬前置原则（禁止降级）
+
+- 本行直接调用 lychee，未安装会导致提交失败——这是门禁的本意，不是缺陷。
+- 禁止给钩子追加 `|| true`、`|| exit 0` 之类降级，那等于把门禁拆了。
+- 禁止用 `SKIP_SIMPLE_GIT_HOOKS=1` 以外的任何方式写进配置绕过；确认误报时先修 `lychee.toml` 排除规则。

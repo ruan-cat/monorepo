@@ -1,0 +1,33 @@
+# lychee 链接检查配置（离线模式）
+#
+# 用途：在「文档目录搬迁 / 重命名」这类操作前后，提供可逐条 diff 的断链基线。
+# 取值理由：
+#   - offline = true   ：只校验本地文件，不发起网络请求；外链健康度另由 CI 定时任务负责
+#                        （离线全仓数千条链接实测仅约 260 ms，联网模式约 108 s 且大量 403/429 反爬误报）。
+#   - include_fragments：文档常靠 #标题锚点 互链，必须一并校验。
+#   - root_dir = "."   ：让 `/docs/xxx` 这类根相对链接能解析到仓库根。
+#   - exclude_path     ：排除「本仓不负责维护」的噪音来源，按项目情况增删。
+#
+# 坑位提示：exclude_path 的正则在 Windows 下必须用 `[\\/]` 同时匹配两种分隔符，
+# 且行首要用 `(^|[\\/])`（相对路径开头没有分隔符）；TOML 里用单引号字面量串，避免反斜杠转义。
+
+offline = true
+hidden = true
+include_fragments = "anchor-only"
+root_dir = "."
+max_concurrency = 32
+timeout = 20
+cache = false
+
+exclude_path = [
+	# 依赖目录
+	'(^|[\\/])node_modules[\\/]',
+	# 第三方技能原文（由 skills add 从上游安装，不属本仓维护范围）
+	'(^|[\\/])\.agents[\\/]skills[\\/]',
+	# git 内部对象
+	'(^|[\\/])\.git[\\/]',
+]
+
+# 单条 URL 级排除示例：代码块里的示意文本（如 `[file://.cjs]`）会被 lychee 当成引用式链接解析，
+# 按需追加正则。配置优先级高于命令行：联网时用 `--offline=false` 覆盖，单独加 `--offline` 无效。
+# exclude = ['^file://\.cjs']

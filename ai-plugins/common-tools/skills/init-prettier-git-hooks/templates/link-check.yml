@@ -1,0 +1,68 @@
+name: 文档链接检查
+
+# 双 job 设计的核心：把「本地断链」和「外链体检」当成两件事。
+#   local    —— 本地文件是否存在。属于你自己的代码质量，必须硬门禁。
+#   external —— 外部网址是否还活着。属于别人家的可用性，只做周检 + 软告警。
+# 合成一个 job 会导致外网抖动把你自己的提交卡死（实测联网模式约 108s 且 403/429 反爬误报占比高）。
+#
+# 触发频度刻意收敛：private 仓库按分钟计费，agent 密集提交下 per-push 会吃光额度。
+# 因此不做 pull_request 触发：local 只挂 main push，external 只挂每周一定时 + 手动触发。
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # 每周一 02:00 UTC（北京时间 10:00）体检外链
+    - cron: "0 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: link-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── 第一道：本地断链（硬门禁）────────────────────────────────────────
+  local:
+    name: 本地链接完整性
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # 注意：lychee.toml 里 offline = true，因此这里只校验本地文件，不发起网络请求
+          args: --offline --no-progress --config lychee.toml "**/*.md"
+          fail: true
+
+  # ── 第二道：外链体检（软告警）───────────────────────────────────────
+  external:
+    name: 外部链接体检
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 恢复 lychee 缓存
+        uses: actions/cache@v4
+        with:
+          path: .lycheecache
+          key: lychee-${{ github.run_id }}
+          restore-keys: lychee-
+
+      - name: 检查外链
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # --offline=false 覆盖配置里的 offline=true，否则联网检查不会发生
+          # --accept 加入 429：限流不等于死链（实测 55 条错误里 22 条是 403/429）
+          args: >-
+            --offline=false --no-progress --cache --max-cache-age 7d
+            --max-concurrency 32 --timeout 20 --max-retries 2
+            --accept 200,206,429 --config lychee.toml "**/*.md"
+          # 外链失效通常是上游站点改动，不应阻塞合并
+          fail: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
