@@ -1,0 +1,41 @@
+# pnpm-workspace.yaml — pnpm 12 基线模板（shadcn-docs-nuxt 文档站 monorepo）
+#
+# pnpm 12 不再读取根 package.json 的 pnpm.* 设置块（静默失效，不报错）：
+# overrides / packageExtensions / patchedDependencies 必须全部落在本文件，键名 camelCase。
+# 迁移纪律与检测三件套（lockfile settings/patchedDependencies + .pnpm 物理树 + pnpm why）
+# 见 references/dependency-triage.md「pnpm 12 配置迁移门」；「声明 ≠ 生效」，以物理证据为准。
+#
+# Nuxt 4 路径见 references/nuxt4-upgrade.md §1–§7；本模板不区分世代，版本值按世代矩阵填写。
+# 禁 nodeLinker: hoisted / shamefullyHoist——nuxt#13644 实证破坏 NFT 追踪，
+# hoist 是反模式不是闭包修复（见 references/nuxt4-upgrade.md §5）。
+
+packages:
+  - "packages/*"
+  - "apps/*"
+
+# 构建脚本授权（pnpm 12：onlyBuiltDependencies 不再授予权限，未授权 = ERR_PNPM_IGNORED_BUILDS 硬错误）
+# 按项目实际依赖填写；pnpm approve-builds --all 批准后必须审查写入的 diff
+allowBuilds:
+  esbuild: true
+  # sharp: true
+  # "@tailwindcss/oxide": true
+
+# 全局版本覆盖（pnpm 10 旧落点：根 package.json pnpm.overrides，pnpm 12 下静默失效）
+# Nuxt 3 世代钉 nuxt-og-image 5.1.9（世代门禁，见 references/workspace.md）；Nuxt 4 不做该钉版。
+# h3 v1/v2 共存时禁全局 h3 override——会破坏真正需要 v2 的 api 子树（见 dependency-triage.md §3）。
+overrides: {}
+  # nuxt-og-image: "5.1.9"    # 仅 Nuxt 3 世代
+  # entities: ^7.0.1          # Nuxt 4 dedupe 示例（nuxt4-upgrade.md §5）
+  # source-map-js: ^1.2.1
+
+# 逐包注入第三方包漏写的声明（pnpm 10 旧落点：根 package.json pnpm.packageExtensions）
+# 只注入该包期望的版本（v1 世代包注 v1）；注入后必须过检测三件套复核物理 symlink
+packageExtensions: {}
+  # "@nuxt/icon@*":
+  #   dependencies:
+  #     h3: "1.15.11"
+
+# 第三方包产物补丁（pnpm 10 旧落点：根 package.json pnpm.patchedDependencies）
+# 由 pnpm patch-commit 生成，绑定精确版本，升级需重做（见 dependency-triage.md §5 fork 治理）
+patchedDependencies: {}
+  # "@ztl-uwu/nuxt-content@2.13.9": "patches/@ztl-uwu__nuxt-content@2.13.9.patch"

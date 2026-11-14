@@ -73,12 +73,12 @@ grep -rl 'from "h3"' node_modules/.pnpm/@nuxt+*/node_modules/@nuxt/*/dist \
 
 ## 3. 修复手段决策表：packageExtensions vs overrides vs patch
 
-| 手段                     | 作用                                 | 适用场景                                                      | 禁忌                                                                                        |
-| ------------------------ | ------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `pnpm.packageExtensions` | 给第三方包**注入它漏写的声明**       | 包未声明某依赖但代码在用（如裸导入 h3）                       | 不能改代码逻辑；版本要写给该包期望的（v1 世代包注入 v1）                                    |
-| `pnpm.overrides`         | **全局强制**某包版本                 | 上游声明范围过宽跨世代（如 `nuxt-og-image: 5.1.9` 固定）      | 会波及全仓库所有使用者——**h3 v1/v2 共存时禁用**（会破坏真正需要 v2 的包，如 nitro v3 beta） |
-| `pnpm patch`             | **改第三方包的产物代码**             | 包改了名但 dist 内硬编码旧自引用（fork 残留）、需最小逻辑修正 | patch 绑定精确版本，升级需重做；只做最小 diff                                               |
-| 文档包直接声明依赖       | 给文档站自己的 deps 加 `h3: 1.15.11` | 只影响文档包自身子树的解析兜底                                | 管不到其他包的裸导入，通常与 packageExtensions 配合                                         |
+| 手段                     | 作用                                 | 适用场景                                                                                                                          | 禁忌                                                                                        |
+| ------------------------ | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `pnpm.packageExtensions` | 给第三方包**注入它漏写的声明**       | 包未声明某依赖但代码在用（如裸导入 h3）；pnpm 12 落点为 `pnpm-workspace.yaml`（见下方迁移门）                                     | 不能改代码逻辑；版本要写给该包期望的（v1 世代包注入 v1）                                    |
+| `pnpm.overrides`         | **全局强制**某包版本                 | 上游声明范围过宽跨世代（如 `nuxt-og-image: 5.1.9` 固定）；根 `pnpm.*` 写法仅 pnpm 10 旧世代，pnpm 12 必须迁 `pnpm-workspace.yaml` | 会波及全仓库所有使用者——**h3 v1/v2 共存时禁用**（会破坏真正需要 v2 的包，如 nitro v3 beta） |
+| `pnpm patch`             | **改第三方包的产物代码**             | 包改了名但 dist 内硬编码旧自引用（fork 残留）、需最小逻辑修正                                                                     | patch 绑定精确版本，升级需重做；只做最小 diff                                               |
+| 文档包直接声明依赖       | 给文档站自己的 deps 加 `h3: 1.15.11` | 只影响文档包自身子树的解析兜底                                                                                                    | 管不到其他包的裸导入，通常与 packageExtensions 配合                                         |
 
 **h3 案例的最终组合**（已验证）：`packageExtensions` 四包注入 `h3@1.15.11` + `overrides` 仅固定 `nuxt-og-image: 5.1.9`（它是世代越界源，需强制）+ 文档包声明 `h3` 兜底。
 
@@ -89,6 +89,24 @@ pnpm install   # packageExtensions 生效需要重算
 ls node_modules/.pnpm/node_modules/h3  # 确认提升层
 pnpm why h3   # 确认各消费者解析
 ```
+
+### pnpm 12 配置迁移门
+
+**根 `package.json` 的 `pnpm.overrides` / `pnpm.packageExtensions` / `pnpm.patchedDependencies` 在 pnpm 12 下静默失效**——不报错、不警告，配置块直接被忽略。SmallAliceWeb 2026-11-14 三重反证（memorix #6279）：
+
+1. **lockfile**：`pnpm-lock.yaml` 的 `settings` 无 overrides——声明根本没进解析；
+2. **版本**：`nuxt-og-image` 实际解析 5.1.13，未钉住 5.1.9——世代钉版失效；
+3. **物理树**：h3 注入四包的 symlink 在 `.pnpm` 物理树 ABSENT，content fork patch 未应用。
+
+**迁移落点**：全部迁入 `pnpm-workspace.yaml`（camelCase；基线模板见 [`templates/pnpm-workspace.yaml`](../templates/pnpm-workspace.yaml)）。根 `package.json` 的 `pnpm.*` 写法仅 pnpm 10 旧世代适用；迁移后删除 package.json 死配置块，避免双源歧义。
+
+**检测三件套**（缺一不可）：
+
+1. **lockfile**：`pnpm-lock.yaml` 的 `settings` / `patchedDependencies` 字段实际记录了 overrides 与 patch；
+2. **.pnpm 物理树**：注入依赖的 symlink 在目标包子树物理存在，钉版版本物理一致；
+3. **pnpm why**：各消费者解析目标与预期一致。
+
+**「声明 ≠ 生效」物理验证纪律**：配置写了 ≠ 生效，install 不报错 ≠ 生效；三件套物理证据全部对齐才可判生效。pnpm 12 对未知键会报 `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS`，但对「写在旧位置」零提示——检测责任全在使用侧。
 
 ---
 

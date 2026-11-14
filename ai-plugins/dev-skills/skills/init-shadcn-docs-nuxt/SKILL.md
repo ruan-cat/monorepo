@@ -13,7 +13,7 @@ description: >-
   `stream did not contain valid UTF-8`、`/_ipx` logo 404、prebuilt workflow 过度设计等错误信号与场景。
 user-invocable: true
 metadata:
-  version: "1.9.1"
+  version: "1.9.2"
 ---
 
 # 初始化 `shadcn-docs-nuxt` 组件库文档
@@ -44,8 +44,11 @@ metadata:
 | [`templates/workspace-aliases.ts`](templates/workspace-aliases.ts)       | `workspace-aliases.ts`    | 组件库源码别名函数               |
 | [`templates/plugins/ui-lib.ts`](templates/plugins/ui-lib.ts)             | `plugins/xxx.ts`          | Nuxt Plugin 注册模式             |
 | [`templates/package.json`](templates/package.json)                       | `package.json`            | 依赖与脚本基线                   |
+| [`templates/pnpm-workspace.yaml`](templates/pnpm-workspace.yaml)         | `pnpm-workspace.yaml`     | pnpm 12 基线（五块设置落点）     |
 | [`templates/prettierrc.json`](templates/prettierrc.json)                 | `.prettierrc`             | MDC 防护（兜底方案）             |
 | [`templates/prettierignore`](templates/prettierignore)                   | `.prettierignore`         | MDC 防护（主方案）               |
+
+> Nuxt 4 路径见 [`references/nuxt4-upgrade.md`](references/nuxt4-upgrade.md) §1–§7；上表 nuxt.config / package.json 模板为 Nuxt 3 基线。
 
 ## 参考文档索引（references/）
 
@@ -62,7 +65,7 @@ metadata:
 | [`references/ssr-hydration.md`](references/ssr-hydration.md)                                               | 水合诊断工具链、非 SSR-safe 包隔离手法、hoisted 组件解析陷阱、HTTP 200 假象、SSR 验收清单                  |
 | [`references/production-graph-and-runtime-closure.md`](references/production-graph-and-runtime-closure.md) | production graph、final Nitro OOM、standalone `MODULE_NOT_FOUND`、Turbo cache 与 artifact 验收             |
 | [`references/nuxt4-upgrade.md`](references/nuxt4-upgrade.md)                                               | Nuxt 4 世代升级：已验证版本矩阵、F50 buildDir 规避、oxide 崩溃、条件 inline 配方、部署通道裁决与绕远路误区 |
-| [`references/README.md`](references/README.md)                                                             | 十一份现行参考的信号导航与迁移台账                                                                         |
+| [`references/README.md`](references/README.md)                                                             | 十二份现行参考的信号导航与迁移台账                                                                         |
 
 ---
 
@@ -169,6 +172,16 @@ Turbo cache 与 `.output` 不一致、artifact 无法启动或 HTTP smoke 失败
 
 ## 标准落地流程
 
+### 第 0 步：检索先于动手
+
+跨项目升级开工前，必检三处（CLI 优先）：
+
+1. **兄弟项目 memorix**：检索目标项目与兄弟项目的 memorix 既有裁决、事故记录（CLI 优先，MCP 兜底）；
+2. **项目台账**：实验台账、升级报告、FINDINGS 等现行态文件；
+3. **本技能**：SKILL.md 与命中信号的 references。
+
+用 `accessCount` / `lastAccessedAt` 作「在册未被用」审计信号——**在册 ≠ 被用**。案例：repro #6155/#6152 在册但 `accessCount=0`，eams 初期仍重犯打地鼠与通道误归因（memorix #6277）。检索纪律要用访问记录验证，不是用登记记录验证。
+
 ### 第 1 步：建立最小骨架
 
 ```plain
@@ -260,6 +273,28 @@ Nuxt 4 升级类变更另须**三环境无假阳性复核**：dev/preview/生产
 
 ---
 
+## 既有项目接入判定 runbook
+
+对既有项目（非从零建站）接入本技能时，先按四步判定再动手：
+
+1. **读目标包 `package.json` 判世代**：核对 `nuxt` / `shadcn-docs-nuxt` / `@ztl-uwu/nuxt-content` / `h3` / `nuxt-og-image` 的声明与实际解析版本，判定 Nuxt 3 还是 Nuxt 4 世代；跨世代配置不得盲抄。
+2. **是否消费 element-plus**：manifest + 运行时 import **双确认**——部署文档包 manifest 声明且运行时实际导入才算消费；仅传递依赖或提升层可见不算。
+3. **recipe 适用性**：[`references/nuxt4-upgrade.md`](references/nuxt4-upgrade.md) §4–§6 是条件准入配方——只有 exact error 验证 SSR/Nitro 闭包**真缺包**才用 inline 表，不整表照抄；条件不满足保持最小模板。
+4. **Nuxt 3 留守 vs Nuxt 4 迁移决策门**：
+   - 依据：当前世代稳定性、§1 已验证矩阵、项目对 Nuxt 4 能力的真实需求；
+   - 风险：布局 `app/` 迁移（§10）+ 别名重验 + fork patch 重做；
+   - 回滚：独立分支 + lockfile 快照，可整体回退；
+   - 验收：三环境无假阳性复核 + G10 跨应用对照（双应用共存时）。
+
+**部署通道判定**（随上述决策一并给出）：
+
+- **Vercel Git-integration 云端自建 = 默认通道**（push 即部署，最简）；
+- **CI prebuilt 仅作「本地 Windows 产物直传」的 scoped fallback**，不得泛化到云端自建（见 nuxt4-upgrade §9）；
+- **CF Worker 通道**独立验收（workerd 运行时，Content API 假阳性同样存在）。
+- ipx `routeRules` 仅适用 Vercel 非 Git 通道（Git-integration 下 @nuxt/image 走 `/_vercel/image`，见 nuxt4-upgrade §7）；**content API 内容断言全通道必须**，HTTP 200 不足为证。
+
+---
+
 ## 常见故障排查顺序
 
 交互失效（暗黑模式切换失败、侧栏按钮无效）时，**严格按此顺序**：
@@ -316,3 +351,4 @@ MDC 裸文本 / hydration mismatch → [`references/mdc-prettier.md`](references
 2. 运行与构建验证结果
 3. 若有风险项，给出下一步最小补救建议
 4. 明确状态是 `verified`、`candidate` 还是 `needs_check`，并列出未完成的 provider/浏览器证据门
+5. **裁决变更四处同日同步**：裁决发生变更时，同日同步四处——报告头部速览 + 尾章、本技能、memorix、记忆索引。中间态必须显式标注「历史中间态，不得作现行态引用」并附阅读指南（案例：升级报告 §0 速览漏同步导致误读中间态为现行态）。

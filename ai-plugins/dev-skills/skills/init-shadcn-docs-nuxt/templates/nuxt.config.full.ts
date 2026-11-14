@@ -4,6 +4,8 @@
  * 此文件是经过实战验证的完整 nuxt.config.ts。
  * 每段配置均有注释说明来源和目的，请勿删除注释。
  *
+ * Nuxt 4 路径见 references/nuxt4-upgrade.md §1–§7（buildDir/oxide/inline/compatDate 字符串等）；本模板为 Nuxt 3 基线。
+ *
  * 使用方式：
  * 1. 复制本文件到文档站根目录，重命名为 nuxt.config.ts
  * 2. 替换 workspace-aliases 导入为你自己的别名函数

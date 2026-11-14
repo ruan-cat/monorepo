@@ -12,17 +12,17 @@
 
 ## 1. 已验证 Nuxt 4 版本矩阵（2026-11-11 生产实证）
 
-| 包                      | 声明范围                | 实际解析 | 说明                                                                |
-| ----------------------- | ----------------------- | -------- | ------------------------------------------------------------------- |
-| `nuxt`                  | `^4.6.4`                | 4.6.4    | 目标世代                                                            |
-| `shadcn-docs-nuxt`      | `^1.2.2`                | 1.2.2    | 层自身声明 nuxt `^4.4.5`、content `^2.14.1`、nuxt-og-image `^6.5.0` |
-| `@ztl-uwu/nuxt-content` | `^2.14.1`               | 2.14.1   | 仍为 content v2 世代 fork                                           |
-| `nitropack`             | Nuxt 内置               | 2.13.6   | Nuxt 4 官方运行时，**不是 nitro v3，不可替换**                      |
-| `h3`                    | `^1.15.11`              | 1.15.11  | Nuxt 4 服务端仍 h3 v1                                               |
-| `vue`                   | `^3.5.44`               | 3.5.45   | —                                                                   |
-| `vue-router`            | `^5.4.0`                | 5.4.0    | Nuxt 4 自带要求                                                     |
-| `element-plus`          | `^2.14.8`               | 单版本   | 与组件库范围统一后 dedupe                                           |
-| `vite`                  | 随 `@nuxt/vite-builder` | 8.3.7    | rolldown 依赖优化器（见 §3）                                        |
+| 包                      | 声明范围                | 实际解析 | 说明                                                                      |
+| ----------------------- | ----------------------- | -------- | ------------------------------------------------------------------------- |
+| `nuxt`                  | `^4.6.4`                | 4.6.4    | 目标世代                                                                  |
+| `shadcn-docs-nuxt`      | `^1.2.2`                | 1.2.2    | 层自身声明 nuxt `^4.4.5`、content `^2.14.1`、nuxt-og-image `^6.5.0`       |
+| `@ztl-uwu/nuxt-content` | `^2.14.1`               | 2.14.1   | 仍为 content v2 世代 fork                                                 |
+| `nitropack`             | Nuxt 内置               | 2.13.6   | Nuxt 4 官方运行时，**不是 nitro v3，不可替换**                            |
+| `h3`                    | `^1.15.11`              | 1.15.11  | Nuxt 4 服务端仍 h3 v1                                                     |
+| `vue`                   | `^3.5.44`               | 3.5.45   | —                                                                         |
+| `vue-router`            | `^5.4.0`                | 5.4.0    | Nuxt 4 自带要求                                                           |
+| `element-plus`          | `^2.14.8`               | 单版本   | 与组件库范围统一后 dedupe                                                 |
+| `vite`                  | 随 `@nuxt/vite-builder` | 8.3.7    | rolldown 依赖优化器；8.3.7 实测 / 8.3.8 最新，oxide exclude 删除条件见 §3 |
 
 **nitropack 版本边界（实测，非推断）**：
 
@@ -87,6 +87,9 @@ vite: {
 - 平台包名按实际平台替换（`oxide-win32-x64-msvc` 为 Windows x64 实测值）。
 - 修复后清 `node_modules/.cache/vite` 再重启 dev；验收 = oxide 报错计数 0 + 真实浏览器交互全绿。
 - 排查纪律：dev「页面能打开」≠「可用」；用网络面板找 `[pending]` 的优化依赖请求，console 干净 ≠ 模块图健康（另见 [`ssr-hydration.md`](ssr-hydration.md)）。
+- **2026-11-14 冷缓存 A/B 复测**：移除 exclude → rolldown 1.2.18 `UNLOADABLE_DEPENDENCY`、dev 503；保留 exclude → oxide 报错 0 + 真实 Chrome 全绿。exclude 是当前必需项，不是可顺手删除的历史包袱。
+- **删除条件**：vite 8.3.8+ 上游修复后，冷缓存（清 `node_modules/.cache/vite`）复测通过才可移除双排除；未命中前保留。
+- **作用域**：dev 直跑 `nuxt dev`，不经 turbo；`optimizeDeps` 仅作用 dev 依赖预构建，不影响云端构建——云端构建故障不要归因到这段配置。
 
 ## 4. popper ESM alias（Nuxt 4 实证值）
 

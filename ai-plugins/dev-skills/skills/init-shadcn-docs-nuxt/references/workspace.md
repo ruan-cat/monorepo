@@ -48,6 +48,8 @@
 }
 ```
 
+> `element-plus ^2.13.5` 为 **Nuxt 3 世代适用**值；Nuxt 4 世代见 [`nuxt4-upgrade.md`](nuxt4-upgrade.md) §1 矩阵（`^2.14.8`，与组件库范围统一后 dedupe）。
+
 ### 常见遗漏
 
 > **不要预设"依赖包一定先构建完"或".nuxt 一定已存在"。** 三处 `nuxt prepare` 是保险措施，确保在任何起点都能启动。
