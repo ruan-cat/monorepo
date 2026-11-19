@@ -4,7 +4,7 @@
 
 **已实施，发布闭环 BLOCKED（CURSOR + CODEX 新会话验证）。**
 
-1 号包的技能重构、测试、发布、原子 cutover、CI 双 PowerShell 与 `use-memorix` 正式安装均已完成并有证据；
+1 号包的技能重构、测试、发布、14 笔细粒度 cutover、CI 双 PowerShell 与 `use-memorix` 正式安装均已完成并有证据；
 `init-simple-memorix` 的全局旧安装**尚未删除**，因为三平台真实 smoke 未全部 PASS。
 2/3 号包门保持关闭。
 
@@ -24,16 +24,18 @@
 
 ```text
 PRE_CUTOVER_SHA=f0da7be276776f6db3ad934d626009b19ef4275e
-CUTOVER_SHA=07c1f44980cc98e8d69744a7867a5aba04d99147
+CUTOVER_SHA=5a60652bcf4299c3fb770a9d4c4e4bf3458a458b
 HANDOFF_EVIDENCE_SHA=未产生
-CI_GREEN_SHA=9c961e4734b5f20d5f7d2288dc563d4e33e545dd
+CI_GREEN_SHA=5a60652bcf4299c3fb770a9d4c4e4bf3458a458b
 ```
 
-- `PRE_CUTOVER_SHA`：原子 cutover 提交前的 HEAD。
-- `CUTOVER_SHA`：单笔原子 cutover commit；实现内容以此为准。
-- `CI_GREEN_SHA`：修复 workflow 与 PS 兼容性后的提交；四个 CI job 全绿的画面来自此 SHA。
-  `CUTOVER_SHA` 自身的 workflow 因 GitHub 拒绝 `shell: ${{ matrix.shell }}` 而失败，属于 CI 配置缺陷，不涉及技能内容。
-- `HANDOFF_EVIDENCE_SHA`：Task 12 只回填 handoff 后的 docs commit。
+- `PRE_CUTOVER_SHA`：拆分序列起点之前的 HEAD。
+- `CUTOVER_SHA`：14 笔细粒度 cutover 序列的 tip，也是发布树 SHA；实现内容以此为准。
+- `CI_GREEN_SHA`：该 tip 的 `AI Plugins Skill Registry Check`（registry ubuntu/windows +
+  transition PS 5.1/7）与根 `CI` 全绿。
+- `HANDOFF_EVIDENCE_SHA`：本回填提交自身（`git log -1 -- <本文件>` 可查）。
+- 历史说明：早期单笔 `07c1f44…` 与其后的 3 个修复提交已按用户要求重写为 14 笔；
+  `07c1f44`、`9c961e47`、`2d7ec831` 在远端不再可达，任何下游引用一律作废。
 
 ### 执行者第一条命令
 
@@ -234,10 +236,11 @@ FEDERATION_BUNDLE_SCHEMA_VERSION=memorix-golden-set-bundle/v1
 
 ### 已提交未 push / 已 push
 
-统一：
+cutover 已是 14 笔序列，回滚按区间整体撤销，不逐笔挑拣：
 
 ```bash
-git revert <CUTOVER_SHA>
+git revert --no-commit f0da7be2..5a60652b
+git commit -m "revert: 回滚 use-memorix 3.0 cutover 序列"
 git push
 ```
 
@@ -282,3 +285,7 @@ git push
 5. **characterization 基线解析**：`PRE_CUTOVER_SHA` 之外增加 HEAD 与「删除提交的父提交」回退，保证 cutover 删除旧目录后测试仍能复验原字节，CI 不因缺 env 而红。
 6. **发布日期用 2026-11-19**：实际执行日，未沿用设计稿的 2026-11-17。
 7. **先发布后三平台 smoke**：按用户流水线授权执行 Apply 与 push；旧技能卸载严格保持未执行。
+8. **单笔原子 cutover 改为 14 笔细粒度提交**：用户验收认为单笔 108 文件过粗；在不改变最终树的前提下，
+   按「严格类型/测试门 → 三入口 → 七域 → schema → 捕获 → operator → init-ai-md → sync 审计 →
+   release transition → CI → 删除旧技能 → 发布面 → 文档 → handoff」拆分为 14 笔，
+   `git diff 5a60652b 原 2d7ec831` 为空证明内容等价；远端历史已用 force-with-lease 重写。
