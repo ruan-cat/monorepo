@@ -21,34 +21,31 @@ tsx scripts/sync.ts
 --help            显示帮助信息
 ```
 
-### Memorix Skills 刷新
+### 官方 Memorix Skills 只读审计
 
-从现在开始，运行 `sync.ts` 时会**自动**先从 memorix 官方仓库（GitHub raw）刷新最新的内部 skills 到 `~/.agents/skills/`，然后再同步到各 agent 平台。
+本工具**不再**下载、覆盖、备份或刷新官方 `memorix-*` skills；官方 Memorix setup/升级是唯一所有者。
 
-独立刷新脚本：
+运行 `sync.ts` 时默认先输出只读审计结果（`present` / `missing` / `invalid`），再执行平台链接同步。审计只读 `SKILL.md` frontmatter，不联网、不安装、不修改文件。
 
-```bash
-# 预览（dry-run）
-tsx scripts/fetch-memorix-skills.ts --dry-run
-
-# 执行刷新
-tsx scripts/fetch-memorix-skills.ts
-
-# 强制覆盖
-tsx scripts/fetch-memorix-skills.ts --force
+```text
+--skip-memorix-audit   跳过只读审计，直接同步平台链接
 ```
 
-新增 CLI 参数：
+独立审计：
 
-| 参数                                          | 说明                            |
-| --------------------------------------------- | ------------------------------- |
-| `--skip-memorix-refresh`                      | 跳过 memorix 刷新步骤           |
-| `--force-memorix-refresh`                     | 强制覆盖已存在的 memorix skills |
-| `--memorix-source <github\|local\|cli\|auto>` | 来源策略（默认：auto）          |
-| `--memorix-agent <agent>`                     | agent 来源（默认：cursor）      |
+```bash
+# 人读输出
+tsx scripts/audit-memorix-skills.ts
 
-元数据文件路径：`~/.memorix/memorix-skills/memorix-meta.json`
+# JSON 输出
+tsx scripts/audit-memorix-skills.ts --json
+
+# 指定 skills root
+tsx scripts/audit-memorix-skills.ts --skills-root <path>
+```
+
+`missing` / `invalid` 只提示使用 Memorix 官方 setup/升级，不自动修复。
 
 ## 技能文件
 
-安装后技能目录包含 `scripts/sync.ts`、`src/platforms.ts`、`src/sync.ts`、`fallback/sync.ps1` 和 `fallback/sync.sh`。
+安装后技能目录包含 `scripts/sync.ts`、`scripts/audit-memorix-skills.ts`、`src/platforms.ts`、`src/sync.ts`、`src/memorix-audit.ts`、`fallback/sync.ps1` 和 `fallback/sync.sh`。

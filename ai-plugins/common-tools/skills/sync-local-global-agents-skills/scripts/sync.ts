@@ -2,9 +2,9 @@
 
 import { homedir } from "node:os";
 import path from "node:path";
+import { summarizeMemorixAudit, auditOfficialMemorixSkills } from "../src/memorix-audit.ts";
 import { DEFAULT_PLATFORMS } from "../src/platforms.ts";
 import { syncSkills } from "../src/sync.ts";
-import { refreshMemorixSkills, type RefreshOptions } from "../src/memorix.js";
 
 async function main(): Promise<void> {
 	const args = process.argv.slice(2);
@@ -17,35 +17,25 @@ async function main(): Promise<void> {
 
 	const sourceDir = options.source ?? path.join(homedir(), ".agents", "skills");
 
-	// Refresh memorix skills before platform sync
-	if (!options.skipMemorixRefresh) {
+	// 官方 Memorix skills 只做只读审计：安装、升级与修复都属于官方 setup/升级职责。
+	if (!options.skipMemorixAudit) {
 		try {
-			const refreshOpts: RefreshOptions = {
-				source: options.memorixSource,
-				agent: options.memorixAgent,
-				dryRun: options.dryRun,
-				force: options.forceMemorixRefresh,
-			};
-
-			const memorixResults = await refreshMemorixSkills(refreshOpts);
-
-			const created = memorixResults.filter((r) => r.status === "created").length;
-			const updated = memorixResults.filter((r) => r.status === "updated").length;
-			const skipped = memorixResults.filter((r) => r.status === "skipped").length;
-			const errors = memorixResults.filter((r) => r.status === "error").length;
-
-			console.log(`\n[memorix] ${created} created, ${updated} updated, ${skipped} skipped, ${errors} errors`);
-
-			if (memorixResults.length > 0 && memorixResults.every((r) => r.status === "error")) {
-				console.warn("[memorix] Warning: All memorix skills failed to refresh, continuing with platform sync...");
+			const audit = auditOfficialMemorixSkills(sourceDir);
+			console.log(`\n[memorix-audit] ${summarizeMemorixAudit(audit)}`);
+			for (const result of audit) {
+				if (result.status === "present") continue;
+				const detail = result.reason ? ` (${result.reason})` : "";
+				console.warn(`[memorix-audit]   ${result.skill}: ${result.status}${detail}`);
 			}
-
-			for (const mr of memorixResults.filter((r) => r.status === "error")) {
-				console.warn(`[memorix]   ${mr.skill}: ${mr.error ?? "unknown error"}`);
+			if (audit.some((result) => result.status !== "present")) {
+				console.warn(
+					"[memorix-audit] 缺失或非法的官方 skills 不在本同步器修复范围内；请使用 Memorix 官方 setup/升级命令。",
+				);
 			}
-		} catch (err) {
-			console.warn(`[memorix] Warning: Memorix refresh failed: ${err instanceof Error ? err.message : String(err)}`);
-			console.warn("[memorix] Continuing with platform sync...");
+		} catch (error) {
+			console.warn(
+				`[memorix-audit] 审计未完成：${error instanceof Error ? error.message : String(error)}；继续执行平台链接同步。`,
+			);
 		}
 	}
 
@@ -68,11 +58,11 @@ Options:
   --source <path>                 Source skills directory (default: ~/.agents/skills)
   --dry-run                       Print the plan without modifying the filesystem
   --no-backup                     Do not backup existing directories before replacing
+  --skip-memorix-audit            Skip the read-only official Memorix skills audit
   --help                          Show this help message
-  --skip-memorix-refresh          Skip memorix skills refresh before platform sync
-  --force-memorix-refresh         Force overwrite memorix skills (ignores SHA-256 comparison)
-  --memorix-source <source>       Memorix data source: github, local, cli, or auto (default: auto)
-  --memorix-agent <agent>         Memorix agent platform name (default: cursor)
+
+官方七个 Memorix skills 只做只读审计（present / missing / invalid）。本命令不下载、不覆盖、
+不备份官方 skills；安装与升级请使用 Memorix 官方 setup/升级。
 `.trim(),
 	);
 }
@@ -82,10 +72,7 @@ interface ParsedArgs {
 	dryRun?: boolean;
 	backup?: boolean;
 	help?: boolean;
-	skipMemorixRefresh?: boolean;
-	forceMemorixRefresh?: boolean;
-	memorixSource?: "github" | "local" | "cli" | "auto";
-	memorixAgent?: string;
+	skipMemorixAudit?: boolean;
 }
 
 function parseArgs(args: string[]): ParsedArgs {
@@ -113,31 +100,9 @@ function parseArgs(args: string[]): ParsedArgs {
 			case "-h":
 				result.help = true;
 				break;
-			case "--skip-memorix-refresh":
-				result.skipMemorixRefresh = true;
+			case "--skip-memorix-audit":
+				result.skipMemorixAudit = true;
 				break;
-			case "--force-memorix-refresh":
-				result.forceMemorixRefresh = true;
-				break;
-			case "--memorix-source": {
-				const sourceValue = args[++i];
-				if (sourceValue === undefined) {
-					throw new Error("--memorix-source requires a value");
-				}
-				if (!["github", "local", "cli", "auto"].includes(sourceValue)) {
-					throw new Error(`Invalid memorix source: ${sourceValue}. Must be one of: github, local, cli, auto`);
-				}
-				result.memorixSource = sourceValue as "github" | "local" | "cli" | "auto";
-				break;
-			}
-			case "--memorix-agent": {
-				const agentValue = args[++i];
-				if (agentValue === undefined) {
-					throw new Error("--memorix-agent requires a value");
-				}
-				result.memorixAgent = agentValue;
-				break;
-			}
 			default:
 				throw new Error(`Unknown argument: ${arg}`);
 		}

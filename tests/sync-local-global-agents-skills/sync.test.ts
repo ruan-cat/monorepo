@@ -3,6 +3,7 @@ import {
 	lstatSync,
 	mkdirSync,
 	mkdtempSync,
+	readFileSync,
 	readlinkSync,
 	rmSync,
 	symlinkSync,
@@ -209,5 +210,20 @@ describe("DEFAULT_PLATFORMS", () => {
 
 		expect(qoder).toBeDefined();
 		expect(qoder?.skillsDir).toBe(path.join(homedir(), ".qoder", "skills"));
+	});
+});
+
+describe("sync CLI contract", () => {
+	const source = readFileSync(
+		new URL("../../ai-plugins/common-tools/skills/sync-local-global-agents-skills/scripts/sync.ts", import.meta.url),
+		"utf8",
+	);
+
+	test("SYNC-CLI-01 drops memorix refresh flags and only exposes read-only audit", () => {
+		for (const flag of ["--skip-memorix-refresh", "--force-memorix-refresh", "--memorix-source", "--memorix-agent"])
+			expect(source).not.toContain(flag);
+		expect(source).toContain("--skip-memorix-audit");
+		expect(source).not.toContain("fetch-memorix-skills");
+		expect(source).toContain("auditOfficialMemorixSkills");
 	});
 });

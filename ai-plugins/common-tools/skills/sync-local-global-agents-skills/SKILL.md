@@ -6,7 +6,7 @@ description: >-
   支持 dry-run、自动备份、错误链接替换，并可按需刷新 memorix 内部 skills。
   触发关键词：sync-local-global-agents-skills、同步 skills、全局 skills 同步。
 metadata:
-  version: "0.4.0"
+  version: "1.0.0"
 ---
 
 # 本地全局 Agent Skills 同步器
@@ -111,23 +111,33 @@ fallback/sync.sh
 4. 目标目录是错误链接 → 直接替换（不备份）
 5. 目标路径是普通文件 → 删除后创建链接
 
-## Memorix Skills 刷新
+## 官方 Memorix Skills 只读审计
 
-本版本已集成 memorix 内部 skills 刷新能力。运行 `sync.ts` 时会自动先从 memorix 官方仓库（GitHub raw）刷新最新的内部 skills 到 `~/.agents/skills/`，然后再同步到各 agent 平台。
+本技能不再下载、覆盖、备份或刷新官方 `memorix-*` skills。官方 Memorix setup/升级是唯一的安装与升级所有者。
 
-| 参数                                          | 说明                            |
-| --------------------------------------------- | ------------------------------- |
-| `--skip-memorix-refresh`                      | 跳过 memorix 刷新步骤           |
-| `--force-memorix-refresh`                     | 强制覆盖已存在的 memorix skills |
-| `--memorix-source <github\|local\|cli\|auto>` | 来源策略（默认：auto）          |
-| `--memorix-agent <agent>`                     | agent 来源（默认：cursor）      |
+运行 `sync.ts` 时默认先做一次**只读审计**，列出七个官方技能的 `present` / `missing` / `invalid` 状态，然后再同步平台链接：
 
-独立刷新脚本：`scripts/fetch-memorix-skills.ts`（支持 `--dry-run`、`--force` 参数）。
+| 参数                   | 说明                           |
+| :--------------------- | :----------------------------- |
+| `--skip-memorix-audit` | 跳过只读审计，直接同步平台链接 |
+
+审计只执行 `exists` / `stat` / 读取 `SKILL.md` frontmatter 的 `name`：
+
+- 不联网；
+- 不调用 CLI 安装；
+- 不复制、不改名、不删除、不备份；
+- 不写 metadata，不比较官方 skills 内容。
+
+`missing` 或 `invalid` 只给出「请使用 Memorix 官方 setup/升级」的路由，不自动修复。同步器仍可把 `~/.agents/skills` 整体链接到已验证平台，但不能改变源目录中的官方 Memorix skills。
+
+独立审计脚本：`scripts/audit-memorix-skills.ts`（支持 `--json`、`--skills-root`）。
 
 ## 相关文件
 
 - `scripts/sync.ts` — CLI 入口
 - `src/sync.ts` — 核心同步逻辑
 - `src/platforms.ts` — 平台注册表
+- `src/memorix-audit.ts` — 官方 Memorix skills 只读审计
+- `scripts/audit-memorix-skills.ts` — 独立审计入口
 - `fallback/sync.ps1` — Windows PowerShell 兜底
 - `fallback/sync.sh` — Bash 兜底
