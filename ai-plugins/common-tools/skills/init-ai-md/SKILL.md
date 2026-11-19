@@ -10,7 +10,7 @@ description: >-
   and manages the project-level record-bug-fix-memory skill.
 user-invocable: true
 metadata:
-  version: "24.0.0"
+  version: "25.0.0"
 ---
 
 # init-ai-md 技能说明
@@ -71,6 +71,7 @@ metadata:
    - 按照**数字前缀顺序**排序（如 `01.xxx.md`、`02.xxx.md`）
    - 提取每个模板文件内的二级标题
    - 建立可用记忆项清单
+   - 把 `templates/12.memorix-memory-governance.md` 标记为 mandatory：它不进入多选，每次执行都强制增量处理
 
 3. **对比分析**：
    - 对比现存记忆项和可用记忆项
@@ -90,6 +91,7 @@ metadata:
 2. **生成选择问题**：
    - 使用 `AskUserQuestion` 工具的 `multiSelect: true` 模式
    - 将每个可用记忆项作为一个选项
+   - 生成选项时必须排除 `12.memorix-memory-governance.md`，它不接受用户取消
    - 选项描述中标注该记忆项的当前状态：
      - `[缺失]` - 目标文件中不存在
      - `[需更新]` - 存在但内容不完整
@@ -164,6 +166,8 @@ metadata:
    - **禁止**使用任何形式的脚本进行批处理（Python、TypeScript、Shell 等）
    - **禁止**一股脑复制粘贴整个模板内容
    - **禁止**覆盖用户的自定义内容
+
+模板 12 不依赖用户选择：即使选择为空也强制增量处理，只补缺失内容，不覆盖用户自定义内容。同义规则已在目标文件存在时不重复追加。
 
 ### 步骤 5：初始化或升级本地技能
 
@@ -279,6 +283,7 @@ init-ai-md/
     ├── 09.Karpathy Guidelines.md     # Karpathy 编码行为准则模板
     ├── 10.使用superpower技能的个人偏好.md
     ├── 11.文档读取策略.md
+    ├── 12.memorix-memory-governance.md  # 必选模板：不进入多选，每次强制增量合并
     └── record-bug-fix-memory/       # 内置技能模板
         └── SKILL.md                 # record-bug-fix-memory 技能模板
 ```
@@ -343,6 +348,7 @@ init-ai-md/
 3. **标题来源**：使用模板内的二级目录标题，而非文件名
 4. **前置插入**：新增记忆项插入到原有二级目录**之前**
 5. **询问确认**：技能删除时必须询问用户；`CLAUDE.md`/`GEMINI.md` 重定向属于固定迁移动作，不需要询问
+6. **强制模板**：`12.memorix-memory-governance.md` 不进入多选，每次执行都强制增量合并；只补缺失内容，不覆盖用户自定义段落
 
 ### 格式保持
 
@@ -365,6 +371,7 @@ init-ai-md/
 - **禁止**一股脑复制粘贴整个模板文件内容
 - **禁止**覆盖用户在 AGENTS.md 中的自定义内容
 - **禁止**跳过交互选择步骤直接执行更新
+- **禁止**把模板 12 放进多选，或因为用户未选择任何可选模板就跳过它
 
 ## 模板内容参考
 
