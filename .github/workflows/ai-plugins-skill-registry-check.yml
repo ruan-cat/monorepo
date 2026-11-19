@@ -1,8 +1,9 @@
 name: AI Plugins Skill Registry Check
 
-# workflow-guard: exempt —— 本 workflow 只在 Node 环境内运行纯文本校验脚本
+# workflow-guard: exempt —— registry job 只在 Node 环境内运行纯文本校验脚本
 # （generator 仅用 Node 内置模块，无任何依赖），不需要 pnpm 与项目依赖，
-# 因此不接入 .github/actions/setup-monorepo。固定到仓库 engines.node 的最低版本即可。
+# 固定到仓库 engines.node 的最低版本即可。transition-windows job 走标准
+# setup-monorepo 单入口，不在此重复安装 pnpm / Node。
 
 on:
   pull_request:
@@ -13,6 +14,10 @@ on:
       - "ai-plugins/skill-registry.json"
       - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1"
       - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.mjs"
+      - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/release-ai-plugins.ps1"
+      - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/skill-transitions.ps1"
+      - "tests/release-ai-plugins/**"
+      - "tests/vitest.config.ts"
       - ".github/workflows/ai-plugins-skill-registry-check.yml"
   push:
     branches:
@@ -24,6 +29,10 @@ on:
       - "ai-plugins/skill-registry.json"
       - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1"
       - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.mjs"
+      - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/release-ai-plugins.ps1"
+      - "ai-plugins/common-tools/skills/release-ai-plugins/scripts/skill-transitions.ps1"
+      - "tests/release-ai-plugins/**"
+      - "tests/vitest.config.ts"
       - ".github/workflows/ai-plugins-skill-registry-check.yml"
 
 permissions:
@@ -54,3 +63,53 @@ jobs:
       - name: 校验 Skill Registry 未过期
         shell: pwsh
         run: ./ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1 -Check
+
+  transition-powershell:
+    name: transition (Windows PowerShell 5.1)
+    runs-on: windows-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v6
+
+      - name: 初始化 monorepo 环境
+        uses: ./.github/actions/setup-monorepo
+        with:
+          node-version: "22.14.0"
+          with-vercel: "false"
+          install-flags: "--frozen-lockfile --ignore-scripts"
+
+      - name: 运行 transition 集成测试
+        shell: powershell
+        env:
+          USE_MEMORIX_PS_EXE: powershell.exe
+          USE_MEMORIX_ALLOW_PWSH: "1"
+        run: |
+          pnpm exec vitest run `
+            --config tests/vitest.config.ts `
+            --reporter=default `
+            tests/release-ai-plugins
+
+  transition-pwsh:
+    name: transition (PowerShell 7)
+    runs-on: windows-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v6
+
+      - name: 初始化 monorepo 环境
+        uses: ./.github/actions/setup-monorepo
+        with:
+          node-version: "22.14.0"
+          with-vercel: "false"
+          install-flags: "--frozen-lockfile --ignore-scripts"
+
+      - name: 运行 transition 集成测试
+        shell: pwsh
+        env:
+          USE_MEMORIX_PS_EXE: pwsh.exe
+          USE_MEMORIX_ALLOW_PWSH: "1"
+        run: |
+          pnpm exec vitest run `
+            --config tests/vitest.config.ts `
+            --reporter=default `
+            tests/release-ai-plugins
