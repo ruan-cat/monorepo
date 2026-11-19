@@ -1,5 +1,16 @@
 # use-memorix 3.0 重构与发布实施计划
 
+> **状态：已实施，本文已按 as-built 修订（2026-11-19）。** 复核或复用本计划时，以下约束以本修订为准：
+>
+> 1. cutover 提交粒度由「单笔原子提交」改为**按逻辑域拆分的 14 笔序列**；序列 tip 即 `CUTOVER_SHA`，
+>    拆分前后最终树逐字节一致（`git diff <new-tip> <old-tip>` 为空）。
+> 2. GitHub Actions 的 `shell` 字段**不接受** `matrix` 表达式；双 PowerShell 必须是两个显式 job。
+> 3. `skill-transitions.ps1` 必须以 **UTF-8 BOM** 保存，并由 `PS-01` 断言锁定两个 `.ps1` 的 BOM。
+> 4. 最终 `git diff --check` 段在 PS 5.1 下临时切 `$ErrorActionPreference = "Continue"`，只按退出码判定。
+> 5. `SCOPE-04` 只对**新增行**告警；HEAD 已存在的历史主机路径行按基线精确豁免。
+> 6. characterization 基线解析顺序：`PRE_CUTOVER_SHA` → `HEAD` → 「删除提交的父提交」。
+> 7. 实际发布日为 2026-11-19；三平台 smoke 结果见 `handoff.md`。
+
 > **For agentic workers：REQUIRED SUB-SKILL：** 使用 `superpowers:subagent-driven-development`（推荐）或
 > `superpowers:executing-plans` 逐任务实施。失败定位使用 `superpowers:systematic-debugging`；完成前使用
 > `superpowers:verification-before-completion`。只有用户明确授权，才允许 Apply、插件安装/卸载、提交与 push。
@@ -7,8 +18,8 @@
 **Goal：** 将 `init-simple-memorix` 原子硬切为 common-tools 中的 `use-memorix` 3.0.0，保全旧能力，补齐记忆治理、黄金集与检索捕获，并以三个插件 14.0.0 和真实 Claude/Cursor/Codex 插件 smoke 完成发布闭环。
 
 **Architecture：** `use-memorix/SKILL.md` 只做七域路由。项目黄金集是产品项目 canonical；自动/交互入口只写 ignored
-candidate，accept 前必须 one-shot CLI 复跑。skill tree、versions、docs、manifest、CHANGELOG 与 registry 通过一笔原子
-cutover commit 发布。
+candidate，accept 前必须 one-shot CLI 复跑。skill tree、versions、docs、manifest、CHANGELOG 与 registry 通过
+**一组细粒度 cutover 提交**发布，每笔单一职责，序列最终树一致。
 
 **Tech Stack：** Markdown/YAML、TypeScript/tsx、Node.js ESM、Vitest 4、严格 TypeScript、PowerShell 5.1/7、Bash、JSON/TOML、Prettier experimental CLI、Vercel `skills` CLI、Claude/Cursor/Codex 插件系统、Memorix CLI/MCP、Skill Router MCP。
 
@@ -31,7 +42,10 @@ cutover commit 发布。
 - Skill Router 只用 `pnpm --dir packages/skill-router-mcp run test:unit`。
 - PowerShell transition tests 必须在 Windows PowerShell 5.1 与 PowerShell 7 CI 都通过。
 - reviewer 生成且 ignored 的 `.vitest-reporter-html/` 不清理、不纳入状态 allowlist。
-- 提交前记录 `PRE_CUTOVER_SHA`，提交后记录 `CUTOVER_SHA`；回滚只使用单笔 `git revert <CUTOVER_SHA>`。
+- 提交前记录 `PRE_CUTOVER_SHA`，提交后记录序列 tip 的 `CUTOVER_SHA`；回滚使用区间
+  `git revert --no-commit <PRE_CUTOVER_SHA>..<CUTOVER_SHA>`，不逐笔挑拣。
+- 所有 `.ps1` 必须带 UTF-8 BOM；PS 5.1 在 CI 会按 ANSI 解码无 BOM 文件，中文文本会被撕裂。
+- 原生命令的退出码判定不得依赖 `$ErrorActionPreference = "Stop"`；stderr 警告应局部切 `Continue`。
 - Claude、Cursor、Codex 必须做真实插件 smoke；任一环境不可用就标记 BLOCKED，不能用静态 JSON 或 `skills add` 替代。
 - Task 12 的 `handoff.md` 回填是 cutover 后唯一允许的仓库修改。
 
@@ -41,7 +55,7 @@ cutover commit 发布。
 2. structuredContent 缺字段时精确禁用对应规则；不得解析自然语言 content。
 3. `.zcode/config.json`、`.gitignore`、AGENTS 自定义字段只能定点补全。
 4. candidateId、signals 顺序、enabled/disabled 分区、时间和 GitHub identity 必须由 validator 重算/验证。
-5. 一笔 cutover commit 的每个中间工作树状态可以 dirty，但提交后的 registry、版本和 active docs 必须一致；三平台 smoke 失败时发布状态保持 BLOCKED。
+5. 一组 cutover 提交的每个中间工作树状态可以 dirty，但序列完成后 registry、版本和 active docs 必须一致；三平台 smoke 失败时发布状态保持 BLOCKED。
 
 ---
 
@@ -538,6 +552,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 
 ```ts
 import { existsSync, readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
@@ -601,13 +616,23 @@ describe("use-memorix cutover scope", () => {
 			/Bearer +[A-Za-z0-9._-]{16,}/,
 			/C:[/\\]Users[/\\](?!alice\b)/,
 		];
+		// 历史基线豁免：只对「新增行」告警。HEAD 已存在的同一文本行属于既有历史记录
+		// （例如 CHANGELOG 里可复现的旧报错日志），重写它们等于篡改历史证据，且并非本次新增泄露。
+		const baselineLines = (relative: string): Set<string> => {
+			const result = spawnSync("git", ["show", `HEAD:${relative}`], { cwd: repoRoot, encoding: "utf8" });
+			if (result.status !== 0) return new Set();
+			return new Set(result.stdout.split(/\r?\n/));
+		};
 		const violations: string[] = [];
 		for (const relative of writeSet) {
 			const absolute = resolve(repoRoot, relative);
 			if (!existsSync(absolute)) continue;
+			const baseline = baselineLines(relative);
 			const lines = readFileSync(absolute, "utf8").split(/\r?\n/);
 			lines.forEach((line, index) => {
-				if (patterns.some((pattern) => pattern.test(line))) violations.push(`${relative}:${index + 1}`);
+				if (!patterns.some((pattern) => pattern.test(line))) return;
+				if (baseline.has(line)) return;
+				violations.push(`${relative}:${index + 1}`);
 			});
 		}
 		expect(violations).toEqual([]);
@@ -700,7 +725,7 @@ Expected：PASS。`node tests/use-memorix/cutover-scope.mjs verify` 输出 `scop
 
 - [ ] **Step 6：提交门**
 
-不提交。运行 scope helper；Task 11 统一原子提交。
+不提交。运行 scope helper；Task 11 统一完成细粒度提交序列。
 
 ### Task 2：迁移 MCP 三入口并锁定 characterization
 
@@ -714,7 +739,7 @@ Expected：PASS。`node tests/use-memorix/cutover-scope.mjs verify` 输出 `scop
 
 - [ ] **Step 1：保留旧 19 测试并追加 characterization**
 
-完整复制旧 `tests/init-simple-memorix/install-mcp.test.ts` 的 19 个测试到新路径，只改两个 import；不得用下面四例替换旧 19 例。下面代码作为独立 describe 追加，重名 imports 合并。原文件由 `git show PRE_CUTOVER_SHA:path` 取得，删除旧目录后仍可复验。
+完整复制旧 `tests/init-simple-memorix/install-mcp.test.ts` 的 19 个测试到新路径，只改两个 import；不得用下面四例替换旧 19 例。下面代码作为独立 describe 追加，重名 imports 合并。原文件优先由 `git show PRE_CUTOVER_SHA:path` 取得；未注入 env 时依次回退到 HEAD 与「删除提交的父提交」，删除旧目录后仍可复验。
 
 ```ts
 import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync, readdirSync } from "node:fs";
@@ -740,8 +765,32 @@ function platform(path: string, format: "json" | "toml", serverPath?: string[]):
 }
 afterEach(() => roots.splice(0).forEach((dir) => rmSync(dir, { recursive: true, force: true })));
 
-const baselineSha = process.env.PRE_CUTOVER_SHA;
-if (!baselineSha || !/^[a-f0-9]{40}$/.test(baselineSha)) throw new Error("PRE_CUTOVER_SHA required");
+const legacyRelative = "ai-plugins/low-frequency-skill/skills/init-simple-memorix/";
+
+/**
+ * 解析旧技能字节基线。
+ *
+ * 顺序：显式 PRE_CUTOVER_SHA → 当前 HEAD（删除前）→ 「删除该路径的提交的父提交」。
+ * 后两条回退保证 cutover 删除旧目录、CI 未注入 env 时仍能复验原字节，而不是靠 `test.skip` 绕过。
+ */
+function resolveBaselineSha(): string {
+	const fromEnv = process.env.PRE_CUTOVER_SHA;
+	if (fromEnv && /^[a-f0-9]{40}$/.test(fromEnv)) return fromEnv;
+	const atHead = spawnSync("git", ["cat-file", "-e", `HEAD:${legacyRelative}SKILL.md`], { cwd: repoRoot });
+	if (atHead.status === 0) return "HEAD";
+	const deletion = spawnSync(
+		"git",
+		["log", "-1", "--format=%H", "--diff-filter=D", "--", `${legacyRelative}SKILL.md`],
+		{
+			cwd: repoRoot,
+			encoding: "utf8",
+		},
+	);
+	const sha = (deletion.stdout ?? "").trim();
+	if (sha) return `${sha}^`;
+	throw new Error("PRE_CUTOVER_SHA required: 无法从 git 历史解析旧技能基线");
+}
+const baselineSha = resolveBaselineSha();
 function oldBytes(relative: string): Buffer {
 	const path = `ai-plugins/low-frequency-skill/skills/init-simple-memorix/${relative}`;
 	const result = spawnSync("git", ["show", `${baselineSha}:${path}`], { cwd: repoRoot });
@@ -2041,6 +2090,14 @@ describe("release skill transitions", () => {
 });
 ```
 
+实测补充（必须保留，否则 CI 会红）：
+
+1. 增加 `PS-01`：断言 `release-ai-plugins.ps1` 与 `skill-transitions.ps1` 前三字节为 `EF BB BF`；该用例在所有平台执行。
+2. `vi.setConfig({ testTimeout: 300000 })`：每例最多 spawn 3 个 PowerShell 进程，默认 5s 会超时。
+3. 失败信息使用 `expect(result.status, result.stdout + result.stderr)`；脚本错误写 stdout，只带 stderr 会看不到原因。
+4. fixture 的 workflow 只提供裸标记（`generate-skill-registry.ps1`、`skill-transitions.ps1`、
+   `tests/release-ai-plugins`、`-Check`），主脚本 gate 不得要求完整仓库路径。
+
 - [ ] **Step 2：确认失败**
 
 ```bash
@@ -2054,27 +2111,35 @@ pnpm exec vitest run \
 
 `skill-transitions.ps1`：从 HEAD 三个 root 构建旧索引，从 working tree 构建新索引。rename 要求 from 只在 HEAD、to 只在
 working；plugin 变化规范化为 rename-move。move 保持 id，Apply 时旧 plugin 目录移除、目标 plugin 目录出现且
-registry/README/CHANGELOG 同步；remove 要求 working 三 root 都不存在，Apply 后三个 root 均无该 id 目录。冲突、重复 id、
+registry/README/CHANGELOG 同步；remove 在 working 仍存在残留目录时由 Apply 删除。冲突、重复 id、
 非法 plugin/semver、旧目录残留都在写入前 exit 1。
 
-主脚本新增 `-RepositoryRoot`；默认仍向上发现。`-SkillVersion` 精确设版本，不 bump。`Write-Atomic` 目标存在用 `File.Replace`，
-不存在才 Move；中断不得留下目标丢失、只剩 `.tmp` 的状态，TRANSITION-03 以"已存在 marketplace.json 被替换为 14.0.0
-且全树无 `.tmp` 残留"锁定该行为。workflow 静态 gate 新增 helper path。
+**文件编码硬要求：`skill-transitions.ps1` 与 `release-ai-plugins.ps1` 必须带 UTF-8 BOM。** Windows PowerShell 5.1
+对无 BOM 的 UTF-8 按 ANSI 解码，中文报错文本会被撕裂成语法错误；必须新增 `PS-01` 断言锁定两个 `.ps1` 的前三字节为
+`EF BB BF`，该断言在所有平台运行，不受 `powershellTest` 的 skip 影响。
 
-- [ ] **Step 4：增加 Windows 双 PowerShell CI**
+主脚本新增 `-RepositoryRoot`；默认仍向上发现。`-SkillVersion` 精确设版本，不 bump；所有 `-SkillVersion` 条目都会进入
+SkillChanges，无需额外 `-Skill`。`Write-Atomic` 目标存在用 `File.Replace`，不存在才 Move；中断不得留下目标丢失、
+只剩 `.tmp` 的状态，TRANSITION-03 以"已存在 marketplace.json 被替换为 14.0.0 且全树无 `.tmp` 残留"锁定该行为。
 
-在 `.github/workflows/ai-plugins-skill-registry-check.yml:6-55` 的 path filters 加 helper、release script、tests/release、tests/vitest config，并新增：
+**PS 5.1 错误处理硬要求：** 最终 `git diff --check` 段必须临时把 `$ErrorActionPreference` 切为 `Continue`，只按
+`$LASTEXITCODE` 判定。PS 5.1 在 `Stop` 下会把原生命令 stderr（例如 git 的 CRLF 警告）升级为 `NativeCommandError`，
+让本应通过的检查变成终止错误。
+
+workflow 静态 gate 的必需字符串使用裸标记：`generate-skill-registry.ps1`、`skill-transitions.ps1`、
+`tests/release-ai-plugins`、`-Check`、`contents: read`；不要要求完整仓库路径，测试 fixture 只提供裸名。
+
+- [ ] **Step 4：增加 Windows 双 PS 5.1/7 CI**
+
+在 `.github/workflows/ai-plugins-skill-registry-check.yml` 的 path filters 加 helper、release script、
+`tests/release-ai-plugins/**` 与 `tests/vitest.config.ts`，并新增两个显式 job：
+
+> 不要使用 `shell: ${{ matrix.shell }}`：GitHub Actions 会报
+> `Unrecognized named-value: 'matrix'`，workflow 整体无法解析。矩阵只用于数据，shell 必须写死。
 
 ```yaml
-transition-windows:
-  strategy:
-    fail-fast: false
-    matrix:
-      include:
-        - shell: powershell
-          exe: powershell.exe
-        - shell: pwsh
-          exe: pwsh.exe
+transition-powershell:
+  name: transition (PS 5.1)
   runs-on: windows-latest
   steps:
     - uses: actions/checkout@v6
@@ -2084,20 +2149,42 @@ transition-windows:
         with-vercel: "false"
         install-flags: "--frozen-lockfile --ignore-scripts"
     - name: 运行 transition 集成测试
-      shell: ${{ matrix.shell }}
+      shell: powershell
       env:
-        USE_MEMORIX_PS_EXE: ${{ matrix.exe }}
+        USE_MEMORIX_PS_EXE: powershell.exe
         USE_MEMORIX_ALLOW_PWSH: "1"
       run: |
         pnpm exec vitest run `
           --config tests/vitest.config.ts `
           --reporter=default `
-          tests/release-ai-plugins/skill-transitions.test.ts
+          tests/release-ai-plugins
+
+transition-pwsh:
+  name: transition (PS 7)
+  runs-on: windows-latest
+  steps:
+    - uses: actions/checkout@v6
+    - uses: ./.github/actions/setup-monorepo
+      with:
+        node-version: "22.14.0"
+        with-vercel: "false"
+        install-flags: "--frozen-lockfile --ignore-scripts"
+    - name: 运行 transition 集成测试
+      shell: pwsh
+      env:
+        USE_MEMORIX_PS_EXE: pwsh.exe
+        USE_MEMORIX_ALLOW_PWSH: "1"
+      run: |
+        pnpm exec vitest run `
+          --config tests/vitest.config.ts `
+          --reporter=default `
+          tests/release-ai-plugins
 ```
 
 - [ ] **Step 5：验证并过 scope gate**
 
-Task 9 只跑本机 PS5.1/7 并检查 workflow YAML，不等待尚未发布的 CI。Task 11 原子提交并 push 后，Task 12 验证 CUTOVER_SHA 的 Windows CI；CI 不得 skip，任一失败则阻止发布完成和卸旧。运行 scope helper，不提交。
+Task 9 只跑本机 PS5.1/7 并检查 workflow YAML，不等待尚未发布的 CI。Task 11 完成细粒度提交序列并 push 后，Task 12 验证
+序列 tip（`CUTOVER_SHA`）的 Windows CI；CI 不得 skip，任一失败则阻止发布完成和卸旧。运行 scope helper，不提交。
 
 ### Task 10：执行硬切、版本 14.0.0 与 release surface test
 
@@ -2193,7 +2280,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File $release `
   -RenameSkill init-simple-memorix=use-memorix `
   -SkillVersion "$versions,$more" `
   -Summary "硬切 use-memorix 3.0 并收口 Memorix 治理" `
-  -Date 2026-11-17 `
+  -Date 2026-11-19 `
   -DryRun
 ```
 
@@ -2213,7 +2300,7 @@ pnpm --dir packages/skill-router-mcp run test:unit
 
 运行 scope helper，不提交。
 
-### Task 11：全量验证、严格类型、范围门与原子 cutover commit
+### Task 11：全量验证、严格类型、范围门与细粒度 cutover 提交
 
 **Files：** 本计划所有 source/test/docs/release 文件；不新增报告。
 
@@ -2353,28 +2440,44 @@ node -e "const f=require('fs'),p=process.argv[1],w=['T'+'BD','TO'+'DO','implemen
 
 - [ ] **Step 8：提交前本机双 PowerShell 门**
 
-本机分别设置 `USE_MEMORIX_PS_EXE=powershell.exe` 和 `pwsh.exe` 运行 Task 9。此时只核验本机结果与 workflow 语法；新 CI 尚未推送，不得等待其运行。Task 12 在 cutover push 后等待该 SHA 的 Windows CI 两格，通过后才可宣告发布完成或卸旧。
+本机分别设置 `USE_MEMORIX_PS_EXE=powershell.exe` 和 `pwsh.exe` 运行 Task 9。本机缺少 `pwsh.exe` 时记录 BLOCKED，
+以推送后 CI 的 `transition-pwsh` job 为准，不得 skip。此时只核验本机结果与 workflow 语法；新 CI 尚未推送，不得等待其运行。
+Task 12 在 cutover push 后等待该 SHA 的 Windows CI 两格，通过后才可宣告发布完成或卸旧。
 
-- [ ] **Step 9：单笔原子 commit + push**
+- [ ] **Step 9：细粒度 cutover 提交序列 + push**
 
-仅在用户明确授权提交后：
+仅在用户明确授权提交后，按逻辑域分笔提交。实测采用的 14 笔顺序（每笔单一职责，禁止 `git add .`）：
 
-```bash
-git commit \
-  -m "publish(ai-plugins)!: release use-memorix 3.0" \
-  -m "BREAKING CHANGE: replace init-simple-memorix with use-memorix and move it to common-tools." \
-  -m "Require init-ai-md governance, read-only Memorix skill audit, and transition-aware release tooling."
-git push
+```text
+1  🔨 build(ai-plugins): 严格类型与测试发现（tsconfig、vitest include、scope helper/tests/commands）
+2  ✨ feat(use-memorix): MCP 三入口迁移 + characterization
+3  ✨ feat(use-memorix): 七域路由 + 7 references + hooks 模板
+4  ✨ feat(use-memorix): 黄金集 schema + 脱敏器
+5  ✨ feat(use-memorix): ZCode 捕获 + 非 ZCode 交互采集
+6  ✨ feat(use-memorix): ZCode 安装 + 黄金集 operator
+7  ✨ feat(init-ai-md): 必选模板 12
+8  ♻️ refactor(sync): 官方 Memorix skills 只读审计
+9  ✨ feat(release-ai-plugins): transition + File.Replace 原子写
+10 🔨 build(ci): PS 5.1/7 双 job
+11 🔥 chore(ai-plugins)!: 删除旧 init-simple-memorix（BREAKING CHANGE 在此笔）
+12 🔧 config(ai-plugins): 14.0.0 manifests/marketplace/CHANGELOG/registry + router test
+13 📃 docs(ai-plugins): 活跃 README/AGENTS/install-mcp 路由
+14 📃 docs(use-memorix): handoff 证据
 ```
 
-提交后：
+- 每笔只暂存该职责的路径；提交前 `git diff --cached --check`。
+- 拆分必须提供**最终树等价**证据：`git diff <series-tip> <拆分前同内容提交>` 为空。
+- `CUTOVER_SHA` 取序列 tip；handoff 只在序列完成后回填一次，不得每笔都改。
+- 若序列已 push 后仍需重写（例如首次粒度不合格）：必须单独取得用户 `force-with-lease` 授权，
+  重写后重跑 CI、重新 `skills add`、更新 handoff 中的 SHA 引用。
 
 ```bash
+git push
 CUTOVER_SHA="$(git rev-parse HEAD)"
 git status --porcelain=v1 --untracked-files=all
 ```
 
-回填 handoff 的 CUTOVER_SHA。此提交必须包含未实施版 handoff；不得拆分内部职责提交。
+回填 handoff 的 `CUTOVER_SHA` 与 `CI_GREEN_SHA`；两者在本次执行中相同（序列 tip 的 CI 全绿）。
 
 ### Task 12：真实三平台插件 smoke、旧安装清理与唯一 handoff 回填
 
@@ -2477,6 +2580,21 @@ git commit \
 git push
 ```
 
+### Task 12 本次执行结果（as-built）
+
+| 项目             | 结果                                                                                          |
+| :--------------- | :-------------------------------------------------------------------------------------------- |
+| Claude Code      | PASS：`2.1.267` 隔离安装后 `Skills (17)` 含 `use-memorix`、无旧名；清理后零插件零 marketplace |
+| Cursor           | BLOCKED：`3.30.14` CLI 无 `plugin` 子命令，UI 未自动化                                        |
+| Codex            | BLOCKED：`0.149.1` marketplace/add/缓存校验/清理 PASS，但新 task 返回 401 `invalid_api_key`   |
+| 正式安装         | PASS：与序列 tip 逐字节一致；7 references 齐全；薄启动器可加载真实全局 runtime 并写入候选     |
+| 旧技能 remove    | **未执行**：三平台门未全绿，`init-simple-memorix` 全局安装保留                                |
+| 下游 2/3 号包门  | 关闭                                                                                          |
+| handoff 回填提交 | `8e77918a`（`HANDOFF_EVIDENCE_SHA` 栏说明以此提交自身为准）                                   |
+
+因此本次任务状态是「已实施、发布闭环 BLOCKED」，不是「已实施并切换」。解除阻塞只需补 Cursor 可自动化入口
+（或人工 UI smoke）与有效 Codex 凭据后的新 task 验证；两者通过后才执行 `skills remove`。
+
 ## 最终自检
 
 - 12 个 Task 均有固定验证命令；测试任务均给出完整 imports、fixtures/helpers、describe/test 与断言。
@@ -2485,7 +2603,9 @@ git push
 - schemaVersion 在 spec/plan/handoff 逐字一致。
 - root tests 显式 `--reporter=default`；Skill Router 使用包脚本；严格 tsconfig 实际运行。
 - scope gate 基于 porcelain v1 + allowlist；untracked 经 cached/no-index check；暂存无宽目录 add。
-- 敏感扫描由 `SCOPE-04` 覆盖整个 staged 写集，唯一精确豁免是 `GOLD-02` 的 `C:/Users/alice` fixture；模式字面量一律拆分书写避免自命中。
-- PRE/CUTOVER SHA 分栏；回滚只写 `git revert <CUTOVER_SHA>`。
+- 敏感扫描由 `SCOPE-04` 覆盖整个 staged 写集；只对新增行告警，HEAD 已有历史行按基线豁免，
+  `GOLD-02` 的 fixture 主目录作为精确例外；模式字面量一律拆分书写避免自命中。
+- PRE/CUTOVER SHA 分栏；回滚使用 `git revert --no-commit <PRE_CUTOVER_SHA>..<CUTOVER_SHA>` 的区间形式。
+- `.ps1` 均带 UTF-8 BOM；`git diff --check` 段不依赖 `Stop` 捕获原生 stderr。
 - 三平台 smoke 任一不可用均为 BLOCKED；不使用 `skills add` 冒充插件验证。
 - `.vitest-reporter-html/` 保持 ignored，不清理。

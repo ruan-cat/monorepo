@@ -1,8 +1,16 @@
 # use-memorix 3.0 重构与发布规格
 
-> 状态：设计冻结，未实施。
+> 状态：设计已实施；本文已按 as-built 修订（2026-11-19）。
 >
-> 本文只定义 1 号任务包。后续实现、迁移、安装、发布、提交、推送和记忆写入均不属于本轮文档编辑。
+> 修订记录（与初版设计的差异，均已由实现与 CI 验证）：
+>
+> 1. cutover 由「单笔原子提交」改为按逻辑域拆分的 14 笔序列（用户验收要求），拆分前后最终树逐字节一致。
+> 2. GitHub Actions 的 `shell` 字段不接受 `matrix` 表达式，双 PowerShell 改为两个显式 job。
+> 3. `skill-transitions.ps1` 必须带 UTF-8 BOM；PS 5.1 在 CI 按 ANSI 解码无 BOM 文件会撕裂中文。
+> 4. 最终 `git diff --check` 段在 PS 5.1 下临时切 `$ErrorActionPreference = "Continue"`，只按退出码判定。
+> 5. `SCOPE-04` 改为「仅对新增行告警」，HEAD 已存在的历史主机路径行做精确基线豁免。
+> 6. characterization 基线解析增加「HEAD → 删除提交父提交」回退，cutover 后仍可复验原字节。
+> 7. 实际发布日为 2026-11-19；三平台 smoke 结果以 `handoff.md` 为准（Claude PASS，Cursor/Codex BLOCKED）。
 
 ## 1. 意图
 
@@ -812,8 +820,9 @@ type SkillTransition =
 2. transition DryRun 全绿且零写入。
 3. release Apply 将插件统一到 14.0.0，registry Apply/Check 全绿。
 4. 三平台 manifest/schema、README、CHANGELOG、registry、skill-router tests 全绿。
-5. 记录 `PRE_CUTOVER_SHA`，完成一笔原子 cutover commit 并正常 push `dev`；不 force push。
-6. 等待 `CUTOVER_SHA` 触发的 Windows PowerShell 5.1/7 CI 两格全绿；该 CI 属新增 workflow，push 前不存在，禁止提前等待。
+5. 记录 `PRE_CUTOVER_SHA`，完成按逻辑域拆分的 cutover 提交序列并 push `dev`。序列内每笔保持单一职责，
+   最终树必须与拆分前一致；如需重写已推送历史，必须单独取得用户的 `force-with-lease` 授权，不得默认 force push。
+6. 等待序列 tip（`CUTOVER_SHA`）触发的 Windows PowerShell 5.1/7 CI 两格全绿；该 CI 属新增 workflow，push 前不存在，禁止提前等待。
 7. 从已 push 的 `CUTOVER_SHA` 执行 Claude Code、Cursor、Codex 三平台真实插件 smoke（隔离配置/临时 marketplace）；任一 BLOCKED 则停止发布完成声明。
 8. 三平台隔离 smoke 清理完成后，经用户授权从 exact `CUTOVER_SHA` 正式安装 `use-memorix`，逐字节比对 `~/.agents/skills/use-memorix/SKILL.md` 与 `CUTOVER_SHA`，确认七 references 存在、薄启动器可加载真实全局 runtime；隔离 smoke 中的旧名不可见仅说明候选插件，无权推断用户全局旧安装消失。
 9. 三平台 smoke 与正式安装验证全绿后，通过官方 `skills remove init-simple-memorix -g -y` 清理旧独立安装。
@@ -910,20 +919,22 @@ type SkillTransition =
 - [ ] JSON、Markdown、Prettier、`git diff --check`、相关 Vitest 和 PowerShell/Bash characterization 全绿。
 - [ ] 真实 Claude Code、Cursor、Codex 插件 smoke 均通过并完成临时资源清理；任一平台不可用时整体状态为 BLOCKED，静态 JSON 与 `skills add` 不得替代。
 - [ ] 本机插件 smoke 后，再通过官方 `skills remove` 清理旧的独立 `init-simple-memorix` 安装；`use-memorix` 由 common-tools 插件提供且保持可见。
-- [ ] 提交前记录 `PRE_CUTOVER_SHA`，提交/push 后记录 `CUTOVER_SHA`；2/3 号包不得使用分支名或混淆两个 SHA。
+- [ ] 提交前记录 `PRE_CUTOVER_SHA`，提交/push 后记录序列 tip 的 `CUTOVER_SHA`；2/3 号包不得使用分支名或混淆两个 SHA。
 
 ## 22. 回滚策略
 
 ### 22.1 发布前
 
 - 未提交变更按精确 pathspec 恢复，不触碰用户原有 dirty 文件。
-- 不使用 `git reset --hard`、不清空整个工作树、不 force push。
+- 未经用户明确授权不使用 `git reset --hard`、不清空整个工作树、不 force push；本任务实际在用户授权后
+  以 `--force-with-lease` 重写过一次已推送的 cutover 历史，仅用于满足细粒度提交验收。
 - registry 重新由基线树的 Node generator 生成，不手工拼接。
 
 ### 22.2 已提交或已 push
 
-1. 使用单笔 `git revert <CUTOVER_SHA>` 回滚整个原子 cutover commit；不得按内部职责拆分回滚，不手工挑文件。
-2. 正常 push revert commit，不改写历史。
+1. 使用区间回滚撤销整个 cutover 序列：`git revert --no-commit <PRE_CUTOVER_SHA>..<CUTOVER_SHA>` 后单笔提交；
+   不得只 revert 序列 tip，也不手工挑文件。
+2. 正常 push revert commit；除用户明确授权的历史重写外，不改写历史。
 3. 从已记录的 `PRE_CUTOVER_SHA` 恢复/安装 `init-simple-memorix`。
 4. 验证旧技能和三平台插件回到 pre-cutover 状态后，再通过官方 remove 清理 `use-memorix` 的独立残留（若存在）。
 5. 恢复后的 registry、manifest、README 和三个插件版本必须来自同一 revert 状态。
