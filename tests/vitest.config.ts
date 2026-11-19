@@ -1,4 +1,5 @@
 import { defineConfig } from "vitest/config";
+import { fileURLToPath } from "node:url";
 
 /**
  * tests/ 目录下无独立配置的 skill 测试子目录的公共 vitest 配置。
@@ -8,17 +9,22 @@ import { defineConfig } from "vitest/config";
  *
  * 注意：useIconEffect（jsdom）与 cleanup-agent-team-node-processes（具名 include + 超时）拥有
  * 各自的 vitest 配置并在根 projects 中单独引用，不要把它们的测试并入本 include，避免重复发现。
+ *
+ * root 固定为 tests/，与 include 的相对路径同基准；从仓库根运行时过滤参数仍写 tests/...
  */
 export default defineConfig({
+	root: fileURLToPath(new URL(".", import.meta.url)),
 	test: {
 		name: "tests-node",
 		environment: "node",
 		include: [
 			"clean-vercel-deployment-storage/**/*.test.ts",
+			"init-ai-md/**/*.test.ts",
 			"init-prettier-git-hooks/**/*.test.ts",
 			"init-shadcn-docs-nuxt/**/*.test.ts",
-			"init-simple-memorix/**/*.test.ts",
+			"release-ai-plugins/**/*.test.ts",
 			"sync-local-global-agents-skills/**/*.test.ts",
+			"use-memorix/**/*.test.ts",
 		],
 	},
 });

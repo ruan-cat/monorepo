@@ -1,0 +1,2 @@
+# Task 7：init-ai-md 强制模板 12
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/init-ai-md/memorix-governance.test.ts

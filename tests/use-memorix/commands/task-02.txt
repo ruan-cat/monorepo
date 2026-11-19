@@ -1,0 +1,2 @@
+# Task 2：MCP 三入口迁移与 characterization
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/use-memorix/install-mcp.test.ts

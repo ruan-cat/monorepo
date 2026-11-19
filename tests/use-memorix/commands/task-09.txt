@@ -1,0 +1,5 @@
+# Task 9：release transition 与双 PowerShell 链路
+# 本机 powershell.exe
+$env:USE_MEMORIX_PS_EXE = "powershell.exe"; pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/release-ai-plugins
+# 本机 pwsh.exe（未安装时记录 BLOCKED，CI matrix 覆盖）
+$env:USE_MEMORIX_PS_EXE = "pwsh.exe"; pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/release-ai-plugins

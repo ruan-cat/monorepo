@@ -1,0 +1,6 @@
+# Task 10：硬切、14.0.0 与 release surface
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/use-memorix/release-surface.test.ts
+# 发布脚本 DryRun（命令拆为续行，保持每个物理行 <= 200 字符）
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File ai-plugins/common-tools/skills/release-ai-plugins/scripts/release-ai-plugins.ps1 `
+  -Version 14.0.0 -RenameSkill init-simple-memorix=use-memorix -SkillVersion use-memorix=3.0.0 -DryRun

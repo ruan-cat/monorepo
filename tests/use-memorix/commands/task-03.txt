@@ -1,0 +1,2 @@
+# Task 3：七域路由与能力矩阵
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/use-memorix/capability-matrix.test.ts

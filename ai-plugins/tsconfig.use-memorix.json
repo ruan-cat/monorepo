@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"strict": true,
+		"noCheck": false,
+		"noEmit": true,
+		"allowImportingTsExtensions": true,
+		"allowJs": true,
+		"checkJs": false,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"types": ["node", "vitest/globals"]
+	},
+	"include": [
+		"common-tools/skills/use-memorix/scripts/install-mcp.ts",
+		"common-tools/skills/use-memorix/src/install-mcp.ts",
+		"common-tools/skills/use-memorix/src/platforms.ts",
+		"common-tools/skills/sync-local-global-agents-skills/scripts/audit-memorix-skills.ts",
+		"common-tools/skills/sync-local-global-agents-skills/scripts/sync.ts",
+		"common-tools/skills/sync-local-global-agents-skills/src/memorix-audit.ts",
+		"common-tools/skills/sync-local-global-agents-skills/src/platforms.ts",
+		"common-tools/skills/sync-local-global-agents-skills/src/sync.ts",
+		"../tests/use-memorix/**/*.test.ts",
+		"../tests/init-ai-md/**/*.test.ts",
+		"../tests/release-ai-plugins/**/*.test.ts",
+		"../tests/sync-local-global-agents-skills/**/*.test.ts"
+	]
+}

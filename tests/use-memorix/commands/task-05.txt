@@ -1,0 +1,2 @@
+# Task 5：ZCode 自动捕获与交互入口
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/use-memorix/retrieval-capture.test.ts

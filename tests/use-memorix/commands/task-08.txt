@@ -1,0 +1,2 @@
+# Task 8：官方 Memorix skills 只读审计
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/sync-local-global-agents-skills

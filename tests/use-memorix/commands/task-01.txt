@@ -1,0 +1,5 @@
+# Task 1：测试发现、严格类型与工作树 allowlist
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/use-memorix/scope-gate.test.ts
+node tests/use-memorix/cutover-scope.mjs verify
+node tests/use-memorix/cutover-scope.mjs pathspec
+pnpm exec tsc --noEmit -p ai-plugins/tsconfig.use-memorix.json

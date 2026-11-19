@@ -1,0 +1,13 @@
+# Task 11：全量验证与原子提交
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/use-memorix
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/init-ai-md
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/release-ai-plugins
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/sync-local-global-agents-skills
+pnpm exec tsc --noEmit -p ai-plugins/tsconfig.use-memorix.json
+pnpm run typecheck:ai-plugins
+node ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.mjs --check
+pnpm --dir packages/skill-router-mcp run test:unit
+node tests/use-memorix/cutover-scope.mjs verify
+node tests/use-memorix/cutover-scope.mjs pathspec
+git add --pathspec-from-file=.git/use-memorix-cutover.pathspec --pathspec-file-nul
+node tests/use-memorix/cutover-scope.mjs staged

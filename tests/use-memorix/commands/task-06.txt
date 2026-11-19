@@ -1,0 +1,4 @@
+# Task 6：ZCode 安装与黄金集 operator
+pnpm exec vitest run --config tests/vitest.config.ts --reporter=default tests/use-memorix/zcode-install-operator.test.ts
+node ai-plugins/common-tools/skills/use-memorix/scripts/golden-set-operator.mjs --help
+node ai-plugins/common-tools/skills/use-memorix/scripts/install-zcode-hook.mjs --help

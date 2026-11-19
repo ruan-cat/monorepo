@@ -1,0 +1,13 @@
+# Task 12：三平台 smoke、旧安装清理与 handoff
+node tests/use-memorix/cutover-scope.mjs verify runtime
+claude plugin validate --strict --json ai-plugins/common-tools
+claude plugin marketplace add .
+claude plugin install common-tools@use-memorix-smoke --scope local -y
+claude plugin uninstall common-tools --scope local -y
+claude plugin marketplace remove use-memorix-smoke
+codex plugin marketplace add . --json
+codex plugin add common-tools@use-memorix-smoke --json
+codex plugin remove common-tools@use-memorix-smoke --json
+codex plugin marketplace remove use-memorix-smoke --json
+skills remove init-simple-memorix -g -y
+skills list -g --json
