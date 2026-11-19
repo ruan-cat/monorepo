@@ -8,7 +8,7 @@ description: >-
   当用户要求插件发布、版本升级、更新日志、manifest、marketplace、README 一致性、
   skill-registry.json、MCP skill registry 或 registry stale 校验时使用。
 metadata:
-  version: "2.1.1"
+  version: "2.2.0"
 ---
 
 # AI Plugins 发布流程
@@ -29,6 +29,29 @@ metadata:
 - `-Summary`：写入三个 CHANGELOG 的简短说明。
 - `-NewSkill`：新增 skill 名称；对应插件根 README 必须先包含该名称。
 - `-Apply`：明确允许写文件；未指定时为 DryRun。
+- `-RenameSkill old=new`：技能改名；可重复或逗号分隔。旧 id 必须已从 working tree 消失。
+- `-MoveSkill id=plugin`：技能跨插件迁移；id 不变，目标 plugin 只允许三个已知值。
+- `-RemoveSkill id`：删除技能；Apply 时同时删除目录与 registry entry。
+- `-SkillVersion id=x.y.z`：精确设置版本，不参与 bump；用于 transition 与本次显式发布的技能。
+- `-RepositoryRoot path`：显式注入仓库根（测试与受控脚本使用）；省略时保持向上发现。
+
+## Skill transition
+
+transition 从 **HEAD skill tree** 读取 `from`、从 **working tree** 读取 `to`：
+
+| 参数            | 解析规则                                                                      |
+| :-------------- | :---------------------------------------------------------------------------- |
+| `-RenameSkill`  | 旧 id 只在 HEAD；新 id 只在 working tree；plugin 变化时规范化为 `rename-move` |
+| `-MoveSkill`    | id 不变；源 plugin 来自 HEAD；目标 plugin 由参数给出                          |
+| `-RemoveSkill`  | 旧 id 只在 HEAD；Apply 时删除残留目录                                         |
+| `-SkillVersion` | 精确版本，不 bump；未给出时才使用 `-ChangeType`                               |
+
+冲突、重复 id、非法 plugin/semver、rename 后旧目录残留，都在写盘前非零退出。DryRun 只列
+旧 entry 删除、新 entry 添加、plugin 出入、版本、README、CHANGELOG 与 registry 变化，零写入。
+
+Apply 顺序固定：先落盘 move/remove 的目录结构，再写 SKILL.md 与 JSON/CHANGELOG/README，
+最后只调用一次 registry `-Apply` 与一次 `-Check`。`Write-Atomic` 在目标存在时使用
+`[System.IO.File]::Replace`，目标不存在时才 `Move-Item`；中断不得留下只剩 `.tmp` 的状态。
 
 ## `-NewSkill` 的版本升级行为
 
@@ -84,6 +107,10 @@ manifest，不是人工维护的第二真源。v1 只包含 `schemaVersion`、�
 并覆盖三个 Skill roots、registry、`.ps1` 兼容入口、`.mjs` generator 和 workflow 自身；不允许 Apply、commit 或 push。
 
 - CI 在 Ubuntu 与 Windows 上运行同一 Node generator，验证 canonical output 不依赖操作系统。
+- `transition-powershell` 与 `transition-pwsh` 两个 job 分别在 `windows-latest` 上用
+  `powershell.exe` / `pwsh.exe` 运行 `tests/release-ai-plugins`；任一链路失败即阻塞发布，不允许 skip。
+- path filter 必须覆盖 release 主脚本、`skill-transitions.ps1`、`tests/release-ai-plugins/**` 与
+  `tests/vitest.config.ts`。
 - CI 固定使用仓库 `engines.node` 的最低支持版本；generator 只使用 Node 内置模块，不安装项目依赖。
 - 只修改 Skill 正文、`metadata.version`、reference/template/example 时，不需要改 workflow；path filter
   会触发检查，registry 由 release Apply 集中生成。
@@ -179,6 +206,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ai-plugins/common-tools/skil
 ## 相关资源
 
 - [`scripts/release-ai-plugins.ps1`](scripts/release-ai-plugins.ps1)：主发布入口。
+- [`scripts/skill-transitions.ps1`](scripts/skill-transitions.ps1)：HEAD/working tree 索引与 transition 解析。
 - [`scripts/generate-skill-registry.mjs`](scripts/generate-skill-registry.mjs)：registry 唯一 canonical generator。
 - [`scripts/generate-skill-registry.ps1`](scripts/generate-skill-registry.ps1)：兼容旧 `-Check/-Apply` CLI 的薄适配器。
 - [`references/release-contract.md`](references/release-contract.md)：字段矩阵、CHANGELOG 和 smoke test 契约。

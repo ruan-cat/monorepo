@@ -1,5 +1,37 @@
 # release-ai-plugins 详细契约
 
+## Skill transition 契约
+
+`scripts/skill-transitions.ps1` 提供 `Get-HeadSkillIndex`、`Get-WorkingSkillIndex` 与
+`Resolve-SkillTransitions`，只解析不写盘；主发布脚本只消费标准化对象。
+
+```ts
+type SkillEndpoint = {
+	id: string;
+	plugin: "common-tools" | "dev-skills" | "low-frequency-skill";
+	entry: string;
+	version: string;
+};
+type SkillTransition =
+	| { kind: "rename" | "rename-move"; from: SkillEndpoint; to: SkillEndpoint }
+	| { kind: "move"; from: SkillEndpoint; to: SkillEndpoint }
+	| { kind: "remove"; from: SkillEndpoint; to: null };
+```
+
+固定规则：
+
+1. `from` 只来自 HEAD skill tree；`to` 只来自 working tree。
+2. rename 要求旧 id 在 working tree 消失、新 id 存在；plugin 同时变化规范化为 `rename-move`。
+3. move 保持 id；Apply 执行目录迁移，目标 plugin 必须是三个已知值之一。
+4. remove 要求旧 id 在 HEAD 存在；Apply 删除工作树残留目录。
+5. 同一 id 不得出现在冲突 transition；重复 id、非法 plugin/semver、旧目录残留都在写入前非零退出。
+6. `-SkillVersion` 精确设版本，不参与 `-ChangeType` 计算。
+7. DryRun 零写入；Apply 先用 `[System.IO.File]::Replace` 原子替换（目标不存在才 `Move-Item`），
+   再调用 registry `-Apply` 与 `-Check` 各一次。
+
+transition 集成测试固定覆盖：rename、rename-move、move、remove、冲突、目标缺失、旧目录残留、
+DryRun 字节不变、Apply 后无 `.tmp` 残留。
+
 ## Skill Registry 契约
 
 `scripts/generate-skill-registry.mjs` 是 `ai-plugins/skill-registry.json` 的唯一 canonical generator。

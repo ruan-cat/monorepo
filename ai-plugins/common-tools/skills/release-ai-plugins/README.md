@@ -12,6 +12,33 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/release-ai-plugins
 
 通过 DryRun 后，把 `-DryRun` 换成 `-Apply`。新增 skill 时先更新对应插件根目录 README，再传入 `-NewSkill <skill-name>`；脚本会阻断缺失 README 的发布。
 
+## Skill transition
+
+改名、跨插件迁移与删除都由同一入口处理：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/release-ai-plugins.ps1 `
+  -Version 14.0.0 `
+  -RenameSkill old-skill=new-skill `
+  -SkillVersion new-skill=3.0.0 `
+  -Summary "硬切新技能名称" -DryRun
+```
+
+| 参数              | 语义                                        |
+| :---------------- | :------------------------------------------ |
+| `-RenameSkill`    | `old=new`；旧 id 必须已从 working tree 消失 |
+| `-MoveSkill`      | `id=plugin`；id 不变，Apply 时执行目录迁移  |
+| `-RemoveSkill`    | 删除 id；Apply 时删除残留目录               |
+| `-SkillVersion`   | `id=x.y.z`；精确设置，不 bump               |
+| `-RepositoryRoot` | 显式注入仓库根；测试与受控脚本使用          |
+
+`from` 来自 HEAD skill tree，`to` 来自 working tree；plugin 同时变化时规范化为 `rename-move`。
+冲突、重复 id、非法 plugin/semver、rename 后旧目录残留都会在写盘前失败。DryRun 零写入；
+Apply 先落盘目录结构，再写文件，最后只调用一次 registry `-Apply` 与一次 `-Check`。
+
+`scripts/skill-transitions.ps1` 承担索引与解析，主脚本只消费标准化对象；两者必须同版本、同
+commit 发布。`Write-Atomic` 在目标存在时用 `File.Replace` 原子替换，目标不存在时才 `Move-Item`。
+
 Registry 可直接用 Node 独立诊断：
 
 ```bash
@@ -40,6 +67,5 @@ path filter 自动触发；CI 在 Ubuntu 与 Windows 上使用仓库最低支持
 不安装项目依赖。只有 generator 路径、CLI、扫描 roots、schema、权限或触发范围变化时，才需要同步
 修改该 workflow。release 主脚本仍会校验 workflow 保持只读 `-Check` 契约。
 
-主发布脚本仍固定处理六个 `plugin.json`、三个 marketplace、两个插件 `CHANGELOG.md`，集中生成并校验
+主发布脚本仍固定处理九个 `plugin.json`、三个 marketplace、三个插件 `CHANGELOG.md`，集中生成并校验
 `skill-registry.json`，并验证版本一致性、JSON 可解析性、skill metadata、README 和 `git diff --check`。
-本次迁移不顺手重写这些发布编排逻辑；Node 只接管 Skill Registry 的 canonical ownership。

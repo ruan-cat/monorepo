@@ -64,6 +64,11 @@ param(
     [string]$Summary,
     [string]$Date = (Get-Date -Format "yyyy-MM-dd"),
     [string[]]$NewSkill,
+    [string[]]$RenameSkill,
+    [string[]]$MoveSkill,
+    [string[]]$RemoveSkill,
+    [string[]]$SkillVersion,
+    [string]$RepositoryRoot,
     [switch]$DryRun,
     [switch]$Apply
 )
@@ -79,17 +84,22 @@ function Info { Write-Host ("[INFO]  " + ($args -join " ")) }
 function Ok { Write-Host ("[OK]    " + ($args -join " ")) -ForegroundColor Green }
 function Warn { Write-Host ("[WARN]  " + ($args -join " ")) -ForegroundColor Yellow }
 
-# ============ 仓库根目录自动定位 ============
+# ============ 仓库根目录定位（-RepositoryRoot 优先，仅测试/显式注入） ============
 $Root = $null
-$dir = Split-Path -Parent $PSScriptRoot
-for ($i = 0; $i -lt 15; $i++) {
-    if ((Test-Path (Join-Path $dir "pnpm-workspace.yaml")) -or (Test-Path (Join-Path $dir ".git"))) {
-        $Root = (Resolve-Path $dir).Path
-        break
+if ($RepositoryRoot) {
+    if (-not (Test-Path -LiteralPath $RepositoryRoot)) { Fail ("-RepositoryRoot 不存在: " + $RepositoryRoot) }
+    $Root = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+} else {
+    $dir = Split-Path -Parent $PSScriptRoot
+    for ($i = 0; $i -lt 15; $i++) {
+        if ((Test-Path (Join-Path $dir "pnpm-workspace.yaml")) -or (Test-Path (Join-Path $dir ".git"))) {
+            $Root = (Resolve-Path $dir).Path
+            break
+        }
+        $parent = Split-Path -Parent $dir
+        if ($parent -eq $dir) { break }
+        $dir = $parent
     }
-    $parent = Split-Path -Parent $dir
-    if ($parent -eq $dir) { break }
-    $dir = $parent
 }
 if (-not $Root) { Fail "无法定位仓库根目录（向上查找 pnpm-workspace.yaml 或 .git 失败）" }
 Info ("仓库根目录: " + $Root)
@@ -163,8 +173,10 @@ function Assert-SkillRegistryWorkflow {
         "ai-plugins/dev-skills/skills/**",
         "ai-plugins/low-frequency-skill/skills/**",
         "ai-plugins/skill-registry.json",
-        "ai-plugins/common-tools/skills/release-ai-plugins/scripts/generate-skill-registry.ps1",
-        "generate-skill-registry.ps1 -Check",
+        "generate-skill-registry.ps1",
+        "skill-transitions.ps1",
+        "tests/release-ai-plugins",
+        "-Check",
         "contents: read"
     )
     foreach ($needle in $required) {
@@ -184,6 +196,34 @@ Assert-SkillRegistryWorkflow
 foreach ($f in ($PluginJson + $MarketplaceJson + $PluginReadmes + $ReleaseDocs)) {
     if (-not (Test-Path -LiteralPath (Get-RepoPath $f))) { Fail ("白名单文件缺失: " + $f) }
 }
+
+# ============ Skill transition 解析（rename / move / remove） ============
+$HasTransitions = (@(@($RenameSkill) + @($MoveSkill) + @($RemoveSkill) | Where-Object { $_ }).Count -gt 0)
+$HasSkillVersion = (@($SkillVersion | Where-Object { $_ }).Count -gt 0)
+$versionMap = @{}
+$Transitions = @()
+if ($HasTransitions -or $HasSkillVersion) {
+    $TransitionHelper = Join-Path $Root "ai-plugins/common-tools/skills/release-ai-plugins/scripts/skill-transitions.ps1"
+    if (-not (Test-Path -LiteralPath $TransitionHelper)) { Fail ("skill-transitions helper 缺失: " + $TransitionHelper) }
+    . $TransitionHelper
+    try {
+        $versionMap = Get-TransitionVersionMap $SkillVersion
+    } catch {
+        Fail ("-SkillVersion 解析失败: " + $_.Exception.Message)
+    }
+}
+if ($HasTransitions) {
+    try {
+        $Transitions = @(Resolve-SkillTransitions -RepositoryRoot $Root -RenameSkill $RenameSkill -MoveSkill $MoveSkill -RemoveSkill $RemoveSkill)
+    } catch {
+        Fail ("transition 解析失败: " + $_.Exception.Message)
+    }
+    foreach ($t in $Transitions) {
+        $target = if ($t.To) { " -> " + $t.To.Id + " (" + $t.To.Plugin + ")" } else { " -> removed" }
+        Info ("transition: " + $t.Kind + " " + $t.From.Id + " (" + $t.From.Plugin + ")" + $target)
+    }
+}
+$TransitionTargets = @($Transitions | Where-Object { $_.To } | ForEach-Object { $_.To.Id } | Select-Object -Unique)
 
 # ============ 解析技能参数（含自动发现） ============
 $SkillList = @($Skill | Where-Object { $_ } | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
@@ -205,14 +245,17 @@ function Get-ModifiedSkillNames {
 }
 
 # 动作检查
-if ($SkillList.Count -eq 0 -and $NewSkillList.Count -eq 0) {
+if ($SkillList.Count -eq 0 -and $NewSkillList.Count -eq 0 -and -not $HasTransitions) {
     $SkillList = @(Get-ModifiedSkillNames)
     if ($SkillList.Count -gt 0) {
         Warn ("未指定 -Skill，自动发现最近修改的 skill: " + ($SkillList -join "、"))
     }
 }
-if (-not $Version -and $SkillList.Count -eq 0 -and $NewSkillList.Count -eq 0 -and -not $Summary) {
-    Fail "没有可执行动作：请至少提供 -Version / -Skill / -NewSkill / -Summary 之一"
+if (-not $Version -and $SkillList.Count -eq 0 -and $NewSkillList.Count -eq 0 -and -not $Summary -and -not $HasTransitions) {
+    Fail "没有可执行动作：请至少提供 -Version / -Skill / -NewSkill / -Summary / -RenameSkill / -MoveSkill / -RemoveSkill 之一"
+}
+if ($HasTransitions -and -not $Version) {
+    Fail "transition 发布需要 -Version：CHANGELOG 与插件版本必须显式给出新版本号"
 }
 if (($SkillList.Count -gt 0 -or $NewSkillList.Count -gt 0 -or $Summary) -and -not $Version) {
     Fail "技能升级与 CHANGELOG 均需要 -Version：CHANGELOG 条目必须包含版本号与日期，请显式指定新版本号"
@@ -305,10 +348,11 @@ function Set-SkillVersionText {
 # ============ 技能升级计划 ============
 $SkillChanges = New-Object System.Collections.Generic.List[object]
 $seen = @{}
-foreach ($name in ($SkillList + $NewSkillList)) {
+foreach ($name in ($SkillList + $NewSkillList + $TransitionTargets + @($versionMap.Keys))) {
     if ($seen.ContainsKey($name)) { continue }
     $seen[$name] = $true
     $isNew = ($NewSkillList -contains $name)
+    $isTransitionTarget = ($TransitionTargets -contains $name)
     $path = Resolve-SkillFile $name
     $info = Get-SkillFrontmatter $path
     if (-not $info.Old) {
@@ -318,6 +362,11 @@ foreach ($name in ($SkillList + $NewSkillList)) {
         } else {
             Fail ("技能缺少 metadata.version: " + $name + "（如为新增技能请使用 -NewSkill）")
         }
+    } elseif ($versionMap.ContainsKey($name)) {
+        $newVersion = $versionMap[$name]
+        Info ("技能 " + $name + "：按 -SkillVersion 固定为 " + $newVersion + "（不 bump）")
+    } elseif ($isTransitionTarget) {
+        $newVersion = $info.Old
     } else {
         $type = $ChangeType
         if ($type -eq "added") { $type = "patch" }
@@ -382,6 +431,45 @@ if ($Version) {
     }
 }
 
+# ============ transition 的 README 计划 ============
+function Get-PluginReadmeRel {
+    param([string]$Plugin)
+    return ("ai-plugins/" + $Plugin + "/README.md")
+}
+
+function Remove-IdLines {
+    param([string]$Text, [string]$Id)
+    $lines = @($Text -split "`n" | Where-Object { -not $_.Contains($Id) })
+    return (($lines -join "`n").TrimEnd("`n") + "`n")
+}
+
+function Add-IdLine {
+    param([string]$Text, [string]$Id)
+    if ($Text.Contains($Id)) { return $Text }
+    $trimmed = $Text.TrimEnd("`n", "`r")
+    return ($trimmed + "`n`n- " + $Id + "`n")
+}
+
+$ReadmePlans = New-Object System.Collections.Generic.List[object]
+foreach ($t in $Transitions) {
+    $sourceReadme = Get-PluginReadmeRel $t.From.Plugin
+    $sourceText = [System.IO.File]::ReadAllText((Get-RepoPath $sourceReadme))
+    if ($t.Kind -eq "rename" -or $t.Kind -eq "rename-move") {
+        $updated = Remove-IdLines $sourceText $t.From.Id
+        $ReadmePlans.Add(@{ Rel = $sourceReadme; Action = ("移除旧名 " + $t.From.Id); Content = $updated })
+        $targetReadme = Get-PluginReadmeRel $t.To.Plugin
+        $targetText = [System.IO.File]::ReadAllText((Get-RepoPath $targetReadme))
+        $ReadmePlans.Add(@{ Rel = $targetReadme; Action = ("新增 " + $t.To.Id); Content = (Add-IdLine $targetText $t.To.Id) })
+    } elseif ($t.Kind -eq "move") {
+        $ReadmePlans.Add(@{ Rel = $sourceReadme; Action = ("移除 " + $t.From.Id); Content = (Remove-IdLines $sourceText $t.From.Id) })
+        $targetReadme = Get-PluginReadmeRel $t.To.Plugin
+        $targetText = [System.IO.File]::ReadAllText((Get-RepoPath $targetReadme))
+        $ReadmePlans.Add(@{ Rel = $targetReadme; Action = ("迁入 " + $t.To.Id); Content = (Add-IdLine $targetText $t.To.Id) })
+    } else {
+        $ReadmePlans.Add(@{ Rel = $sourceReadme; Action = ("删除 " + $t.From.Id); Content = (Remove-IdLines $sourceText $t.From.Id) })
+    }
+}
+
 # ============ README 阻断校验（新增技能） ============
 foreach ($name in $NewSkillList) {
     $plugin = "dev-skills"
@@ -408,7 +496,7 @@ foreach ($rel in $ReleaseDocs) {
 
 # ============ CHANGELOG 计划 ============
 function New-ChangelogSection {
-    param([string]$PluginLabel, [object[]]$SkillChanges, [string]$Summary, [string]$NewVersion, [string]$NewDate, [string]$ChangeType)
+    param([string]$PluginLabel, [object[]]$SkillChanges, [string]$Summary, [string]$NewVersion, [string]$NewDate, [string]$ChangeType, [string[]]$ExtraLines)
     if ($ChangeType -eq "added") { $heading = '### Added' } else { $heading = '### Changed' }
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add('## [' + $NewVersion + '] - ' + $NewDate)
@@ -418,11 +506,21 @@ function New-ChangelogSection {
     $hasSkill = $false
     foreach ($sc in $SkillChanges) {
         if ($sc.Plugin -eq $PluginLabel) {
+            if ($sc.Old -eq $sc.New) {
+                # 版本未变化（transition 固定版本）时不写无意义的 x -> x 行，交由 transition 行说明。
+                continue
+            }
             if ($sc.Old) {
                 $lines.Add('- **' + $sc.Name + '**：`metadata.version` `' + $sc.Old + '` -> `' + $sc.New + '`。')
             } else {
                 $lines.Add('- **' + $sc.Name + '**：新增技能，`metadata.version` 初始化为 `' + $sc.New + '`。')
             }
+            $hasSkill = $true
+        }
+    }
+    foreach ($line in @($ExtraLines)) {
+        if ($line) {
+            $lines.Add($line)
             $hasSkill = $true
         }
     }
@@ -462,10 +560,26 @@ function Add-ChangelogSection {
 
 $ChangelogPlans = New-Object System.Collections.Generic.List[object]
 $skillArr = @($SkillChanges.ToArray())
+$TransitionLines = @{
+    "common-tools"        = @()
+    "dev-skills"          = @()
+    "low-frequency-skill" = @()
+}
+foreach ($t in $Transitions) {
+    if ($t.Kind -eq "rename" -or $t.Kind -eq "rename-move") {
+        $TransitionLines[$t.To.Plugin] += ('- **' + $t.To.Id + '**：由 `' + $t.From.Id + '`（`' + $t.From.Plugin + '`）重命名迁入，`metadata.version` 固定 `' + $(if ($versionMap.ContainsKey($t.To.Id)) { $versionMap[$t.To.Id] } else { $t.To.Version }) + '`。')
+        $TransitionLines[$t.From.Plugin] += ('- **' + $t.From.Id + '**：硬切迁出并停止发布，目录与 registry id 一并删除，不保留兼容壳。')
+    } elseif ($t.Kind -eq "move") {
+        $TransitionLines[$t.To.Plugin] += ('- **' + $t.To.Id + '**：从 `' + $t.From.Plugin + '` 迁入，技能 id 不变。')
+        $TransitionLines[$t.From.Plugin] += ('- **' + $t.From.Id + '**：迁出至 `' + $t.To.Plugin + '`。')
+    } else {
+        $TransitionLines[$t.From.Plugin] += ('- **' + $t.From.Id + '**：删除并停止发布。')
+    }
+}
 if ($Version) {
     foreach ($rel in $Changelogs) {
         $pluginLabel = if ($rel -match 'common-tools') { "common-tools" } elseif ($rel -match 'low-frequency-skill') { "low-frequency-skill" } else { "dev-skills" }
-        $section = New-ChangelogSection $pluginLabel $skillArr $Summary $Version $Date $ChangeType
+        $section = New-ChangelogSection $pluginLabel $skillArr $Summary $Version $Date $ChangeType $TransitionLines[$pluginLabel]
         $content = Add-ChangelogSection $rel $section $Version $Date
         $ChangelogPlans.Add(@{ Rel = $rel; Action = ("CHANGELOG 顶部追加 [" + $Version + "] 条目"); Content = $content })
     }
@@ -592,6 +706,11 @@ foreach ($sc in $SkillChanges) {
     Info ("升级技能: " + $sc.Name + "（" + $sc.Plugin + "）" + $v)
 }
 foreach ($plan in $ChangelogPlans) { Info ("修改: " + $plan.Rel + "（" + $plan.Action + "）") }
+foreach ($plan in $ReadmePlans) { Info ("修改 README: " + $plan.Rel + "（" + $plan.Action + "）") }
+foreach ($t in $Transitions) {
+    $target = if ($t.To) { ($t.To.Plugin + "/" + $t.To.Id) } else { "removed" }
+    Info ("transition 落盘: " + $t.Kind + " " + $t.From.Plugin + "/" + $t.From.Id + " -> " + $target)
+}
 
 # ============ 写前校验（两种模式都对计划内容校验，失败即停且不写文件） ============
 if ($Version) {
@@ -622,18 +741,49 @@ function Write-Atomic {
     param([string]$Rel, [string]$Content)
     $path = Get-RepoPath $Rel
     $tmp = $path + "." + $PID + ".tmp"
+    $backup = $path + "." + $PID + ".bak"
     try {
         [System.IO.File]::WriteAllText($tmp, $Content, (New-Object System.Text.UTF8Encoding($false)))
-        Move-Item -LiteralPath $tmp -Destination $path -Force
+        if (Test-Path -LiteralPath $path) {
+            # 目标已存在：用 File.Replace 做真正的原子替换，避免 Move-Item -Force 的中断丢目标窗口。
+            [System.IO.File]::Replace($tmp, $path, $backup)
+            if (Test-Path -LiteralPath $backup) { Remove-Item -LiteralPath $backup -Force }
+        } else {
+            Move-Item -LiteralPath $tmp -Destination $path
+        }
     } finally {
         if (Test-Path -LiteralPath $tmp) { Remove-Item -LiteralPath $tmp -Force }
+        if (Test-Path -LiteralPath $backup) { Remove-Item -LiteralPath $backup -Force }
     }
 }
 
 if ($DoWrite) {
+    # 先落盘结构性 transition（move / remove），后续 SKILL.md 写入与版本校验都基于迁移后的真实路径。
+    foreach ($t in $Transitions) {
+        if ($t.Kind -eq "move") {
+            $sourceDir = Get-SkillDirectoryPath $Root $t.From.Plugin $t.From.Id
+            $targetDir = Get-SkillDirectoryPath $Root $t.To.Plugin $t.To.Id
+            if (Test-Path -LiteralPath $sourceDir) {
+                New-Item -ItemType Directory -Force -Path (Split-Path -Parent $targetDir) | Out-Null
+                if (Test-Path -LiteralPath $targetDir) { Remove-Item -LiteralPath $targetDir -Recurse -Force }
+                Move-Item -LiteralPath $sourceDir -Destination $targetDir
+            }
+        } elseif ($t.Kind -eq "remove") {
+            $sourceDir = Get-SkillDirectoryPath $Root $t.From.Plugin $t.From.Id
+            if (Test-Path -LiteralPath $sourceDir) { Remove-Item -LiteralPath $sourceDir -Recurse -Force }
+        }
+    }
+    foreach ($sc in $SkillChanges) {
+        foreach ($t in $Transitions) {
+            if ($t.Kind -eq "move" -and $sc.Name -eq $t.To.Id) {
+                $sc.Path = Join-Path (Get-SkillDirectoryPath $Root $t.To.Plugin $t.To.Id) "SKILL.md"
+            }
+        }
+    }
     foreach ($plan in $JsonPlans) { Write-Atomic $plan.Rel $plan.Content }
     foreach ($sc in $SkillChanges) { Write-Atomic ($sc.Path.Substring($Root.Length + 1)) $sc.NewText }
     foreach ($plan in $ChangelogPlans) { Write-Atomic $plan.Rel $plan.Content }
+    foreach ($plan in $ReadmePlans) { Write-Atomic $plan.Rel $plan.Content }
     Ok "已写入全部文件（Apply 模式）"
     # 所有 Skill 版本、manifest 与 CHANGELOG 完成后集中生成一次 registry，避免批量发布重复全量扫描。
     & $SkillRegistryGenerator -Apply
@@ -669,18 +819,21 @@ if ($DoWrite) {
 }
 
 # ============ git diff --check ============
-$gitOk = $true
+# PS 5.1 在 $ErrorActionPreference = "Stop" 下会把原生命令的 stderr 升级为 NativeCommandError；
+# git 在 Windows 上的 CRLF 警告走 stderr，会让本该通过的检查变成终止错误。本段只以退出码判定。
+$previousEap = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
 try {
     $isGit = (& git -C $Root rev-parse --is-inside-work-tree 2>$null)
-} catch {
-    $isGit = $null
-}
-if ($isGit -ne "true") {
-    Warn "未检测到 git 仓库，跳过 git diff --check"
-} else {
-    & git -C $Root diff --check 2>$null
-    if ($LASTEXITCODE -ne 0) { Fail "git diff --check 发现空白错误（trailing whitespace 等），请修复后重试" }
-    Ok "git diff --check 通过"
+    if ($isGit -ne "true") {
+        Warn "未检测到 git 仓库，跳过 git diff --check"
+    } else {
+        & git -C $Root diff --check 2>$null | Out-Null
+        if ($LASTEXITCODE -ne 0) { Fail "git diff --check 发现空白错误（trailing whitespace 等），请修复后重试" }
+        Ok "git diff --check 通过"
+    }
+} finally {
+    $ErrorActionPreference = $previousEap
 }
 
 # ============ 结束 ============
