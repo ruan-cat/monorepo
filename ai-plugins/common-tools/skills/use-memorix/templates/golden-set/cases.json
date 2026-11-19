@@ -1,0 +1,7 @@
+{
+	"schemaVersion": "memorix-golden-set-case/v1",
+	"project": {
+		"repository": "owner/repository"
+	},
+	"cases": []
+}
