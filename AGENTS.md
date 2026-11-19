@@ -63,7 +63,7 @@
   - 路径：`ai-plugins/common-tools/skills/install-mcp/SKILL.md`
   - 用途：维护常见与非常见 AI agent 的 MCP 配置目标清单、格式差异、合并/备份策略与安装调度边界。
   - 触发时机：用户要盘点、规划或批量安装 MCP 配置，或需要确认某个 agent 的 MCP 配置文件位置时。
-  - 参考作用：清楚区分可写目标、候选目标与专用技能调度关系；Memorix full mode 的实际安装仍交给 `init-simple-memorix`。
+  - 参考作用：清楚区分可写目标、候选目标与专用技能调度关系；Memorix full mode 的实际安装交给 `use-memorix` 的 platform 域。
   - 约束：本技能只承担清单与调度职责，不新增脚本逻辑，不覆盖未知 MCP 配置字段，不凭印象写死候选平台路径。
 
 - `install-skills`
@@ -79,6 +79,13 @@
   - 触发时机：插件版本升级、发版、更新 marketplace 或安装文档时。
   - 参考作用：与 `ai-plugins/common-tools` 下的 skills 树、README、CHANGELOG 保持一致。
   - 约束：同步版本号与变更路径，避免漏改子包；不再从旧的仓库局部路径读取真实来源。
+
+- `use-memorix`
+  - 路径：`ai-plugins/common-tools/skills/use-memorix/SKILL.md`
+  - 用途：Memorix 日常权威入口，按 setup / platform / memory / session / retention / health / retrieval 七域渐进路由。
+  - 触发时机：读写记忆、恢复会话与交接、归档清理、health/WAL/CodeGraph、黄金集与检索捕获、hooks 降噪与 MCP 排障。
+  - 参考作用：读自动、写确认；归档硬门；官方七个 `memorix-*` skills 保持可见，只做边界路由与只读审计。
+  - 约束：不自动执行 setup / probe / archive / cleanup / VACUUM / 配置修复 / dashboard 常驻启动；不把 `MEMORIX_DATA_DIR` 指向项目 `.memorix/`。
 
 ## 对外分发 skill 的目录与路径约束
 

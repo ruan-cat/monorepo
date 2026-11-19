@@ -26,15 +26,14 @@ ai-plugins/
         ├── get-git-branch/
         ├── init-claude-code-statusline/
         ├── init-playwright/
-        ├── init-simple-memorix/
         └── init-tsconfig/
 ```
 
 ## 可安装插件
 
-- `common-tools`：常用开发辅助工具技能
+- `common-tools`：常用开发辅助工具技能（含 Memorix 日常入口 `use-memorix`）
 - `dev-skills`：偏工程研发流程的技能（含 Nitro、OpenSpec 等）
-- `low-frequency-skill`：阮喵喵低频使用与低频维护的技能合集（含 init-playwright、init-simple-memorix 等）
+- `low-frequency-skill`：阮喵喵低频使用与低频维护的技能合集（含 init-playwright、init-tsconfig 等）
 
 ## 按平台安装
 

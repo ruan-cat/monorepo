@@ -4,7 +4,7 @@ description: >-
   Use when 用户需要盘点、规划或批量安装 MCP 配置，确认各 agent 的配置目标、JSON 或 TOML 形态、合并策略、dry-run、备份或第三方 server entry 时。
 user-invocable: true
 metadata:
-  version: "1.4.1"
+  version: "1.4.2"
 ---
 
 # install-mcp
@@ -13,7 +13,7 @@ metadata:
 
 本技能是 MCP 配置的清单与调度入口，不新增安装脚本。执行模型应根据本清单完成预览、备份和精确写入；本技能不替代任何专用安装器。
 
-- Memorix full mode 的实际安装与校验交给 `init-simple-memorix`。
+- Memorix full mode 的实际安装与校验交给 `use-memorix` 的 platform 域（`references/platform-and-mcp.md`）。
 - 通用第三方 MCP 仅在确认 server entry schema、`command`、`args`、`env` 和信任审批影响后处理。
 - 所有写入必须以保留既有配置为前提，不能覆盖其他 `mcpServers`。
 
@@ -137,7 +137,7 @@ TRAE Work CN 的 MCP 配置与其他 agent 不同，存在两个独立的配置�
 
 | 场景              | 调度规则                                                                          |
 | :---------------- | :-------------------------------------------------------------------------------- |
-| Memorix full mode | 交给 `init-simple-memorix`，不要在本技能中重复其安装细节。                        |
+| Memorix full mode | 交给 `use-memorix` 的 platform 域，不要在本技能中重复其安装细节。                 |
 | 已知第三方 server | 先核对该 server 的官方 entry schema、命令、参数、环境变量和信任影响，再精确合并。 |
 | 未知第三方 server | 不写入；先取得可靠配置来源与用户授权。                                            |
 

@@ -4,7 +4,13 @@
 
 ## 版本
 
-**当前版本**: `10.0.0`
+**当前版本**: `14.0.0`
+
+⚠️ **use-memorix 3.0.0 破坏性变更**：
+
+- 旧 Memorix 初始化技能已硬切为 `use-memorix` 并从 `low-frequency-skill` 迁入本插件；旧名称、目录与 registry id 一并删除，不保留兼容壳。
+- `use-memorix` 是 Memorix 日常权威入口：七域渐进路由、读自动写确认、归档硬门、health/WAL/CodeGraph、黄金集与检索捕获。
+- 官方七个 `memorix-*` skills 保持可见，安装与升级仍由 Memorix 官方 setup/升级负责。
 
 ⚠️ **init-ai-md 22.0.0 破坏性变更**：
 
@@ -173,6 +179,7 @@ Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现�
 - **rebase2main**: 将当前开发分支通过 git rebase 同步到 main 分支，推送后切回原分支
 - **release-ai-plugins**: 管理 `ai-plugins` 多插件与多平台（Claude/Cursor）插件商城版本与文档链接，负责版本同步、清单校验、更新日志与安装文档一致性
 - **use-other-model**: 指导主代理驱动其他 AI 模型（MiniMax、Gemini）完成任务，实现 50–80% token 节省
+- **use-memorix**: Memorix 日常权威入口，按 setup / platform / memory / session / retention / health / retrieval 七域渐进路由；读自动、写确认，归档有硬门，并治理项目黄金集、ZCode 检索候选与联邦导出
 
 ### Hooks （钩子）
 
