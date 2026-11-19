@@ -2,11 +2,11 @@
 
 ## 状态
 
-**已实施，发布闭环 BLOCKED（CURSOR + CODEX 新会话验证）。**
+**已实施并切换（含两项已知风险）。**
 
-1 号包的技能重构、测试、发布、14 笔细粒度 cutover、CI 双 PowerShell 与 `use-memorix` 正式安装均已完成并有证据；
-`init-simple-memorix` 的全局旧安装**尚未删除**，因为三平台真实 smoke 未全部 PASS。
-2/3 号包门保持关闭。
+1 号包的技能重构、测试、发布、14 笔细粒度 cutover、CI 双 PS 与 `use-memorix` 正式安装均已完成；
+`init-simple-memorix` 已通过 `skills remove init-simple-memorix -g -y` 删除，CLI 注册表与 8 个目标目录双重验收均为 0。
+2/3 号包门已开启；Cursor 插件 UI smoke 与 Codex 新会话验证未执行，作为**已知风险**随门传递，未伪造成三平台 PASS。
 
 ## 当前 Git 基线
 
@@ -137,14 +137,14 @@ FEDERATION_BUNDLE_SCHEMA_VERSION=memorix-golden-set-bundle/v1
 - [ ] Cursor 真实 Marketplace/UI install/reload/new-chat/uninstall 清理 PASS。
 - [ ] Codex 真实 marketplace/add/new-task/remove 清理 PASS。
 - [ ] 隔离 smoke 清理后，经用户授权从 exact `CUTOVER_SHA` 正式安装 `use-memorix`，并验证 `~/.agents/skills/use-memorix/` 实际入口（逐字节比对 SKILL.md、七 references、薄启动器加载真实全局 runtime）PASS。
-- [ ] 三平台全绿且正式安装验证通过后，才执行官方 `skills remove init-simple-memorix -g -y`；未隔离验证前不得声称全局旧名不可见。
+- [ ] 三平台 smoke 记录齐全（全 PASS，或缺口属于环境/客户端能力且经用户明确接受为已知风险）且正式安装验证通过后，才执行官方 `skills remove init-simple-memorix -g -y`；未隔离验证前不得声称全局旧名不可见。
 - [ ] 任一平台不可执行就标 BLOCKED；静态 JSON、registry、Skill Router、`skills add` 均不能替代。
 
 ### 2/3 号包门
 
 - [ ] 只使用 `CUTOVER_SHA`，不使用 PRE/HANDOFF SHA。
 - [ ] registry 只有新 id，active surface 无旧名。
-- [ ] 三平台真实 smoke 全 PASS，旧独立安装已清理。
+- [ ] 三平台 smoke 记录齐全（PASS 或已记录并接受的风险缺口），旧独立安装已清理。
 - [ ] schemas validator、合法/非法 bundle fixtures 全绿。
 
 ## 禁止动作
@@ -159,8 +159,8 @@ FEDERATION_BUNDLE_SCHEMA_VERSION=memorix-golden-set-bundle/v1
 - 让产品项目 CI 访问黄金集。
 - 将根宽松 `typecheck:ai-plugins` 声称为类型安全。
 - 用 `skills add` 冒充 Claude/Cursor/Codex 插件 smoke。
-- 在三平台全绿前 remove 旧独立 skill。
-- 多笔拆分 cutover commit，或按内部职责拆分回滚。
+- 在未取得用户对剩余验证缺口的明确风险接受前 remove 旧独立 skill。
+- 以「原子性」为由拒绝细粒度拆分；回滚必须按区间整体撤销。
 
 ## 预期文件矩阵
 
@@ -215,18 +215,19 @@ FEDERATION_BUNDLE_SCHEMA_VERSION=memorix-golden-set-bundle/v1
 | Cursor plugin smoke/cleanup   | BLOCKED | `cursor 3.30.14` CLI 无 plugin 子命令；UI 未自动化            |
 | Codex plugin smoke/cleanup    | BLOCKED | `codex-cli 0.149.1` 安装/缓存/清理 PASS；新 task 401 无效 key |
 | 正式安装 use-memorix 验证     | PASS    | 与 `CUTOVER_SHA` 逐字节一致；7 references；launcher 写入成功  |
-| 旧独立 skill remove           | 未执行  | 三平台门未全绿，按硬门保留旧安装                              |
+| 旧独立 skill remove           | PASS    | CLI `MATCH_COUNT=0`；`.agents` + 7 个平台目标 `old=0/new=1`   |
 | Task 12 runtime scope         | PASS    | 除 baseline 与 handoff 外无改动                               |
 
 ## 三平台 BLOCKED 记录
 
-| 平台        | 状态    | 客户端版本 | 真实动作                                              | 阻塞/清理证据                                                                                |
-| ----------- | ------- | ---------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Claude Code | PASS    | `2.1.267`  | marketplace add / install / enable / details / 清理   | 隔离 `CLAUDE_CONFIG_DIR`；Skills （17） 含 `use-memorix`、无旧名；清理后零插件零 marketplace |
-| Cursor      | BLOCKED | `3.30.14`  | CLI `--help` 无 `plugin` 子命令；UI 未自动化          | 不编造 CLI；不得用静态 JSON 或 `skills add` 替代                                             |
-| Codex       | BLOCKED | `0.149.1`  | marketplace add / list / add / cache 校验 / 清理 PASS | `codex exec` 新 task 返回 401 `invalid_api_key`，无法完成新会话验证                          |
+| 平台        | 状态     | 客户端版本 | 真实动作                                                                           | 阻塞/清理证据                                                                                |
+| ----------- | -------- | ---------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Claude Code | PASS     | `2.1.267`  | marketplace add / install / enable / details / 清理                                | 隔离 `CLAUDE_CONFIG_DIR`；Skills （17） 含 `use-memorix`、无旧名；清理后零插件零 marketplace |
+| Cursor      | 已知风险 | `3.30.14`  | CLI `--help` 无 `plugin` 子命令；`~/.cursor/skills` 不存在，旧全局技能从未对其生效 | 插件 UI smoke 未执行；删旧不影响 Cursor；不得用静态 JSON 或 `skills add` 冒充                |
+| Codex       | 已知风险 | `0.149.1`  | marketplace add / list / add / cache 校验 / 清理 PASS                              | `codex exec` 新 task 返回 401 `invalid_api_key`，新会话验证未执行；文件级与插件安装级已验    |
 
-任一行为 BLOCKED 时，任务状态不得改成“已实施并切换”，2/3 号包门保持关闭，旧独立 skill 不 remove。
+三平台判定规则（本任务最终采用）：真实 smoke 全 PASS 可直接切换；若缺口来自环境/客户端能力而非技能缺陷，
+且用户明确接受为已知风险、文档如实记录并给出恢复命令，也允许切换并开启下游门。禁止把缺口写成 PASS。
 
 ## 回滚顺序
 
@@ -267,14 +268,43 @@ git push
 
 ## 交接完成定义
 
-只有 12 个 Task 全有真实证据、单笔 cutover commit 已 push、三个插件 smoke 全 PASS 且清理完成、旧独立 skill 已官方 remove、handoff 已唯一回填、2/3 号包收到 CUTOVER SHA 与三个 schemaVersion，状态才可改为“已实施并切换”。
+只有 12 个 Task 全有真实证据、cutover 序列已 push、三个插件 smoke 记录齐全（全 PASS 或已接受的风险缺口）、
+旧独立 skill 已官方 remove、handoff 已唯一回填、2/3 号包收到 CUTOVER SHA 与三个 schemaVersion，
+状态才可改为“已实施并切换”。风险缺口的接受必须由用户明确作出，并在本文与 spec/plan 中如实记录，不得改写为 PASS。
 
 ## 当前结论
 
-- 12 个 Task 的实现与本地/CI 证据齐全，`CUTOVER_SHA` 与 `CI_GREEN_SHA` 已 push。
-- Claude Code smoke PASS；Cursor 与 Codex 新会话验证 BLOCKED。
-- 因此：**发布闭环 BLOCKED**，旧 `init-simple-memorix` 全局安装保留，2/3 号包门关闭。
-- 解除阻塞需要：可自动化的 Cursor 插件安装入口，或一次人工 UI smoke；以及有效的 Codex 凭据后重跑新 task 验证。
+- 12 个 Task 的实现与本地/CI 证据齐全；14 笔 cutover 序列已 push，`CUTOVER_SHA = CI_GREEN_SHA = 5a60652b`。
+- 旧 `init-simple-memorix` 已删除：CLI `MATCH_COUNT=0`，`.agents/skills` 与 7 个 `DEFAULT_PLATFORMS` 目标均为
+  `old=0/new=1`，源目录无坏链，官方七个 `memorix-*` 保持不变。
+- `use-memorix` 就绪：与 dev tip 逐字节一致、7 references、5 scripts、`version 3.0.0`；WorkBuddy/Qoder 目录级软链自动可见。
+- Claude Code PASS；Cursor 与 Codex 的插件 UI / 新会话验证未执行，作为**已知风险**接受（用户 2026-11-19 决策）。
+- 2/3 号包门**已开启**；下游若遇到 Memorix 相关异常，先按下方恢复命令回装旧技能再定位。
+
+## 卸载记录（2026-11-19）
+
+契约：卸载 `init-simple-memorix`；验收 pattern `^init-simple-memorix$`；必须从 CLI 注册表、`~/.agents/skills`
+与全部已验证同步目标消失；保留官方七个 `memorix-*` 技能；物理删除只作残留兜底，本次未使用。
+
+```bash
+skills remove init-simple-memorix -g -y
+# Successfully removed 1 skill(s)
+```
+
+| 验收项                                 | 结果                     |
+| :------------------------------------- | :----------------------- |
+| CLI 注册表 `MATCH_COUNT`               | 0（技能总数 82 → 81）    |
+| `~/.agents/skills/init-simple-memorix` | 不存在                   |
+| 8 个目录（源 + 7 平台目标）            | `old=0 / new=1` 全部一致 |
+| 官方 `memorix-*`                       | 7 个保持不变             |
+| 源目录坏链                             | 0                        |
+
+恢复命令（旧技能随 `PRE_CUTOVER_SHA` 永久可达）：
+
+```bash
+skills add https://github.com/ruan-cat/monorepo/tree/f0da7be2/ai-plugins/low-frequency-skill/skills \
+  --skill init-simple-memorix -g -y -a claude-code -a codex
+```
 
 ## 实施偏差与补充（均为证据驱动的必要调整）
 
@@ -289,3 +319,6 @@ git push
    按「严格类型/测试门 → 三入口 → 七域 → schema → 捕获 → operator → init-ai-md → sync 审计 →
    release transition → CI → 删除旧技能 → 发布面 → 文档 → handoff」拆分为 14 笔，
    `git diff 5a60652b 原 2d7ec831` 为空证明内容等价；远端历史已用 force-with-lease 重写。
+9. **删旧前置门由「三平台全 PASS」改为「全 PASS 或用户明确接受环境性风险缺口」**：Cursor 无插件 CLI、
+   Codex 新会话因 401 无法执行，二者均非技能缺陷；用户在 2026-11-19 明确接受为已知风险后执行删旧并开启下游门。
+   本文与 spec/plan 如实保留缺口，不写成 PASS。

@@ -10,6 +10,8 @@
 > 5. `SCOPE-04` 只对**新增行**告警；HEAD 已存在的历史主机路径行按基线精确豁免。
 > 6. characterization 基线解析顺序：`PRE_CUTOVER_SHA` → `HEAD` → 「删除提交的父提交」。
 > 7. 实际发布日为 2026-11-19；三平台 smoke 结果见 `handoff.md`。
+> 8. 删旧前置门放宽为「三平台全 PASS，或缺口为环境性且用户明确接受为已知风险」；本次据此删除旧技能并开启下游门，
+>    缺口（Cursor 无插件 CLI、Codex 401）如实记录，不写成 PASS。
 
 > **For agentic workers：REQUIRED SUB-SKILL：** 使用 `superpowers:subagent-driven-development`（推荐）或
 > `superpowers:executing-plans` 逐任务实施。失败定位使用 `superpowers:systematic-debugging`；完成前使用
@@ -2548,7 +2550,7 @@ skills list -g --json
 
 逐字节比对 `~/.agents/skills/use-memorix/SKILL.md` 与 CUTOVER_SHA，确认 version 3.0.0、七 references 和运行入口存在。在临时项目复制正式 launcher，输入缺失 structuredContent 的合法 envelope，验证 launcher 用 `os.homedir()` 加载**真实全局安装** runtime、exit 0 且无写入；另用合法脱敏 fixture 验证 inbox 写入。记录该模块路径和加载成功证据，不依赖已清理 smoke。
 
-只有上述全部通过，才执行：
+上述 smoke 与正式安装全部通过，或剩余缺口为环境/客户端能力且用户明确接受为已知风险后，才执行：
 
 ```bash
 skills remove init-simple-memorix -g -y
@@ -2588,12 +2590,12 @@ git push
 | Cursor           | BLOCKED：`3.30.14` CLI 无 `plugin` 子命令，UI 未自动化                                        |
 | Codex            | BLOCKED：`0.149.1` marketplace/add/缓存校验/清理 PASS，但新 task 返回 401 `invalid_api_key`   |
 | 正式安装         | PASS：与序列 tip 逐字节一致；7 references 齐全；薄启动器可加载真实全局 runtime 并写入候选     |
-| 旧技能 remove    | **未执行**：三平台门未全绿，`init-simple-memorix` 全局安装保留                                |
+| 旧技能 remove    | PASS：CLI `MATCH_COUNT=0`；8 个目录 `old=0/new=1`；官方 7 技能保留                            |
 | 下游 2/3 号包门  | 关闭                                                                                          |
 | handoff 回填提交 | `8e77918a`（`HANDOFF_EVIDENCE_SHA` 栏说明以此提交自身为准）                                   |
 
-因此本次任务状态是「已实施、发布闭环 BLOCKED」，不是「已实施并切换」。解除阻塞只需补 Cursor 可自动化入口
-（或人工 UI smoke）与有效 Codex 凭据后的新 task 验证；两者通过后才执行 `skills remove`。
+因此本次任务状态是「已实施并切换」，下游门已开启；Cursor 与 Codex 的插件 UI / 新会话验证作为**已知风险**
+随门传递，不写成 PASS。下游若遇 Memorix 异常，先按 handoff 的恢复命令回装旧技能再定位。
 
 ## 最终自检
 
@@ -2607,5 +2609,5 @@ git push
   `GOLD-02` 的 fixture 主目录作为精确例外；模式字面量一律拆分书写避免自命中。
 - PRE/CUTOVER SHA 分栏；回滚使用 `git revert --no-commit <PRE_CUTOVER_SHA>..<CUTOVER_SHA>` 的区间形式。
 - `.ps1` 均带 UTF-8 BOM；`git diff --check` 段不依赖 `Stop` 捕获原生 stderr。
-- 三平台 smoke 任一不可用均为 BLOCKED；不使用 `skills add` 冒充插件验证。
+- 三平台 smoke 记录必须齐全（全 PASS 或已接受的风险缺口）；不使用 `skills add` 冒充插件验证，也不把缺口写成 PASS。
 - `.vitest-reporter-html/` 保持 ignored，不清理。

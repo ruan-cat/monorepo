@@ -10,7 +10,9 @@
 > 4. 最终 `git diff --check` 段在 PS 5.1 下临时切 `$ErrorActionPreference = "Continue"`，只按退出码判定。
 > 5. `SCOPE-04` 改为「仅对新增行告警」，HEAD 已存在的历史主机路径行做精确基线豁免。
 > 6. characterization 基线解析增加「HEAD → 删除提交父提交」回退，cutover 后仍可复验原字节。
-> 7. 实际发布日为 2026-11-19；三平台 smoke 结果以 `handoff.md` 为准（Claude PASS，Cursor/Codex BLOCKED）。
+> 7. 实际发布日为 2026-11-19；三平台 smoke 结果以 `handoff.md` 为准（Claude PASS，Cursor/Codex 未执行）。
+> 8. 删旧前置门由「三平台全 PASS」放宽为「全 PASS，或缺口来自环境/客户端能力且用户明确接受为已知风险」；
+>    本次 Cursor 无插件 CLI、Codex 401 均属环境性缺口，经用户接受后删除旧技能并开启下游门，缺口不被写成 PASS。
 
 ## 1. 意图
 
@@ -823,9 +825,11 @@ type SkillTransition =
 5. 记录 `PRE_CUTOVER_SHA`，完成按逻辑域拆分的 cutover 提交序列并 push `dev`。序列内每笔保持单一职责，
    最终树必须与拆分前一致；如需重写已推送历史，必须单独取得用户的 `force-with-lease` 授权，不得默认 force push。
 6. 等待序列 tip（`CUTOVER_SHA`）触发的 Windows PowerShell 5.1/7 CI 两格全绿；该 CI 属新增 workflow，push 前不存在，禁止提前等待。
-7. 从已 push 的 `CUTOVER_SHA` 执行 Claude Code、Cursor、Codex 三平台真实插件 smoke（隔离配置/临时 marketplace）；任一 BLOCKED 则停止发布完成声明。
+7. 从已 push 的 `CUTOVER_SHA` 执行 Claude Code、Cursor、Codex 三平台真实插件 smoke（隔离配置/临时 marketplace）；
+   任一 BLOCKED 时暂停「发布完成」声明，除非缺口属于环境/客户端能力且用户明确接受为已知风险并如实记录。
 8. 三平台隔离 smoke 清理完成后，经用户授权从 exact `CUTOVER_SHA` 正式安装 `use-memorix`，逐字节比对 `~/.agents/skills/use-memorix/SKILL.md` 与 `CUTOVER_SHA`，确认七 references 存在、薄启动器可加载真实全局 runtime；隔离 smoke 中的旧名不可见仅说明候选插件，无权推断用户全局旧安装消失。
-9. 三平台 smoke 与正式安装验证全绿后，通过官方 `skills remove init-simple-memorix -g -y` 清理旧独立安装。
+9. 三平台 smoke 记录齐全（全 PASS，或缺口为环境性且用户明确接受为已知风险）与正式安装验证通过后，
+   通过官方 `skills remove init-simple-memorix -g -y` 清理旧独立安装。
 10. 验证旧技能在规范源和所有已验证派生目标中消失，common-tools 插件中的新技能仍可见。
 11. 记录 `CUTOVER_SHA`，交给 2/3 号包。
 
@@ -917,7 +921,8 @@ type SkillTransition =
 - [ ] 三份 CHANGELOG 记录职责正确，未把历史内容压成错误兼容叙事。
 - [ ] release DryRun 零写入，Apply 后 registry 只生成/检查各一次。
 - [ ] JSON、Markdown、Prettier、`git diff --check`、相关 Vitest 和 PowerShell/Bash characterization 全绿。
-- [ ] 真实 Claude Code、Cursor、Codex 插件 smoke 均通过并完成临时资源清理；任一平台不可用时整体状态为 BLOCKED，静态 JSON 与 `skills add` 不得替代。
+- [ ] 真实 Claude Code、Cursor、Codex 插件 smoke 记录齐全（全 PASS，或缺口为环境性且用户明确接受为已知风险）；
+      静态 JSON 与 `skills add` 不得替代插件 smoke，也不得把缺口写成 PASS。
 - [ ] 本机插件 smoke 后，再通过官方 `skills remove` 清理旧的独立 `init-simple-memorix` 安装；`use-memorix` 由 common-tools 插件提供且保持可见。
 - [ ] 提交前记录 `PRE_CUTOVER_SHA`，提交/push 后记录序列 tip 的 `CUTOVER_SHA`；2/3 号包不得使用分支名或混淆两个 SHA。
 
