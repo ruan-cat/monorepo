@@ -75,7 +75,7 @@
       "plugin": "common-tools",
       "name": "init-ai-md",
       "description": "初始化、迁移和增量更新项目 AI 记忆文件，以 AGENTS.md 作为唯一事实来源。 通过交互式选择和差异对比，智能补全记忆项内容。触发条件： 当用户提及初始化记忆文件、更新 AGENTS.md、迁移 CLAUDE.md/GEMINI.md、同步 AI 记忆、 init-ai-md 等关键词时主动调用。 Use when initializing, migrating, or incrementally updating project AI memory documents. The skill maintains the canonical root AGENTS.md, redirects CLAUDE.md and GEMINI.md, and manages the project-level record-bug-fix-memory skill.",
-      "version": "24.0.0",
+      "version": "25.0.0",
       "entry": "ai-plugins/common-tools/skills/init-ai-md/SKILL.md"
     },
     {
@@ -135,14 +135,6 @@
       "entry": "ai-plugins/dev-skills/skills/init-shadcn-docs-nuxt/SKILL.md"
     },
     {
-      "id": "init-simple-memorix",
-      "plugin": "low-frequency-skill",
-      "name": "init-simple-memorix",
-      "description": "Use when 用户提到 init-simple-memorix、Memorix hooks 过多或噪音、项目级或全局 hooks 配置、Memorix MCP 工具缺失、mode 选择（micro/lite/team/full）、WorkBuddy MCP 启动失败、信任审批、Node 参数兼容、memorix 裸命令报「不是内部或外部命令」、全局命令 shim 被历史坏 shim 劫持、包管理器迁移后 MCP 突然失联、setup 或升级后重新精简等场景。",
-      "version": "2.7.0",
-      "entry": "ai-plugins/low-frequency-skill/skills/init-simple-memorix/SKILL.md"
-    },
-    {
       "id": "init-tsconfig",
       "plugin": "low-frequency-skill",
       "name": "init-tsconfig",
@@ -163,7 +155,7 @@
       "plugin": "common-tools",
       "name": "install-mcp",
       "description": "Use when 用户需要盘点、规划或批量安装 MCP 配置，确认各 agent 的配置目标、JSON 或 TOML 形态、合并策略、dry-run、备份或第三方 server entry 时。",
-      "version": "1.4.1",
+      "version": "1.4.2",
       "entry": "ai-plugins/common-tools/skills/install-mcp/SKILL.md"
     },
     {
@@ -211,7 +203,7 @@
       "plugin": "common-tools",
       "name": "release-ai-plugins",
       "description": "Use when releasing or upgrading the common-tools, dev-skills, or low-frequency-skill plugins, synchronizing Claude/Cursor/Codex manifests and marketplaces, updating CHANGELOG files, validating README and installation-document consistency, or generating/checking the skill-registry.json discovery manifest for Skill Router MCP. 当用户要求插件发布、版本升级、更新日志、manifest、marketplace、README 一致性、 skill-registry.json、MCP skill registry 或 registry stale 校验时使用。",
-      "version": "2.1.1",
+      "version": "2.2.0",
       "entry": "ai-plugins/common-tools/skills/release-ai-plugins/SKILL.md"
     },
     {
@@ -219,7 +211,7 @@
       "plugin": "common-tools",
       "name": "sync-local-global-agents-skills",
       "description": "Use when 已完成全局 skills 安装后，需要把 `~/.agents/skills` 后置同步到 WorkBuddy、QoderWork、Kimi Work、CodeBuddy、Qoder 等本地平台，或显式修复本地 skills 链接。 这是后置同步、显式同步和链接修复工具，不是 `skills add` 的替代安装器。 支持 dry-run、自动备份、错误链接替换，并可按需刷新 memorix 内部 skills。 触发关键词：sync-local-global-agents-skills、同步 skills、全局 skills 同步。",
-      "version": "0.4.0",
+      "version": "1.0.0",
       "entry": "ai-plugins/common-tools/skills/sync-local-global-agents-skills/SKILL.md"
     },
     {
@@ -229,6 +221,14 @@
       "description": "规范化使用 agent-browser（AI 浏览器自动化 CLI/MCP）完成页面打开、元素交互、截图取证与 Web 调试： 安装与 doctor 诊断、open/snapshot/@ref 工作流、等待与视口策略、Windows 启动失败降级链 （--no-sandbox、CDP 接管、headless 连接）、MCP 传输层故障三岔口分流（只读取证 → CLI 探活 → CDP 兜底）、 四层超时模型、并发会话与 namespace 隔离、浏览器复用与版本核查、截图证据规范与进程收口、 可视化默认（config headed 有头）、仿人指针 --input-mode human、highlight 元素高亮、 tab 聚合（--pin-tab 单窗口多 tab / session=窗口）。 当需要打开网页、浏览器自我验收、视觉验证、E2E 冒烟、前端页面调试、登录态操作、 想让 agent 的浏览器「可见、光标会动、元素高亮、标签聚合」， 或用户提到 agent-browser、agent browser、浏览器自动化、snapshot 截图取证、可视化有头浏览器， 或遇到 MCP 浏览器工具全线超时、agent-browser 连接失败时使用。 Use when driving the agent-browser CLI/MCP for browser acceptance, visual verification, headed/visible defaults, human-like pointer movement, tab aggregation, web debugging, Windows startup-failure fallbacks, or MCP transport-failure triage.",
       "version": "1.6.0",
       "entry": "ai-plugins/dev-skills/skills/use-agent-browser/SKILL.md"
+    },
+    {
+      "id": "use-memorix",
+      "plugin": "common-tools",
+      "name": "use-memorix",
+      "description": "Use when 用户要在日常开发中真正用起 Memorix：读写记忆、恢复会话与交接、准备归档或清理、检查 health 与存储、 排查 CodeGraph / dashboard / embedding、初始化项目黄金集、审核或捕获检索候选、精简 Memorix hooks， 以及排障 MCP 工具缺失、mode 选择、Node ABI、shim 劫持、WorkBuddy 启动链。",
+      "version": "3.0.0",
+      "entry": "ai-plugins/common-tools/skills/use-memorix/SKILL.md"
     },
     {
       "id": "use-other-model",

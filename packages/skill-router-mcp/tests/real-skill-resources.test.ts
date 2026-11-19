@@ -100,4 +100,13 @@ describe("real Skill resource contracts", () => {
 			"references/workflow-and-template.md",
 		]);
 	});
+
+	test("loads the use-memorix golden-set reference and rejects the removed legacy id", async () => {
+		const instance = await registry();
+		const skill = instance.get("use-memorix");
+		expect(skill.plugin).toBe("common-tools");
+		expect(skill.version).toBe("3.0.0");
+		await assertReference(skill, "references/retrieval-and-golden-set.md");
+		expect(() => instance.get("init-simple-memorix")).toThrow("The requested Skill was not found.");
+	});
 });

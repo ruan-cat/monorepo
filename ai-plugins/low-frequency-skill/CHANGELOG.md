@@ -24,6 +24,14 @@
   - **重写 `fallback/install-mcp.ps1` 为定点文本编辑**：PS 5.1 的 `ConvertFrom-Json` 无法解析 `~/.claude.json`（含仅大小写不同的重复键），`ConvertTo-Json` 又固定输出 4 空格 + CRLF；同时该脚本必须以 **UTF-8 with BOM** 保存，否则 PS 5.1 按 ANSI 解码会把中文注释解析成非法 token。
   - `references/memorix-setup-notes.md`、`references/workbuddy-mcp-notes.md` 中 12 处 `full mode` 表述改为 mode 中性（默认 micro）。
 
+## [14.0.0] - 2026-11-19
+
+### Changed
+
+- **init-simple-memorix**：硬切迁出并停止发布，目录与 registry id 一并删除，不保留兼容壳。
+- 硬切 use-memorix 3.0 并收口 Memorix 治理
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `14.0.0`。
+
 ## [13.4.0] - 2026-11-15
 
 ### Changed
