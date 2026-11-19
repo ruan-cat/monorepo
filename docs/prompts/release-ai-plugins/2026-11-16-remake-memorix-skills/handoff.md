@@ -2,9 +2,11 @@
 
 ## 状态
 
-**未实施。**
+**已实施，发布闭环 BLOCKED（CURSOR + CODEX 新会话验证）。**
 
-截至 2026-11-17，本目录只完成设计工件。尚未进行技能重构、迁移、测试、registry 生成、版本升级、插件安装/卸载、发布、暂存、提交、推送或记忆写入。
+1 号包的技能重构、测试、发布、原子 cutover、CI 双 PowerShell 与 `use-memorix` 正式安装均已完成并有证据；
+`init-simple-memorix` 的全局旧安装**尚未删除**，因为三平台真实 smoke 未全部 PASS。
+2/3 号包门保持关闭。
 
 ## 当前 Git 基线
 
@@ -21,14 +23,17 @@
 ### SHA 回填栏
 
 ```text
-PRE_CUTOVER_SHA=未产生
-CUTOVER_SHA=未产生
+PRE_CUTOVER_SHA=f0da7be276776f6db3ad934d626009b19ef4275e
+CUTOVER_SHA=07c1f44980cc98e8d69744a7867a5aba04d99147
 HANDOFF_EVIDENCE_SHA=未产生
+CI_GREEN_SHA=9c961e4734b5f20d5f7d2288dc563d4e33e545dd
 ```
 
-- `PRE_CUTOVER_SHA`：Task 11 暂存/提交前的 HEAD。
-- `CUTOVER_SHA`：单笔原子 cutover commit push 后的 HEAD，供 2/3 号包消费。
-- `HANDOFF_EVIDENCE_SHA`：Task 12 只回填 handoff 后的可选 docs commit；不得冒充 cutover SHA。
+- `PRE_CUTOVER_SHA`：原子 cutover 提交前的 HEAD。
+- `CUTOVER_SHA`：单笔原子 cutover commit；实现内容以此为准。
+- `CI_GREEN_SHA`：修复 workflow 与 PS 兼容性后的提交；四个 CI job 全绿的画面来自此 SHA。
+  `CUTOVER_SHA` 自身的 workflow 因 GitHub 拒绝 `shell: ${{ matrix.shell }}` 而失败，属于 CI 配置缺陷，不涉及技能内容。
+- `HANDOFF_EVIDENCE_SHA`：Task 12 只回填 handoff 后的 docs commit。
 
 ### 执行者第一条命令
 
@@ -185,39 +190,39 @@ FEDERATION_BUNDLE_SCHEMA_VERSION=memorix-golden-set-bundle/v1
 
 当前均为未执行，不得填“应该通过”。
 
-| Gate                          | 结果   | SHA/证据 |
-| ----------------------------- | ------ | -------- |
-| scope/Vitest discovery/长命令 | 未执行 | 未产生   |
-| MCP-01～04                    | 未执行 | 未产生   |
-| CAP-01～15                    | 未执行 | 未产生   |
-| GOLD-01～04                   | 未执行 | 未产生   |
-| CAPTURE-01～05/PERF-01        | 未执行 | 未产生   |
-| INSTALL-01～04                | 未执行 | 未产生   |
-| INIT-01～03                   | 未执行 | 未产生   |
-| AUDIT-01～02 + sync           | 未执行 | 未产生   |
-| TRANSITION-01～05 本机        | 未执行 | 未产生   |
-| Windows PS5.1 CI              | 未执行 | 未产生   |
-| Windows PS7 CI                | 未执行 | 未产生   |
-| RELEASE-01～03                | 未执行 | 未产生   |
-| Skill Router unit             | 未执行 | 未产生   |
-| strict tsc                    | 未执行 | 未产生   |
-| 宽松 ai-plugins 配置解析      | 未执行 | 未产生   |
-| registry/Prettier/cached diff | 未执行 | 未产生   |
-| 敏感/未决词（含 SCOPE-04）    | 未执行 | 未产生   |
-| Claude plugin smoke/cleanup   | 未执行 | 未产生   |
-| Cursor plugin smoke/cleanup   | 未执行 | 未产生   |
-| Codex plugin smoke/cleanup    | 未执行 | 未产生   |
-| 正式安装 use-memorix 验证     | 未执行 | 未产生   |
-| 旧独立 skill remove           | 未执行 | 未产生   |
-| Task 12 runtime scope         | 未执行 | 未产生   |
+| Gate                          | 结果    | SHA/证据                                                      |
+| :---------------------------- | :------ | :------------------------------------------------------------ |
+| scope/Vitest discovery/长命令 | PASS    | SCOPE-01～04；108 个 staged 文件；`staged-equal`              |
+| MCP-01～04                    | PASS    | `tests/use-memorix/install-mcp.test.ts` 23 tests              |
+| CAP-01～15                    | PASS    | `tests/use-memorix/capability-matrix.test.ts` 15 tests        |
+| GOLD-01～04                   | PASS    | `tests/use-memorix/golden-set-contracts.test.ts` 9 tests      |
+| CAPTURE-01～05/PERF-01        | PASS    | `retrieval-capture.test.ts` 6 tests；warm P95 < 100ms         |
+| INSTALL-01～04                | PASS    | `zcode-install-operator.test.ts` 4 tests                      |
+| INIT-01～03                   | PASS    | `tests/init-ai-md/memorix-governance.test.ts` 3 tests         |
+| AUDIT-01～02 + sync           | PASS    | `tests/sync-local-global-agents-skills` 11 tests              |
+| TRANSITION-01～05 本机        | PASS    | PS 5.1 链路 6 tests；本机无 `pwsh.exe`                        |
+| Windows PS5.1 CI              | PASS    | run 44540508766 / CI_GREEN_SHA                                |
+| Windows PS7 CI                | PASS    | run 44540508766 / CI_GREEN_SHA                                |
+| RELEASE-01～03                | PASS    | `release-surface.test.ts` 3 tests                             |
+| Skill Router unit             | PASS    | `pnpm --dir packages/skill-router-mcp run test:unit` 41 tests |
+| strict tsc                    | PASS    | `tsc --noEmit -p ai-plugins/tsconfig.use-memorix.json`        |
+| 宽松 ai-plugins 配置解析      | PASS    | `pnpm run typecheck:ai-plugins`（仅证明配置可解析）           |
+| registry/Prettier/cached diff | PASS    | generator `--check` current；受控 glob `--check` 全绿         |
+| 敏感/未决词（含 SCOPE-04）    | PASS    | SCOPE-04 覆盖 pathspec 全写集；plan/handoff 未决词扫描通过    |
+| Claude plugin smoke/cleanup   | PASS    | `claude 2.1.267`；Skills （17） 含 `use-memorix`；已清理      |
+| Cursor plugin smoke/cleanup   | BLOCKED | `cursor 3.30.14` CLI 无 plugin 子命令；UI 未自动化            |
+| Codex plugin smoke/cleanup    | BLOCKED | `codex-cli 0.149.1` 安装/缓存/清理 PASS；新 task 401 无效 key |
+| 正式安装 use-memorix 验证     | PASS    | 与 `CUTOVER_SHA` 逐字节一致；7 references；launcher 写入成功  |
+| 旧独立 skill remove           | 未执行  | 三平台门未全绿，按硬门保留旧安装                              |
+| Task 12 runtime scope         | PASS    | 除 baseline 与 handoff 外无改动                               |
 
 ## 三平台 BLOCKED 记录
 
-| 平台        | 状态   | 客户端版本                           | 真实动作                                         | 阻塞/清理证据                                       |
-| ----------- | ------ | ------------------------------------ | ------------------------------------------------ | --------------------------------------------------- |
-| Claude Code | 未执行 | 未记录                               | marketplace/install/new session/uninstall        | 未记录                                              |
-| Cursor      | 未执行 | 当前设计期实测 `3.30.14`；实施时重测 | Marketplace/UI install/reload/new chat/uninstall | 当前 CLI 无 plugin 子命令；若 UI 不可操作则 BLOCKED |
-| Codex       | 未执行 | 未记录                               | marketplace/add/new task/remove                  | 未记录                                              |
+| 平台        | 状态    | 客户端版本 | 真实动作                                              | 阻塞/清理证据                                                                                |
+| ----------- | ------- | ---------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Claude Code | PASS    | `2.1.267`  | marketplace add / install / enable / details / 清理   | 隔离 `CLAUDE_CONFIG_DIR`；Skills （17） 含 `use-memorix`、无旧名；清理后零插件零 marketplace |
+| Cursor      | BLOCKED | `3.30.14`  | CLI `--help` 无 `plugin` 子命令；UI 未自动化          | 不编造 CLI；不得用静态 JSON 或 `skills add` 替代                                             |
+| Codex       | BLOCKED | `0.149.1`  | marketplace add / list / add / cache 校验 / 清理 PASS | `codex exec` 新 task 返回 401 `invalid_api_key`，无法完成新会话验证                          |
 
 任一行为 BLOCKED 时，任务状态不得改成“已实施并切换”，2/3 号包门保持关闭，旧独立 skill 不 remove。
 
@@ -260,3 +265,20 @@ git push
 ## 交接完成定义
 
 只有 12 个 Task 全有真实证据、单笔 cutover commit 已 push、三个插件 smoke 全 PASS 且清理完成、旧独立 skill 已官方 remove、handoff 已唯一回填、2/3 号包收到 CUTOVER SHA 与三个 schemaVersion，状态才可改为“已实施并切换”。
+
+## 当前结论
+
+- 12 个 Task 的实现与本地/CI 证据齐全，`CUTOVER_SHA` 与 `CI_GREEN_SHA` 已 push。
+- Claude Code smoke PASS；Cursor 与 Codex 新会话验证 BLOCKED。
+- 因此：**发布闭环 BLOCKED**，旧 `init-simple-memorix` 全局安装保留，2/3 号包门关闭。
+- 解除阻塞需要：可自动化的 Cursor 插件安装入口，或一次人工 UI smoke；以及有效的 Codex 凭据后重跑新 task 验证。
+
+## 实施偏差与补充（均为证据驱动的必要调整）
+
+1. **workflow 不能用 `shell: ${{ matrix.shell }}`**：GitHub Actions 报 `Unrecognized named-value: 'matrix'`；改为 `transition-powershell` 与 `transition-pwsh` 两个显式 job，门禁等价。
+2. **`skill-transitions.ps1` 必须带 UTF-8 BOM**：CI 的 PS 5.1 按 ANSI 解码无 BOM 文件，中文报错文本撕裂脚本；已补 BOM 并新增 `PS-01` 回归断言。
+3. **PS 5.1 的 NativeCommandError**：`$ErrorActionPreference="Stop"` 会把 git 的 CRLF stderr 升级为终止错误；最终 `git diff --check` 段临时切回 `Continue`，只按退出码判定。
+4. **SCOPE-04 只对新增行告警**：仓库历史 CHANGELOG/README 已存在带主机路径的旧日志行；改写它们等于篡改历史证据，故以 HEAD 基线行做精确豁免，新增行仍严格阻塞。
+5. **characterization 基线解析**：`PRE_CUTOVER_SHA` 之外增加 HEAD 与「删除提交的父提交」回退，保证 cutover 删除旧目录后测试仍能复验原字节，CI 不因缺 env 而红。
+6. **发布日期用 2026-11-19**：实际执行日，未沿用设计稿的 2026-11-17。
+7. **先发布后三平台 smoke**：按用户流水线授权执行 Apply 与 push；旧技能卸载严格保持未执行。
