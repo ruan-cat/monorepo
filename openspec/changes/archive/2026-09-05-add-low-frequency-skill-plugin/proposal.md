@@ -9,7 +9,7 @@
 ## What Changes
 
 1. **技能迁移（剪切）**：
-   - 仓库内 5 个技能 `git mv` 到 `ai-plugins/low-frequency-skill/skills/`：`init-playwright`（来自 dev-skills）、`clone-ruancat-repo`、`get-git-branch`、`init-claude-code-statusline`、`init-simple-memorix`（来自 common-tools）。
+   - 仓库内 5 个技能 `git mv` 到 `ai-plugins/low-frequency-skill/skills/`：`init-playwright`（来自 dev-skills）、`clone-ruancat-repo`、`get-git-branch`、`init-claude-code-statusline`、`use-memorix`（来自 common-tools）。
    - 外部项目 2 个技能剪切入库：`init-tsconfig`、`factory-reset-vscode-fork-ide`（来自 `D:\store\WorkBuddy\2026-6-30-common`，该仓库侧删除文件并更新引用后提交推送）。
 2. **新插件注册**：新建 3 份 plugin.json（Claude / Cursor / Codex），并在 3 份 marketplace.json 中追加插件条目；新建插件 README 与 CHANGELOG。
 3. **基础设施三插件适配**：registry 生成器 roots、release 发布脚本、CI workflow paths、`packages/skill-router-mcp` 强校验与测试 fixture。

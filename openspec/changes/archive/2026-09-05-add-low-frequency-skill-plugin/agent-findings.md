@@ -20,7 +20,7 @@
 - `.github/workflows/skill-router-mcp.yml`：仅对 `packages/skill-router-mcp` 跑 typecheck/test/build，与技能目录无关。
 - `packages/skill-router-mcp` 运行时 `isSafeSkillEntry`：entry 形如 `ai-plugins/<x>/skills/<name>/SKILL.md` 即合法，新插件天然放行。
 - 根 `AGENTS.md`、`.workbuddy/memory/2026-06-30.md`、`docs/prompts/**`、`docs/plan/ai-plugins-multi-marketplace-refactor.md`：历史记录或名称引用，技能名未变，不改写。
-- `install-mcp` SKILL.md 对 `init-simple-memorix` 为名称引用，技能名未变，无需改。
+- `install-mcp` SKILL.md 对 `use-memorix` 为名称引用，技能名未变，无需改。
 
 ## 待迁移技能档案
 
@@ -30,7 +30,7 @@
 | clone-ruancat-repo            | common-tools/skills | SKILL.md + references/clone-commands.md    | 完整                                                       | 0.2.1            |
 | get-git-branch                | common-tools/skills | 1 文件                                     | 完整                                                       | 0.1.0            |
 | init-claude-code-statusline   | common-tools/skills | SKILL.md + templates/×2                    | 完整                                                       | 0.15.0           |
-| init-simple-memorix           | common-tools/skills | 21 文件 7 子目录                           | 完整                                                       | 2.4.0            |
+| use-memorix                   | common-tools/skills | 21 文件 7 子目录                           | 完整                                                       | 2.4.0            |
 | init-tsconfig                 | WorkBuddy           | SKILL.md + references/strategy-matrix.md   | **完全缺失**，需补 name/description/user-invocable/version | 1.0.0（新）      |
 | factory-reset-vscode-fork-ide | WorkBuddy           | SKILL.md + references/cleanup-audit-log.md | 缺 metadata.version                                        | 1.0.0（新）      |
 
@@ -47,7 +47,7 @@
 
 ## 终审新发现（2026-09-05）
 
-1. **Critical（已修复）**：根级测试 `tests/init-simple-memorix/install-mcp.test.ts:6-7` 直接 import 技能源码 `ai-plugins/common-tools/skills/init-simple-memorix/src/`，迁移后断链、根级 `pnpm test` 收集即失败。教训：**迁移 ai-plugins 技能目录时，grep 影响面必须包含根级 `tests/` 目录**（此前探索只覆盖了 packages/skill-router-mcp 的测试）。已改 import 指向新路径并验证 19/19 通过。
+1. **Critical（已修复）**：根级测试 `tests/use-memorix/install-mcp.test.ts:6-7` 直接 import 技能源码 `ai-plugins/common-tools/skills/use-memorix/src/`，迁移后断链、根级 `pnpm test` 收集即失败。教训：**迁移 ai-plugins 技能目录时，grep 影响面必须包含根级 `tests/` 目录**（此前探索只覆盖了 packages/skill-router-mcp 的测试）。已改 import 指向新路径并验证 19/19 通过。
 2. **Parked Minor（保留原样）**：`factory-reset-vscode-fork-ide/SKILL.md:39` 示例值 `D:/dev-tool/ai-ide/Qoder CN IDE` 为本机盘符风格路径。裁定：保留。理由：该技能的主题就是操作目标机器的 IDE 安装目录，示例路径与 references/cleanup-audit-log.md 的 C 盘审计路径同属用户刻意保留的领域内容；用户指示该技能「原样迁移仅补 metadata.version」，skill-hardening 的路径脱敏约束与技能领域语义冲突时按用户当前指示收敛。若未来要对外公开发布该插件，再统一泛化示例路径。
 3. **既有阻塞（已处置）**：`dev-skills/skills/use-agent-browser` 空占位目录使本地 registry 生成失败（git 不跟踪空目录，CI 不可见）；移除后 TODO 089 意图仍保留于 `docs/prompts/release-ai-plugins/02.md`。
 

@@ -40,7 +40,7 @@
 - **init-ai-md**：`metadata.version` `24.0.0` -> `25.0.0`。
 - **sync-local-global-agents-skills**：`metadata.version` `0.4.0` -> `1.0.0`。
 - **install-mcp**：`metadata.version` `1.4.1` -> `1.4.2`。
-- **use-memorix**：由 `init-simple-memorix`（`low-frequency-skill`）重命名迁入，`metadata.version` 固定 `3.0.0`。
+- **use-memorix**：由 `use-memorix`（`low-frequency-skill`）重命名迁入，`metadata.version` 固定 `3.0.0`。
 - 硬切 use-memorix 3.0 并收口 Memorix 治理
 - 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `14.0.0`。
 
@@ -184,7 +184,7 @@
 ### Changed
 
 - `common-tools` 技能树本身无内容变更，插件主版本随发布链路同步至 `10.25.0`。
-- init-simple-memorix memorix MCP 目标 mode 由 full 改为 micro，并修正 ZCode / Codex / Qoder 平台 server 键路径与写回保真
+- use-memorix memorix MCP 目标 mode 由 full 改为 micro，并修正 ZCode / Codex / Qoder 平台 server 键路径与写回保真
 - 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `10.25.0`。
 
 ## [10.24.0] - 2026-10-01
@@ -227,7 +227,7 @@
 ### Changed
 
 - **use-pnpm**：`metadata.version` `0.5.0` -> `0.6.0`。
-- use-pnpm 与 init-simple-memorix 事故知识加固：布局迁移外溢、shim 劫持与解析链劫持分流
+- use-pnpm 与 use-memorix 事故知识加固：布局迁移外溢、shim 劫持与解析链劫持分流
 - 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `10.20.0`。
 
 ## [10.19.0] - 2026-09-29
@@ -641,7 +641,7 @@
 - 新增面向 Codex、Claude Code、Cursor、WorkBuddy、ZCode、Qoder、Kiro 等 agent 的 MCP 配置清单入口。
 - 覆盖 JSON 与 TOML 形态的 `mcpServers` 合并边界，要求保留未知字段和其他 server entries。
 - 明确 dry-run、备份、解析失败停止写入，以及 WorkBuddy `NODE_OPTIONS` 隔离建议。
-- Memorix full mode 的实际安装与校验继续调度 `init-simple-memorix`。
+- Memorix full mode 的实际安装与校验继续调度 `use-memorix`。
 - 第三方 MCP server entry 必须先确认 schema、`command`、`args`、`env` 与信任审批影响。
 - **install-skills**（新技能，`metadata.version` `1.0.0`）：
 - 新增面向 AI agent skills 目录的清单与调度入口。
@@ -728,42 +728,42 @@
 
 ### Added
 
-- **init-simple-memorix**（`metadata.version` `2.3.0` -> `2.4.0`，新增 ZCode 项目级 hooks 模板）：
+- **use-memorix**（`metadata.version` `2.3.0` -> `2.4.0`，新增 ZCode 项目级 hooks 模板）：
 - 新增 `templates/zcode.config.json`，可用于项目根目录 `.zcode/config.json` 或 `zcode.json`。
 - ZCode lifecycle 模板只保留 `SessionStart`、`UserPromptSubmit`、`Stop`，避免加入不支持的 `PreCompact`。
 - ZCode 配置文档明确使用 `hooks.enabled: true`、`hooks.timeoutMs` 与 `hooks.events` 结构。
 
 ### Changed
 
-- **init-simple-memorix** 在 hooks 快速参考与 `references/hooks-reference.md` 中补充 ZCode 事件、模板格式与合并策略。
-- **init-simple-memorix** 将 WorkBuddy 项目级 hooks 目标和模板标注为实验性、待运行时验证。
+- **use-memorix** 在 hooks 快速参考与 `references/hooks-reference.md` 中补充 ZCode 事件、模板格式与合并策略。
+- **use-memorix** 将 WorkBuddy 项目级 hooks 目标和模板标注为实验性、待运行时验证。
 - 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.10.0`。
 
 ## [7.9.1] - 2026-07-06
 
 ### Added
 
-- **init-simple-memorix**（`metadata.version` `2.1.0` -> `2.3.0`，补强参考文档分层）：
+- **use-memorix**（`metadata.version` `2.1.0` -> `2.3.0`，补强参考文档分层）：
 - 新增 `references/hooks-reference.md`，承接 hooks 作用域、噪音事件、生命周期事件、模板格式与合并策略细节。
 - 新增 `references/workbuddy-mcp-notes.md`，记录 WorkBuddy MCP 连接、信任审批、`NODE_OPTIONS`、Node ABI 与日志检查规则。
 - 新增 `references/memorix-setup-notes.md`，说明 `memorix setup` / 插件升级后的全局配置影响与重新精简策略。
 
 ### Changed
 
-- **init-simple-memorix** 主技能正文新增 `Reference Routing`，按 hooks 噪音、WorkBuddy MCP、setup / 升级三类场景按需加载参考文件。
-- **init-simple-memorix** 主技能正文继续保持分发视角，只使用技能安装目录内相对路径，避免把开发期报告、测试路径或仓库源码路径写入用户分发文档。
+- **use-memorix** 主技能正文新增 `Reference Routing`，按 hooks 噪音、WorkBuddy MCP、setup / 升级三类场景按需加载参考文件。
+- **use-memorix** 主技能正文继续保持分发视角，只使用技能安装目录内相对路径，避免把开发期报告、测试路径或仓库源码路径写入用户分发文档。
 - 根级 marketplace 与 `common-tools` / `dev-skills` 双平台 `plugin.json` 版本统一提升至 `7.9.1`。
 
 ### Fixed
 
-- **init-simple-memorix** 修正 Windows PowerShell 兜底脚本在 PowerShell 5.1 下的 UTF-8 注释解析风险。
+- **use-memorix** 修正 Windows PowerShell 兜底脚本在 PowerShell 5.1 下的 UTF-8 注释解析风险。
 - `fallback/install-mcp.ps1` 的帮助文本与注释改为 ASCII，并修正 here-string 与 hashtable 写法以提升解析兼容性。
 
 ## [7.9.0] - 2026-07-04
 
 ### Added
 
-- **init-simple-memorix**（`metadata.version` `2.0.0` -> `2.1.0`，新增 MCP 配置维护能力）：
+- **use-memorix**（`metadata.version` `2.0.0` -> `2.1.0`，新增 MCP 配置维护能力）：
 - 新增「Memorix MCP 配置维护」章节，覆盖 7 个 AI agent 平台（Claude Code、Cursor、Codex、WorkBuddy、ZCode、Qoder、Kiro）。
 - 新增 `src/platforms.ts`：MCP 平台注册表，定义各 agent 的配置文件路径与格式（JSON / TOML）。
 - 新增 `src/install-mcp.ts`：核心 MCP 安装逻辑，支持 JSON 和 TOML 双格式，零外部依赖。
@@ -805,7 +805,7 @@
 
 ### Added
 
-- **init-simple-memorix**（`metadata.version` `1.2.0` -> `2.0.0`，重大升级）：
+- **use-memorix**（`metadata.version` `1.2.0` -> `2.0.0`，重大升级）：
 - 新增全局级 hooks 模板体系，覆盖 `templates-global/` 目录下 4 个全局模板文件。
 - `templates-global/claude.hooks.json`：结构 A，保留 SessionStart / UserPromptSubmit / PreCompact / Stop，移除 PostToolUse。
 - `templates-global/codex.hooks.json`：结构 A，保留 SessionStart / UserPromptSubmit / Stop，带 `--agent codex` 参数。
@@ -814,14 +814,14 @@
 - 新增项目级 `templates/antigravity.hooks.json`，目标路径 `.agents/hooks.json`。
 - 新增 Codex 和 Antigravity 两个 Agent 的项目级与全局级覆盖，补齐原有 8 个缺口。
 - 新增「作用域」章节：定义项目级 / 全局级双模式，通过 `--global` 参数切换，明确双作用域执行模型。
-- 新增「与 memorix setup 的配合」章节：推荐先 `memorix setup --global` 再 `init-simple-memorix --global` 的协作工作流。
+- 新增「与 memorix setup 的配合」章节：推荐先 `memorix setup --global` 再 `use-memorix --global` 的协作工作流。
 - 新增「升级覆盖风险」章节：说明 Claude 缓存路径含版本号、memorix 升级后需重新精简。
 - 扩展触发场景：新增 `memorix setup 后处理`、`全局 memorix hooks`、`memorix 噪音全局`、`setup 完以后精简`、`升级后重新精简` 5 个关键词。
 - 扩展自检清单：新增全局级 4 项检查（Claude / Codex / Cursor / Antigravity 全局无噪音 hooks）。
 
 ### Changed
 
-- **init-simple-memorix** SKILL.md 文档结构重组：
+- **use-memorix** SKILL.md 文档结构重组：
 - 将「配置模板」拆分为「项目级模板」和「全局级模板」两个子章节。
 - 执行流程从 4 步扩展为 8 步（步骤 0 作用域判断 + 全局模式 1-4 步 + 项目模式 5-8 步），项目模式标注「现有逻辑，不变」。
 - 生命周期 hooks 表格从 5 列扩展为 7 列（新增 Codex / Antigravity）。
@@ -923,13 +923,13 @@
 
 ### Added
 
-- **init-simple-memorix**（`metadata.version` `1.0.0` -> `1.2.0`）：
+- **use-memorix**（`metadata.version` `1.0.0` -> `1.2.0`）：
 - 新增 WorkBuddy agent 支持，基于 matcher 嵌套 + description 字段的 hooks 配置模板。
 - 新增 `templates/workbuddy.hooks.json` 模板，覆盖 SessionStart、UserPromptSubmit、PreCompact、Stop 四个会话生命周期事件。
 
 ### Changed
 
-- **init-simple-memorix**（`metadata.version` `1.1.0` -> `1.2.0`）：
+- **use-memorix**（`metadata.version` `1.1.0` -> `1.2.0`）：
 - 将所有内联 hooks 配置模板提取到 `templates/` 目录，SKILL.md 从 441 行缩减至 232 行（-47%）。
 - **common-tools / dev-skills 对外分发 SKILL.md**（共 18 个文件）：
 - YAML `description` 字段格式从单行/双引号统一为 `>-` folded block scalar 多行分段格式。
@@ -1060,7 +1060,7 @@
 
 ### Added
 
-- **init-simple-memorix**（`metadata.version` `1.0.0`）：新增 Memorix hooks 精简配置技能。
+- **use-memorix**（`metadata.version` `1.0.0`）：新增 Memorix hooks 精简配置技能。
 - 移除高频噪音触发器（`PostToolUse`、`PreToolUse`、`afterFileEdit` 等），仅保留会话生命周期事件。
 - 支持 Claude Code、Cursor、Windsurf、Gemini CLI、Kiro 等多种 AI IDE 的 hooks 配置文件。
 - 提供完整的配置模板和自检清单。

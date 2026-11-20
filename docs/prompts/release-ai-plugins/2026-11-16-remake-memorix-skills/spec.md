@@ -16,7 +16,7 @@
 
 ## 1. 意图
 
-将现有低频初始化技能 `init-simple-memorix` 硬切为日常权威入口 `use-memorix` 3.0.0，并把它从 `low-frequency-skill` 迁入 `common-tools`。新技能既要无损继承现有 hooks、MCP、setup、mode、Node ABI、shim 与 WorkBuddy 启动链排障能力，也要新增基础记忆操作、会话交接、retention、health、WAL、CodeGraph、dashboard、embedding、项目黄金集和 ZCode 检索候选捕获治理。
+将现有低频初始化技能 `use-memorix` 硬切为日常权威入口 `use-memorix` 3.0.0，并把它从 `low-frequency-skill` 迁入 `common-tools`。新技能既要无损继承现有 hooks、MCP、setup、mode、Node ABI、shim 与 WorkBuddy 启动链排障能力，也要新增基础记忆操作、会话交接、retention、health、WAL、CodeGraph、dashboard、embedding、项目黄金集和 ZCode 检索候选捕获治理。
 
 这不是兼容迁移。旧技能目录、注册、README 活跃入口和本机安装均在新技能验收后删除，不保留同名兼容 skill、跳转壳或导航壳。
 
@@ -34,7 +34,7 @@
 10. 修改 `sync-local-global-agents-skills`，删除官方 Memorix skills 的下载、覆盖和刷新所有权，只保留只读审计；官方 setup/升级是唯一安装与升级所有者。
 11. 修改 `release-ai-plugins`，支持 rename、move、remove 以及组合 rename-move 的发布语义、DryRun、校验和测试。
 12. 将三个插件的 Claude、Cursor、Codex manifest 统一到 `14.0.0`，Claude/Cursor marketplace 同步到 `14.0.0`；Codex marketplace 保持其 schema 不含版本字段。
-13. 完整发布后，在本机先安装并验证 `use-memorix`，再通过官方 `skills remove` 删除 `init-simple-memorix`。
+13. 完整发布后，在本机先安装并验证 `use-memorix`，再通过官方 `skills remove` 删除 `use-memorix`。
 14. 覆盖官方七技能、基本 memory/session、retention/health、dashboard/embedding、ZCode 自动捕获与非 ZCode `capture-interactive` 的能力矩阵测试全部通过后，产出可供 2 号包消费的 cutover commit SHA，以及可供 3 号包消费的 schemaVersion 与同一 cutover SHA。
 
 ## 3. 非目标
@@ -66,8 +66,8 @@
 
 以下做法即使“能跑”也视为规格失败：
 
-1. 在任何 skill root 保留 `init-simple-memorix` 目录或兼容壳。
-2. 让 registry 同时出现 `init-simple-memorix` 与 `use-memorix`。
+1. 在任何 skill root 保留 `use-memorix` 目录或兼容壳。
+2. 让 registry 同时出现 `use-memorix` 与 `use-memorix`。
 3. 把旧技能仅改名却丢失 hooks、MCP、setup、mode、Node ABI、shim 或 WorkBuddy 启动链能力。
 4. 在迁移三套 MCP 兼容器时顺手重写、抽象或统一差异。
 5. 让 `sync-local-global-agents-skills` 继续联网下载、覆盖、备份或刷新官方 `memorix-*` skills。
@@ -125,7 +125,7 @@
 
 ### 5.4 测试发现与严格类型检查
 
-- 根 `tests/vitest.config.ts` 是 skill tests 的发现权威：删除 `init-simple-memorix/**/*.test.ts`，精确加入 `use-memorix/**/*.test.ts`、`init-ai-md/**/*.test.ts`、`release-ai-plugins/**/*.test.ts`，保留 `sync-local-global-agents-skills/**/*.test.ts`。
+- 根 `tests/vitest.config.ts` 是 skill tests 的发现权威：删除 `use-memorix/**/*.test.ts`，精确加入 `use-memorix/**/*.test.ts`、`init-ai-md/**/*.test.ts`、`release-ai-plugins/**/*.test.ts`，保留 `sync-local-global-agents-skills/**/*.test.ts`。
 - 从仓库根运行 skill tests 时必须显式 `--config tests/vitest.config.ts --reporter=default`，避免根 `vitest.config.ts` 的 HTML reporter 写入影响验收；reviewer 已生成且被 ignore 的 `.vitest-reporter-html/` 不清理、不纳入状态判断。
 - Skill Router 不走根 Vitest 发现，唯一单测命令是 `pnpm --dir packages/skill-router-mcp run test:unit`。
 - 新建 `ai-plugins/tsconfig.use-memorix.json`，`noCheck: false`、`strict: true`、`noEmit: true`，`include` 只列本包新增/修改的真实 TypeScript runtime；`pnpm run typecheck:ai-plugins` 仍只证明宽松配置可解析，不能冒充类型安全。
@@ -186,7 +186,7 @@ ai-plugins/common-tools/skills/use-memorix/
 明确删除且不迁移：
 
 ```text
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates/workbuddy.hooks.json
+ai-plugins/common-tools/skills/use-memorix/templates/workbuddy.hooks.json
 ```
 
 旧模板中的 `templates/zcode.config.json` 不作为 lifecycle 模板迁移。ZCode 的新模板只用于经授权安装检索候选捕获 hook；原有 lifecycle setup/升级由官方集成负责。
@@ -765,7 +765,7 @@ type SkillTransition =
 本包的实际 transition：
 
 ```text
--RenameSkill init-simple-memorix=use-memorix
+-RenameSkill use-memorix=use-memorix
 -SkillVersion use-memorix=3.0.0
 ```
 
@@ -775,7 +775,7 @@ type SkillTransition =
 
 - DryRun 列出旧 entry 删除、新 entry 添加、plugin 出入、版本、README、CHANGELOG、registry 变化，零写入。
 - common CHANGELOG 记录 `use-memorix` 3.0.0 的新增与迁入。
-- low-frequency CHANGELOG 记录 `init-simple-memorix` 的硬切迁出/删除，不宣称兼容。
+- low-frequency CHANGELOG 记录 `use-memorix` 的硬切迁出/删除，不宣称兼容。
 - dev-skills CHANGELOG 只记录插件版本同步。
 - transition 完成后 Node registry generator 只 Apply 一次、Check 一次。
 - registry schema 保持 `"1"`；只改变 entry：旧 id 消失，新 id 指向 common-tools。
@@ -829,7 +829,7 @@ type SkillTransition =
    任一 BLOCKED 时暂停「发布完成」声明，除非缺口属于环境/客户端能力且用户明确接受为已知风险并如实记录。
 8. 三平台隔离 smoke 清理完成后，经用户授权从 exact `CUTOVER_SHA` 正式安装 `use-memorix`，逐字节比对 `~/.agents/skills/use-memorix/SKILL.md` 与 `CUTOVER_SHA`，确认七 references 存在、薄启动器可加载真实全局 runtime；隔离 smoke 中的旧名不可见仅说明候选插件，无权推断用户全局旧安装消失。
 9. 三平台 smoke 记录齐全（全 PASS，或缺口为环境性且用户明确接受为已知风险）与正式安装验证通过后，
-   通过官方 `skills remove init-simple-memorix -g -y` 清理旧独立安装。
+   通过官方 `skills remove use-memorix -g -y` 清理旧独立安装。
 10. 验证旧技能在规范源和所有已验证派生目标中消失，common-tools 插件中的新技能仍可见。
 11. 记录 `CUTOVER_SHA`，交给 2/3 号包。
 
@@ -837,7 +837,7 @@ type SkillTransition =
 
 发布完成条件必须分别取得真实客户端证据，不能用 `skills add` 或静态 JSON 替代：
 
-- Claude Code：在系统临时目录的仓库副本中把 marketplace 名改为 `use-memorix-smoke`，使用临时 `CLAUDE_CONFIG_DIR` 隔离配置安装 `common-tools`，新会话确认 `use-memorix` 可发现且 `init-simple-memorix` 不可发现，随后卸载插件并删除临时 marketplace。
+- Claude Code：在系统临时目录的仓库副本中把 marketplace 名改为 `use-memorix-smoke`，使用临时 `CLAUDE_CONFIG_DIR` 隔离配置安装 `common-tools`，新会话确认 `use-memorix` 可发现且 `use-memorix` 不可发现，随后卸载插件并删除临时 marketplace。
 - Cursor：使用当前 Cursor 官方插件安装入口或 Marketplace UI/CLI 在独立用户数据目录（`--user-data-dir`/`--extensions-dir` 指向临时目录）安装本地/发布候选 `common-tools`，重载窗口后确认新 skill 可发现、旧 skill 不可发现，随后卸载并清理临时 marketplace/cache；必须记录实际客户端版本与操作证据。
 - Codex：使用临时 `CODEX_HOME` 隔离配置，`codex plugin marketplace add <repo-root> --json`、`codex plugin add common-tools@use-memorix-smoke --json`、新 task 验证，再 remove plugin 和 marketplace。
 - 所有 smoke 只在隔离副本与隔离配置中执行，不得对用户既有 `ruan-cat-tools` 安装执行卸载/删除；隔离 smoke 的旧名不可见只代表候选插件，正式 remove 后才检查全局旧安装。
@@ -846,7 +846,7 @@ type SkillTransition =
 
 ## 19. 破坏性变更
 
-1. `init-simple-memorix` 名称、目录、registry id、安装入口全部删除。
+1. `use-memorix` 名称、目录、registry id、安装入口全部删除。
 2. skill 从 low-frequency-skill 迁到 common-tools。
 3. `sync-local-global-agents-skills` 删除四个 Memorix 刷新参数和独立刷新脚本，不再安装/升级官方 skills。
 4. `init-ai-md` 每次执行强制增量合并 Memorix 治理模板 12，不允许用户从多选中取消。
@@ -912,7 +912,7 @@ type SkillTransition =
 - [ ] `init-ai-md` 模板 12 存在，不进入多选，每次强制增量合并且保护自定义。
 - [ ] `sync-local-global-agents-skills` 无官方 skills 下载/覆盖路径，只输出审计结果。
 - [ ] release transition 的 rename/move/remove/rename-move/失败场景测试全绿。
-- [ ] `init-simple-memorix` 旧目录、active README entry、registry entry 和本机安装均消失。
+- [ ] `use-memorix` 旧目录、active README entry、registry entry 和本机安装均消失。
 - [ ] `use-memorix` registry entry 指向 common-tools，skill-router 能按 exact commit 加载 SKILL 与 references。
 
 ### 21.4 发布与切换
@@ -923,7 +923,7 @@ type SkillTransition =
 - [ ] JSON、Markdown、Prettier、`git diff --check`、相关 Vitest 和 PowerShell/Bash characterization 全绿。
 - [ ] 真实 Claude Code、Cursor、Codex 插件 smoke 记录齐全（全 PASS，或缺口为环境性且用户明确接受为已知风险）；
       静态 JSON 与 `skills add` 不得替代插件 smoke，也不得把缺口写成 PASS。
-- [ ] 本机插件 smoke 后，再通过官方 `skills remove` 清理旧的独立 `init-simple-memorix` 安装；`use-memorix` 由 common-tools 插件提供且保持可见。
+- [ ] 本机插件 smoke 后，再通过官方 `skills remove` 清理旧的独立 `use-memorix` 安装；`use-memorix` 由 common-tools 插件提供且保持可见。
 - [ ] 提交前记录 `PRE_CUTOVER_SHA`，提交/push 后记录序列 tip 的 `CUTOVER_SHA`；2/3 号包不得使用分支名或混淆两个 SHA。
 
 ## 22. 回滚策略
@@ -940,7 +940,7 @@ type SkillTransition =
 1. 使用区间回滚撤销整个 cutover 序列：`git revert --no-commit <PRE_CUTOVER_SHA>..<CUTOVER_SHA>` 后单笔提交；
    不得只 revert 序列 tip，也不手工挑文件。
 2. 正常 push revert commit；除用户明确授权的历史重写外，不改写历史。
-3. 从已记录的 `PRE_CUTOVER_SHA` 恢复/安装 `init-simple-memorix`。
+3. 从已记录的 `PRE_CUTOVER_SHA` 恢复/安装 `use-memorix`。
 4. 验证旧技能和三平台插件回到 pre-cutover 状态后，再通过官方 remove 清理 `use-memorix` 的独立残留（若存在）。
 5. 恢复后的 registry、manifest、README 和三个插件版本必须来自同一 revert 状态。
 
@@ -957,7 +957,7 @@ type SkillTransition =
 必须同时提供：
 
 - 已 push 的 1 号包 cutover exact commit SHA；
-- registry 中仅有 `use-memorix`、无 `init-simple-memorix` 的证据；
+- registry 中仅有 `use-memorix`、无 `use-memorix` 的证据；
 - 本机新技能安装成功、旧技能官方卸载成功的证据；
 - active surface 已切换到新名的文件清单。
 

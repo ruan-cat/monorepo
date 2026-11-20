@@ -9,7 +9,7 @@
 #### 场景：迁移仓库内既有技能
 
 - **当** 执行技能迁移时，
-- **则** `init-playwright`、`clone-ruancat-repo`、`get-git-branch`、`init-claude-code-statusline`、`init-simple-memorix` 五个技能目录整体（含 references/、templates/、scripts/、src/、fallback/、templates-global/ 等附属目录）从原插件剪切到 `ai-plugins/low-frequency-skill/skills/` 下，且原位置不再保留任何文件，
+- **则** `init-playwright`、`clone-ruancat-repo`、`get-git-branch`、`init-claude-code-statusline`、`use-memorix` 五个技能目录整体（含 references/、templates/、scripts/、src/、fallback/、templates-global/ 等附属目录）从原插件剪切到 `ai-plugins/low-frequency-skill/skills/` 下，且原位置不再保留任何文件，
 - **并且** 5 个技能的 `metadata.version` 保持原值不变（1.1.0、0.2.1、0.1.0、0.15.0、2.4.0）。
 
 #### 场景：剪切外部项目技能入库

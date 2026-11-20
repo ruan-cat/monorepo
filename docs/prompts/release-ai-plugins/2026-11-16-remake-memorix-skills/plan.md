@@ -17,7 +17,7 @@
 > `superpowers:executing-plans` 逐任务实施。失败定位使用 `superpowers:systematic-debugging`；完成前使用
 > `superpowers:verification-before-completion`。只有用户明确授权，才允许 Apply、插件安装/卸载、提交与 push。
 
-**Goal：** 将 `init-simple-memorix` 原子硬切为 common-tools 中的 `use-memorix` 3.0.0，保全旧能力，补齐记忆治理、黄金集与检索捕获，并以三个插件 14.0.0 和真实 Claude/Cursor/Codex 插件 smoke 完成发布闭环。
+**Goal：** 将 `use-memorix` 原子硬切为 common-tools 中的 `use-memorix` 3.0.0，保全旧能力，补齐记忆治理、黄金集与检索捕获，并以三个插件 14.0.0 和真实 Claude/Cursor/Codex 插件 smoke 完成发布闭环。
 
 **Architecture：** `use-memorix/SKILL.md` 只做七域路由。项目黄金集是产品项目 canonical；自动/交互入口只写 ignored
 candidate，accept 前必须 one-shot CLI 复跑。skill tree、versions、docs、manifest、CHANGELOG 与 registry 通过
@@ -29,7 +29,7 @@ candidate，accept 前必须 one-shot CLI 复跑。skill tree、versions、docs�
 
 ## Global Constraints
 
-- 硬切 `init-simple-memorix` → `use-memorix`，不保留兼容 skill、stub、导航壳或双 registry id。
+- 硬切 `use-memorix` → `use-memorix`，不保留兼容 skill、stub、导航壳或双 registry id。
 - `use-memorix` 固定 `3.0.0`；三个插件固定 `14.0.0`。
 - 三套 install-mcp 入口原样迁移，characterization 先行，不统一历史差异。
 - 读自动、写确认；setup、probe、archive、cleanup、VACUUM、配置/索引修复、dashboard 启动、embedding 修复都确认。
@@ -134,30 +134,30 @@ tests/release-ai-plugins/skill-transitions.test.ts
 ### Delete
 
 ```text
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/SKILL.md
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/fallback/install-mcp.ps1
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/fallback/install-mcp.sh
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/references/hooks-reference.md
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/references/memorix-setup-notes.md
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/references/workbuddy-mcp-notes.md
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/scripts/install-mcp.ts
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/src/install-mcp.ts
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/src/platforms.ts
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates-global/antigravity.hooks.json
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates-global/claude.hooks.json
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates-global/codex.hooks.json
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates-global/cursor.hooks.json
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates/antigravity.hooks.json
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates/claude-code.settings.local.json
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates/cursor.hooks.json
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates/gemini-cli.settings.json
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates/kiro.memorix-file-save.kiro.hook
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates/windsurf.hooks.json
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates/workbuddy.hooks.json
-ai-plugins/low-frequency-skill/skills/init-simple-memorix/templates/zcode.config.json
+ai-plugins/common-tools/skills/use-memorix/SKILL.md
+ai-plugins/common-tools/skills/use-memorix/fallback/install-mcp.ps1
+ai-plugins/common-tools/skills/use-memorix/fallback/install-mcp.sh
+ai-plugins/common-tools/skills/use-memorix/references/hooks-reference.md
+ai-plugins/common-tools/skills/use-memorix/references/memorix-setup-notes.md
+ai-plugins/common-tools/skills/use-memorix/references/workbuddy-mcp-notes.md
+ai-plugins/common-tools/skills/use-memorix/scripts/install-mcp.ts
+ai-plugins/common-tools/skills/use-memorix/src/install-mcp.ts
+ai-plugins/common-tools/skills/use-memorix/src/platforms.ts
+ai-plugins/common-tools/skills/use-memorix/templates-global/antigravity.hooks.json
+ai-plugins/common-tools/skills/use-memorix/templates-global/claude.hooks.json
+ai-plugins/common-tools/skills/use-memorix/templates-global/codex.hooks.json
+ai-plugins/common-tools/skills/use-memorix/templates-global/cursor.hooks.json
+ai-plugins/common-tools/skills/use-memorix/templates/antigravity.hooks.json
+ai-plugins/common-tools/skills/use-memorix/templates/claude-code.settings.local.json
+ai-plugins/common-tools/skills/use-memorix/templates/cursor.hooks.json
+ai-plugins/common-tools/skills/use-memorix/templates/gemini-cli.settings.json
+ai-plugins/common-tools/skills/use-memorix/templates/kiro.memorix-file-save.kiro.hook
+ai-plugins/common-tools/skills/use-memorix/templates/windsurf.hooks.json
+ai-plugins/common-tools/skills/use-memorix/templates/workbuddy.hooks.json
+ai-plugins/common-tools/skills/use-memorix/templates/zcode.config.json
 ai-plugins/common-tools/skills/sync-local-global-agents-skills/scripts/fetch-memorix-skills.ts
 ai-plugins/common-tools/skills/sync-local-global-agents-skills/src/memorix.ts
-tests/init-simple-memorix/install-mcp.test.ts
+tests/use-memorix/install-mcp.test.ts
 ```
 
 ### Modify（现有文件与真实行范围）
@@ -445,7 +445,7 @@ export const CUTOVER_PATHS = [
 	RUNTIME_PATH,
 ];
 
-const oldRoot = "ai-plugins/low-frequency-skill/skills/init-simple-memorix/";
+const oldRoot = "ai-plugins/common-tools/skills/use-memorix/";
 export const DELETE_PATHS = [
 	...[
 		"SKILL.md",
@@ -472,7 +472,7 @@ export const DELETE_PATHS = [
 	].map((file) => oldRoot + file),
 	"ai-plugins/common-tools/skills/sync-local-global-agents-skills/scripts/fetch-memorix-skills.ts",
 	"ai-plugins/common-tools/skills/sync-local-global-agents-skills/src/memorix.ts",
-	"tests/init-simple-memorix/install-mcp.test.ts",
+	"tests/use-memorix/install-mcp.test.ts",
 ];
 
 function runGit(repoRoot, args) {
@@ -600,7 +600,7 @@ describe("use-memorix cutover scope", () => {
 			"sync-local-global-agents-skills/**/*.test.ts",
 		])
 			expect(source).toContain(pattern);
-		expect(source).not.toContain("init-simple-memorix/**/*.test.ts");
+		expect(source).not.toContain("use-memorix/**/*.test.ts");
 	});
 
 	test("SCOPE-03 keeps executable shell lines within the Windows command limit", () => {
@@ -741,7 +741,7 @@ Expected：PASS。`node tests/use-memorix/cutover-scope.mjs verify` 输出 `scop
 
 - [ ] **Step 1：保留旧 19 测试并追加 characterization**
 
-完整复制旧 `tests/init-simple-memorix/install-mcp.test.ts` 的 19 个测试到新路径，只改两个 import；不得用下面四例替换旧 19 例。下面代码作为独立 describe 追加，重名 imports 合并。原文件优先由 `git show PRE_CUTOVER_SHA:path` 取得；未注入 env 时依次回退到 HEAD 与「删除提交的父提交」，删除旧目录后仍可复验。
+完整复制旧 `tests/use-memorix/install-mcp.test.ts` 的 19 个测试到新路径，只改两个 import；不得用下面四例替换旧 19 例。下面代码作为独立 describe 追加，重名 imports 合并。原文件优先由 `git show PRE_CUTOVER_SHA:path` 取得；未注入 env 时依次回退到 HEAD 与「删除提交的父提交」，删除旧目录后仍可复验。
 
 ```ts
 import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync, readdirSync } from "node:fs";
@@ -767,7 +767,7 @@ function platform(path: string, format: "json" | "toml", serverPath?: string[]):
 }
 afterEach(() => roots.splice(0).forEach((dir) => rmSync(dir, { recursive: true, force: true })));
 
-const legacyRelative = "ai-plugins/low-frequency-skill/skills/init-simple-memorix/";
+const legacyRelative = "ai-plugins/common-tools/skills/use-memorix/";
 
 /**
  * 解析旧技能字节基线。
@@ -794,7 +794,7 @@ function resolveBaselineSha(): string {
 }
 const baselineSha = resolveBaselineSha();
 function oldBytes(relative: string): Buffer {
-	const path = `ai-plugins/low-frequency-skill/skills/init-simple-memorix/${relative}`;
+	const path = `ai-plugins/common-tools/skills/use-memorix/${relative}`;
 	const result = spawnSync("git", ["show", `${baselineSha}:${path}`], { cwd: repoRoot });
 	if (result.status !== 0) throw new Error(result.stderr.toString());
 	return result.stdout;
@@ -1863,7 +1863,7 @@ function fixture() {
 	run("git", ["config", "user.name", "Fixture"], root);
 	text(join(root, "pnpm-workspace.yaml"), "packages: []\n");
 	for (const plugin of ["common-tools", "dev-skills", "low-frequency-skill"]) {
-		const old = plugin === "low-frequency-skill" ? "init-simple-memorix" : `fixture-${plugin}`;
+		const old = plugin === "low-frequency-skill" ? "use-memorix" : `fixture-${plugin}`;
 		text(
 			join(root, `ai-plugins/${plugin}/skills/${old}/SKILL.md`),
 			`---\nname: ${old}\ndescription: fixture\nmetadata:\n  version: "1.0.0"\n---\n`,
@@ -1934,7 +1934,7 @@ function fixture() {
 	cpSync(resolve(script, "../skill-transitions.ps1"), resolve(generator, "../skill-transitions.ps1"));
 	run("git", ["add", "."], root);
 	run("git", ["commit", "-m", "fixture"], root);
-	rmSync(join(root, "ai-plugins/low-frequency-skill/skills/init-simple-memorix"), { recursive: true });
+	rmSync(join(root, "ai-plugins/common-tools/skills/use-memorix"), { recursive: true });
 	text(
 		join(root, "ai-plugins/common-tools/skills/use-memorix/SKILL.md"),
 		'---\nname: use-memorix\ndescription: fixture\nmetadata:\n  version: "3.0.0"\n---\n',
@@ -1960,7 +1960,7 @@ describe("release skill transitions", () => {
 				"-Version",
 				"14.0.0",
 				"-RenameSkill",
-				"init-simple-memorix=use-memorix",
+				"use-memorix=use-memorix",
 				"-SkillVersion",
 				"use-memorix=3.0.0",
 				"-DryRun",
@@ -1976,7 +1976,7 @@ describe("release skill transitions", () => {
 		const root = fixture();
 		for (const args of [
 			["-RenameSkill", "missing=use-memorix"],
-			["-RenameSkill", "init-simple-memorix=use-memorix", "-MoveSkill", "use-memorix=dev-skills"],
+			["-RenameSkill", "use-memorix=use-memorix", "-MoveSkill", "use-memorix=dev-skills"],
 		]) {
 			const result = run(
 				psExe,
@@ -1985,10 +1985,10 @@ describe("release skill transitions", () => {
 			);
 			expect(result.status).not.toBe(0);
 		}
-		const residueArgs = ["-RenameSkill", "init-simple-memorix=use-memorix"];
+		const residueArgs = ["-RenameSkill", "use-memorix=use-memorix"];
 		text(
-			join(root, "ai-plugins/low-frequency-skill/skills/init-simple-memorix/SKILL.md"),
-			'---\nname: init-simple-memorix\ndescription: fixture\nmetadata:\n  version: "1.0.0"\n---\n',
+			join(root, "ai-plugins/common-tools/skills/use-memorix/SKILL.md"),
+			'---\nname: use-memorix\ndescription: fixture\nmetadata:\n  version: "1.0.0"\n---\n',
 		);
 		const residueResult = run(
 			psExe,
@@ -2013,7 +2013,7 @@ describe("release skill transitions", () => {
 				"-Version",
 				"14.0.0",
 				"-RenameSkill",
-				"init-simple-memorix=use-memorix",
+				"use-memorix=use-memorix",
 				"-SkillVersion",
 				"use-memorix=3.0.0",
 				"-Apply",
@@ -2220,9 +2220,9 @@ const manifests = [
 
 describe("use-memorix release surface", () => {
 	test("RELEASE-01 hard-cuts the old tree and registry id", () => {
-		expect(existsSync(resolve(root, "ai-plugins/low-frequency-skill/skills/init-simple-memorix"))).toBe(false);
+		expect(existsSync(resolve(root, "ai-plugins/common-tools/skills/use-memorix"))).toBe(false);
 		const registry = json("ai-plugins/skill-registry.json");
-		expect(registry.skills.find((item: any) => item.id === "init-simple-memorix")).toBeUndefined();
+		expect(registry.skills.find((item: any) => item.id === "use-memorix")).toBeUndefined();
 		expect(registry.skills.find((item: any) => item.id === "use-memorix")).toMatchObject({
 			plugin: "common-tools",
 			version: "3.0.0",
@@ -2251,7 +2251,7 @@ describe("use-memorix release surface", () => {
 			"ai-plugins/common-tools/skills/install-mcp/SKILL.md",
 			"AGENTS.md",
 		])
-			expect(read(file), file).not.toContain("init-simple-memorix");
+			expect(read(file), file).not.toContain("use-memorix");
 	});
 });
 ```
@@ -2279,7 +2279,7 @@ $versions = "use-memorix=3.0.0,init-ai-md=25.0.0,release-ai-plugins=2.2.0"
 $more = "sync-local-global-agents-skills=1.0.0,install-mcp=1.4.2"
 powershell -NoProfile -ExecutionPolicy Bypass -File $release `
   -Version 14.0.0 `
-  -RenameSkill init-simple-memorix=use-memorix `
+  -RenameSkill use-memorix=use-memorix `
   -SkillVersion "$versions,$more" `
   -Summary "硬切 use-memorix 3.0 并收口 Memorix 治理" `
   -Date 2026-11-19 `
@@ -2461,7 +2461,7 @@ Task 12 在 cutover push 后等待该 SHA 的 Windows CI 两格，通过后才�
 8  ♻️ refactor(sync): 官方 Memorix skills 只读审计
 9  ✨ feat(release-ai-plugins): transition + File.Replace 原子写
 10 🔨 build(ci): PS 5.1/7 双 job
-11 🔥 chore(ai-plugins)!: 删除旧 init-simple-memorix（BREAKING CHANGE 在此笔）
+11 🔥 chore(ai-plugins)!: 删除旧 use-memorix（BREAKING CHANGE 在此笔）
 12 🔧 config(ai-plugins): 14.0.0 manifests/marketplace/CHANGELOG/registry + router test
 13 📃 docs(ai-plugins): 活跃 README/AGENTS/install-mcp 路由
 14 📃 docs(use-memorix): handoff 证据
@@ -2553,7 +2553,7 @@ skills list -g --json
 上述 smoke 与正式安装全部通过，或剩余缺口为环境/客户端能力且用户明确接受为已知风险后，才执行：
 
 ```bash
-skills remove init-simple-memorix -g -y
+skills remove use-memorix -g -y
 skills list -g --json
 ```
 

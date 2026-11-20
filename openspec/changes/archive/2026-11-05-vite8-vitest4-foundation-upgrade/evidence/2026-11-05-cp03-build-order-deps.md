@@ -47,7 +47,7 @@ Test Files  2 passed (2)      Tests  6 passed (6)
 
 ## 5. 新发现的既有基线问题（移交 CP-04）
 
-**tests/ 根配置环境错配**：`tests/vitest.config.ts`（node，include `**/*.test.ts`）从 tests/ 目录跑时产生 **77 个失败**，模式为 `ReferenceError: window is not defined`——需要 jsdom/window 的测试（init-simple-memorix、sync-local-global-agents-skills、useIconEffect 等）被 node 环境误捕。各子配置单独跑全绿（useIconEffect jsdom 59 ✅、cleanup 20 ✅），证明失败来自根配置 include 过宽而非测试本身。CP-04 迁移时必须收窄 `tests/vitest.config.ts` 的 include 范围（排除 jsdom 需求子目录），并以逐 project 运行验证。
+**tests/ 根配置环境错配**：`tests/vitest.config.ts`（node，include `**/*.test.ts`）从 tests/ 目录跑时产生 **77 个失败**，模式为 `ReferenceError: window is not defined`——需要 jsdom/window 的测试（use-memorix、sync-local-global-agents-skills、useIconEffect 等）被 node 环境误捕。各子配置单独跑全绿（useIconEffect jsdom 59 ✅、cleanup 20 ✅），证明失败来自根配置 include 过宽而非测试本身。CP-04 迁移时必须收窄 `tests/vitest.config.ts` 的 include 范围（排除 jsdom 需求子目录），并以逐 project 运行验证。
 
 **vitest 3 workspace 目录 glob 怪癖**：从包目录跑 vitest 时向上命中根 `vitest.workspace.ts`，其 `packages/*` 目录条目探测语义直接报错（`references a non-existing file`）。CP-04 迁移为显式文件引用后，该怪癖自然消除。
 

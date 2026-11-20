@@ -8,7 +8,7 @@
 - [x] [移动] `ai-plugins/common-tools/skills/clone-ruancat-repo` → `ai-plugins/low-frequency-skill/skills/clone-ruancat-repo`（git mv，SKILL.md + references/clone-commands.md）
 - [x] [移动] `ai-plugins/common-tools/skills/get-git-branch` → `ai-plugins/low-frequency-skill/skills/get-git-branch`（git mv，SKILL.md）
 - [x] [移动] `ai-plugins/common-tools/skills/init-claude-code-statusline` → `ai-plugins/low-frequency-skill/skills/init-claude-code-statusline`（git mv，SKILL.md + templates/ 两个模板）
-- [x] [移动] `ai-plugins/common-tools/skills/init-simple-memorix` → `ai-plugins/low-frequency-skill/skills/init-simple-memorix`（git mv 整目录，21 个文件 7 个子目录）
+- [x] [移动] `ai-plugins/common-tools/skills/use-memorix` → `ai-plugins/common-tools/skills/use-memorix`（git mv 整目录，21 个文件 7 个子目录）
 - [x] [新增] `ai-plugins/low-frequency-skill/skills/init-tsconfig/`（从 `D:\store\WorkBuddy\2026-6-30-common\docs\plan\2026-8-27-try-vscode\init-tsconfig` 剪切：SKILL.md + references/strategy-matrix.md；补 YAML frontmatter `name`/`description`/`user-invocable: true`/`metadata.version: "1.0.0"`；strategy-matrix.md 内 `D:\code\ruan-cat` 本机路径脱敏为通用表述）
 - [x] [新增] `ai-plugins/low-frequency-skill/skills/factory-reset-vscode-fork-ide/`（从同项目 `clean-skills\factory-reset-vscode-fork-ide` 剪切：SKILL.md + references/cleanup-audit-log.md；仅补 `metadata.version: "1.0.0"`，既有 name/description 不动）
 - [x] [新增] `ai-plugins/low-frequency-skill/.claude-plugin/plugin.json`、`.cursor-plugin/plugin.json`、`.codex-plugin/plugin.json`（字段结构对照 `ai-plugins/dev-skills/` 同名清单，版本 10.15.1）
@@ -47,7 +47,7 @@
 
 ## 终审修复（复核子代理发现的回归）
 
-- [x] [修改] `tests/init-simple-memorix/install-mcp.test.ts` 第 6-7 行 — 两行 import 指向旧路径 `ai-plugins/common-tools/skills/init-simple-memorix/src/`（迁移引入的真实回归，根级 `pnpm test` 收集即失败），改为 `ai-plugins/low-frequency-skill/skills/init-simple-memorix/src/`；验证：`pnpm exec vitest run tests/init-simple-memorix/install-mcp.test.ts` 19/19 通过（exit 0）
+- [x] [修改] `tests/use-memorix/install-mcp.test.ts` 第 6-7 行 — 两行 import 指向旧路径 `ai-plugins/common-tools/skills/use-memorix/src/`（迁移引入的真实回归，根级 `pnpm test` 收集即失败），改为 `ai-plugins/common-tools/skills/use-memorix/src/`；验证：`pnpm exec vitest run tests/use-memorix/install-mcp.test.ts` 19/19 通过（exit 0）
 
 ## 发版闭环补遗（用户指出遗漏后的同类排查）
 

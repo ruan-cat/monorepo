@@ -16,7 +16,7 @@
 - SKILL.md frontmatter：`name: clean-vercel-deployment-storage`、`user-invocable: true`、`metadata.version: "1.0.0"`；`description` 以「使用时机」开头，不复述流程。
 - 测试文件放 `tests/clean-vercel-deployment-storage/`，继承根 `tests/vitest.config.ts`（`**/*.test.ts`、node 环境），import 源码用相对路径 `../../ai-plugins/low-frequency-skill/skills/clean-vercel-deployment-storage/src/...`。
 - 正文与 references 禁止出现内部绝对路径（`C:\Users`、`D:\code`）与 SmallAliceWeb 项目特例。
-- 测试用例使用 `describe`/`test` + 中文场景命名，风格对齐 `tests/init-simple-memorix/install-mcp.test.ts`。
+- 测试用例使用 `describe`/`test` + 中文场景命名，风格对齐 `tests/use-memorix/install-mcp.test.ts`。
 - 本轮不跑 release 脚本、不改 `skill-registry.json`、不 bump 插件主版本。
 
 ---

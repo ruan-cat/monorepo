@@ -5,7 +5,7 @@
 **已实施并切换（含两项已知风险）。**
 
 1 号包的技能重构、测试、发布、14 笔细粒度 cutover、CI 双 PS 与 `use-memorix` 正式安装均已完成；
-`init-simple-memorix` 已通过 `skills remove init-simple-memorix -g -y` 删除，CLI 注册表与 8 个目标目录双重验收均为 0。
+`use-memorix` 已通过 `skills remove use-memorix -g -y` 删除，CLI 注册表与 8 个目标目录双重验收均为 0。
 2/3 号包门已开启；Cursor 插件 UI smoke 与 Codex 新会话验证未执行，作为**已知风险**随门传递，未伪造成三平台 PASS。
 
 ## 当前 Git 基线
@@ -63,8 +63,8 @@ FEDERATION_BUNDLE_SCHEMA_VERSION=memorix-golden-set-bundle/v1
 ## 冻结 allowlist 合同
 
 - 逐文件 allowlist 权威：未来实现的 `tests/use-memorix/cutover-scope.mjs` 中 `CUTOVER_PATHS`。
-- 受控删除是精确 24 项清单（`DELETE_PATHS`），不是前缀放行：旧 `init-simple-memorix/` 的 21 个 tracked 文件、
-  旧 sync refresh 两个文件（`fetch-memorix-skills.ts`、`src/memorix.ts`）、旧 `tests/init-simple-memorix/install-mcp.test.ts`；
+- 受控删除是精确 24 项清单（`DELETE_PATHS`），不是前缀放行：旧 `use-memorix/` 的 21 个 tracked 文件、
+  旧 sync refresh 两个文件（`fetch-memorix-skills.ts`、`src/memorix.ts`）、旧 `tests/use-memorix/install-mcp.test.ts`；
   porcelain 状态只接受 `D`/`D`，任何删除项缺失、改名或出现其他删除都阻塞。
 - `writePathspec` 把全部预期变更（含 24 项删除）冻结进 `.git/use-memorix-cutover.pathspec`；暂存后必须断言
   「实际 staged 集合 == pathspec 冻结集合」的精确相等（非超集检查），并拒绝任何残留未暂存改动。
@@ -137,7 +137,7 @@ FEDERATION_BUNDLE_SCHEMA_VERSION=memorix-golden-set-bundle/v1
 - [ ] Cursor 真实 Marketplace/UI install/reload/new-chat/uninstall 清理 PASS。
 - [ ] Codex 真实 marketplace/add/new-task/remove 清理 PASS。
 - [ ] 隔离 smoke 清理后，经用户授权从 exact `CUTOVER_SHA` 正式安装 `use-memorix`，并验证 `~/.agents/skills/use-memorix/` 实际入口（逐字节比对 SKILL.md、七 references、薄启动器加载真实全局 runtime）PASS。
-- [ ] 三平台 smoke 记录齐全（全 PASS，或缺口属于环境/客户端能力且经用户明确接受为已知风险）且正式安装验证通过后，才执行官方 `skills remove init-simple-memorix -g -y`；未隔离验证前不得声称全局旧名不可见。
+- [ ] 三平台 smoke 记录齐全（全 PASS，或缺口属于环境/客户端能力且经用户明确接受为已知风险）且正式安装验证通过后，才执行官方 `skills remove use-memorix -g -y`；未隔离验证前不得声称全局旧名不可见。
 - [ ] 任一平台不可执行就标 BLOCKED；静态 JSON、registry、Skill Router、`skills add` 均不能替代。
 
 ### 2/3 号包门
@@ -275,7 +275,7 @@ git push
 ## 当前结论
 
 - 12 个 Task 的实现与本地/CI 证据齐全；14 笔 cutover 序列已 push，`CUTOVER_SHA = CI_GREEN_SHA = 5a60652b`。
-- 旧 `init-simple-memorix` 已删除：CLI `MATCH_COUNT=0`，`.agents/skills` 与 7 个 `DEFAULT_PLATFORMS` 目标均为
+- 旧 `use-memorix` 已删除：CLI `MATCH_COUNT=0`，`.agents/skills` 与 7 个 `DEFAULT_PLATFORMS` 目标均为
   `old=0/new=1`，源目录无坏链，官方七个 `memorix-*` 保持不变。
 - `use-memorix` 就绪：与 dev tip 逐字节一致、7 references、5 scripts、`version 3.0.0`；WorkBuddy/Qoder 目录级软链自动可见。
 - Claude Code PASS；Cursor 与 Codex 的插件 UI / 新会话验证未执行，作为**已知风险**接受（用户 2026-11-19 决策）。
@@ -283,27 +283,27 @@ git push
 
 ## 卸载记录（2026-11-19）
 
-契约：卸载 `init-simple-memorix`；验收 pattern `^init-simple-memorix$`；必须从 CLI 注册表、`~/.agents/skills`
+契约：卸载 `use-memorix`；验收 pattern `^use-memorix$`；必须从 CLI 注册表、`~/.agents/skills`
 与全部已验证同步目标消失；保留官方七个 `memorix-*` 技能；物理删除只作残留兜底，本次未使用。
 
 ```bash
-skills remove init-simple-memorix -g -y
+skills remove use-memorix -g -y
 # Successfully removed 1 skill(s)
 ```
 
-| 验收项                                 | 结果                     |
-| :------------------------------------- | :----------------------- |
-| CLI 注册表 `MATCH_COUNT`               | 0（技能总数 82 → 81）    |
-| `~/.agents/skills/init-simple-memorix` | 不存在                   |
-| 8 个目录（源 + 7 平台目标）            | `old=0 / new=1` 全部一致 |
-| 官方 `memorix-*`                       | 7 个保持不变             |
-| 源目录坏链                             | 0                        |
+| 验收项                         | 结果                     |
+| :----------------------------- | :----------------------- |
+| CLI 注册表 `MATCH_COUNT`       | 0（技能总数 82 → 81）    |
+| `~/.agents/skills/use-memorix` | 不存在                   |
+| 8 个目录（源 + 7 平台目标）    | `old=0 / new=1` 全部一致 |
+| 官方 `memorix-*`               | 7 个保持不变             |
+| 源目录坏链                     | 0                        |
 
 恢复命令（旧技能随 `PRE_CUTOVER_SHA` 永久可达）：
 
 ```bash
 skills add https://github.com/ruan-cat/monorepo/tree/f0da7be2/ai-plugins/low-frequency-skill/skills \
-  --skill init-simple-memorix -g -y -a claude-code -a codex
+  --skill use-memorix -g -y -a claude-code -a codex
 ```
 
 ## 实施偏差与补充（均为证据驱动的必要调整）

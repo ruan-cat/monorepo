@@ -38,7 +38,7 @@ ai-plugins/low-frequency-skill/
     ├── clone-ruancat-repo/         # 自 common-tools 剪切（SKILL.md + references/）
     ├── get-git-branch/             # 自 common-tools 剪切（SKILL.md）
     ├── init-claude-code-statusline/ # 自 common-tools 剪切（SKILL.md + templates/）
-    ├── init-simple-memorix/        # 自 common-tools 剪切（21 文件 7 子目录，整体随迁）
+    ├── use-memorix/        # 自 common-tools 剪切（21 文件 7 子目录，整体随迁）
     ├── init-tsconfig/              # 自 WorkBuddy 剪切（SKILL.md + references/，补 frontmatter）
     └── factory-reset-vscode-fork-ide/ # 自 WorkBuddy 剪切（SKILL.md + references/，补 metadata.version）
 ```
@@ -73,5 +73,5 @@ ai-plugins/low-frequency-skill/
 
 - **未验证**：三平台真实客户端（Claude Code / Cursor / Codex CLI）的安装 smoke test 无法在本地取得证据，按 release 技能契约明确记录为「未验证」，不由静态 JSON 校验替代。
 - **噪音风险**：release 脚本 Apply 会重排 JSON（历史经验），本次只 DryRun 不 Apply，版本同步留给后续发布。
-- **`init-simple-memorix` 体积大**：21 个文件 7 个子目录，`git mv` 整目录迁移，迁移后用文件计数验证完整性。
+- **`use-memorix` 体积大**：21 个文件 7 个子目录，`git mv` 整目录迁移，迁移后用文件计数验证完整性。
 - **跨插件 id 冲突**：7 个技能名均为新增 root 独有，无跨插件重复。

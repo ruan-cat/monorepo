@@ -65,7 +65,7 @@ vitest@4.1.0  ← skill-router-mcp 精确声明（cloudflare pool 独立轨道�
 
 - 版本与配置入口 ✅、核心构建 ✅、文档构建 ✅、测试 projects ✅、CI 等价命令 ✅、业务导出（utils entrypoints + exports 断链修复）✅。
 - **判定：本 change 的工具链升级部分达成全链路完成**。遗留归属（均为既有基线/设计内状态，非升级回归）：
-  1. tests-node 内 17 个 skill 行为测试失败（init-simple-memorix 14 / init-prettier-git-hooks 2 / init-shadcn-docs-nuxt 1）——skill 测试套件自身问题，另行处理。
+  1. tests-node 内 17 个 skill 行为测试失败（use-memorix 14 / init-prettier-git-hooks 2 / init-shadcn-docs-nuxt 1）——skill 测试套件自身问题，另行处理。
   2. useAxiosWrapper 外部接口失效——已 skip，待接口恢复或补 mock。
   3. 文档轨双版本（vite 5.4.21/6.1.6）——设计内双轨，收敛条件见 design.md。
   4. skill-router-mcp 独立轨道（vitest 4.1.0 + cloudflare pool）——包内自治 CI。
