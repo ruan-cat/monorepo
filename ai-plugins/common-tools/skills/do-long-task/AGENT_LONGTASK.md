@@ -2,7 +2,17 @@
 
 这是 `do-long-task` skill 的详细入口文件。它只承载总纲、路由和不可丢失的核心纪律；长篇细则按场景拆到 `references/`，需要时再读取，避免每次把全部规范塞进上下文。
 
+## 工件族
+
+先判定，再读后面的 OpenSpec 纪律：
+
+- 同级 `spec.md` + `plan.md` + `handoff.md`，且该目录不是 OpenSpec change：简易任务包。只读 `references/simple-task-package.md`。任务源是 `plan.md`，状态只写 `handoff.md`。不要创建 `agent-progress.md` 或 `agent-findings.md`。
+- `openspec/changes/<change>/tasks.md` 或 archive 中的具体 change：OpenSpec。使用下面的核心纪律。
+- 用户点名哪个目录，就用哪个工件族。无法唯一确定时先问，不要猜。
+
 ## 核心纪律
+
+以下纪律只适用于 OpenSpec。简易任务包不使用本节的文件名。
 
 - 长任务靠文件恢复，不靠聊天记忆。
 - OpenSpec 场景只以 `openspec/changes/<change-name>/tasks.md` 为唯一任务源。
@@ -27,7 +37,8 @@
 
 | 场景                                                               | 读取文件                                 |
 | ------------------------------------------------------------------ | ---------------------------------------- |
-| 启动、恢复或推进长任务                                             | `references/execution-discipline.md`     |
+| 简易任务包：同级 `spec.md`、`plan.md`、`handoff.md`                | `references/simple-task-package.md`      |
+| 启动、恢复或推进 OpenSpec 长任务                                   | `references/execution-discipline.md`     |
 | OpenSpec `tasks.md` 缺漏、动态补任务、设计/规格同步                | `references/openspec-task-source.md`     |
 | 子代理参与探索、编辑、复核或提出补全候选                           | `references/subagent-collaboration.md`   |
 | 验证失败、连续失败、完成勾选、BLOCKED 判断                         | `references/verification-and-failure.md` |
@@ -40,15 +51,18 @@
 1. 当前 skill 的 `SKILL.md`。
 2. 本文件 `AGENT_LONGTASK.md`。
 3. 按场景选中的 `references/*.md`。
-4. 业务项目内 `.claude/skills`、`.codex/skills`、`.agents/skills`、`.agent/skills` 中与 OpenSpec 相关的项目级 skill。
-5. 当前 OpenSpec change 的 `proposal.md`、`design.md`、`specs/`、`tasks.md`。
-6. 扫描工作区中的 `agent-progress.md` 和 `agent-findings.md`，先处理错位文件，再读取或创建 change 根目录内的固定产物。
+4. 简易任务包只读该目录的 `handoff.md`、`spec.md`、`plan.md`。
+5. OpenSpec 再读业务项目内 `.claude/skills`、`.codex/skills`、`.agents/skills`、`.agent/skills` 中与 OpenSpec 相关的项目级 skill。
+6. OpenSpec 再读当前 change 的 `proposal.md`、`design.md`、`specs/`、`tasks.md`。
+7. 仅 OpenSpec 扫描工作区中的 `agent-progress.md` 和 `agent-findings.md`，先处理错位文件，再读取或创建 change 根目录内的固定产物。
 
-恢复中断或上下文压缩后的任务时，先读 `agent-progress.md` 最近 checkpoint，再读 `tasks.md` 当前状态，不凭聊天记忆继续。
+恢复中断或上下文压缩后，简易包先读 `handoff.md` 的状态和下一条命令，再读 `plan.md` 当前 Task。OpenSpec 先读 `agent-progress.md` 最近 checkpoint，再读 `tasks.md`。都不凭聊天记忆继续。
 
 ## 执行模式
 
-执行模式用于真正推进长任务。
+简易任务包按 `references/simple-task-package.md` 执行，不要进入下面的 OpenSpec 步骤。
+
+OpenSpec 执行模式用于真正推进 OpenSpec 长任务。
 
 1. 选定 `tasks.md` 中一个未完成 task。
 2. 确定唯一 change 根目录，并扫描、警告、迁移错位的 `agent-progress.md` / `agent-findings.md`。
@@ -66,17 +80,20 @@
 提示词生成模式用于帮用户生成 Claude Code `/goal` 或 Codex `/goal` prompt，不执行任务。
 
 - 只输出可复制的 `/goal` 提示词。
-- 不修改 OpenSpec 工件。
+- 不修改 OpenSpec 工件，也不修改简易包的 `spec.md`、`plan.md`、`handoff.md`。
 - 不创建或更新 `agent-progress.md` / `agent-findings.md`。
 - 不运行测试、lint、typecheck 或 validate。
 - 默认控制在 1500 字以内；用户指定更短或更长时，以用户要求为准。
-- 缺少 change 路径时，使用 `<change-name>`、`<验证命令>` 等占位符，不臆造路径。
+- 缺少路径时使用占位符，不臆造路径。OpenSpec 用 `<change-name>`；简易包用 `<task-package>`。
 
 详细模板和裁剪规则见 `references/codex-goal-prompt.md`。
 
 ## 文件职责
 
-- 唯一主任务源：`openspec/changes/<change-name>/tasks.md`
+- 简易包唯一主任务源：同级 `plan.md`
+- 简易包合同：同级 `spec.md`
+- 简易包唯一状态文件：同级 `handoff.md`
+- OpenSpec 唯一主任务源：`openspec/changes/<change-name>/tasks.md`
 - 固定核心工件：`proposal.md`、`design.md`、`tasks.md`、`specs/*/spec.md`
 - 目标和验收来源：`proposal.md`、`design.md`、`specs/`
 - 执行状态摘要：change 根目录 `agent-progress.md`
@@ -88,6 +105,8 @@
 ## 不要做
 
 - 不要同时维护 `task_plan.md`、`.agent/tasks.json`、Ralph task list、Superpowers implementation plan 或聊天 checklist 作为第二任务源。
+- 不要给简易任务包创建 `agent-progress.md`、`agent-findings.md` 或 OpenSpec change。
+- 不要把 `handoff.md` 当成第二份任务清单。
 - 不要因为代码写完就勾选 task。
 - 不要伪造验证通过。
 - 不要无记录地重复同一失败路径。

@@ -33,6 +33,10 @@
 - 验证方式：命令、HTTP、browser、DB 或人工复核
 ```
 
+## 简易任务包
+
+当前工件族是简易任务包时，把上文的 `tasks.md` 换成 `plan.md`，把进度和失败记录换成 `handoff.md`，把 design/specs 同步换成先改 `spec.md` 再改 `plan.md`。子代理仍不得自建任务源，也不得新建 `agent-progress.md`。
+
 ## 主代理职责
 
 主代理负责：
@@ -69,4 +73,4 @@ Superpowers 不负责决定做哪个大任务，只负责指导每个小阶段�
 - `requesting-code-review`：完成重要阶段后做复核。
 - `verification-before-completion`：完成声明前运行并读取验证结果。
 
-不要让 Superpowers 的 implementation plan 成为第二主任务源；OpenSpec `tasks.md` 仍是唯一主任务源。
+不要让 Superpowers 的 implementation plan 成为第二主任务源。OpenSpec 仍以 `tasks.md` 为唯一主任务源；简易任务包仍以 `plan.md` 为唯一主任务源。

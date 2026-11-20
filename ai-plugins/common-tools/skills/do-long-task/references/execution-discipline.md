@@ -1,6 +1,8 @@
 # 长任务执行纪律
 
-本文件用于启动、恢复和持续推进长任务。
+本文件只用于 OpenSpec 长任务。同级 `spec.md`、`plan.md`、`handoff.md` 且不是 OpenSpec change 时，停止使用本文件，改读 `references/simple-task-package.md`。不要把本文件的 `tasks.md`、`proposal.md`、`agent-progress.md` 要求套到简易包上。
+
+本文件用于启动、恢复和持续推进 OpenSpec 长任务。
 
 ## 适用场景
 

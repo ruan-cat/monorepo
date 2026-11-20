@@ -6,9 +6,11 @@
 
 当用户要求生成长任务执行提示词时，只生成可复制的 `/goal` 提示词，不执行任务。
 
+生成提示词前先判定工件族。同级 `spec.md`、`plan.md`、`handoff.md` 用文末的简易包模板。OpenSpec change 用下面的 OpenSpec 模板。无法确定时不要把其中一种模板套到另一种路径上；输出对应占位符。
+
 生成提示词时：
 
-- 不修改 OpenSpec 工件。
+- 不修改 OpenSpec 工件，也不修改简易包三文件。
 - 不创建或更新 `agent-progress.md` / `agent-findings.md`。
 - 不运行测试、lint、typecheck 或 validate。
 - 不开始处理 task。
@@ -16,9 +18,14 @@
 
 ## 输入来源优先级
 
-1. 用户明确给出的 `openspec/changes/<change-name>` 或 `tasks.md` 路径。
-2. 当前打开文件、项目上下文或用户描述中能确定的 change 名称。
-3. 无法确定时，使用 `<change-name>`、`<验证命令>` 等占位符，不要臆造路径。
+1. 用户明确给出的简易任务包目录，或同级 `spec.md`、`plan.md`、`handoff.md`。
+2. 用户明确给出的 `openspec/changes/<change-name>` 或 `tasks.md` 路径。
+3. 当前打开文件、项目上下文或用户描述中能唯一确定的工件族和路径。
+4. 无法确定时使用占位符，不要臆造路径。OpenSpec 用 `<change-name>`；简易包用 `<task-package>`。
+
+## OpenSpec 占位与必留要素
+
+下面到简易包模板之前，只适用于 OpenSpec。用户要的是简易包时，跳过本节。
 
 缺少 OpenSpec 路径时，输出占位模板并列出待补齐项：
 
@@ -107,3 +114,47 @@
 6. 每完成一个阶段，就更新规范 change 根目录的 `agent-progress.md`；失败、风险和不可重复路径写入同目录 `agent-findings.md`。
 7. 只有实现完成、验收满足、验证通过或替代验证已记录，且没有 CRITICAL 残留时，才能把 checkbox 改为 `[x]`。
 8. 直到所有任务完成、验证通过，或遇到真正阻塞才停止。
+
+## 简易任务包模板
+
+缺少任务包路径时，使用 `<task-package>`，并列出待补齐项：任务包目录、`plan.md`、`handoff.md`、`<验证命令>`。不要改写成 OpenSpec 占位模板。
+
+简易包提示词必须保留：
+
+- 以 `/goal` 开头。
+- 先读 `handoff.md`、`spec.md`、`plan.md` 和 `references/simple-task-package.md`。
+- `plan.md` 是唯一任务源，`handoff.md` 是唯一状态和证据文件。
+- 不创建 `agent-progress.md`、`agent-findings.md`、`tasks.md` 或 OpenSpec change。
+- 一次只做一个 Task；遗漏任务先补进 `plan.md`；验收或冻结合同变化先改 `spec.md`。
+- handoff 里的门未满足就停止。
+- 接手先重跑 handoff 写明的预检。易腐栏与仓库不一致时先原位改正，再做 Task。
+- 验证证据写入 handoff 后再标记 Task 完成。
+- 停止条件与 OpenSpec 相同：全部完成、验证阻塞、连续 3 次同类失败、权限、破坏性风险或需求冲突。
+
+```markdown
+/goal 执行简易任务包：`<task-package>`。
+
+目标：
+按 `plan.md` 做完未完成 Task。`spec.md` 是合同，`handoff.md` 记录状态、门禁和证据。
+
+开始前先读取：
+
+1. `references/simple-task-package.md`
+2. `<task-package>/handoff.md`
+3. `<task-package>/spec.md`
+4. `<task-package>/plan.md`
+
+执行规则：
+
+- 只以 `plan.md` 为任务源。不创建第二份清单，不把 handoff 或聊天 checklist 当任务源。
+- 先看 handoff 的状态、门禁和下一条命令，并重跑它写明的预检。HEAD、dirty、SHA 或哈希对不上时，先原位改正易腐栏，再做 Task。门未满足就停止。
+- 一次只做 handoff 指向的一个 Task；没有指向时做第一个未完成 Task。
+- 遗漏工作先补进 `plan.md`。验收或冻结合同变了，先改 `spec.md` 再改 `plan.md`。
+- 不创建 `agent-progress.md`、`agent-findings.md` 或 OpenSpec change。三份文件不改名、不日期化。
+- 验证命令是 `<验证命令>`。证据写入 handoff 已有栏位后，才能把该 Task 标成完成。
+- 暂停前更新 handoff 的当前 Task、证据、阻塞和下一条命令。
+- 连续 3 次同类失败、权限问题、破坏性风险或需求冲突时停止，并在 handoff 写明原因。
+
+停止条件：
+计划中的 Task 都已完成且 handoff 有证据；或无法继续且 handoff 已写明阻塞和下一条命令。
+```

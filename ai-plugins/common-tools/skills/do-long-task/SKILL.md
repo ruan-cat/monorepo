@@ -1,23 +1,35 @@
 ---
 name: do-long-task
 description: >-
-  当复杂开发、修复、重构、迁移、验证或 OpenSpec change 需要跨 checkpoint 持续推进、上下文恢复，
-  或需要把进度与失败记录严格存放在具体 OpenSpec change 或 archive 目录内时使用；当用户要求生成
-  Claude Code `/goal`、Codex `/goal` 或 do-long-task 长任务提示词时也使用。不要用于一次性短改、
-  问答、简单格式化、changeset、发版日志或纯计划讨论。 Use when a complex development, fix, refactor,
-  migration, verification, or OpenSpec change must be advanced across resumable checkpoints, recovered after
-  context loss, or executed with durable progress and failure notes that stay inside the concrete OpenSpec change
-  or archive directory. Also use when the user asks to generate a Claude Code `/goal`, Codex `/goal`, or
-  do-long-task prompt. Do not use for short one-off edits, Q&A, simple formatting, changesets, release notes, or
-  pure planning.
+  当用户要执行、续跑、交接或验收同目录含 spec.md、plan.md、handoff.md 的任务包时使用，包括任务包、交接文档、
+  docs/plan、docs/prompts、docs/one-use、简易长任务，以及大约 30 分钟到 1.5 小时、通常一次上下文就能做完的实施计划。
+  当复杂开发、修复、重构、迁移、验证或 OpenSpec change 需要跨 checkpoint 持续推进、上下文恢复，或需要把进度与失败记录
+  存放在具体 OpenSpec change 或 archive 目录内时也使用。当用户要求生成 Claude Code `/goal`、Codex `/goal` 或
+  do-long-task 长任务提示词时也使用。不要用于一次性短改、问答、简单格式化、changeset、发版日志，或尚未开始执行的纯计划讨论。
+  Use when executing, resuming, handing off, or accepting a task package that contains sibling spec.md, plan.md,
+  and handoff.md, including docs/plan, docs/prompts, docs/one-use, and 30-minute to 1.5-hour implementation packages.
+  Also use when an OpenSpec change must advance across checkpoints or keep progress inside a concrete change or
+  archive directory. Also use when asked to generate a Claude Code `/goal`, Codex `/goal`, or do-long-task prompt.
+  Do not use for one-off edits, Q&A, formatting, changesets, release notes, or pure planning that has not started execution.
 user-invocable: true
 metadata:
-  version: "1.4.0"
+  version: "1.5.1"
 ---
 
 # do-long-task
 
 这是一个面向长任务执行的入口 skill。它不负责替你决定“大任务做什么”，而是负责把已经确定的长任务稳定推进到底。
+
+## 先判定工件族
+
+动手或生成提示词之前，先判定只有一个工件族：
+
+1. 用户点名的目录，或当前目录，有同级 `spec.md`、`plan.md`、`handoff.md`，且不是 OpenSpec change：简易任务包。读取 `references/simple-task-package.md`。任务源只使用 `plan.md`，状态只写入 `handoff.md`。接手时先复核 handoff 的易腐栏，过期则原位改正后再实现。
+2. 用户点名 `openspec/changes/<change>` 或其 `tasks.md`，或当前目录就是该 change：OpenSpec。继续使用下面的 OpenSpec 纪律。
+3. 两边都像：以用户点名的那个目录为准。
+4. 两边都不能唯一确定：先问路径。不要猜，也不要把简易包改写成 OpenSpec。
+
+候选目录已经有这三份文件中的一部分、但不是 OpenSpec change 时，指出缺件并停止。不要补造 OpenSpec 文件。OpenSpec change 不要求这三份文件。
 
 ## 提示词生成模式
 
@@ -27,14 +39,14 @@ metadata:
 
 生成提示词时：
 
-- 不修改 OpenSpec 工件。
+- 不修改当前工件族的任务文件。OpenSpec 不改 change 工件；简易包不改 `spec.md`、`plan.md`、`handoff.md`。
 - 不创建或更新 `agent-progress.md` / `agent-findings.md`。
 - 不运行测试、lint、typecheck 或 validate 命令。
 - 不把聊天 checklist 当任务源。
 - 默认把最终提示词控制在 1500 字以内；如果用户指定更短或更长的字数限制，以用户指定为准。
-- 如果用户没有提供 `openspec/changes/<change-name>` 或 `tasks.md` 路径，不要臆造路径；输出带 `<change-name>` 的占位模板，并列出需要用户补齐的占位符。
+- 工件族或路径不能确定时，不要臆造路径。OpenSpec 用 `<change-name>` 占位；简易包用 `<task-package>` 占位，并列出需要补齐的项。
 
-提示词必须保留 do-long-task 的核心纪律：读取 OpenSpec 工件、只使用 `tasks.md` 作为唯一任务源、小步推进、动态补全遗漏任务、严格定位 `agent-progress.md` / `agent-findings.md`、维护进度与失败记录、验证后再勾选完成、遇到真正阻塞才暂停。
+OpenSpec 提示词保留：读取 OpenSpec 工件、只使用 `tasks.md`、小步推进、动态补全、进度和失败只进该 change 的 `agent-progress.md` / `agent-findings.md`、验证后再完成、真正阻塞才暂停。简易包提示词保留：三文件职责、只使用 `plan.md`、状态只进 `handoff.md`、不创建 OpenSpec 进度文件、验证后再完成、真正阻塞才暂停。
 
 详细模板、占位符策略和裁剪规则见 `references/codex-goal-prompt.md`。按 `AGENT_LONGTASK.md` 的读取路由只加载相关 reference，不要无脑读取全部长文。
 
@@ -48,7 +60,9 @@ metadata:
 
 ## 固定产物位置门禁
 
-执行模式下，必须先确定唯一的 OpenSpec change 根目录，再创建或更新 `agent-progress.md` / `agent-findings.md`。
+本门禁只约束 OpenSpec。简易任务包禁止创建 `agent-progress.md` 和 `agent-findings.md`，状态只写该包的 `handoff.md`。
+
+OpenSpec 执行模式下，必须先确定唯一的 OpenSpec change 根目录，再创建或更新 `agent-progress.md` / `agent-findings.md`。
 
 规范位置只有两类：
 
@@ -80,25 +94,31 @@ metadata:
 
 ## 什么时候用
 
+- 用户要执行、续跑、交接或验收同目录的 `spec.md`、`plan.md`、`handoff.md`。
+- 大约 30 分钟到 1.5 小时、通常不必压缩上下文，但仍然需要任务源、门禁和证据交接的实施计划。
 - 需要跨多个步骤持续推进的开发、修复、重构、迁移或验收任务。
-- 任务会经历上下文压缩、会话中断、测试失败、恢复续跑。
+- OpenSpec change 会经历上下文压缩、会话中断、测试失败、恢复续跑。
 - 任务必须把计划、进度、发现、失败和验证写入文件，而不能依赖聊天记忆。
-- 任务已经有明确的唯一主任务源，通常是 OpenSpec 的 `tasks.md`。
 
 ## 什么时候不要用
 
 - 单文件小改动或一次性格式化。
 - 只是在回答问题、解释方案，或者还在做需求探索。
 - 写 `changeset`、提交信息、更新日志这类短任务。
-- 不需要 checkpoint、恢复续跑、失败记录的简单操作。
+- 不需要任务包、checkpoint、恢复续跑或失败记录的简单操作。
 
 ## 先读什么
 
 开始前先读这些文件，再动手：
 
 1. `AGENT_LONGTASK.md`（如果存在）
-2. 按 `AGENT_LONGTASK.md` 读取路由选中的 `references/*.md`
+2. 按工件族和 `AGENT_LONGTASK.md` 读取路由选中的 `references/*.md`
 3. 当前 skill 的 `SKILL.md`
+
+简易任务包接着只读该目录的 `handoff.md`、`spec.md`、`plan.md`。不要因为缺 OpenSpec 文件就去补 `proposal.md` 或 `tasks.md`。
+
+OpenSpec change 再读：
+
 4. 业务项目内 `.claude/skills`、`.codex/skills`、`.agents/skills`、`.agent/skills` 中与 OpenSpec 相关的项目级技能
 5. 当前 OpenSpec change 的 `proposal.md`
 6. 当前 OpenSpec change 的 `design.md`
@@ -108,10 +128,11 @@ metadata:
 10. change 根目录的 `agent-progress.md`
 11. change 根目录的 `agent-findings.md`
 
-如果这些文件里有缺失，就先补齐，再继续。
+OpenSpec 工件缺失时先补齐，再继续。简易包缺三文件之一时停止，不补齐。
 
 ## 核心纪律
 
+- 先判定工件族。简易包的任务源是 `plan.md`，状态文件是 `handoff.md`；OpenSpec 的任务源是 `tasks.md`，状态文件是该 change 根目录的 `agent-progress.md` 与 `agent-findings.md`。不要混用。
 - 任务源只用一份。若项目使用 OpenSpec，就以 `openspec/changes/<change-name>/tasks.md` 为唯一任务清单。
 - 不要再创建第二套任务系统，也不要把聊天里的临时 checklist 当主任务源。
 - 每次只处理一个明确的 task 或一个明确 checkpoint。
@@ -129,6 +150,8 @@ metadata:
 - 只有遇到权限问题、破坏性风险、需求冲突、产品决策问题，或连续 3 次同类失败时，才暂停并请求用户介入。
 
 ## 状态文件 harness 控制
+
+本节只约束 OpenSpec 的 `agent-progress.md` 与 `agent-findings.md`。简易任务包不创建这两个文件；`handoff.md` 的写法见 `references/simple-task-package.md`。
 
 `agent-progress.md` 与 `agent-findings.md` 是交接状态文件，不是事件日志、聊天转储或原始输出仓库。违反以下写入契约会制造上下文噪音：
 
@@ -159,6 +182,8 @@ metadata:
 
 ## 标准推进方式
 
+简易任务包按 `references/simple-task-package.md` 推进。下面的步骤只适用于 OpenSpec。
+
 1. 开始前刷新文件状态。
 2. 确定唯一 change 根目录，并扫描、警告、迁移错位的 `agent-progress.md` / `agent-findings.md`。
 3. 选定一个 task。
@@ -173,6 +198,8 @@ metadata:
 12. 再进入下一个 task 前，重新读取文件状态。
 
 ## 完成前检查
+
+简易任务包改用 `references/simple-task-package.md` 的完成前清单。下面只适用于 OpenSpec。
 
 在标记完成前，确认下面几项都成立：
 

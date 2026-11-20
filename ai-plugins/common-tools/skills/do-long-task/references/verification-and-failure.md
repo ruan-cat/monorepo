@@ -1,6 +1,8 @@
 # 验证、失败与完成标记
 
-本文件用于验证纪律、失败记录、连续失败阻塞和完成勾选。
+本文件只用于 OpenSpec。简易任务包的验证、失败和完成标记写在 `handoff.md`，规则见 `references/simple-task-package.md`。不要为简易包创建或更新 `agent-progress.md` / `agent-findings.md`。
+
+本文件用于 OpenSpec 的验证纪律、失败记录、连续失败阻塞和完成勾选。
 
 ## 验证纪律
 
