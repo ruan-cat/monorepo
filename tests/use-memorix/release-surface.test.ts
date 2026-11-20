@@ -24,17 +24,17 @@ describe("use-memorix release surface", () => {
 		expect(registry.skills.find((item: any) => item.id === "init-simple-memorix")).toBeUndefined();
 		expect(registry.skills.find((item: any) => item.id === "use-memorix")).toMatchObject({
 			plugin: "common-tools",
-			version: "3.0.0",
+			version: "3.0.1",
 			entry: "ai-plugins/common-tools/skills/use-memorix/SKILL.md",
 		});
 	});
 
 	test("RELEASE-02 synchronizes plugin versions and Codex schema", () => {
-		for (const file of manifests) expect(json(file).version, file).toBe("14.0.0");
+		for (const file of manifests) expect(json(file).version, file).toBe("14.0.1");
 		for (const file of [".claude-plugin/marketplace.json", ".cursor-plugin/marketplace.json"]) {
 			const value = json(file);
-			expect(value.metadata.version).toBe("14.0.0");
-			expect(value.plugins.every((item: any) => item.version === "14.0.0")).toBe(true);
+			expect(value.metadata.version).toBe("14.0.1");
+			expect(value.plugins.every((item: any) => item.version === "14.0.1")).toBe(true);
 		}
 		expect(json(".agents/plugins/marketplace.json")).not.toHaveProperty("version");
 	});

@@ -105,7 +105,7 @@ describe("real Skill resource contracts", () => {
 		const instance = await registry();
 		const skill = instance.get("use-memorix");
 		expect(skill.plugin).toBe("common-tools");
-		expect(skill.version).toBe("3.0.0");
+		expect(skill.version).toBe("3.0.1");
 		await assertReference(skill, "references/retrieval-and-golden-set.md");
 		expect(() => instance.get("init-simple-memorix")).toThrow("The requested Skill was not found.");
 	});
