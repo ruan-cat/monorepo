@@ -168,7 +168,7 @@ Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现�
 
 - **git-commit**: 创建高质量 Git 提交，支持 Conventional Commits 规范、Emoji、破坏性变更格式、暂存区优先与多提交拆分；只追加 `Assisted-by`，不再生成或审核 `Co-authored-by`
 - **add-favicon**: 为文档站或 monorepo 批量站点补全本地 `favicon.svg`，优先参考 Iconify/Lucide 风格，保持透明背景、简洁线性和显式 `head` 配置
-- **do-long-task**: 面向 OpenSpec 长任务、上下文恢复和测试失败重试的可恢复执行纪律，要求动态补全 `tasks.md`、以 OpenSpec 工件链协作推进，并持续维护 `agent-progress.md` / `agent-findings.md`；也支持生成 1500 字以内的 Claude Code `/goal` 与 Codex `/goal` 长任务执行提示词
+- **do-long-task**: 面向两类长任务。OpenSpec change 仍以 `tasks.md` 为任务源，并维护该 change 的 `agent-progress.md` / `agent-findings.md`。同目录 `spec.md`、`plan.md`、`handoff.md` 的简易任务包以 `plan.md` 为任务源、以 `handoff.md` 为状态文件，不另建 OpenSpec 进度文件。也支持为这两类工件生成 1500 字以内的 Claude Code `/goal` 与 Codex `/goal` 提示词
 - **init-ai-md**: 以 `AGENTS.md` 为唯一事实来源初始化、迁移和增量更新 AI 记忆文件，并将 `CLAUDE.md` / `GEMINI.md` 固定为重定向文件
 - **init-linux-cloud-agent-env**: 初始化云 linux 环境的 AI agent 基础设施：安装 Anthropic Python MCP cli、按模板安装并验证 github/skill-router-mcp/vercel/Neon 四款 MCP、安装 gh cli 与 vercel cli，并提供基于 github pr 的云任务执行规范
 - **init-prettier-git-hooks**: 初始化基于 lint-staged + simple-git-hooks + prettier 的 Git 提交前代码格式化流程
