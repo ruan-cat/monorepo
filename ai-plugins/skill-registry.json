@@ -42,8 +42,8 @@
       "id": "do-long-task",
       "plugin": "common-tools",
       "name": "do-long-task",
-      "description": "当复杂开发、修复、重构、迁移、验证或 OpenSpec change 需要跨 checkpoint 持续推进、上下文恢复， 或需要把进度与失败记录严格存放在具体 OpenSpec change 或 archive 目录内时使用；当用户要求生成 Claude Code `/goal`、Codex `/goal` 或 do-long-task 长任务提示词时也使用。不要用于一次性短改、 问答、简单格式化、changeset、发版日志或纯计划讨论。 Use when a complex development, fix, refactor, migration, verification, or OpenSpec change must be advanced across resumable checkpoints, recovered after context loss, or executed with durable progress and failure notes that stay inside the concrete OpenSpec change or archive directory. Also use when the user asks to generate a Claude Code `/goal`, Codex `/goal`, or do-long-task prompt. Do not use for short one-off edits, Q&A, simple formatting, changesets, release notes, or pure planning.",
-      "version": "1.4.0",
+      "description": "当用户要执行、续跑、交接或验收同目录含 spec.md、plan.md、handoff.md 的任务包时使用，包括任务包、交接文档、 docs/plan、docs/prompts、docs/one-use、简易长任务，以及大约 30 分钟到 1.5 小时、通常一次上下文就能做完的实施计划。 当复杂开发、修复、重构、迁移、验证或 OpenSpec change 需要跨 checkpoint 持续推进、上下文恢复，或需要把进度与失败记录 存放在具体 OpenSpec change 或 archive 目录内时也使用。当用户要求生成 Claude Code `/goal`、Codex `/goal` 或 do-long-task 长任务提示词时也使用。不要用于一次性短改、问答、简单格式化、changeset、发版日志，或尚未开始执行的纯计划讨论。 Use when executing, resuming, handing off, or accepting a task package that contains sibling spec.md, plan.md, and handoff.md, including docs/plan, docs/prompts, docs/one-use, and 30-minute to 1.5-hour implementation packages. Also use when an OpenSpec change must advance across checkpoints or keep progress inside a concrete change or archive directory. Also use when asked to generate a Claude Code `/goal`, Codex `/goal`, or do-long-task prompt. Do not use for one-off edits, Q&A, formatting, changesets, release notes, or pure planning that has not started execution.",
+      "version": "1.5.1",
       "entry": "ai-plugins/common-tools/skills/do-long-task/SKILL.md"
     },
     {

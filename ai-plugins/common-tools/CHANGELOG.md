@@ -16,6 +16,14 @@
 - **init-ai-md 22.0.0（破坏性变更）**：改为只维护根目录 `AGENTS.md`；`CLAUDE.md` 与 `GEMINI.md` 清空为 `@AGENTS.md` 重定向。
 - 删除已废弃的「获取技术栈对应的上下文」模板和章节处理；旧版 `record-bug-fix-memory` 自动迁移到 `.agents/skills`，缺失时无条件安装。
 
+## [14.1.0] - 2026-11-20
+
+### Changed
+
+- **do-long-task**：`metadata.version` `1.4.0` -> `1.5.1`。
+- 新增同目录 spec.md、plan.md、handoff.md 简易任务包，以 plan.md 为任务源、handoff.md 为状态文件，并同步 goal 提示词与校验。
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `14.1.0`。
+
 ## [14.0.1] - 2026-11-20
 
 ### Changed
