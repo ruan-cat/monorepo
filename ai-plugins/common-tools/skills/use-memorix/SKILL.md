@@ -6,7 +6,7 @@ description: >-
   排查 CodeGraph / dashboard / embedding、初始化项目黄金集、审核或捕获检索候选、精简 Memorix hooks，
   以及排障 MCP 工具缺失、mode 选择、Node ABI、shim 劫持、WorkBuddy 启动链。
 metadata:
-  version: "3.0.0"
+  version: "3.0.1"
 ---
 
 # use-memorix
@@ -51,6 +51,8 @@ metadata:
 | 已安装薄启动器升级                                 | 无条件自动升级       | 仅限带 canonical marker 的启动器 |
 
 写操作前必须能回答三件事：写哪个库/哪个文件、写什么内容摘要、如何回滚或验证。答不出就不要写。
+
+平台事实：MCP 工具链要等 `memorix_session_start` 成功并绑定项目后才暴露。`memorix session context` 是只读，可在启动前用来判断本项目是否已有活动会话。已有则复用，不重复启动。没有才确认后启动。只有这一步失败，才走 CLI 兜底。
 
 ## 七域渐进路由
 
