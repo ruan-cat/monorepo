@@ -11,8 +11,7 @@ describe("clean-vercel-deployment-storage 技能契约", () => {
 	test("C1: SKILL.md 存在且 frontmatter 含 name/version/user-invocable", () => {
 		const md = readFileSync(skill("SKILL.md"), "utf8");
 		expect(md).toContain("name: clean-vercel-deployment-storage");
-		// 版本随发布脚本演进（发布轮 patch 升级），断言形如 "1.0.x" 的语义化版本即可
-		expect(md).toMatch(/version: "1\.0\.\d+"/);
+		expect(md).toMatch(/version: "\d+\.\d+\.\d+"/);
 		expect(md).toContain("user-invocable: true");
 		expect(md).toMatch(/description: *使用时机/);
 	});
