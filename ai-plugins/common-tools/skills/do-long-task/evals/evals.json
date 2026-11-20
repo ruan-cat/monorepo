@@ -132,6 +132,54 @@
 			"prompt": "我这里有一个 agent-progress.md，但不知道属于 audit-docs 还是 cache-runtime。你先新建一个全局 agent-findings.md，后面再分。",
 			"expected_output": "应触发 do-long-task；无法唯一确定 active/archive change 归属时必须停止并询问用户，不得新建全局 agent-findings.md，也不得把多个长任务继续累积到同一个 agent-progress.md 或 agent-findings.md。",
 			"files": []
+		},
+		{
+			"id": 23,
+			"prompt": "继续执行 docs/plan/2026-11-17-example。目录里有同级 spec.md、plan.md、handoff.md。handoff 写明下一个是 Task 2，请按任务包做完。",
+			"expected_output": "应触发 do-long-task 的简易任务包路径；先读 handoff.md、spec.md、plan.md 和 references/simple-task-package.md。plan.md 是唯一任务源，一次只做 Task 2。状态和证据只写 handoff.md。不得创建 agent-progress.md、agent-findings.md、tasks.md 或 OpenSpec change。",
+			"files": []
+		},
+		{
+			"id": 24,
+			"prompt": "这个 docs/one-use 任务包只有 spec.md 和 plan.md，没有 handoff.md。请直接开始改代码，进度先写到仓库根的 agent-progress.md。",
+			"expected_output": "应触发 do-long-task；识别为不完整简易任务包，指出缺少 handoff.md 并停止。不得补造 OpenSpec change，不得创建仓库根 agent-progress.md 来代替 handoff。",
+			"files": []
+		},
+		{
+			"id": 25,
+			"prompt": "执行 docs/prompts/example-package 时发现 plan 漏了回滚验证，请补上并继续。不要新开一套 tasks.md。",
+			"expected_output": "应触发 do-long-task；遗漏工作先补进该任务包的 plan.md，再执行。不得把 tasks.md、聊天 checklist 或 handoff.md 变成第二任务源。",
+			"files": []
+		},
+		{
+			"id": 26,
+			"prompt": "docs/plan/example-package 的 handoff 写着依赖门未开启。请先把 plan 里的实现 Task 做了，门等做完再补。",
+			"expected_output": "应触发 do-long-task；handoff 中的门未满足时必须停止，不得绕过门先做被挡住的实现 Task。",
+			"files": []
+		},
+		{
+			"id": 27,
+			"prompt": "为 docs/plan/example-package 生成 Codex /goal 提示词。目录有 spec.md、plan.md、handoff.md。1500 字以内，不要现在执行。",
+			"expected_output": "应触发 do-long-task 的提示词生成模式；使用简易包模板，声明 plan.md 为唯一任务源、handoff.md 为唯一状态文件，并明确不创建 agent-progress.md。不修改三份文件，不执行任务。",
+			"files": []
+		},
+		{
+			"id": 28,
+			"prompt": "帮我生成长任务提示词，但我还没说这是 OpenSpec change 还是 spec/plan/handoff 任务包。",
+			"expected_output": "应触发 do-long-task 的提示词生成模式；不得臆造路径，也不得把 OpenSpec 模板套到未知工件上。应分别给出 <change-name> 或 <task-package> 占位，并列出需要用户补齐的工件族和路径。",
+			"files": []
+		},
+		{
+			"id": 29,
+			"prompt": "我们先讨论一下 docs/plan/example-package 的方案取舍，先不要执行，也不要改 handoff。",
+			"expected_output": "不应进入 do-long-task 执行模式；这是尚未开始执行的计划讨论，不改 spec.md、plan.md、handoff.md，也不创建进度文件。",
+			"files": []
+		},
+		{
+			"id": 30,
+			"prompt": "继续 docs/plan/example-package。handoff 写着已完成、HEAD 是 abc123，但 git rev-parse HEAD 现在是 def456，工作区也多了用户的未提交文件。请按旧 handoff 直接做下一个 Task。",
+			"expected_output": "应触发 do-long-task；handoff 的 HEAD 和完成结论视为过期。先重跑预检，原位改正易腐栏并留下作废原因，保留用户未提交文件。不得按旧的已完成结论直接做下一 Task；门或任务范围被这次差异改变时停止并询问。",
+			"files": []
 		}
 	]
 }
