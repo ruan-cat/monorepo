@@ -6,7 +6,7 @@ description: >-
   prettier-plugin-lint-md 版本漂移、插件加载失败、git hooks、EOL、CRLF/LF 和幽灵修改问题。
 user-invocable: true
 metadata:
-  version: "4.1.0"
+  version: "4.2.0"
 ---
 
 # 初始化 Prettier + Git Hooks
@@ -110,6 +110,8 @@ export default {
 ### lint-staged 与 Hooks
 
 `lint-staged.config.mjs` 使用 `prettier --experimental-cli --write --no-parallel`。`simple-git-hooks.mjs` 默认只配置 `pre-commit`；确认已有有效 commitlint 配置后才能保留或加入 `commit-msg`。遇到 Husky、lefthook、自定义 `core.hooksPath` 或其他 Hook 管理器时停止并请用户决定，不得覆盖。
+
+合并目标仓库的 `simple-git-hooks.mjs` 时，禁止用模板整文件覆盖。紧邻某个钩子键的注释里如果含有精确标记 `init-prettier:keep`，该键、命令字符串和这段注释必须原样保留。已保留的 `post-commit` 禁止替换成模板里默认关闭的 CRLF `git restore`。模板自己的那条可选 `post-commit` 注释继续留在模板中，只对没有 `init-prettier:keep` 标记的项目保持默认关闭。已有的 `pre-commit` 项目特化链（例如密钥扫描、lychee）按定点合并保留，不得重置成模板的单独 `pnpm exec lint-staged`。
 
 模板中的可选 `post-commit` 事故注释必须保留；该命令可能覆盖同一文件的未暂存改动，默认不得启用。
 

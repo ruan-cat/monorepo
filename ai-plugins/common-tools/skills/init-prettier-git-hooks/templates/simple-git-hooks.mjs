@@ -2,6 +2,8 @@
  * @filename: simple-git-hooks.mjs
  * @description 配置 simple-git-hooks 的 git 钩子。
  *
+ * 合并进目标仓库时禁止整文件覆盖；紧邻钩子键的注释若含精确标记 init-prettier:keep，该键、命令字符串和这段注释必须原样保留，不得把已保留的 post-commit 换成本模板默认关闭的 CRLF git restore，也不得把已有 pre-commit 特化链重置成单独的 lint-staged。
+ *
  * 每次修改该文件后，需要在用户明确授权后执行一次 `pnpm exec simple-git-hooks` 命令，
  * 否则这些钩子不会生效。
  */
