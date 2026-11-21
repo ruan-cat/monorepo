@@ -4,7 +4,7 @@ description: >-
   Use when 用户需要安装、卸载、盘点、规划或分发 AI agent skills，确认全局 skills 来源、目录级链接目标、项目级候选目录或特殊安装策略，或排查清除 Kimi Desktop（Daimon）等第三方供应器对全局技能目录的污染时。
 user-invocable: true
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # install-skills
@@ -157,6 +157,29 @@ Claude Code、Codex、Cursor、Antigravity 等通常通过全局 skills 目录�
 | `.agent/skills`  | 先确认所属 agent 的目录语义，避免误接管混合目录。 |
 
 项目级同步不得默认批量软链接。必须按单个项目、单个 agent 确认授权、目录职责和覆盖范围后再处理。
+
+## TRAE CN 双形态与工作区信任
+
+TRAE CN 是两条产品线，排障前必须先确认当前形态，禁止把一个形态的结论平移到另一个：
+
+| 形态     | 定位          | 文档站               | 项目技能与信任入口差异                                                                                                                                              |
+| :------- | :------------ | :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| TRAE IDE | 编辑器形态    | `docs.trae.cn/ide/`  | 有「设置 → 技能与命令 → 导入设置 → 启用 .agents 技能目录」开关（默认关）与全部信任管理 UI（打开项目信任弹窗、受限模式横幅 → 管理 → 工作区信任页签、「信任父级」）。 |
+| TraeWork | 任务/桌面形态 | `docs.trae.cn/work_` | 无任何信任配置入口；`.agents/skills` 扫描为实测生效（2026-11-21），官方 work_skills 文档未承诺，TRAE 升级后行为可能变化。                                           |
+
+工作区信任是项目级资源的总闸：untrusted 工作区的会话中，项目规则、技能、命令、hooks 全部不可用。信任按目录路径登记在两形态共享的内核（`~/.trae-cn` 用户配置 + `~/AppData/Roaming/Trae CN` 应用数据），在 IDE 用「信任父级」信任常用仓库父目录（如 `D:\code`）一次，TraeWork 打开同目录直接继承，无需也无法单独配置。
+
+项目级技能不加载时的排障顺序：
+
+1. 工作区信任状态（第一检查项，两形态共用）。
+2. `.agents` 技能目录开关（仅 IDE 形态存在）。
+3. 技能目录本身；官方项目技能目录 `.trae/skills/` 两形态一致，与 `.agents/skills` 重名时优先前者。
+
+易误判点：
+
+- TRAE 在信任/开关后直接扫描 `.agents/skills` 目录本身，不依赖 skills CLI 注册表；`skills list` 项目级显示 `Agents: Codex` 与 TRAE 是否加载无关，无需重装技能。
+- 全局技能正常不代表项目级链路正常：`~/.trae-cn/skills` 是指向 `~/.agents/skills` 的目录级链接，全局技能一直可加载，会掩盖项目级断裂。
+- 不要向 settings.json 抄 VSCode 原生键 `security.workspace.trust.enabled: false`；TRAE 信任是自研体系，官方文档未提此键。
 
 ## 目录级链接策略
 
