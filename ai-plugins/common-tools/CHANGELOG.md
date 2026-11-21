@@ -16,6 +16,14 @@
 - **init-ai-md 22.0.0（破坏性变更）**：改为只维护根目录 `AGENTS.md`；`CLAUDE.md` 与 `GEMINI.md` 清空为 `@AGENTS.md` 重定向。
 - 删除已废弃的「获取技术栈对应的上下文」模板和章节处理；旧版 `record-bug-fix-memory` 自动迁移到 `.agents/skills`，缺失时无条件安装。
 
+## [14.3.0] - 2026-11-21
+
+### Changed
+
+- **init-prettier-git-hooks**：`metadata.version` `4.1.0` -> `4.2.0`。
+- 合并 simple-git-hooks 时保留带 init-prettier:keep 的钩子，禁止整文件覆盖，并禁止替换已保留的 post-commit
+- 根级 Claude / Cursor marketplace 与 `common-tools` / `dev-skills` / `low-frequency-skill` 的九份三平台 `plugin.json` 版本统一提升至 `14.3.0`。
+
 ## [14.2.0] - 2026-11-21
 
 ### Changed
