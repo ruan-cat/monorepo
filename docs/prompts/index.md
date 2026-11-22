@@ -255,12 +255,34 @@ CI 的 vitest 用 html reporter，失败摘要不进 Actions 日志，排障只�
 2. 我们本仓库的 github action 经常出现错误，你用 gh cli 查看一下，是不是经常出现 vitest 用 html reporter 导致的错误呢？
 3. 帮我检查清楚是什么情况，并且给我一个解决上述问题的方案。
 
-## 016 <!-- TODO: --> 降低 monorepo 项目的 main 分支合并的敏感度和部署成本
+## 016 <!-- TODO: 预期等我充钱了以后，再继续完成这个任务； --> 重构 vercel 部署，迁移到 cloudflare worker 部署
+
+/pua /grill-me /openspec /do-long-task
 
 我们项目提供 skills，但是在 skills.sh 站点内，我们技能之所以都是过时的，就是因为我们项目没有及时的选择 rebase2main。
 但是我们不及时完成 main 分支的更新同步，是有理由的，因为要照顾 vercel 部署的成本。
 时代变了，我们的项目 git commit 提交就是猛烈凶猛的，我们不能被 vercel 额度所限制我们更新 main 分支的频率。
 
 我要求做出大规模的重构和猛烈的破坏性变更，我们这款 monorepo github 项目，脱离 vercel 部署渠道。
+最终目的是： `降低 monorepo 项目的 main 分支合并的敏感度和部署成本`
 
-vercel-deploy-tool.config.ts
+1. 在 .github\workflows 内找到和 vercel 部署相关的工作流，我们全面的删掉旧的工作流。
+   - 找到用于 vercel 部署的工作流，特别是和 main 主分支相关的，把这些删掉。我们不再用 vercel api 实现本项目文档站点的 dist 产物推送了。
+   - 用 gh cli 来完成旧历史记录的删除，我不看 github workflow 的旧记录了，没意义了。
+2. 根据 vercel-deploy-tool.config.ts 找到本项目内受限于 main 分支部署的项目。找到这些项目。然后你给我想办法全部给我迁移到 cloudflare worker 内。我要全部迁移到 cloudflare worker 的部署内。
+   - 这部分会有很多很多实施的盲区和细节，注意多探索探究，不清楚的就问我；
+   - 本 monorepo 项目的子包部署到 cloudflare worker 有成熟的先例，你看看 packages\cf-build-notifier 和 packages\skill-router-mcp 这两个项目，这两个项目的 cloudflare worker 部署就应该直接拿过来作参考。按理说应该是相似相同的配置。做好合理的目录识别，部署触发条件控制。
+   - 这些文档站点事实上很久不更新了，你做好目录触发识别就行，未来可能在 dev 分支内高强度更新都有可能，你只负责做好触发配置即可；
+3. 重新设计的 url 地址。
+   - 部署到 cloudflare worker 内，我们的 url 地址一定是变化的。一定有没办法识别的域名要替换。ruancat6312.top 域名是强耦合 vercel 平台的，我们换成 cloudflare worker 后，域名肯定都统一为 ruan-cat.com 。大胆的去更换这个主域名，我们就是在做破坏性变更。
+   - cloudflare 的域名绑定的惯例，你模仿现有的 packages\cf-build-notifier 和 packages\skill-router-mcp 的做法即可。我记得是绑定 cloudflare worker 即可；
+4. 大多数 package.json 的 homepage 字段要及时更换成 ruan-cat.com 域名。
+   - 及时更换受影响子包的域名。别遗留一大堆没做完的事情。我很怕你拖泥带水。
+5. packages\domains\src\domains.ts 配置要全面的做破坏性变更与维护。
+   - 这个文件是对域名强耦合的。你这里要做好删改，说明清楚本项目子包旧域名的 ruancat6312.top 没用了，该删掉的就删掉。
+   - 这个文件的修改我怕你删多了其他项目的域名。毕竟其他项目仍然是继续用 vercel 的。
+6. vercel-deploy-tool.config.ts 配置文件应该删除了，避免我们项目被继续误导。
+7. 在本项目的根 README.md 内，简单的写清楚我们做的这个重大破坏性变更决策。
+8. 根 package.json 的版本号做出升级。这个改动太重要了，值得被记录本版号。做 major 大版本。
+
+在 openspec 内，新建 2026-11-22-not-use-vercel-deploy 这个 openspec 长任务。新建任务后，再和我沟通商量如何落地。
