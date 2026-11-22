@@ -255,4 +255,12 @@ CI 的 vitest 用 html reporter，失败摘要不进 Actions 日志，排障只�
 2. 我们本仓库的 github action 经常出现错误，你用 gh cli 查看一下，是不是经常出现 vitest 用 html reporter 导致的错误呢？
 3. 帮我检查清楚是什么情况，并且给我一个解决上述问题的方案。
 
-## 016 <!-- TODO: -->
+## 016 <!-- TODO: --> 降低 monorepo 项目的 main 分支合并的敏感度和部署成本
+
+我们项目提供 skills，但是在 skills.sh 站点内，我们技能之所以都是过时的，就是因为我们项目没有及时的选择 rebase2main。
+但是我们不及时完成 main 分支的更新同步，是有理由的，因为要照顾 vercel 部署的成本。
+时代变了，我们的项目 git commit 提交就是猛烈凶猛的，我们不能被 vercel 额度所限制我们更新 main 分支的频率。
+
+我要求做出大规模的重构和猛烈的破坏性变更，我们这款 monorepo github 项目，脱离 vercel 部署渠道。
+
+vercel-deploy-tool.config.ts
