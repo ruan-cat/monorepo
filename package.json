@@ -1,7 +1,7 @@
 {
 	"name": "@ruan-cat-monorepo/root",
 	"private": true,
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"author": {
 		"name": "ruan-cat",
 		"email": "1219043956@qq.com",
@@ -29,8 +29,6 @@
 		"typecheck:ai-plugins": "tsc --noEmit -p ai-plugins/tsconfig.json",
 		"clear": "tsx ./scripts/clean.ts",
 		"create-code-workspace": "tsx ./scripts/generate.code-workspace.ts",
-		"deploy": "turbo deploy-vercel",
-		"deploy-vercel": "tsx ./packages/vercel-deploy-tool/src/cli.ts deploy",
 		"automd": "automd",
 		"automd:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- automd",
 		"pack:all": "pnpm -F=\"./(packages|configs-package|vite-plugins)/*\" exec -- pnpm pack >docs/reports/all-packages-pack.md",

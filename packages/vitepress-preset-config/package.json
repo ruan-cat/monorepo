@@ -2,12 +2,13 @@
 	"name": "@ruan-cat/vitepress-preset-config",
 	"version": "3.2.4",
 	"description": "用于给大多数的vitepress项目提供一个预设的配置文件。",
-	"homepage": "https://vitepress-preset.ruancat6312.top",
+	"homepage": "https://vitepress-preset.ruan-cat.com",
 	"types": "./src/config.mts",
 	"main": "./src/config.mts",
 	"scripts": {
 		"docs:dev": "vitepress dev src/docs --port 8080",
 		"build:docs": "vitepress build src/docs",
+		"deploy": "wrangler deploy",
 		"build": "tsup",
 		"prebuild": "node ../../scripts/run-automd.cjs"
 	},
@@ -32,7 +33,8 @@
 		"automd": "^0.4.3",
 		"element-plus": "^2.13.6",
 		"tsup": "^8.5.1",
-		"vitepress": "^1.6.4"
+		"vitepress": "^1.6.4",
+		"wrangler": "^4.151.1"
 	},
 	"peerDependencies": {
 		"vitepress": "^1.6.x",

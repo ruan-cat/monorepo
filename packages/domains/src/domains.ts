@@ -124,47 +124,30 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 		},
 	],
 	/** 工具包项目 */
-	utils: [
-		{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "utils", order: 1 },
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "utils", order: 2 },
-	],
+	utils: [{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "utils", order: 1 }],
 	/** vitepress配置预设 */
-	"vitepress-preset": [
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "vip", order: 1 },
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "vitepress", order: 2 },
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "vitepress-preset", order: 3 },
-	],
+	"vitepress-preset": [{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "vitepress-preset", order: 1 }],
 	/** claude code 通知工具 */
 	"claude-notifier": [
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "ccntf",
 			order: 1,
-			deployPlatform: "vercel",
-			description: "本域名在cloudflare CDN 内配置了二级域名。由 github workflow + vercel 流水线完成部署。低频更新。",
+			deployPlatform: "cloudflare",
+			description: "Cloudflare Worker 静态文档。生产部署只在 dev 分支、且本包目录变化时触发。",
 		},
 		{
 			topLevelDomain: "ruan-cat.com",
 			secondLevelDomain: "claude-notifier",
 			order: 2,
-			deployPlatform: "vercel",
-			description: "和 ccntf 域名指向同一个内容，使用相同的配置。",
+			deployPlatform: "cloudflare",
+			description: "和 ccntf 域名指向同一个 Cloudflare Worker。生产部署只在 dev 分支触发。",
 		},
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "ccntf", order: 3 },
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "claude-notifier", order: 4 },
 	],
 	/** 域名列表 */
-	domain: [
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "dm", order: 1 },
-		{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "dm", order: 2 },
-	],
+	domain: [{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "dm", order: 1 }],
 	/** vercel部署工具 */
-	"vercel-deploy-tool": [
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "vercel-deploy-tool", order: 1 },
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "vercel", order: 2 },
-		{ topLevelDomain: "ruancat6312.top", secondLevelDomain: "vc", order: 3 },
-		{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "vc", order: 4 },
-	],
+	"vercel-deploy-tool": [{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "vc", order: 1 }],
 	/** 阮喵喵笔记 */
 	"ruan-cat-notes": [
 		{

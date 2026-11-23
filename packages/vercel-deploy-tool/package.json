@@ -5,7 +5,7 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
-	"homepage": "https://vercel-deploy-tool.ruancat6312.top",
+	"homepage": "https://vc.ruan-cat.com",
 	"bugs": {
 		"url": "https://github.com/ruan-cat/monorepo/issues"
 	},
@@ -23,6 +23,7 @@
 		"build": "tsup",
 		"docs:dev": "vitepress dev src/docs",
 		"build:docs": "vitepress build src/docs",
+		"deploy": "wrangler deploy",
 		"prebuild": "node ../../scripts/run-automd.cjs",
 		"test:cli": "node dist/cli.js deploy",
 		"test:prod": "node ./dist/index.js",
@@ -88,7 +89,8 @@
 		"execa": "^9.6.1",
 		"tsup": "^8.5.1",
 		"typescript": "^5.9.3",
-		"vitepress": "^1.6.4"
+		"vitepress": "^1.6.4",
+		"wrangler": "^4.151.1"
 	},
 	"peerDependencies": {
 		"vercel": ">=50.5.0"

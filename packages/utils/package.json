@@ -10,7 +10,7 @@
 		"move-vercel-output-to-root": "./dist/cli/move-vercel-output-to-root.js",
 		"relizy-runner": "./dist/cli/relizy-runner.js"
 	},
-	"homepage": "https://utils.ruancat6312.top",
+	"homepage": "https://utils.ruan-cat.com",
 	"bugs": {
 		"url": "https://github.com/ruan-cat/monorepo/issues"
 	},
@@ -28,6 +28,7 @@
 		"typedoc": "typedoc --options typedoc.config.mjs",
 		"docs:dev-main": "vitepress dev src --port 8080",
 		"build:docs-main": "vitepress build src",
+		"deploy": "wrangler deploy",
 		"clean:type": "rimraf dist",
 		"generate:type-1": "vue-tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
 		"generate:type-2": "tsc -p tsconfig.json --composite false --declaration true --emitDeclarationOnly true",
@@ -122,7 +123,8 @@
 		"unplugin-auto-import": "^21.0.0",
 		"unplugin-vue-router": "^0.16.1",
 		"vite-plugin-autogeneration-import-file": "^3.0.1",
-		"vitepress": "^1.6.4"
+		"vitepress": "^1.6.4",
+		"wrangler": "^4.151.1"
 	},
 	"peerDependencies": {
 		"typescript": ">=5",

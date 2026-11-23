@@ -1,0 +1,12 @@
+name = "utils"
+compatibility_date = "2026-11-23"
+preview_urls = false
+
+[assets]
+directory = "./src/.vitepress/dist"
+html_handling = "auto-trailing-slash"
+not_found_handling = "404-page"
+
+[[routes]]
+pattern = "utils.ruan-cat.com"
+custom_domain = true

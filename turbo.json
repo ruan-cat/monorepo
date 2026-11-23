@@ -16,10 +16,6 @@
 			"outputs": ["**/.vitepress/dist/**", "**/.vuepress/dist/**"],
 			"dependsOn": ["^build"]
 		},
-		"//#deploy-vercel": {
-			"cache": true,
-			"dependsOn": ["^build:docs", "@ruan-cat/vercel-deploy-tool#build"]
-		},
 		"//#changeset:publish": {
 			"cache": false,
 			"dependsOn": ["^build"]
