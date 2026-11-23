@@ -31,7 +31,7 @@ jobs:
       - name: 初始化 monorepo 环境
         uses: ./.github/actions/setup-monorepo
         with:
-          with-vercel: "true"
+          with-vercel: "false"
           with-npm: "true"
 
       - name: turbo login 远程登录

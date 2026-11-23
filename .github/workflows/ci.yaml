@@ -33,13 +33,12 @@ jobs:
       - name: 初始化 monorepo 环境
         uses: ./.github/actions/setup-monorepo
         with:
-          with-vercel: "true"
+          with-vercel: "false"
 
       - name: 检查版本
         run: |
           node -v
           pnpm -v
-          vc -v
           turbo --version
 
       - name: pnpm全局检查依赖包
