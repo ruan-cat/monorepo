@@ -4,6 +4,10 @@
 
 这里存放了阮喵喵封装的`依赖包`和`各种小工具`，以 monorepo 的形式存储。
 
+## 文档站部署
+
+本仓五个 VitePress 文档站不再用 Vercel 推送 dist。公开地址是 `utils.ruan-cat.com`、`vitepress-preset.ruan-cat.com`、`ccntf.ruan-cat.com`、`dm.ruan-cat.com`、`vc.ruan-cat.com`。main 合并不部署这五个文档站。Turbo 远程缓存仍使用 Vercel token。
+
 <!--
   带有ruan-cat风味的monorepo包仓库。一个基于pnpm+monorepo架构的node仓库。子项目包括vitepress预设配置、taze预设配置、claude code插件商城、claude code通知工具等。
  -->

@@ -15,6 +15,16 @@ dir:
 
 这是阮喵喵开发的工具包，提供了一些工具函数。
 
+## 文档站部署
+
+Cloudflare Workers Builds 的生产分支是 `dev`，root directory 是 `/`，previews 关闭。文档 VitePress 配置没有额外的工作区包 import。
+
+build 为 `pnpm i && pnpm --dir packages/utils run build:docs-main`
+
+deploy 为 `pnpm --dir packages/utils exec wrangler deploy`
+
+include paths 为 `packages/utils/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
+
 ## Install
 
 <!-- automd:pm-install name="@ruan-cat/utils" -->

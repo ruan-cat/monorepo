@@ -21,6 +21,16 @@
 
 这不是对 VitePress 的重新封装：你的 VitePress 配置依然是主入口；此包只提供默认值、约定功能和少量辅助函数。
 
+## 文档站部署
+
+Cloudflare Workers Builds 的生产分支是 `dev`，root directory 是 `/`，previews 关闭。文档配置只 import 本包自身，工作区依赖按 `package.json` 计入 `@ruan-cat/utils`。
+
+build 为 `pnpm i && pnpm --dir packages/vitepress-preset-config run build:docs`
+
+deploy 为 `pnpm --dir packages/vitepress-preset-config exec wrangler deploy`
+
+include paths 为 `packages/vitepress-preset-config/**`、`packages/utils/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
+
 ## 安装依赖
 
 <!-- automd:pm-install name="@ruan-cat/vitepress-preset-config" dev -->

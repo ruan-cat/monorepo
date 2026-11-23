@@ -11,6 +11,16 @@
 
 生成满足 [Vercel Output API (v3)](https://vercel.com/docs/build-output-api) 规范的目录结构，并自动部署到 Vercel 平台。
 
+## 文档站部署
+
+本包文档站的公开主机名是 `vc.ruan-cat.com`。Cloudflare Workers Builds 的生产分支是 `dev`，root directory 是 `/`，previews 关闭。文档配置 import 了 `@ruan-cat/vitepress-preset-config`，该包再依赖 `@ruan-cat/utils`。
+
+build 为 `pnpm i && pnpm --dir packages/vercel-deploy-tool run build:docs`
+
+deploy 为 `pnpm --dir packages/vercel-deploy-tool exec wrangler deploy`
+
+include paths 为 `packages/vercel-deploy-tool/**`、`packages/utils/**`、`packages/vitepress-preset-config/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
+
 ## ✨ 特性
 
 - 🚀 **CLI 工具**：提供 `deploy` 和 `init` 命令，开箱即用
