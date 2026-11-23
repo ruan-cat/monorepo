@@ -40,15 +40,16 @@
 - 当前 Task：Task 1
 - 执行者：尚未接手。规划会话不实现。
 - 阻塞：无
-- 核对时间：2026-11-22 22:45 CST
+- 核对时间：2026-11-23 12:56 CST
 
 ### 仓库基线
 
 - 分支：`dev`
-- HEAD：`04c8b5988640aba9f06ac27dd06a06408aab8f8c`
-- 跟踪：`dev...origin/dev`
-- 规划时 dirty：`docs/prompts/index.md`
-- 本任务包当时尚未入库
+- HEAD：`38465ef49d9c31608d5264f8db94679b3eced323`
+- 跟踪：`dev...origin/dev`，与 origin 对齐
+- 本次 dirty：未跟踪 `openspec/changes/slim-four-skill-descriptions/`。不碰它
+- 2026-11-22 核对时的 HEAD 是 `04c8b5988640aba9f06ac27dd06a06408aab8f8c`，当时 dirty 是 `docs/prompts/index.md`
+- 本任务包已随 `38465ef4` 入库。reference 仍未改
 
 ### 文件哈希
 
@@ -67,7 +68,7 @@ Get-FileHash -Algorithm SHA256 ai-plugins\common-tools\skills\use-memorix\refere
 ### 证据
 
 - 规划会话只创建了本目录三份文件。
-- 尚未修改技能 reference。
+- 2026-11-23 重算哈希，与上栏相同。reference 里仍没有 `用户级检索策略`，依赖门的插入点还在。包保持未开始。
 
 ### 执行者下一条命令
 
