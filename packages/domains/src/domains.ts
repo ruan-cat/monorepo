@@ -124,9 +124,25 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 		},
 	],
 	/** 工具包项目 */
-	utils: [{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "utils", order: 1 }],
+	utils: [
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "utils",
+			order: 1,
+			deployPlatform: "cloudflare",
+			description: "Cloudflare Worker 静态文档。生产部署只在 dev 分支、且本包目录变化时触发。",
+		},
+	],
 	/** vitepress配置预设 */
-	"vitepress-preset": [{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "vitepress-preset", order: 1 }],
+	"vitepress-preset": [
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "vitepress-preset",
+			order: 1,
+			deployPlatform: "cloudflare",
+			description: "Cloudflare Worker 静态文档。生产部署只在 dev 分支、且本包目录变化时触发。",
+		},
+	],
 	/** claude code 通知工具 */
 	"claude-notifier": [
 		{
@@ -145,9 +161,25 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 		},
 	],
 	/** 域名列表 */
-	domain: [{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "dm", order: 1 }],
+	domain: [
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "dm",
+			order: 1,
+			deployPlatform: "cloudflare",
+			description: "Cloudflare Worker 静态文档。生产部署只在 dev 分支、且本包目录变化时触发。",
+		},
+	],
 	/** vercel部署工具 */
-	"vercel-deploy-tool": [{ topLevelDomain: "ruan-cat.com", secondLevelDomain: "vc", order: 1 }],
+	"vercel-deploy-tool": [
+		{
+			topLevelDomain: "ruan-cat.com",
+			secondLevelDomain: "vc",
+			order: 1,
+			deployPlatform: "cloudflare",
+			description: "Cloudflare Worker 静态文档。生产部署只在 dev 分支、且本包目录变化时触发。",
+		},
+	],
 	/** 阮喵喵笔记 */
 	"ruan-cat-notes": [
 		{

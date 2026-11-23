@@ -15,7 +15,7 @@
 
 本包文档站的公开主机名是 `vc.ruan-cat.com`。Cloudflare Workers Builds 的生产分支是 `dev`，root directory 是 `/`，previews 关闭。文档配置 import 了 `@ruan-cat/vitepress-preset-config`，该包再依赖 `@ruan-cat/utils`。
 
-build 为 `pnpm i && pnpm --dir packages/vercel-deploy-tool run build:docs`
+build 为 `pnpm i && pnpm --dir packages/utils run build && pnpm --dir packages/vitepress-preset-config run build && pnpm --dir packages/vercel-deploy-tool run build:docs`
 
 deploy 为 `pnpm --dir packages/vercel-deploy-tool exec wrangler deploy`
 
