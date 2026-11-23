@@ -39,14 +39,14 @@
 - 包状态：已闭环
 - 当前 Task：无
 - 遗留项：无
-- 核对时间：2026-11-23 15:00 CST
-- monorepo 分支 `dev`，HEAD `3855e1f0f8d6ade4673b3594bcac86b848e7731e`。reference 改动未提交，不编 SHA。
+- 核对时间：2026-11-23 17:50 CST
+- monorepo 分支 `dev`，HEAD `d03a9bda`，与 `origin/dev` 对齐。`### 用户级检索策略` 已在提交 `921637d0` 里，该提交已在 `origin/dev`。
 
 ### 本包完成的改动
 
 1. `ai-plugins/common-tools/skills/use-memorix/references/retrieval-and-golden-set.md`：在 Embedding 动作表和「判定顺序（不要跳步）」之间插入一次 `### 用户级检索策略`。正文含 `cjk = "vector"`、`ascii = "hybrid"`，并写明改这两个字段前要先确认。判定顺序五条未改。
 2. `D:\store\WorkBuddy\2026-6-30-common\docs\memorix\index.md`：现行入口里 embedding 那一行的主题末尾写明源文件已有这段，已安装副本要等用户另行 `skills add`。
-3. `D:\store\WorkBuddy\2026-6-30-common\docs\memorix\2026-10-13-about-embedding-mode\handoff.md`：「压缩后接着做」第 1 条改为同一事实，并写明这次 reference 改动未提交。
+3. `D:\store\WorkBuddy\2026-6-30-common\docs\memorix\2026-10-13-about-embedding-mode\handoff.md`：「压缩后接着做」第 1 条改为同一事实。2026-11-23 17:50 已把「reference 改动未提交」改成提交 `921637d0` 已在 `origin/dev`。
 
 本包不拥有：`SKILL.md`、会话参考、记忆参考、版本号、01 与 02 两个任务包。`cases.json` 与 mirror 无本包 diff。
 
