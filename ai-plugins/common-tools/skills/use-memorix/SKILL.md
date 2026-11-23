@@ -6,7 +6,7 @@ description: >-
   排查 CodeGraph / dashboard / embedding、初始化项目黄金集、审核或捕获检索候选、精简 Memorix hooks，
   以及排障 MCP 工具缺失、mode 选择、Node ABI、shim 劫持、WorkBuddy 启动链。
 metadata:
-  version: "3.0.1"
+  version: "3.0.2"
 ---
 
 # use-memorix
@@ -52,7 +52,17 @@ metadata:
 
 写操作前必须能回答三件事：写哪个库/哪个文件、写什么内容摘要、如何回滚或验证。答不出就不要写。
 
-平台事实：MCP 工具链要等 `memorix_session_start` 成功并绑定项目后才暴露。`memorix session context` 是只读，可在启动前用来判断本项目是否已有活动会话。已有则复用，不重复启动。没有才确认后启动。只有这一步失败，才走 CLI 兜底。
+平台事实：项目绑定硬门。活动会话存在不能跳过 MCP 根目录核对。不一致时先确认，再把当前工作区绝对路径传给 `projectRoot`。
+
+1. 在当前工作区运行 `memorix session context`，记下 CLI 项目 id 和根目录。
+2. 读取 MCP `memorix_project_context`，记下它绑定的项目 id 和根目录。
+3. 两边都必须等于当前工作区。CLI 报本项目已有活动会话，不能代替这次核对。
+4. 有一边不是，停止 `memorix_store` 和 `memorix_resolve`。向用户展示两边的项目 id 与根目录，确认后第一件 MCP 调用才是 `memorix_session_start`，`projectRoot` 传当前工作区绝对路径。
+5. `session_start` 会关闭该项目上一个活动会话。确认前不调用。
+6. 绑定成功后再次核对。仍不一致就停止，不写。
+7. 只有 `session_start` 失败，才走 CLI 兜底。CLI 的工作目录必须是当前工作区。
+
+没有活动会话时，只读 `memorix session context` 仍然有效，MCP 写入不可用。这时只确认要不要新建会话，不要在同一条消息里同时确认 `store`、`session end` 或 `archive`。`0 active` 本身不是索引错误，也不是归档失败。归档是否成立只看 retention 域的候选硬门。本对话没有调用过 `session start` 时，不得声称自己的会话被其他代理关掉。说法和分轮见 `references/session-and-reasoning.md` 的「收尾时没有活动会话」。
 
 ## 七域渐进路由
 
@@ -97,6 +107,7 @@ metadata:
 
 1. 当前安装包的 `memorix --version`。
 2. 当前命令的 `memorix <command> --help`。
+   主题键更新不从 `memorix remember --help` 推断，也不从缺少 `--topic-key` 的 `memorix memory store --help` 推断。CLI 存储以 `references/memory-operations.md` 的存储命令为准。其它命令仍以当前 `--help` 为准。
 3. 当前安装包内文档与官方七技能。
 4. 本技能中不易漂移的治理规则（安全门、归档硬门、host 边界）。
 5. 历史报告或旧输出只作背景，不作为当前命令合同。

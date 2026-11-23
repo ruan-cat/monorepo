@@ -11,6 +11,21 @@
 | 改 provider、换模型、下载模型      | 需确认 |
 | 清缓存、重建索引、执行 repair      | 需确认 |
 
+### 用户级检索策略
+
+`~/.memorix/config.toml` 与项目 `memorix.toml` 都能写 `[retrieval]`，项目覆盖用户。环境变量 `MEMORIX_RETRIEVAL_CJK` / `MEMORIX_RETRIEVAL_ASCII` 再覆盖文件。非法值忽略，不要自行发明第三个取值。
+
+```toml
+[retrieval]
+cjk = "vector"
+ascii = "hybrid"
+```
+
+- `cjk = "vector"`：中文查询走向量近邻序。这是默认。
+- `ascii = "hybrid"`：英文继续 hybrid。
+- 查看当前文件可以读。改这两个字段必须先展示将写入的段落，得到确认后再写。
+- 不要把 embedding 的 `base_url` 改成原生 embed 路径。不要把进程级驻留改成几分钟。这两件不是 `[retrieval]` 的事。
+
 判定顺序（不要跳步）：
 
 1. 数据是否真的缺失：用 `memory detail` 查具体 id，而不是靠 search 未命中。
