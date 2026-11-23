@@ -107,6 +107,7 @@ jobs:
           - "use-vercel-cli-build-try-2.yaml"
           - "use-vercel-cli-build-try-3.yaml"
           - "use-vercel-cli-build-try-4.yaml"
+          - "vercel-deploy-tool.yaml"
           - "批量部署vercel项目"
     steps:
       - name: 🧪 清理实验性工作流记录

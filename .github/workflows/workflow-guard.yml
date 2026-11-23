@@ -3,7 +3,7 @@ name: Workflow Guard
 # 单入口护栏：CI 环境初始化只允许存在一个入口 —— .github/actions/setup-monorepo。
 #
 # 背景：pnpm 12 升级时 setup-monorepo 已补齐 PNPM_HOME 回写等要求，但
-# vercel-deploy-tool.yaml 因自行安装 pnpm 而漏改，导致 main 分支部署任务以
+# vercel-deploy-tool.yaml 已从仓库删除。它曾因自行安装 pnpm 而漏改，导致 main 分支部署任务以
 # ERR_PNPM_GLOBAL_BIN_DIR_NOT_IN_PATH 失败。靠"记得改每个文件"不可靠，
 # 本 workflow 把"绕过统一入口"变成确定性的红灯。
 #
