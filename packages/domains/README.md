@@ -13,7 +13,7 @@
 
 Cloudflare Workers Builds 的生产分支是 `dev`，root directory 是 `/`，previews 关闭。文档配置 import 了 `@ruan-cat/vitepress-preset-config` 和 `@ruan-cat/utils`。`package.json` 还依赖 `@ruan-cat/vuepress-preset-config`。
 
-build 为 `pnpm i && pnpm --dir packages/utils run build && pnpm --dir packages/vitepress-preset-config run build && pnpm --dir packages/domains run build:docs`
+build 为 `pnpm i && pnpm exec turbo run build:docs --filter=@ruan-cat/domains`
 
 deploy 为 `pnpm --dir packages/domains exec wrangler deploy`
 

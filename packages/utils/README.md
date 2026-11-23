@@ -19,7 +19,7 @@ dir:
 
 Cloudflare Workers Builds 的生产分支是 `dev`，root directory 是 `/`，previews 关闭。文档 VitePress 配置没有额外的工作区包 import。
 
-build 为 `pnpm i && pnpm --dir packages/utils run build:docs-main`
+build 为 `pnpm i && pnpm exec turbo run build:docs --filter=@ruan-cat/utils`
 
 deploy 为 `pnpm --dir packages/utils exec wrangler deploy`
 

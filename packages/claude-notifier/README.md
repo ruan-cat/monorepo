@@ -13,7 +13,7 @@ Claude Code 通知工具 - 在 Claude Code 任务完成后发送 Windows 系统�
 
 公开主机名是 `ccntf.ruan-cat.com` 和 `claude-notifier.ruan-cat.com`。Cloudflare Workers Builds 的生产分支是 `dev`，root directory 是 `/`，previews 关闭。文档配置 import 了 `@ruan-cat/vitepress-preset-config`，该包再依赖 `@ruan-cat/utils`。
 
-build 为 `pnpm i && pnpm --dir packages/utils run build && pnpm --dir packages/vitepress-preset-config run build && pnpm --dir packages/claude-notifier run build:docs`
+build 为 `pnpm i && pnpm exec turbo run build:docs --filter=@ruan-cat/claude-notifier`
 
 deploy 为 `pnpm --dir packages/claude-notifier exec wrangler deploy`
 
