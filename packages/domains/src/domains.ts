@@ -130,7 +130,6 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "utils",
 			order: 1,
 			deployPlatform: "cloudflare",
-			description: "Cloudflare Worker 静态文档。生产部署只在 dev 分支、且本包目录变化时触发。",
 		},
 	],
 	/** vitepress配置预设 */
@@ -140,7 +139,6 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "vitepress-preset",
 			order: 1,
 			deployPlatform: "cloudflare",
-			description: "Cloudflare Worker 静态文档。生产部署只在 dev 分支、且本包目录变化时触发。",
 		},
 	],
 	/** claude code 通知工具 */
@@ -150,7 +148,6 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "ccntf",
 			order: 1,
 			deployPlatform: "cloudflare",
-			description: "Cloudflare Worker 静态文档。生产部署只在 dev 分支、且本包目录变化时触发。",
 		},
 		{
 			topLevelDomain: "ruan-cat.com",
@@ -167,7 +164,6 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "dm",
 			order: 1,
 			deployPlatform: "cloudflare",
-			description: "Cloudflare Worker 静态文档。生产部署只在 dev 分支、且本包目录变化时触发。",
 		},
 	],
 	/** vercel部署工具 */
@@ -177,7 +173,6 @@ export const projectLikeDomainSet: ProjectLikeDomainSet = {
 			secondLevelDomain: "vc",
 			order: 1,
 			deployPlatform: "cloudflare",
-			description: "Cloudflare Worker 静态文档。生产部署只在 dev 分支、且本包目录变化时触发。",
 		},
 	],
 	/** 阮喵喵笔记 */
