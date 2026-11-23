@@ -255,7 +255,7 @@ CI 的 vitest 用 html reporter，失败摘要不进 Actions 日志，排障只�
 2. 我们本仓库的 github action 经常出现错误，你用 gh cli 查看一下，是不是经常出现 vitest 用 html reporter 导致的错误呢？
 3. 帮我检查清楚是什么情况，并且给我一个解决上述问题的方案。
 
-## 016 <!-- TODO: cursor --> 重构 vercel 部署，迁移到 cloudflare worker 部署
+## 016 <!-- cursor --> 重构 vercel 部署，迁移到 cloudflare worker 部署
 
 /pua /grill-me /openspec /do-long-task
 
@@ -308,3 +308,5 @@ CI 的 vitest 用 html reporter，失败摘要不进 Actions 日志，排障只�
 
 日志原文是：Failed to resolve entry for package "@ruan-cat/utils"。干净环境里这个包的入口指向 dist/index.js，文档构建前没有先执行 packages/utils 和 packages/vitepress-preset-config 的 build。
 是不是你的 cloudflare worker 内的部署写法有问题啊？你没有考虑这个 monorepo 项目的依赖包之间的拓扑关系么？是不是你其他的几个文档项目也缺少了拓扑构建的前缀任务呢？你是不是要合理的给每个子包的 docs 文档构建任务安排好合理的 turbo.json 构建前缀关系呢？要不要加上很多的 turbo.json ？你打算怎么优雅的处置这个缺陷呢？
+
+## 017 <!-- TODO: -->
