@@ -191,3 +191,5 @@ local_cache/
 .workbuddy-ai/skills
 .workbuddy-ai/memory
 .workbuddy-ai/tmp
+
+.memorix/golden-set/.local/
