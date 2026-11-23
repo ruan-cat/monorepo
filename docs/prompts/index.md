@@ -255,7 +255,7 @@ CI 的 vitest 用 html reporter，失败摘要不进 Actions 日志，排障只�
 2. 我们本仓库的 github action 经常出现错误，你用 gh cli 查看一下，是不是经常出现 vitest 用 html reporter 导致的错误呢？
 3. 帮我检查清楚是什么情况，并且给我一个解决上述问题的方案。
 
-## 016 <!-- TODO: 预期等我充钱了以后，再继续完成这个任务； --> 重构 vercel 部署，迁移到 cloudflare worker 部署
+## 016 <!-- TODO: cursor --> 重构 vercel 部署，迁移到 cloudflare worker 部署
 
 /pua /grill-me /openspec /do-long-task
 
@@ -286,3 +286,25 @@ CI 的 vitest 用 html reporter，失败摘要不进 Actions 日志，排障只�
 8. 根 package.json 的版本号做出升级。这个改动太重要了，值得被记录本版号。做 major 大版本。
 
 在 openspec 内，新建 2026-11-22-not-use-vercel-deploy 这个 openspec 长任务。新建任务后，再和我沟通商量如何落地。
+
+### 2026-11-23
+
+你的 packages\domains\src\domains.ts 更改是不是不闭环啊？我很怀疑你是不是没有更新啊？
+
+1. ![2026-11-23-16-56-59](https://gh-img-store.ruan-cat.com/img/2026-11-23-16-56-59.png)
+   > 这个值 dm.ruan-cat.com ，为什么不是排在第一位啊？为什么没有专门的 cloudflare 标记呢？
+2. ![2026-11-23-16-57-52](https://gh-img-store.ruan-cat.com/img/2026-11-23-16-57-52.png)
+   > 你写的 https://vitepress-preset.ruan-cat.com/ 域名为什么不出现在这个页面内呢？是你没写么？
+3. ![2026-11-23-17-00-03](https://gh-img-store.ruan-cat.com/img/2026-11-23-17-00-03.png)
+   > https://ccntf.ruan-cat.com/ 和 https://claude-notifier.ruan-cat.com/ 你不是都迁移到 cloudflare 了么？为什么这里还是显示 vercel 呢？
+4. ![2026-11-23-17-00-53](https://gh-img-store.ruan-cat.com/img/2026-11-23-17-00-53.png)
+   > 为什么 https://utils.ruan-cat.com/ 没有 cloudflare 标签呢？你没写么？
+5. ![2026-11-23-17-01-50](https://gh-img-store.ruan-cat.com/img/2026-11-23-17-01-50.png)
+   - 为什么 https://vc.ruan-cat.com/ 不提高排序，并且增加 cloudflare 标签呢？
+
+上述问题是不是你没改动 packages\domains\src\domains.ts 文件？还是说整个 packages\domains 包的文档根本没有在 cloudflare worker 内实现基于 dev 分支的 git commit 识别并重新部署呢？你丢掉了应该具有的 cloudflare 部署能力么？我们迁移渠道，不是要丢失能力！
+
+---
+
+日志原文是：Failed to resolve entry for package "@ruan-cat/utils"。干净环境里这个包的入口指向 dist/index.js，文档构建前没有先执行 packages/utils 和 packages/vitepress-preset-config 的 build。
+是不是你的 cloudflare worker 内的部署写法有问题啊？你没有考虑这个 monorepo 项目的依赖包之间的拓扑关系么？是不是你其他的几个文档项目也缺少了拓扑构建的前缀任务呢？你是不是要合理的给每个子包的 docs 文档构建任务安排好合理的 turbo.json 构建前缀关系呢？要不要加上很多的 turbo.json ？你打算怎么优雅的处置这个缺陷呢？
