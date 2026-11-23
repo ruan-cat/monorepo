@@ -17,13 +17,13 @@ dir:
 
 ## 文档站部署
 
-Cloudflare Workers Builds 的生产分支是 `dev`，root directory 是 `/`，previews 关闭。文档 VitePress 配置没有额外的工作区包 import。
+Cloudflare Workers Builds 的生产分支是 `dev`，root directory 是 `/`，previews 关闭。文档 VitePress 配置通过相对路径引用 `vitepress-preset-config`。
 
 build 为 `pnpm i && pnpm exec turbo run build:docs --filter=@ruan-cat/utils`
 
 deploy 为 `pnpm --dir packages/utils exec wrangler deploy`
 
-include paths 为 `turbo.json`、`packages/utils/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
+include paths 为 `turbo.json`、`packages/utils/**`、`packages/vitepress-preset-config/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
 
 ## Install
 
