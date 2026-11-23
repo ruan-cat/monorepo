@@ -6,7 +6,7 @@
 
 ### 授权门
 
-- 允许修改 `plan.md` 点名的那一份 reference，以及本文件的易腐栏、`plan.md` 的执行状态。
+- 允许修改 `plan.md` 点名的那一份 reference，Task 4 点名的两个 common Markdown，以及本文件的易腐栏、`plan.md` 的执行状态。
 - 不允许提交、推送、暂存、切换分支、创建 worktree。
 - 不允许运行 `skills add`，不允许改已安装的 `use-memorix` 副本。
 - 不允许改 `SKILL.md`、会话参考、记忆参考，也不允许改 01、02 两个任务包。
@@ -30,7 +30,7 @@
 
 ### 后续不在本包
 
-技能源改完后，由用户决定何时用既有的 `skills add` 覆盖已安装副本。`ruan-cat/common` 的黄金集和 mirror 已另案写入，不要在本包重做。
+技能源改完后，由用户决定何时用既有的 `skills add` 覆盖已安装副本。`ruan-cat/common` 的黄金集和 mirror 已另案写入，不要在本包重做。Task 4 只回写 common 的两句现行说明，不代替 `skills add`。
 
 ## 易腐栏
 
@@ -38,6 +38,7 @@
 
 - 包状态：未开始
 - 当前 Task：Task 1
+- 2026-11-23 增加了 Task 4（回写 common 两处 Markdown）。Task 1–4 都还没执行。
 - 执行者：尚未接手。规划会话不实现。
 - 阻塞：无
 - 核对时间：2026-11-23 12:56 CST

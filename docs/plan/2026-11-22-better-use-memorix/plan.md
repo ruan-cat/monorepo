@@ -5,7 +5,8 @@
 ## Global Constraints
 
 - 仓库：`D:\code\ruan-cat\monorepo`。只在当前分支工作，不新建 worktree，不切换分支。
-- 只改 `ai-plugins/common-tools/skills/use-memorix/references/retrieval-and-golden-set.md` 的指定插入点。
+- Task 1–3 只改 `ai-plugins/common-tools/skills/use-memorix/references/retrieval-and-golden-set.md` 的指定插入点。
+- Task 4 只改 `spec.md` 点名的两个 common Markdown。Task 3 没通过就不做 Task 4。
 - 插入正文以 `spec.md` 第 2 节为准。不要顺手改表格、判定顺序或黄金集合同。
 - `spec.md` 第 3 节的非目标全部有效。
 - 本目录的 `spec.md` 不改。`plan.md` 只改 Task 的执行状态。`handoff.md` 只改易腐栏。
@@ -68,4 +69,29 @@ rg -n "cjk = .vector.|ascii = .hybrid.|得到确认后再写" ai-plugins/common-
 ```powershell
 git diff --stat -- ai-plugins/common-tools/skills/use-memorix
 rg -n "observationIds|[A-Za-z]:\\\\Users\\\\" ai-plugins/common-tools/skills/use-memorix/references/retrieval-and-golden-set.md
+```
+
+## Task 4：回写 common 的两处现行句子
+
+执行状态：未开始
+
+修改范围：只改下面两个文件里 `spec.md` 点名的那一句。仓库根是 `D:\code\ruan-cat\common` 的工作区（本机路径 `D:\store\WorkBuddy\2026-6-30-common`）。
+
+- `docs/memorix/index.md`
+- `docs/memorix/2026-10-13-about-embedding-mode/handoff.md`
+
+步骤：
+
+1. 先确认 Task 3 的 diff 里已经有 `### 用户级检索策略`。没有就停止。
+2. 若 monorepo 里这份 reference 改动已经提交，把该提交的完整 SHA 写入 handoff 第 1 条。未提交就写「未提交」，不编 SHA。
+3. 两句都写明已安装的 `use-memorix` 还没有这段，要等用户另行 `skills add`。
+4. 不改 common 的其他脏文件，不 `git add`，不 `git commit`。
+
+验收：两个文件都能搜到 `用户级检索策略`，并且都写了已安装副本尚未更新。`cases.json` 与 `retrieval-golden-set/mirrors/` 无 diff。
+
+验证命令（在 common 工作区根执行）：
+
+```powershell
+rg -n "用户级检索策略" docs/memorix/index.md docs/memorix/2026-10-13-about-embedding-mode/handoff.md
+git diff --stat -- .memorix/golden-set/cases.json docs/memorix/retrieval-golden-set/mirrors
 ```

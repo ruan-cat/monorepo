@@ -12,7 +12,9 @@
 
 在技能事实源补一段可执行的配置说明。执行代理读完后，知道 `[retrieval]` 写在哪、两个字段的含义，以及改文件前必须先确认。
 
-写集只有一个文件：
+写集有两类，按 `plan.md` 的 Task 顺序做，不能调换。
+
+第一类只有一个文件：
 
 `ai-plugins/common-tools/skills/use-memorix/references/retrieval-and-golden-set.md`
 
@@ -38,6 +40,11 @@ ascii = "hybrid"
 ```
 
 上面展示用了零宽字符，避免本规格文件的围栏被提前闭合。落地时写成普通 Markdown 围栏，不要把零宽字符写进技能文件。
+
+Task 3 通过后，再改 `D:\code\ruan-cat\common` 工作区里的两个 Markdown。不改 `cases.json`、mirror、黄金集脚本，不改本机已安装技能。两句都要写明：源文件已经有 `### 用户级检索策略`，已安装副本要等用户另行 `skills add` 之后才有这段。
+
+- `docs/memorix/index.md` 的「现行入口」：在 embedding 那一行的主题末尾加上这个事实，不改该行以外的现行入口。
+- `docs/memorix/2026-10-13-about-embedding-mode/handoff.md` 的「压缩后接着做」第 1 条：把「交给 monorepo 任务包、本对话不改技能」改成上句事实，并写上这次 reference 改动所在的 monorepo 提交 SHA。还没提交就写「未提交」，不要编 SHA。
 
 ## 3. 非目标
 
