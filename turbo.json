@@ -14,7 +14,7 @@
 		"build:docs": {
 			"cache": true,
 			"outputs": ["**/.vitepress/dist/**", "**/.vuepress/dist/**"],
-			"dependsOn": ["build", "^build"]
+			"dependsOn": ["^build"]
 		},
 		"//#changeset:publish": {
 			"cache": false,

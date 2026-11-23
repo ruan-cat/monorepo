@@ -18,6 +18,9 @@
 		},
 		"do-build-docs": {
 			"dependsOn": ["build:docs-main"]
+		},
+		"build:docs": {
+			"dependsOn": ["build", "^build"]
 		}
 	}
 }
