@@ -14,7 +14,7 @@
 
 ## Task 1：复核插入点还在
 
-执行状态：未开始
+执行状态：已完成
 
 修改范围：不改文件。
 
@@ -34,7 +34,7 @@ rg -n "用户级检索策略|判定顺序" ai-plugins/common-tools/skills/use-me
 
 ## Task 2：插入配置说明
 
-执行状态：未开始
+执行状态：已完成
 
 修改范围：只在 Embedding 动作表和判定顺序之间插入 `spec.md` 第 2 节的正文。
 
@@ -53,7 +53,7 @@ rg -n "cjk = .vector.|ascii = .hybrid.|得到确认后再写" ai-plugins/common-
 
 ## Task 3：确认没有写进禁区
 
-执行状态：未开始
+执行状态：已完成
 
 修改范围：不改文件。
 
@@ -73,7 +73,7 @@ rg -n "observationIds|[A-Za-z]:\\\\Users\\\\" ai-plugins/common-tools/skills/use
 
 ## Task 4：回写 common 的两处现行句子
 
-执行状态：未开始
+执行状态：已完成
 
 修改范围：只改下面两个文件里 `spec.md` 点名的那一句。仓库根是 `D:\code\ruan-cat\common` 的工作区（本机路径 `D:\store\WorkBuddy\2026-6-30-common`）。
 

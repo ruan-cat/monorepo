@@ -34,10 +34,10 @@
 
 ### Task 1：改存储参考
 
-- [ ] 按 `spec.md` 第 4 节替换路由表存储行、`topicKey` 约定、CLI 兜底第 1 和第 2 条。
-- [ ] 在只读示例之前放入存储命令和两条附注。
-- [ ] 失败表追加一行。原有四行不删、不改写。
-- [ ] 只读示例三行保持原样。第 3 条「本次走 CLI 兜底」保持原句。
+- [x] 按 `spec.md` 第 4 节替换路由表存储行、`topicKey` 约定、CLI 兜底第 1 和第 2 条。
+- [x] 在只读示例之前放入存储命令和两条附注。
+- [x] 失败表追加一行。原有四行不删、不改写。
+- [x] 只读示例三行保持原样。第 3 条「本次走 CLI 兜底」保持原句。
 
 验证：
 
@@ -50,9 +50,9 @@ git diff -U0 -- ai-plugins/common-tools/skills/use-memorix/references/memory-ope
 
 ### Task 2：改技能入口版本
 
-- [ ] 在「运行时事实来源优先级」第 2 条后追加 spec 规定的那一句。第 1、3、4、5 条不改。
-- [ ] `metadata.version` 从 `3.0.1` 改为 `3.0.2`。
-- [ ] 不改 `description`。
+- [x] 在「运行时事实来源优先级」第 2 条后追加 spec 规定的那一句。第 1、3、4、5 条不改。
+- [x] `metadata.version` 从 `3.0.1` 改为 `3.0.2`。
+- [x] 不改 `description`。
 
 验证：
 
@@ -65,8 +65,8 @@ git diff -U0 -- ai-plugins/common-tools/skills/use-memorix/SKILL.md
 
 ### Task 3：对齐注册表版本
 
-- [ ] 把 `ai-plugins/skill-registry.json` 里 `id` 为 `use-memorix` 的 `version` 改为 `3.0.2`。
-- [ ] 不改该条目的 `description`、`plugin`、`entry`，也不改其它技能。
+- [x] 把 `ai-plugins/skill-registry.json` 里 `id` 为 `use-memorix` 的 `version` 改为 `3.0.2`。
+- [x] 不改该条目的 `description`、`plugin`、`entry`，也不改其它技能。
 
 验证：
 
@@ -79,9 +79,9 @@ git diff -U0 -- ai-plugins/skill-registry.json
 
 ### Task 4：收口核对
 
-- [ ] 对照 `spec.md` 第 5 节逐条核对。
-- [ ] 确认 `git status --short` 里，本包之外的既有 dirty 没有被本任务改写。
-- [ ] 确认工作区没有新的 `agent-progress.md` 或 `agent-findings.md`。
+- [x] 对照 `spec.md` 第 5 节逐条核对。
+- [x] 确认 `git status --short` 里，本包之外的既有 dirty 没有被本任务改写。
+- [x] 确认工作区没有新的 `agent-progress.md` 或 `agent-findings.md`。
 
 验证：
 

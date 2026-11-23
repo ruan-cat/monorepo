@@ -36,44 +36,26 @@
 
 ### 执行状态
 
-- 包状态：未开始
-- 当前 Task：Task 1
-- 2026-11-23 增加了 Task 4（回写 common 两处 Markdown）。Task 1–4 都还没执行。
-- 执行者：尚未接手。规划会话不实现。
-- 阻塞：无
-- 核对时间：2026-11-23 12:56 CST
+- 包状态：已闭环
+- 当前 Task：无
+- 遗留项：无
+- 核对时间：2026-11-23 15:00 CST
+- monorepo 分支 `dev`，HEAD `3855e1f0f8d6ade4673b3594bcac86b848e7731e`。reference 改动未提交，不编 SHA。
 
-### 仓库基线
+### 本包完成的改动
 
-- 分支：`dev`
-- HEAD：`38465ef49d9c31608d5264f8db94679b3eced323`
-- 跟踪：`dev...origin/dev`，与 origin 对齐
-- 本次 dirty：未跟踪 `openspec/changes/slim-four-skill-descriptions/`。不碰它
-- 2026-11-22 核对时的 HEAD 是 `04c8b5988640aba9f06ac27dd06a06408aab8f8c`，当时 dirty 是 `docs/prompts/index.md`
-- 本任务包已随 `38465ef4` 入库。reference 仍未改
+1. `ai-plugins/common-tools/skills/use-memorix/references/retrieval-and-golden-set.md`：在 Embedding 动作表和「判定顺序（不要跳步）」之间插入一次 `### 用户级检索策略`。正文含 `cjk = "vector"`、`ascii = "hybrid"`，并写明改这两个字段前要先确认。判定顺序五条未改。
+2. `D:\store\WorkBuddy\2026-6-30-common\docs\memorix\index.md`：现行入口里 embedding 那一行的主题末尾写明源文件已有这段，已安装副本要等用户另行 `skills add`。
+3. `D:\store\WorkBuddy\2026-6-30-common\docs\memorix\2026-10-13-about-embedding-mode\handoff.md`：「压缩后接着做」第 1 条改为同一事实，并写明这次 reference 改动未提交。
 
-### 文件哈希
-
-算法 SHA256。实施前必须重算。对不上就先改正本栏，再判断依赖门。哈希变化本身不构成停止；依赖门只看插入点是否还在。
-
-| 文件                                                                                | SHA256                                                             |
-| :---------------------------------------------------------------------------------- | :----------------------------------------------------------------- |
-| `ai-plugins/common-tools/skills/use-memorix/references/retrieval-and-golden-set.md` | `E1DA39FC293ECD3BDCEBB6A06743EFA4C2AD51B59F435CB4F6E9EE73839F8C93` |
-
-重算命令：
-
-```powershell
-Get-FileHash -Algorithm SHA256 ai-plugins\common-tools\skills\use-memorix\references\retrieval-and-golden-set.md
-```
+本包不拥有：`SKILL.md`、会话参考、记忆参考、版本号、01 与 02 两个任务包。`cases.json` 与 mirror 无本包 diff。
 
 ### 证据
 
-- 规划会话只创建了本目录三份文件。
-- 2026-11-23 重算哈希，与上栏相同。reference 里仍没有 `用户级检索策略`，依赖门的插入点还在。包保持未开始。
+- `### 用户级检索策略` 在该 reference 中只出现一次。
+- common 两处都能搜到「用户级检索策略」，并写了已安装副本尚未更新。
+- 四份 `plan.md` 的任务定义未改。
 
 ### 执行者下一条命令
 
-```powershell
-git status --short --branch
-rg -n "用户级检索策略|判定顺序" ai-plugins/common-tools/skills/use-memorix/references/retrieval-and-golden-set.md
-```
+无。本包已闭环。

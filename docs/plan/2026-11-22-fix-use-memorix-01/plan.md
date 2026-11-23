@@ -16,7 +16,7 @@
 
 ## Task 1：复核原文还在
 
-执行状态：未开始
+执行状态：已完成
 
 修改范围：不改文件。
 
@@ -36,7 +36,7 @@ rg -n "已有则复用，不重复启动|项目绑定硬门" ai-plugins/common-t
 
 ## Task 2：替换平台事实和启动规则
 
-执行状态：未开始
+执行状态：已完成
 
 修改范围：`SKILL.md` 的平台事实整句；`session-and-reasoning.md` 第 15 行那一条。
 
@@ -56,7 +56,7 @@ rg -n "已有则复用，不重复启动|项目绑定硬门|projectRoot" ai-plug
 
 ## Task 3：把硬门放进写入路径
 
-执行状态：未开始
+执行状态：已完成
 
 修改范围：`memory-operations.md` 的读取路径第 1 步和写入路径开头。
 
@@ -76,7 +76,7 @@ rg -n "项目绑定硬门|entityName|写入前展示" ai-plugins/common-tools/sk
 
 ## Task 4：收口核对
 
-执行状态：未开始
+执行状态：已完成
 
 修改范围：不改技能正文。只回写 `plan.md` 的执行状态和 `handoff.md` 的易腐栏。
 

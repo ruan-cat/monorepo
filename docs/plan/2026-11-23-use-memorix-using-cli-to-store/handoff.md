@@ -37,43 +37,28 @@
 
 ### 执行状态
 
-- 包状态：未开始
-- 当前 Task：Task 1
-- 执行者：尚未接手。规划会话不实现。
-- 阻塞：无
-- 核对时间：2026-11-23 14:05 CST
+- 包状态：已闭环
+- 当前 Task：无
+- 遗留项：无
+- 核对时间：2026-11-23 15:00 CST
+- 分支 `dev`，HEAD `3855e1f0f8d6ade4673b3594bcac86b848e7731e`，本包改动未提交
 
-### 仓库基线
+### 本包完成的改动
 
-- 分支：`dev`
-- HEAD：`9857e8e1a3f8964f18074692820f5c386a06eb84`
-- 跟踪：`dev...origin/dev`
-- 规划时 dirty：`openspec/changes/slim-four-skill-descriptions/` 下五份文件显示为删除；`openspec/changes/archive/2026-11-23-slim-four-skill-descriptions/` 未跟踪
-- 规划时 `use-memorix` 的 `metadata.version` 与注册表版本都是 `3.0.1`
-- 规划时 `memory-operations.md` 的存储兜底仍是 `memorix memory store ...`，CLI 兜底仍写参数以 `--help` 为准
-- 规划时本机 `memorix --version` 为 `1.10.3`。`memorix memory store --help` 的动作总览没有 `--topic-key`
-- index：本包三份文件当时未暂存。写集三处当时无本包 diff
-- 文件哈希：实施前必须重算。规划时未计算三份技能文件
+1. `ai-plugins/common-tools/skills/use-memorix/references/memory-operations.md`：路由表存储行换成带 `--cwd`、`--entity`、`--type`、`--title`、`--topic-key`、`--text` 的完整命令。`topicKey` 约定改为 `--topic-key` upsert。CLI 兜底第 1、2 条换成帮助未列出 `--topic-key` 的变体。只读示例之前写入存储命令和两条附注。失败表追加「帮助里看不到主题键」，原有四行仍在。第 3 条「本次走 CLI 兜底」和只读示例三行保持原样。
+2. `ai-plugins/common-tools/skills/use-memorix/SKILL.md`：`metadata.version` 改为 `3.0.2`。运行时事实来源第 2 条后追加「主题键更新不从 `memorix remember --help` 推断」。第 1、3、4、5 条和 `description` 未改。
+3. `ai-plugins/skill-registry.json`：`use-memorix` 的 `version` 改为 `3.0.2`。该条目的 `description`、`plugin`、`entry` 未改。
 
-接手时重跑下面的预检。结果与上面不一致，先改正这一栏，再判断依赖门是否仍成立。
+帮助依据：`memorix` `1.10.3` 的 `memorix memory store --help` 没有 `--topic-key`，所以使用未列出变体。
+
+本包不拥有：项目绑定硬门、无活动会话说法、用户级检索策略。
 
 ### 证据
 
-- 规划会话只创建了本目录三份文件。
-- 尚未修改写集三处。
-- 尚未运行 Task 1 到 Task 4 的验收。
+- 两处版本都是 `3.0.2`。
+- 技能正文写明 `memorix remember` 不转发 `--entity` 和 `--topic-key`，并写明指错项目会插入新记录。
+- 本目录没有 `agent-progress.md` 或 `agent-findings.md`。四份 `plan.md` 的任务定义未改。
 
 ### 执行者下一条命令
 
-在 `D:\code\ruan-cat\monorepo` 运行：
-
-```powershell
-git status --short --branch
-git rev-parse HEAD
-git branch --show-current
-memorix --version
-memorix memory store --help
-rg -n "memory store \.\.\.|topic-key|--help" ai-plugins/common-tools/skills/use-memorix/references/memory-operations.md
-```
-
-预检通过后，从 `plan.md` Task 1 开始。帮助里是否已经出现 `--topic-key`，决定 Task 1 用哪一版第 2 条。
+无。本包已闭环。
