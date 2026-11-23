@@ -17,7 +17,7 @@ build 为 `pnpm i && pnpm exec turbo run build:docs --filter=@ruan-cat/domains`
 
 deploy 为 `pnpm --dir packages/domains exec wrangler deploy`
 
-include paths 为 `packages/domains/**`、`packages/vitepress-preset-config/**`、`packages/vuepress-preset-config/**`、`packages/utils/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
+include paths 为 `turbo.json`、`packages/domains/**`、`packages/vitepress-preset-config/**`、`packages/vuepress-preset-config/**`、`packages/utils/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
 
 ## Install
 

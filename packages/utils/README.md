@@ -23,7 +23,7 @@ build 为 `pnpm i && pnpm exec turbo run build:docs --filter=@ruan-cat/utils`
 
 deploy 为 `pnpm --dir packages/utils exec wrangler deploy`
 
-include paths 为 `packages/utils/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
+include paths 为 `turbo.json`、`packages/utils/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
 
 ## Install
 

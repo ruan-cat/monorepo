@@ -17,7 +17,7 @@ build 为 `pnpm i && pnpm exec turbo run build:docs --filter=@ruan-cat/claude-no
 
 deploy 为 `pnpm --dir packages/claude-notifier exec wrangler deploy`
 
-include paths 为 `packages/claude-notifier/**`、`packages/vitepress-preset-config/**`、`packages/utils/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
+include paths 为 `turbo.json`、`packages/claude-notifier/**`、`packages/vitepress-preset-config/**`、`packages/utils/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
 
 ## 功能特性
 

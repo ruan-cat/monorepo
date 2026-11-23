@@ -19,7 +19,7 @@ build 为 `pnpm i && pnpm exec turbo run build:docs --filter=@ruan-cat/vercel-de
 
 deploy 为 `pnpm --dir packages/vercel-deploy-tool exec wrangler deploy`
 
-include paths 为 `packages/vercel-deploy-tool/**`、`packages/utils/**`、`packages/vitepress-preset-config/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
+include paths 为 `turbo.json`、`packages/vercel-deploy-tool/**`、`packages/utils/**`、`packages/vitepress-preset-config/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
 
 ## ✨ 特性
 

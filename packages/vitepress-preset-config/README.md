@@ -29,7 +29,7 @@ build 为 `pnpm i && pnpm exec turbo run build:docs --filter=@ruan-cat/vitepress
 
 deploy 为 `pnpm --dir packages/vitepress-preset-config exec wrangler deploy`
 
-include paths 为 `packages/vitepress-preset-config/**`、`packages/utils/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
+include paths 为 `turbo.json`、`packages/vitepress-preset-config/**`、`packages/utils/**`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`。
 
 ## 安装依赖
 
