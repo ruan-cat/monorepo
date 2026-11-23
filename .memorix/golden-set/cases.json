@@ -1,0 +1,28 @@
+{
+	"schemaVersion": "memorix-golden-set-case/v1",
+	"project": {
+		"repository": "ruan-cat/monorepo"
+	},
+	"cases": [
+		{
+			"id": "remember-topic-key-title-miss",
+			"query": "memorix remember 不转发主题键",
+			"capturedAt": "2026-11-23T07:22:47Z",
+			"failureKinds": ["zero-candidate"],
+			"expected": {
+				"mustMatch": [
+					{
+						"topicKey": "gotcha/memorix-cli-topic-key",
+						"entity": "use-memorix",
+						"type": "gotcha",
+						"titleIncludes": ["remember", "主题键"]
+					}
+				],
+				"notes": "标题里的中文字符占比低于 0.3，查询走 ascii=hybrid。CLI 与 MCP 的 candidateCount 都是 0。详情按编号仍能读到。"
+			},
+			"localHints": {
+				"observationIds": [6443]
+			}
+		}
+	]
+}
