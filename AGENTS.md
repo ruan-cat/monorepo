@@ -216,12 +216,14 @@ You have access to Memorix memory tools. Follow these rules to maintain persiste
 
 ## RULE 1: Session Start — Load Context
 
-At the **beginning of every conversation**, BEFORE responding to the user:
+不要在会话一开始调用 `memorix_session_start`，也不要运行 `memorix session start`。只有用户明确说要开会话时，才运行 `memorix session start --cwd <本仓库 git 根的绝对路径>`。
 
-1. Call `memorix_session_start` to get the previous session summary and key memories (this is a direct read, not a search — no fragmentation risk)
-2. Then call `memorix_search` with a query related to the user's first message for additional context
-3. If search results are found, use `memorix_detail` to fetch the most relevant ones
-4. Reference relevant memories naturally — the user should feel you "remember" them
+需要上一份上下文时，用只读 CLI，并且每次都带同一个 `--cwd`：
+
+1. `memorix resume --cwd <本仓库 git 根的绝对路径>`
+2. 再按用户第一条消息检索：`memorix memory search "<查询>" --cwd <本仓库 git 根的绝对路径>`
+3. 命中后用 `memorix memory detail <id> --cwd <本仓库 git 根的绝对路径>` 读取
+4. 自然引用相关记忆。只命中 fuzzy 的结果按 0 条处理。
 
 ## RULE 2: Store Important Context
 
