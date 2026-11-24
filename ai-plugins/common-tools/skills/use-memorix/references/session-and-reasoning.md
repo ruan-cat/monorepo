@@ -11,16 +11,10 @@
 | `session end`              | 写入 | 结束前确认 |
 | handoff / receipt          | 写入 | 生成前确认 |
 
-- 恢复会话只读不写：读取 `session context`，把目标、状态、下一步拿回来即可。
-- 项目绑定硬门。活动会话存在不能跳过 MCP 根目录核对。不一致时先确认，再把当前工作区绝对路径传给 `projectRoot`。
-  1. 运行 `memorix session context --cwd <当前工作区绝对路径>`，记下 CLI 项目 id 和根目录。不带 `--cwd` 的结果不能当作这次核对。
-  2. 读取 MCP `memorix_project_context`，记下它绑定的项目 id 和根目录。
-  3. 两边都必须等于当前工作区。CLI 报本项目已有活动会话，不能代替这次核对。
-  4. 有一边不是，停止 `memorix_store` 和 `memorix_resolve`。向用户展示两边的项目 id 与根目录，确认后第一件 MCP 调用才是 `memorix_session_start`，`projectRoot` 传当前工作区绝对路径。
-  5. `session_start` 会关闭该项目上一个活动会话。确认前不调用。
-  6. 绑定成功后再次核对。仍不一致就停止，不写。
-  7. 本会话工具列表里没有 memorix MCP 时，跳过第 2–6 步。不调用 `memorix_session_start`，也不运行 `memorix session start`。只读和已经确认的存储直接走 CLI，并带同一条 `--cwd`。只有 MCP 工具在列表里且 `session_start` 失败，才改为 CLI。两种情况都不能靠进程当前目录。`memory store` 不创建会话。
-- 分区由显式路径决定。CLI 用 `--cwd <当前工作区绝对路径>`；MCP 没有 `--cwd`，用 `session_start` 的 `projectRoot`，两者必须是同一条绝对路径。不带 `--cwd` 的 CLI 输出可以是另一个项目。对不上就停写。
+- 恢复会话只读不写：`memorix session context --cwd <当前工作区绝对路径>` 把目标、状态、下一步拿回来即可。默认走 CLI，不用 MCP。
+- 项目分区：写入或依赖会话上下文前，运行 `memorix session context --cwd <当前工作区绝对路径>`，确认打印出的项目 id 与根目录等于当前工作区。不带 `--cwd` 的输出可以是另一个项目；对不上就停写。
+- 会话相关命令一律 CLI + `--cwd`。不调用 `memorix_session_start`；不运行 `memorix session start`，除非用户明确说要开会话且已确认（`session start` 会关掉该项目上一个活动会话）。`memory store --cwd` 不创建会话。
+- 用户点名必须用 MCP 开会话时，见 `references/activation-and-workspace.md` 非默认分支；未点名则只走 CLI。
 - `end` 会写结束状态与摘要；结束前确认摘要内容，不要写入未经证实的结论。摘要只写「结论在哪个相对路径的哪一节」，不重写方案字母、判据参数或别人的 observation 编号。
 - handoff 是写操作，且通常是长任务唯一可靠的跨上下文载体；内容必须可核对。
 
@@ -28,9 +22,9 @@
 
 1. 先跑只读的 `memorix session context --cwd <当前工作区绝对路径>`。回复里写上活动会话数量，以及最近一条已结束会话的代理和时间。命令失败时原样报失败，不把它说成 `0 active`。不带 `--cwd` 的结果不能用来判断当前工作区。
 2. 写明本对话有没有调用过 `session start`。没调用过，就写「本对话没有活动会话」，不得写「我的会话被其他代理关掉」。
-3. `0 active` 不是索引错误，也不是归档失败。没有活动会话时，MCP 写入不可用；只读 `session context` 仍然有效。
-4. 用户要的是 MCP 写入时，这一轮只问要不要新建会话。不同时确认 `store`、`session end`、handoff 或 `archive`。用户只要存储、并且本会话没有 MCP 时，不新建会话，改用 CLI `memory store --cwd`。
-5. 用户说不存储、不启动或不归档：不调用 `session start`，不写入，不进入归档。
+3. `0 active` 不是索引错误，也不是归档失败。没有活动会话时，存储仍可用 CLI `memory store --cwd`；只读 `session context` 仍然有效。
+4. 用户明确要开会话时，这一轮只问要不要 `memorix session start --cwd`，不要同时确认 `store`、`session end`、handoff 或 `archive`。用户只要存储时不新建会话，直接用 `memory store --cwd`。
+5. 用户说不存储、不启动或不归档：不运行 `memorix session start`，不写入，不进入归档。
 6. 只有本对话曾经 `session start` 成功，之后的只读结果变成已结束，且结束记录属于其他代理，才可以写「可能被其他会话结束」。三样缺一样，就写「本对话没有活动会话」。
 7. 归档是否成立只看 retention 域的候选硬门。没有活动会话不是归档失败。
 

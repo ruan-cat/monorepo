@@ -1,8 +1,15 @@
 # 平台、MCP 与启动链
 
-本文件处理 MCP entry、mode、Node ABI、命令解析链、WorkBuddy 启动链，以及三套手工兼容器的既有差异。hooks 去噪见 setup 域。
+本文件处理**用户已安装或明确要求安装**时的 MCP entry 校准、mode、Node ABI、命令解析链与 WorkBuddy 启动链。hooks 去噪见 setup 域。
 
-## mode 与手工兼容器
+## 默认：不安装 MCP，日常走 CLI
+
+- `use-memorix` 日常读写默认 **memorix CLI + `--cwd`**。不指导、不默认推荐安装 Memorix MCP，也不把「先装 MCP 再用记忆」当作起手步骤。
+- 用户**未明确要求**安装或校准 MCP 时：不要运行 `scripts/install-mcp.ts`、`fallback/install-mcp.ps1` / `.sh`，不要建议 `full` mode 安装，不要为了读写去配置 `memorix serve`。
+- 即使工具列表里仍有 memorix MCP，记忆读写仍走 CLI（见 `memory-operations.md`）。
+- **只有用户明确要求**安装 MCP、校准已有 entry、或排障已装 MCP 时，才用下文「mode 与手工兼容器」及后续章节；动手前先告诉用户：**这不是默认路径，日常仍应 CLI**。
+
+## mode 与手工兼容器（仅用户明确要求时）
 
 Memorix MCP 的低上下文档位是 `micro`。手工兼容器只做一件事：把 entry 的 `--mode` 校准为 `micro`，不改 `command`、不改其他 server。
 
@@ -31,7 +38,7 @@ args = ["serve", "--mode", "micro"]
 - 只替换 args 里的 `--mode` 值；Codex 的 `["/c", "memorix.cmd", "serve", ...]` 启动器前缀必须保留。
 - 写回按原文件的缩进、行尾与结尾换行序列化，避免大配置整文件 diff。
 - 不写死工具数量。`micro` / `lite` / `team` / `full` 的精确工具面随版本漂移，以当前 `memorix serve --help` 与工具列表为准。
-- 官方 setup 拥有安装权；手工兼容器只校准已存在的 entry，不替代官方 setup，也不在 setup 之后改写官方产物结构。
+- 官方 setup 拥有安装权；手工兼容器只校准**已存在**的 entry，不替代官方 setup，也不作为默认安装路径。未获用户明确要求前，不要主动跑安装或推广 `full` mode。
 
 ## 三套入口的既有差异（不得统一）
 
@@ -106,11 +113,11 @@ where.exe memorix
 & "<PNPM_HOME>\bin\memorix.cmd" --version
 ```
 
-| 现象                                | 结论                            |
-| :---------------------------------- | :------------------------------ |
-| 裸命令失败 + 绝对路径成功           | 坏 shim 劫持                    |
-| 裸命令与绝对路径都失败              | 包本体问题，走 reinstall        |
-| 裸命令成功 + `~/.memorix/` 数据完好 | CLI 健康，问题在宿主配置/信任层 |
+| 现象                                | 结论                                                                               |
+| :---------------------------------- | :--------------------------------------------------------------------------------- |
+| 裸命令失败 + 绝对路径成功           | 坏 shim 劫持                                                                       |
+| 裸命令与绝对路径都失败              | 包本体问题，走 reinstall                                                           |
+| 裸命令成功 + `~/.memorix/` 数据完好 | CLI 健康；用户未要求 MCP 时不必为此安装 MCP；若已装 MCP，问题可能在宿主配置/信任层 |
 
 机制：一台机器用过多个包管理器时，旧管理器的 shim 目录可能留下失效遗物。包管理器布局迁移（例如 pnpm 11+ 把全局 bin 迁到 `<PNPM_HOME>\bin`）会让好 shim 从 PATH 高位跌落，坏 shim 从被遮蔽翻转为劫持态。此时配置完全正确也会失败。
 
