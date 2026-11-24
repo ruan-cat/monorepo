@@ -7,7 +7,7 @@ description: >-
   以及（仅在用户明确要求时）校准已安装的 MCP、mode 选择、Node ABI、shim 劫持、WorkBuddy 启动链、
   跨仓库核对记忆落点、多个 agent 并发写同一实体，或 filesModified 混入未改文件。
 metadata:
-  version: "4.0.0"
+  version: "4.0.1"
 ---
 
 # use-memorix
@@ -113,7 +113,7 @@ metadata:
    主题键更新不从 `memorix remember --help` 推断，也不从缺少 `--topic-key` 的 `memorix memory store --help` 推断。CLI 存储以 `references/memory-operations.md` 的存储命令为准。其它命令仍以当前 `--help` 为准。
 3. 当前安装包内文档与官方七技能。
 4. 本技能中不易漂移的治理规则（安全门、归档硬门、host 边界）。
-5. 历史报告或旧输出只作背景，不作为当前命令合同。
+5. 历史报告或旧输出只作背景，不作为当前命令合同。`bad-lessons/` 里的文件属于历史报告。引用前必须通过该目录 README 的新鲜度门；门没过就当这些文件不存在。
 
 本技能不写死当前安装版本、工具数量、dashboard 默认端口或 setup 检查项数量；这些一律以当前 runtime 输出为准。
 
@@ -136,6 +136,7 @@ metadata:
 | 路径                                          | 用途                                      |
 | :-------------------------------------------- | :---------------------------------------- |
 | `references/`                                 | 七域渐进路由明细                          |
+| `bad-lessons/`                                | 会过期的糟糕经验。先过 README 的新鲜度门  |
 | `references/activation-and-workspace.md`      | 开锁提示词 × 跨工作区的四条走法与失效条件 |
 | `scripts/install-mcp.ts`                      | 仅用户明确要求装 MCP 时的配置校准入口     |
 | `fallback/install-mcp.ps1`                    | Windows PowerShell 兜底入口（含 BOM）     |
