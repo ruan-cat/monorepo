@@ -9,9 +9,13 @@ description: >-
   当用户提及【分门别类】关键词时，必须按照本技能的多提交拆分规范，
   从文件类型、业务模块、修改类型、修改范围四个维度认真拆分多个提交。
   本技能只追加 Assisted-by，不再生成、审核或拦截 Co-authored-by。
+  emoji/type 只读取本技能 references/commit-types.ts，不要联网查询。
+  多个 agent 共用同一工作副本时，按 references/shared-worktree-race.md
+  用 git stash 保存、排序、弹出并清掉自己的提交；提交失败先看状态和 HEAD，
+  禁止盲目重试或强推。
 user-invocable: true
 metadata:
-  version: "1.1.0"
+  version: "2.0.0"
 ---
 
 # Git Commit
@@ -45,8 +49,9 @@ identityCheck:
 1. 先用 `git status --short --branch`、`git diff --cached` 和目标组文件清单确认封包仍与工作树一致；不一致时退回完整工作流程并报告差异。
 2. 只允许暂存 `scope` 和当前 `groups` 的文件，`exclude` 中的修改始终保持未暂存；禁止回退范围外文件。
 3. 仍必须执行 staged diff 审查、敏感信息扫描、commitlint、最小验证、提交后 `git log -1` 与 `git status` 复核；快速路径只能省略重复发现，不能省略证据门。
-4. 同一任务只解析一次远程或本地 `commit-types.ts`，后续分组复用 `type/emoji` 结果；`identityCheck` 只执行一次 `Assisted-by` 结论，不判断 `Co-authored-by`。
+4. 同一任务只解析一次本技能 `references/commit-types.ts`，后续分组复用 `type/emoji` 结果；`identityCheck` 只执行一次 `Assisted-by` 结论，不判断 `Co-authored-by`。
 5. 每个提交返回 commit hash、提交正文、实际文件集合和原始验证输出；最终确认没有 `commit-message.txt` 或其他临时文件残留，且不执行 `git push`。
+6. 多个 agent 共用当前工作副本时，禁止走快速路径。快速路径假设暂存区在封包和 `git commit` 之间不被别人改写；这种时候改走 `references/shared-worktree-race.md`。
 
 如果封包缺少任一字段、白名单含糊或验证命令不可复现，不得使用快速路径。
 
@@ -67,7 +72,7 @@ identityCheck:
 
 1. 用户在当前对话中的明确要求
 2. 当前仓库本地 commit / commitlint 规则（如 `commitlint.config.*`、`.commitlintrc*`、`package.json` 中的 `commitlint` 字段、`commit-msg` hook）
-3. 远程 raw `commit-types.ts`（首选）+ 本地 `commit-types.ts`（fallback，详见步骤 6）
+3. 本技能 `references/commit-types.ts`（emoji/type 的唯一来源，禁止为查表联网，详见步骤 6）
 4. 技能默认模板、示例与 `references/commit-message-template.md`
 
 - 若多个来源冲突，必须以更高优先级来源为准。
@@ -121,16 +126,11 @@ identityCheck:
      - （空行）
      - body （内容/原因，而非实现流水账）
      - footer：破坏性变更时必须包含 `BREAKING CHANGE: <说明>` 行
-   - **Emoji 和 Type 规范**：必须查阅并遵循 `commit-types.ts` 中的定义，按以下优先级获取：
-     - **首选（远程 raw，确保最新）**：从 GitHub 远程获取最新定义：
-       - `https://raw.githubusercontent.com/ruan-cat/monorepo/dev/configs-package/commitlint-config/src/commit-types.ts`
-       - 远程文件是权威来源，优先使用以确保 type/emoji 映射是最新的。
-     - **次选（技能自带的本地文件）**：若远程 raw 获取失败（网络不可用/超时/HTTP 错误），再回退到本技能目录下的 `references/commit-types.ts`
-       - 读取该文件，解析 `commitTypes` 数组，定位本次要使用的 `type`。
-       - 该文件是随技能一起分发的快照副本，版本可能落后于远程，但可确保离线可用。
-     - **禁止仅依据搜索摘要或缓存判断 emoji**——必须读取完整文件后定位 type。在继续之前，显式复述本次解析结果：`selected type`、`resolved emoji`、命中的原始片段。
-     - 同一任务包含多个逻辑提交时，只需在第一个分组解析一次；后续分组复用已确认的映射，并在执行记录中标明复用，不要重复读取和推断。
-     - 若远程和本地都获取失败 → **停止**，报告"无法获取 commit-types.ts，无法确定合法 type 与 emoji"，不得猜测或回退到旧表格。
+   - **Emoji 和 Type 规范**：必须读取本技能 `references/commit-types.ts` 全文，解析 `commitTypes`，定位本次 `type`。
+     - 这个文件就是唯一来源。不要请求 GitHub raw，不要用搜索摘要或记忆里的 emoji。
+     - 在继续之前，显式复述：`selected type`、`resolved emoji`、命中的原始片段。
+     - 同一任务包含多个逻辑提交时，只需在第一个分组解析一次；后续分组复用已确认的映射，并在执行记录中标明复用。
+     - 文件读不到或定位不到 type → **停止**，报告「无法读取 references/commit-types.ts，无法确定合法 type 与 emoji」，不得猜测，也不得改去联网。
    - **推荐使用文件方式**（避免 shell 参数传递导致的编码与转义问题）：
      - 对于包含中文的 commit message，默认使用 `git commit -F commit-message.txt`
      - 创建临时提交信息文件（如 `commit-message.txt`），写入提交信息内容
@@ -177,6 +177,8 @@ identityCheck:
      - 不输出 Co-authored-by 检测日志，也不因为提交信息里有或没有该字段而失败。
      - 带邮箱的 `Co-authored-by` 交给执行 agent 自己的系统提示词。本技能不主动补写。
      - 若提交结果里已经出现 `Co-authored-by`，保持原样，不要删掉或替换。
+   - **提交前记下 `HEAD`**：`git rev-parse HEAD`。失败、退出码非 0，或提交后的暂存区 / `HEAD` 与预期不符时，先跑 `git status --short --branch`、`git rev-parse HEAD`、`git log -1 --oneline --stat`。`HEAD` 变了或暂存区空了，就停止重试。禁止 `git push --force`、`git reset --hard`，禁止对范围外路径 `git restore` 或 `git checkout --`。
+   - **共享工作副本**：命中 `references/shared-worktree-race.md` 的条件时，禁止把待提交内容留在共享暂存区里直接 `git commit`。按该文件做存储、排序、弹出、清洁。普通单代理提交仍用下面的 `commit-message.txt`。
    - **使用 `--trailer` 参数追加**：执行 `git commit -F commit-message.txt` 时：
      - 仅当 `Assisted-by` 条件满足时，追加一条 `--trailer "Assisted-by: AGENT_NAME / MODEL_VERSION"`。
      - 不要为 `Co-authored-by` 追加 `--trailer`。
@@ -186,7 +188,7 @@ identityCheck:
    - **复核提交结果**：
      - `git log -1 --format=%B`
      - `git status --short --branch`
-     - 若 commit 过程中出现 warning、hook 改写了文件、或最终提交信息与预期不一致，不能直接宣称完成，必须先修正。
+     - 若 commit 过程中出现 warning、hook 改写了文件、或最终提交信息与预期不一致，不能直接宣称完成，必须先修正。失败后的重试禁令见上面「提交前记下 `HEAD`」。
    - **🛑 不要推送**：执行完提交后，**不要执行 `git push`**。推送操作由用户自行决定并执行。
 
 10. **重复下一个提交，直到封包/计划内的 groups 全部提交完成**
@@ -313,8 +315,7 @@ BREAKING CHANGE: 函数签名从 `getUser(id)` 改为 `getUser({ id, includeDele
 
 ## 提交类型（commit type）选择指南
 
-> 本仓库在 `references/commit-types.ts`（随技能分发的快照）中定义了 18 个提交类型。
-> 远程 GitHub raw 文件是权威来源，本地 `references/commit-types.ts` 作为离线 fallback。
+> 18 个提交类型以本技能 `references/commit-types.ts` 为准。先读那个文件再选 type，不要联网，也不要只看下面的表。
 
 ### 核心类型（高频使用）
 
@@ -410,7 +411,8 @@ BREAKING CHANGE: 函数签名从 `getUser(id)` 改为 `getUser({ id, includeDele
 
 | 文件                          | 何时查阅                                       |
 | :---------------------------- | :--------------------------------------------- |
-| `commit-types.ts`             | emoji/type 映射的本地 fallback 数据源          |
+| `commit-types.ts`             | emoji/type 的唯一来源；提交前必须读取全文      |
+| `shared-worktree-race.md`     | 多个 agent 共用工作副本时的 stash 队列         |
 | `commit-message-template.md`  | 提交信息写作模板与结构参考                     |
 | `commit-splitting-example.md` | 拆分逻辑复杂、文件众多时需要详细拆分示例       |
 | `staging-priority.md`         | 对暂存区处理逻辑有疑问时                       |

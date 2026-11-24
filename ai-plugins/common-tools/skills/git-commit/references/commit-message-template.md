@@ -1,7 +1,7 @@
 # 提交信息模板 （Conventional Commits）
 
 > 该文档只提供提交信息写作模板，不是 emoji/type 的 source-of-truth。
-> 实际 emoji/type 必须读取远程 raw `commit-types.ts` 全文后判定；如果抓取失败或无法可靠定位，必须停止提交流程，不得回退到旧表格。
+> 实际 emoji/type 必须读取本技能 `references/commit-types.ts` 全文后判定。读不到或对不上 type 时停止，不得改去联网，也不得回退到旧表格。
 
 ### 普通提交
 
@@ -43,4 +43,4 @@ Assisted-by: <AGENT_NAME> / <MODEL_VERSION>
   - ✅ 正确：`🦄 refactor(scope)!: summary`
   - ❌ 错误：`🦄 refactor!(scope): summary`（`!` 在 scope 之前）
   - ❌ 错误：`🦄 refactor(scope) !: summary`（`!` 前有空格）
-- **Emoji 和 Type 必须遵循** [raw commit-types.ts](https://raw.githubusercontent.com/ruan-cat/monorepo/dev/configs-package/commitlint-config/src/commit-types.ts) 中的定义。
+- **Emoji 和 Type 必须遵循**本技能 `references/commit-types.ts`。不要为了查表请求远程 raw。

@@ -646,11 +646,12 @@ metadata:
 
 **后续约束**：
 
-1. 执行 `git-commit` 前**必须**查阅 `commit-types.ts` 或远程 raw 确认 emoji/type 映射，禁止凭记忆选取
+1. 执行 `git-commit` 前**必须**读取技能目录 `references/commit-types.ts` 确认 emoji/type 映射，禁止凭记忆选取，也不要为查表联网
 2. `publish` 提交**必须**先同步所有版本文件（2 个 marketplace + 4 个 plugin.json），缺一不可
 3. git 操作**先规划再执行**，禁止反复 `reset --soft` 补救。一次性确认拆分方案、emoji、type、scope 全部正确后再提交
 4. 提交前先 `git fetch origin` 确认远端状态，避免 push 被拒后再处理 rebase
 5. 本地有未提交文件时**先 stash 再 rebase**，避免无关文件干扰冲突处理
+6. 多个 agent 共用同一工作副本时，`git add` 到 `git commit` 之间暂存区可能被并行提交清空。提交失败先看 `git status` 和 `HEAD`，禁止原命令重试或强推。队列步骤在 git-commit 技能 `references/shared-worktree-race.md`
 
 **案例文件**：`.agents/skills/record-bug-fix-memory/2026-07-02-git-commit-skill-violation.md`
 

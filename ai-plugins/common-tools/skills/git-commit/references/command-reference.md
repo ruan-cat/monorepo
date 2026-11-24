@@ -4,14 +4,14 @@
 
 ## PowerShell
 
-- 读取远程 raw 文件：`(Invoke-WebRequest -UseBasicParsing '<raw-url>').Content`
+- 读取 emoji/type：打开本技能 `references/commit-types.ts` 全文。不要为查表发起网络请求。
 - 预校验提交信息：`pnpm exec commitlint --edit commit-message.txt --strict`
 - 删除临时文件：`Remove-Item -LiteralPath commit-message.txt`
 - 删除临时文件（别名）：`del commit-message.txt`
 
 ## POSIX Shell (Bash / Zsh)
 
-- 读取远程 raw 文件：`curl -fsSL '<raw-url>'`
+- 读取 emoji/type：打开本技能 `references/commit-types.ts` 全文。不要为查表发起网络请求。
 - 预校验提交信息：`pnpm exec commitlint --edit commit-message.txt --strict`
 - 删除临时文件：`rm -- commit-message.txt`
 
