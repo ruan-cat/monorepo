@@ -4,9 +4,10 @@ user-invocable: true
 description: >-
   Use when 用户要在日常开发中真正用起 Memorix：读写记忆、恢复会话与交接、准备归档或清理、检查 health 与存储、
   排查 CodeGraph / dashboard / embedding、初始化项目黄金集、审核或捕获检索候选、精简 Memorix hooks，
-  以及排障 MCP 工具缺失、mode 选择、Node ABI、shim 劫持、WorkBuddy 启动链。
+  以及排障 MCP 工具缺失、mode 选择、Node ABI、shim 劫持、WorkBuddy 启动链、
+  跨仓库核对记忆落点、多个 agent 并发写同一实体，或 filesModified 混入未改文件。
 metadata:
-  version: "3.0.2"
+  version: "3.1.0"
 ---
 
 # use-memorix
@@ -54,15 +55,23 @@ metadata:
 
 平台事实：项目绑定硬门。活动会话存在不能跳过 MCP 根目录核对。不一致时先确认，再把当前工作区绝对路径传给 `projectRoot`。
 
-1. 在当前工作区运行 `memorix session context`，记下 CLI 项目 id 和根目录。
+1. 运行 `memorix session context --cwd <当前工作区绝对路径>`，记下 CLI 项目 id 和根目录。不带 `--cwd` 的结果不能当作这次核对。
 2. 读取 MCP `memorix_project_context`，记下它绑定的项目 id 和根目录。
 3. 两边都必须等于当前工作区。CLI 报本项目已有活动会话，不能代替这次核对。
 4. 有一边不是，停止 `memorix_store` 和 `memorix_resolve`。向用户展示两边的项目 id 与根目录，确认后第一件 MCP 调用才是 `memorix_session_start`，`projectRoot` 传当前工作区绝对路径。
 5. `session_start` 会关闭该项目上一个活动会话。确认前不调用。
 6. 绑定成功后再次核对。仍不一致就停止，不写。
-7. 只有 `session_start` 失败，才走 CLI 兜底。CLI 的工作目录必须是当前工作区。
+7. 本会话工具列表里没有 memorix MCP 时，跳过第 2–6 步。不调用 `memorix_session_start`，也不运行 `memorix session start`。只读和已经确认的存储直接走 CLI，并带同一条 `--cwd`。只有 MCP 工具在列表里且 `session_start` 失败，才改为 CLI。两种情况都不能靠进程当前目录。
 
-没有活动会话时，只读 `memorix session context` 仍然有效，MCP 写入不可用。这时只确认要不要新建会话，不要在同一条消息里同时确认 `store`、`session end` 或 `archive`。`0 active` 本身不是索引错误，也不是归档失败。归档是否成立只看 retention 域的候选硬门。本对话没有调用过 `session start` 时，不得声称自己的会话被其他代理关掉。说法和分轮见 `references/session-and-reasoning.md` 的「收尾时没有活动会话」。
+分区由显式路径决定，不由 agent 自称的工作区决定。CLI 与 MCP 用同一个路径，参数名不同：
+
+- CLI：会读出或写入项目分区的命令都必须带 `--cwd <当前工作区绝对路径>`，包括 `status`、`session context`、`context`、`search`、`memory detail`、`memory store`。不带 `--cwd` 等于未指定分区，输出可以是另一个项目。
+- MCP：工具没有 `--cwd`。对应参数是 `memorix_session_start` 的 `projectRoot`，值必须和上面的 `--cwd` 是同一条绝对路径。绑定前的 MCP 读写不算已经对准当前工作区。MCP 不在本会话工具列表里时，不要为了写入去启动会话。
+- `memorix memory store --cwd` 不创建会话。`memorix session start --cwd` 才会创建，并且关掉该项目上一个活动会话。用户只确认存储、不确认开会话时，用前者，不跑后者。
+
+两条路径对不上，或 CLI 打印出的项目 id、根目录有一项对不上，就停在第 4 步。多个 agent 写同一实体、`filesModified` 回读、主题键形状和编号不回收，见 `references/memory-operations.md` 的「并发写入与字段卫生」。
+
+没有活动会话时，只读 `memorix session context --cwd <当前工作区绝对路径>` 仍然有效，MCP 写入不可用。不带 `--cwd` 的 `0 active` 不能用来判断当前工作区。这时只确认要不要新建会话，不要在同一条消息里同时确认 `store`、`session end` 或 `archive`。`0 active` 本身不是索引错误，也不是归档失败。归档是否成立只看 retention 域的候选硬门。本对话没有调用过 `session start` 时，不得声称自己的会话被其他代理关掉。说法和分轮见 `references/session-and-reasoning.md` 的「收尾时没有活动会话」。
 
 ## 七域渐进路由
 
@@ -123,6 +132,10 @@ metadata:
 - 不把 query 正文、结果正文、observationId、凭据或用户主目录写进 tracked 资产。
 - 不隐藏或改写官方七技能，不声称本技能拥有官方 setup/升级所有权。
 - 不用静态 JSON、registry 或 `skills add` 冒充插件真假验证。
+- 不在 `--cwd` 与 MCP `projectRoot` 都等于当前工作区之前写入。
+- 不把 `filesModified` 留给自动抽取，写完不回读。
+- 不追加第二条记忆去纠正同一实体里已有的结论。
+- 不 resolve、不归档不是本对话写入的 observation，也不在正文里宣布别人的编号已作废。
 
 ## Resource Index
 

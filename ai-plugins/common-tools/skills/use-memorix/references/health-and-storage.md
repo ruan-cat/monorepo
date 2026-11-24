@@ -4,15 +4,15 @@
 
 ## 自动只读诊断
 
-| 检查项         | 命令                                                 | 关注点                                  |
-| :------------- | :--------------------------------------------------- | :-------------------------------------- |
-| 版本与命令面   | `memorix --version`、`memorix <cmd> --help`          | 当前能力边界，不照抄旧文档              |
-| 项目身份与绑定 | `memorix status`                                     | 是否绑定到预期仓库                      |
-| 健康总览       | `memorix doctor`                                     | project identity、embedding、data、冲突 |
-| 数据文件       | 看 `~/.memorix/` 主库、`-wal`、`-shm` 的大小与 mtime | 是否存在异常增长或长期未落盘            |
-| CodeGraph      | `memorix codegraph`                                  | 索引是否存在、是否 stale                |
-| Retention 现状 | `memorix retention`                                  | 是否存在官方候选，不在此执行归档        |
-| 存储与冲突     | `memorix audit`                                      | 归属健康、冲突记录                      |
+| 检查项         | 命令                                                 | 关注点                                          |
+| :------------- | :--------------------------------------------------- | :---------------------------------------------- |
+| 版本与命令面   | `memorix --version`、`memorix <cmd> --help`          | 当前能力边界，不照抄旧文档                      |
+| 项目身份与绑定 | `memorix status --cwd <当前工作区绝对路径>`          | 是否绑定到预期仓库；不带 `--cwd` 的项目 id 无效 |
+| 健康总览       | `memorix doctor --cwd <当前工作区绝对路径>`          | project identity、embedding、data、冲突         |
+| 数据文件       | 看 `~/.memorix/` 主库、`-wal`、`-shm` 的大小与 mtime | 是否存在异常增长或长期未落盘                    |
+| CodeGraph      | `memorix codegraph --cwd <当前工作区绝对路径>`       | 索引是否存在、是否 stale                        |
+| Retention 现状 | `memorix retention --cwd <当前工作区绝对路径>`       | 是否存在官方候选，不在此执行归档                |
+| 存储与冲突     | `memorix audit --cwd <当前工作区绝对路径>`           | 归属健康、冲突记录                              |
 
 只读诊断可以直接跑，但不要在报告里把历史版本号、检查项数量当成当前健康结论。
 

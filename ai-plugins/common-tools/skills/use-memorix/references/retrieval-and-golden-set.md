@@ -29,7 +29,7 @@ ascii = "hybrid"
 判定顺序（不要跳步）：
 
 1. 数据是否真的缺失：用 `memory detail` 查具体 id，而不是靠 search 未命中。
-2. 项目绑定是否正确：`memorix status`。
+2. 项目绑定是否正确：`memorix status --cwd <当前工作区绝对路径>`。不带 `--cwd` 的项目 id 不能用来判断。
 3. 索引是否健康：`doctor` 与索引状态。
 4. 是否只是 fuzzy-only 假召回：看 `matchedFields`。
 5. 才是 fallback / generation 链路是否降级。
