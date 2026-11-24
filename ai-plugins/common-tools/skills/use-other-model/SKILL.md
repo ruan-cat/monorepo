@@ -12,9 +12,10 @@ description: >-
   当用户或代理要求“使用其他模型/Provider”、节省 token、批量或多文件处理、预计超过 5 分钟的长任务、
   独立验证/安全审计、模型分层、provider/model 身份检查、OpenCode 默认/无头模型检查，
   或需要在 MCP、宿主原生子代理、独立 Claude Code、OpenCode provider 模式与默认内部模型之间选择时使用。
+  Cursor 里委托 Task 子代理、选择可传递的模型 slug、或核对当前会话模型清单时也使用。
 user-invocable: true
 metadata:
-  version: "0.10.0"
+  version: "0.11.0"
 ---
 
 # Use Other Model
@@ -24,6 +25,22 @@ metadata:
 把合适的任务可靠地委托给其他模型或独立 reviewer，同时保留主代理的最终责任、失败分层和可复核证据。
 
 这是一项**委托路由技能**，不是第二套 agent 平台。主文件只保留稳定入口、硬边界和快速检查；任务合同、状态机、验证细节、失败分流和启动模板按需读取 `references/`。
+
+## 触发路由
+
+先对上用户信号，再打开右边那一个文件。一次只进一条路径。
+
+| 用户信号                                    | 进入                                                                   |
+| :------------------------------------------ | :--------------------------------------------------------------------- |
+| 单次 MCP 调用                               | A：`references/method-a-mcp-tools.md`                                  |
+| 独立 Claude Code 会话、`claude -p`          | B：`references/method-b-independent-session.md`                        |
+| 指定了 OpenCode provider / model            | C：`references/opencode-provider-launch-templates.md`                  |
+| OpenCode 默认模型、headless、没写 `--model` | D：`references/opencode-headless-launch-templates.md`                  |
+| Cursor Task 子代理、要指定模型              | E：`references/cursor-host-subagents.md`                               |
+| 弱模型执行已经压平的清单                    | `references/weak-executor-contract.md`                                 |
+| 失败、重试、验收                            | `references/failure-routing.md`、`references/evidence-verification.md` |
+
+Cursor 路径只读 E 的那一份。slug 必须来自当前会话的模型清单；本技能里的清单只是 2026-11-24 的快照，冲突时会话清单为准。不在清单里的型号禁止传递，也禁止用别的型号顶替。
 
 ## 核心原则
 
@@ -86,7 +103,7 @@ metadata:
 
 - C 与 D 不互相替代；显式 provider/model 走 C，默认内部模型走 D。
 - OpenCode 直启与原生临时子代理默认互斥；只有用户明确要求嵌套时才组合。
-- E 只允许在宿主原生工具可指定模型时使用；不可指定模型（层级跟随主代理）时改走 B/C/D，或明确接受同层级模型并相应降低任务的判断要求。
+- E 只允许在宿主原生工具可指定模型时使用；不可指定模型（层级跟随主代理）时改走 B/C/D，或明确接受同层级模型并相应降低任务的判断要求。Cursor 的可传递 slug、`subagent_type` 和禁止顶替规则只以 `references/cursor-host-subagents.md` 为准。
 - E 的返回仍然是 `AGENT_PROPOSED_*` 候选状态；异步（后台运行 + 完成通知）委托不减少主代理的验收义务，主代理收到完成通知后必须立即执行验收。
 - “模型可发现”不等于“本次 session 已选中”。同名模型需要区分 `provider/model`。
 - A-E 是调用路径，不代表模型强度。复杂诊断、安全审计和最终判断仍交给强模型/主代理。
@@ -270,6 +287,7 @@ metadata:
 - **B：Claude Code 独立会话** → `references/method-b-independent-session.md` + `references/claude-code-launch-templates.md`
 - **C：OpenCode provider** → `references/opencode-provider-launch-templates.md`
 - **D：OpenCode 默认/headless** → `references/opencode-headless-launch-templates.md`
+- **E：Cursor 宿主 Task** → `references/cursor-host-subagents.md`
 - **任务封包** → `references/context-packet-template.md`
 - **失败分流** → `references/failure-routing.md`
 - **独立验证** → `references/evidence-verification.md`

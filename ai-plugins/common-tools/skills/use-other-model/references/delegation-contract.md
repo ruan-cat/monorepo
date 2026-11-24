@@ -104,6 +104,7 @@ git_commit_plan:
 3. 默认模型路径记录 `default`，并补充本次结构化事件实际暴露的 provider/model；事件没给就保持 unknown。
 4. `opencode models` 只证明模型可发现，不证明本次 session 已选中。
 5. 如果 CLI 只能给文本模型列表，保留原始文本并降低证据等级，不自行伪造机器可读结论。
+6. 路径 E 且宿主是 Cursor 时，可传递的 `model` 与 `subagent_type` 以 `references/cursor-host-subagents.md` 为准。会话清单优先于该文件里的日期快照。清单外的 slug 不能传，也不能用别的型号顶替。
 
 ## 3. 角色合同
 

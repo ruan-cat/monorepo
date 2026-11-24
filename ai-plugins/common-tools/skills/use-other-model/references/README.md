@@ -96,6 +96,12 @@
 
 默认省略 `--model` 时，不凭模型昵称猜 provider；以本次结构化事件为证据。
 
+### E：Cursor 宿主原生子代理
+
+- `cursor-host-subagents.md`
+
+只在用户要求 Cursor Task 子代理或指定模型时读取。slug 来自当前会话清单；文件里的列表是 2026-11-24 快照。
+
 ## 当前设计记忆
 
 - `design-memory.md`
