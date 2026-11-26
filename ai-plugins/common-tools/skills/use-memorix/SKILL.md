@@ -7,7 +7,7 @@ description: >-
   以及（仅在用户明确要求时）校准已安装的 MCP、mode 选择、Node ABI、shim 劫持、WorkBuddy 启动链、
   跨仓库核对记忆落点、多个 agent 并发写同一实体，或 filesModified 混入未改文件。
 metadata:
-  version: "4.0.1"
+  version: "4.0.2"
 ---
 
 # use-memorix
@@ -34,6 +34,8 @@ metadata:
 
 一次只进一个域；跨域时按「先诊断、再写入」顺序拆成两轮，不把多个写操作混在一次确认里。
 
+收尾刚写完的记忆必须再开一轮，这一轮不是第二次存储：对本轮每条 detail 能读到的新记录，用标题原词做向量检索。正文项目与向量行项目 id 不一致，只报告，不写黄金集，也不补第二条。两边一致，且结果是零候选或 fuzzy-only（`matchedFields` 只有 fuzzy 视为 0 命中）时，记忆轮结束；下一轮只进入 retrieval 域，按 `references/retrieval-and-golden-set.md` 的「收尾漏检」准备当前 `--cwd` git 根的 `.memorix/golden-set/cases.json` 草案。fallback-generation 不单独触发。用户确认写入或明确跳过之前，不得报告收尾完成。
+
 ## 全局安全门：读自动，写确认
 
 | 操作                                               | 默认行为             | 授权粒度                         |
@@ -49,6 +51,7 @@ metadata:
 | config 修改、embedding provider/缓存/索引修复      | 不自动执行           | 精确字段级或动作级确认           |
 | dashboard 启动                                     | 不常驻自动启动       | 每次启动确认，并报告停止方式     |
 | 项目黄金集初始化、ZCode hook 首次安装              | 不自动               | 展示将写入的文件后确认           |
+| 收尾漏检写入已有 cases.json                        | 先展示草案           | 每次单独确认；做好存储不是授权   |
 | 已安装薄启动器升级                                 | 无条件自动升级       | 仅限带 canonical marker 的启动器 |
 
 写操作前必须能回答三件事：写哪个库/哪个文件、写什么内容摘要、如何回滚或验证。答不出就不要写。
@@ -69,15 +72,15 @@ metadata:
 
 ## 七域渐进路由
 
-| 域        | reference                                | 何时加载                                                   |
-| :-------- | :--------------------------------------- | :--------------------------------------------------------- |
-| setup     | `references/setup-and-hooks.md`          | hooks 降噪、setup/升级后的回归检查                         |
-| platform  | `references/platform-and-mcp.md`         | 用户已要求时的 MCP 校准、mode、ABI、shim、WorkBuddy 启动链 |
-| memory    | `references/memory-operations.md`        | context/search/detail/store/resolve 的读写与判读           |
-| session   | `references/session-and-reasoning.md`    | session 生命周期、handoff、reasoning 路由                  |
-| retention | `references/retention-and-archive.md`    | 归档候选、快照/预演、cleanup 边界                          |
-| health    | `references/health-and-storage.md`       | doctor/status、WAL、VACUUM、CodeGraph、dashboard           |
-| retrieval | `references/retrieval-and-golden-set.md` | embedding、黄金集、ZCode 捕获、审核、联邦导出              |
+| 域        | reference                                | 何时加载                                                    |
+| :-------- | :--------------------------------------- | :---------------------------------------------------------- |
+| setup     | `references/setup-and-hooks.md`          | hooks 降噪、setup/升级后的回归检查                          |
+| platform  | `references/platform-and-mcp.md`         | 用户已要求时的 MCP 校准、mode、ABI、shim、WorkBuddy 启动链  |
+| memory    | `references/memory-operations.md`        | context/search/detail/store/resolve 的读写与判读            |
+| session   | `references/session-and-reasoning.md`    | session 生命周期、handoff、reasoning 路由                   |
+| retention | `references/retention-and-archive.md`    | 归档候选、快照/预演、cleanup 边界                           |
+| health    | `references/health-and-storage.md`       | doctor/status、WAL、VACUUM、CodeGraph、dashboard            |
+| retrieval | `references/retrieval-and-golden-set.md` | embedding、黄金集、ZCode 捕获、审核、联邦导出、收尾漏检草案 |
 
 不要一次性加载七个 reference；先按上表选一个，执行后再决定是否需要第二个。
 
@@ -123,12 +126,13 @@ metadata:
 - 不用 stale / age / low-evidence / orphan 任一单项发起归档。
 - 不把 `MEMORIX_DATA_DIR` 指向项目 `.memorix/`；项目 `.memorix/` 只承载 `hooks.json` 与 `golden-set/`。
 - 不在 hook 链上调用 Memorix、跑 shell、联网、起后台进程或写 tracked case。
-- 不把 query 正文、结果正文、observationId、凭据或用户主目录写进 tracked 资产。
+- 不把检索结果正文、凭据或用户主目录写进 tracked 资产。黄金集 case 的 query 只用脱敏后的标题原词，observation id 只放 localHints。
 - 不隐藏或改写官方七技能，不声称本技能拥有官方 setup/升级所有权。
 - 不用静态 JSON、registry 或 `skills add` 冒充插件真假验证。
 - 不在 CLI `--cwd` 核对通过之前写入；不默认用 MCP 做日常读写。
 - 不把 `filesModified` 留给自动抽取，写完不回读。
 - 不追加第二条记忆去纠正同一实体里已有的结论。
+- 不把「写完检索不到，不补第二条」当成收尾完成。零候选或 fuzzy-only 仍要进入下一轮 retrieval 草案；确认前不写 `cases.json`。
 - 不 resolve、不归档不是本对话写入的 observation，也不在正文里宣布别人的编号已作废。
 
 ## Resource Index

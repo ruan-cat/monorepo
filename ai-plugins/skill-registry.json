@@ -227,7 +227,7 @@
       "plugin": "common-tools",
       "name": "use-memorix",
       "description": "Use when 用户要在日常开发中真正用起 Memorix：读写记忆、恢复会话与交接、准备归档或清理、检查 health 与存储、 排查 CodeGraph / dashboard / embedding、初始化项目黄金集、审核或捕获检索候选、精简 Memorix hooks， 以及（仅在用户明确要求时）校准已安装的 MCP、mode 选择、Node ABI、shim 劫持、WorkBuddy 启动链、 跨仓库核对记忆落点、多个 agent 并发写同一实体，或 filesModified 混入未改文件。",
-      "version": "4.0.1",
+      "version": "4.0.2",
       "entry": "ai-plugins/common-tools/skills/use-memorix/SKILL.md"
     },
     {

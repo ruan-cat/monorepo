@@ -42,7 +42,23 @@ detail 能读到正文、当前项目的向量查询却没有这条时，先比�
 
 ### 创建时机
 
-只在普通项目首次出现**真实检索失效**时才提出初始化。真实失效是可复核的判断，不是空想例子。创建 tracked 文件与合并 `.gitignore` 前要确认。
+只在普通项目首次出现**真实检索失效**时才提出初始化。真实失效是可复核的判断，不是空想例子。创建 tracked 文件与合并 `.gitignore` 前要确认。目录已经存在时不要再初始化；本轮刚写入记录的漏检按「收尾漏检」准备草案。
+
+### 收尾漏检
+
+存储轮已经结束，并且下面四条全部成立时，才进入这里：
+
+- 这条是本轮刚 `memory store` 成功的记录。
+- `memory detail` 能读到正文。
+- 正文所在项目与向量行的 project id 一致。
+- 用标题原词做的向量检索是零候选，或命中的 `matchedFields` 只有 fuzzy。
+
+项目 id 不一致：只向用户报告，不准备草案，不补第二条记忆。fallback-generation 本身不构成收尾漏检；同一结果若已经是零候选或 fuzzy-only，仍按上面的条件进入。
+
+1. 当前 git 根没有黄金集目录：只提出初始化。创建 tracked 文件前必须确认。不要把草案写进 common 的 `docs/memorix/retrieval-golden-set/`。
+2. `.memorix/golden-set/cases.json` 已在当前 git 根：展示一条 case 草案，确认后才写入。草案沿用下面的 case 最小化：脱敏后的标题原词作 query，`failureKinds` 取 `zero-candidate` 或 `fuzzy-only`，`expected.mustMatch` 至少一项，observation id 只放 `localHints.observationIds`。不写结果正文、token、绝对主目录。
+3. 「做好存储」不是写入黄金集的授权。用户确认写入，或明确跳过这一条之前，不得报告收尾完成。
+4. 不跨仓库写 common 的研究目录，也不另存一条相同记忆。
 
 ### 目录合同
 
