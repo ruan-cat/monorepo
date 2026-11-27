@@ -1,0 +1,349 @@
+#!/usr/bin/env python3
+"""判断指定仓库的 PR 是否已合并，以及某个 Release 是否包含该合并提交。
+
+只读调用 gh。不接受凭据。仓库和 PR 号由参数传入。
+成立是退出码 0 且 JSON 的 predicate 为 true。
+全部候选都完整比完且都不包含时退出码 1。
+没算完退出码 2。-h 和 --help 也打印 predicate 为 null，并以 2 结束。
+某一条 compare 是 404、字段为空或没比完时跳过该条，继续比其余。
+不创建、不修改、不删除任何文件。
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+from datetime import datetime
+from urllib.parse import quote
+
+REPO_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$")
+PR_RE = re.compile(r"^[1-9][0-9]*$")
+SECRET_FLAGS = {"--token", "--password", "--pat", "--auth", "-t"}
+SECRET_MARKERS = ("ghp_", "github_pat_", "gho_", "ghu_", "ghs_", "ghr_")
+SECRET_PREFIXES = ("GH_TOKEN=", "GITHUB_TOKEN=", "GH_ENTERPRISE_TOKEN=")
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = list(sys.argv[1:] if argv is None else argv)
+    if credential_argument(args):
+        return emit(2, {"predicate": None, "reason": "rejected_credentials"})
+    if any(arg in {"-h", "--help"} for arg in args):
+        return emit(2, {"predicate": None, "reason": "bad_args"})
+    parser = argparse.ArgumentParser(
+        prog="dsh-pr-release-predicate",
+        description="只读判断 PR 已合并，且某个 Release 包含该合并提交。不接受凭据。",
+    )
+    parser.add_argument("--repo", required=True, help="OWNER/NAME，由参数传入")
+    parser.add_argument("--pr", required=True, help="PR 号，由参数传入")
+    try:
+        parsed = parser.parse_args(args)
+    except SystemExit as exc:
+        code = exc.code
+        if code is None or code == 0:
+            return emit(2, {"predicate": None, "reason": "bad_args"})
+        return code if isinstance(code, int) else 2
+    repo = parsed.repo
+    pr = parsed.pr
+    if not REPO_RE.fullmatch(repo) or not PR_RE.fullmatch(pr):
+        return emit(2, {"predicate": None, "reason": "bad_args"})
+    try:
+        return evaluate(repo, pr)
+    except GhError as exc:
+        payload: dict[str, object] = {
+            "predicate": None,
+            "reason": "gh_failed",
+            "repo": repo,
+            "pr": pr,
+        }
+        if exc.detail:
+            payload["detail"] = exc.detail
+        return emit(2, payload)
+    except subprocess.TimeoutExpired:
+        return emit(2, {"predicate": None, "reason": "gh_failed", "repo": repo, "pr": pr, "detail": "timeout"})
+
+
+class GhError(Exception):
+    def __init__(self, detail: str) -> None:
+        self.detail = detail
+
+
+def credential_argument(args: list[str]) -> bool:
+    for arg in args:
+        flag = arg.split("=", 1)[0]
+        if flag in SECRET_FLAGS or arg.startswith(SECRET_PREFIXES):
+            return True
+        if "://" in arg or "@" in arg:
+            return True
+        lowered = arg.lower()
+        for marker in SECRET_MARKERS:
+            if marker.lower() in lowered:
+                return True
+        if "bearer " in lowered:
+            return True
+    return False
+
+
+def evaluate(repo: str, pr: str) -> int:
+    viewed = gh_json(["pr", "view", pr, "--repo", repo, "--json", "state,mergedAt,mergeCommit"])
+    if not isinstance(viewed, dict):
+        raise GhError("pr view 不是对象")
+    state = viewed.get("state")
+    merge = viewed.get("mergeCommit")
+    oid = merge.get("oid") if isinstance(merge, dict) else None
+    merged_at_raw = viewed.get("mergedAt")
+    common: dict[str, object] = {
+        "repo": repo,
+        "pr": pr,
+        "state": state if isinstance(state, str) else None,
+    }
+    if state != "MERGED":
+        return emit(1, {"predicate": False, "reason": "state_not_merged", **common})
+    if not isinstance(oid, str) or not re.fullmatch(r"[0-9a-fA-F]{40}", oid):
+        return emit(1, {"predicate": False, "reason": "merge_commit_missing", **common})
+    if not isinstance(merged_at_raw, str) or not merged_at_raw:
+        return emit(1, {"predicate": False, "reason": "merged_at_missing", **common, "merge": oid})
+    merged_at = parse_time(merged_at_raw)
+    if merged_at is None:
+        raise GhError("mergedAt 无法解析")
+
+    candidates: list[tuple[datetime, str, str]] = []
+    for item in list_releases(repo):
+        if not isinstance(item, dict):
+            continue
+        tag = item.get("tagName")
+        published_raw = item.get("publishedAt")
+        if not isinstance(tag, str) or not tag or tag.startswith("-") or ".." in tag or any(ch.isspace() for ch in tag):
+            continue
+        if not isinstance(published_raw, str) or not published_raw:
+            continue
+        published = parse_time(published_raw)
+        if published is None or published < merged_at:
+            continue
+        candidates.append((published, published_raw, tag))
+    candidates.sort(key=lambda row: row[0], reverse=True)
+
+    # 404、字段为空或没比完只跳过这一条。全部候选都比完且都不包含才是退出码 1。
+    incomplete = 0
+    for _published, published_raw, tag in candidates:
+        compared = compare_release(repo, tag, oid)
+        if compared is None:
+            incomplete += 1
+            continue
+        if release_contains_merge(compared, oid):
+            return emit(
+                0,
+                {
+                    "predicate": True,
+                    "repo": repo,
+                    "pr": pr,
+                    "state": "MERGED",
+                    "merge": oid,
+                    "mergedAt": merged_at_raw,
+                    "tag": tag,
+                    "publishedAt": published_raw,
+                    "ahead_by": 0,
+                    "status": compared.get("status"),
+                    "merge_base": compared.get("base"),
+                    "compare": f"{tag}...{oid}",
+                },
+            )
+    if incomplete:
+        return emit(
+            2,
+            {
+                "predicate": None,
+                "reason": "compare_incomplete",
+                "repo": repo,
+                "pr": pr,
+                "state": "MERGED",
+                "merge": oid,
+                "mergedAt": merged_at_raw,
+                "candidates": len(candidates),
+                "incomplete": incomplete,
+            },
+        )
+    reason = "no_release_after_merge" if not candidates else "release_not_containing_merge"
+    return emit(
+        1,
+        {
+            "predicate": False,
+            "reason": reason,
+            "repo": repo,
+            "pr": pr,
+            "state": "MERGED",
+            "merge": oid,
+            "mergedAt": merged_at_raw,
+            "candidates": len(candidates),
+        },
+    )
+
+
+def release_contains_merge(compared: dict, merge_oid: str) -> bool:
+    ahead = compared.get("ahead")
+    status = compared.get("status")
+    base = compared.get("base")
+    if type(ahead) is not int or not isinstance(status, str) or not isinstance(base, str):
+        return False
+    return ahead == 0 and status in {"behind", "identical"} and base.lower() == merge_oid.lower()
+
+
+def compare_release(repo: str, tag: str, oid: str) -> dict | None:
+    owner, name = repo.split("/", 1)
+    # compare/{tag}...{merge}。对调后 ahead_by == 0 会把尚未包含这次合并的 tag 判成命中。
+    path = (
+        f"repos/{quote(owner, safe='')}/{quote(name, safe='')}/compare/"
+        f"{quote(tag, safe='')}...{quote(oid, safe='')}"
+    )
+    try:
+        completed = run_gh(
+            [
+                "api",
+                path,
+                "--jq",
+                "{ahead:.ahead_by,status:.status,base:.merge_base_commit.sha}",
+            ]
+        )
+    except (GhError, subprocess.TimeoutExpired):
+        return None
+    if completed.returncode != 0:
+        return None
+    try:
+        payload = first_value(completed.stdout)
+    except GhError:
+        return None
+    if isinstance(payload, dict) and compare_finished(payload):
+        return payload
+    return None
+
+
+def compare_finished(payload: dict) -> bool:
+    ahead = payload.get("ahead")
+    status = payload.get("status")
+    base = payload.get("base")
+    if type(ahead) is not int:
+        return False
+    if not isinstance(status, str) or not status.strip():
+        return False
+    if not isinstance(base, str) or not base.strip():
+        return False
+    return True
+
+
+def list_releases(repo: str) -> list[object]:
+    owner, name = repo.split("/", 1)
+    path = f"repos/{quote(owner, safe='')}/{quote(name, safe='')}/releases"
+    completed = run_gh(
+        [
+            "api",
+            "--paginate",
+            path,
+            "--jq",
+            ".[] | {tagName:.tag_name,publishedAt:.published_at}",
+        ]
+    )
+    if completed.returncode != 0:
+        raise GhError(redact(completed.stderr) or f"releases exit {completed.returncode}")
+    found: list[object] = []
+    for item in json_values(completed.stdout):
+        if isinstance(item, list):
+            found.extend(item)
+        else:
+            found.append(item)
+    return found
+
+
+def gh_json(args: list[str]) -> object:
+    completed = run_gh(args)
+    if completed.returncode != 0:
+        raise GhError(redact(completed.stderr) or f"gh exit {completed.returncode}")
+    payload = first_value(completed.stdout)
+    if payload is None:
+        raise GhError("gh 没有 JSON")
+    return payload
+
+
+def run_gh(args: list[str]) -> subprocess.CompletedProcess[str]:
+    env = os.environ.copy()
+    env["GH_PROMPT_DISABLED"] = "1"
+    env["GH_NO_UPDATE_NOTIFIER"] = "1"
+    env["GH_FORCE_TTY"] = "0"
+    env["GH_PAGER"] = ""
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    try:
+        return subprocess.run(
+            ["gh", *args],
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=env,
+            stdin=subprocess.DEVNULL,
+            timeout=120,
+        )
+    except OSError as exc:
+        raise GhError("无法执行 gh") from exc
+
+
+def first_value(text: str) -> object | None:
+    values = json_values(text)
+    if not values:
+        return None
+    return values[0]
+
+
+def json_values(text: str) -> list[object]:
+    decoder = json.JSONDecoder()
+    index = 0
+    length = len(text)
+    found: list[object] = []
+    while index < length:
+        while index < length and text[index].isspace():
+            index += 1
+        if index >= length:
+            break
+        try:
+            value, end = decoder.raw_decode(text, index)
+        except json.JSONDecodeError as exc:
+            raise GhError("gh 输出不是 JSON") from exc
+        found.append(value)
+        index = end
+    return found
+
+
+def parse_time(value: str) -> datetime | None:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return None
+    return parsed
+
+
+def redact(text: str) -> str:
+    cleaned = re.sub(r"(?i)(ghp_|github_pat_|gho_|ghu_|ghs_|ghr_)[A-Za-z0-9_]+", "***REMOVED***", text)
+    cleaned = re.sub(r"(?i)bearer\s+\S+", "Bearer ***REMOVED***", cleaned)
+    cleaned = re.sub(
+        r"(?i)(x-access-token|authorization|token|access_token|gh_token|github_token)\s*[:=]\s*\S+",
+        r"\1=***REMOVED***",
+        cleaned,
+    )
+    return " ".join(cleaned.split())[:180]
+
+
+def emit(code: int, payload: dict[str, object]) -> int:
+    json.dump(payload, sys.stdout, ensure_ascii=False, separators=(",", ":"))
+    sys.stdout.write("\n")
+    return code
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except BrokenPipeError:
+        raise SystemExit(2)

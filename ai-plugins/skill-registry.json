@@ -223,6 +223,14 @@
       "entry": "ai-plugins/dev-skills/skills/use-agent-browser/SKILL.md"
     },
     {
+      "id": "use-cloud-harness",
+      "plugin": "common-tools",
+      "name": "use-cloud-harness",
+      "description": "当 deepseek-harness 自动化任务、PR 与 Release 谓词、醒来先 git fetch、收尾开 PR、dsh-admin-dm 私聊时使用。 也用于 dsh-pr-release-predicate、dsh-schedule、任务包 ops/ 里的一次性 root 命令，以及有人要用人工放行、对调 compare、未发版的默认分支、watch.yaml、n8n、停掉定时任务或手写 schedule 文件来绕过不成立的谓词。",
+      "version": "1.0.1",
+      "entry": "ai-plugins/common-tools/skills/use-cloud-harness/SKILL.md"
+    },
+    {
       "id": "use-memorix",
       "plugin": "common-tools",
       "name": "use-memorix",

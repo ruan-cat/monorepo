@@ -178,6 +178,7 @@ Codex 通过 `.codex-plugin/plugin.json` 只加载本插件的 `skills/`。现�
 - **pr-ruancat-repo**: 对固定清单内的多个 GitHub 仓库批量发起统一内容 PR（协调者 + 多子代理；仓库清单见 `references/target-repos.md`）
 - **rebase2main**: 将当前开发分支通过 git rebase 同步到 main 分支，推送后切回原分支
 - **release-ai-plugins**: 管理 `ai-plugins` 多插件与多平台（Claude/Cursor）插件商城版本与文档链接，负责版本同步、清单校验、更新日志与安装文档一致性
+- **use-cloud-harness**: 规定 deepseek-harness 的执行位置、PR 与 Release 谓词、醒来对齐、收尾 PR 基线和私聊；调度与谓词脚本在技能目录的 scripts/ 下
 - **use-other-model**: 指导主代理驱动其他 AI 模型（MiniMax、Gemini）完成任务，实现 50–80% token 节省
 - **use-memorix**: Memorix 日常权威入口，按 setup / platform / memory / session / retention / health / retrieval 七域渐进路由；读自动、写确认，归档有硬门，并治理项目黄金集、ZCode 检索候选与联邦导出
 

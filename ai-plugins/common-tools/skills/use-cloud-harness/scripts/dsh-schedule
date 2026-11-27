@@ -1,0 +1,203 @@
+#!/usr/bin/env python3
+"""对正在运行的 deepseek-harness 做定时任务的列出、创建、修改和删除。
+
+只走 127.0.0.1:3080 的 schedule/catalog、schedule/create、schedule/edit。
+不写 ~/.dsh/storages/schedule/tasks/。不打印启动令牌。
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import subprocess
+import sys
+import uuid
+from http.client import HTTPConnection
+
+HOST = "127.0.0.1"
+PORT = 3080
+UNIT = "deepseek-harness.service"
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="维护正在运行的 deepseek-harness 定时任务")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    sub.add_parser("list", help="列出全部定时任务")
+
+    create = sub.add_parser("create", help="创建一条每 N 秒运行的任务")
+    create.add_argument("--title", required=True)
+    create.add_argument("--prompt-file", required=True)
+    create.add_argument("--every-seconds", required=True, type=int)
+    create.add_argument("--cwd", required=True)
+
+    edit = sub.add_parser("edit", help="修改一条已有任务")
+    edit.add_argument("--id", required=True)
+    edit.add_argument("--expected-updated-at")
+    edit.add_argument("--title")
+    edit.add_argument("--prompt-file")
+    edit.add_argument("--every-seconds", type=int)
+    active = edit.add_mutually_exclusive_group()
+    active.add_argument("--pause", action="store_true")
+    active.add_argument("--resume", action="store_true")
+
+    delete = sub.add_parser("delete", help="删除一条任务")
+    delete.add_argument("--id", required=True)
+    delete.add_argument("--expected-updated-at")
+
+    args = parser.parse_args()
+    cookie = connect()
+    if args.command == "list":
+        return show(call(cookie, "schedule/catalog", {}))
+    if args.command == "create":
+        if args.every_seconds < 60:
+            raise SystemExit("every-seconds 必须至少 60")
+        request = {
+            "title": args.title,
+            "prompt": read_prompt(args.prompt_file),
+            "timing": {"kind": "every", "every_seconds": args.every_seconds},
+            "target": {"kind": "new_once", "create": {"cwd": args.cwd}},
+        }
+        return show(call(cookie, "schedule/create", {"request": request}))
+    if args.command == "edit":
+        patch: dict = {}
+        if args.title is not None:
+            patch["title"] = args.title
+        if args.prompt_file is not None:
+            patch["prompt"] = read_prompt(args.prompt_file)
+        if args.every_seconds is not None:
+            if args.every_seconds < 60:
+                raise SystemExit("every-seconds 必须至少 60")
+            patch["timing"] = {"kind": "every", "every_seconds": args.every_seconds}
+        if args.pause:
+            patch["active"] = False
+        if args.resume:
+            patch["active"] = True
+        if not patch:
+            raise SystemExit("edit 至少要改一个字段")
+        request = {"id": args.id, "action": "update", "patch": patch}
+        if args.expected_updated_at:
+            request["expectedUpdatedAt"] = args.expected_updated_at
+        return show(call(cookie, "schedule/edit", {"request": request}))
+    request = {"id": args.id, "action": "delete"}
+    if args.expected_updated_at:
+        request["expectedUpdatedAt"] = args.expected_updated_at
+    return show(call(cookie, "schedule/edit", {"request": request}))
+
+
+def connect() -> str:
+    token = launch_token()
+    conn = HTTPConnection(HOST, PORT, timeout=10)
+    conn.request(
+        "GET",
+        "/connect?token=" + token + "&interactions=none",
+        headers={"Host": f"{HOST}:{PORT}"},
+    )
+    resp = conn.getresponse()
+    cookie = resp.getheader("set-cookie")
+    resp.read()
+    if resp.status != 302 or not cookie:
+        raise SystemExit(f"connect 失败：HTTP {resp.status}")
+    return cookie.split(";", 1)[0]
+
+
+def launch_token() -> str:
+    started = subprocess.check_output(
+        ["systemctl", "show", "-p", "ActiveEnterTimestamp", "--value", UNIT],
+        text=True,
+    ).strip()
+    log = subprocess.check_output(
+        ["journalctl", "-u", UNIT, "--since", started, "--no-pager", "-o", "cat"],
+        text=True,
+        errors="replace",
+    )
+    found = re.findall(r"token=([A-Za-z0-9._~-]+)", log)
+    if not found:
+        raise SystemExit("journal 里没有这次启动的令牌")
+    return found[-1]
+
+
+def call(cookie: str, method: str, args: dict) -> dict:
+    body = json.dumps(
+        {
+            "type": "client-request",
+            "rpcId": str(uuid.uuid4()),
+            "method": method,
+            "payload": {"args": args},
+        }
+    )
+    conn = HTTPConnection(HOST, PORT, timeout=20)
+    conn.request(
+        "POST",
+        "/api/" + method,
+        body=body,
+        headers={
+            "Host": f"{HOST}:{PORT}",
+            "Content-Type": "application/json",
+            "Cookie": cookie,
+        },
+    )
+    resp = conn.getresponse()
+    raw = resp.read().decode("utf-8", "replace")
+    if resp.status != 200:
+        raise SystemExit(f"{method} HTTP {resp.status}")
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        raise SystemExit(f"{method} 返回的不是 JSON")
+    result = data.get("result", {})
+    if not result.get("ok"):
+        err = result.get("error", {})
+        message = str(err.get("message", ""))
+        message = re.sub(r"token=[A-Za-z0-9._~-]+", "token=***", message)
+        raise SystemExit(f"{err.get('code')} {message[:400]}")
+    return result.get("value")
+
+
+def read_prompt(path: str) -> str:
+    with open(path, encoding="utf-8") as handle:
+        prompt = handle.read().strip()
+    if not prompt:
+        raise SystemExit("prompt 文件是空的")
+    return prompt
+
+
+def show(value) -> int:
+    rows = value if isinstance(value, list) else [value]
+    if not rows:
+        print("count 0")
+        return 0
+    if isinstance(rows[0], dict) and rows[0].get("deleted") is True:
+        print("deleted", rows[0].get("id"))
+        return 0
+    print("count", len(rows))
+    for item in rows:
+        if not isinstance(item, dict):
+            print(item)
+            continue
+        if item.get("code"):
+            print("miss", item.get("id"), item.get("code"))
+            continue
+        target = item.get("target") or {}
+        cwd = (target.get("create") or {}).get("cwd", "")
+        every = item.get("everySeconds", "")
+        print(
+            "\t".join(
+                [
+                    str(item.get("id", "")),
+                    str(item.get("status", "")),
+                    str(item.get("kind", "")),
+                    str(every),
+                    str(item.get("scheduledAt", "")),
+                    str(item.get("updatedAt", "")),
+                    cwd,
+                    str(item.get("title", "")),
+                ]
+            )
+        )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
