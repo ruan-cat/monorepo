@@ -5,7 +5,7 @@ description: >-
   当 deepseek-harness 自动化任务、PR 与 Release 谓词、醒来先 git fetch、收尾开 PR、dsh-admin-dm 私聊时使用。
   也用于 dsh-pr-release-predicate、dsh-schedule、任务包 ops/ 里的一次性 root 命令，以及有人要用人工放行、对调 compare、未发版的默认分支、watch.yaml、n8n、停掉定时任务或手写 schedule 文件来绕过不成立的谓词。
 metadata:
-  version: "1.0.1"
+  version: "1.1.0"
 ---
 
 # use-cloud-harness
@@ -25,6 +25,8 @@ metadata:
 执行时按下面的顺序和五条纪律做。标准输出的字段形状见纪律 1。本技能不写入某一个任务包的路径、仓库名或 PR 号。
 
 谓词脚本只放在本技能。它不是一次性 root 命令，是通用谓词脚本。不安装到 `/usr/local/sbin`，不配 sudoers，用完不删。
+
+任务包只写业务：看哪个仓库的哪个 PR、间隔、工作区，以及谓词成立后要改哪些文件。任务包不判断自己是否跑在 deepseek-harness 里，不写调度 id，不写 `dsh-schedule delete`，也不写执行位置。定时任务的自我清洁由本技能做。
 
 ## 触发条件
 
@@ -56,13 +58,14 @@ metadata:
 条目编号是纪律编号，不是同一次醒来的先后。先后是：
 
 1. 对齐任务仓库（纪律 3）。对齐失败就停业务，不开 PR，不私聊，不改 git 历史。若任务包交接已经写明这一次业务做完、只差删除，则即使对齐失败，仍执行该任务包写死的删除命令，并在该命令退出码为 0 之后做 `test ! -e`。删完仍停，不开 PR、不私聊。没有这样的交接记录时，对齐失败不得提前删一次性命令。
-2. 重读任务包，再重算谓词（纪律 1）。只有退出码 0 且 JSON 的 `predicate` 为 true 才算成立；不成立就停。重读后若交接已经记下这次合并提交对应的收尾 PR 已经打开，就停：不再做后续步骤，不再开第二个 PR，不再私聊。定时任务删不删仍只按任务包。
+2. 重读任务包，再重算谓词（纪律 1）。只有退出码 0 且 JSON 的 `predicate` 为 true 才算成立；不成立就停，不删除定时任务。重读后若交接已经记下这次合并提交对应的收尾 PR 已经打开，就由本技能删除叫醒这次的那一条定时任务，然后停：不再做后续步骤，不再开第二个 PR，不再私聊。
 3. 成立才做任务包写明的后续步骤。
 4. 任务包若有一次性 root 命令，先执行该任务包写死的删除命令。只有本次醒来里这条命令退出码为 0 之后，同一轮的 `test ! -e` 才算数。没确认就停。从未安装的路径不能因为现在不存在就开 PR 或私聊。没有一次性命令则跳过这一步。
 5. 提交只能先对每个路径执行 `git add -- <路径>`，再 `git commit --` 同一批路径。提交说明按任务包写，放在 `--` 前面。提交前若 `git diff --cached --name-only` 出现任务包没点名的路径，就停，不要提交。然后推送，再按纪律 5 用拉分支前记下的基线作为 `gh pr create` 的 `--base`。两次醒来重叠时，以第 2 步重读到的交接记录为准：这次合并提交对应的收尾 PR 已经打开，就不要再推送，不要再开第二个，不要私聊。失败就停，不要停定时任务，不要发私聊。
-6. 上面都完成后，才把一段文字从标准输入交给 `sudo -n /usr/local/sbin/dsh-admin-dm`（纪律 4）。
+6. 上面都完成后，才把一段文字从标准输入交给 `sudo -n /usr/local/sbin/dsh-admin-dm`（纪律 4）。标准输出是 `sent` 加人数，才算这次醒来做完。
+7. 私聊成功之后，本技能删除叫醒这次的那一条定时任务。在正在读的这份 SKILL.md 所在目录执行 `python3 scripts/dsh-schedule delete-current --task-dir <提示词最后一行的任务包目录>`。命中不是恰好一条就不删。任务包不提供 id。谓词不成立、对齐失败、开 PR 失败或私聊失败时不删，留给下一次醒来。
 
-任务包授权后只 `create` 一次。之后每次醒来走上面六步。「停」是不开 PR、不私聊、不停定时任务，也不改 git 历史。定时任务什么时候删，只按那个任务包。
+任务包授权后只 `create` 一次。之后每次醒来走上面七步。「停」是不开 PR、不私聊、不改 git 历史。停的时候不删除定时任务，除非第 2 步已经确认这次收尾 PR 打开，那时由本技能删除叫醒自己的这一条。
 
 ```mermaid
 flowchart TD
@@ -80,7 +83,6 @@ flowchart TD
   reread --> ok{退出码 0 且 predicate 为 true?}
   ok -->|否| halt
   ok -->|是| openedBefore{交接已记下这次合并的收尾 PR?}
-  openedBefore -->|是| haltDone[停：不做后续步骤、不开第二个 PR、不私聊]
   openedBefore -->|否| job[做该任务包的后续步骤]
   job --> removed{无一次性命令或删除退出码 0 后 test 全过?}
   removed -->|否| halt
@@ -89,17 +91,17 @@ flowchart TD
   named -->|否| haltCommit[停：不要提交]
   named -->|是| committed["git commit -- 同一批路径"]
   committed --> again{交接已记下这次合并的收尾 PR?}
-  again -->|是| haltSecond[停：不再推送、不再开第二个 PR、不私聊]
+  again -->|是| self
   again -->|否| pr[推送并开 PR 到提前记下的基线]
   pr --> opened{PR 已打开?}
   opened -->|否| halt
   opened -->|是| dm[dsh-admin-dm 只私聊管理员]
+  dm --> self[技能 delete-current 删除叫醒自己的那一条]
+  openedBefore -->|是| self
+  self --> done[这条定时任务结束]
   halt --> wake
   haltDel --> wake
-  haltDone --> wake
   haltCommit --> wake
-  haltSecond --> wake
-  dm --> wake
 ```
 
 ## 一次性 root 命令
@@ -185,6 +187,7 @@ python3 scripts/dsh-schedule edit --id <id> --prompt-file <同一个提示词文
 python3 scripts/dsh-schedule edit --id <id> --every-seconds <至少 60 的秒数>
 python3 scripts/dsh-schedule edit --id <id> --pause
 python3 scripts/dsh-schedule delete --id <id>
+python3 scripts/dsh-schedule delete-current --task-dir <提示词最后一行的任务包目录>
 ```
 
 `--cwd` 用任务包写明的工作区。间隔至少 60 秒，第一次在一个间隔之后，目标是 `new_once`。启动令牌由 `dsh-schedule` 自己从 `deepseek-harness.service` 这次启动的 journal 里读取，不打印、不写进提示词，不写进参数，不写进本技能。
@@ -325,7 +328,7 @@ gh pr create --base <拉分支前记下的基线>
 
 add、commit、push、`gh pr create` 任一步失败就停。暂存名单里有任务包没点名的路径，也停，不要提交。把错误留在任务包要求的交接处。不要停掉定时任务，不要发私聊。
 
-定时任务什么时候删除，只按那个任务包。通用纪律不在开 PR 失败时删除它，也不要求每次成功都删除。
+定时任务的自我清洁由本技能做，不由任务包做。私聊成功，或交接已经记下这次收尾 PR，就删除叫醒这次的那一条。开 PR 失败时不删。通用纪律不在开 PR 失败时删除它。
 
 ## 这些说法都不算放行
 

@@ -46,10 +46,18 @@ def main() -> int:
     delete.add_argument("--id", required=True)
     delete.add_argument("--expected-updated-at")
 
+    current = sub.add_parser(
+        "delete-current",
+        help="按任务包目录删除叫醒本次的那一条",
+    )
+    current.add_argument("--task-dir", required=True)
+
     args = parser.parse_args()
     cookie = connect()
     if args.command == "list":
         return show(call(cookie, "schedule/catalog", {}))
+    if args.command == "delete-current":
+        return delete_current(cookie, args.task_dir)
     if args.command == "create":
         if args.every_seconds < 60:
             raise SystemExit("every-seconds 必须至少 60")
@@ -153,6 +161,48 @@ def call(cookie: str, method: str, args: dict) -> dict:
         message = re.sub(r"token=[A-Za-z0-9._~-]+", "token=***", message)
         raise SystemExit(f"{err.get('code')} {message[:400]}")
     return result.get("value")
+
+
+def delete_current(cookie: str, task_dir: str) -> int:
+    needle = task_dir.strip().strip("/")
+    if not needle:
+        raise SystemExit("task-dir 是空的")
+    rows = catalog_rows(call(cookie, "schedule/catalog", {}))
+    matches = [item for item in rows if task_dir_of(item) == needle]
+    if len(matches) != 1:
+        raise SystemExit(f"delete-current 命中 {len(matches)} 条，不删除")
+    ident = matches[0].get("id")
+    if not ident:
+        raise SystemExit("delete-current 命中的任务没有 id")
+    return show(
+        call(
+            cookie,
+            "schedule/edit",
+            {"request": {"id": ident, "action": "delete"}},
+        )
+    )
+
+
+def catalog_rows(value) -> list:
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, dict)]
+    if isinstance(value, dict):
+        for key in ("tasks", "items", "schedules"):
+            rows = value.get(key)
+            if isinstance(rows, list):
+                return [item for item in rows if isinstance(item, dict)]
+    return []
+
+
+def task_dir_of(item: dict) -> str:
+    prompt = str(item.get("prompt") or "")
+    lines = [line.strip() for line in prompt.splitlines() if line.strip()]
+    if not lines:
+        return ""
+    last = lines[-1]
+    if last.startswith("任务包目录："):
+        last = last.split("：", 1)[1].strip()
+    return last.strip("/")
 
 
 def read_prompt(path: str) -> str:
